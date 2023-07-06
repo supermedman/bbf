@@ -1,0 +1,38 @@
+[
+    {
+        "Name": "Pigmy",
+        "Type": "NONE",
+        "Cost": 10,
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Pigmy.png",
+        "Image": "attachment://Pigmy.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Pigmy-Background.jpg",
+
+        "ID": 0
+    },
+    {
+        "Name": "Fire Pigmy",
+        "Type": "Fire",
+        "Cost": 50,
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Fire-Pigmy.png",
+        "Image": "attachment://Fire-Pigmy.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Fire-Background.jpg",
+
+        "ID": 1
+    },
+    {
+        "Name": "Frost Pigmy",
+        "Type": "Frost",
+        "Cost": 80,
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Frost-Pigmy.png",
+        "Image": "attachment://Frost-Pigmy.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Frost-Background.jpg",
+
+        "ID": 2
+    }
+]

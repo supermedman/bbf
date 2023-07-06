@@ -1,0 +1,475 @@
+[
+    {
+        "Name": "Axe",
+        "Value": 10,
+
+        "Attack": 3,
+        "Type": "SLASH",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 1,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Rock",
+        "Value": 1,
+
+        "Attack": 3,
+        "Type": "BLUNT",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 2,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Shield",
+        "Value": 15,
+
+        "Attack": 3,
+        "Type": "BLUNT",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 3,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Big Sword",
+        "Value": 35,
+
+        "Attack": 3,
+        "Type": "SLASH",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 4,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Mercenary Bronze Skewer",
+        "Value": 10,
+
+        "Attack": 3,
+        "Type": "SLASH",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 5,
+        "Spec_id": 0
+    },
+    {
+        "Name": "War-Forged Steel Blade",
+        "Value": 35,
+
+        "Attack": 7,
+        "Type": "SLASH",
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 6,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Flimsy Skeletal Doomblade",
+        "Value": 20,
+
+        "Attack": 5,
+        "Type": "BLUNT",
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 7,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Reforged Gold Blade",
+        "Value": 40,
+
+        "Attack": 8,
+        "Type": "SLASH",
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 8,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Toothpick",
+        "Value": 5,
+
+        "Attack": 2,
+        "Type": "SLASH",
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 9,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Winterthorn",
+        "Value": 55,
+
+        "Attack": 14,
+        "Type": "FROST",
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 10,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Shiverspine",
+        "Value": 60,
+
+        "Attack": 15,
+        "Type": "FROST",
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 11,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Blinkstrike",
+        "Value": 150,
+
+        "Attack": 36,
+        "Type": "LIGHT",
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 12,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Facelifter",
+        "Value": 260,
+
+        "Attack": 45,
+        "Type": "SLASH",
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 13,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Destroyer of Lost Voices",
+        "Value": 450,
+
+        "Attack": 60,
+        "Type": "DARK",
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 14,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Silverlight, Etcher of the Dead",
+        "Value": 1400,
+
+        "Attack": 80,
+        "Type": "LIGHT",
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 15,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Nightcrackle, Terror of the Covenant",
+        "Value": 2400,
+
+        "Attack": 120,
+        "Type": "DARK",
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 16,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Reaper's Toll, Blade of Broken Families",
+        "Value": 4050,
+
+        "Attack": 140,
+        "Type": "DARK",
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 17,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Silence, Annihilation of the Setting Sun",
+        "Value": 8000,
+
+        "Attack": 170,
+        "Type": "FIRE",
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "Loot_id": 18,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Seism, Warblade of Delusions",
+        "Value": 160500,
+
+        "Attack": 355,
+        "Type": "NULL",
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 19,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Party Pooper",
+        "Value": 10000,
+
+        "Attack": 250,
+        "Type": "BLUNT",
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "Loot_id": 20,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Deserted Polearm",
+        "Value": 15,
+
+        "Attack": 5,
+        "Type": "BLUNT",
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "Loot_id": 21,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Orenmir, Might of Fools",
+        "Value": 150000,
+
+        "Attack": 320,
+        "Type": "NULL",
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 22,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Dawn, Heirloom of the Sun",
+        "Value": 9000,
+
+        "Attack": 200,
+        "Type": "FIRE",
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "Loot_id": 23,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Kinslayer",
+        "Value": 130,
+
+        "Attack": 28,
+        "Type": "SLASH",
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 24,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Rune-Forged Skeletal Broadsword",
+        "Value": 100,
+
+        "Attack": 20,
+        "Type": "SLASH",
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 25,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Reckoning, Pledge of Wraiths",
+        "Value": 2000,
+
+        "Attack": 113,
+        "Type": "MAGIC",
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 26,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Lament",
+        "Value": 225,
+
+        "Attack": 40,
+        "Type": "BLUNT",
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 27,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Venom",
+        "Value": 145,
+
+        "Attack": 30,
+        "Type": "MAGIC",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 28,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Gutrender, Sword of Broken Dreams",
+        "Value": 1500,
+
+        "Attack": 87,
+        "Type": "SLASH",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 29,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Oathkeeper's Glass Blade",
+        "Value": 55,
+
+        "Attack": 13,
+        "Type": "BLUNT",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 30,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Nightbane, Dawn of Trembling Hands",
+        "Value": 1600,
+
+        "Attack": 96,
+        "Type": "DARK",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 31,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Firesoul Guardian",
+        "Value": 50,
+
+        "Attack": 11,
+        "Type": "FIRE",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 32,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Worldbreaker",
+        "Value": 265,
+
+        "Attack": 47,
+        "Type": "BLUNT",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 33,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Fleshrender",
+        "Value": 480,
+
+        "Attack": 68,
+        "Type": "SLASH",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 34,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Mournblade, Cry of Hate",
+        "Value": 3500,
+
+        "Attack": 121,
+        "Type": "DARK",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 35,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Tyrhung",
+        "Value": 160000,
+
+        "Attack": 350,
+        "Type": "NULL",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 36,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Anduril, Runed Blade of the Dreadlord",
+        "Value": 145500,
+
+        "Attack": 310,
+        "Type": "NULL",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 37,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Tmp",
+        "Value": 10,
+
+        "Attack": 1,
+        "Type": " ",
+
+        "Rarity": " ",
+        "Rar_id": 11,
+
+        "Loot_id": 0,
+        "Spec_id": 0
+    }
+
+]

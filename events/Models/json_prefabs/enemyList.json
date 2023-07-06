@@ -1,0 +1,1702 @@
+[
+    {
+        "Name": "Goblin",
+        "Description": "Green, size of a toddler.. \nbet you could punt it\n$^)",
+        "Level": 1,
+        "MinDmg": 5,
+        "MaxDmg": 10,
+        "Health": 15,
+        "Defence": 0,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 5,
+        "XpMax": 15,
+
+        "ConstKey": 1,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Goblin.png",
+        "Image": "attachment://Goblin.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Slime",
+        "Description": "Its a slime :P",
+        "Level": 1,
+        "MinDmg": 4,
+        "MaxDmg": 6,
+        "Health": 10,
+        "Defence": 0,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 20,
+        "XpMax": 25,
+
+        "ConstKey": 13,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Slime.png",
+        "Image": "attachment://Slime.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Rock",
+        "Description": "A rock??",
+        "Level": 1,
+        "MinDmg": 1,
+        "MaxDmg": 1,
+        "Health": 5,
+        "Defence": 5,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 30,
+        "XpMax": 35,
+
+        "ConstKey": 14,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Rock.png",
+        "Image": "attachment://Rock.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Witch",
+        "Description": "moley moley moley mole..",
+
+        "Level": 2,
+        "MinDmg": 6,
+        "MaxDmg": 12,
+        "Health": 25,
+        "Defence": 0,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 10,
+        "XpMax": 18,
+
+        "ConstKey": 2,
+        "SpecId": 0
+    },
+    {
+        "Name": "Mornbody",
+        "Description": "An entity embodying grief",
+        "Level": 2,
+        "MinDmg": 5,
+        "MaxDmg": 12,
+        "Health": 30,
+        "Defence": 3,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 20,
+        "XpMax": 25,
+
+        "ConstKey": 17,
+        "SpecId": 0
+    },
+    {
+        "Name": "Tranceserpent",
+        "Description": "Like a foggy mirror! Hits like a truck tho ;O",
+
+        "Level": 3,
+        "MinDmg": 9,
+        "MaxDmg": 12,
+        "Health": 60,
+        "Defence": 1,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 20,
+        "XpMax": 28,
+
+        "ConstKey": 3,
+        "SpecId": 0
+    },
+    {
+        "Name": "Terrorling",
+        "Description": "A small and condensed entity of terror.",
+
+        "Level": 3,
+        "MinDmg": 10,
+        "MaxDmg": 15,
+        "Health": 45,
+        "Defence": 1,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 20,
+        "XpMax": 30,
+
+        "ConstKey": 4,
+        "SpecId": 0
+    },
+    {
+        "Name": "MystSoul",
+        "Description": "The real mystery, whos soul? \nOne of the servents of Mien",
+
+        "Level": 4,
+        "MinDmg": 12,
+        "MaxDmg": 23,
+        "Health": 20,
+        "Defence": 3,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 35,
+        "XpMax": 43,
+
+        "ConstKey": 5,
+        "SpecId": 0
+    },
+    {
+        "Name": "Ghost",
+        "Description": "Woah! Spoopy..",
+        "Level": 4,
+        "MinDmg": 12,
+        "MaxDmg": 23,
+        "Health": 40,
+        "Defence": 2,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 30,
+        "XpMax": 35,
+
+        "ConstKey": 15,
+        "SpecId": 0
+    },
+    {
+        "Name": "Steamfreak",
+        "Description": "One who can harrness the shroud.",
+
+        "Level": 5,
+        "MinDmg": 13,
+        "MaxDmg": 26,
+        "Health": 25,
+        "Defence": 3.5,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 40,
+        "XpMax": 47,
+
+        "ConstKey": 6,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Calm Man",
+        "Description": "A strangly calm man stands before you..",
+        "Level": 5,
+        "MinDmg": 13,
+        "MaxDmg": 26,
+        "Health": 30,
+        "Defence": 6,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 35,
+        "XpMax": 50,
+
+        "ConstKey": 17,
+        "SpecId": 0
+    },
+    {
+        "Name": "Hollowlich",
+        "Description": "All it takes is looking into the eyes of this creature to understand its name.",
+
+        "Level": 6,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 70,
+        "Defence": 1.5,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 60,
+        "XpMax": 70,
+
+        "ConstKey": 7,
+        "SpecId": 0
+    },
+    {
+        "Name": "Crypthound",
+        "Description": "Fabled to be one of the keepers for the gates of the underworld.",
+
+        "Level": 6,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 65,
+        "Defence": 4,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 80,
+        "XpMax": 90,
+
+        "ConstKey": 8,
+        "SpecId": 0
+    },
+    {
+        "Name": "Abyssthing",
+        "Description": "An entity with origins in the abyssal realm, best dispatch it quickly!",
+
+        "Level": 6,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 100,
+        "Defence": 0,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 70,
+        "XpMax": 75,
+
+        "ConstKey": 9,
+        "SpecId": 0
+    },
+    {
+        "Name": "ArcticSavage",
+        "Description": "A savage its origins are prehistoric.",
+
+        "Level": 7,
+        "MinDmg": 18,
+        "MaxDmg": 29,
+        "Health": 65,
+        "Defence": 6,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 80,
+
+        "ConstKey": 10,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vampbeast",
+        "Description": "Both a beast and a vampire, some might say that breaks all the rules.",
+
+        "Level": 7,
+        "MinDmg": 18,
+        "MaxDmg": 30,
+        "Health": 65,
+        "Defence": 4,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 80,
+
+        "ConstKey": 11,
+        "SpecId": 0
+    },
+    {
+        "Name": "Gravecrackle",
+        "Description": "The last thing you hear is the crumbling of a granite stone..",
+
+        "Level": 8,
+        "MinDmg": 50,
+        "MaxDmg": 60,
+        "Health": 100,
+        "Defence": 2.5,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 90,
+
+        "ConstKey": 12,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Fiery Bane Bee",
+        "Description": "Ayo what da bee doin?",
+        "Level": 8,
+        "MinDmg": 30,
+        "MaxDmg": 65,
+        "Health": 120,
+        "Defence": 2,
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 80,
+        "XpMax": 90,
+
+        "ConstKey": 19,
+        "SpecId": 0
+    },
+    {
+        "Name": "Eli",
+        "Description": "Eli the Destroyer",
+        "Level": 10,
+        "MinDmg": 30,
+        "MaxDmg": 40,
+        "Health": 110,
+        "Defence": 4,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 80,
+        "XpMax": 95,
+
+        "ConstKey": 16,
+        "SpecId": 0
+    },
+    {
+        "Name": "Ghoul Fly",
+        "Description": "This large fly feasts on living and dead flesh.",
+
+        "Level": 1,
+        "MinDmg": 5,
+        "MaxDmg": 8,
+        "Health": 15,
+        "Defence": 0,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 5,
+        "XpMax": 10,
+
+        "ConstKey": 20,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Ghoul-fly.png",
+        "Image": "attachment://Ghoul-fly.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Snakeflare",
+        "Description": "A snake.. or is it a flare?",
+
+        "Level": 1,
+        "MinDmg": 2,
+        "MaxDmg": 5,
+        "Health": 10,
+        "Defence": 1,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 5,
+        "XpMax": 10,
+
+        "ConstKey": 21,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Snakeflare.png",
+        "Image": "attachment://Snakeflare.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Pink Beaver",
+        "Description": "... it's just a beaver painted pink :o",
+
+        "Level": 1,
+        "MinDmg": 1,
+        "MaxDmg": 4,
+        "Health": 15,
+        "Defence": 1,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 5,
+        "XpMax": 10,
+
+        "ConstKey": 22,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Pink-beaver.png",
+        "Image": "attachment://Pink-beaver.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Mystling",
+        "Description": "Younger cousin of the mystsoul. \nOne of the servents of Mien",
+
+        "Level": 2,
+        "MinDmg": 1,
+        "MaxDmg": 7,
+        "Health": 20,
+        "Defence": 1,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 10,
+        "XpMax": 15,
+
+        "ConstKey": 23,
+        "SpecId": 0
+    },
+    {
+        "Name": "Hauntsnare",
+        "Description": "This creature will freeze you in your tracks with only a look!",
+
+        "Level": 2,
+        "MinDmg": 1,
+        "MaxDmg": 7,
+        "Health": 20,
+        "Defence": 2,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 15,
+        "XpMax": 20,
+
+        "ConstKey": 24,
+        "SpecId": 0
+    },
+    {
+        "Name": "Crimson Crow",
+        "Description": "A blood soaked crow.. best take care with this beast!",
+
+        "Level": 2,
+        "MinDmg": 1,
+        "MaxDmg": 7,
+        "Health": 15,
+        "Defence": 1,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 10,
+        "XpMax": 15,
+
+        "ConstKey": 25,
+        "SpecId": 0
+    },
+    {
+        "Name": "Rage Deer",
+        "Description": "It must be mating season ;O",
+
+        "Level": 2,
+        "MinDmg": 1,
+        "MaxDmg": 7,
+        "Health": 25,
+        "Defence": 2,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 20,
+        "XpMax": 25,
+
+        "ConstKey": 26,
+        "SpecId": 0
+    },
+    {
+        "Name": "Thornbug",
+        "Description": "An insect covered in pointy thorns.. ouch",
+
+        "Level": 3,
+        "MinDmg": 2,
+        "MaxDmg": 10,
+        "Health": 30,
+        "Defence": 2,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 25,
+        "XpMax": 30,
+
+        "ConstKey": 27,
+        "SpecId": 0
+    },
+    {
+        "Name": "Swarmwing",
+        "Description": "Watch out for their numbers, they never travel alone.. \nunlike you",
+
+        "Level": 3,
+        "MinDmg": 2,
+        "MaxDmg": 10,
+        "Health": 30,
+        "Defence": 2,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 25,
+        "XpMax": 30,
+
+        "ConstKey": 28,
+        "SpecId": 0
+    },
+    {
+        "Name": "Smogwoman",
+        "Description": "An entity somewhat resembling a woman, the dark cloud around it warns caution",
+
+        "Level": 4,
+        "MinDmg": 3,
+        "MaxDmg": 12,
+        "Health": 35,
+        "Defence": 3,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 35,
+        "XpMax": 40,
+
+        "ConstKey": 29,
+        "SpecId": 0
+    },
+    {
+        "Name": "Icetooth",
+        "Description": "An icy tooth imbued with magic!",
+
+        "Level": 4,
+        "MinDmg": 3,
+        "MaxDmg": 12,
+        "Health": 35,
+        "Defence": 3,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 35,
+        "XpMax": 40,
+
+        "ConstKey": 30,
+        "SpecId": 0
+    },
+    {
+        "Name": "Flailplant",
+        "Description": "Its a plant, and its flailing.. *WACK* ouchie.. try not to get hit",
+
+        "Level": 4,
+        "MinDmg": 3,
+        "MaxDmg": 12,
+        "Health": 40,
+        "Defence": 3,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 40,
+        "XpMax": 45,
+
+        "ConstKey": 31,
+        "SpecId": 0
+    },
+    {
+        "Name": "Muckbrute",
+        "Description": "A muddy angry mess of a creature, all it sees is red",
+
+        "Level": 5,
+        "MinDmg": 5,
+        "MaxDmg": 15,
+        "Health": 45,
+        "Defence": 3,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 45,
+        "XpMax": 50,
+
+        "ConstKey": 32,
+        "SpecId": 0
+    },
+    {
+        "Name": "Devouring Trapper",
+        "Description": "Falling into its traps.. I'm sure you know what happens next",
+
+        "Level": 6,
+        "MinDmg": 7,
+        "MaxDmg": 18,
+        "Health": 50,
+        "Defence": 4,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 50,
+        "XpMax": 55,
+
+        "ConstKey": 33,
+        "SpecId": 0
+    },
+    {
+        "Name": "Dream Assasin",
+        "Description": "Sleeping with one eye open won't save you from this adept assasin! \nOne of the servents of Fayrn",
+
+        "Level": 6,
+        "MinDmg": 7,
+        "MaxDmg": 18,
+        "Health": 55,
+        "Defence": 5,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 55,
+        "XpMax": 60,
+
+        "ConstKey": 34,
+        "SpecId": 0
+    },
+    {
+        "Name": "Unthinkable Faerie",
+        "Description": "Inconceivable!",
+
+        "Level": 6,
+        "MinDmg": 7,
+        "MaxDmg": 18,
+        "Health": 50,
+        "Defence": 5,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 55,
+        "XpMax": 60,
+
+        "ConstKey": 35,
+        "SpecId": 0
+    },
+    {
+        "Name": "Cavecrash Striker",
+        "Description": "It's fabled these creatures collapse caves while miners work as a favoured pastime",
+
+        "Level": 6,
+        "MinDmg": 7,
+        "MaxDmg": 18,
+        "Health": 60,
+        "Defence": 5,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 60,
+        "XpMax": 65,
+
+        "ConstKey": 36,
+        "SpecId": 0
+    },
+    {
+        "Name": "Soilmirage",
+        "Description": "What might look like a normal mirage could very well be one of these \nNever hesitate to stab the ground!",
+
+        "Level": 7,
+        "MinDmg": 9,
+        "MaxDmg": 20,
+        "Health": 65,
+        "Defence": 6,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 80,
+
+        "ConstKey": 37,
+        "SpecId": 0
+    },
+    {
+        "Name": "Wind Satyr",
+        "Description": "A Satyr belonging to the wind tribe",
+
+        "Level": 7,
+        "MinDmg": 9,
+        "MaxDmg": 20,
+        "Health": 70,
+        "Defence": 6,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 85,
+        "XpMax": 90,
+
+        "ConstKey": 38,
+        "SpecId": 0
+    },
+    {
+        "Name": "Aurahound",
+        "Description": "These hounds feed off the aura of other living creatures.. scary!",
+
+        "Level": 8,
+        "MinDmg": 10,
+        "MaxDmg": 22,
+        "Health": 75,
+        "Defence": 8,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 105,
+        "XpMax": 110,
+
+        "ConstKey": 39,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bone Squirrel",
+        "Description": "WOAH IS THAT A SQUIRREL!",
+
+        "Level": 8,
+        "MinDmg": 10,
+        "MaxDmg": 22,
+        "Health": 80,
+        "Defence": 8,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 115,
+        "XpMax": 120,
+
+        "ConstKey": 40,
+        "SpecId": 0
+    },
+    {
+        "Name": "Chaosspore Newt",
+        "Description": "Despite its name this creature is actually quite deadly and should be avoided unless unavoidable!! \nOne of the servents of Zimmir",
+
+        "Level": 9,
+        "MinDmg": 12,
+        "MaxDmg": 24,
+        "Health": 90,
+        "Defence": 10,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 155,
+        "XpMax": 160,
+
+        "ConstKey": 41,
+        "SpecId": 0
+    },
+    {
+        "Name": "Rust Maw Medusa",
+        "Description": "This creature can turn you to stone with one look.. oh wait, those snakes are fake.. \nIt might give you tetnus",
+
+        "Level": 9,
+        "MinDmg": 12,
+        "MaxDmg": 24,
+        "Health": 95,
+        "Defence": 9,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 145,
+        "XpMax": 150,
+
+        "ConstKey": 42,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vorpal Slayer",
+        "Description": "Very few have ever seen one of these and lived to give a report.. this should be a cake walk!",
+
+        "Level": 9,
+        "MinDmg": 12,
+        "MaxDmg": 24,
+        "Health": 100,
+        "Defence": 9,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 145,
+        "XpMax": 150,
+
+        "ConstKey": 43,
+        "SpecId": 0
+    },
+    {
+        "Name": "Change Sprite",
+        "Description": "This freindly looking sprite tends to change its tune without provocation",
+
+        "Level": 9,
+        "MinDmg": 12,
+        "MaxDmg": 24,
+        "Health": 95,
+        "Defence": 10,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 155,
+        "XpMax": 160,
+
+        "ConstKey": 44,
+        "SpecId": 0
+    },
+    {
+        "Name": "Soulspike",
+        "Description": "A spike with the explict goal of stealing souls. \nOne of the servents of Wadon",
+
+        "Level": 10,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 110,
+        "Defence": 11,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 190,
+        "XpMax": 200,
+
+        "ConstKey": 45,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Giant Malformation",
+        "Description": "EWWW WHAT IS THAT!!",
+
+        "Level": 11,
+        "MinDmg": 16,
+        "MaxDmg": 30,
+        "Health": 145,
+        "Defence": 11,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 210,
+        "XpMax": 220,
+
+        "ConstKey": 46,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bane Crawler",
+        "Description": "It- It's a really big spider.. KILL IT!! KILL IT NOW!!",
+
+        "Level": 11,
+        "MinDmg": 16,
+        "MaxDmg": 30,
+        "Health": 150,
+        "Defence": 11,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 220,
+        "XpMax": 230,
+
+        "ConstKey": 47,
+        "SpecId": 0
+    },
+    {
+        "Name": "Battlestealth Berserker",
+        "Description": "These fighters are known but not seen, to see one means your life will soon be over.",
+
+        "Level": 12,
+        "MinDmg": 20,
+        "MaxDmg": 34,
+        "Health": 250,
+        "Defence": 14,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 230,
+        "XpMax": 240,
+
+        "ConstKey": 48,
+        "SpecId": 0
+    },
+    {
+        "Name": "Hill Soaker",
+        "Description": "The only two known facts about this entity are that it exists.. and that it only leaves the blood of its victims behind",
+
+        "Level": 13,
+        "MinDmg": 23,
+        "MaxDmg": 37,
+        "Health": 280,
+        "Defence": 15,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 260,
+        "XpMax": 270,
+
+        "ConstKey": 49,
+        "SpecId": 0
+    },
+    {
+        "Name": "Phantomsword",
+        "Description": "This ghostly weapon will cut you in half with a single strike :o",
+
+        "Level": 15,
+        "MinDmg": 28,
+        "MaxDmg": 43,
+        "Health": 450,
+        "Defence": 17,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 320,
+        "XpMax": 350,
+
+        "ConstKey": 50,
+        "SpecId": 0
+    },
+    {
+        "Name": "Mountaincrash Striker",
+        "Description": "A much bigger and stronger striker varient",
+
+        "Level": 18,
+        "MinDmg": 30,
+        "MaxDmg": 49,
+        "Health": 900,
+        "Defence": 20,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 770,
+        "XpMax": 800,
+
+        "ConstKey": 51,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bloodshock Beholder",
+        "Description": "Its name comes from an imperfect translation of a forgotten dialect!",
+
+        "Level": 19,
+        "MinDmg": 34,
+        "MaxDmg": 58,
+        "Health": 1100,
+        "Defence": 25,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 870,
+        "XpMax": 900,
+
+        "ConstKey": 52,
+        "SpecId": 0
+    },
+    {
+        "Name": "Flaming Mouth",
+        "Description": "Ahhhh thats hawt",
+
+        "Level": 17,
+        "MinDmg": 1,
+        "MaxDmg": 2,
+        "Health": 750,
+        "Defence": 19,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 580,
+        "XpMax": 600,
+
+        "ConstKey": 53,
+        "SpecId": 0
+    },
+    {
+        "Name": "Spellstench Heap",
+        "Description": "An amalgimation of used spells and the essence of those who cast them.",
+
+        "Level": 14,
+        "MinDmg": 25,
+        "MaxDmg": 40,
+        "Health": 310,
+        "Defence": 16,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 280,
+        "XpMax": 300,
+
+        "ConstKey": 54,
+        "SpecId": 0
+    },
+    {
+        "Name": "Damned Troll",
+        "Description": "A troll from the depths of the underworld",
+
+        "Level": 16,
+        "MinDmg": 28,
+        "MaxDmg": 48,
+        "Health": 570,
+        "Defence": 18,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 430,
+        "XpMax": 450,
+
+        "ConstKey": 55,
+        "SpecId": 0
+    },
+    {
+        "Name": "Ancient Celestial-fungus",
+        "Description": "This fungus has origins predating all known life in this realm.",
+
+        "Level": 18,
+        "MinDmg": 28,
+        "MaxDmg": 52,
+        "Health": 1000,
+        "Defence": 20,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 830,
+        "XpMax": 850,
+
+        "ConstKey": 56,
+        "SpecId": 0
+    },
+    {
+        "Name": "Chaotic Venom Titan",
+        "Description": "Predicting its next move is like teaching a newborn the social hierarchy",
+
+        "Level": 20,
+        "MinDmg": 30,
+        "MaxDmg": 60,
+        "Health": 1400,
+        "Defence": 25,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 960,
+        "XpMax": 1000,
+
+        "ConstKey": 57,
+        "SpecId": 0
+    },
+    {
+        "Name": "Mysterious Boss-charmer",
+        "Description": "A fellow adventurer corrupted by the gods",
+
+        "Level": 21,
+        "MinDmg": 30,
+        "MaxDmg": 62,
+        "Health": 1700,
+        "Defence": 29,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 1160,
+        "XpMax": 1200,
+
+        "ConstKey": 58,
+        "SpecId": 0
+    },
+    {
+        "Name": "Krelya, The Soulreaper",
+        "Description": "Krelya is the second hand to Wadon, God of Souls.. \nThis fight will not be easy.",
+
+        "Level": 25,
+        "MinDmg": 50,
+        "MaxDmg": 70,
+        "Health": 3000,
+        "Defence": 34,
+
+        "WeakTo": "NONE",
+        "Dead": false,
+        "XpMin": 1700,
+        "XpMax": 1800,
+
+        "ConstKey": 59,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Krelya-the-soulreaper.png",
+        "Image": "attachment://Krelya-the-soulreaper.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Dark Daemon",
+        "Description": "A daemon of the dark coven.. \nOne of the servents of Dyvulla.",
+
+        "Level": 10,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 115,
+        "Defence": 11,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 200,
+        "XpMax": 210,
+
+        "ConstKey": 60,
+        "SpecId": 0
+    },
+    {
+        "Name": "Evil Shadow",
+        "Description": "Its just a shadow nothing to worry about im sure..",
+
+        "Level": 5,
+        "MinDmg": 5,
+        "MaxDmg": 15,
+        "Health": 50,
+        "Defence": 4,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 50,
+        "XpMax": 55,
+
+        "ConstKey": 61,
+        "SpecId": 0
+    },
+    {
+        "Name": "Harlpei, Fire Scale",
+        "Description": "Origins are fabled to be from the Fire Scale tribe at the bottom of the ocean.",
+
+        "Level": 15,
+        "MinDmg": 28,
+        "MaxDmg": 43,
+        "Health": 455,
+        "Defence": 17,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 350,
+        "XpMax": 360,
+
+        "ConstKey": 62,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bla$tym",
+        "Description": "An explosive creature. \nOne of the servents of Nizdea.",
+
+        "Level": 12,
+        "MinDmg": 20,
+        "MaxDmg": 34,
+        "Health": 260,
+        "Defence": 14,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 240,
+        "XpMax": 245,
+
+        "ConstKey": 63,
+        "SpecId": 0
+    },
+    {
+        "Name": "$caklyd",
+        "Description": "These creatures roam the ocean depths until fully matured. \nOne of the servents of Nizdea.",
+
+        "Level": 13,
+        "MinDmg": 23,
+        "MaxDmg": 37,
+        "Health": 285,
+        "Defence": 16,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 270,
+        "XpMax": 280,
+
+        "ConstKey": 64,
+        "SpecId": 0
+    },
+    {
+        "Name": "Phase Troll",
+        "Description": "A Troll with phase abilities, not to be taken lightly.",
+
+        "Level": 14,
+        "MinDmg": 25,
+        "MaxDmg": 40,
+        "Health": 320,
+        "Defence": 17,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 280,
+        "XpMax": 300,
+
+        "ConstKey": 65,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vampbug",
+        "Description": "A bug with a liking for blood",
+
+        "Level": 7,
+        "MinDmg": 9,
+        "MaxDmg": 20,
+        "Health": 65,
+        "Defence": 4,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 80,
+
+        "ConstKey": 66,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vortexserpent",
+        "Description": "A hailstrom of slithering",
+
+        "Level": 11,
+        "MinDmg": 16,
+        "MaxDmg": 30,
+        "Health": 155,
+        "Defence": 9,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 210,
+        "XpMax": 230,
+
+        "ConstKey": 67,
+        "SpecId": 0
+    },
+    {
+        "Name": "Cursemutant",
+        "Description": "A human cursed and distorted with malace.",
+
+        "Level": 10,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 120,
+        "Defence": 7,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 185,
+        "XpMax": 200,
+
+        "ConstKey": 68,
+        "SpecId": 0
+    },
+    {
+        "Name": "Fogstep",
+        "Description": "A fully developed Fogling is able to use a small amount of magical power",
+
+        "Level": 4,
+        "MinDmg": 3,
+        "MaxDmg": 12,
+        "Health": 35,
+        "Defence": 2,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 35,
+        "XpMax": 40,
+
+        "ConstKey": 69,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/FogStep.png",
+        "Image": "attachment://FogStep.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Steamstep",
+        "Description": "A stronger and more volatile entity belonging to the Fog family",
+
+        "Level": 5,
+        "MinDmg": 5,
+        "MaxDmg": 15,
+        "Health": 45,
+        "Defence": 3,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 40,
+        "XpMax": 50,
+
+        "ConstKey": 70,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/SteamStep.png",
+        "Image": "attachment://SteamStep.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Titanium Thunder Scorpion",
+        "Description": "This insect has a hardend shell with highly conductive properties",
+
+        "Level": 12,
+        "MinDmg": 20,
+        "MaxDmg": 34,
+        "Health": 250,
+        "Defence": 13,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 230,
+        "XpMax": 240,
+
+        "ConstKey": 71,
+        "SpecId": 0
+    },
+    {
+        "Name": "Gastalon",
+        "Description": "A bloated creature, hit it hard, really hard",
+
+        "Level": 12,
+        "MinDmg": 20,
+        "MaxDmg": 34,
+        "Health": 255,
+        "Defence": 14,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 235,
+        "XpMax": 250,
+
+        "ConstKey": 72,
+        "SpecId": 0
+    },
+    {
+        "Name": "Tombling",
+        "Description": "This small impish creature can be found near crypts and tombs",
+
+        "Level": 3,
+        "MinDmg": 2,
+        "MaxDmg": 10,
+        "Health": 30,
+        "Defence": 2,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 25,
+        "XpMax": 30,
+
+        "ConstKey": 73,
+        "SpecId": 0
+    },
+    {
+        "Name": "Warpman",
+        "Description": "A man consumed by the power of the warp",
+
+        "Level": 11,
+        "MinDmg": 16,
+        "MaxDmg": 30,
+        "Health": 150,
+        "Defence": 9,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 210,
+        "XpMax": 220,
+
+        "ConstKey": 74,
+        "SpecId": 0
+    },
+    {
+        "Name": "Smoghag",
+        "Description": "A witch shrouded in a toxic smog",
+
+        "Level": 10,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 110,
+        "Defence": 8,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 190,
+        "XpMax": 200,
+
+        "ConstKey": 75,
+        "SpecId": 0
+    },
+    {
+        "Name": "Soulgolem",
+        "Description": "A massive golem infused with souls of the dammed \nOne of the servants of Wadon",
+
+        "Level": 12,
+        "MinDmg": 20,
+        "MaxDmg": 34,
+        "Health": 245,
+        "Defence": 13,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 235,
+        "XpMax": 245,
+
+        "ConstKey": 76,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Dark Thing",
+        "Description": "An entity wrapped in darkness \nOne of the servants of Dyvulla",
+
+        "Level": 11,
+        "MinDmg": 16,
+        "MaxDmg": 30,
+        "Health": 145,
+        "Defence": 10,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 220,
+        "XpMax": 230,
+
+        "ConstKey": 77,
+        "SpecId": 0
+    },
+    {
+        "Name": "Curseteeth",
+        "Description": "A cursed mass of teeth thirsting for flesh.",
+
+        "Level": 7,
+        "MinDmg": 9,
+        "MaxDmg": 20,
+        "Health": 70,
+        "Defence": 4,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 80,
+
+        "ConstKey": 78,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bonebug",
+        "Description": "The size of a cat, a shell made of human bones..",
+
+        "Level": 5,
+        "MinDmg": 5,
+        "MaxDmg": 15,
+        "Health": 50,
+        "Defence": 3,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 45,
+        "XpMax": 50,
+
+        "ConstKey": 79,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bowelscreamer",
+        "Description": "This monster rips its victims to ribons before letting a screech of victory siginalling a kill \nOne of the servants of Ados",
+
+        "Level": 10,
+        "MinDmg": 15,
+        "MaxDmg": 28,
+        "Health": 110,
+        "Defence": 8,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 200,
+        "XpMax": 210,
+
+        "ConstKey": 80,
+        "SpecId": 0
+    },
+    {
+        "Name": "Fogling",
+        "Description": "A small ethereal being bursting with power, known to become much stronger with age",
+
+        "Level": 3,
+        "MinDmg": 2,
+        "MaxDmg": 10,
+        "Health": 25,
+        "Defence": 2,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 25,
+        "XpMax": 30,
+
+        "ConstKey": 81,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Fogling.png",
+        "Image": "attachment://Fogling.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Cindermorph",
+        "Description": "The condensate of both weak magical power and the ashes of a fire 'make sure you soak the stones, lest you summon a morph'",
+
+        "Level": 8,
+        "MinDmg": 10,
+        "MaxDmg": 22,
+        "Health": 80,
+        "Defence": 5,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 105,
+        "XpMax": 110,
+
+        "ConstKey": 82,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Cinder-Morph.png",
+        "Image": "attachment://Cinder-Morph.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Poisonedgirl",
+        "Description": "A poor soul fallen ill to the sickness, too much of a good thing can never be good for long",
+
+        "Level": 1,
+        "MinDmg": 2,
+        "MaxDmg": 5,
+        "Health": 15,
+        "Defence": 1,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 8,
+        "XpMax": 10,
+
+        "ConstKey": 83,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/PoisonedGirl.png",
+        "Image": "attachment://PoisonedGirl.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Ashgolem",
+        "Description": "These devious golems carry all the tools for starting fires, they encourage the creation of Cinder Morphs",
+
+        "Level": 9,
+        "MinDmg": 12,
+        "MaxDmg": 24,
+        "Health": 95,
+        "Defence": 6,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 140,
+        "XpMax": 150,
+
+        "ConstKey": 84,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Ash-Golem.png",
+        "Image": "attachment://Ash-Golem.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Grimeface",
+        "Description": "The slimy remains of those who have been corrupted, usually found roaming in groups",
+
+        "Level": 7,
+        "MinDmg": 9,
+        "MaxDmg": 20,
+        "Health": 70,
+        "Defence": 5,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 75,
+        "XpMax": 80,
+
+        "ConstKey": 85,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Grimeface.png",
+        "Image": "attachment://Grimeface.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Savage Frost Serpent",
+        "Description": "The glint of its scales should be the first sign to either draw your weapon or run",
+
+        "Level": 8,
+        "MinDmg": 10,
+        "MaxDmg": 22,
+        "Health": 75,
+        "Defence": 5,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 95,
+        "XpMax": 100,
+
+        "ConstKey": 86,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Savage-Frost-Serpent.png",
+        "Image": "attachment://Savage-Frost-Serpent.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Urratis",
+        "Description": "...",
+
+        "Level": 22,
+        "MinDmg": 30,
+        "MaxDmg": 70,
+        "Health": 2100,
+        "Defence": 29,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 1200,
+        "XpMax": 1300,
+
+        "ConstKey": 87,
+        "SpecId": 0
+    },
+    {
+        "Name": "Cryptees",
+        "Description": "...",
+
+        "Level": 21,
+        "MinDmg": 30,
+        "MaxDmg": 62,
+        "Health": 1800,
+        "Defence": 27,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 1100,
+        "XpMax": 1200,
+
+        "ConstKey": 88,
+        "SpecId": 0
+    },
+    {
+        "Name": "Metallich",
+        "Description": "This metalic creature breaks most undead rules.. totally metal!",
+
+        "Level": 13,
+        "MinDmg": 20,
+        "MaxDmg": 37,
+        "Health": 290,
+        "Defence": 16,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 250,
+        "XpMax": 270,
+
+        "ConstKey": 89,
+        "SpecId": 0
+    },
+    {
+        "Name": "Ravaging Rot Hog",
+        "Description": "...",
+
+        "Level": 17,
+        "MinDmg": 30,
+        "MaxDmg": 62,
+        "Health": 850,
+        "Defence": 19,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 580,
+        "XpMax": 600,
+
+        "ConstKey": 90,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Muted Babbler",
+        "Description": "...",
+
+        "Level": 17,
+        "MinDmg": 30,
+        "MaxDmg": 62,
+        "Health": 800,
+        "Defence": 20,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 580,
+        "XpMax": 600,
+
+        "ConstKey": 91,
+        "SpecId": 0
+    },
+    {
+        "Name": "NULL",
+        "Description": "You shouldnt be here, I think its time you left >:)",
+
+        "Level": 100,
+        "MinDmg": 100,
+        "MaxDmg": 1000,
+        "Health": 7000000,
+        "Defence": 100,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 200000,
+        "XpMax": 280000,
+
+        "ConstKey": 0,
+        "SpecId": 0
+    }
+]

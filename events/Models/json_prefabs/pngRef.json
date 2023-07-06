@@ -1,0 +1,10 @@
+{
+    "Bardiche": "./Models/json_prefabs/weapon_png/Bardiche.png",
+    "Hammer": "./Models/json_prefabs/weapon_png/Hammer.png",
+    "Scythe": "./Models/json_prefabs/weapon_png/Scythe.png",
+    "Sword": "./Models/json_prefabs/weapon_png/Sword.png",
+
+    "HammerMini": "./Models/json_prefabs/weapon_png/Hammer-mini.png",
+
+    "Goblin": "./Models/json_prefabs/boss-list-png/Goblin.png"
+}

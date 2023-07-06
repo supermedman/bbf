@@ -1,0 +1,23 @@
+**COMPLETE** UserData Model
+
+**COMPLETE** ActiveEnemy Model
+
+LootStore Model
+- This will hold all loot for every user assigned to each user by discord id
+- Default primary key is rowid
+- loot_id is the id of the item as defined in the json prefab
+- spec_id is the id after being assigned to an enemy 
+
+LootDrop Model
+- This model is for holding loot in reference to an enemy in combat
+- Not every enemy gets loot, however all loot is stored here in temp
+- spec_id is assigned to the specid of the enemy it is attached to
+- loot_id is set in the json the loot prefab is grabbed from and is used for transfer to user LootStore
+
+
+
+
+
+LootTable Model
+
+TransferTable Model??

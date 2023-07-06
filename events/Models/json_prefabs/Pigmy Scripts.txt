@@ -1,0 +1,6 @@
+1. pigmy db class *DEBUGGING*
+2. pigmy shop class *DEBUGGING*
+3. pigmy equip/switch class *NOT STARTED*
+4. pigmy start/claim class *NOT STARTED*
+5. user-pigmy storage & refrence class *DEBUGGING*
+

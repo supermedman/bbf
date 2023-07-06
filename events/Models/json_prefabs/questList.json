@@ -1,0 +1,67 @@
+[
+    {
+        "Name": " ",
+        "Length": 3600000,
+        "Time": "1hr",
+        "Level": 10,
+        "ELevel": "1-5",
+        "ID": 0
+    },
+    {
+        "Name": "Deep Dark Woods",
+        "Length": 14400000,
+        "Time": "4hr",
+        "Level": 1,
+        "ELevel": "1-5",
+        "ID": 1
+    },
+    {
+        "Name": "Road to Grangrans",
+        "Length": 14400000,
+        "Time": "4hr",
+        "Level": 1,
+        "ELevel": "1-5",
+        "ID": 6
+    },
+    {
+        "Name": "Forgotten Battlefield",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 2,
+        "ELevel": "5-10",
+        "ID": 2
+    },
+    {
+        "Name": "Basment Cleaning",
+        "Length": 14400000,
+        "Time": "4hr",
+        "Level": 2,
+        "ELevel": "5-10",
+        "ID": 7
+    },
+    {
+        "Name": "War-torn Mountain Pass",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 3,
+        "ELevel": "10-15",
+        "ID": 3
+    },
+    {
+        "Name": "Perilous Dungeon",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 4,
+        "ELevel": "15-20",
+        "ID": 4
+    },
+    {
+        "Name": "Cultist Hideaway",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 5,
+        "ELevel": "20-25",
+        "ID": 5
+    }
+
+]
