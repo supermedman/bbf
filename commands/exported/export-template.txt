@@ -1,0 +1,9 @@
+function foo() {
+
+}
+
+async function bar() {
+
+}
+
+module.exports = { foo, bar };
