@@ -1,4 +1,4 @@
-﻿const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { UserData, LootShop, LootStore } = require('../dbObjects.js');
 const { grabRar } = require('./exported/grabRar.js');
@@ -89,10 +89,12 @@ module.exports = {
                 const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 45000 });
 
                 collectorBut.on('collect', async i => {
-                    if (i.user.id === interaction.user.id) {
+                     await i.deferUpdate();
+                     await wait(1000);
+                    if (i.user.id === interaction.user.id) {                       
                         if (i.customId === 'slot1') {
-                            await i.deferUpdate();
-                            await wait(1000);
+                            //await i.deferUpdate();
+                            //await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -113,7 +115,7 @@ module.exports = {
 
                                     console.log('Button slot1: ', buttonsA.components[1]);
 
-                                    await i.update({ components: [buttonsA] });
+                                    await i.editReply({ components: [buttonsA] });
 
                                     if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
                                     return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
@@ -123,8 +125,8 @@ module.exports = {
                             } else console.log('ITEM NOT FOUND!');//item not found :(                       
                         }
                         else if (i.customId === 'slot2') {
-                            await i.deferUpdate();
-                            await wait(1000);
+                            //await i.deferUpdate();
+                            //await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -145,7 +147,7 @@ module.exports = {
 
                                     console.log('Button slot1: ', buttonsA.components[2]);
 
-                                    await i.update({ components: [buttonsA] });
+                                    await i.editReply({ components: [buttonsA] });
 
                                     if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
                                     return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
@@ -155,8 +157,8 @@ module.exports = {
                             } else console.log('ITEM NOT FOUND!');//item not found :(
                         }
                         else if (i.customId === 'slot3') {
-                            await i.deferUpdate();
-                            await wait(1000);
+                            //await i.deferUpdate();
+                            //await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -177,7 +179,7 @@ module.exports = {
 
                                     console.log('Button slot1: ', buttonsA.components[3]);
 
-                                    await i.update({ components: [buttonsA] });
+                                    await i.editReply({ components: [buttonsA] });
 
                                     if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
                                     return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
@@ -187,8 +189,8 @@ module.exports = {
                             } else console.log('ITEM NOT FOUND!');//item not found :(
                         }
                         else if (i.customId === 'slot4') {
-                            await i.deferUpdate();
-                            await wait(1000);
+                            //await i.deferUpdate();
+                            //await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -209,7 +211,7 @@ module.exports = {
 
                                     console.log('Button slot1: ', buttonsA.components[4]);
 
-                                    await i.update({ components: [buttonsA] });
+                                    await i.editReply({ components: [buttonsA] });
 
                                     if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
                                     return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
@@ -220,8 +222,8 @@ module.exports = {
                         }
                         else if (i.customId === 'refresh') {
                             //delete the embed here
-                            await i.deferUpdate();
-                            await wait(1000);
+                            //await i.deferUpdate();
+                            //await wait(1000);
                             await embedMsg.delete();
                             startShop();//run the entire script over again
                         }
