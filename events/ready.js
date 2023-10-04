@@ -6,8 +6,10 @@ const { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, Acti
 module.exports = {
 	name: Events.ClientReady,
 	once: true,
-	execute(client) {
+	async execute(client) {
         console.log(`Ready! Logged in as ${client.user.tag}`);
+        const Guilds = client.guilds.cache.map(guild => guild.id);
+        console.log(`Grabbing current server list! ${Guilds}`);
         Equipped.sync();
         LootShop.sync();
         LootStore.sync();
