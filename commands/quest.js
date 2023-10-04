@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { Questing, LootDrop, LootStore, UserData } = require('../dbObjects.js');
 const { isLvlUp } = require('./exported/levelup.js');
@@ -26,6 +26,8 @@ module.exports = {
             const qFound = await Questing.findOne({ where: [{ user_id: interaction.user.id }] });
 
             if (!qFound) {
+                const user = await grabU();
+                if (!uData) return interaction.followUp(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
                 //quest not found prompt new quest option
 
                 //CREATE THREE BUTTONS FOR PAGE OPTIONS
@@ -51,8 +53,7 @@ module.exports = {
                             .setEmoji('▶️')
                             .setCustomId('next-page'),
                     );
-                const user = await grabU();
-                if (user.level < 5) {
+               if (user.level < 5) {
                     return interaction.followUp('Sorry! You need to be at least level 5 to start quests.. ``startcombat`` use this to gain some levels!')
                 }
                 const maxQLvl = Math.round(user.level / 5)
