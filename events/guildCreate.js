@@ -3,11 +3,12 @@ const { GuildData } = require('../dbObjects.js');
 
 module.exports = {
 	name: Events.GuildCreate,
-	async execute(client) {
-		const guildID = client.guild.id;
+	async execute(guild) {
+		const guildID = guild.id;
 		newGuild = await GuildData.findOne({ where: { guildid: guildID } });//Check if guild is already stored!
 		if (newGuild) {
-			//Guild is not new, ignore database!			
+			//Guild is not new, ignore database!		
+			console.log(`Old Guild!`);
 		} else {
 			//Guild is new, add to db
 			await GuildData.create({
