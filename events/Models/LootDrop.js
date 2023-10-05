@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
 
         //primary key 
         spec_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             primaryKey: true,
         }, 
         

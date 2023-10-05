@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         xpmax: DataTypes.INTEGER,
         constkey: DataTypes.INTEGER,
         specid: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             defaultValue: 0,
         },
     },
