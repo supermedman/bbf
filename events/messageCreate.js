@@ -1,5 +1,6 @@
 const { Events, Collection } = require('discord.js');
 const { GuildData } = require('../dbObjects.js');
+const { handleSpawn } = require('./guildDropHandler.js');
 
 module.exports = {
     name: Events.MessageCreate,
@@ -42,7 +43,7 @@ module.exports = {
                 //ENEMY SPAWNS!!
                 //Add enemy spawn interaction here!
                 //Call handler script guildDropHandler.js
-                //handleSpawn(message);
+                await handleSpawn(message);
                 const xpOver = totalxp - 500;
                 const addGuildXP = GuildData.update({ guildxp: xpOver }, { where: { guildid: guildForXP } });
                 if (addGuildXP > 0) {
