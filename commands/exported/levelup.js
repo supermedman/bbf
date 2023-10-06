@@ -10,10 +10,16 @@ async function grabU(interaction) {
 
 //========================================
 //Method for checking if a level up has occured for the user
-async function isLvlUp(totXP, totCoin, interaction) {
-
-	const uData = await grabU(interaction);
-
+async function isLvlUp(totXP, totCoin, interaction, user) {
+	//console.log(interaction);
+	var uData;
+	if (user) {
+		//console.log(user);
+		uData = await UserData.findOne({ where: { userid: user.userid } });
+	} else {
+		uData = await grabU(interaction);
+    }
+	
 	var totalXp = uData.xp + totXP;
 	console.log('Current totalXp: ', totalXp);
 
