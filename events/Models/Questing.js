@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('Questing', {
         user_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             unique: true,
         },
 

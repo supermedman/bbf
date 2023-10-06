@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     return sequelize.define('Equipped', {
 
         spec_id: {
-            type: DataTypes.INTEGER,//foreign key from ActiveEnemy/LootShop pertaining to the userid
+            type: DataTypes.STRING,//foreign key from ActiveEnemy/LootShop pertaining to the userid
             primaryKey: true,
         },
 

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 
         //spec_id = userid - loot_id;
         spec_id: {
-            type: DataTypes.INTEGER,//spec_id set to the above calculation
+            type: DataTypes.STRING,//spec_id set to the above calculation
             allowNull: false,
         },
 

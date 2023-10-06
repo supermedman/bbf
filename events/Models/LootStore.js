@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('LootStore', {
 
-        spec_id: DataTypes.INTEGER,//foreign key from ActiveEnemy/LootShop pertaining to the userid
+        spec_id: DataTypes.STRING,//foreign key from ActiveEnemy/LootShop pertaining to the userid
 
         loot_id: DataTypes.INTEGER,
         

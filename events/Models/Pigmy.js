@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     return sequelize.define('Pigmy', {
         //ACTIVE PIGMY STORAGE
         spec_id: {
-            type: DataTypes.INTEGER,//taken as userid
+            type: DataTypes.STRING,//taken as userid
             primaryKey: true,
         },
 

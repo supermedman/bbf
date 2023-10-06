@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     return sequelize.define('Pighouse', {
         //ALL OWNED PIGMY STORAGE
         spec_id: {
-            type: DataTypes.INTEGER,//taken as userid
+            type: DataTypes.STRING,//taken as userid
         },
         name: DataTypes.TEXT,//set to given name from prefab, can be user defined
         type: DataTypes.TEXT,//static reference to prefab
