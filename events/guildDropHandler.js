@@ -1,6 +1,7 @@
-﻿const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { GuildData, ActiveEnemy, UserData } = require('../dbObjects.js');
 const { loadEnemy } = require('../commands/exported/loadEnemy.js');
+const wait = require('node:timers/promises').setTimeout;
 
 //Refrence from messageCreate event Allowing smooth handling of enemies!
 
@@ -40,12 +41,12 @@ const { loadEnemy } = require('../commands/exported/loadEnemy.js');
  * */
 async function grabU(collectedUser) {
 	uData = await UserData.findOne({ where: { userid: collectedUser } });
-	if (!uData) return message.followUp(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
+	if (!uData) return message.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
 
-async function enemyGrabbed(user) {
-	await loadEnemy();
+async function enemyGrabbed(interaction, user) {
+	await loadEnemy(interaction, user);
 }
 
 async function handleSpawn(message) {
@@ -66,26 +67,75 @@ async function handleSpawn(message) {
 				name: `Who dares?`,
 				value: `Select fight to test your might!`,
 
-			})
-	await message.guild.channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] }).then(async embedMsg => {
-		const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, ammount: 1, time: 120000 });
+			});
 
-		collectorBut.on('collect', async i => {
-			const collectedUser = i.user.id;		
-				if (i.customId === 'accept') {
-					//user has selected enemy to fight!
-					//handle enemy spawn here
-					const enemyFound = await ActiveEnemy.findOne({ where: { specid: collectedUser } });
+	//Send Enemy spawn to correct default channel, otherwise default to channel where message was last sent!
+	const theGuild = await GuildData.findOne({ where: { guildid: message.guild.id } });
+	console.log(theGuild);
+	if (theGuild) {
+		//guild exists!
+		if (theGuild.spawnchannel === '0') {
+			//no spawn channel found, procceed as normal
+			await message.channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] }).then(async embedMsg => {
+				const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, ammount: 1, time: 120000 });
 
-					if (enemyFound) {
-						//enemy was found, sort and select from enemies!
-					} else {
-						const user = await grabU(collectedUser);
-						await enemyGrabbed(user);
-                    }
-                }	
-		});
-	}); 
+				collectorBut.on('collect', async i => {
+					const collectedUser = i.user.id;
+					if (i.customId === 'accept') {
+						//user has selected enemy to fight!
+						//handle enemy spawn here
+						const enemyFound = await ActiveEnemy.findOne({ where: { specid: collectedUser } });
+
+						if (enemyFound) {
+							//enemy was found, sort and select from enemies!
+						} else {
+							const user = await grabU(collectedUser);
+							if (user) {
+								await enemyGrabbed(message, collectedUser);
+							}
+						}
+						await i.deferUpdate();
+						wait(5000).then(async () => {
+							await embedMsg.delete();
+						});
+					}
+				});
+				collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
+			});
+		} else {
+			//spawn channel found, check if it exists
+			let channel = await message.guild.channels.fetch(`${theGuild.spawnchannel}`);
+			await channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] }).then(async embedMsg => {
+				const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, ammount: 1, time: 120000 });
+
+				collectorBut.on('collect', async i => {
+					const collectedUser = i.user.id;
+					const interaction = i;
+					if (i.customId === 'accept') {
+						//user has selected enemy to fight!
+						//handle enemy spawn here
+						const enemyFound = await ActiveEnemy.findOne({ where: { specid: collectedUser } });
+
+						if (enemyFound) {
+							//enemy was found, sort and select from enemies!
+						} else {
+							const user = await grabU(collectedUser);
+							if (user) {
+								await enemyGrabbed(interaction, collectedUser);
+							}
+						}
+						await i.deferUpdate();
+						wait(5000).then(async () => {
+							await embedMsg.delete();
+						});
+					}
+				});
+				collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
+			});
+        }
+    }
+	
+	
 }
 
 module.exports = { enemyGrabbed, handleSpawn };
