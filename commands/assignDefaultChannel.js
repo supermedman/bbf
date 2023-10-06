@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const wait = require('node:timers/promises').setTimeout;
 const { GuildData } = require('../dbObjects.js');
 
 module.exports = {
@@ -89,7 +90,7 @@ module.exports = {
 								value: `Would you like to make this the new spawn channel?`,
 
 							})
-						await interaction.followUp({components: [interactiveButtons], embeds: [confirmEmbed] }).then(async confirmEmbed => {
+						await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] }).then(async embedMsg => {
 							const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 });
 
 							collectorBut.on('collect', async i => {
@@ -101,14 +102,21 @@ module.exports = {
 										if (editChannel > 0) {
 											//updated spawn channel success!
 											//Retrieve Channel object for further use
-											const newChannel = interaction.guild(guildID).channels.cache.find(c => c.id === newChannel);
+											const newChannel = interaction.guild.channels.cache.find(c => c.id === newChannelID);
 											await interaction.followUp(`Channel ${newChannel.name} is now the spawn channel!`);
+											await i.deferUpdate();
+											wait(5000).then(async () => {
+												await embedMsg.delete();
+											});
 										} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
 
 									} else if (i.customId === 'cancel') {
 										//User has canceled channel change, inform and delete
 										i.reply('Channel Change cancelled!');
-										await confirmEmbed.delete();
+										await i.deferUpdate();
+										wait(5000).then(async () => {
+											await embedMsg.delete();
+										});
                                     }
 								} else {
 									i.reply({ content: `Nice try slick!`, ephemeral: true });
@@ -122,6 +130,62 @@ module.exports = {
 		else if (interaction.options.getSubcommand() === 'remove') {
 			//prompt user for confirmation of channel removel
 			//prompt user to use assign subcommand to reactiveate bot
+			const interactiveButtons = new ActionRowBuilder()
+				.addComponents(
+					new ButtonBuilder()
+						.setLabel("Yes")
+						.setStyle(ButtonStyle.Success)
+						.setEmoji('✅')
+						.setCustomId('accept'),
+				)
+				.addComponents(
+					new ButtonBuilder()
+						.setLabel("No")
+						.setStyle(ButtonStyle.Danger)
+						.setEmoji('❌')
+						.setCustomId('cancel'),
+				);
+
+			const confirmEmbed = new EmbedBuilder()
+				.setColor('DarkButNotBlack')
+				.setTitle('Spawn Channel')
+				.addFields(
+					{
+						name: `Channel Removal`,
+						value: `Would you like to remove the current spawn channel?`,
+
+					})
+			await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] }).then(async embedMsg => {
+				const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 });
+
+				collectorBut.on('collect', async i => {
+					if (i.user.id === interaction.user.id) {
+						if (i.customId === 'accept') {
+							//User has confirmed channel change, procced
+							const editChannel = await GuildData.update({ spawnchannel: 0 }, { where: { guildid: guildID } });
+
+							if (editChannel > 0) {
+								//updated spawn channel success!					
+								await interaction.followUp(`Channel removed as spawn channel!`);
+								await i.deferUpdate();
+								wait(5000).then(async () => {
+									await embedMsg.delete();
+								});
+							} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
+
+						} else if (i.customId === 'cancel') {
+							//User has canceled channel change, inform and delete
+							i.reply('Channel removal cancelled!');
+							await i.deferUpdate();
+							wait(5000).then(async () => {
+								await embedMsg.delete();
+							});
+						}
+					} else {
+						i.reply({ content: `Nice try slick!`, ephemeral: true });
+					}
+				});
+			});
 			
 		}
 	},
