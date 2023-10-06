@@ -1,18 +1,19 @@
 const { UserData, ActiveEnemy } = require('../../dbObjects.js');
+const { display } = require('./combatDisplay.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
 //========================================
 //basic user data refrence method
-async function grabU(interaction) {
-    uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+async function grabU(user) {
+    uData = await UserData.findOne({ where: { userid: user } });
     return uData;
 }
 
 //========================================
 //This method Generates an enemy based on the users level
-async function loadEnemy() {
-    const uData = await grabU();
-    if (!uData) return interaction.followUp(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
+async function loadEnemy(interaction, user) {
+    const uData = await grabU(user);
+    if (!uData) return interaction.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
     if (uData.health <= 0) return playerDead(uData, 'Fayrn');
 
     let ePool = [];
@@ -44,9 +45,9 @@ async function loadEnemy() {
         }
 
         //constKey = cEnemy.ConstKey;
-        const specCode = interaction.user.id + cEnemy.ConstKey;
+        const specCode = user + cEnemy.ConstKey;
         await addEnemy(cEnemy, specCode);
-        //await display();
+        await display(uData, specCode, interaction, cEnemy);
     }
 }
 
@@ -55,10 +56,10 @@ async function loadEnemy() {
 async function addEnemy(cEnemy, specCode) {
 
     try {
-        var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
+        var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: cEnemy.ConstKey }] });
 
         console.log('Status of finding enemy: ', copyCheck);
-        console.log('Values being checked for: ', '\nspecCode: ', specCode, '\nconstKey: ', constKey);
+        console.log('Values being checked for: ', '\nspecCode: ', specCode, '\nconstKey: ', cEnemy.ConstKey);
 
         if (copyCheck) {
             //enemy already exists return                  
@@ -128,7 +129,7 @@ async function addEnemy(cEnemy, specCode) {
 
             console.log(`Enemy data being added to database: \nNAME: ${enemy.name} \nLEVEL: ${enemy.level} \nHEALTH: ${enemy.health} \nDEFENCE: ${enemy.defence}`);
 
-            var newE = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
+            var newE = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: cEnemy.ConstKey }] });
             if (newE) {
                 console.log('Enemy data added successfully!');
                 return newE;
