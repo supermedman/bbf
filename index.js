@@ -5,7 +5,12 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+	]
+});
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
@@ -38,6 +43,10 @@ for (const file of eventFiles) {
 
 
 client.commands = new Collection();
+
+client.cooldowns = new Collection();
+
+client.gcooldowns = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');//access commands folder as directory
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));//searches for any file within this dir ending with .js (being a javascript file)
