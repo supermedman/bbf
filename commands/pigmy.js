@@ -195,7 +195,7 @@ module.exports = {
 			console.log('TIME LEFT: ', timeLeft);
 
 			if (timeLeft <= 0) {
-				const hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
+				var hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
 				console.log(hrs);
 				//PUT A RESTRICTION ON LENGTH LMAOOOOO
 				if (hrs > 72) {
