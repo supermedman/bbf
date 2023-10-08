@@ -1,9 +1,9 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { ActiveEnemy, Equipped, LootStore, LootDrop, UserData } = require('../../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
+const { userDamageAlt } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
 const { grabRar } = require('./grabRar.js');
-//const { hitOnce } = require('./hitOnce.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -12,106 +12,29 @@ const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json
 var constKey;
 var specCode;
 
+/**
+ * 
+ * @param {any} uData OBJECT Static upon initial call
+ * @param {any} carriedCode ID STRING Static refrence to enemy specCode
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ * @param {any} theEnemy Static upon initial call
+ */
 //========================================
-// This method displays the enemy in its current state
-async function initialDisplay(uData, carriedCode, interaction, Enemy) {
+// This method displays the enemy in its initial state
+async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     specCode = carriedCode;
-    constKey = Enemy.ConstKey;
-    const enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
-    const hasPng = await pngCheck(enemy);
+    constKey = theEnemy.constkey;
 
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('kill')
-                .setLabel('Defeat')
-                .setDisabled(true)
-                .setStyle(ButtonStyle.Primary),
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('onehit')
-                .setLabel('Strike')
-                .setStyle(ButtonStyle.Primary),
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('refresh')
-                .setLabel('New Enemy')
-                .setDisabled(true)
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('🔄'),
-        );
-
-    if (hasPng) {
-        const attachment = await displayEWpic(interaction, enemy, true);
-
-        interaction.channel.send({ components: [row], files: [attachment] }).then(async message => {
-            const collectorBut = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
-
-            collectorBut.on('collect', async i => {
-                if (i.user.id === uData.userid) {
-                    if (i.customId === 'refresh') {
-                        //delete the embed here
-                        //await message.delete();
-                        //startCombat();//run the entire script over again
-                    }
-                    if (i.customId === 'kill') {
-                        //run attack function until death is acheived
-                        //const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                        //var dmgDealt = await userDamage(interaction, item);
-                        //await message.delete();
-                        //dealDeath(dmgDealt, item);
-                    }
-                    if (i.customId === 'onehit') {
-                        //run once reprompt reaction
-                        const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
-                        var dmgDealt = await userDamage(uData, item);
-                        await message.delete();
-                        await hitOnce(dmgDealt, item, uData, enemy, interaction);
-                    }
-                } else {
-                    i.reply({ content: `Nice try slick!`, ephemeral: true });
-                }
-            });
-            collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-        })
-    } else {
-        const attachment = await displayEWOpic(interaction, enemy, true);
-
-        interaction.channel.send({ components: [row], files: [attachment] }).then(async message => {
-            const collectorBut = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
-
-            collectorBut.on('collect', async i => {
-                if (i.user.id === uData.userid) {
-                    if (i.customId === 'refresh') {
-                        //delete the embed here
-                        //await message.delete();
-                        //startCombat();//run the entire script over again
-                    }
-                    if (i.customId === 'kill') {
-                        //run attack function until death is acheived
-                        //const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                        //var dmgDealt = await userDamage(interaction, item);
-                        //await message.delete();
-                        //dealDeath(dmgDealt, item);
-                    }
-                    if (i.customId === 'onehit') {
-                        //run once reprompt reaction
-                        const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
-                        var dmgDealt = await userDamage(uData, item);
-                        await message.delete();
-                        await hitOnce(dmgDealt, item, uData, enemy, interaction);
-                    }
-                } else {
-                    i.reply({ content: `Nice try slick!`, ephemeral: true });
-                }
-            });
-            collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-        })
-    }
+    if (uData.health <= 0) return playerDead(uData, 'Fayrn');
+    //Only user && interaction objects need to be passed futher!
+    await display(interaction, uData);
 }
 
+/**
+ * 
+ * @param {any} interaction
+ * @param {any} uData
+ */
 //========================================
 //This method is used after the first time displaying an enemy for continued combat handles
 async function display(interaction, uData) {
@@ -121,10 +44,10 @@ async function display(interaction, uData) {
     const row = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
-                .setCustomId('kill')
-                .setLabel('Defeat')
+                .setCustomId('hide')
+                .setLabel('Try to hide')
                 .setDisabled(true)
-                .setStyle(ButtonStyle.Primary),
+                .setStyle(ButtonStyle.Secondary),
         )
         .addComponents(
             new ButtonBuilder()
@@ -134,11 +57,10 @@ async function display(interaction, uData) {
         )
         .addComponents(
             new ButtonBuilder()
-                .setCustomId('refresh')
-                .setLabel('New Enemy')
+                .setCustomId('steal')
+                .setLabel('Steal Item')
                 .setDisabled(true)
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('🔄'),
+                .setStyle(ButtonStyle.Secondary),
         );
 
     if (hasPng) {
@@ -149,22 +71,16 @@ async function display(interaction, uData) {
 
             collectorBut.on('collect', async i => {
                 if (i.user.id === uData.userid) {
-                    if (i.customId === 'refresh') {
-                        //delete the embed here
-                        //await message.delete();
-                        //startCombat();//run the entire script over again
+                    if (i.customId === 'steal') {
+                        //WIP
                     }
-                    if (i.customId === 'kill') {
-                        //run attack function until death is acheived
-                        //const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                        //var dmgDealt = await userDamage(interaction, item);
-                        //await message.delete();
-                        //dealDeath(dmgDealt, item);
+                    if (i.customId === 'hide') {
+                        //WIP
                     }
                     if (i.customId === 'onehit') {
                         //run once reprompt reaction
                         const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
-                        var dmgDealt = await userDamage(uData, item);
+                        var dmgDealt = await userDamageAlt(uData, item);
                         await message.delete();
                         await hitOnce(dmgDealt, item, uData, enemy, interaction);
                     }
@@ -182,22 +98,16 @@ async function display(interaction, uData) {
 
             collectorBut.on('collect', async i => {
                 if (i.user.id === uData.userid) {
-                    if (i.customId === 'refresh') {
-                        //delete the embed here
-                        //await message.delete();
-                        //startCombat();//run the entire script over again
+                    if (i.customId === 'steal') {
+                        //WIP
                     }
-                    if (i.customId === 'kill') {
-                        //run attack function until death is acheived
-                        //const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                        //var dmgDealt = await userDamage(interaction, item);
-                        //await message.delete();
-                        //dealDeath(dmgDealt, item);
+                    if (i.customId === 'hide') {
+                        //WIP
                     }
                     if (i.customId === 'onehit') {
                         //run once reprompt reaction
                         const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
-                        var dmgDealt = await userDamage(uData, item);
+                        var dmgDealt = await userDamageAlt(uData, item);
                         await message.delete();
                         await hitOnce(dmgDealt, item, uData, enemy, interaction);
                     }
@@ -210,6 +120,10 @@ async function display(interaction, uData) {
     }
 }
 
+/**
+ * 
+ * @param {any} enemy
+ */
 //========================================
 //This method checks for enemy png
 function pngCheck(enemy) {
@@ -226,105 +140,20 @@ function pngCheck(enemy) {
     }
 }
 
-
+/**
+ * 
+ * @param {any} dmgDealt
+ * @param {any} item
+ * @param {any} user
+ * @param {any} Enemy
+ * @param {any} interaction
+ */
 //========================================
-// This method calculates damage dealt by the user and returns that value
-async function userDamage(uData, item) {
-
-    /**
-     *  CHANGES TO HOW STATS EFFECT COMBAT 
-     *  
-     *   Speed: Increases % chance to land 2 hits before enemy attacks
-     *   
-     *   Strength: Increases base health by 10 & base damage by 2
-     *   
-     *   Dexterity: Increases % chance to land a crit
-     *   
-     *   Intelligence: Increases base attack by 8
-     *   
-     *  CHANGES TO HOW CLASSES EFFECT COMBAT
-     *   
-     *   Warrior: Allrounder
-     *      - 5% reduction on damage taken
-     *      - 5% increase on damage dealt
-     *   
-     *   Mage: GlassCannon
-     *      - 5% increase on damage taken
-     *      - 15% increase on damage dealt
-     *      
-     *   Thief: Striker
-     *      - 10% base chance of double hit
-     *      - 10% base chance of crit
-     *      
-     *   Paladin: Unshakeable
-     *      - 15% reduction on damage taken
-     *      - 5% reduction on damage dealt
-     * */
-
-    /**
-     *      Double hits & Critical hits
-     *          - Speed stat
-     *          - Dexterity stat
-     *          
-     *      How do they change the % chance?
-     *          - +2% per point
-     *          - +2% per point
-     *          
-     *      What is the base % chance?
-     *          - Thief 10% both
-     *          - 2% for all others
-     *      
-     * */
-
-    const user = uData;//grabs the user data file for all following assignments
-
-    //=========================
-    //const spd = user.speed;
-    const str = user.strength;
-    //const dex = user.dexterity;
-    const int = user.intelligence;
-    const pclass = user.pclass;
-
-    var dmgMod = 0;
-    //=========================
-
-    dmgMod = ((int * 8) + (str * 2));
-
-    if (pclass === 'Warrior') {
-        dmgMod += (dmgMod * 0.05);
-    } else if (pclass === 'Paladin') {
-        dmgMod -= (dmgMod * 0.05);
-    } else if (pclass === 'Mage') {
-        dmgMod += (dmgMod * 0.15);
-    }
-
-    console.log(`Damage Mod: ${dmgMod}`);
-
-    //-------------------------------------------------------------------------------
-    //here the damage modifier is applied to the damage dealt and the final value is returned
-    var dmgDealt = dmgMod;
-
-    console.log('ITEM EQUIPPED: ', item);
-
-    if (item) {
-        console.log('ITEM DAMAGE: ', item.attack);
-        dmgDealt += item.attack;
-    }
-
-    console.log('Damage Dealt to Enemy ' + dmgDealt);
-    return dmgDealt;
-}
-
-
-//========================================
-//this method is for dealing damage to an enemy takes the enemy id, damageDealt, and users id 
+//This method handles the bulk of combat calculations and value changes.
 async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
     //call up the enemy on file that is currently being attacked
-    //NEED TO MAKE A NEW ENEMY OF THE SAME TYPE WHEN THIS IS CALLED IN ORDER TO RECORD DAMAGE DONE
     //apply defense and weaknesses to damage given and then deal the final amount to the enemy
-    //check if the attack kills, if not a kill display how much health the enemy has left
-    //check if the enemy has a higher speed then player to decide who attacks first
-    //var enemy = enemyList;
+    //check if the attack kills, if not a kill, display how much health the enemy has left
     console.log(Enemy.constkey);
     var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: Enemy.constkey }] });
     if (copyCheck) {
@@ -451,7 +280,7 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
                 }, 15000));
 
                 //NEW METHOD TO DEAL DAMAGE  
-                await hitE(eHealth, enemy, specCode);
+                await hitE(eHealth, enemy);
             }
             i++;
         } while (i < runCount)
@@ -477,6 +306,12 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
     }
 }
 
+/**
+ * 
+ * @param {any} enemy
+ * @param {any} interaction
+ * @param {any} user
+ */
 //========================================
 // This method handles when enemy has died 
 /**
@@ -528,9 +363,15 @@ async function enemyDead(enemy, interaction, user) {
     removeE(enemy);
 }
 
+/**
+ * 
+ * @param {any} user
+ * @param {any} enemy
+ * @param {any} interaction
+ */
 //========================================
 // This method handles when player has died
-async function playerDead(user, enemy) {
+async function playerDead(user, enemy, interaction) {
     /*PLAYER IS DEAD HANDLE HERE*/
     //TEMPORARY EMBED FOR TESTING PURPOSES WILL BE CANVASED LATER
 
@@ -561,7 +402,7 @@ async function playerDead(user, enemy) {
         .addFields(
             { name: `Obituary`, value: list, inline: true },
         );
-    interaction.channel.send({ embeds: [deadEmbed], components: [grief] }).then(async embedMsg => {
+    await interaction.channel.send({ embeds: [deadEmbed], components: [grief] }).then(async embedMsg => {
         const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
 
         collectorBut.on('collect', async i => {
@@ -577,6 +418,13 @@ async function playerDead(user, enemy) {
     });
 }
 
+/**
+ * 
+ * @param {any} eDamage
+ * @param {any} user
+ * @param {any} enemy
+ * @param {any} interaction
+ */
 //========================================
 // This method calculates damage dealt to user 
 async function takeDamage(eDamage, user, enemy, interaction) {
@@ -597,7 +445,7 @@ async function takeDamage(eDamage, user, enemy, interaction) {
         //Player has died
         console.log('PLAYER IS DEAD :O');
         await hitP(0, user);
-        await playerDead(user, enemy);
+        await playerDead(user, enemy, interaction);
         return true;
     } else {
         currentHealth -= eDamage;
@@ -621,6 +469,11 @@ async function takeDamage(eDamage, user, enemy, interaction) {
     }
 }
 
+/**
+ * 
+ * @param {any} user
+ * @param {any} interaction
+ */
 //========================================
 // This method resets player health to full upon death
 async function revive(user, interaction) {
@@ -629,9 +482,14 @@ async function revive(user, interaction) {
     if (editRow > 0) return console.log('Player successfully revived to full health!');
 }
 
+/**
+ * 
+ * @param {any} eHealth
+ * @param {any} enemy
+ */
 //========================================
 //this method updates the enemies health after being attacked and returns
-async function hitE(eHealth, enemy, specCode) {
+async function hitE(eHealth, enemy) {
     const dealDmg = ActiveEnemy.update({ health: eHealth }, { where: [{ specid: specCode }, { constkey: enemy.constkey }] });
     if (dealDmg) {
         console.log('Enemy Health has been updated');
@@ -639,6 +497,11 @@ async function hitE(eHealth, enemy, specCode) {
     }
 }
 
+/**
+ * 
+ * @param {any} currentHealth
+ * @param {any} user
+ */
 //========================================
 //this method updates the enemies health after being attacked and returns
 async function hitP(currentHealth, user) {
@@ -649,6 +512,10 @@ async function hitP(currentHealth, user) {
     }
 }
 
+/**
+ * 
+ * @param {any} enemy
+ */
 //========================================
 //this method is for removing an enemy when they have been killed
 async function removeE(enemy) {
@@ -659,6 +526,10 @@ async function removeE(enemy) {
     return;
 }
 
+/**
+ * 
+ * @param {any} enemy
+ */
 //========================================
 // This method calculates damage dealt by an enemy and returns that value
 function enemyDamage(enemy) {
@@ -670,6 +541,11 @@ function enemyDamage(enemy) {
     return dmgDealt;
 }
 
+/**
+ * 
+ * @param {any} enemy
+ * @param {any} interaction
+ */
 //========================================
 //this method generates an item to be dropped upon an enemies death
 async function makeItem(enemy, interaction) {
@@ -758,6 +634,12 @@ async function makeItem(enemy, interaction) {
     }
 }
 
+/**
+ * 
+ * @param {any} item
+ * @param {any} uData
+ * @param {any} interaction
+ */
 //========================================
 //this method adds the dropped item into the players inventory
 async function addItem(item, uData, interaction) {
