@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,16 +10,18 @@ module.exports = {
 				.setRequired(true)),
 	async execute(interaction) { 
 		const suggestion = interaction.options.getString('input');
+		await interaction.deferReply();
 		if (suggestion.length > 1000) {
 			//message is too long abort send
-			interaction.reply('That message is too long, please reduce your suggestion length!');
+			interaction.deferUpdate('That message is too long, please reduce your suggestion length!');
 		} else {
 			let guild = await interaction.client.guilds.fetch("892659101878849576"), // returns a Guild or undefined
 				channel;			
 
 			if (guild) {
 				channel = await guild.channels.fetch("910249829186285608");
-				if (channel) {					
+				if (channel) {
+					interaction.deferUpdate('Suggestion sent successfully!');
 					channel.send(`${suggestion}`).then(async MSG => {
 						await MSG.react('👍🏼');
 						await MSG.react('👎🏼');
