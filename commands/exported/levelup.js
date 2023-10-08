@@ -27,8 +27,18 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 	console.log('Current level before xp added: ', curlvl);
 
 	var nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
-	console.log('Current xp needed to level: ', nxtLvl);
 
+	//Adding temp xp needed change at level 20 to slow proggress for now
+	if (uData.level = 20) {
+		//Adding level scale to further restrict leveling		
+		nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+	} else if (uData.level > 20) {
+		//Adding level scale to further restrict leveling
+		const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+		nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+	} else {/*DO NOTHING*/}
+
+	console.log('Current xp needed to level: ', nxtLvl);
 	console.log('xp to next level: ', (nxtLvl - totalXp));
 
 	let newlvl = curlvl;
@@ -43,7 +53,15 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 			addPoints(uData);
 			console.log('Current level after xp added ', newlvl);
 
-			nxtLvl = 50 * (Math.pow((curlvl + i), 2) - 1);
+			if (uData.level = 20) {
+				//Adding level scale to further restrict leveling		
+				nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+			} else if (uData.level > 20) {
+				//Adding level scale to further restrict leveling
+				const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+				nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+			} else { nxtLvl = 50 * (Math.pow((curlvl + i), 2) - 1); }
+			
 			console.log('Current xp needed to level: ', nxtLvl);
 
 			const lvlUpEmbed = new EmbedBuilder()
