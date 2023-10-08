@@ -1,4 +1,4 @@
-﻿const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 
 const { display } = require('./combatDisplay.js');
@@ -7,6 +7,7 @@ const { grabRar } = require('./grabRar.js');
 const { ActiveEnemy, LootStore, LootDrop, UserData } = require('../../dbObjects.js');
 
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
+const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
 
 //========================================
 //this method is for dealing damage to an enemy takes the enemy id, damageDealt, and users id 
@@ -163,7 +164,7 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction, specCode) {
 
         if (!dead) {
             console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${Enemy}`);
-            await display(uData, specCode, interaction, Enemy);
+            return await display(user, specCode, interaction, Enemy);
         }
     }
 }
@@ -220,6 +221,55 @@ async function enemyDead(enemy, interaction, user) {
 }
 
 //========================================
+// This method handles when player has died
+async function playerDead(user, enemy) {
+    /*PLAYER IS DEAD HANDLE HERE*/
+    //TEMPORARY EMBED FOR TESTING PURPOSES WILL BE CANVASED LATER
+
+    const grief = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('primary')
+                .setLabel('Revive')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('💀'),
+        );
+
+    const specialMsg = Math.random();
+    const MsgID = Math.round(Math.random() * (deathMsgList.length - 1));
+
+    if (enemy === 'Fayrn') {
+        var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to the gods, please Mourn your loss to revive to full health.`
+    }
+    if (specialMsg >= 0.9) {
+        var list = deathMsgList[MsgID];
+    } else {
+        var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to ${enemy.name}`
+    }
+
+    const deadEmbed = new EmbedBuilder()
+        .setTitle('YOU HAVE FALLEN IN COMBAT')
+        .setColor('DarkGold')
+        .addFields(
+            { name: `Obituary`, value: list, inline: true },
+        );
+    interaction.channel.send({ embeds: [deadEmbed], components: [grief] }).then(async embedMsg => {
+        const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+
+        collectorBut.on('collect', async i => {
+            if (i.user.id === interaction.user.id) {
+                //delete the embed here
+                await embedMsg.delete();
+                await revive(user, interaction);
+            } else {
+                i.reply({ content: `Nice try slick!`, ephemeral: true });
+            }
+        });
+        collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
+    });
+}
+
+//========================================
 // This method calculates damage dealt to user 
 async function takeDamage(eDamage, user, enemy, interaction) {
     var currentHealth = user.health;
@@ -261,6 +311,14 @@ async function takeDamage(eDamage, user, enemy, interaction) {
         await hitP(currentHealth, user);
         return false;
     }
+}
+
+//========================================
+// This method resets player health to full upon death
+async function revive(user, interaction) {
+    const totalHealth = 100 + (user.strength * 10);
+    const editRow = UserData.update({ health: totalHealth }, { where: { userid: interaction.user.id } });
+    if (editRow > 0) return console.log('Player successfully revived to full health!');
 }
 
 //========================================
@@ -322,7 +380,7 @@ async function makeItem(enemy, uData, interaction) {
 
         if (lootList[i].Rar_id === rarG) {
             await iPool.push(lootList[i]);
-            console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type, interaction.user.id);
+            console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type, uData.userid);
         } else {
             //item not match keep looking
         }

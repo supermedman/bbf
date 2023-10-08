@@ -39,9 +39,15 @@ const wait = require('node:timers/promises').setTimeout;
  *    
  *    
  * */
-async function grabU(collectedUser) {
+async function grabUM(collectedUser, message) {
 	uData = await UserData.findOne({ where: { userid: collectedUser } });
 	if (!uData) return message.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
+	return uData;
+}
+
+async function grabUC(collectedUser, channel) {
+	uData = await UserData.findOne({ where: { userid: collectedUser } });
+	if (!uData) return channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
 
@@ -89,12 +95,15 @@ async function handleSpawn(message) {
 						if (enemyFound) {
 							//enemy was found, sort and select from enemies!
 						} else {
-							const user = await grabU(collectedUser);
+							const user = await grabUM(collectedUser, message);
 							if (user) {
 								await enemyGrabbed(message, collectedUser);
 							}
 						}
 						await i.deferUpdate();
+						interactiveButtons.components[0].setDisabled(true);
+
+						await i.editReply({ components: [interactiveButtons] });
 						wait(5000).then(async () => {
 							await embedMsg.delete();
 						});
@@ -119,12 +128,15 @@ async function handleSpawn(message) {
 						if (enemyFound) {
 							//enemy was found, sort and select from enemies!
 						} else {
-							const user = await grabU(collectedUser);
+							const user = await grabUC(collectedUser, channel);
 							if (user) {
 								await enemyGrabbed(interaction, collectedUser);
 							}
 						}
 						await i.deferUpdate();
+						interactiveButtons.components[0].setDisabled(true);
+
+						await i.editReply({ components: [interactiveButtons] });
 						wait(5000).then(async () => {
 							await embedMsg.delete();
 						});

@@ -89,12 +89,11 @@ module.exports = {
                 const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 45000 });
 
                 collectorBut.on('collect', async i => {
-                     await i.deferUpdate();
-                     await wait(1000);
-                    if (i.user.id === interaction.user.id) {                       
+                    if (i.user.id === interaction.user.id) {
+                        await i.deferReply();
                         if (i.customId === 'slot1') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
+                            await i.deferUpdate();
+                            await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -125,8 +124,8 @@ module.exports = {
                             } else console.log('ITEM NOT FOUND!');//item not found :(                       
                         }
                         else if (i.customId === 'slot2') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
+                            await i.deferUpdate();
+                            await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -157,8 +156,8 @@ module.exports = {
                             } else console.log('ITEM NOT FOUND!');//item not found :(
                         }
                         else if (i.customId === 'slot3') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
+                            await i.deferUpdate();
+                            await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -189,8 +188,8 @@ module.exports = {
                             } else console.log('ITEM NOT FOUND!');//item not found :(
                         }
                         else if (i.customId === 'slot4') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
+                            await i.deferUpdate();
+                            await wait(1000);
                             const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
                             if (item) {
                                 console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -231,7 +230,7 @@ module.exports = {
 
 
                     } else {
-                        i.reply({ content: `Nice try slick!`, ephemeral: true });
+                        i.channel.send({ content: `Nice try slick!`, ephemeral: true });
                     }
                 });
             }).catch(console.error);
