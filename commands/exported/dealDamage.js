@@ -8,7 +8,7 @@ const { UserData } = require('../../dbObjects.js');
  *  
  *  Returns damage value after calculations are made
  *  
- *                  ===== Exports { userDamage, enemyDamage } =====
+ *                  ===== Exports { userDamage, userDamageAlt, enemyDamage } =====
  * */
 
 //========================================
@@ -107,6 +107,46 @@ async function userDamage(interaction, item) {
 }
 
 //========================================
+// This method calculates damage dealt by the user and returns that value
+async function userDamageAlt(user, item) {
+    //=========================
+    //const spd = user.speed;
+    const str = user.strength;
+    //const dex = user.dexterity;
+    const int = user.intelligence;
+    const pclass = user.pclass;
+
+    var dmgMod = 0;
+    //=========================
+
+    dmgMod = ((int * 8) + (str * 2));
+
+    if (pclass === 'Warrior') {
+        dmgMod += (dmgMod * 0.05);
+    } else if (pclass === 'Paladin') {
+        dmgMod -= (dmgMod * 0.05);
+    } else if (pclass === 'Mage') {
+        dmgMod += (dmgMod * 0.15);
+    }
+
+    console.log(`Damage Mod: ${dmgMod}`);
+
+    //-------------------------------------------------------------------------------
+    //here the damage modifier is applied to the damage dealt and the final value is returned
+    var dmgDealt = dmgMod;
+
+    console.log('ITEM EQUIPPED: ', item);
+
+    if (item) {
+        console.log('ITEM DAMAGE: ', item.attack);
+        dmgDealt += item.attack;
+    }
+
+    console.log('Damage Dealt to Enemy ' + dmgDealt);
+    return dmgDealt;
+}
+
+//========================================
 // This method calculates damage dealt by an enemy and returns that value
 function enemyDamage(enemy) {
     // First: grab enemy damage min and max
@@ -117,4 +157,4 @@ function enemyDamage(enemy) {
     return dmgDealt;
 }
 
-module.exports = { userDamage, enemyDamage };
+module.exports = { userDamage, userDamageAlt, enemyDamage };
