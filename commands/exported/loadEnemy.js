@@ -1,20 +1,16 @@
-const { UserData, ActiveEnemy } = require('../../dbObjects.js');
+const { ActiveEnemy } = require('../../dbObjects.js');
 const { initialDisplay } = require('./combatDisplay.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
-//========================================
-//basic user data refrence method
-async function grabU(user) {
-    uData = await UserData.findOne({ where: { userid: user } });
-    return uData;
-}
-
+/**
+ * 
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ * @param {any} user OBJECT: User data reference
+ */
 //========================================
 //This method Generates an enemy based on the users level
 async function loadEnemy(interaction, user) {
-    const uData = await grabU(user);
-    if (!uData) return interaction.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
-    if (uData.health <= 0) return playerDead(uData, 'Fayrn');
+    const uData = user;
 
     let ePool = [];
     //for loop to search enemy prefab list
@@ -45,9 +41,9 @@ async function loadEnemy(interaction, user) {
         }
 
         //constKey = cEnemy.ConstKey;
-        const specCode = user + cEnemy.ConstKey;
-        await addEnemy(cEnemy, specCode);
-        await initialDisplay(uData, specCode, interaction, cEnemy);
+        const specCode = uData.userid + cEnemy.ConstKey;
+        const theEnemy = await addEnemy(cEnemy, specCode);
+        await initialDisplay(uData, specCode, interaction, theEnemy);
     }
 }
 
