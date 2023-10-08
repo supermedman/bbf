@@ -1,5 +1,5 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { GuildData, ActiveEnemy, UserData } = require('../dbObjects.js');
+const { GuildData, UserData } = require('../dbObjects.js');
 const { loadEnemy } = require('../commands/exported/loadEnemy.js');
 const wait = require('node:timers/promises').setTimeout;
 
@@ -39,22 +39,46 @@ const wait = require('node:timers/promises').setTimeout;
  *    
  *    
  * */
+
+/**
+ * 
+ * @param {any} collectedUser ID STRING
+ * @param {any} message STATIC MESSAGE OBJECT
+ */
+//This method grabs user data when no default spawn channel is active
 async function grabUM(collectedUser, message) {
 	uData = await UserData.findOne({ where: { userid: collectedUser } });
 	if (!uData) return message.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
 
+/**
+ * 
+ * @param {any} collectedUser ID STRING
+ * @param {any} channel STATIC CHANNEL OBJECT
+ */
+//This method grabs user data when default spawn channel is active
 async function grabUC(collectedUser, channel) {
 	uData = await UserData.findOne({ where: { userid: collectedUser } });
 	if (!uData) return channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
 
+/**
+ * 
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ * @param {any} user OBJECT: User data reference 
+ */
+//This method passes the interaction object and the invokers user data object into the enemy loading command
 async function enemyGrabbed(interaction, user) {
 	await loadEnemy(interaction, user);
 }
 
+/**
+ * 
+ * @param {any} message STATIC MESSAGE OBJECT
+ */
+//This method handles guild channel spawning as well as user data acquisition
 async function handleSpawn(message) {
 	//Use User ID to check for active enemies!
 	const interactiveButtons = new ActionRowBuilder()
@@ -88,17 +112,10 @@ async function handleSpawn(message) {
 				collectorBut.on('collect', async i => {
 					const collectedUser = i.user.id;
 					if (i.customId === 'accept') {
-						//user has selected enemy to fight!
-						//handle enemy spawn here
-						const enemyFound = await ActiveEnemy.findOne({ where: { specid: collectedUser } });
-
-						if (enemyFound) {
-							//enemy was found, sort and select from enemies!
-						} else {
-							const user = await grabUM(collectedUser, message);
-							if (user) {
-								await enemyGrabbed(message, collectedUser);
-							}
+						//user has chosen to fight!					
+						const user = await grabUM(collectedUser, message);
+						if (user) {
+							await enemyGrabbed(message, user);
 						}
 						await i.deferUpdate();
 						interactiveButtons.components[0].setDisabled(true);
@@ -109,7 +126,7 @@ async function handleSpawn(message) {
 						});
 					}
 				});
-				collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
+				collectorBut.on('end', async remove => { if (!message) { await embedMsg.delete(); } });
 			});
 		} else {
 			//spawn channel found, check if it exists
@@ -121,17 +138,10 @@ async function handleSpawn(message) {
 					const collectedUser = i.user.id;
 					const interaction = i;
 					if (i.customId === 'accept') {
-						//user has selected enemy to fight!
-						//handle enemy spawn here
-						const enemyFound = await ActiveEnemy.findOne({ where: { specid: collectedUser } });
-
-						if (enemyFound) {
-							//enemy was found, sort and select from enemies!
-						} else {
-							const user = await grabUC(collectedUser, channel);
-							if (user) {
-								await enemyGrabbed(interaction, collectedUser);
-							}
+						//user has chosen to fight!					
+						const user = await grabUC(collectedUser, channel);
+						if (user) {
+							await enemyGrabbed(interaction, user);
 						}
 						await i.deferUpdate();
 						interactiveButtons.components[0].setDisabled(true);
@@ -142,7 +152,7 @@ async function handleSpawn(message) {
 						});
 					}
 				});
-				collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
+				collectorBut.on('end', async remove => { if (!message) { await embedMsg.delete(); } });
 			});
         }
     }
