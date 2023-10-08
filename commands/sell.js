@@ -1,4 +1,4 @@
-﻿const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { LootStore, UserData } = require('../dbObjects.js');
 
@@ -20,21 +20,30 @@ module.exports = {
 		//FIGURE OUT HOW TO MAP CURRENT INVENTORY ITEMS AS THE OPTIONS FOR SELECTING
 		const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
 
-		let choices = [];
+        let choices = [];
 
-		for (var n = 0; n < items.length; n++) {
-			var picked = items[n].name;//assign picked to item name at postion n in the items list found
-			picked.toString();//prevent any type errors			
-			choices.push(picked);//push each name one by one into the choices array
-		}
-		console.log(choices);
-		console.log(focusedValue);
+        if (focusedValue) {
+            let first = focusedValue.charAt();
 
-		//Mapping the complete list of options for discord to handle and present to the user
-		const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-		await interaction.respond(
-			filtered.map(choice => ({ name: choice, value: choice })),
-		);
+            for (var n = 0; n < items.length; n++) {
+                if (items[n].name.charAt() === first) {//Check for item starting with the letter provided
+                    var picked = items[n].name;//assign picked to item name at postion n in the items list found
+                    //prevent any type errors			
+                    choices.push(picked.toString());//push each name one by one into the choices array
+                } else {
+                    //Item name does not match keep looking
+                }
+
+            }
+            console.log(choices);
+            console.log(focusedValue);
+
+            //Mapping the complete list of options for discord to handle and present to the user
+            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+            await interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            );
+        }
 	},
     async execute(interaction) {
         await interaction.deferReply();
