@@ -32,8 +32,8 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
 /**
  * 
- * @param {any} interaction
- * @param {any} uData
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ * @param {any} uData OBJECT: User Data reference
  */
 //========================================
 //This method is used after the first time displaying an enemy for continued combat handles
@@ -122,7 +122,7 @@ async function display(interaction, uData) {
 
 /**
  * 
- * @param {any} enemy
+ * @param {any} enemy OBJECT
  */
 //========================================
 //This method checks for enemy png
@@ -144,9 +144,9 @@ function pngCheck(enemy) {
  * 
  * @param {any} dmgDealt
  * @param {any} item
- * @param {any} user
+ * @param {any} user OBJECT: User Data reference
  * @param {any} Enemy
- * @param {any} interaction
+ * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 //This method handles the bulk of combat calculations and value changes.
@@ -309,17 +309,11 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
 /**
  * 
  * @param {any} enemy
- * @param {any} interaction
- * @param {any} user
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ * @param {any} user OBJECT: User Data reference
  */
 //========================================
 // This method handles when enemy has died 
-/**
- *      Remove enemy killed embed upon set time passing
- *      OR
- *      When player calls startcombat and embed still remains
- * 
- */
 async function enemyDead(enemy, interaction, user) {
     const xpGained = Math.floor(Math.random() * (enemy.xpmax - enemy.xpmin + 1) + enemy.xpmin);
     const cCalc = ((xpGained - 5) + 1);
@@ -365,9 +359,9 @@ async function enemyDead(enemy, interaction, user) {
 
 /**
  * 
- * @param {any} user
+ * @param {any} user OBJECT: User Data reference
  * @param {any} enemy
- * @param {any} interaction
+ * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 // This method handles when player has died
@@ -421,9 +415,9 @@ async function playerDead(user, enemy, interaction) {
 /**
  * 
  * @param {any} eDamage
- * @param {any} user
+ * @param {any} user OBJECT: User Data reference
  * @param {any} enemy
- * @param {any} interaction
+ * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 // This method calculates damage dealt to user 
@@ -471,8 +465,8 @@ async function takeDamage(eDamage, user, enemy, interaction) {
 
 /**
  * 
- * @param {any} user
- * @param {any} interaction
+ * @param {any} user OBJECT: User Data reference
+ * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 // This method resets player health to full upon death
@@ -484,7 +478,7 @@ async function revive(user, interaction) {
 
 /**
  * 
- * @param {any} eHealth
+ * @param {any} eHealth INTEGER: Enemy Health reference
  * @param {any} enemy
  */
 //========================================
@@ -499,8 +493,8 @@ async function hitE(eHealth, enemy) {
 
 /**
  * 
- * @param {any} currentHealth
- * @param {any} user
+ * @param {any} currentHealth INTEGER: User Health reference
+ * @param {any} user OBJECT: User Data reference
  */
 //========================================
 //this method updates the enemies health after being attacked and returns
@@ -544,7 +538,7 @@ function enemyDamage(enemy) {
 /**
  * 
  * @param {any} enemy
- * @param {any} interaction
+ * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 //this method generates an item to be dropped upon an enemies death
@@ -637,12 +631,12 @@ async function makeItem(enemy, interaction) {
 /**
  * 
  * @param {any} item
- * @param {any} uData
- * @param {any} interaction
+ * @param {any} user OBJECT: User Data reference
+ * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 //this method adds the dropped item into the players inventory
-async function addItem(item, uData, interaction) {
+async function addItem(item, user, interaction) {
     //create new search var to find any Item within the UserItem file pertaining to the User in question
     //.findOne() retrevies a single row of data
     //where : {} ensures only the row desired is grabbed
@@ -663,9 +657,9 @@ async function addItem(item, uData, interaction) {
         return await lootStore.save();
     }
     //increase item total
-    uData.totitem += 1;
+    user.totitem += 1;
 
-    await uData.save();
+    await user.save();
 
     //if item is not found create a new one with the values requested
     console.log('TOTAL ITEM COUNT WAS INCREASED!');
