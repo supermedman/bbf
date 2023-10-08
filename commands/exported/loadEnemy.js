@@ -1,5 +1,5 @@
 const { UserData, ActiveEnemy } = require('../../dbObjects.js');
-const { display } = require('./combatDisplay.js');
+const { initialDisplay } = require('./combatDisplay.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
 //========================================
@@ -47,7 +47,7 @@ async function loadEnemy(interaction, user) {
         //constKey = cEnemy.ConstKey;
         const specCode = user + cEnemy.ConstKey;
         await addEnemy(cEnemy, specCode);
-        await display(uData, specCode, interaction, cEnemy);
+        await initialDisplay(uData, specCode, interaction, cEnemy);
     }
 }
 
