@@ -4,7 +4,7 @@ const { LootStore, Equipped } = require('../dbObjects.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('equip')
-		.setDescription('What are you going to swing around?')
+		.setDescription('What would you like to swing around?')
 		.addStringOption(option => 
 			option.setName('item')
 				.setDescription('Item to equip')
