@@ -195,9 +195,14 @@ module.exports = {
 			console.log('TIME LEFT: ', timeLeft);
 
 			if (timeLeft <= 0) {
-				const hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
+				var hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
 				console.log(hrs);
-
+				//PUT A RESTRICTION ON LENGTH LMAOOOOO
+				if (hrs > 72) {
+				 	//Thats more than enough, pigmy is tired
+				 	//Can add dynamic cutoff later for pigmy level etc.
+				 	hrs = 72;
+				}	
 				//Items gained at a constant rate per hour increased by pigmy type and level
 				//var iGained = [];
 				//var totItem = 0;
