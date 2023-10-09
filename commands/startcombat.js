@@ -371,7 +371,7 @@ module.exports = {
                                 //run once reprompt reaction
                                 const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                                 var dmgDealt = await userDamage(interaction, item);
-                                await i.deferUpdate();
+                                //await i.deferUpdate();
                                 await message.delete();
                                 dealDamage(dmgDealt, item);
                             }
@@ -389,6 +389,7 @@ module.exports = {
 
                     collectorBut.on('collect', async i => {
                         if (i.user.id === interaction.user.id) {
+                            await i.deferUpdate();
                             if (i.customId === 'steal') {
                                 //WIP
                                 const uData = await grabU();
@@ -428,7 +429,7 @@ module.exports = {
                                 //run once reprompt reaction
                                 const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                                 var dmgDealt = await userDamage(interaction, item);
-                                await i.deferUpdate();
+                                //await i.deferUpdate();
                                 await message.delete();
                                 dealDamage(dmgDealt, item);
 
