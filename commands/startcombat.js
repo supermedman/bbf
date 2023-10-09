@@ -358,7 +358,8 @@ module.exports = {
                                     //Steal has either been a success, or an error has occured!
                                     //Generate item with actionToTake                          
                                     const usedRar = actionToTake;
-                                    await makeItem(enemy, interaction, usedRar);
+                                    const itemRef = await makeItem(enemy, interaction, usedRar);
+                                    await showStolen(itemRef, interaction);
                                     stealDisabled = true;
                                     await message.delete();
                                     await resetHasItem(enemy); //Upon completion reload enemy
@@ -416,7 +417,8 @@ module.exports = {
                                     //Steal has either been a success, or an error has occured!
                                     //Generate item with actionToTake                          
                                     const usedRar = actionToTake;
-                                    await makeItem(enemy, interaction, usedRar);
+                                    const itemRef = await makeItem(enemy, interaction, usedRar);
+                                    await showStolen(itemRef, interaction);
                                     stealDisabled = true;
                                     await message.delete();
                                     await resetHasItem(enemy); //Upon completion reload enemy
@@ -812,13 +814,34 @@ module.exports = {
 
         }
 
+        //This method spawns a drop embed upon stealing an item successfully
+        async function showStolen(itemRef, interaction) {
+            const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: itemRef.loot_id }] });
+
+            const iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}**`)
+
+            const itemDropEmbed = new EmbedBuilder()
+                .setTitle('~LOOT STOLEN~')
+                .setColor(0000)
+                .addFields({
+
+                    name: (`${item.name}\n`),
+                    value: iVal
+                });
+
+            await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
+                dropEmbed.delete();
+            }, 10000));
+        }
+
         //========================================
         //this method generates an item to be dropped upon an enemies death
         async function makeItem(enemy, interaction, hasRar) {
           
             var rarG = 0;
             await console.log('==============================================');
-            if (hasRar) {
+            console.log(`hasRar: ${hasRar}`);
+            if (hasRar != 'undefined') {
                 rarG = hasRar;
             } else {
                 rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
