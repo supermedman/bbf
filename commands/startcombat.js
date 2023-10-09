@@ -3,6 +3,7 @@ const { UserData, ActiveEnemy, Equipped, LootStore, LootDrop } = require('../dbO
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar } = require('./exported/grabRar.js');
+const { stealing } = require('./exported/handleSteal.js');
 const { userDamage, enemyDamage } = require('./exported/dealDamage.js');
 
 //Prefab grabbing 
@@ -21,6 +22,7 @@ module.exports = {
 
         var constKey;
         var specCode;
+        var stealDisabled = false;
 
         let messageCount = 0;
 
@@ -71,6 +73,7 @@ module.exports = {
 
                 constKey = cEnemy.ConstKey;
                 specCode = interaction.user.id + cEnemy.ConstKey;
+                stealDisabled = false;
                 await addEnemy(cEnemy, specCode);
                 await display();
             }
@@ -316,7 +319,7 @@ module.exports = {
                     new ButtonBuilder()
                         .setCustomId('steal')
                         .setLabel('Steal Item')
-                        .setDisabled(true)
+                        .setDisabled(stealDisabled)
                         .setStyle(ButtonStyle.Secondary),
                 );
 
@@ -328,8 +331,38 @@ module.exports = {
 
                     collectorBut.on('collect', async i => {
                         if (i.user.id === interaction.user.id) {
+                            await i.deferUpdate();
                             if (i.customId === 'steal') {
                                 //WIP
+                                const uData = await grabU();
+                                const actionToTake = await stealing(enemy, uData);
+                                //ACTIONS TO HANDLE:
+                                //'NO ITEM'
+                                //'FAILED'
+                                //'UNIQUE ITEM'
+                                if (actionToTake === 'NO ITEM') {
+                                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                                    stealDisabled = true;
+                                    row.components[2].setDisabled(true);
+                                    await i.editReply({ components: [row] });
+                                    await i.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                                } else if (actionToTake === 'FAILED') {
+                                    //Steal has failed!
+                                    //Punish player
+                                    await i.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                                    await message.delete();
+                                    await stealPunish(enemy, uData, interaction);
+                                } else if (actionToTake === 'UNIQUE ITEM') {
+                                    //WIP
+                                } else {
+                                    //Steal has either been a success, or an error has occured!
+                                    //Generate item with actionToTake                          
+                                    const usedRar = actionToTake;
+                                    await makeItem(enemy, interaction, usedRar);
+                                    stealDisabled = true;
+                                    await message.delete();
+                                    await resetHasItem(enemy); //Upon completion reload enemy
+                                }
                             }
                             if (i.customId === 'hide') {
                                 //WIP
@@ -358,6 +391,35 @@ module.exports = {
                         if (i.user.id === interaction.user.id) {
                             if (i.customId === 'steal') {
                                 //WIP
+                                const uData = await grabU();
+                                const actionToTake = await stealing(enemy, uData);
+                                //ACTIONS TO HANDLE:
+                                //'NO ITEM'
+                                //'FAILED'
+                                //'UNIQUE ITEM'
+                                if (actionToTake === 'NO ITEM') {
+                                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                                    stealDisabled = true;
+                                    row.components[2].setDisabled(true);
+                                    await i.editReply({ components: [row] });
+                                    await i.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                                } else if (actionToTake === 'FAILED') {
+                                    //Steal has failed!
+                                    //Punish player
+                                    await i.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                                    await message.delete();
+                                    await stealPunish(enemy, uData, interaction);
+                                } else if (actionToTake === 'UNIQUE ITEM') {
+                                    //WIP
+                                } else {
+                                    //Steal has either been a success, or an error has occured!
+                                    //Generate item with actionToTake                          
+                                    const usedRar = actionToTake;
+                                    await makeItem(enemy, interaction, usedRar);
+                                    stealDisabled = true;
+                                    await message.delete();
+                                    await resetHasItem(enemy); //Upon completion reload enemy
+                                }
                             }
                             if (i.customId === 'hide') {
                                 //WIP
@@ -378,6 +440,23 @@ module.exports = {
                     collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
                 })
             }                                      
+        }
+
+        /**
+        * 
+        * @param {any} enemy OBJECT
+        * @param {any} user OBJECT
+        * @param {any} interaction STATIC INTERACTION OBJECT
+        */
+        //This method is used when a user fails to steal from an enemy resulting in being attacked
+        async function stealPunish(enemy, user, interaction) {
+            const eDamage = await enemyDamage(enemy);
+            console.log(`Enemy damge: ${eDamage}`);
+            const dead = await takeDamage(eDamage, user, enemy, interaction);
+            //Reload player info after being attacked           
+            if (!dead) {
+                return await display();
+            }
         }
 
         //========================================
@@ -716,16 +795,34 @@ module.exports = {
             return;
         }
 
+        /**
+        * 
+        * @param {any} enemy
+        * @param {any} user OBJECT: User Data reference
+        * @param {any} interaction STATIC INTERACTION OBJECT
+        */
+        //This method updates the hasitem field in the ActiveEnemy database to prevent extra items being dropped on death
+        async function resetHasItem(enemy) {
+            const dbEdit = await ActiveEnemy.update({ hasitem: false }, { where: [{ specid: enemy.specid }, { constkey: enemy.constkey }] });
+            if (dbEdit > 0) {
+                //edit was made prepare reload of display
+                return await display();
+            }
+
+        }
+
         //========================================
         //this method generates an item to be dropped upon an enemies death
-        async function makeItem(enemy) {
+        async function makeItem(enemy, interaction, hasRar) {
           
             var rarG = 0;
-            //==================================================================
             await console.log('==============================================');
-            rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
-
-            console.log('Rarity Grabbed 1: ', rarG);
+            if (hasRar) {
+                rarG = hasRar;
+            } else {
+                rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
+            }
+            console.log('Rarity Grabbed: ', rarG);
             
 
             var iPool = [];
