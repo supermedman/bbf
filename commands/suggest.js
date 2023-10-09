@@ -13,7 +13,7 @@ module.exports = {
 		await interaction.deferReply();
 		if (suggestion.length > 1000) {
 			//message is too long abort send
-			interaction.deferUpdate('That message is too long, please reduce your suggestion length!');
+			interaction.followUp('That message is too long, please reduce your suggestion length!');
 		} else {
 			let guild = await interaction.client.guilds.fetch("892659101878849576"), // returns a Guild or undefined
 				channel;			
@@ -21,7 +21,7 @@ module.exports = {
 			if (guild) {
 				channel = await guild.channels.fetch("910249829186285608");
 				if (channel) {
-					interaction.deferUpdate('Suggestion sent successfully!');
+					interaction.followUp('Suggestion sent successfully!');
 					channel.send(`${suggestion}`).then(async MSG => {
 						await MSG.react('👍🏼');
 						await MSG.react('👎🏼');
