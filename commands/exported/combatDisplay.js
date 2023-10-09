@@ -4,6 +4,7 @@ const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
 const { userDamageAlt } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
 const { grabRar } = require('./grabRar.js');
+const { stealing } = require('./handleSteal.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -11,6 +12,7 @@ const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json
 
 var constKey;
 var specCode;
+var stealDisabled = false;
 
 /**
  * 
@@ -24,7 +26,7 @@ var specCode;
 async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     specCode = carriedCode;
     constKey = theEnemy.constkey;
-
+    stealDisabled = false;
     if (uData.health <= 0) return playerDead(uData, 'Fayrn');
     //Only user && interaction objects need to be passed futher!
     await display(interaction, uData);
@@ -59,7 +61,7 @@ async function display(interaction, uData) {
             new ButtonBuilder()
                 .setCustomId('steal')
                 .setLabel('Steal Item')
-                .setDisabled(true)
+                .setDisabled(stealDisabled)
                 .setStyle(ButtonStyle.Secondary),
         );
 
@@ -71,8 +73,44 @@ async function display(interaction, uData) {
 
             collectorBut.on('collect', async i => {
                 if (i.user.id === uData.userid) {
+                    await i.deferUpdate();
                     if (i.customId === 'steal') {
                         //WIP
+                        //User attempts to steal an item from the enemy 
+                        //Chance increases based on dex && speed
+                        //Steal automatically fails if enemy does not have an item 
+                        //Steal becomes unavailable after first successful attempt 
+                        //Add check if enemy has preset item that can be stolen
+                        //If enemy has item and steal fails, enemy attacks
+                        //If enemy does not have item causing steal to fail, enemy does nothing 
+                        const actionToTake = await stealing(enemy, uData);
+                        //ACTIONS TO HANDLE:
+                        //'NO ITEM'
+                        //'FAILED'
+                        //'UNIQUE ITEM'
+                        if (actionToTake === 'NO ITEM') {
+                            //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                            stealDisabled = true;
+                            row.components[2].setDisabled(true);
+                            await i.editReply({ components: [row] });
+                            await i.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                        } else if (actionToTake === 'FAILED') {
+                            //Steal has failed!
+                            //Punish player
+                            await i.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                            await message.delete();
+                            await stealPunish(enemy, uData, interaction);
+                        } else if (actionToTake === 'UNIQUE ITEM') {
+                            //WIP
+                        } else {
+                            //Steal has either been a success, or an error has occured!
+                            //Generate item with actionToTake                          
+                            const usedRar = actionToTake;
+                            await makeItem(enemy, interaction, user, usedRar);                           
+                            stealDisabled = true;                         
+                            await message.delete();
+                            await resetHasItem(enemy, uData, interaction); //Upon completion reload enemy
+                        }
                     }
                     if (i.customId === 'hide') {
                         //WIP
@@ -98,8 +136,37 @@ async function display(interaction, uData) {
 
             collectorBut.on('collect', async i => {
                 if (i.user.id === uData.userid) {
+                    await i.deferUpdate();
                     if (i.customId === 'steal') {
                         //WIP
+                        const actionToTake = await stealing(enemy, uData);
+                        //ACTIONS TO HANDLE:
+                        //'NO ITEM'
+                        //'FAILED'
+                        //'UNIQUE ITEM'
+                        if (actionToTake === 'NO ITEM') {
+                            //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                            stealDisabled = true;
+                            row.components[2].setDisabled(true);
+                            await i.editReply({ components: [row] });
+                            await i.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                        } else if (actionToTake === 'FAILED') {
+                            //Steal has failed!
+                            //Punish player
+                            await i.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                            await message.delete();
+                            await stealPunish(enemy, uData, interaction);
+                        } else if (actionToTake === 'UNIQUE ITEM') {
+                            //WIP
+                        } else {
+                            //Steal has either been a success, or an error has occured!
+                            //Generate item with actionToTake                          
+                            const usedRar = actionToTake;
+                            await makeItem(enemy, interaction, user, usedRar);
+                            stealDisabled = true;
+                            await message.delete();
+                            await resetHasItem(enemy, uData, interaction); //Upon completion reload enemy
+                        }
                     }
                     if (i.customId === 'hide') {
                         //WIP
@@ -137,6 +204,24 @@ function pngCheck(enemy) {
                 return true;
             } else return false;
         } else {/**enemy not found keep looking*/ }
+    }
+}
+
+/**
+ * 
+ * @param {any} enemy OBJECT
+ * @param {any} user OBJECT
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ */
+//This method is used when a user fails to steal from an enemy resulting in being attacked
+async function stealPunish(enemy, user, interaction) {
+    const eDamage = await enemyDamage(enemy);
+    console.log(`Enemy damge: ${eDamage}`);
+    const dead = await takeDamage(eDamage, user, enemy, interaction);
+    //Reload player info after being attacked
+    const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+    if (!dead) {
+        return await display(interaction, uData);
     }
 }
 
@@ -322,7 +407,7 @@ async function enemyDead(enemy, interaction, user) {
 
     if (enemy.hasitem) {
 
-        const reference = await makeItem(enemy, interaction);
+        const reference = await makeItem(enemy, interaction, user);
 
         const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: reference.loot_id }] });
 
@@ -523,6 +608,22 @@ async function removeE(enemy) {
 /**
  * 
  * @param {any} enemy
+ * @param {any} user OBJECT: User Data reference
+ * @param {any} interaction STATIC INTERACTION OBJECT
+ */
+//This method updates the hasitem field in the ActiveEnemy database to prevent extra items being dropped on death
+async function resetHasItem(enemy, user, interaction) {
+    const dbEdit = await ActiveEnemy.update({ hasitem: false }, { where: [{ specid: enemy.specid }, { constkey: enemy.constkey }] });
+    if (dbEdit > 0) {
+        //edit was made prepare reload of display
+        return await display(interaction, user);
+    }
+
+}
+
+/**
+ * 
+ * @param {any} enemy
  */
 //========================================
 // This method calculates damage dealt by an enemy and returns that value
@@ -539,23 +640,25 @@ function enemyDamage(enemy) {
  * 
  * @param {any} enemy
  * @param {any} interaction STATIC INTERACTION OBJECT
+ * @param {any} hasRar Returns NULL or INT
+ * @param {any} user OBJECT: User Data reference
  */
 //========================================
 //this method generates an item to be dropped upon an enemies death
-async function makeItem(enemy, interaction) {
+async function makeItem(enemy, interaction, user, hasRar) {
 
     var rarG = 0;
-    //==================================================================
     await console.log('==============================================');
-    rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
-
-    console.log('Rarity Grabbed 1: ', rarG);
-
+    if (hasRar) {
+        rarG = hasRar;
+    } else {
+        rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
+    }
+    console.log('Rarity Grabbed: ', rarG);
 
     var iPool = [];
     //for loop adding all items of requested rarity to iPool for selection
     for (var i = 0; i < lootList.length; i++) {
-
         if (lootList[i].Rar_id === rarG) {
             await iPool.push(lootList[i]);
             console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type, interaction.user.id);
@@ -591,14 +694,13 @@ async function makeItem(enemy, interaction) {
                 spec_id: interaction.user.id,
             }, { where: [{ spec_id: interaction.user.id }] });
 
-        //await Promise(maker);
         console.log('ITEM UPDATED!', maker);
 
         var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
         console.log('LOOT UPDATED: ', item);
 
-        var iFound = await addItem(item, uData, interaction);
+        var iFound = await addItem(item, user, interaction);
 
         return iFound;
     }
@@ -615,14 +717,13 @@ async function makeItem(enemy, interaction) {
                 spec_id: interaction.user.id,
             });
 
-        //await Promise(maker);
         console.log('ITEM CREATED!', maker);
 
         var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
         console.log('LOOT CREATED: ', item);
 
-        var iFound = await addItem(item, uData, interaction);
+        var iFound = await addItem(item, user, interaction);
 
         return iFound;
     }
