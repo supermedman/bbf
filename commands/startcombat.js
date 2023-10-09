@@ -1,4 +1,4 @@
-﻿const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { UserData, ActiveEnemy, Equipped, LootStore, LootDrop } = require('../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
@@ -11,6 +11,7 @@ const lootList = require('../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../events/Models/json_prefabs/deathMsgList.json');
 
 module.exports = {
+    cooldown: 5,
     data: new SlashCommandBuilder()
         .setName('startcombat')
         .setDescription('The basic combat initiation!'),
@@ -210,6 +211,7 @@ module.exports = {
                         .setCustomId('primary')
                         .setLabel('New Enemy')
                         .setStyle(ButtonStyle.Success)
+                        .setDisabled(true)
                         .setEmoji('💀'),
                 );
 
@@ -299,10 +301,10 @@ module.exports = {
             const row = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('kill')
-                        .setLabel('Defeat')
+                        .setCustomId('hide')
+                        .setLabel('Try to hide')
                         .setDisabled(true)
-                        .setStyle(ButtonStyle.Primary),
+                        .setStyle(ButtonStyle.Secondary),
                 )
                 .addComponents(
                     new ButtonBuilder()
@@ -312,10 +314,10 @@ module.exports = {
                 )
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('refresh')
-                        .setLabel('New Enemy')
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('🔄'),
+                        .setCustomId('steal')
+                        .setLabel('Steal Item')
+                        .setDisabled(true)
+                        .setStyle(ButtonStyle.Secondary),
                 );
 
             if (hasPng) {
@@ -326,22 +328,17 @@ module.exports = {
 
                     collectorBut.on('collect', async i => {
                         if (i.user.id === interaction.user.id) {
-                            if (i.customId === 'refresh') {
-                                //delete the embed here
-                                await message.delete();
-                                startCombat();//run the entire script over again
+                            if (i.customId === 'steal') {
+                                //WIP
                             }
-                            if (i.customId === 'kill') {
-                                //run attack function until death is acheived
-                                const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                                var dmgDealt = await userDamage(interaction, item);
-                                await message.delete();
-                                dealDeath(dmgDealt, item);
+                            if (i.customId === 'hide') {
+                                //WIP
                             }
                             if (i.customId === 'onehit') {
                                 //run once reprompt reaction
                                 const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                                 var dmgDealt = await userDamage(interaction, item);
+                                await i.deferUpdate();
                                 await message.delete();
                                 dealDamage(dmgDealt, item);
                             }
@@ -359,24 +356,20 @@ module.exports = {
 
                     collectorBut.on('collect', async i => {
                         if (i.user.id === interaction.user.id) {
-                            if (i.customId === 'refresh') {
-                                //delete the embed here
-                                await message.delete();
-                                startCombat();//run the entire script over again
+                            if (i.customId === 'steal') {
+                                //WIP
                             }
-                            if (i.customId === 'kill') {
-                                //run attack function until death is acheived
-                                const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                                var dmgDealt = await userDamage(interaction, item);
-                                await message.delete();
-                                dealDeath(dmgDealt, item);
+                            if (i.customId === 'hide') {
+                                //WIP
                             }
                             if (i.customId === 'onehit') {
                                 //run once reprompt reaction
                                 const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                                 var dmgDealt = await userDamage(interaction, item);
+                                await i.deferUpdate();
                                 await message.delete();
                                 dealDamage(dmgDealt, item);
+
                             }
                         } else {
                             i.reply({ content: `Nice try slick!`, ephemeral: true });
