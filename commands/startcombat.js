@@ -841,7 +841,7 @@ module.exports = {
             var rarG = 0;
             await console.log('==============================================');
             console.log(`hasRar: ${hasRar}`);
-            if (hasRar) {
+            if (hasRar != 'undefined') {
                 rarG = hasRar;
             } else {
                 rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
