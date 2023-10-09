@@ -671,7 +671,7 @@ async function makeItem(enemy, interaction, user, hasRar) {
 
     var rarG = 0;
     await console.log('==============================================');
-    if (hasRar) {
+    if (hasRar != 'undefined') {
         rarG = hasRar;
     } else {
         rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
