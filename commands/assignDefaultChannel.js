@@ -122,7 +122,7 @@ module.exports = {
 									i.reply({ content: `Nice try slick!`, ephemeral: true });
                                 }
 							});
-						});
+						}).catch(console.error);
                     }				
                 }
             }
@@ -185,7 +185,7 @@ module.exports = {
 						i.reply({ content: `Nice try slick!`, ephemeral: true });
 					}
 				});
-			});
+			}).catch(console.error);
 			
 		}
 	},
