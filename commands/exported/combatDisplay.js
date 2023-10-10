@@ -700,13 +700,12 @@ function enemyDamage(enemy) {
 //========================================
 //this method generates an item to be dropped upon an enemies death
 async function makeItem(enemy, interaction, user, hasRar) {
-
-    var rarG = 0;
+var rarG = 0;
     await console.log('==============================================');
-    if (hasRar != 'undefined') {
-        rarG = hasRar;
-    } else {
+    if (!hasRar) {
         rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
+    } else {
+        rarG = hasRar;
     }
     console.log('Rarity Grabbed: ', rarG);
 
