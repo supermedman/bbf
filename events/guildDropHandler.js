@@ -127,7 +127,7 @@ async function handleSpawn(message) {
 					}
 				});
 				collectorBut.on('end', async remove => { if (!message) { await embedMsg.delete(); } });
-			});
+			}).catch(console.error);
 		} else {
 			//spawn channel found, check if it exists
 			let channel = await message.guild.channels.fetch(`${theGuild.spawnchannel}`);
@@ -153,7 +153,7 @@ async function handleSpawn(message) {
 					}
 				});
 				collectorBut.on('end', async remove => { if (!message) { await embedMsg.delete(); } });
-			});
+			}).catch(console.error);
         }
     }
 	
