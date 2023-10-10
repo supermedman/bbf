@@ -144,7 +144,7 @@ module.exports = {
                             i.reply({ content: `Nice try slick!`, ephemeral: true });
                         }
                     });
-                });
+                }).catch(console.error);
             } else if (amountsell) {
                 //handle user input sell amount
                 if (amountsell > item.amount) {
