@@ -78,7 +78,27 @@ module.exports = {
             if (user) {
                 const uData = await UserData.findOne({ where: { username: user.username } });
                 if (uData) {
-                    const list = (`\nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nCoins: ${uData.coins} \nClass: ${uData.pclass}`);
+                    var nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
+                    //Adding temp xp needed change at level 20 to slow proggress for now
+                    if (uData.level === 20) {
+                        //Adding level scale to further restrict leveling		
+                        nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+                    } else if (uData.level > 20) {
+                        //Adding level scale to further restrict leveling
+                        const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+                        nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+                    } else {/*DO NOTHING*/ }
+                    const list = (
+                        `\nSpeed: ${uData.speed} 
+                         \nStrength: ${uData.strength} 
+                         \nDexterity: ${uData.dexterity} 
+                         \nIntelligence: ${uData.intelligence} 
+                         \nLevel: ${uData.level} 
+                         \nPerk Points: ${uData.points} 
+                         \nCoins: ${uData.coins} 
+                         \nClass: ${uData.pclass}
+                         \nXP to next level: ${uData.xp}/${nxtLvl}
+                         `);
 
                     const userDisplayEmbed = new EmbedBuilder()
                         .setTitle(`Requested Stats for:`)
@@ -95,7 +115,27 @@ module.exports = {
             } else {
                 const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
                 if (uData) {
-                    const list = (`\nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nCoins: ${uData.coins} \nClass: ${uData.pclass}`);
+                    var nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
+                    //Adding temp xp needed change at level 20 to slow proggress for now
+                    if (uData.level === 20) {
+                        //Adding level scale to further restrict leveling		
+                        nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+                    } else if (uData.level > 20) {
+                        //Adding level scale to further restrict leveling
+                        const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+                        nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+                    } else {/*DO NOTHING*/ }
+                    const list = (
+                        `\nSpeed: ${uData.speed} 
+                         \nStrength: ${uData.strength} 
+                         \nDexterity: ${uData.dexterity} 
+                         \nIntelligence: ${uData.intelligence} 
+                         \nLevel: ${uData.level} 
+                         \nPerk Points: ${uData.points} 
+                         \nCoins: ${uData.coins} 
+                         \nClass: ${uData.pclass}
+                         \nXP to next level: ${uData.xp}/${nxtLvl}
+                         `);
 
                     const userDisplayEmbed = new EmbedBuilder()
                         .setTitle(`Requested Stats for:`)
