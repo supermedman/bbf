@@ -227,7 +227,7 @@ module.exports = {
 					i.reply({ content: `These buttons aren't for you!`, ephemeral: true });
 				}
 			});
-		});
+		}).catch(console.error);
 	},
 
 };
