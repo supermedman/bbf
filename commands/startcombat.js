@@ -4,6 +4,7 @@ const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar } = require('./exported/grabRar.js');
 const { stealing } = require('./exported/handleSteal.js');
+const { hiding } = require('./exported/handleHide.js');
 const { userDamage, enemyDamage } = require('./exported/dealDamage.js');
 
 //Prefab grabbing 
@@ -23,6 +24,7 @@ module.exports = {
         var constKey;
         var specCode;
         var stealDisabled = false;
+        var isHidden = false;
 
         let messageCount = 0;
 
@@ -74,6 +76,7 @@ module.exports = {
                 constKey = cEnemy.ConstKey;
                 specCode = interaction.user.id + cEnemy.ConstKey;
                 stealDisabled = false;
+                isHidden = false;
                 await addEnemy(cEnemy, specCode);
                 await display();
             }
@@ -306,7 +309,7 @@ module.exports = {
                     new ButtonBuilder()
                         .setCustomId('hide')
                         .setLabel('Try to hide')
-                        .setDisabled(true)
+                        .setDisabled(false)
                         .setStyle(ButtonStyle.Secondary),
                 )
                 .addComponents(
@@ -358,8 +361,8 @@ module.exports = {
                                     //Steal has either been a success, or an error has occured!
                                     //Generate item with actionToTake                          
                                     const usedRar = actionToTake;
-                                    const itemRef = await makeItem(enemy, interaction, usedRar);
-                                    await showStolen(itemRef, interaction);
+                                    const itemRef = await makeItem(enemy, usedRar);
+                                    await showStolen(itemRef);
                                     stealDisabled = true;
                                     await message.delete();
                                     await resetHasItem(enemy); //Upon completion reload enemy
@@ -367,12 +370,38 @@ module.exports = {
                             }
                             if (i.customId === 'hide') {
                                 //WIP
+                                const uData = await grabU();
+                                if (isHidden === false) {
+                                    const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                                    if (actionToTake === 'FAILED') {
+                                        //hide failed 
+                                        await i.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                                        await message.delete();
+                                        await stealPunish(enemy, uData, interaction);
+                                    } else if (actionToTake === 'SUCCESS') {
+                                        await i.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                                        row.components[0].setLabel('Escape!');
+                                        row.components[1].setLabel('BackStab!');
+                                        await i.editReply({ components: [row] });
+                                        isHidden = true;
+                                    }
+                                } else {
+                                    //USER ESCAPED
+                                    await i.channel.send('Escaped successfully!');
+                                    await message.delete();
+                                    isHidden = false;
+                                }
                             }
                             if (i.customId === 'onehit') {
                                 //run once reprompt reaction
                                 const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                                 var dmgDealt = await userDamage(interaction, item);
                                 //await i.deferUpdate();
+                                if (isHidden === true) {
+                                    //BACKSTAB
+                                    dmgDealt = dmgDealt * 1.5;
+                                    isHidden = false;
+                                }
                                 await message.delete();
                                 dealDamage(dmgDealt, item);
                             }
@@ -417,8 +446,8 @@ module.exports = {
                                     //Steal has either been a success, or an error has occured!
                                     //Generate item with actionToTake                          
                                     const usedRar = actionToTake;
-                                    const itemRef = await makeItem(enemy, interaction, usedRar);
-                                    await showStolen(itemRef, interaction);
+                                    const itemRef = await makeItem(enemy, usedRar);
+                                    await showStolen(itemRef);
                                     stealDisabled = true;
                                     await message.delete();
                                     await resetHasItem(enemy); //Upon completion reload enemy
@@ -426,12 +455,38 @@ module.exports = {
                             }
                             if (i.customId === 'hide') {
                                 //WIP
+                                const uData = await grabU();
+                                if (isHidden === false) {
+                                    const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                                    if (actionToTake === 'FAILED') {
+                                        //hide failed 
+                                        await i.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                                        await message.delete();
+                                        await stealPunish(enemy, uData, interaction);
+                                    } else if (actionToTake === 'SUCCESS') {
+                                        await i.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                                        row.components[0].setLabel('Escape!');
+                                        row.components[1].setLabel('BackStab!');
+                                        await i.editReply({ components: [row] });
+                                        isHidden = true;
+                                    }
+                                } else {
+                                    //USER ESCAPED
+                                    await i.channel.send('Escaped successfully!');
+                                    await message.delete();
+                                    isHidden = false;
+                                }
                             }
                             if (i.customId === 'onehit') {
                                 //run once reprompt reaction
                                 const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                                 var dmgDealt = await userDamage(interaction, item);
                                 //await i.deferUpdate();
+                                if (isHidden === true) {
+                                    //BACKSTAB
+                                    dmgDealt = dmgDealt * 1.5;
+                                    isHidden = false;
+                                }
                                 await message.delete();
                                 dealDamage(dmgDealt, item);
 
@@ -815,7 +870,7 @@ module.exports = {
         }
 
         //This method spawns a drop embed upon stealing an item successfully
-        async function showStolen(itemRef, interaction) {
+        async function showStolen(itemRef) {
             const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: itemRef.loot_id }] });
 
             const iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}**`)
@@ -836,10 +891,9 @@ module.exports = {
 
         //========================================
         //this method generates an item to be dropped upon an enemies death
-        async function makeItem(enemy, interaction, hasRar) {
-          
-            var rarG = 0;
-            await console.log('==============================================');
+        async function makeItem(enemy, hasRar) {
+            let rarG;
+            console.log('==============================================');
             console.log(`hasRar: ${hasRar}`);
             if (hasRar != 'undefined') {
                 rarG = hasRar;
