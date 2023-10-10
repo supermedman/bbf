@@ -211,7 +211,7 @@ module.exports = {
 					i.reply({ content: `Nice try slick!`, ephemeral: true });
 				}
 			});
-		});
+		}).catch(console.error);
 
 		//========================================
 		//basic user data refrence method
