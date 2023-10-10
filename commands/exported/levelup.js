@@ -53,13 +53,13 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 			addPoints(uData);
 			console.log('Current level after xp added ', newlvl);
 
-			if (uData.level === 20) {
+			if (newlvl === 20) {
 				//Adding level scale to further restrict leveling		
-				nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
-			} else if (uData.level > 20) {
+				nxtLvl = 75 * (Math.pow(newlvl, 2) - 1);
+			} else if (newlvl > 20) {
 				//Adding level scale to further restrict leveling
-				const lvlScale = 1.5 * (Math.floor(uData.level / 5));
-				nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+				const lvlScale = 1.5 * (Math.floor(newlvl / 5));
+				nxtLvl = (75 + lvlScale) * (Math.pow(newlvl, 2) - 1);
 			} else { nxtLvl = 50 * (Math.pow((curlvl + i), 2) - 1); }
 			
 			console.log('Current xp needed to level: ', nxtLvl);
