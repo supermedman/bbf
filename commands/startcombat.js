@@ -208,18 +208,18 @@ module.exports = {
 
                 await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
                     dropEmbed.delete();
-                }, 10000));
+                }, 10000)).catch(console.error);
             }
 
-            const ref = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('primary')
-                        .setLabel('New Enemy')
-                        .setStyle(ButtonStyle.Success)
-                        .setDisabled(true)
-                        .setEmoji('💀'),
-                );
+            //const ref = new ActionRowBuilder()
+            //    .addComponents(
+            //        new ButtonBuilder()
+            //            .setCustomId('primary')
+            //            .setLabel('New Enemy')
+            //            .setStyle(ButtonStyle.Success)
+            //            .setDisabled(true)
+            //            .setEmoji('💀'),
+            //    );
 
             const killedEmbed = new EmbedBuilder()
                 .setTitle("YOU KILLED THE ENEMY!")
@@ -230,22 +230,23 @@ module.exports = {
                     { name: 'Coins Gained', value: ' ' + cCalc + ' ', inline: true },
                 );
 
-            interaction.channel.send({ embeds: [killedEmbed], components: [ref] }).then(async embedMsg => {
-                const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+            interaction.channel.send({ embeds: [killedEmbed]/**, components: [ref]*/ }).then(async embedMsg => setTimeout (() => {
+                //const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
 
-                collectorBut.on('collect', async i => {
-                    if (i.user.id === interaction.user.id) {
-                        //delete the embed here
-                        await embedMsg.delete();
-                        startCombat();//run the entire script over again
+                //collectorBut.on('collect', async i => {
+                //    if (i.user.id === interaction.user.id) {
+                //        //delete the embed here
+                //        await embedMsg.delete();
+                //        startCombat();//run the entire script over again
 
-                    } else {
-                        i.reply({ content: `Nice try slick!`, ephemeral: true });
-                    }
-                });
+                //    } else {
+                //        i.reply({ content: `Nice try slick!`, ephemeral: true });
+                //    }
+                //});
 
-                collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
-            });
+                //collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
+                embedMsg.delete();
+            }, 25000)).catch(console.error);
             removeE(constKey);
         }
 
@@ -295,7 +296,7 @@ module.exports = {
                     }
                 });
                 collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
-            });
+            }).catch(console.error);
         }
 
         //========================================
@@ -410,7 +411,7 @@ module.exports = {
                         }
                     });
                     collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-                })
+                }).catch(console.error);
             } else {
                 const attachment = await displayEWOpic(interaction, enemy, true);
 
@@ -496,7 +497,7 @@ module.exports = {
                         }
                     });
                     collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-                })
+                }).catch(console.error);
             }                                      
         }
 
@@ -727,7 +728,7 @@ module.exports = {
 
                         await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                             attkEmbed.delete();
-                        }, 15000));                      
+                        }, 15000)).catch(console.error);
                         return enemyDead(enemy); // enemy is dead
                     } else {
                         eHealth -= dmgDealt;
@@ -744,7 +745,7 @@ module.exports = {
 
                         await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                             attkEmbed.delete();
-                        }, 15000));
+                        }, 15000)).catch(console.error);
                         
                         //NEW METHOD TO DEAL DAMAGE  
                         await hitE(eHealth, constKey);
@@ -808,7 +809,7 @@ module.exports = {
 
                 await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                     attkEmbed.delete();
-                }, 15000));
+                }, 15000)).catch(console.error);
 
                 await hitP(currentHealth);
                 return false;
@@ -886,7 +887,7 @@ module.exports = {
 
             await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
                 dropEmbed.delete();
-            }, 10000));
+            }, 10000)).catch(console.error);
         }
 
         //========================================
