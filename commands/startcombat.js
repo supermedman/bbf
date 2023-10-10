@@ -892,13 +892,15 @@ module.exports = {
         //========================================
         //this method generates an item to be dropped upon an enemies death
         async function makeItem(enemy, hasRar) {
-            let rarG;
+            var rarG;
             console.log('==============================================');
             console.log(`hasRar: ${hasRar}`);
-            if (hasRar != 'undefined') {
-                rarG = hasRar;
+            if (!hasRar) {
+                console.log(`No data found for hasRar, run rarity grab script!`);
+                rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive            
             } else {
-                rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
+                console.log(`Data found for hasRar, using data!`);
+                rarG = hasRar;
             }
             console.log('Rarity Grabbed: ', rarG);
             
