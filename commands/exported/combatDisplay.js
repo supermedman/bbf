@@ -140,7 +140,7 @@ async function display(interaction, uData) {
                 }
             });
             collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-        })
+        }).catch(console.error);
     } else {
         const attachment = await displayEWOpic(interaction, enemy, true);
 
@@ -217,7 +217,7 @@ async function display(interaction, uData) {
                 }
             });
             collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-        })
+        }).catch(console.error);
     }
 }
 
@@ -379,7 +379,7 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
 
                 await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                     attkEmbed.delete();
-                }, 15000));
+                }, 15000)).catch(console.error);
                 return enemyDead(enemy, interaction, user); // enemy is dead
             } else {
                 eHealth -= dmgDealt;
@@ -396,7 +396,7 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
 
                 await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                     attkEmbed.delete();
-                }, 15000));
+                }, 15000)).catch(console.error);
 
                 //NEW METHOD TO DEAL DAMAGE  
                 await hitE(eHealth, enemy);
@@ -458,7 +458,7 @@ async function enemyDead(enemy, interaction, user) {
 
         await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
             dropEmbed.delete();
-        }, 10000));
+        }, 10000)).catch(console.error);
     }
 
     const killedEmbed = new EmbedBuilder()
@@ -472,7 +472,7 @@ async function enemyDead(enemy, interaction, user) {
 
     await interaction.channel.send({ embeds: [killedEmbed] }).then(async embedMsg => setTimeout(() => {
         embedMsg.delete();
-    }, 10000));
+    }, 25000)).catch(console.error);
     removeE(enemy);
 }
 
@@ -528,7 +528,7 @@ async function playerDead(user, enemy, interaction) {
             }
         });
         collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
-    });
+    }).catch(console.error);
 }
 
 //This method spawns a drop embed upon stealing an item successfully
@@ -548,7 +548,7 @@ async function showStolen(itemRef, interaction) {
 
     await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
         dropEmbed.delete();
-    }, 10000));
+    }, 10000)).catch(console.error);
 }
 
 /**
@@ -595,7 +595,7 @@ async function takeDamage(eDamage, user, enemy, interaction) {
 
         await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
             attkEmbed.delete();
-        }, 15000));
+        }, 15000)).catch(console.error);
 
         await hitP(currentHealth, user);
         return false;
@@ -700,7 +700,7 @@ function enemyDamage(enemy) {
 //========================================
 //this method generates an item to be dropped upon an enemies death
 async function makeItem(enemy, interaction, user, hasRar) {
-var rarG = 0;
+    var rarG = 0;
     await console.log('==============================================');
     if (!hasRar) {
         rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive

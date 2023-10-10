@@ -290,7 +290,7 @@ module.exports = {
 					);
 				interaction.followUp({ embeds: [pigClaimEmbed] }).then(async pigClaimEmbed => setTimeout(() => {
 					pigClaimEmbed.delete();
-				}, 100000));
+				}, 100000)).catch(console.error);
 
 			} else {
 				var timeCon = timeLeft;
@@ -368,7 +368,7 @@ module.exports = {
 
 			interaction.followUp({ files: [attachment] }).then(async pigCanvas => setTimeout(() => {
 				pigCanvas.delete();
-			}, 60000));		
+			}, 60000)).catch(console.error);
 		}			
 		else if (interaction.options.getSubcommand() === 'play') {
 			/**
@@ -428,7 +428,7 @@ module.exports = {
 				)
 			interaction.followUp({ embeds: [playEmbed] }).then(async playEmbed => setTimeout(() => {
 				playEmbed.delete();
-			}, 20000));
+			}, 20000)).catch(console.error);
 
 
 		}
@@ -462,7 +462,7 @@ module.exports = {
 					);
 				await interaction.followUp({ embeds: [pigEmbed], files: [pigmyList[pig.refid].PngRef] }).then(async pigEmbed => setTimeout(() => {
 					pigEmbed.delete();
-				}, 60000));
+				}, 60000)).catch(console.error);
             }
 		}
 

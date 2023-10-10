@@ -160,7 +160,7 @@ module.exports = {
                     )
                 interaction.followUp({ embeds: [skillDisplayEmbed] }).then(async skillEmbed => setTimeout(() => {
                     skillEmbed.delete();
-                }, 40000));
+                }, 40000)).catch(console.error);
 
             } else {
                 interaction.followUp('You have not selected a valid option, please try again using one of the options provided.');
