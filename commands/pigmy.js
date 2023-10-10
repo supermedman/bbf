@@ -75,7 +75,7 @@ module.exports = {
 					if (eqpig) {
 						if (pig.name === eqpig.name) return interaction.followUp(`${pig.name} is already equiped!`);
 						//pigmy already equipped therefore overwrite and update
-						const lastclaim = new Date(eqpig.updatedAt).getTime()
+						const lastclaim = new Date(eqpig.updatedAt).getTime();
 						console.log(lastclaim);
 
 						var newpig = await Pigmy.update(
@@ -111,7 +111,7 @@ module.exports = {
 							});
 
 						const editpig = await Pigmy.findOne({ where: [{ spec_id: interaction.user.id }] });
-						const lastclaim = new Date(editpig.updatedAt).getTime()
+						const lastclaim = new Date(editpig.updatedAt).getTime();
 						console.log(lastclaim);
 
 						var newpig = await Pigmy.update({	lcm: lastclaim }, { where: [{ spec_id: interaction.user.id }] });
@@ -129,7 +129,7 @@ module.exports = {
 					const eqpig = await Pigmy.findOne({ where: [{ spec_id: interaction.user.id }] });
 					if (eqpig) {
 						//item already equipped therefore overwrite and update
-						const lastclaim = new Date(eqpig.updatedAt).getTime()
+						const lastclaim = new Date(eqpig.updatedAt).getTime();
 						console.log(lastclaim);
 						const newpig = await Pigmy.update(
 							{
@@ -162,7 +162,7 @@ module.exports = {
 							});
 
 						const editpig = await Pigmy.findOne({ where: [{ spec_id: interaction.user.id }] });
-						const lastclaim = new Date(editpig.updatedAt).getTime()
+						const lastclaim = new Date(editpig.updatedAt).getTime();
 						console.log(lastclaim);
 
 						const newpig = await Pigmy.update(
@@ -195,14 +195,18 @@ module.exports = {
 			console.log('TIME LEFT: ', timeLeft);
 
 			if (timeLeft <= 0) {
-				var hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
-				console.log(hrs);
+				let hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
+				console.log(`Hours since last claim: ${hrs}`);
 				//PUT A RESTRICTION ON LENGTH LMAOOOOO
 				if (hrs > 72) {
-				 	//Thats more than enough, pigmy is tired
-				 	//Can add dynamic cutoff later for pigmy level etc.
-				 	hrs = 72;
-				}	
+					//Thats more than enough, pigmy is tired
+					//Can add dynamic cutoff later for pigmy level etc.
+					hrs = 72;
+				} else {
+
+                }
+				console.log(`Hours after max check: ${hrs}`);
+
 				//Items gained at a constant rate per hour increased by pigmy type and level
 				//var iGained = [];
 				//var totItem = 0;
@@ -264,6 +268,10 @@ module.exports = {
 				//==============================
 				//Next check if pigmy passes levelup
 				await isPigLvlUp(pigXp, pig, interaction);
+
+				//Update lcm to prevent reclaims
+				const lastclaim = new Date().getTime();
+				await Pigmy.update({lcm: lastclaim}, { where: [{ spec_id: interaction.user.id }] });
 
 				//==============================
 				//Generate the rewards embed and prep for user
