@@ -5,6 +5,7 @@ const { userDamageAlt } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
 const { grabRar } = require('./grabRar.js');
 const { stealing } = require('./handleSteal.js');
+const { hiding } = require('./handleHide.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -13,6 +14,7 @@ const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json
 var constKey;
 var specCode;
 var stealDisabled = false;
+var isHidden = false;
 
 /**
  * 
@@ -27,6 +29,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     specCode = carriedCode;
     constKey = theEnemy.constkey;
     stealDisabled = false;
+    isHidden = false;
     if (uData.health <= 0) return playerDead(uData, 'Fayrn');
     //Only user && interaction objects need to be passed futher!
     await display(interaction, uData);
@@ -48,7 +51,7 @@ async function display(interaction, uData) {
             new ButtonBuilder()
                 .setCustomId('hide')
                 .setLabel('Try to hide')
-                .setDisabled(true)
+                .setDisabled(false)
                 .setStyle(ButtonStyle.Secondary),
         )
         .addComponents(
@@ -74,20 +77,8 @@ async function display(interaction, uData) {
             collectorBut.on('collect', async i => {
                 if (i.user.id === uData.userid) {
                     await i.deferUpdate();
-                    if (i.customId === 'steal') {
-                        //WIP
-                        //User attempts to steal an item from the enemy 
-                        //Chance increases based on dex && speed
-                        //Steal automatically fails if enemy does not have an item 
-                        //Steal becomes unavailable after first successful attempt 
-                        //Add check if enemy has preset item that can be stolen
-                        //If enemy has item and steal fails, enemy attacks
-                        //If enemy does not have item causing steal to fail, enemy does nothing 
-                        const actionToTake = await stealing(enemy, uData);
-                        //ACTIONS TO HANDLE:
-                        //'NO ITEM'
-                        //'FAILED'
-                        //'UNIQUE ITEM'
+                    if (i.customId === 'steal') {                    
+                        const actionToTake = await stealing(enemy, uData);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                         if (actionToTake === 'NO ITEM') {
                             //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
                             stealDisabled = true;
@@ -115,11 +106,32 @@ async function display(interaction, uData) {
                     }
                     if (i.customId === 'hide') {
                         //WIP
+                        if (isHidden === false) {
+                            const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                            if (actionToTake === 'FAILED') {
+                                //hide failed 
+                                await i.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                                await message.delete();
+                                await stealPunish(enemy, uData, interaction);
+                            } else if (actionToTake === 'SUCCESS') {
+                                await i.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                                row.components[0].setLabel('Escape!');
+                                row.components[1].setLabel('BackStab!');
+                                await i.editReply({ components: [row] });
+                                isHidden = true;
+                            }
+                        }
+                        
                     }
                     if (i.customId === 'onehit') {
                         //run once reprompt reaction
                         const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
                         var dmgDealt = await userDamageAlt(uData, item);
+                        if (isHidden === true) {
+                            //BACKSTAB
+                            dmgDealt = dmgDealt * 1.5;
+                            isHidden = false;
+                        }
                         await message.delete();
                         await hitOnce(dmgDealt, item, uData, enemy, interaction);
                     }
@@ -139,12 +151,7 @@ async function display(interaction, uData) {
                 if (i.user.id === uData.userid) {
                     await i.deferUpdate();
                     if (i.customId === 'steal') {
-                        //WIP
-                        const actionToTake = await stealing(enemy, uData);
-                        //ACTIONS TO HANDLE:
-                        //'NO ITEM'
-                        //'FAILED'
-                        //'UNIQUE ITEM'
+                        const actionToTake = await stealing(enemy, uData);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                         if (actionToTake === 'NO ITEM') {
                             //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
                             stealDisabled = true;
@@ -172,11 +179,36 @@ async function display(interaction, uData) {
                     }
                     if (i.customId === 'hide') {
                         //WIP
+                        if (isHidden === false) {
+                            const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                            if (actionToTake === 'FAILED') {
+                                //hide failed 
+                                await i.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                                await message.delete();
+                                await stealPunish(enemy, uData, interaction);
+                            } else if (actionToTake === 'SUCCESS') {
+                                await i.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                                row.components[0].setLabel('Escape!');
+                                row.components[1].setLabel('BackStab!');
+                                await i.editReply({ components: [row] });
+                                isHidden = true;
+                            }
+                        } else {
+                            //USER ESCAPED
+                            await i.channel.send('Escaped successfully!');
+                            await message.delete();
+                            isHidden = false;
+                        }
                     }
                     if (i.customId === 'onehit') {
                         //run once reprompt reaction
                         const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
                         var dmgDealt = await userDamageAlt(uData, item);
+                        if (isHidden === true) {
+                            //BACKSTAB
+                            dmgDealt = dmgDealt * 1.5;
+                            isHidden = false;
+                        }
                         await message.delete();
                         await hitOnce(dmgDealt, item, uData, enemy, interaction);
                     }
