@@ -1,9 +1,23 @@
 const { grabRar } = require('./grabRar.js');
 
+//User attempts to steal an item from the enemy 
+//Chance increases based on dex && speed
+//Steal automatically fails if enemy does not have an item
+//Steal becomes unavailable after first successful attempt
+//Add check if enemy has preset item that can be stolen
+//If enemy has item and steal fails, enemy attacks
+//If enemy does not have item causing steal to fail, enemy does nothing
 async function stealing(enemy, uData) {
 
-    if (enemy.hasunique === false) {/**Enemy has no special items */}
-    if (enemy.hasitem === false) { return 'NO ITEM';/**No item, check failed*/ }
+    if (enemy.hasunique === true) {
+        //Item can be stolen
+        //Enemy may still have item 
+        return 'UNIQUE ITEM';
+    }
+    if (enemy.hasunique === false) {
+        //Enemy has no special items
+        if (enemy.hasitem === false) { return 'NO ITEM';/**No item, check failed*/ }
+    }
 
     const spd = uData.speed;
     const dex = uData.dexterity;
@@ -12,8 +26,8 @@ async function stealing(enemy, uData) {
     console.log(`baseChance: ${baseChance}`);
     var totalChance;
     //HANDLE UNIQUE ITEMS HERE
-
-
+   
+     
 
     //============================
     /**
@@ -36,13 +50,14 @@ async function stealing(enemy, uData) {
         totalChance = baseChance;
     } else {
         const difficultyChange = itemRarity * 0.02;
+        console.log(`difficultyChange: ${difficultyChange}`);
         if ((baseChance - difficultyChange) <= 0) {
             //Total chance is 0 or less than 0
             //STEAL HAS FAILED!
             return 'FAILED';
         } else {totalChance = baseChance - difficultyChange;}    
     }
-
+    console.log(`totalChance: ${totalChance}`);
     const rolledChance = Math.random();
     console.log(`rolledChance: ${rolledChance}`);
     if (rolledChance < totalChance) {
