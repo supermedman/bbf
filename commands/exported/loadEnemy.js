@@ -65,6 +65,13 @@ async function addEnemy(cEnemy, specCode) {
             console.log('Current constKey of prefab enemy: ', cEnemy.ConstKey);
             console.log('Current specId of prefab enemy: ', cEnemy.SpecId);
 
+            var hasUI = false;
+
+            if (cEnemy.HasUnique) {
+                //enemy has unique item
+                //Assign as true
+                hasUI = true;
+            }
 
             //IMPLEMENT LOOT HERE
             //first calculate whether enemy will have an item
@@ -119,6 +126,7 @@ async function addEnemy(cEnemy, specCode) {
                 xpmin: cEnemy.XpMin,
                 xpmax: cEnemy.XpMax,
                 constkey: cEnemy.ConstKey,
+                hasunique: hasUI,
                 specid: specCode,
 
             });
