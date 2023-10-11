@@ -1,4 +1,4 @@
-﻿const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { UserData, LootStore } = require('../dbObjects.js');
 
@@ -12,7 +12,7 @@ module.exports = {
         const loFound = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }] });
 
         if (!loFound) {
-            return interaction.followUp('Sorry but you dont have any items yet! Use the command ``shop`` to open the shop and make your first purchase.');
+            return interaction.followUp('Sorry but you dont have any items yet! Use the command ``/shop`` to open the shop and make your first purchase.');
         } else {
 
             const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
@@ -52,8 +52,18 @@ module.exports = {
 
                 //define the maximum page limit per items assigned to user in question
                 const totalItems = tooMany.totitem;
-                const maxEmbedPages = Math.round((totalItems / 5));
-                              
+                console.log('Total Items / 5:', (totalItems / 5));
+                //THIS BREAKS!!
+                //ADD CHECK FOR ADDITIONAL PAGES FOR LEFTOVER ITEMS
+                var maxEmbedPages = Math.round((totalItems / 5));
+                if ((totalItems % 5) != 0) {
+                    //Remainder exists, add extra page to the list
+                    maxEmbedPages += 1;
+                } else {
+                    //do nothing
+                } 
+                console.log(`maxEmbedPages: ${maxEmbedPages}`);
+                //total number of full loot pages found, figure out how to catch if there is remaining
                 var embedPages = [];
                 var iLeft = totalItems;
                 var curPos = 0;
@@ -143,15 +153,15 @@ module.exports = {
 
                                 //if statment to check if currently on the last page
                                 if (currentPage === embedPages.length - 1) {
-                                    currentPage = 0;
+                                    currentPage = 0;                                  
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                     await i.deferUpdate();
                                     await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                 } else {
-                                    currentPage += 1;
+                                    currentPage += 1;                                  
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                     await i.deferUpdate();
                                     await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                 }
 
 
@@ -163,22 +173,22 @@ module.exports = {
                                 console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
                                 if (currentPage === 0) {
-                                    currentPage = embedPages.length - 1;
+                                    currentPage = embedPages.length - 1;                                 
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                     await i.deferUpdate();
                                     await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                 } else {
-                                    currentPage -= 1;
+                                    currentPage -= 1;                                    
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                     await i.deferUpdate();
                                     await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                                 }
                             } else if (i.customId === 'delete-page') {
                                 //embedMsg.edit(`:white_check_mark: Inventory Cancelled.`);
                                 await i.deferUpdate();
                                 wait(5000).then(async () => {                                                                    
                                     await embedMsg.delete();
-                                });
+                                }).catch(console.error);
                             }
                         } else {
                             i.reply({ content: `Nice try slick!`, ephemeral: true });
