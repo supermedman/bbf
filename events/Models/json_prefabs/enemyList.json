@@ -13,6 +13,7 @@
         "XpMax": 15,
 
         "ConstKey": 1,
+        "HasUnique": true,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Goblin.png",
         "Image": "attachment://Goblin.png",
@@ -47,12 +48,13 @@
         "MaxDmg": 1,
         "Health": 5,
         "Defence": 5,
-        "WeakTo": "Fire",
+        "WeakTo": "Blunt",
         "Dead": false,
         "XpMin": 30,
         "XpMax": 35,
 
         "ConstKey": 14,
+        "HasUnique": true,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Rock.png",
         "Image": "attachment://Rock.png",
@@ -75,6 +77,8 @@
         "XpMax": 18,
 
         "ConstKey": 2,
+        "HasUnique": true,
+
         "SpecId": 0
     },
     {
@@ -725,6 +729,8 @@
         "XpMax": 120,
 
         "ConstKey": 40,
+        "HasUnique": true,
+
         "SpecId": 0
     },
     {
@@ -948,8 +954,8 @@
         "Description": "Ahhhh thats hawt",
 
         "Level": 17,
-        "MinDmg": 1,
-        "MaxDmg": 2,
+        "MinDmg": 28,
+        "MaxDmg": 42,
         "Health": 750,
         "Defence": 19,
 
@@ -1049,6 +1055,8 @@
         "XpMax": 1200,
 
         "ConstKey": 58,
+        "HasUnique": true,
+
         "SpecId": 0
     },
     {
