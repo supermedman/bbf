@@ -459,6 +459,370 @@
         "Spec_id": 0
     },
     {
+        "Name": "Hot Dog",
+        "Value": 45,
+
+        "Attack": 7,
+        "Type": "BLUNT",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 38,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Hero's Oak Harpoon",
+        "Value": 150,
+
+        "Attack": 31,
+        "Type": "SLASH",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 39,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Windsong Lance",
+        "Value": 270,
+
+        "Attack": 50,
+        "Type": "MAGIC",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 40,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Oracle",
+        "Value": 500,
+
+        "Attack": 80,
+        "Type": "MAGIC",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 41,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Rune-Forged Spear",
+        "Value": 145,
+
+        "Attack": 30,
+        "Type": "SLASH",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 42,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Fury, Promise of the Stars",
+        "Value": 2300,
+
+        "Attack": 103,
+        "Type": "FIRE",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 43,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Devourer",
+        "Value": 140,
+
+        "Attack": 29,
+        "Type": "SLASH",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 44,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Crimson,  Dawn of Dark Souls",
+        "Value": 6000,
+
+        "Attack": 140,
+        "Type": "DARK",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 45,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Laser Pointer",
+        "Value": 140000,
+
+        "Attack": 300,
+        "Type": "NULL",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 46,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Fleshshaper",
+        "Value": 55,
+
+        "Attack": 12,
+        "Type": "SLASH",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 47,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Defiled Razor",
+        "Value": 30,
+
+        "Attack": 6,
+        "Type": "SLASH",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 48,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Rattleshake",
+        "Value": 35,
+
+        "Attack": 8,
+        "Type": "BLUNT",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 49,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghostwalker",
+        "Value": 275,
+
+        "Attack": 50,
+        "Type": "DARK",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 50,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bone Warden",
+        "Value": 450,
+
+        "Attack": 60,
+        "Type": "BLUNT",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 51,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Wind-Forged Longsword",
+        "Value": 60,
+
+        "Attack": 13,
+        "Type": "SLASH",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 52,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodlord's Ender",
+        "Value": 475,
+
+        "Attack": 65,
+        "Type": "DARK",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 53,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Glass Pact",
+        "Value": 40,
+
+        "Attack": 9,
+        "Type": "LIGHT",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 54,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodfury",
+        "Value": 3850,
+
+        "Attack": 135,
+        "Type": "DARK",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 55,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Edge of Time",
+        "Value": 2000,
+
+        "Attack": 115,
+        "Type": "MAGIC",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 56,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Rain Maker",
+        "Value": 260,
+
+        "Attack": 45,
+        "Type": "MAGIC",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 57,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Dragon’s Tongue",
+        "Value": 1450,
+
+        "Attack": 85,
+        "Type": "FIRE",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 58,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Moonsight",
+        "Value": 495,
+
+        "Attack": 75,
+        "Type": "DARK",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 59,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Blood-Forged Bringer",
+        "Value": 1650,
+
+        "Attack": 90,
+        "Type": "BLUNT",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 60,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghost-Forged Mace",
+        "Value": 1500,
+
+        "Attack": 87,
+        "Type": "BLUNT",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 61,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Steel Dagger",
+        "Value": 40,
+
+        "Attack": 8,
+        "Type": "SLASH",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 62,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Grieving Blade",
+        "Value": 35,
+
+        "Attack": 7,
+        "Type": "SLASH",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "Loot_id": 63,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ebon Maul",
+        "Value": 70,
+
+        "Attack": 15,
+        "Type": "BLUNT",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 64,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Mighty Spine",
+        "Value": 2400,
+
+        "Attack": 120,
+        "Type": "SLASH",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 65,
+        "Spec_id": 0
+    },
+    {
         "Name": "Tmp",
         "Value": 10,
 
@@ -471,5 +835,4 @@
         "Loot_id": 0,
         "Spec_id": 0
     }
-
 ]

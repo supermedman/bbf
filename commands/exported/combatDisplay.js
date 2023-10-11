@@ -10,6 +10,7 @@ const { hiding } = require('./handleHide.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
+const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
 
 var constKey;
 var specCode;
@@ -30,7 +31,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     constKey = theEnemy.constkey;
     stealDisabled = false;
     isHidden = false;
-    if (uData.health <= 0) return playerDead(uData, 'Fayrn');
+    if (uData.health <= 0) return playerDead(uData, 'Fayrn', interaction);
     //Only user && interaction objects need to be passed futher!
     await display(interaction, uData);
 }
@@ -93,6 +94,13 @@ async function display(interaction, uData) {
                             await stealPunish(enemy, uData, interaction);
                         } else if (actionToTake === 'UNIQUE ITEM') {
                             //WIP
+                            //Unique item detected!
+                            //Find item here
+                            const itemToMake = await getUniqueItem(enemy);
+                            const uItemRef = await makeUniqueItem(itemToMake, interaction, uData);
+                            await showStolen(uItemRef, interaction);
+                            await message.delete();
+                            await resetHasUniqueItem(enemy, uData, interaction);
                         } else {
                             //Steal has either been a success, or an error has occured!
                             //Generate item with actionToTake                          
@@ -120,8 +128,7 @@ async function display(interaction, uData) {
                                 await i.editReply({ components: [row] });
                                 isHidden = true;
                             }
-                        }
-                        
+                        }                     
                     }
                     if (i.customId === 'onehit') {
                         //run once reprompt reaction
@@ -166,6 +173,13 @@ async function display(interaction, uData) {
                             await stealPunish(enemy, uData, interaction);
                         } else if (actionToTake === 'UNIQUE ITEM') {
                             //WIP
+                            //Unique item detected!
+                            //Find item here
+                            const itemToMake = await getUniqueItem(enemy);
+                            const uItemRef = await makeUniqueItem(itemToMake, interaction, uData);
+                            await showStolen(uItemRef, interaction);
+                            await message.delete();
+                            await resetHasUniqueItem(enemy, uData, interaction);
                         } else {
                             //Steal has either been a success, or an error has occured!
                             //Generate item with actionToTake                          
@@ -257,6 +271,24 @@ async function stealPunish(enemy, user, interaction) {
     if (!dead) {
         return await display(interaction, uData);
     }
+}
+
+/**
+ * 
+ * @param {any} enemy
+ */
+//This method finds a unique item attactched to the enemy that holds it
+async function getUniqueItem(enemy) {
+    const neededID = enemy.constkey + 100
+    for (var i = 0; i < uniqueLootList.length; i++) {
+        if (uniqueLootList[i].Loot_id === neededID) {
+            //Item match grab it!
+            return uniqueLootList[i];
+        } else {
+            //item not match keep looking
+        }
+    }
+
 }
 
 /**
@@ -498,13 +530,16 @@ async function playerDead(user, enemy, interaction) {
         );
 
     const specialMsg = Math.random();
+    console.log(`specialMsg: ${specialMsg}`);
     const MsgID = Math.round(Math.random() * (deathMsgList.length - 1));
+    console.log(`MsgID: ${MsgID}`);
 
     if (enemy === 'Fayrn') {
         var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to the gods, please Mourn your loss to revive to full health.`
     }
     if (specialMsg >= 0.9) {
-        var list = deathMsgList[MsgID];
+        var list = deathMsgList[MsgID].Value;
+        console.log(`list: ${list}`);
     } else {
         var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to ${enemy.name}`
     }
@@ -675,6 +710,16 @@ async function resetHasItem(enemy, user, interaction) {
 
 }
 
+//This method updates the hasunique field preventing stealing the same item more than once
+async function resetHasUniqueItem(enemy, user, interaction) {
+    const dbEdit = await ActiveEnemy.update({ hasunique: false }, { where: [{ specid: enemy.specid }, { constkey: enemy.constkey }] });
+    if (dbEdit > 0) {
+        //edit was made prepare reload of display
+        return await display(interaction, user);
+    }
+
+}
+
 /**
  * 
  * @param {any} enemy
@@ -688,6 +733,58 @@ function enemyDamage(enemy) {
 
     const dmgDealt = Math.floor(Math.random() * (enemy.maxdmg - enemy.mindmg + 1) + enemy.mindmg);
     return dmgDealt;
+}
+
+//This method is used for when an item is unique
+async function makeUniqueItem(prefabItem, interaction, user) {
+    const edit = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+    if (edit) {
+        const maker = await LootDrop.update(
+            {
+                name: prefabItem.Name,
+                value: prefabItem.Value,
+                rarity: prefabItem.Rarity,
+                rar_id: prefabItem.Rar_id,
+                attack: prefabItem.Attack,
+                type: prefabItem.Type,
+                loot_id: prefabItem.Loot_id,
+                spec_id: interaction.user.id,
+            }, { where: [{ spec_id: interaction.user.id }] });
+
+        console.log('ITEM UPDATED!', maker);
+
+        var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+        console.log('LOOT UPDATED: ', item);
+
+        var iFound = await addItem(item, user, interaction);
+
+        return iFound;
+    }
+    else if (!edit) {
+        const maker = await LootDrop.create(
+            {
+                name: prefabItem.Name,
+                value: prefabItem.Value,
+                rarity: prefabItem.Rarity,
+                rar_id: prefabItem.Rar_id,
+                attack: prefabItem.Attack,
+                type: prefabItem.Type,
+                loot_id: prefabItem.Loot_id,
+                spec_id: interaction.user.id,
+            });
+
+        console.log('ITEM CREATED!', maker);
+
+        var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+        console.log('LOOT CREATED: ', item);
+
+        var iFound = await addItem(item, user, interaction);
+
+        return iFound;
+    }
 }
 
 /**
@@ -706,7 +803,7 @@ async function makeItem(enemy, interaction, user, hasRar) {
         rarG = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
     } else {
         rarG = hasRar;
-    }
+    } 
     console.log('Rarity Grabbed: ', rarG);
 
     var iPool = [];
