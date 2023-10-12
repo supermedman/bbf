@@ -49,6 +49,16 @@ module.exports = {
             }
 		}
 
+		if (uData.totitem >= 15 && uData.coins <= 5000) {
+			//User has many items, and not a lot of coins
+			return interaction.reply(`Busy are we? Seems like you've started quite the collection of loot. These commands should be of use to you now! \`/myloot\` to pull up your inventory. \`/equip <Item name>\` This one is case sensitive! \`/sell <Item name>\` This one is too!`);
+		}
+
+		if (uData.totitem < 15 && uData.coins >= 6500) {
+			//User has some items and is piling up coins
+			return interaction.reply(`Your pockets are filling up nicely, why not try your luck in the \`/shop\`!`);
+        }
+
 		if (uData.level > 30) {
 			//Unlikely..
 			return interaction.reply(`Well then, you must think yourself awfully funny, or think I am daft... If you truely still need help you'll have to wait as this is the furthest I can take you for now`);
