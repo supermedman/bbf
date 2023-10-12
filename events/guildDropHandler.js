@@ -81,14 +81,15 @@ async function enemyGrabbed(interaction, user) {
 //This method handles guild channel spawning as well as user data acquisition
 async function handleSpawn(message) {
 	//Use User ID to check for active enemies!
-	const interactiveButtons = new ActionRowBuilder()
-		.addComponents(
-			new ButtonBuilder()
-				.setLabel("Fight!")
-				.setStyle(ButtonStyle.Success)
-				.setEmoji('⚔')
-				.setCustomId('accept'),
-		);
+
+	const fightButton = new ButtonBuilder()
+		.setLabel("Fight!")
+		.setStyle(ButtonStyle.Success)
+		.setEmoji('⚔')
+		.setCustomId('accept');
+
+	const interactiveButtons = new ActionRowBuilder().addComponents(fightButton);
+
 	const enemySpawnEmbed = new EmbedBuilder()
 		.setColor('DarkButNotBlack')
 		.setTitle('An enemy appears!')
@@ -107,54 +108,73 @@ async function handleSpawn(message) {
 			//guild exists!
 			if (theGuild.spawnchannel === '0') {
 				//no spawn channel found, procceed as normal
-				await message.channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] }).then(async embedMsg => {
-					const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, ammount: 1, time: 120000 });
 
-					collectorBut.on('collect', async i => {
-						const collectedUser = i.user.id;
-						if (i.customId === 'accept') {
-							//user has chosen to fight!					
-							const user = await grabUM(collectedUser, message);
-							if (user) {
-								await enemyGrabbed(message, user);
-							}
-							await i.deferUpdate();
-							interactiveButtons.components[0].setDisabled(true);
+				const embedMsg = await message.channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] });
 
-							await i.editReply({ components: [interactiveButtons] });
-							wait(5000).then(async () => {
-								await embedMsg.delete();
-							});
+				const collector = embedMsg.createMessageComponentCollector({
+					componentType: ComponentType.Button,
+					max: 1,
+					time: 120000,
+				});
+
+				collector.on('collect', async (collInteract) => {
+					const collectedUser = collInteract.user.id;
+					if (collInteract === 'accept') {
+						const user = await grabUM(collectedUser, message);
+						if (user) {
+							await enemyGrabbed(message, user);
 						}
-					});
-					collectorBut.on('end', async remove => { if (!message) { await embedMsg.delete(); } });
-				}).catch(console.error);
+						await collInteract.deferUpdate();
+						interactiveButtons.components[0].setDisabled(true);
+
+						await collInteract.editReply({ components: [interactiveButtons] });
+						wait(2000).then(async () => {
+							await collector.stop();
+						});
+					}
+				});
+
+				collector.on('end', () => {
+					if (embedMsg) {
+						embedMsg.delete();
+					}
+				});			
 			} else {
 				//spawn channel found, check if it exists
 				let channel = await message.guild.channels.fetch(`${theGuild.spawnchannel}`);
-				await channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] }).then(async embedMsg => {
-					const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, ammount: 1, time: 120000 });
 
-					collectorBut.on('collect', async i => {
-						const collectedUser = i.user.id;
-						const interaction = i;
-						if (i.customId === 'accept') {
-							//user has chosen to fight!					
-							const user = await grabUC(collectedUser, channel);
-							if (user) {
-								await enemyGrabbed(interaction, user);
-							}
-							await i.deferUpdate();
-							interactiveButtons.components[0].setDisabled(true);
+				const embedMsg = await channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] });
 
-							await i.editReply({ components: [interactiveButtons] });
-							wait(5000).then(async () => {
-								await embedMsg.delete();
-							});
+				const collector = embedMsg.createMessageComponentCollector({
+					componentType: ComponentType.Button,
+					max: 1,
+					time: 120000,
+				});
+
+				collector.on('collect', async (collInteract) => {
+					const collectedUser = collInteract.user.id;
+					const interaction = collInteract;
+					if (collInteract.customId === 'accept') {
+						//user has chosen to fight!					
+						const user = await grabUC(collectedUser, channel);
+						if (user) {
+							await enemyGrabbed(interaction, user);
 						}
-					});
-					collectorBut.on('end', async remove => { if (!message) { await embedMsg.delete(); } });
-				}).catch(console.error);
+						await collInteract.deferUpdate();
+						interactiveButtons.components[0].setDisabled(true);
+
+						await collInteract.editReply({ components: [interactiveButtons] });
+						wait(2000).then(async () => {
+							await collector.stop();
+						});
+					}
+				});
+
+				collector.on('end', () => {
+					if (embedMsg) {
+						embedMsg.delete();
+					}
+				});				
 			}
 		}
 	} catch (err) {
