@@ -264,14 +264,13 @@ module.exports = {
             /*PLAYER IS DEAD HANDLE HERE*/
             //TEMPORARY EMBED FOR TESTING PURPOSES WILL BE CANVASED LATER
 
-            const grief = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('primary')
-                        .setLabel('Revive')
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('💀'),
-                );
+            const reviveButton = new ButtonBuilder()
+                .setCustomId('primary')
+                .setLabel('Revive')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('💀');
+
+            const grief = new ActionRowBuilder().addComponents(reviveButton);
 
             const specialMsg = Math.random();
             console.log(`specialMsg: ${specialMsg}`);
@@ -280,34 +279,55 @@ module.exports = {
 
             if (enemy === 'Fayrn') {
                 var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to the gods, please Mourn your loss to revive to full health.`
+                await UserData.update({ lastdeath: enemy.name }, { where: { userid: interaction.user.id } });
             }
             if (specialMsg >= 0.9) {
                 var list = deathMsgList[MsgID].Value;
                 console.log(`list: ${list}`);
+                await updateDiedTo(enemy);
             } else {
                 var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to ${enemy.name}`
+                await updateDiedTo(enemy);
             }
-
+           
             const deadEmbed = new EmbedBuilder()
                 .setTitle('YOU HAVE FALLEN IN COMBAT')
                 .setColor('DarkGold')
                 .addFields(
                     { name: `Obituary`, value: list, inline: true },
-                );
-            interaction.followUp({ embeds: [deadEmbed], components: [grief] }).then(async embedMsg => {
-                const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+            );
 
-                collectorBut.on('collect', async i => {
-                    if (i.user.id === interaction.user.id) {
-                        //delete the embed here
-                        await embedMsg.delete();
-                        await revive(user);
-                    } else {
-                        i.reply({ content: `Nice try slick!`, ephemeral: true });
-                    }
-                });
-                collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
-            }).catch(console.error);
+            const embedMsg = await interaction.followUp({ embeds: [deadEmbed], components: [grief] });
+
+            const filter = (i) => i.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 40000,
+            });
+
+            collector.on('collect', async (collInteract) => {
+                if (collInteract.customId === 'primary') {
+                    await collector.stop();
+                    await revive(user);
+                }
+            });
+
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete();
+                }
+            });         
+        }
+
+        //This method updates the value for lastdeath to be used for other info commands about a user
+        async function updateDiedTo(enemy) {
+            const tableEdit = await UserData.update({ lastdeath: enemy.name }, { where: { userid: interaction.user.id } });
+            if (tableEdit > 0) {
+                //Value updated successfully
+                console.log(`User Death Updated!`);
+            }
         }
 
         //========================================
