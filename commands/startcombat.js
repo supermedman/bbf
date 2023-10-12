@@ -316,213 +316,213 @@ module.exports = {
             var enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
             const hasPng = await pngCheck(enemy);
 
-            const row = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('hide')
-                        .setLabel('Try to hide')
-                        .setDisabled(false)
-                        .setStyle(ButtonStyle.Secondary),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('onehit')
-                        .setLabel('Strike')
-                        .setStyle(ButtonStyle.Primary),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('steal')
-                        .setLabel('Steal Item')
-                        .setDisabled(stealDisabled)
-                        .setStyle(ButtonStyle.Secondary),
-                );
+            const hideButton = new ButtonBuilder()
+                .setCustomId('hide')
+                .setLabel('Try to hide')
+                .setDisabled(false)
+                .setStyle(ButtonStyle.Secondary);
+
+            const attackButton = new ButtonBuilder()
+                .setCustomId('onehit')
+                .setLabel('Strike')
+                .setStyle(ButtonStyle.Primary);
+
+            const stealButton = new ButtonBuilder()
+                .setCustomId('steal')
+                .setLabel('Steal Item')
+                .setDisabled(stealDisabled)
+                .setStyle(ButtonStyle.Secondary);
+
+            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton);          
 
             if (hasPng) {
                 const attachment = await displayEWpic(interaction, enemy, true);
 
-                interaction.followUp({ components: [row], files: [attachment] }).then(async message => {
-                    const collectorBut = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+                const message = await interaction.followUp({ components: [row], files: [attachment] });
 
-                    collectorBut.on('collect', async i => {
-                        if (i.user.id === interaction.user.id) {
-                            await i.deferUpdate();
-                            if (i.customId === 'steal') {
-                                //WIP
-                                const uData = await grabU();
-                                const actionToTake = await stealing(enemy, uData);
-                                //ACTIONS TO HANDLE:
-                                //'NO ITEM'
-                                //'FAILED'
-                                //'UNIQUE ITEM'
-                                if (actionToTake === 'NO ITEM') {
-                                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
-                                    stealDisabled = true;
-                                    row.components[2].setDisabled(true);
-                                    await i.editReply({ components: [row] });
-                                    await i.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
-                                } else if (actionToTake === 'FAILED') {
-                                    //Steal has failed!
-                                    //Punish player
-                                    await i.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
-                                    await message.delete();
-                                    await stealPunish(enemy, uData, interaction);
-                                } else if (actionToTake === 'UNIQUE ITEM') {
-                                    //WIP
-                                    //Unique item detected!
-                                    //Find item here
-                                    const itemToMake = await getUniqueItem(enemy);
-                                    const uItemRef = await makeUniqueItem(itemToMake, uData);
-                                    await showStolen(uItemRef);
-                                    await message.delete();
-                                    await resetHasUniqueItem(enemy, uData);
-                                } else {
-                                    //Steal has either been a success, or an error has occured!
-                                    //Generate item with actionToTake                          
-                                    const usedRar = actionToTake;
-                                    const itemRef = await makeItem(enemy, usedRar);
-                                    await showStolen(itemRef);
-                                    stealDisabled = true;
-                                    await message.delete();
-                                    await resetHasItem(enemy); //Upon completion reload enemy
-                                }
-                            }
-                            if (i.customId === 'hide') {
-                                //WIP
-                                const uData = await grabU();
-                                if (isHidden === false) {
-                                    const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
-                                    if (actionToTake === 'FAILED') {
-                                        //hide failed 
-                                        await i.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
-                                        await message.delete();
-                                        await stealPunish(enemy, uData, interaction);
-                                    } else if (actionToTake === 'SUCCESS') {
-                                        await i.channel.send({ content: 'You managed to hide!', ephemeral: true });
-                                        row.components[0].setLabel('Escape!');
-                                        row.components[1].setLabel('BackStab!');
-                                        await i.editReply({ components: [row] });
-                                        isHidden = true;
-                                    }
-                                } else {
-                                    //USER ESCAPED
-                                    await i.channel.send('Escaped successfully!');
-                                    await message.delete();
-                                    isHidden = false;
-                                }
-                            }
-                            if (i.customId === 'onehit') {
-                                //run once reprompt reaction
-                                const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                                var dmgDealt = await userDamage(interaction, item);
-                                //await i.deferUpdate();
-                                if (isHidden === true) {
-                                    //BACKSTAB
-                                    dmgDealt = dmgDealt * 1.5;
-                                    isHidden = false;
-                                }
-                                await message.delete();
-                                dealDamage(dmgDealt, item);
+                const filter = (i) => i.user.id === interaction.user.id;
+
+                const collector = message.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 40000,
+                });
+
+                collector.on('collect', async (collInteract) => {
+                    await collInteract.deferUpdate();
+                    if (collInteract.customId === 'steal') {
+                        const uData = await grabU();
+                        const actionToTake = await stealing(enemy, uData);
+                        //ACTIONS TO HANDLE: 'NO ITEM'||'FAILED'||'UNIQUE ITEM'
+                        if (actionToTake === 'NO ITEM') {
+                            //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                            stealDisabled = true;
+                            stealButton.setDisabled(true);
+                            await collInteract.editReply({ components: [row] });
+                            await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                        } else if (actionToTake === 'FAILED') {
+                            //Steal has failed!
+                            //Punish player
+                            await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                            await collector.stop();
+                            await stealPunish(enemy, uData, interaction);
+                        } else if (actionToTake === 'UNIQUE ITEM') {
+                            //WIP
+                            //Unique item detected!
+                            //Find item here
+                            const itemToMake = await getUniqueItem(enemy);
+                            const uItemRef = await makeUniqueItem(itemToMake, uData);
+                            await showStolen(uItemRef);
+                            await collector.stop();
+                            await resetHasUniqueItem(enemy, uData);
+                        } else {
+                            //Steal has either been a success, or an error has occured!
+                            //Generate item with actionToTake                          
+                            const usedRar = actionToTake;
+                            const itemRef = await makeItem(enemy, usedRar);
+                            await showStolen(itemRef);
+                            stealDisabled = true;
+                            await collector.stop();
+                            await resetHasItem(enemy); //Upon completion reload enemy
+                        }
+                    } else if (collInteract.customId === 'hide') {
+                        const uData = await grabU();
+                        if (isHidden === false) {
+                            const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                            if (actionToTake === 'FAILED') {
+                                //hide failed 
+                                await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                                await collector.stop();
+                                await stealPunish(enemy, uData, interaction);
+                            } else if (actionToTake === 'SUCCESS') {
+                                await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                                hideButton.setLabel('Escape!');
+                                attackButton.setLabel('BackStab!');
+                                await collInteract.editReply({ components: [row] });
+                                isHidden = true;
                             }
                         } else {
-                            i.reply({ content: `Nice try slick!`, ephemeral: true });
+                            //USER ESCAPED
+                            await collInteract.channel.send('Escaped successfully!');
+                            await collector.stop();
+                            isHidden = false;
                         }
-                    });
-                    collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-                }).catch(console.error);
+                    } else if (collInteract.customId === 'onehit') {
+                        //run once reprompt reaction
+                        const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
+                        var dmgDealt = await userDamage(interaction, item);
+                        //await i.deferUpdate();
+                        if (isHidden === true) {
+                            //BACKSTAB
+                            dmgDealt = dmgDealt * 1.5;
+                            isHidden = false;
+                        }
+                        await collector.stop();
+                        dealDamage(dmgDealt, item);
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (message) {
+                        message.delete();
+                    }
+                });
+
             } else {
                 const attachment = await displayEWOpic(interaction, enemy, true);
 
-                interaction.followUp({ components: [row], files: [attachment] }).then(async message => {
-                    const collectorBut = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+                const message = await interaction.followUp({ components: [row], files: [attachment] });
 
-                    collectorBut.on('collect', async i => {
-                        if (i.user.id === interaction.user.id) {
-                            await i.deferUpdate();
-                            if (i.customId === 'steal') {
-                                //WIP
-                                const uData = await grabU();
-                                const actionToTake = await stealing(enemy, uData);
-                                //ACTIONS TO HANDLE:
-                                //'NO ITEM'
-                                //'FAILED'
-                                //'UNIQUE ITEM'
-                                if (actionToTake === 'NO ITEM') {
-                                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
-                                    stealDisabled = true;
-                                    row.components[2].setDisabled(true);
-                                    await i.editReply({ components: [row] });
-                                    await i.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
-                                } else if (actionToTake === 'FAILED') {
-                                    //Steal has failed!
-                                    //Punish player
-                                    await i.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
-                                    await message.delete();
-                                    await stealPunish(enemy, uData, interaction);
-                                } else if (actionToTake === 'UNIQUE ITEM') {
-                                    //WIP
-                                    //Unique item detected!
-                                    //Find item here
-                                    const itemToMake = await getUniqueItem(enemy);
-                                    const uItemRef = await makeUniqueItem(itemToMake, uData);
-                                    await showStolen(uItemRef);
-                                    await message.delete();
-                                    await resetHasUniqueItem(enemy, uData);
-                                } else {
-                                    //Steal has either been a success, or an error has occured!
-                                    //Generate item with actionToTake                          
-                                    const usedRar = actionToTake;
-                                    const itemRef = await makeItem(enemy, usedRar);
-                                    await showStolen(itemRef);
-                                    stealDisabled = true;
-                                    await message.delete();
-                                    await resetHasItem(enemy); //Upon completion reload enemy
-                                }
-                            }
-                            if (i.customId === 'hide') {
-                                //WIP
-                                const uData = await grabU();
-                                if (isHidden === false) {
-                                    const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
-                                    if (actionToTake === 'FAILED') {
-                                        //hide failed 
-                                        await i.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
-                                        await message.delete();
-                                        await stealPunish(enemy, uData, interaction);
-                                    } else if (actionToTake === 'SUCCESS') {
-                                        await i.channel.send({ content: 'You managed to hide!', ephemeral: true });
-                                        row.components[0].setLabel('Escape!');
-                                        row.components[1].setLabel('BackStab!');
-                                        await i.editReply({ components: [row] });
-                                        isHidden = true;
-                                    }
-                                } else {
-                                    //USER ESCAPED
-                                    await i.channel.send('Escaped successfully!');
-                                    await message.delete();
-                                    isHidden = false;
-                                }
-                            }
-                            if (i.customId === 'onehit') {
-                                //run once reprompt reaction
-                                const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                                var dmgDealt = await userDamage(interaction, item);
-                                //await i.deferUpdate();
-                                if (isHidden === true) {
-                                    //BACKSTAB
-                                    dmgDealt = dmgDealt * 1.5;
-                                    isHidden = false;
-                                }
-                                await message.delete();
-                                dealDamage(dmgDealt, item);
+                const filter = (i) => i.user.id === interaction.user.id;
 
+                const collector = message.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 40000,
+                });
+
+                collector.on('collect', async (collInteract) => {
+                    await collInteract.deferUpdate();
+                    if (collInteract.customId === 'steal') {
+                        const uData = await grabU();
+                        const actionToTake = await stealing(enemy, uData);
+                        //ACTIONS TO HANDLE:
+                        //'NO ITEM'
+                        //'FAILED'
+                        //'UNIQUE ITEM'
+                        if (actionToTake === 'NO ITEM') {
+                            //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                            stealDisabled = true;
+                            stealButton.setDisabled(true);
+                            await collInteract.editReply({ components: [row] });
+                            await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                        } else if (actionToTake === 'FAILED') {
+                            //Steal has failed!
+                            //Punish player
+                            await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                            await collector.stop();
+                            await stealPunish(enemy, uData, interaction);
+                        } else if (actionToTake === 'UNIQUE ITEM') {
+                            //WIP
+                            //Unique item detected!
+                            //Find item here
+                            const itemToMake = await getUniqueItem(enemy);
+                            const uItemRef = await makeUniqueItem(itemToMake, uData);
+                            await showStolen(uItemRef);
+                            await collector.stop();
+                            await resetHasUniqueItem(enemy, uData);
+                        } else {
+                            //Steal has either been a success, or an error has occured!
+                            //Generate item with actionToTake                          
+                            const usedRar = actionToTake;
+                            const itemRef = await makeItem(enemy, usedRar);
+                            await showStolen(itemRef);
+                            stealDisabled = true;
+                            await collector.stop();
+                            await resetHasItem(enemy); //Upon completion reload enemy
+                        }
+                    } else if (collInteract.customId === 'hide') {
+                        const uData = await grabU();
+                        if (isHidden === false) {
+                            const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                            if (actionToTake === 'FAILED') {
+                                //hide failed 
+                                await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                                await collector.stop();
+                                await stealPunish(enemy, uData, interaction);
+                            } else if (actionToTake === 'SUCCESS') {
+                                await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                                hideButton.setLabel('Escape!');
+                                attackButton.setLabel('BackStab!');
+                                await collInteract.editReply({ components: [row] });
+                                isHidden = true;
                             }
                         } else {
-                            i.reply({ content: `Nice try slick!`, ephemeral: true });
+                            //USER ESCAPED
+                            await collInteract.channel.send('Escaped successfully!');
+                            await collector.stop();
+                            isHidden = false;
                         }
-                    });
-                    collectorBut.on('end', async remove => { if (!message) { await message.delete(); } });
-                }).catch(console.error);
+                    } else if (collInteract.customId === 'onehit') {
+                        //run once reprompt reaction
+                        const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
+                        var dmgDealt = await userDamage(interaction, item);
+                        //await i.deferUpdate();
+                        if (isHidden === true) {
+                            //BACKSTAB
+                            dmgDealt = dmgDealt * 1.5;
+                            isHidden = false;
+                        }
+                        await collector.stop();
+                        dealDamage(dmgDealt, item);
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (message) {
+                        message.delete();
+                    }
+                });             
             }                                      
         }
 
