@@ -54,36 +54,32 @@ module.exports = {
 		const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
         if (item) {
             if (!amountsell) {
-                const sellButtons = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Cancel")
-                            .setStyle(ButtonStyle.Danger)
-                            .setEmoji('❌')
-                            .setCustomId('cancel'),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("SELL ONE")
-                            .setStyle(ButtonStyle.Success)
-                            .setEmoji('✅')
-                            .setCustomId('confirm'),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("LEAVE ONE")
-                            .setStyle(ButtonStyle.Primary)
-                            .setEmoji('💲')
-                            .setCustomId('leave-one'),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("SELL ALL")
-                            .setStyle(ButtonStyle.Danger)
-                            .setEmoji('💲')
-                            .setCustomId('sell-all'),
-                    );
 
+                const cancelButton = new ButtonBuilder()
+                    .setLabel("Cancel")
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('❌')
+                    .setCustomId('cancel');
+
+                const sellOneButton = new ButtonBuilder()
+                    .setLabel("SELL ONE")
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('✅')
+                    .setCustomId('confirm');
+
+                const leaveOneButton = new ButtonBuilder()
+                    .setLabel("LEAVE ONE")
+                    .setStyle(ButtonStyle.Primary)
+                    .setEmoji('💲')
+                    .setCustomId('leave-one');
+
+                const sellAllButton = new ButtonBuilder()
+                    .setLabel("SELL ALL")
+                    .setStyle(ButtonStyle.Danger)
+                    .setEmoji('💲')
+                    .setCustomId('sell-all');
+
+                const sellButtons = new ActionRowBuilder().addComponents(cancelButton, sellOneButton, leaveOneButton, sellAllButton);
 
                 //create embed
                 const sellEmbed = new EmbedBuilder()
@@ -94,57 +90,55 @@ module.exports = {
                             name: (`Inventory`),
                             value: `You have ${item.amount} ${item.name}(s) currently`
                         }
-                    )
+                    );
 
-                interaction.followUp({ embeds: [sellEmbed], components: [sellButtons] }).then(async embedMsg => {
-                    const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+                const embedMsg = await interaction.followUp({ embeds: [sellEmbed], components: [sellButtons] });
 
-                    collectorBut.on('collect', async i => {
-                        if (i.user.id === interaction.user.id) {
+                const filter = (i) => i.user.id === interaction.user.id;
 
-                            if (i.customId === 'confirm') {
-                                await i.deferUpdate();
-                                await wait(1000);
-                                console.log('ITEM FOUND!', item.name);
-                                var uData = await grabU();
-                                console.log('Item', item.amount);
+                const collector = embedMsg.createMessageComponentCollector({
+                    ComponentType: ComponentType.Button,
+                    filter,
+                    time: 60000,
+                });
 
-                                //sell item here
-                                await embedMsg.delete();
-                                await sold(item, uData);
-                            }
-                            else if (i.customId === 'sell-all') {
-                                await i.deferUpdate();
-                                await wait(1000);
-                                console.log('ITEM FOUND!', item.name);
-                                var uData = await grabU();
-                                console.log('Item', item.amount);
+                collector.on('collect', async (collInteract) => {
+                    await collInteract.deferUpdate();
+                    if (collInteract.customId === 'confirm') {
+                        console.log('ITEM FOUND!', item.name);
+                        var uData = await grabU();
+                        console.log('Item', item.amount);
 
-                                //sell item here
-                                await embedMsg.delete();
-                                await sellAll(item, uData);
-                            }
-                            else if (i.customId === 'leave-one') {
-                                await i.deferUpdate();
-                                await wait(1000);
-                                console.log('ITEM FOUND!', item.name);
-                                var uData = await grabU();
-                                console.log('Item', item.amount);
+                        //sell item here
+                        await collector.stop();
+                        await sold(item, uData);
+                    } else if (collInteract.customId === 'sell-all') {
+                        console.log('ITEM FOUND!', item.name);
+                        var uData = await grabU();
+                        console.log('Item', item.amount);
 
-                                //sell item here
-                                await embedMsg.delete();
-                                await leaveOne(item, uData);
-                            }
-                            else if (i.customId === 'cancel') {
-                                await i.deferUpdate();
-                                await wait(1000);
-                                await embedMsg.delete();
-                            }
-                        } else {
-                            i.reply({ content: `Nice try slick!`, ephemeral: true });
-                        }
-                    });
-                }).catch(console.error);
+                        //sell item here
+                        await collector.stop();
+                        await sellAll(item, uData);
+                    } else if (collInteract.customId === 'leave-one') {
+                        console.log('ITEM FOUND!', item.name);
+                        var uData = await grabU();
+                        console.log('Item', item.amount);
+
+                        //sell item here
+                        await collector.stop();
+                        await leaveOne(item, uData);
+                    } else if (collInteract.customId === 'cancel') {
+                        await wait(1000);
+                        await collector.stop();
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete();
+                    }
+                });
             } else if (amountsell) {
                 //handle user input sell amount
                 if (amountsell > item.amount) {
