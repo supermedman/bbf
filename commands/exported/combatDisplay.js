@@ -479,6 +479,12 @@ async function enemyDead(enemy, interaction, user) {
 
     await isLvlUp(xpGained, cCalc, interaction, user);
 
+    const newtotalK = user.totalkills + 1;
+    const newCurK = user.killsthislife + 1;
+
+    await UserData.update({ totalkills: newtotalK }, { where: { userid: interaction.user.id } });
+    await UserData.update({ killsthislife: newCurK }, { where: { userid: interaction.user.id } });
+
     if (enemy.hasitem) {
 
         const reference = await makeItem(enemy, interaction, user);
@@ -553,6 +559,8 @@ async function playerDead(user, enemy, interaction) {
 
     await updateDiedTo(enemy, interaction);
 
+    await resetKillCount(user, interaction);
+
     const deadEmbed = new EmbedBuilder()
         .setTitle('YOU HAVE FALLEN IN COMBAT')
         .setColor('DarkGold')
@@ -590,6 +598,20 @@ async function updateDiedTo(enemy, interaction) {
     if (tableEdit > 0) {
         //Value updated successfully
         console.log(`User Death Updated!`);
+    }
+}
+
+//This method sets the killsthislife value to 0 upon user death
+async function resetKillCount(user, interaction) {
+    if (user.highestkills < user.killsthislife) {
+        const updateKRecord = await UserData.update({ highestkills: user.killsthislife }, { where: { userid: interaction.user.id } });
+        if (updateKRecord > 0) {
+            console.log(`NEW KILL RECORD!`);
+        }
+    }
+    const killreset = await UserData.update({ killsthislife: 0 }, { where: { userid: interaction.user.id } });
+    if (killreset > 0) {
+        console.log(`KILLS RESET!`);
     }
 }
 
