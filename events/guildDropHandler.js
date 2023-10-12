@@ -113,7 +113,6 @@ async function handleSpawn(message) {
 
 				const collector = embedMsg.createMessageComponentCollector({
 					componentType: ComponentType.Button,
-					max: 1,
 					time: 120000,
 				});
 
@@ -147,7 +146,6 @@ async function handleSpawn(message) {
 
 				const collector = embedMsg.createMessageComponentCollector({
 					componentType: ComponentType.Button,
-					max: 1,
 					time: 120000,
 				});
 
