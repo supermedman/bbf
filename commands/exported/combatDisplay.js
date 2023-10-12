@@ -80,6 +80,7 @@ async function display(interaction, uData) {
         });
 
         collector.on('collect', async (collInteract) => {
+            await collInteract.deferUpdate();
             if (collInteract.customId === 'steal') {
                 const actionToTake = await stealing(enemy, uData);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                 if (actionToTake === 'NO ITEM') {
@@ -167,6 +168,7 @@ async function display(interaction, uData) {
         });
 
         collector.on('collect', async (collInteract) => {
+            await collInteract.deferUpdate();
             if (collInteract.customId === 'steal') {
                 const actionToTake = await stealing(enemy, uData);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                 if (actionToTake === 'NO ITEM') {
