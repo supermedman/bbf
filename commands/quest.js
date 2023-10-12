@@ -31,29 +31,29 @@ module.exports = {
                 //quest not found prompt new quest option
 
                 //CREATE THREE BUTTONS FOR PAGE OPTIONS
-                const interactiveButtons = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Back")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('◀️')
-                            .setCustomId('back-page'),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Select")
-                            .setStyle(ButtonStyle.Success)
-                            .setEmoji('*️⃣')
-                            .setCustomId('select-quest'),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Forward")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('▶️')
-                            .setCustomId('next-page'),
-                    );
-               if (user.level < 5) {
+
+                const backButton = new ButtonBuilder()
+                    .setLabel("Back")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('◀️')
+                    .setCustomId('back-page');
+
+                const selectButton = new ButtonBuilder()
+                    .setLabel("Select")
+                    .setStyle(ButtonStyle.Success)
+                    .setEmoji('*️⃣')
+                    .setCustomId('select-quest');
+
+                const forwardButton = new ButtonBuilder()
+                    .setLabel("Forward")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('▶️')
+                    .setCustomId('next-page');
+
+                const interactiveButtons = new ActionRowBuilder().addComponents(backButton, selectButton, forwardButton);
+                
+
+                if (user.level < 5) {
                     return interaction.followUp('Sorry! You need to be at least level 5 to start quests.. ``startcombat`` use this to gain some levels!')
                 }
                 const maxQLvl = Math.round(user.level / 5)
@@ -78,85 +78,75 @@ module.exports = {
                     }
                 }
 
-                await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] }).then(async embedMsg => {
-                    const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1200000 });
+                const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 
-                    var currentPage = 0;
+                const filter = (i) => i.user.id === interaction.user.id;
 
-                    collectorBut.on('collect', async i => {
-                        if (i.user.id === interaction.user.id) {
-                            //delete the embed here                             
-                            //first check for what button has been pressed
-                            //second find what discord embed page is currently displayed
-                            //third change page accordingly
-                            //fourth.. figure out why it wont be that easy
+                const collector = embedMsg.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 120000,
+                });
 
+                var currentPage = 0;
 
+                collector.on('collect', async (collInteract) => {
+                    if (collInteract.customId === 'next-page') {
+                        console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
-                            if (i.customId === 'next-page') {
-                                //always start on first page
-                                //check what page is currently active
-                                //add 1 to embed array 
-                                //show results and increase currentPage + 1
-
-                                console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                                //if statment to check if currently on the last page
-                                if (currentPage === embedPages.length - 1) {
-                                    currentPage = 0;
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                } else {
-                                    currentPage += 1;
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                }
-
-
-                            } else if (i.customId === 'back-page') {
-                                //check what page is currently active
-                                //add 1 to embed array 
-                                //show results and decrease currentPage - 1
-
-                                console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                                if (currentPage === 0) {
-                                    currentPage = embedPages.length - 1;
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                } else {
-                                    currentPage -= 1;
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                }
-                            } else if (i.customId === 'select-quest') {
-                                console.log('Quest Selected!');
-                                await i.deferUpdate();
-                                await wait(1000);
-                                const quest = qPool[currentPage];
-
-                                await Questing.create(
-                                    {
-                                        user_id: interaction.user.id,
-                                        qlength: quest.Length,
-                                        qlevel: quest.Level,
-                                        qname: quest.Name,
-                                    }
-                                );
-                                await interaction.followUp(`You have started a quest in ${quest.Name}!`);
-                                await embedMsg.delete();
-                                console.log(`Quest ${quest.ID} started`);
-                            }
+                        //if statment to check if currently on the last page
+                        if (currentPage === embedPages.length - 1) {
+                            currentPage = 0;
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         } else {
-                            i.reply({ content: `Nice try slick!`, ephemeral: true });
+                            currentPage += 1;
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         }
-                    });
+                    }
+                    if (collInteract.customId === 'back-page') {
+                        console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
-                }).catch(console.error);
+                        if (currentPage === 0) {
+                            currentPage = embedPages.length - 1;
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        } else {
+                            currentPage -= 1;
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        }
+                    }
+                    if (collInteract.customId === 'select-quest') {
+                        console.log('Quest Selected!');
+                        await collInteract.deferUpdate();
+                        await wait(1000);
+                        const quest = qPool[currentPage];
+
+                        await Questing.create(
+                            {
+                                user_id: interaction.user.id,
+                                qlength: quest.Length,
+                                qlevel: quest.Level,
+                                qname: quest.Name,
+                            }
+                        );
+                        await interaction.followUp(`You have started a quest in ${quest.Name}!`);
+                        await collector.stop();
+                        console.log(`Quest ${quest.ID} started`);
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete();
+                    }
+                });
             } else {
                 //user found quest already active/not claimed
                 //prompt user to deal with ongoing quest
@@ -391,30 +381,26 @@ module.exports = {
 
                     await embedPages.push(statsEmbed);//add new embed to embed pages
 
+                    const backButton = new ButtonBuilder()
+                        .setLabel("Back")
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('◀️')
+                        .setCustomId('back-page');
 
-                    const interactiveButtons = new ActionRowBuilder()
-                        .addComponents(
-                            new ButtonBuilder()
-                                .setLabel("Back")
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('◀️')
-                                .setCustomId('back-page'),
-                        )
-                        .addComponents(
-                            new ButtonBuilder()
-                                .setLabel("Finish")
-                                .setStyle(ButtonStyle.Success)
-                                .setEmoji('*️⃣')
-                                .setCustomId('delete-page')
-                        )
-                        .addComponents(
-                            new ButtonBuilder()
-                                .setLabel("Forward")
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('▶️')
-                                .setCustomId('next-page'),
-                        );
+                    const finishButton = new ButtonBuilder()
+                        .setLabel("Finish")
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('*️⃣')
+                        .setCustomId('delete-page');
 
+                    const forwardButton = new ButtonBuilder()
+                        .setLabel("Forward")
+                        .setStyle(ButtonStyle.Secondary)
+                        .setEmoji('▶️')
+                        .setCustomId('next-page');
+
+                    const interactiveButtons = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
+               
                     var pos = 1;//  Start at position 2 in the array
 
                     for (var i = 0; i < iGained.length;) {
@@ -445,72 +431,62 @@ module.exports = {
 
                     await destroyQuest();
 
-                    await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] }).then(async embedMsg => {
-                        const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 });
+                    const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 
-                        var currentPage = 0;
+                    const filter = (i) => i.user.id === interaction.user.id;
 
-                        collectorBut.on('collect', async i => {
-                            if (i.user.id === interaction.user.id) {
-                                //delete the embed here                             
-                                //first check for what button has been pressed
-                                //second find what discord embed page is currently displayed
-                                //third change page accordingly
-                                //fourth.. figure out why it wont be that easy
+                    const collector = embedMsg.createMessageComponentCollector({
+                        componentType: ComponentType.Button,
+                        filter,
+                        time: 120000,
+                    });
 
+                    var currentPage = 0;
 
+                    collector.on('collect', async (collInteract) => {
+                        if (collInteract.customId === 'next-page') {
+                            console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
-                                if (i.customId === 'next-page') {
-                                    //always start on first page
-                                    //check what page is currently active
-                                    //add 1 to embed array 
-                                    //show results and increase currentPage + 1
-
-                                    console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                                    //if statment to check if currently on the last page
-                                    if (currentPage === embedPages.length - 1) {
-                                        currentPage = 0;
-                                        await i.deferUpdate();
-                                        await wait(1000);
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    } else {
-                                        currentPage += 1;
-                                        await i.deferUpdate();
-                                        await wait(1000);
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    }
-
-
-                                } else if (i.customId === 'back-page') {
-                                    //check what page is currently active
-                                    //add 1 to embed array 
-                                    //show results and decrease currentPage - 1
-
-                                    console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                                    if (currentPage === 0) {
-                                        currentPage = embedPages.length - 1;
-                                        await i.deferUpdate();
-                                        await wait(1000);
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    } else {
-                                        currentPage -= 1;
-                                        await i.deferUpdate();
-                                        await wait(1000);
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    }
-                                } else if (i.customId === 'delete-page') {
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                    await embedMsg.delete();
-                                }
+                            //if statment to check if currently on the last page
+                            if (currentPage === embedPages.length - 1) {
+                                currentPage = 0;
+                                await collInteract.deferUpdate();
+                                await wait(1000);
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                             } else {
-                                i.reply({ content: `Nice try slick!`, ephemeral: true });
+                                currentPage += 1;
+                                await collInteract.deferUpdate();
+                                await wait(1000);
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                             }
-                        });
+                        }
+                        if (collInteract.customId === 'back-page') {
+                            console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
-                    }).catch(console.error);
+                            if (currentPage === 0) {
+                                currentPage = embedPages.length - 1;
+                                await collInteract.deferUpdate();
+                                await wait(1000);
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            } else {
+                                currentPage -= 1;
+                                await collInteract.deferUpdate();
+                                await wait(1000);
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            }
+                        }
+                        if (collInteract.customId === 'delete-page') {
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                            await collector.stop();
+                        }
+                    });
+
+                    collector.on('end', () => {
+                        if (embedMsg) {
+                            embedMsg.delete();
+                        }
+                    });                  
                 } else {
                     //quest not complete return how long till completion
                     var timeCon = timeLeft;
