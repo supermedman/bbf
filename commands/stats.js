@@ -97,6 +97,7 @@ module.exports = {
                          \nPerk Points: ${uData.points} 
                          \nCoins: ${uData.coins} 
                          \nClass: ${uData.pclass}
+                         \nLast Death: ${uData.lastdeath}
                          \nXP to next level: ${uData.xp}/${nxtLvl}
                          `);
 
@@ -134,6 +135,7 @@ module.exports = {
                          \nPerk Points: ${uData.points} 
                          \nCoins: ${uData.coins} 
                          \nClass: ${uData.pclass}
+                         \nLast Death: ${uData.lastdeath}
                          \nXP to next level: ${uData.xp}/${nxtLvl}
                          `);
 

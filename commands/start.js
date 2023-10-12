@@ -69,6 +69,7 @@ module.exports = {
 						xp: 1,
 						points: 3,
 						pclass: classP,
+						lastdeath: 'None',
 					});
 					console.log('DATA WAS ADDED');
 
@@ -110,6 +111,7 @@ module.exports = {
 						xp: 1,
 						points: 1,
 						pclass: classP,
+						lastdeath: 'None',
 					});
 					console.log('DATA WAS ADDED');
 
@@ -153,6 +155,7 @@ module.exports = {
 						xp: 1,
 						points: 1,
 						pclass: classP,
+						lastdeath: 'None',
 					});
 					console.log('DATA WAS ADDED');
 
@@ -197,6 +200,7 @@ module.exports = {
 						xp: 1,
 						points: 1,
 						pclass: classP,
+						lastdeath: 'None',
 					});
 					console.log('DATA WAS ADDED');
 

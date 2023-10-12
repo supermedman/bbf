@@ -551,6 +551,8 @@ async function playerDead(user, enemy, interaction) {
         var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to ${enemy.name}`
     }
 
+    await updateDiedTo(enemy, interaction);
+
     const deadEmbed = new EmbedBuilder()
         .setTitle('YOU HAVE FALLEN IN COMBAT')
         .setColor('DarkGold')
@@ -580,6 +582,15 @@ async function playerDead(user, enemy, interaction) {
             embedMsg.delete();
         }
     }); 
+}
+
+//This method updates the value for lastdeath to be used for other info commands about a user
+async function updateDiedTo(enemy, interaction) {
+    const tableEdit = await UserData.update({ lastdeath: enemy.name }, { where: { userid: interaction.user.id } });
+    if (tableEdit > 0) {
+        //Value updated successfully
+        console.log(`User Death Updated!`);
+    }
 }
 
 //This method spawns a drop embed upon stealing an item successfully
