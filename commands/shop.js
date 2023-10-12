@@ -28,43 +28,37 @@ module.exports = {
 
             console.log('ITEMS IN list: \n', list);
 
+            const refreshButton = new ButtonBuilder()
+                .setCustomId('refresh')
+                .setLabel('Refresh Shop')
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji('🔄');
 
-            const buttonsA = new ActionRowBuilder()
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('refresh')
-                        .setLabel('Refresh Shop')
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji('🔄'),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('slot1')
-                        .setLabel('Slot 1')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('1️⃣'),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('slot2')
-                        .setLabel('Slot 2')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('2️⃣'),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('slot3')
-                        .setLabel('Slot 3')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('3️⃣'),
-                )
-                .addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('slot4')
-                        .setLabel('Slot 4')
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('4️⃣'),
-                );
+            const slotOneButton = new ButtonBuilder()
+                .setCustomId('slot1')
+                .setLabel('Slot 1')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('1️⃣');
+
+            const slotTwoButton = new ButtonBuilder()
+                .setCustomId('slot2')
+                .setLabel('Slot 2')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('2️⃣');
+
+            const slotThreeButton = new ButtonBuilder()
+                .setCustomId('slot3')
+                .setLabel('Slot 3')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('3️⃣');
+
+            const slotFourButton = new ButtonBuilder()
+                .setCustomId('slot4')
+                .setLabel('Slot 4')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('4️⃣');
+
+            const buttonsA = new ActionRowBuilder().addComponents(refreshButton, slotOneButton, slotTwoButton, slotThreeButton, slotFourButton);        
 
             var uData = await grabU();
 
@@ -84,156 +78,151 @@ module.exports = {
                         name: 'Your Coins: ',
                         value: `${uData.coins}c`
                     }
-                );
-            interaction.followUp({ embeds: [openShop], components: [buttonsA] }).then(async embedMsg => {
-                const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 45000 });
+            );
 
-                collectorBut.on('collect', async i => {
-                    if (i.user.id === interaction.user.id) {
-                        await i.deferUpdate();
-                        if (i.customId === 'slot1') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
-                            const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
-                            if (item) {
-                                console.log('ITEM FOUND!', item);//item was found yaaaay
+            const embedMsg = await interaction.followUp({ embeds: [openShop], components: [buttonsA] });
 
-                                if (item.value > uData.coins) {
-                                    console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
-                                    return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                                } else {
-                                    addItem(item);
+            const filter = (i) => i.user.id === interaction.user.id;
 
-                                    var cost = uData.coins - item.value;
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 45000,
+            });
 
-                                    payUp(cost, uData);
+            collector.on('collect', async (collInteract) => {
+                await collInteract.deferUpdate();
+                if (collInteract.customId === 'slot1') {
+                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+                    if (item) {
+                        console.log('ITEM FOUND!', item);//item was found yaaaay
 
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                        if (item.value > uData.coins) {
+                            console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
+                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                        } else {
+                            addItem(item);
 
-                                    buttonsA.components[1].setDisabled(true);
+                            var cost = uData.coins - item.value;
 
-                                    console.log('Button slot1: ', buttonsA.components[1]);
+                            payUp(cost, uData);
 
-                                    await i.editReply({ components: [buttonsA] });
+                            var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                            buttonsA.components[1].setDisabled(true);
 
-                                    //wipe db after this
-                                }
-                            } else console.log('ITEM NOT FOUND!');//item not found :(                       
+                            console.log('Button slot1: ', buttonsA.components[1]);
+
+                            await collInteract.editReply({ components: [buttonsA] });
+
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+
+                            //wipe db after this
                         }
-                        else if (i.customId === 'slot2') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
-                            const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
-                            if (item) {
-                                console.log('ITEM FOUND!', item);//item was found yaaaay
-                                //var uData = await grabU();
-                                if (item.value > uData.coins) {
-                                    console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
-                                    return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                                } else {
-                                    addItem(item);
+                    } else console.log('ITEM NOT FOUND!');//item not found :( 
+                }
+                if (collInteract.customId === 'slot2') {
+                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+                    if (item) {
+                        console.log('ITEM FOUND!', item);//item was found yaaaay
+                        //var uData = await grabU();
+                        if (item.value > uData.coins) {
+                            console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
+                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                        } else {
+                            addItem(item);
 
-                                    var cost = uData.coins - item.value;
+                            var cost = uData.coins - item.value;
 
-                                    payUp(cost, uData);
+                            payUp(cost, uData);
 
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                            var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                                    buttonsA.components[2].setDisabled(true);
+                            buttonsA.components[2].setDisabled(true);
 
-                                    console.log('Button slot1: ', buttonsA.components[2]);
+                            console.log('Button slot1: ', buttonsA.components[2]);
 
-                                    await i.editReply({ components: [buttonsA] });
+                            await collInteract.editReply({ components: [buttonsA] });
 
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    //wipe db after this
-                                }
-
-                            } else console.log('ITEM NOT FOUND!');//item not found :(
-                        }
-                        else if (i.customId === 'slot3') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
-                            const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
-                            if (item) {
-                                console.log('ITEM FOUND!', item);//item was found yaaaay
-                                //var uData = await grabU();
-                                if (item.value > uData.coins) {
-                                    console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
-                                    return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                                } else {
-                                    addItem(item);
-
-                                    var cost = uData.coins - item.value;
-
-                                    payUp(cost, uData);
-
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
-
-                                    buttonsA.components[3].setDisabled(true);
-
-                                    console.log('Button slot1: ', buttonsA.components[3]);
-
-                                    await i.editReply({ components: [buttonsA] });
-
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    //wipe db after this
-                                }
-
-                            } else console.log('ITEM NOT FOUND!');//item not found :(
-                        }
-                        else if (i.customId === 'slot4') {
-                            //await i.deferUpdate();
-                            //await wait(1000);
-                            const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
-                            if (item) {
-                                console.log('ITEM FOUND!', item);//item was found yaaaay
-                                //var uData = await grabU();
-                                if (item.value > uData.coins) {
-                                    console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
-                                    return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                                } else {
-                                    addItem(item);
-
-                                    var cost = uData.coins - item.value;
-
-                                    payUp(cost, uData);
-
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
-
-                                    buttonsA.components[4].setDisabled(true);
-
-                                    console.log('Button slot1: ', buttonsA.components[4]);
-
-                                    await i.editReply({ components: [buttonsA] });
-
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    //wipe db after this
-                                }
-
-                            } else console.log('ITEM NOT FOUND!');//item not found :(
-                        }
-                        else if (i.customId === 'refresh') {
-                            //delete the embed here
-                            //await i.deferUpdate();
-                            //await wait(1000);
-                            await embedMsg.delete();
-                            startShop();//run the entire script over again
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                            //wipe db after this
                         }
 
+                    } else console.log('ITEM NOT FOUND!');//item not found :(
+                }
+                if (collInteract.customId === 'slot3') {
+                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+                    if (item) {
+                        console.log('ITEM FOUND!', item);//item was found yaaaay
+                        //var uData = await grabU();
+                        if (item.value > uData.coins) {
+                            console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
+                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                        } else {
+                            addItem(item);
 
+                            var cost = uData.coins - item.value;
 
-                    } else {
-                        i.channel.send({ content: `Nice try slick!`, ephemeral: true });
-                    }
-                });
-            }).catch(console.error);
+                            payUp(cost, uData);
+
+                            var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+
+                            buttonsA.components[3].setDisabled(true);
+
+                            console.log('Button slot1: ', buttonsA.components[3]);
+
+                            await collInteract.editReply({ components: [buttonsA] });
+
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                            //wipe db after this
+                        }
+
+                    } else console.log('ITEM NOT FOUND!');//item not found :(
+                }
+                if (collInteract.customId === 'slot4') {
+                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+                    if (item) {
+                        console.log('ITEM FOUND!', item);//item was found yaaaay
+                        //var uData = await grabU();
+                        if (item.value > uData.coins) {
+                            console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
+                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                        } else {
+                            addItem(item);
+
+                            var cost = uData.coins - item.value;
+
+                            payUp(cost, uData);
+
+                            var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+
+                            buttonsA.components[4].setDisabled(true);
+
+                            console.log('Button slot1: ', buttonsA.components[4]);
+
+                            await collInteract.editReply({ components: [buttonsA] });
+
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                            //wipe db after this
+                        }
+
+                    } else console.log('ITEM NOT FOUND!');//item not found :(
+                }
+                if (collInteract.customId === 'refresh') {
+                    await collector.stop();
+                    startShop();//run the entire script over again
+                }
+            });
+
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete();
+                }
+            });
         }
         
         //=======================================
