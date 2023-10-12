@@ -57,6 +57,18 @@ module.exports = (sequelize, DataTypes) => {
         },
         totitem: DataTypes.INTEGER,
         pclass: DataTypes.STRING,
+        totalkills: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        killsthislife: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        highestkills: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
         lastdeath: {
             type: DataTypes.STRING,
             defaultValue: 'None',
