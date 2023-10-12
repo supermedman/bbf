@@ -1,4 +1,4 @@
-﻿const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { UserData } = require('../dbObjects.js');
 
 module.exports = {
@@ -6,31 +6,28 @@ module.exports = {
 		.setName('start')
         .setDescription('Start your grand adventure!'),
 	async execute(interaction) {
-		const row = new ActionRowBuilder()
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('slot1')
-					.setLabel('Warrior')
-					.setStyle(ButtonStyle.Primary),
-			)
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('slot2')
-					.setLabel('Mage')
-					.setStyle(ButtonStyle.Primary),
-			)
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('slot3')
-					.setLabel('Thief')
-					.setStyle(ButtonStyle.Primary),
-			)
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('slot4')
-					.setLabel('Paladin')
-					.setStyle(ButtonStyle.Primary),
-			);
+
+		const warriorButton = new ButtonBuilder()
+			.setCustomId('slot1')
+			.setLabel('Warrior')
+			.setStyle(ButtonStyle.Primary);
+
+		const mageButton = new ButtonBuilder()
+			.setCustomId('slot2')
+			.setLabel('Mage')
+			.setStyle(ButtonStyle.Primary);
+
+		const thiefButton = new ButtonBuilder()
+			.setCustomId('slot3')
+			.setLabel('Thief')
+			.setStyle(ButtonStyle.Primary);
+
+		const paladinButton = new ButtonBuilder()
+			.setCustomId('slot4')
+			.setLabel('Paladin')
+			.setStyle(ButtonStyle.Primary);
+
+		const row = new ActionRowBuilder().addComponents(warriorButton, mageButton, thiefButton, paladinButton);
 
 		const embed = new EmbedBuilder()
 			.setTitle("~Welcome to Black Blade~")
@@ -43,191 +40,187 @@ module.exports = {
 				{ name: 'Paladin 🛡️', value: 'Unshakeable: \n15% reduction on damage taken \n5% reduction on damage dealt', inline: true },
 			);
 
-		await interaction.reply({ content: 'Make your choice below.', ephemeral: true, embeds: [embed], components: [row] }).then(async message => {
-			const collector = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 });
+		const embedMsg = await interaction.reply({ content: 'Make your choice below.', ephemeral: true, embeds: [embed], components: [row] });
 
-			const channel = interaction.channel;
+		const collector = embedMsg.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			time: 120000,
+		});
 
-			collector.on('collect', async i => {
-				if (i.user.id === interaction.user.id) {
-					if (i.customId === 'slot1') {
-						const classP = 'Warrior';
-						//interaction.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
-						//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-						console.log('username: ', i.user.username);
-						console.log('userid: ', i.user.id);
-						try {
-							console.log('TRY WAS CALLED');
-							// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-							const userData = await UserData.create({
-								userid: i.user.id,
-								username: i.user.username,
-								health: 110,
-								speed: 1,
-								strength: 2,
-								dexterity: 1,
-								intelligence: 1,
-								level: 1,
-								xp: 1,
-								points: 3,
-								pclass: classP,
-							});
-							console.log('DATA WAS ADDED');
+		const channel = interaction.channel;
 
-							var uData = await UserData.findAll({ attributes: ['username'] });
-							const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
+		collector.on('collect', async (collInteract) => {
+			if (collInteract.customId === 'slot1') {
+				const classP = 'Warrior';
+				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
+				console.log('username: ', collInteract.user.username);
+				console.log('userid: ', collInteract.user.id);
+				try {
+					console.log('TRY WAS CALLED');
+					const userData = await UserData.create({
+						userid: collInteract.user.id,
+						username: collInteract.user.username,
+						health: 110,
+						speed: 1,
+						strength: 2,
+						dexterity: 1,
+						intelligence: 1,
+						level: 1,
+						xp: 1,
+						points: 3,
+						pclass: classP,
+					});
+					console.log('DATA WAS ADDED');
 
-							console.log(`List of users: ${dataString}`);
+					var uData = await UserData.findAll({ attributes: ['username'] });
+					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
 
-							uData = await UserData.findOne({ where: { userid: i.user.id } });
-							if (uData) {
-								return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-							}
-							return channel.send(`Data for ${userData.username} added.`);
-						}
-						catch (error) {
-							if (error.name === 'SequelizeUniqueConstraintError') {
-								return channel.send('That Data already exists.');
-							}
-							console.log(`DB CONTENTS ${UserData.length}`);
-							console.error('Error occured', error);
-							return channel.send('Something went wrong with adding the data.');
-						}
+					console.log(`List of users: ${dataString}`);
+
+					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
+					if (uData) {
+						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
 					}
-					if (i.customId === 'slot2') {
-						const classP = 'Mage';
-						//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-						console.log('username: ', i.user.username);
-						console.log('userid: ', i.user.id);
-						try {
-							console.log('TRY WAS CALLED');
-							// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-							const userData = await UserData.create({
-								userid: i.user.id,
-								username: i.user.username,
-								speed: 1,
-								strength: 1,
-								dexterity: 1,
-								intelligence: 4,
-								level: 1,
-								xp: 1,
-								points: 1,
-								pclass: classP,
-							});
-							console.log('DATA WAS ADDED');
-
-							var uData = await UserData.findAll({ attributes: ['username'] });
-							const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-							console.log(`List of users: ${dataString}`);
-
-							uData = await UserData.findOne({ where: { userid: i.user.id } });
-							if (uData) {
-								return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-							}
-							return channel.send(`Data for ${userData.username} added.`);
-						}
-						catch (error) {
-							if (error.name === 'SequelizeUniqueConstraintError') {
-								return channel.send('That Data already exists.');
-							}
-							console.log(`DB CONTENTS ${UserData.length}`);
-							console.error('Error occured', error);
-							return channel.send('Something went wrong with adding the data.');
-						}
-					}
-					if (i.customId === 'slot3') {
-						const classP = 'Thief';
-						//msg.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
-						//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-						console.log('username: ', i.user.username);
-						console.log('userid: ', i.user.id);
-						try {
-							console.log('TRY WAS CALLED');
-							// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-							const userData = await UserData.create({
-								userid: i.user.id,
-								username: i.user.username,
-								speed: 2,
-								strength: 1,
-								dexterity: 2,
-								intelligence: 2,
-								level: 1,
-								xp: 1,
-								points: 1,
-								pclass: classP,
-							});
-							console.log('DATA WAS ADDED');
-
-							var uData = await UserData.findAll({ attributes: ['username'] });
-							const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-							console.log(`List of users: ${dataString}`);
-
-							uData = await UserData.findOne({ where: { userid: i.user.id } });
-							if (uData) {
-								return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-							}
-							return channel.send(`Data for ${userData.username} added.`);
-						}
-						catch (error) {
-							if (error.name === 'SequelizeUniqueConstraintError') {
-								return channel.send('That Data already exists.');
-							}
-							console.log(`DB CONTENTS ${UserData.length}`);
-							console.error('Error occured', error);
-							return channel.send('Something went wrong with adding the data.');
-						}
-					}
-					if (i.customId === 'slot4') {
-						const classP = 'Paladin';
-						//msg.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
-						//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-						console.log('username: ', i.user.username);
-						console.log('userid: ', i.user.id);
-						try {
-							console.log('TRY WAS CALLED');
-							// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-							const userData = await UserData.create({
-								userid: i.user.id,
-								username: i.user.username,
-								health: 140,
-								speed: 1,
-								strength: 4,
-								dexterity: 1,
-								intelligence: 1,
-								level: 1,
-								xp: 1,
-								points: 1,
-								pclass: classP,
-							});
-							console.log('DATA WAS ADDED');
-
-							var uData = await UserData.findAll({ attributes: ['username'] });
-							const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-							console.log(`List of users: ${dataString}`);
-
-							uData = await UserData.findOne({ where: { userid: i.user.id } });
-							if (uData) {
-								return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-							}
-							return channel.send(`Data for ${userData.username} added.`);
-						}
-						catch (error) {
-							if (error.name === 'SequelizeUniqueConstraintError') {
-								return channel.send('That Data already exists.');
-							}
-							console.log(`DB CONTENTS ${UserData.length}`);
-							console.error('Error occured', error);
-							return channel.send('Something went wrong with adding the data.');
-						}
-					}
-				} else {
-					i.reply({ content: `These buttons aren't for you!`, ephemeral: true });
+					return channel.send(`Data for ${userData.username} added.`);
 				}
-			});
-		}).catch(console.error);
+				catch (error) {
+					if (error.name === 'SequelizeUniqueConstraintError') {
+						return channel.send('That Data already exists.');
+					}
+					console.log(`DB CONTENTS ${UserData.length}`);
+					console.error('Error occured', error);
+					return channel.send('Something went wrong with adding the data.');
+				}
+			}
+			if (collInteract.customId === 'slot2') {
+				const classP = 'Mage';
+				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
+				console.log('username: ', collInteract.user.username);
+				console.log('userid: ', collInteract.user.id);
+				try {
+					console.log('TRY WAS CALLED');
+					const userData = await UserData.create({
+						userid: collInteract.user.id,
+						username: collInteract.user.username,
+						speed: 1,
+						strength: 1,
+						dexterity: 1,
+						intelligence: 4,
+						level: 1,
+						xp: 1,
+						points: 1,
+						pclass: classP,
+					});
+					console.log('DATA WAS ADDED');
+
+					var uData = await UserData.findAll({ attributes: ['username'] });
+					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
+
+					console.log(`List of users: ${dataString}`);
+
+					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
+					if (uData) {
+						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
+					}
+					return channel.send(`Data for ${userData.username} added.`);
+				}
+				catch (error) {
+					if (error.name === 'SequelizeUniqueConstraintError') {
+						return channel.send('That Data already exists.');
+					}
+					console.log(`DB CONTENTS ${UserData.length}`);
+					console.error('Error occured', error);
+					return channel.send('Something went wrong with adding the data.');
+				}
+			}
+			if (collInteract.customId === 'slot3') {
+				const classP = 'Thief';
+				//msg.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
+				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
+				console.log('username: ', collInteract.user.username);
+				console.log('userid: ', collInteract.user.id);
+				try {
+					console.log('TRY WAS CALLED');
+					// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
+					const userData = await UserData.create({
+						userid: collInteract.user.id,
+						username: collInteract.user.username,
+						speed: 2,
+						strength: 1,
+						dexterity: 2,
+						intelligence: 2,
+						level: 1,
+						xp: 1,
+						points: 1,
+						pclass: classP,
+					});
+					console.log('DATA WAS ADDED');
+
+					var uData = await UserData.findAll({ attributes: ['username'] });
+					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
+
+					console.log(`List of users: ${dataString}`);
+
+					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
+					if (uData) {
+						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
+					}
+					return channel.send(`Data for ${userData.username} added.`);
+				}
+				catch (error) {
+					if (error.name === 'SequelizeUniqueConstraintError') {
+						return channel.send('That Data already exists.');
+					}
+					console.log(`DB CONTENTS ${UserData.length}`);
+					console.error('Error occured', error);
+					return channel.send('Something went wrong with adding the data.');
+				}
+			}
+			if (collInteract.customId === 'slot4') {
+				const classP = 'Paladin';
+				//msg.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
+				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
+				console.log('username: ', collInteract.user.username);
+				console.log('userid: ', collInteract.user.id);
+				try {
+					console.log('TRY WAS CALLED');
+					// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
+					const userData = await UserData.create({
+						userid: collInteract.user.id,
+						username: collInteract.user.username,
+						health: 140,
+						speed: 1,
+						strength: 4,
+						dexterity: 1,
+						intelligence: 1,
+						level: 1,
+						xp: 1,
+						points: 1,
+						pclass: classP,
+					});
+					console.log('DATA WAS ADDED');
+
+					var uData = await UserData.findAll({ attributes: ['username'] });
+					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
+
+					console.log(`List of users: ${dataString}`);
+
+					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
+					if (uData) {
+						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
+					}
+					return channel.send(`Data for ${userData.username} added.`);
+				}
+				catch (error) {
+					if (error.name === 'SequelizeUniqueConstraintError') {
+						return channel.send('That Data already exists.');
+					}
+					console.log(`DB CONTENTS ${UserData.length}`);
+					console.error('Error occured', error);
+					return channel.send('Something went wrong with adding the data.');
+				}
+			}
+		});
 	},
 
 };
