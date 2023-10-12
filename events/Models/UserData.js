@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         totitem: DataTypes.INTEGER,
         pclass: DataTypes.STRING,
+        lastdeath: {
+            type: DataTypes.STRING,
+            defaultValue: 'None',
+        },
 
     });
 };
