@@ -75,6 +75,10 @@ module.exports = {
 					{
 						name: `Name: ${pigmyList[i].Name}`,
 						value: `Pigmy Type: ${pigmyList[i].Type}\n Cost: ${pigmyList[i].Cost}\n`,
+					},
+					{
+						name: 'Your Qts: ',
+						value: `${user.qt}QTs`
 					}
 				);
 			embedPages.push(pigEmbed);
