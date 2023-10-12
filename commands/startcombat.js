@@ -197,6 +197,13 @@ module.exports = {
 
             await isLvlUp(xpGained, cCalc, interaction);
 
+            const user = await grabU();
+            const newtotalK = user.totalkills + 1;
+            const newCurK = user.killsthislife + 1;
+
+            await UserData.update({ totalkills: newtotalK }, { where: { userid: interaction.user.id } });
+            await UserData.update({ killsthislife: newCurK }, { where: { userid: interaction.user.id } });
+
             if (enemy.hasitem) {
 
                 const reference = await makeItem(enemy);
@@ -279,7 +286,7 @@ module.exports = {
 
             if (enemy === 'Fayrn') {
                 var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to the gods, please Mourn your loss to revive to full health.`
-                await UserData.update({ lastdeath: enemy.name }, { where: { userid: interaction.user.id } });
+                await UserData.update({ lastdeath: enemy }, { where: { userid: interaction.user.id } });
             }
             if (specialMsg >= 0.9) {
                 var list = deathMsgList[MsgID].Value;
@@ -289,6 +296,8 @@ module.exports = {
                 var list = `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to ${enemy.name}`
                 await updateDiedTo(enemy);
             }
+
+            await resetKillCount(user);
            
             const deadEmbed = new EmbedBuilder()
                 .setTitle('YOU HAVE FALLEN IN COMBAT')
@@ -327,6 +336,20 @@ module.exports = {
             if (tableEdit > 0) {
                 //Value updated successfully
                 console.log(`User Death Updated!`);
+            }
+        }
+
+        //This method sets the killsthislife value to 0 upon user death
+        async function resetKillCount(user) {
+            if (user.highestkills < user.killsthislife) {
+                const updateKRecord = await UserData.update({ highestkills: user.killsthislife }, { where: { userid: interaction.user.id } });
+                if (updateKRecord > 0) {
+                    console.log(`NEW KILL RECORD!`);
+                }
+            }
+            const killreset = await UserData.update({ killsthislife: 0 }, { where: { userid: interaction.user.id } });
+            if (killreset > 0) {
+                console.log(`KILLS RESET!`);
             }
         }
 
