@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { Pighouse, UserData } = require('../dbObjects.js');
 
@@ -17,8 +17,8 @@ module.exports = {
 			if (powned[n].spec_id !== interaction.user.id) {
 				powned[n].spec_id = interaction.user.id;
 			}
-        }
-		
+		}
+
 		const user = await grabU();
 		const qts = user.qt;
 		var setDis = false;
@@ -35,32 +35,29 @@ module.exports = {
 				//first pigmy displayed is already owned, disable button on load
 				setDis = true;
 				setLab = "Owned";
-            }
+			}
 		}
 
-		const interactiveButtons = new ActionRowBuilder()
-			.addComponents(
-				new ButtonBuilder()
-					.setLabel("Back")
-					.setStyle(ButtonStyle.Secondary)
-					.setEmoji('◀️')
-					.setCustomId('back-page'),
-			)
-			.addComponents(
-				new ButtonBuilder()
-					.setLabel(setLab)
-					.setStyle(ButtonStyle.Success)
-					.setEmoji('*️⃣')
-					.setDisabled(setDis)
-					.setCustomId('select-pig'),
-			)
-			.addComponents(
-				new ButtonBuilder()
-					.setLabel("Forward")
-					.setStyle(ButtonStyle.Secondary)
-					.setEmoji('▶️')
-					.setCustomId('next-page'),
-		);
+		const backButton = new ButtonBuilder()
+			.setLabel("Back")
+			.setStyle(ButtonStyle.Secondary)
+			.setEmoji('◀️')
+			.setCustomId('back-page');
+
+		const selectButton = new ButtonBuilder()
+			.setLabel(setLab)
+			.setStyle(ButtonStyle.Success)
+			.setEmoji('*️⃣')
+			.setDisabled(setDis)
+			.setCustomId('select-pig');
+
+		const nextButton = new ButtonBuilder()
+			.setLabel("Forward")
+			.setStyle(ButtonStyle.Secondary)
+			.setEmoji('▶️')
+			.setCustomId('next-page');
+
+		const interactiveButtons = new ActionRowBuilder().addComponents(backButton, selectButton, nextButton);
 
 		var pigs = [];
 		var embedPages = [];
@@ -83,139 +80,149 @@ module.exports = {
 				);
 			embedPages.push(pigEmbed);
 		}
-		await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]], files: [pigmyList[0].PngRef] }).then(async embedMsg => {
-			const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 120000 });
-			var currentPage = 0;
-			var currentPig = 0;
 
-			collectorBut.on('collect', async i => {
-				if (i.user.id === interaction.user.id) {
-					if (i.customId === 'next-page') {
-						//always start on first page
-						//check what page is currently active
-						//add 1 to embed array 
-						//show results and increase currentPage + 1
-						console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+		const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]], files: [pigmyList[0].PngRef] });
 
-						//if statment to check if currently on the last page
-						if (currentPage === embedPages.length - 1) {
-							currentPage = 0;
-							currentPig = 0;
-							//await i.deferUpdate();
-							await wait(1000);
-							if (powned[currentPig]) {
-								if (powned[currentPig].refid === pigs[currentPig].ID) {
-									interactiveButtons.components[1].setDisabled(true);
-									interactiveButtons.components[1].setLabel("Owned");
-									await i.update({ components: [interactiveButtons] });
-                                }							
-							} else if (pigs[currentPig].Cost > qts) {
-								interactiveButtons.components[1].setDisabled(true);
-								interactiveButtons.components[1].setLabel("Insufficient Qts");
-								await i.update({ components: [interactiveButtons] });
-							} else {
-								interactiveButtons.components[1].setDisabled(false);
-								interactiveButtons.components[1].setLabel("Select");
-								await i.update({ components: [interactiveButtons] });
-							}
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
-						} else {
-							currentPage += 1;
-							currentPig += 1;
-							//await i.deferUpdate();
-							await wait(1000);
-							if (powned[currentPig]) {
-								if (powned[currentPig].refid === pigs[currentPig].ID) {
-									interactiveButtons.components[1].setDisabled(true);
-									interactiveButtons.components[1].setLabel("Owned");
-									await i.update({ components: [interactiveButtons] });
-								}
-							} else if (pigs[currentPig].Cost > qts) {
-								interactiveButtons.components[1].setDisabled(true);
-								interactiveButtons.components[1].setLabel("Insufficient Qts");
-								await i.update({ components: [interactiveButtons] });
-							} else {
-								interactiveButtons.components[1].setDisabled(false);
-								interactiveButtons.components[1].setLabel("Select");
-								await i.update({ components: [interactiveButtons] });
-							}
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
+		const filter = (i) => i.user.id === interaction.user.id;
+
+		const collector = embedMsg.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			filter,
+			time: 120000,
+		});
+
+		var currentPage = 0;
+		var currentPig = 0;
+
+		collector.on('collect', async (collInteract) => {
+			if (collInteract.customId === 'next-page') {
+				//always start on first page
+				//check what page is currently active
+				//add 1 to embed array 
+				//show results and increase currentPage + 1
+				console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+
+				//if statment to check if currently on the last page
+				if (currentPage === embedPages.length - 1) {
+					currentPage = 0;
+					currentPig = 0;
+					//await i.deferUpdate();
+					await wait(1000);
+					if (powned[currentPig]) {
+						if (powned[currentPig].refid === pigs[currentPig].ID) {
+							interactiveButtons.components[1].setDisabled(true);
+							interactiveButtons.components[1].setLabel("Owned");
+							await collInteract.update({ components: [interactiveButtons] });
 						}
-					} else if (i.customId === 'back-page') {
-						//check what page is currently active
-						//add 1 to embed array 
-						//show results and decrease currentPage - 1
-						console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-						if (currentPage === 0) {
-							currentPage = embedPages.length - 1;
-							currentPig = embedPages.length - 1;
-							//await i.deferUpdate();
-							await wait(1000);
-							if (powned[currentPig]) {
-								if (powned[currentPig].refid === pigs[currentPig].ID) {
-									interactiveButtons.components[1].setDisabled(true);
-									interactiveButtons.components[1].setLabel("Owned");
-									await i.update({ components: [interactiveButtons] });
-								}
-							} else if (pigs[currentPig].Cost > qts) {
-								interactiveButtons.components[1].setDisabled(true);
-								interactiveButtons.components[1].setLabel("Insufficient Qts");
-								await i.update({ components: [interactiveButtons] });
-							} else {
-								interactiveButtons.components[1].setDisabled(false);
-								interactiveButtons.components[1].setLabel("Select");
-								await i.update({ components: [interactiveButtons] });
-							}
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
-						} else {
-							currentPage -= 1;
-							currentPig -= 1;
-							//await i.deferUpdate();
-							await wait(1000);
-							if (powned[currentPig]) {
-								if (powned[currentPig].refid === pigs[currentPig].ID) {
-									interactiveButtons.components[1].setDisabled(true);
-									interactiveButtons.components[1].setLabel("Owned");
-									await i.update({ components: [interactiveButtons] });
-								}
-							} else if (pigs[currentPig].Cost > qts) {
-								interactiveButtons.components[1].setDisabled(true);
-								interactiveButtons.components[1].setLabel("Insufficient Qts");
-								await i.update({ components: [interactiveButtons] });
-							} else {
-								interactiveButtons.components[1].setDisabled(false);
-								interactiveButtons.components[1].setLabel("Select");
-								await i.update({ components: [interactiveButtons] });
-							}
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
-						}
-					} else if (i.customId === 'select-pig') {
-						await i.deferUpdate();
-						await wait(1000);
-						console.log('Pigmy Selected!');
-						const pig = pigs[currentPig];
-						await Pighouse.create(
-							{
-								spec_id: interaction.user.id,
-								name: pig.Name,
-								type: pig.Type,
-								level: 1,
-								exp: 0,
-								mood: 'Well',
-								happiness: 50,
-								refid: pig.ID,
-							}
-						);
-						await interaction.followUp(`You are now the proud owner of a ${pig.Name}!`);
-						await embedMsg.delete();					
-						console.log(`Pigmy ${pig.ID} obtained!`);
+					} else if (pigs[currentPig].Cost > qts) {
+						interactiveButtons.components[1].setDisabled(true);
+						interactiveButtons.components[1].setLabel("Insufficient Qts");
+						await collInteract.update({ components: [interactiveButtons] });
+					} else {
+						interactiveButtons.components[1].setDisabled(false);
+						interactiveButtons.components[1].setLabel("Select");
+						await collInteract.update({ components: [interactiveButtons] });
 					}
+					await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
 				} else {
-					i.reply({ content: `Nice try slick!`, ephemeral: true });
+					currentPage += 1;
+					currentPig += 1;
+					//await i.deferUpdate();
+					await wait(1000);
+					if (powned[currentPig]) {
+						if (powned[currentPig].refid === pigs[currentPig].ID) {
+							interactiveButtons.components[1].setDisabled(true);
+							interactiveButtons.components[1].setLabel("Owned");
+							await collInteract.update({ components: [interactiveButtons] });
+						}
+					} else if (pigs[currentPig].Cost > qts) {
+						interactiveButtons.components[1].setDisabled(true);
+						interactiveButtons.components[1].setLabel("Insufficient Qts");
+						await collInteract.update({ components: [interactiveButtons] });
+					} else {
+						interactiveButtons.components[1].setDisabled(false);
+						interactiveButtons.components[1].setLabel("Select");
+						await collInteract.update({ components: [interactiveButtons] });
+					}
+					await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
 				}
-			});
-		}).catch(console.error);
+			} else if (collInteract.customId === 'back-page') {
+				//check what page is currently active
+				//add 1 to embed array 
+				//show results and decrease currentPage - 1
+				console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+
+				if (currentPage === 0) {
+					currentPage = embedPages.length - 1;
+					currentPig = embedPages.length - 1;
+					//await i.deferUpdate();
+					await wait(1000);
+					if (powned[currentPig]) {
+						if (powned[currentPig].refid === pigs[currentPig].ID) {
+							interactiveButtons.components[1].setDisabled(true);
+							interactiveButtons.components[1].setLabel("Owned");
+							await collInteract.update({ components: [interactiveButtons] });
+						}
+					} else if (pigs[currentPig].Cost > qts) {
+						interactiveButtons.components[1].setDisabled(true);
+						interactiveButtons.components[1].setLabel("Insufficient Qts");
+						await collInteract.update({ components: [interactiveButtons] });
+					} else {
+						interactiveButtons.components[1].setDisabled(false);
+						interactiveButtons.components[1].setLabel("Select");
+						await collInteract.update({ components: [interactiveButtons] });
+					}
+					await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
+				} else {
+					currentPage -= 1;
+					currentPig -= 1;
+					//await i.deferUpdate();
+					await wait(1000);
+					if (powned[currentPig]) {
+						if (powned[currentPig].refid === pigs[currentPig].ID) {
+							interactiveButtons.components[1].setDisabled(true);
+							interactiveButtons.components[1].setLabel("Owned");
+							await collInteract.update({ components: [interactiveButtons] });
+						}
+					} else if (pigs[currentPig].Cost > qts) {
+						interactiveButtons.components[1].setDisabled(true);
+						interactiveButtons.components[1].setLabel("Insufficient Qts");
+						await collInteract.update({ components: [interactiveButtons] });
+					} else {
+						interactiveButtons.components[1].setDisabled(false);
+						interactiveButtons.components[1].setLabel("Select");
+						await collInteract.update({ components: [interactiveButtons] });
+					}
+					await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons], files: [pigmyList[currentPig].PngRef] });
+				}
+			} else if (collInteract.customId === 'select-pig') {
+				await collInteract.deferUpdate();
+				await wait(1000);
+				console.log('Pigmy Selected!');
+				const pig = pigs[currentPig];
+				await Pighouse.create(
+					{
+						spec_id: interaction.user.id,
+						name: pig.Name,
+						type: pig.Type,
+						level: 1,
+						exp: 0,
+						mood: 'Well',
+						happiness: 50,
+						refid: pig.ID,
+					}
+				);
+				await interaction.followUp(`You are now the proud owner of a ${pig.Name}!`);
+				await collector.stop();
+				console.log(`Pigmy ${pig.ID} obtained!`);
+			}
+		});
+
+		collector.on('end', () => {
+			if (embedMsg) {
+				embedMsg.delete();
+			}
+		});
 
 		//========================================
 		//basic user data refrence method
