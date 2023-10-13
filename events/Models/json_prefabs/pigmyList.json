@@ -4,6 +4,9 @@
         "Type": "NONE",
         "Cost": 10,
 
+        "DPL": 1,
+        "Buff": "Really cute looking!",
+
         "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Pigmy.png",
         "Image": "attachment://Pigmy.png",
 
@@ -16,6 +19,9 @@
         "Type": "Fire",
         "Cost": 50,
 
+        "DPL": 1.5,
+        "Buff": "Dexterity + 0.10 & Strength + 5",
+
         "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Fire-Pigmy.png",
         "Image": "attachment://Fire-Pigmy.png",
 
@@ -27,6 +33,9 @@
         "Name": "Frost Pigmy",
         "Type": "Frost",
         "Cost": 80,
+
+        "DPL": 2,
+        "Buff": "Speed + 0.10 & Intelligence + 5",
 
         "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Frost-Pigmy.png",
         "Image": "attachment://Frost-Pigmy.png",
