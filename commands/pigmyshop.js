@@ -71,7 +71,7 @@ module.exports = {
 				.addFields(
 					{
 						name: `Name: ${pigmyList[i].Name}`,
-						value: `Pigmy Type: ${pigmyList[i].Type}\n Cost: ${pigmyList[i].Cost}\n`,
+						value: `Pigmy Type: ${pigmyList[i].Type}\n Cost: ${pigmyList[i].Cost}\n Damage per Level: ${pigmyList[i].DPL}\n Buff: ${pigmyList[i].Buff}\n`,
 					},
 					{
 						name: 'Your Qts: ',
