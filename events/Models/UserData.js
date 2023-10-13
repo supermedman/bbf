@@ -56,6 +56,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         totitem: DataTypes.INTEGER,
+        shopresets: DataTypes.INTEGER,
+        refreshcount: DataTypes.INTEGER,
         pclass: DataTypes.STRING,
         totalkills: {
             type: DataTypes.INTEGER,
