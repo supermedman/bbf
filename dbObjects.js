@@ -17,5 +17,6 @@ const Questing = require('./events/Models/Questing')(sequelize, Sequelize.DataTy
 const ActiveEnemy = require('./events/Models/ActiveEnemy')(sequelize, Sequelize.DataTypes);
 const UserData = require('./events/Models/UserData')(sequelize, Sequelize.DataTypes);
 const GuildData = require('./events/Models/GuildData')(sequelize, Sequelize.DataTypes);
+const Loadout = require('./events/Models/Loadout')(sequelize, Sequelize.DataTypes);
 
-module.exports = { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData };
+module.exports = { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData, Loadout };

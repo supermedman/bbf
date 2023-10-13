@@ -7,7 +7,7 @@ const { grabRar } = require('./grabRar.js');
 //Add check if enemy has preset item that can be stolen
 //If enemy has item and steal fails, enemy attacks
 //If enemy does not have item causing steal to fail, enemy does nothing
-async function stealing(enemy, uData) {
+async function stealing(enemy, uData, pigmy) {
 
     if (enemy.hasunique === true) {
         //Item can be stolen
@@ -19,10 +19,24 @@ async function stealing(enemy, uData) {
         if (enemy.hasitem === false) { return 'NO ITEM';/**No item, check failed*/ }
     }
 
+    var spdUP = 0;
+    var dexUP = 0;
+
+    if (pigmy) {
+        //pigmy found check for happiness and type                                                     
+        if (pigmy.type === 'Fire') {
+            //Fire pigmy equipped apply + 0.10 dex
+            dexUP = 0.10;
+        } else if (pigmy.type === 'Frost') {
+            //Frost pigmy equipped apply + 0.10 spd
+            spdUP = 0.10;
+        }
+    }
+
     const spd = uData.speed;
     const dex = uData.dexterity;
 
-    const baseChance = ((spd * 0.02) + (dex * 0.02));
+    const baseChance = (((spd * 0.02) + spdUP) + ((dex * 0.02) + dexUP));
     console.log(`baseChance: ${baseChance}`);
     var totalChance;
     //HANDLE UNIQUE ITEMS HERE
