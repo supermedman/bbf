@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData } = require('../dbObjects.js');
+const { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData, Loadout } = require('../dbObjects.js');
 
 //const { } = require('../dbObjects.js');
 
@@ -19,6 +19,7 @@ module.exports = {
         Questing.sync();
         UserData.sync();
         GuildData.sync();
+	Loadout.sync();
         ActiveEnemy.sync({ force: true });
 	},
 };
