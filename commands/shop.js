@@ -17,6 +17,19 @@ module.exports = {
 
         startShop();
 
+        //Refreshing the shop needs to cost more and more based on x
+        //x is total cost of items currently in shop?
+        //x is scaled based on total refreshes?
+        //x is scaled daily upto a max?
+        //x is scaled base on user level?
+
+        //x is based on user level * current refreshes (resets daily) + total shop value  
+        //Calling shop is free, set crazy cooldown once the above code works 
+        //Give notice of refresh cost, and amount of refreshes made today
+        //Check for new day on each shop call
+
+        var refreshCost = 0;
+
         async function startShop(){
             await loadShop();
 
@@ -28,9 +41,16 @@ module.exports = {
 
             console.log('ITEMS IN list: \n', list);
 
+            var uData = await grabU();
+
+            const displayCost = await checkShop(uData, refreshCost);
+
+            var currentRefreshCost = displayCost;
+            refreshCost = displayCost;
+
             const refreshButton = new ButtonBuilder()
                 .setCustomId('refresh')
-                .setLabel('Refresh Shop')
+                .setLabel(`Refresh Shop, Cost ${currentRefreshCost}`)
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji('🔄');
 
@@ -59,8 +79,6 @@ module.exports = {
                 .setEmoji('4️⃣');
 
             const buttonsA = new ActionRowBuilder().addComponents(refreshButton, slotOneButton, slotTwoButton, slotThreeButton, slotFourButton);        
-
-            var uData = await grabU();
 
             //var footerCoins = `Your Coins: ${uData.coins}c`;
 
@@ -109,7 +127,9 @@ module.exports = {
 
                             var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                            buttonsA.components[1].setDisabled(true);
+                            slotOneButton.setDisabled(true);
+                            refreshCost -= item.value;
+                            refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
 
                             console.log('Button slot1: ', buttonsA.components[1]);
 
@@ -139,7 +159,9 @@ module.exports = {
 
                             var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                            buttonsA.components[2].setDisabled(true);
+                            slotTwoButton.setDisabled(true);
+                            refreshCost -= item.value;
+                            refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
 
                             console.log('Button slot1: ', buttonsA.components[2]);
 
@@ -169,7 +191,9 @@ module.exports = {
 
                             var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                            buttonsA.components[3].setDisabled(true);
+                            slotThreeButton.setDisabled(true);
+                            refreshCost -= item.value;
+                            refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
 
                             console.log('Button slot1: ', buttonsA.components[3]);
 
@@ -199,7 +223,9 @@ module.exports = {
 
                             var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                            buttonsA.components[4].setDisabled(true);
+                            slotFourButton.setDisabled(true);
+                            refreshCost -= item.value;
+                            refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
 
                             console.log('Button slot1: ', buttonsA.components[4]);
 
@@ -213,8 +239,17 @@ module.exports = {
                     } else console.log('ITEM NOT FOUND!');//item not found :(
                 }
                 if (collInteract.customId === 'refresh') {
-                    await collector.stop();
-                    startShop();//run the entire script over again
+                    if (uData.coins < currentRefreshCost) {
+                        //user does not have enough to refresh the shop
+                        return interaction.channel.send("It wouldnt be worthwhile to show you more, you lack the coin.. this aint a charity!");
+                    } else {
+                        //subtract the refresh cost from user coins                       
+                        var cost = uData.coins - currentRefreshCost
+                        payUp(cost, uData);
+                        await checkShop(uData, currentRefreshCost);
+                        await collector.stop();
+                        startShop();//run the entire script over again
+                    }                
                 }
             });
 
@@ -228,14 +263,6 @@ module.exports = {
         //=======================================
         //this method loads the entire shop grabbing each item individually and loading them accordingly
         async function loadShop() {
-
-            //this allows for both --force and -f to force a recreate of the table used in the LootShop
-            //const force = process.argv.includes('--force') || process.argv.includes('-f');
-
-            //const rowCount = await LootShop.destroy({ where: [{ spec_id: interaction.user.id }] });
-            //console.log('ROWS DELETED', rowCount);
-
-            //this syncs the data in the table and calls if its been forced to recreated based on the above force line
             const user = await grabU();
             const edit = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
@@ -249,9 +276,9 @@ module.exports = {
                 //==================================================================
 
                 //RUN THROUGH 1
-                await console.log('==============================================');
+                //await console.log('==============================================');
                 rarG = await grabRar(user.level); //this returns a number between 0 and 10 inclusive
-                console.log('Rarity Grabbed 1: ', rarG);
+               // console.log('Rarity Grabbed 1: ', rarG);
 
                 var pool1 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -259,13 +286,13 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool1.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                       // console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     } else {
                         //item not match keep looking
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool1: ', pool1.length);
+               // console.log('\nLENGTH OF ARRAY pool1: ', pool1.length);
 
                 //list finished, select one item 
                 var rIP1;
@@ -275,7 +302,7 @@ module.exports = {
                     rIP1 = Math.floor(Math.random() * (pool1.length));
                 }
 
-                console.log('Contents of pool1 at position rIP1: ', pool1[rIP1]);
+                //console.log('Contents of pool1 at position rIP1: ', pool1[rIP1]);
 
                 //add selection to final list
                 await iPool.push(pool1[rIP1]);
@@ -285,9 +312,9 @@ module.exports = {
 
                 //RUN THROUGH 2
                 //run through again
-                await console.log('==============================================');
+                //await console.log('==============================================');
                 rarG = await grabRar(user.level);
-                console.log('\nRarity Grabbed 2: ', rarG);
+                //console.log('\nRarity Grabbed 2: ', rarG);
 
                 var pool2 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -295,11 +322,11 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool2.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                       // console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool2: ', pool2.length);
+               // console.log('\nLENGTH OF ARRAY pool2: ', pool2.length);
 
                 //list finished, select one item 
                 var rIP2;
@@ -309,7 +336,7 @@ module.exports = {
                     rIP2 = Math.floor(Math.random() * (pool2.length));
                 }
 
-                console.log('Contents of pool2 at position rIP2: ', pool2[rIP2]);
+               // console.log('Contents of pool2 at position rIP2: ', pool2[rIP2]);
 
                 //add selection to final list
                 await iPool.push(pool2[rIP2]);
@@ -319,9 +346,9 @@ module.exports = {
 
                 //RUN THROUGH 3
                 //run through again
-                await console.log('==============================================');
+               // await console.log('==============================================');
                 rarG = await grabRar(user.level);
-                console.log('\nRarity Grabbed 3: ', rarG);
+                //console.log('\nRarity Grabbed 3: ', rarG);
 
                 var pool3 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -329,11 +356,11 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool3.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                       // console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool3: ', pool3.length);
+               // console.log('\nLENGTH OF ARRAY pool3: ', pool3.length);
 
                 //list finished, select one item 
                 var rIP3;
@@ -343,7 +370,7 @@ module.exports = {
                     rIP3 = Math.floor(Math.random() * (pool3.length));
                 }
 
-                console.log('Contents of pool3 at position rIP3: ', pool3[rIP3]);
+               // console.log('Contents of pool3 at position rIP3: ', pool3[rIP3]);
 
                 //add selection to final list
                 await iPool.push(pool3[rIP3]);
@@ -353,9 +380,9 @@ module.exports = {
 
                 //RUN THROUGH 4
                 //run through again
-                await console.log('==============================================');
+                //await console.log('==============================================');
                 rarG = await grabRar(user.level);
-                console.log('\nRarity Grabbed 4: ', rarG);
+                //console.log('\nRarity Grabbed 4: ', rarG);
 
                 var pool4 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -363,11 +390,11 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool4.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool4: ', pool4.length);
+                //console.log('\nLENGTH OF ARRAY pool4: ', pool4.length);
 
                 //list finished, select one item 
                 var rIP4;
@@ -377,7 +404,7 @@ module.exports = {
                     rIP4 = Math.floor(Math.random() * (pool4.length));
                 }
 
-                console.log('Contents of pool4 at position rIP4: ', pool4[rIP4]);
+                //console.log('Contents of pool4 at position rIP4: ', pool4[rIP4]);
 
                 //add selection to final list
                 await iPool.push(pool4[rIP4]);
@@ -385,14 +412,16 @@ module.exports = {
                 //=================================================================
 
 
-                console.log('Contents of iPool at position 0: ', iPool[0]);
-                console.log('Contents of iPool at position 1: ', iPool[1]);
-                console.log('Contents of iPool at position 2: ', iPool[2]);
-                console.log('Contents of iPool at position 3: ', iPool[3]);
+                //console.log('Contents of iPool at position 0: ', iPool[0]);
+                //console.log('Contents of iPool at position 1: ', iPool[1]);
+                //console.log('Contents of iPool at position 2: ', iPool[2]);
+                //console.log('Contents of iPool at position 3: ', iPool[3]);
 
-                console.log('Contents of iPool at position 4 should be undefined: ', iPool[4]);
+                //console.log('Contents of iPool at position 4 should be undefined: ', iPool[4]);
 
                 console.log(`REFERENCE TO ITEM OBJECT:\n ${iPool[rIP1].Name}\n ${iPool[rIP2].Name}\n ${iPool[rIP3].Name}\n ${iPool[rIP4].Name}\n`);
+
+                //await checkTomorrow(user);
 
                 const shop = [
                     LootShop.update(
@@ -450,6 +479,7 @@ module.exports = {
                 ];
                 //this await forces the shop to return its data before closing the file 
                 await Promise.all(shop);
+
                 //log that data is synced
                 console.log('Database synced');
                 //close the connection
@@ -467,9 +497,9 @@ module.exports = {
                 //==================================================================
 
                 //RUN THROUGH 1
-                await console.log('==============================================');
+                //await console.log('==============================================');
                 rarG = await grabRar(user.level); //this returns a number between 0 and 10 inclusive
-                console.log('Rarity Grabbed 1: ', rarG);
+                //console.log('Rarity Grabbed 1: ', rarG);
 
                 var pool1 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -477,13 +507,13 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool1.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     } else {
                         //item not match keep looking
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool1: ', pool1.length);
+                ///console.log('\nLENGTH OF ARRAY pool1: ', pool1.length);
 
                 //list finished, select one item 
                 var rIP1;
@@ -493,7 +523,7 @@ module.exports = {
                     rIP1 = Math.floor(Math.random() * (pool1.length));
                 }
 
-                console.log('Contents of pool1 at position rIP1: ', pool1[rIP1]);
+               // console.log('Contents of pool1 at position rIP1: ', pool1[rIP1]);
 
                 //add selection to final list
                 await iPool.push(pool1[rIP1]);
@@ -503,9 +533,9 @@ module.exports = {
 
                 //RUN THROUGH 2
                 //run through again
-                await console.log('==============================================');
+               //await console.log('==============================================');
                 rarG = await grabRar(user.level);
-                console.log('\nRarity Grabbed 2: ', rarG);
+                //console.log('\nRarity Grabbed 2: ', rarG);
 
                 var pool2 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -513,11 +543,11 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool2.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool2: ', pool2.length);
+                //console.log('\nLENGTH OF ARRAY pool2: ', pool2.length);
 
                 //list finished, select one item 
                 var rIP2;
@@ -527,7 +557,7 @@ module.exports = {
                     rIP2 = Math.floor(Math.random() * (pool2.length));
                 }
 
-                console.log('Contents of pool2 at position rIP2: ', pool2[rIP2]);
+               // console.log('Contents of pool2 at position rIP2: ', pool2[rIP2]);
 
                 //add selection to final list
                 await iPool.push(pool2[rIP2]);
@@ -537,9 +567,9 @@ module.exports = {
 
                 //RUN THROUGH 3
                 //run through again
-                await console.log('==============================================');
+                //await console.log('==============================================');
                 rarG = await grabRar(user.level);
-                console.log('\nRarity Grabbed 3: ', rarG);
+                //console.log('\nRarity Grabbed 3: ', rarG);
 
                 var pool3 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -547,11 +577,11 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool3.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool3: ', pool3.length);
+               // console.log('\nLENGTH OF ARRAY pool3: ', pool3.length);
 
                 //list finished, select one item 
                 var rIP3;
@@ -561,7 +591,7 @@ module.exports = {
                     rIP3 = Math.floor(Math.random() * (pool3.length));
                 }
 
-                console.log('Contents of pool3 at position rIP3: ', pool3[rIP3]);
+                //console.log('Contents of pool3 at position rIP3: ', pool3[rIP3]);
 
                 //add selection to final list
                 await iPool.push(pool3[rIP3]);
@@ -571,9 +601,9 @@ module.exports = {
 
                 //RUN THROUGH 4
                 //run through again
-                await console.log('==============================================');
+                //await console.log('==============================================');
                 rarG = await grabRar(user.level);
-                console.log('\nRarity Grabbed 4: ', rarG);
+               // console.log('\nRarity Grabbed 4: ', rarG);
 
                 var pool4 = [];
                 //for loop adding all items of requested rarity to iPool for selection
@@ -581,11 +611,11 @@ module.exports = {
 
                     if (lootList[i].Rar_id === rarG) {
                         await pool4.push(lootList[i]);
-                        console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
                     }
                 }
 
-                console.log('\nLENGTH OF ARRAY pool4: ', pool4.length);
+                //console.log('\nLENGTH OF ARRAY pool4: ', pool4.length);
 
                 //list finished, select one item 
                 var rIP4;
@@ -595,7 +625,7 @@ module.exports = {
                     rIP4 = Math.floor(Math.random() * (pool4.length));
                 }
 
-                console.log('Contents of pool4 at position rIP4: ', pool4[rIP4]);
+                //console.log('Contents of pool4 at position rIP4: ', pool4[rIP4]);
 
                 //add selection to final list
                 await iPool.push(pool4[rIP4]);
@@ -603,15 +633,16 @@ module.exports = {
                 //=================================================================
 
 
-                console.log('Contents of iPool at position 0: ', iPool[0]);
-                console.log('Contents of iPool at position 1: ', iPool[1]);
-                console.log('Contents of iPool at position 2: ', iPool[2]);
-                console.log('Contents of iPool at position 3: ', iPool[3]);
+                //console.log('Contents of iPool at position 0: ', iPool[0]);
+                //console.log('Contents of iPool at position 1: ', iPool[1]);
+                //console.log('Contents of iPool at position 2: ', iPool[2]);
+                //console.log('Contents of iPool at position 3: ', iPool[3]);
 
-                console.log('Contents of iPool at position 4 should be undefined: ', iPool[4]);
+                //console.log('Contents of iPool at position 4 should be undefined: ', iPool[4]);
 
                 console.log(`REFERENCE TO ITEM OBJECT:\n ${iPool[rIP1].Name}\n ${iPool[rIP2].Name}\n ${iPool[rIP3].Name}\n ${iPool[rIP4].Name}\n`);
 
+                await setTomorrow(user);
 
                 const shop = [
                     LootShop.create(
@@ -670,6 +701,7 @@ module.exports = {
 
                 //this await forces the shop to return its data before closing the file 
                 await Promise.all(shop);
+
                 //log that data is synced
                 console.log('Database synced');
                 //close the connection
@@ -685,6 +717,91 @@ module.exports = {
         async function grabU() {
             uData = await UserData.findOne({ where: { userid: interaction.user.id } });
             return uData;
+        }
+
+        //This method checks all user values to asign and calculate the current refresh cost as well as checking day reset
+        //Returns value to display for initial load of shop
+        async function checkShop(user, currentRefreshCost) {
+            var valueToReturn = currentRefreshCost;
+            //x is based on user level * current refreshes (resets daily) + total shop value  
+            if (!user.shopresets) {
+                console.log('IN checkShop()\nSHOP RESETS VALUE NOT FOUND!');
+                await setTomorrow();
+            }
+            const refreshesToday = await checkTomorrow(user);
+
+            const firstCost = user.level * refreshesToday;
+
+            console.log(`firstCost: ${firstCost}`);
+
+            const newRefresh = (refreshesToday + 1);
+            await updateRefreshCount(user, newRefresh);
+
+            valueToReturn += firstCost;
+
+            const item1 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+            const item2 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+            const item3 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+            const item4 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+
+            const totalShopCost = item1.value + item2.value + item3.value + item4.value;
+            console.log(`totalShopCost: ${totalShopCost}`);
+
+            valueToReturn += totalShopCost;
+            refreshCost = valueToReturn;
+            return valueToReturn;
+        }
+
+
+        //This method sets/resets the day that is tomorrow 
+        async function setTomorrow() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            const newDay = tomorrow.getTime();
+            console.log('NEW DAY: ', newDay);
+
+            const dayChange = await UserData.update({ shopresets: newDay }, { where: { userid: interaction.user.id } });
+
+            if (dayChange > 0) {
+                //Day changed successfully
+                console.log('DAY WAS UPDATED!');
+            }
+        }
+
+        //========================================
+        // This method sets the date of tomorrow with the refrence of today
+        async function checkTomorrow(user) {
+            const today = new Date();
+            console.log('TODAY: ', today.getTime());
+            console.log('SHOP RESETS: ', user.shopresets);
+
+            if (!user.shopresets) {
+                console.log('IN checkTomorrow()\nSHOP RESETS VALUE NOT FOUND!');
+                await setTomorrow(user);
+            }
+
+            if (user.shopresets <= today.getTime()) {
+                // Its been a day time to reset play count!
+                console.log('IS TOMORROW!');
+                await setTomorrow();
+                await updateRefreshCount(user, 0);
+                return 0;
+            } else {
+                // Not tomorrow current refreshcount is valid
+                console.log('IS STILL TODAY!');
+                return user.refreshcount;
+            }
+        }
+
+        //this method changes the current amount of shop refreshes for the user in question
+        async function updateRefreshCount(user, currentRefreshes) {
+            const userRefresh = await UserData.update({ refreshcount: currentRefreshes }, { where: { userid: user.userid } });
+            if (userRefresh > 0) {
+                //user refreshes have been updated
+            }
         }
 
         async function addItem(item) {
