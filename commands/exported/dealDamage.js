@@ -1,5 +1,5 @@
 
-const { UserData } = require('../../dbObjects.js');
+const { UserData, Pigmy } = require('../../dbObjects.js');
 
 /**
  *  Main damage calculating functions for both user and enemies
@@ -67,7 +67,64 @@ async function userDamage(interaction, item) {
      *      
      * */
 
+    /**
+     *      Pigmy alterations & buffs
+     *          - Level
+     *          - Type
+     *          - Happiness
+     *          
+     *      How does this effect damage?
+     *          - damage + (damage * (pigmy.level * 0.02))
+     *          
+     *          - Normal (pigmy.level * 1 = dmg) 
+     *          - Fire (pigmy.level * 1 = dmg) (+ 0.10 dex + 5 strength)
+     *          - Frost (pigmy.level * 1 = dmg) (+ 0.10 spd + 5 intelligence)
+     *          
+     *          - if (happiness > 50)  
+     *          - damage buff applied
+     *          - stat mod applied
+     *          
+     *          - if (happiness < 50)
+     *          - damage buff ignored
+     *          - stat mod applied
+     * 
+     * */
+
     const user = await grabU(interaction);//grabs the user data file for all following assignments
+    const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
+    var totDamageBuff = 0;
+    var strUP = 0;
+    var intUP = 0;
+
+    if (pigmy) {
+        //pigmy found check for happiness and type
+        totDamageBuff = pigmy.level * 0.02;
+        if (pigmy.happiness >= 50) {
+            //Pigmy is still happy apply damage buff
+            if (pigmy.type === 'NONE') {
+                //Normal pigmy equipped apply additional damage
+                totDamageBuff += (pigmy.level * 1);
+            } else if (pigmy.type === 'Fire') {
+                //Fire pigmy equipped apply 1.5x damage
+                totDamageBuff += (pigmy.level * 1.5);
+                //str + 5
+                strUP = 5;
+            } else if (pigmy.type === 'Frost') {
+                //Frost pigmy equipped apply 2x damage
+                totDamageBuff += (pigmy.level * 2);
+                //int + 5
+                intUP = 5;
+            }
+        } else if (pigmy.happiness < 50) {
+            if (pigmy.type === 'Fire') {
+                strUP = 5;
+            } else if (pigmy.type === 'Frost') {
+                intUP = 5;
+            }
+        }
+    }
+    console.log(`Pigmy Damage Buff: ${totDamageBuff}`);
 
     //=========================
     //const spd = user.speed;
@@ -79,7 +136,7 @@ async function userDamage(interaction, item) {
     var dmgMod = 0;
     //=========================
 
-    dmgMod = ((int * 8) + (str * 2));
+    dmgMod = (((int + intUP) * 8) + ((str + strUP) * 2));
 
     if (pclass === 'Warrior') {
         dmgMod += (dmgMod * 0.05);
@@ -93,7 +150,7 @@ async function userDamage(interaction, item) {
 
     //-------------------------------------------------------------------------------
     //here the damage modifier is applied to the damage dealt and the final value is returned
-    var dmgDealt = dmgMod;
+    var dmgDealt = dmgMod + totDamageBuff;
 
     console.log('ITEM EQUIPPED: ', item);
 
@@ -109,6 +166,41 @@ async function userDamage(interaction, item) {
 //========================================
 // This method calculates damage dealt by the user and returns that value
 async function userDamageAlt(user, item) {
+    const pigmy = await Pigmy.findOne({ where: { spec_id: user.userid } });
+
+    var totDamageBuff = 0;
+    var strUP = 0;
+    var intUP = 0;
+
+    if (pigmy) {
+        //pigmy found check for happiness and type
+        totDamageBuff = pigmy.level * 0.02;
+        if (pigmy.happiness >= 50) {
+            //Pigmy is still happy apply damage buff
+            if (pigmy.type === 'NONE') {
+                //Normal pigmy equipped apply additional damage
+                totDamageBuff += (pigmy.level * 1);
+            } else if (pigmy.type === 'Fire') {
+                //Fire pigmy equipped apply 1.5x damage
+                totDamageBuff += (pigmy.level * 1.5);
+                //str + 5
+                strUP = 5;
+            } else if (pigmy.type === 'Frost') {
+                //Frost pigmy equipped apply 2x damage
+                totDamageBuff += (pigmy.level * 2);
+                //int + 5
+                intUP = 5;
+            }
+        } else if (pigmy.happiness < 50) {
+            if (pigmy.type === 'Fire') {
+                strUP = 5;
+            } else if (pigmy.type === 'Frost') {
+                intUP = 5;
+            }
+        }
+    }
+
+    console.log(`Pigmy Damage Buff: ${totDamageBuff}`);
     //=========================
     //const spd = user.speed;
     const str = user.strength;
@@ -119,7 +211,7 @@ async function userDamageAlt(user, item) {
     var dmgMod = 0;
     //=========================
 
-    dmgMod = ((int * 8) + (str * 2));
+    dmgMod = (((int + intUP) * 8) + ((str + strUP) * 2));
 
     if (pclass === 'Warrior') {
         dmgMod += (dmgMod * 0.05);
@@ -133,7 +225,7 @@ async function userDamageAlt(user, item) {
 
     //-------------------------------------------------------------------------------
     //here the damage modifier is applied to the damage dealt and the final value is returned
-    var dmgDealt = dmgMod;
+    var dmgDealt = dmgMod + totDamageBuff;
 
     console.log('ITEM EQUIPPED: ', item);
 
