@@ -3,12 +3,25 @@
 //If hidden attacking counts as backstab dealing bonus damage
 //If hiding fails user is punished
 
-async function hiding(enemy, user) {
+async function hiding(enemy, user, pigmy) {
+    var spdUP = 0;
+    var dexUP = 0;
+
+    if (pigmy) {
+        //pigmy found check for happiness and type                                                     
+        if (pigmy.type === 'Fire') {
+            //Fire pigmy equipped apply + 0.10 dex
+            dexUP = 0.10;
+        } else if (pigmy.type === 'Frost') {
+            //Frost pigmy equipped apply + 0.10 spd
+            spdUP = 0.10;
+        }
+    }
 
     const spd = user.speed;
     const dex = user.dexterity;
 
-    const baseChance = ((spd * 0.02) + (dex * 0.02));
+    const baseChance = (((spd * 0.02) + spdUP) + ((dex * 0.02) + dexUP));
     console.log(`baseChance: ${baseChance}`);
     var totalChance;
 
