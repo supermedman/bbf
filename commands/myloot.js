@@ -56,7 +56,7 @@ module.exports = {
                 //THIS BREAKS!!
                 //ADD CHECK FOR ADDITIONAL PAGES FOR LEFTOVER ITEMS
                 var maxEmbedPages = Math.round((totalItems / 5));
-                if ((totalItems % 5) != 0) {
+                if ((totalItems % 5) < 0.6 && (totalItems % 5) > 0) {
                     //Remainder exists, add extra page to the list
                     maxEmbedPages += 1;
                 } else {
