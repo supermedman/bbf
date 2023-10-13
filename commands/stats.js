@@ -91,18 +91,18 @@ module.exports = {
 
                     const list = (
                         `Class: ${uData.pclass}\n
-                         Speed: ${uData.speed}
-                         Strength: ${uData.strength}
-                         Dexterity: ${uData.dexterity}
-                         Intelligence: ${uData.intelligence}\n
-                         Perk Points: ${uData.points}
-                         \nLevel: ${uData.level}
-                         \nXP to next level: ${uData.xp}/${nxtLvl}
-                         \nCoins: ${uData.coins}
-                         \nTotal Enemies Killed: ${uData.totalkills}
-                         Most Kills In One Life: ${uData.highestkills}
-                         \nLast Death: ${uData.lastdeath}
-                         Enemies Killed Since: ${uData.killsthislife}
+Speed: ${uData.speed}
+Strength: ${uData.strength}
+Dexterity: ${uData.dexterity}
+Intelligence: ${uData.intelligence}\n
+Perk Points: ${uData.points}
+\nLevel: ${uData.level}
+\nXP to next level: ${uData.xp}/${nxtLvl}
+\nCoins: ${uData.coins}
+\nTotal Enemies Killed: ${uData.totalkills}
+Most Kills In One Life: ${uData.highestkills}
+\nLast Death: ${uData.lastdeath}
+Enemies Killed Since: ${uData.killsthislife}
                          `);
 
                     const userDisplayEmbed = new EmbedBuilder()
@@ -133,18 +133,18 @@ module.exports = {
 
                     const list = (
                         `Class: ${uData.pclass}\n
-                         Speed: ${uData.speed}
-                         Strength: ${uData.strength}
-                         Dexterity: ${uData.dexterity}
-                         Intelligence: ${uData.intelligence}\n
-                         Perk Points: ${uData.points}
-                         \nLevel: ${uData.level}
-                         \nXP to next level: ${uData.xp}/${nxtLvl}
-                         \nCoins: ${uData.coins}
-                         \nTotal Enemies Killed: ${uData.totalkills}
-                         Most Kills In One Life: ${uData.highestkills}
-                         \nLast Death: ${uData.lastdeath}
-                         Enemies Killed Since: ${uData.killsthislife}
+Speed: ${uData.speed}
+Strength: ${uData.strength}
+Dexterity: ${uData.dexterity}
+Intelligence: ${uData.intelligence}\n
+Perk Points: ${uData.points}
+\nLevel: ${uData.level}
+\nXP to next level: ${uData.xp}/${nxtLvl}
+\nCoins: ${uData.coins}
+\nTotal Enemies Killed: ${uData.totalkills}
+Most Kills In One Life: ${uData.highestkills}
+\nLast Death: ${uData.lastdeath}
+Enemies Killed Since: ${uData.killsthislife}
                          `);
 
                     const userDisplayEmbed = new EmbedBuilder()
