@@ -30,7 +30,8 @@ module.exports = {
 
         var refreshCost = 0;
 
-        async function startShop(){
+        async function startShop() {
+            refreshCost = 0;
             await loadShop();
 
             const items = await LootShop.findAll({ where: [{ spec_id: interaction.user.id }] });
@@ -45,12 +46,12 @@ module.exports = {
 
             const displayCost = await checkShop(uData, refreshCost);
 
-            var currentRefreshCost = displayCost;
+            //var currentRefreshCost = displayCost;
             refreshCost = displayCost;
 
             const refreshButton = new ButtonBuilder()
                 .setCustomId('refresh')
-                .setLabel(`Refresh Shop, Cost ${currentRefreshCost}`)
+                .setLabel(`Refresh Shop, Cost ${refreshCost}`)
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji('🔄');
 
@@ -244,9 +245,9 @@ module.exports = {
                         return interaction.channel.send("It wouldnt be worthwhile to show you more, you lack the coin.. this aint a charity!");
                     } else {
                         //subtract the refresh cost from user coins                       
-                        var cost = uData.coins - currentRefreshCost
+                        var cost = uData.coins - refreshCost;
                         payUp(cost, uData);
-                        await checkShop(uData, currentRefreshCost);
+                        await checkShop(uData, refreshCost);
                         await collector.stop();
                         startShop();//run the entire script over again
                     }                
