@@ -291,7 +291,7 @@ async function stealPunish(enemy, user, interaction) {
  */
 //This method finds a unique item attactched to the enemy that holds it
 async function getUniqueItem(enemy) {
-    const neededID = enemy.constkey + 100
+    const neededID = enemy.constkey + 1000;
     for (var i = 0; i < uniqueLootList.length; i++) {
         if (uniqueLootList[i].Loot_id === neededID) {
             //Item match grab it!
