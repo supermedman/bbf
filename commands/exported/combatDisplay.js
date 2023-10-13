@@ -1,5 +1,5 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { ActiveEnemy, Equipped, LootStore, LootDrop, UserData } = require('../../dbObjects.js');
+const { ActiveEnemy, Equipped, LootStore, LootDrop, UserData, Pigmy } = require('../../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
 const { userDamageAlt } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
@@ -66,6 +66,8 @@ async function display(interaction, uData) {
 
     const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton);
 
+    const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
     if (hasPng) {
         const attachment = await displayEWpic(interaction, enemy, true);
 
@@ -82,7 +84,7 @@ async function display(interaction, uData) {
         collector.on('collect', async (collInteract) => {
             await collInteract.deferUpdate();
             if (collInteract.customId === 'steal') {
-                const actionToTake = await stealing(enemy, uData);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
+                const actionToTake = await stealing(enemy, uData, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                 if (actionToTake === 'NO ITEM') {
                     //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
                     stealDisabled = true;
@@ -116,7 +118,7 @@ async function display(interaction, uData) {
                 }
             } else if (collInteract.customId === 'hide') {
                 if (isHidden === false) {
-                    const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                    const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
                     if (actionToTake === 'FAILED') {
                         //hide failed 
                         await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
@@ -350,12 +352,28 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
         var embedColour = 'NotQuiteBlack';
         var embedTitle = 'Damage Dealt';
 
+        const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
+        var spdUP = 0;
+        var dexUP = 0;
+
+        if (pigmy) {
+            //pigmy found check for happiness and type                                                     
+            if (pigmy.type === 'Fire') {
+                //Fire pigmy equipped apply + 0.10 dex
+                dexUP = 0.10;
+            } else if (pigmy.type === 'Frost') {
+                //Frost pigmy equipped apply + 0.10 spd
+                spdUP = 0.10;
+            }
+        }
+
         var dhChance;
         var isDH = false;
         let runCount = 1;
         if (user.pclass === 'Thief') {
-            dhChance = ((user.speed * 0.02) + 0.10);
-        } else { dhChance = (user.speed * 0.02); }
+            dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
+        } else { dhChance = ((user.speed * 0.02) + spdUP); }
         console.log('Current 2 hit chance: ', dhChance);
 
         const procCall1 = Math.random();
@@ -381,8 +399,8 @@ async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
             dmgDealt = staticDmg;
             var critChance;
             if (user.pclass === 'Thief') {
-                critChance = ((user.dexterity * 0.02) + 0.10);
-            } else { critChance = (user.dexterity * 0.02); }
+                critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
+            } else { critChance = ((user.dexterity * 0.02) + dexUP); }
             console.log('Current crit chance: ', critChance);
 
             const procCall2 = Math.random();
