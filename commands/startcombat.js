@@ -1,5 +1,5 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveEnemy, Equipped, LootStore, LootDrop } = require('../dbObjects.js');
+const { UserData, ActiveEnemy, Equipped, LootStore, LootDrop, Pigmy } = require('../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar } = require('./exported/grabRar.js');
@@ -376,7 +376,9 @@ module.exports = {
                 .setDisabled(stealDisabled)
                 .setStyle(ButtonStyle.Secondary);
 
-            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton);          
+            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton);
+
+            const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
 
             if (hasPng) {
                 const attachment = await displayEWpic(interaction, enemy, true);
@@ -395,7 +397,7 @@ module.exports = {
                     await collInteract.deferUpdate();
                     if (collInteract.customId === 'steal') {
                         const uData = await grabU();
-                        const actionToTake = await stealing(enemy, uData);
+                        const actionToTake = await stealing(enemy, uData, pigmy);
                         //ACTIONS TO HANDLE: 'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                         if (actionToTake === 'NO ITEM') {
                             //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
@@ -431,7 +433,7 @@ module.exports = {
                     } else if (collInteract.customId === 'hide') {
                         const uData = await grabU();
                         if (isHidden === false) {
-                            const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
+                            const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
                             if (actionToTake === 'FAILED') {
                                 //hide failed 
                                 await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
@@ -710,7 +712,7 @@ module.exports = {
             //var enemy = enemyList;
             var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
             if (copyCheck) {
-                const user = await grabU();
+                const user = await grabU();              
                 const enemy = copyCheck;
                 if (enemy.health === null) {
                     console.log("Enemy has null as health an error has occured")
@@ -743,12 +745,28 @@ module.exports = {
                 var embedColour = 'NotQuiteBlack';
                 var embedTitle = 'Damage Dealt';
 
+                const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
+                var spdUP = 0;
+                var dexUP = 0;
+
+                if (pigmy) {
+                    //pigmy found check for happiness and type                                                     
+                    if (pigmy.type === 'Fire') {
+                        //Fire pigmy equipped apply + 0.10 dex
+                        dexUP = 0.10;
+                    } else if (pigmy.type === 'Frost') {
+                        //Frost pigmy equipped apply + 0.10 spd
+                        spdUP = 0.10;
+                    }      
+                }
+
                 var dhChance;
                 var isDH = false;
                 let runCount = 1;
                 if (user.pclass === 'Thief') {
-                    dhChance = ((user.speed * 0.02) + 0.10);
-                } else { dhChance = (user.speed * 0.02); }
+                    dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
+                } else { dhChance = ((user.speed * 0.02) + spdUP); }
                 console.log('Current 2 hit chance: ', dhChance);
 
                 const procCall1 = Math.random();
@@ -774,8 +792,8 @@ module.exports = {
                     dmgDealt = staticDmg;
                     var critChance;
                     if (user.pclass === 'Thief') {
-                        critChance = ((user.dexterity * 0.02) + 0.10);
-                    } else { critChance = (user.dexterity * 0.02); }
+                        critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
+                    } else { critChance = ((user.dexterity * 0.02) + dexUP); }
                     console.log('Current crit chance: ', critChance);
 
                     const procCall2 = Math.random();
