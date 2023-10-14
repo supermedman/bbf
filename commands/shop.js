@@ -34,13 +34,137 @@ module.exports = {
             refreshCost = 0;
             await loadShop();
 
-            const items = await LootShop.findAll({ where: [{ spec_id: interaction.user.id }] });
+            //const items = await LootShop.findAll({ where: [{ spec_id: interaction.user.id }] });
 
-            var list = (items
-                .map(item => `Name: **${item.name}** \nValue: **${item.value}c** \nRarity: **${item.rarity}** \nAttack: **${item.attack}** \nType: **${item.type}**`)
-                .join('\n\n'));
+            var list = [];
 
+            const item1 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+            const item2 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+            const item3 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+            const item4 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });          
+
+            const listedInOrder = [item1, item2, item3, item4];
+
+            //Check each item for type adding to the list in order of shop slot, concat to string, check next item
+
+            //for (var i = 0; i < items.length;) {
+            //    if (items[i].slot === 'Mainhand' && items[i].shop_slot === (i + 1)) {
+            //        //Item is a weapon
+            //        listedInOrder.push(items[i].toString());
+            //        i++;
+            //    } else if (items[i].slot === 'Offhand' && items[i].shop_slot === (i + 1)) {
+            //        //Item is an offhand
+            //        listedInOrder.push(items[i].toString());
+            //        i++;
+            //    } else if (items[i].slot === armorFilter.slot && items[i].shop_slot === (i + 1)) {
+            //        //Item is armor
+            //        listedInOrder.push(items[i].toString());
+            //        i++;
+            //    }
+            //}          
+
+            console.log(listedInOrder);
+            var i = 0;
+            var tempItemRef = [];
+            var itemStringValue = ` `;
+
+            do {
+                if (listedInOrder[i].slot === 'Mainhand') {
+                    //Item is weapon
+                    tempItemRef.push(listedInOrder[i]);
+                    itemStringValue = tempItemRef.map(wep =>
+                        `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**\n\n`);
+                    list.push(itemStringValue);
+                    tempItemRef = [];
+                    i++;
+                } else if (listedInOrder[i].slot === 'Offhand') {
+                    //Item is offhand
+                    tempItemRef.push(listedInOrder[i]);
+                    itemStringValue = tempItemRef.map(off => `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\n\n`);
+                    list.push(itemStringValue);
+                    tempItemRef = [];
+                    i++;
+                } else if (listedInOrder[i].slot === 'Headslot') {
+                    //Item is helm
+                    tempItemRef.push(listedInOrder[i]);
+                    itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
+                    list.push(itemStringValue);
+                    tempItemRef = [];
+                    i++;
+                } else if (listedInOrder[i].slot === 'Chestslot') {
+                    //Item is chestplate
+                    tempItemRef.push(listedInOrder[i]);
+                    itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
+                    list.push(itemStringValue);
+                    tempItemRef = [];
+                    i++;
+                } else if (listedInOrder[i].slot === 'Legslot') {
+                    //Item is leggings
+                    tempItemRef.push(listedInOrder[i]);
+                    itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
+                    list.push(itemStringValue);
+                    tempItemRef = [];
+                    i++;
+                }
+            } while (i < listedInOrder.length)
+
+
+            
+            //const armorFilter = { slot: ['Headslot', 'Chestslot', 'Legslot'] };
+
+            //var mainHand = items.filter(item => item.slot === 'Mainhand');
+            //console.log(`mainHand array: ${mainHand}`);
+            //if (mainHand.length > 0) {
+            //    var mainHandList = (mainHand.map(wep => `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**`)
+            //        .join('\n\n'));
+            //    list = list.concat(mainHandList);
+            //}
+
+            //var offHand = items.filter(item => item.slot === 'Offhand');
+            //console.log(`offHand array: ${offHand}`);
+            //if (offHand.length > 0) {
+            //    var offHandList = (offHand.map(off => `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+            //        .join('\n\n'));
+            //    list = list.concat(['\n\n'], offHandList);
+            //}
+
+            //var armor = items.filter(item => item.slot === armorFilter.slot);
+            //console.log(`armor array: ${armor}`);
+            //if (armor.length > 0) {
+            //    var armorList = (armor.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+            //        .join('\n\n'));
+            //    list = list.concat(armorList);
+            //}
+            //===================================================
+            //Making temp fix until filter is working correctly!
+            //var headSlot = items.filter(item => item.slot === 'Headslot');
+            //console.log(`armor array: ${headSlot}`);
+            //if (headSlot.length > 0) {
+            //    var headSlotList = (headSlot.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+            //        .join('\n\n'));
+            //    list = list.concat(['\n\n'], headSlotList);
+            //}
+            //var chestSlot = items.filter(item => item.slot === 'Chestslot');
+            //console.log(`armor array: ${chestSlot}`);
+            //if (chestSlot.length > 0) {
+            //    var chestSlotList = (chestSlot.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+            //        .join('\n\n'));
+            //    list = list.concat(['\n\n'], chestSlotList);
+            //}
+            //var legSlot = items.filter(item => item.slot === 'Legslot');
+            //console.log(`armor array: ${legSlot}`);
+            //if (legSlot.length > 0) {
+            //    var legSlotList = (legSlot.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+            //        .join('\n\n'));
+            //    list = list.concat(['\n\n'], legSlotList);
+            //}
+
+            //===================================================
+            //console.log('ITEMS IN list after armor: \n', list);
+           
             console.log('ITEMS IN list: \n', list);
+
+            list = list.toString();
 
             var uData = await grabU();
 
@@ -120,7 +244,7 @@ module.exports = {
                             console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
                             return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                         } else {
-                            addItem(item);
+                            await addItem(item);
 
                             var cost = uData.coins - item.value;
 
@@ -152,7 +276,7 @@ module.exports = {
                             console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
                             return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                         } else {
-                            addItem(item);
+                            await addItem(item);
 
                             var cost = uData.coins - item.value;
 
@@ -184,7 +308,7 @@ module.exports = {
                             console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
                             return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                         } else {
-                            addItem(item);
+                            await addItem(item);
 
                             var cost = uData.coins - item.value;
 
@@ -216,7 +340,7 @@ module.exports = {
                             console.log('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins);
                             return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                         } else {
-                            addItem(item);
+                            await addItem(item);
 
                             var cost = uData.coins - item.value;
 
@@ -240,7 +364,7 @@ module.exports = {
                     } else console.log('ITEM NOT FOUND!');//item not found :(
                 }
                 if (collInteract.customId === 'refresh') {
-                    if (uData.coins < currentRefreshCost) {
+                    if (uData.coins < refreshCost) {
                         //user does not have enough to refresh the shop
                         return interaction.channel.send("It wouldnt be worthwhile to show you more, you lack the coin.. this aint a charity!");
                     } else {
@@ -267,448 +391,468 @@ module.exports = {
             const user = await grabU();
             const edit = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-            if (edit) {
-                //==========================================
-                //ITEMS WERE FOUND
-                console.log('ITEMS WERE FOUND');
-                //==========================================
-                var iPool = [];
-                var rarG = 0;
-                //==================================================================
+            //==========================================
+            //ITEMS WERE FOUND
+            console.log('ITEMS WERE FOUND');
+            //==========================================
+            var iPool = [];
+            var rarG = 0;
 
-                //RUN THROUGH 1
-                //await console.log('==============================================');
-                rarG = await grabRar(user.level); //this returns a number between 0 and 10 inclusive
-               // console.log('Rarity Grabbed 1: ', rarG);
+            //==================================================================
+            //RUN THROUGH 1
+            rarG = await grabRar(user.level); //this returns a number between 0 and 10 inclusive
 
-                var pool1 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
+            var pool1 = [];
+            //for loop adding all items of requested rarity to iPool for selection
+            for (var i = 0; i < lootList.length; i++) {
 
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool1.push(lootList[i]);
-                       // console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
-                    } else {
-                        //item not match keep looking
-                    }
-                }
-
-               // console.log('\nLENGTH OF ARRAY pool1: ', pool1.length);
-
-                //list finished, select one item 
-                var rIP1;
-                if (pool1.length <= 1) {
-                    rIP1 = 0;
+                if (lootList[i].Rar_id === rarG) {
+                    await pool1.push(lootList[i]);                  
                 } else {
-                    rIP1 = Math.floor(Math.random() * (pool1.length));
+                    //item not match keep looking
                 }
-
-                //console.log('Contents of pool1 at position rIP1: ', pool1[rIP1]);
-
-                //add selection to final list
-                await iPool.push(pool1[rIP1]);
-                rIP1 = 0;
-                //=================================================================
-
-
-                //RUN THROUGH 2
-                //run through again
-                //await console.log('==============================================');
-                rarG = await grabRar(user.level);
-                //console.log('\nRarity Grabbed 2: ', rarG);
-
-                var pool2 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
-
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool2.push(lootList[i]);
-                       // console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
-                    }
-                }
-
-               // console.log('\nLENGTH OF ARRAY pool2: ', pool2.length);
-
-                //list finished, select one item 
-                var rIP2;
-                if (pool2.length <= 1) {
-                    rIP2 = 0;
-                } else {
-                    rIP2 = Math.floor(Math.random() * (pool2.length));
-                }
-
-               // console.log('Contents of pool2 at position rIP2: ', pool2[rIP2]);
-
-                //add selection to final list
-                await iPool.push(pool2[rIP2]);
-                rIP2 = 1;
-                //=================================================================
-
-
-                //RUN THROUGH 3
-                //run through again
-               // await console.log('==============================================');
-                rarG = await grabRar(user.level);
-                //console.log('\nRarity Grabbed 3: ', rarG);
-
-                var pool3 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
-
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool3.push(lootList[i]);
-                       // console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
-                    }
-                }
-
-               // console.log('\nLENGTH OF ARRAY pool3: ', pool3.length);
-
-                //list finished, select one item 
-                var rIP3;
-                if (pool3.length <= 1) {
-                    rIP3 = 0;
-                } else {
-                    rIP3 = Math.floor(Math.random() * (pool3.length));
-                }
-
-               // console.log('Contents of pool3 at position rIP3: ', pool3[rIP3]);
-
-                //add selection to final list
-                await iPool.push(pool3[rIP3]);
-                rIP3 = 2;
-                //=================================================================
-
-
-                //RUN THROUGH 4
-                //run through again
-                //await console.log('==============================================');
-                rarG = await grabRar(user.level);
-                //console.log('\nRarity Grabbed 4: ', rarG);
-
-                var pool4 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
-
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool4.push(lootList[i]);
-                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
-                    }
-                }
-
-                //console.log('\nLENGTH OF ARRAY pool4: ', pool4.length);
-
-                //list finished, select one item 
-                var rIP4;
-                if (pool4.length <= 1) {
-                    rIP4 = 0;
-                } else {
-                    rIP4 = Math.floor(Math.random() * (pool4.length));
-                }
-
-                //console.log('Contents of pool4 at position rIP4: ', pool4[rIP4]);
-
-                //add selection to final list
-                await iPool.push(pool4[rIP4]);
-                rIP4 = 3;
-                //=================================================================
-
-
-                //console.log('Contents of iPool at position 0: ', iPool[0]);
-                //console.log('Contents of iPool at position 1: ', iPool[1]);
-                //console.log('Contents of iPool at position 2: ', iPool[2]);
-                //console.log('Contents of iPool at position 3: ', iPool[3]);
-
-                //console.log('Contents of iPool at position 4 should be undefined: ', iPool[4]);
-
-                console.log(`REFERENCE TO ITEM OBJECT:\n ${iPool[rIP1].Name}\n ${iPool[rIP2].Name}\n ${iPool[rIP3].Name}\n ${iPool[rIP4].Name}\n`);
-
-                //await checkTomorrow(user);
-
-                const shop = [
-                    LootShop.update(
-                        {
-                            name: iPool[rIP1].Name,
-                            value: iPool[rIP1].Value,
-                            rarity: iPool[rIP1].Rarity,
-                            rar_id: iPool[rIP1].Rar_id,
-                            attack: iPool[rIP1].Attack,
-                            type: iPool[rIP1].Type,
-                            loot_id: iPool[rIP1].Loot_id,
-                            spec_id: interaction.user.id,
-                        },
-                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] }
-                    ),
-                    LootShop.update(
-                        {
-                            name: iPool[rIP2].Name,
-                            value: iPool[rIP2].Value,
-                            rarity: iPool[rIP2].Rarity,
-                            rar_id: iPool[rIP2].Rar_id,
-                            attack: iPool[rIP2].Attack,
-                            type: iPool[rIP2].Type,
-                            loot_id: iPool[rIP2].Loot_id,
-                            spec_id: interaction.user.id,
-                        },
-                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] }
-                    ),
-                    LootShop.update(
-                        {
-                            name: iPool[rIP3].Name,
-                            value: iPool[rIP3].Value,
-                            rarity: iPool[rIP3].Rarity,
-                            rar_id: iPool[rIP3].Rar_id,
-                            attack: iPool[rIP3].Attack,
-                            type: iPool[rIP3].Type,
-                            loot_id: iPool[rIP3].Loot_id,
-                            spec_id: interaction.user.id,
-                        },
-                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] }
-                    ),
-                    LootShop.update(
-                        {
-                            name: iPool[rIP4].Name,
-                            value: iPool[rIP4].Value,
-                            rarity: iPool[rIP4].Rarity,
-                            rar_id: iPool[rIP4].Rar_id,
-                            attack: iPool[rIP4].Attack,
-                            type: iPool[rIP4].Type,
-                            loot_id: iPool[rIP4].Loot_id,
-                            spec_id: interaction.user.id,
-                        },
-                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] }
-                    ),
-                ];
-                //this await forces the shop to return its data before closing the file 
-                await Promise.all(shop);
-
-                //log that data is synced
-                console.log('Database synced');
-                //close the connection
-                //==========================================
             }
-            if (!edit) {
-            
-                //==========================================
-                //ITEMS WERE NOT FOUND
-                console.log('ITEMS WERE NOT FOUND');
-                //==========================================
-                var iPool = [];
-                var foundRar = 0;
-                var rarG = 0;
-                //==================================================================
 
-                //RUN THROUGH 1
-                //await console.log('==============================================');
-                rarG = await grabRar(user.level); //this returns a number between 0 and 10 inclusive
-                //console.log('Rarity Grabbed 1: ', rarG);
-
-                var pool1 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
-
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool1.push(lootList[i]);
-                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
-                    } else {
-                        //item not match keep looking
-                    }
-                }
-
-                ///console.log('\nLENGTH OF ARRAY pool1: ', pool1.length);
-
-                //list finished, select one item 
-                var rIP1;
-                if (pool1.length <= 1) {
-                    rIP1 = 0;
-                } else {
-                    rIP1 = Math.floor(Math.random() * (pool1.length));
-                }
-
-               // console.log('Contents of pool1 at position rIP1: ', pool1[rIP1]);
-
-                //add selection to final list
-                await iPool.push(pool1[rIP1]);
+            //list finished, select one item 
+            var rIP1;
+            if (pool1.length <= 1) {
                 rIP1 = 0;
-                //=================================================================
+            } else {
+                rIP1 = Math.floor(Math.random() * (pool1.length));
+            }
 
+            //add selection to final list
+            await iPool.push(pool1[rIP1]);
+            rIP1 = 0;
 
-                //RUN THROUGH 2
-                //run through again
-               //await console.log('==============================================');
-                rarG = await grabRar(user.level);
-                //console.log('\nRarity Grabbed 2: ', rarG);
+            //=================================================================
+            //RUN THROUGH 2
+            rarG = await grabRar(user.level);
+            var pool2 = [];
+            //for loop adding all items of requested rarity to iPool for selection
+            for (var i = 0; i < lootList.length; i++) {
 
-                var pool2 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
+                if (lootList[i].Rar_id === rarG) {
+                    await pool2.push(lootList[i]);                   
+                }
+            }
 
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool2.push(lootList[i]);
-                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+            //list finished, select one item 
+            var rIP2;
+            if (pool2.length <= 1) {
+                rIP2 = 0;
+            } else {
+                rIP2 = Math.floor(Math.random() * (pool2.length));
+            }
+            //add selection to final list
+            await iPool.push(pool2[rIP2]);
+            rIP2 = 1;
+
+            //=================================================================
+            //RUN THROUGH 3
+            rarG = await grabRar(user.level);
+
+            var pool3 = [];
+            //for loop adding all items of requested rarity to iPool for selection
+            for (var i = 0; i < lootList.length; i++) {
+
+                if (lootList[i].Rar_id === rarG) {
+                    await pool3.push(lootList[i]);                  
+                }
+            }
+            //list finished, select one item 
+            var rIP3;
+            if (pool3.length <= 1) {
+                rIP3 = 0;
+            } else {
+                rIP3 = Math.floor(Math.random() * (pool3.length));
+            }
+            //add selection to final list
+            await iPool.push(pool3[rIP3]);
+            rIP3 = 2;
+
+            //=================================================================
+            //RUN THROUGH 4
+            //run through again
+            rarG = await grabRar(user.level);
+            var pool4 = [];
+            //for loop adding all items of requested rarity to iPool for selection
+            for (var i = 0; i < lootList.length; i++) {
+
+                if (lootList[i].Rar_id === rarG) {
+                    await pool4.push(lootList[i]);
+                }
+            }
+
+            //list finished, select one item 
+            var rIP4;
+            if (pool4.length <= 1) {
+                rIP4 = 0;
+            } else {
+                rIP4 = Math.floor(Math.random() * (pool4.length));
+            }
+
+            //add selection to final list
+            await iPool.push(pool4[rIP4]);
+            rIP4 = 3;
+
+            console.log(`REFERENCE TO ITEM OBJECT:\n ${iPool[rIP1].Name}\n ${iPool[rIP2].Name}\n ${iPool[rIP3].Name}\n ${iPool[rIP4].Name}\n `);
+
+            var item1 = iPool[rIP1];
+            var item2 = iPool[rIP2];
+            var item3 = iPool[rIP3];
+            var item4 = iPool[rIP4];
+
+            if (edit) {
+                //Need better handling of shop entries
+                if (item1.Slot === 'Mainhand') {
+                    //Item 1 is a weapon
+                    const shopSlot1 = await LootShop.update(
+                        {
+                            name: item1.Name,
+                            value: item1.Value,
+                            rarity: item1.Rarity,
+                            rar_id: item1.Rar_id,
+                            attack: item1.Attack,
+                            defence: 0,
+                            type: item1.Type,
+                            slot: item1.Slot,
+                            hands: item1.Hands,
+                            loot_id: item1.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+                    if (shopSlot1 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item1.Slot === 'Offhand') {
+                    //Is offhand
+                } else {
+                    //Is armor
+                    const shopSlot1 = await LootShop.update(
+                        {
+                            name: item1.Name,
+                            value: item1.Value,
+                            rarity: item1.Rarity,
+                            rar_id: item1.Rar_id,
+                            attack: 0,
+                            defence: item1.Defence,
+                            type: item1.Type,
+                            slot: item1.Slot,
+                            loot_id: item1.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+                    if (shopSlot1 > 0) {
+                        //ShopSlot 1 updated
                     }
                 }
 
-                //console.log('\nLENGTH OF ARRAY pool2: ', pool2.length);
+                if (item2.Slot === 'Mainhand') {
+                    //Item 2 is a weapon
+                    const shopSlot2 = await LootShop.update(
+                        {
+                            name: item2.Name,
+                            value: item2.Value,
+                            rarity: item2.Rarity,
+                            rar_id: item2.Rar_id,
+                            attack: item2.Attack,
+                            defence: 0,
+                            type: item2.Type,
+                            slot: item2.Slot,
+                            hands: item2.Hands,
+                            loot_id: item2.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+                    if (shopSlot2 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item2.Slot === 'Offhand') {
+                    //Is offhand
 
-                //list finished, select one item 
-                var rIP2;
-                if (pool2.length <= 1) {
-                    rIP2 = 0;
                 } else {
-                    rIP2 = Math.floor(Math.random() * (pool2.length));
-                }
-
-               // console.log('Contents of pool2 at position rIP2: ', pool2[rIP2]);
-
-                //add selection to final list
-                await iPool.push(pool2[rIP2]);
-                rIP2 = 1;
-                //=================================================================
-
-
-                //RUN THROUGH 3
-                //run through again
-                //await console.log('==============================================');
-                rarG = await grabRar(user.level);
-                //console.log('\nRarity Grabbed 3: ', rarG);
-
-                var pool3 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
-
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool3.push(lootList[i]);
-                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                    //Is armor
+                    const shopSlot2 = await LootShop.update(
+                        {
+                            name: item2.Name,
+                            value: item2.Value,
+                            rarity: item2.Rarity,
+                            rar_id: item2.Rar_id,
+                            attack: 0,
+                            defence: item2.Defence,
+                            type: item2.Type,
+                            slot: item2.Slot,
+                            loot_id: item2.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+                    if (shopSlot2 > 0) {
+                        //ShopSlot 1 updated
                     }
                 }
 
-               // console.log('\nLENGTH OF ARRAY pool3: ', pool3.length);
-
-                //list finished, select one item 
-                var rIP3;
-                if (pool3.length <= 1) {
-                    rIP3 = 0;
+                if (item3.Slot === 'Mainhand') {
+                    //Item 3 is a weapon
+                    const shopSlot3 = await LootShop.update(
+                        {
+                            name: item3.Name,
+                            value: item3.Value,
+                            rarity: item3.Rarity,
+                            rar_id: item3.Rar_id,
+                            attack: item3.Attack,
+                            defence: 0,
+                            type: item3.Type,
+                            slot: item3.Slot,
+                            hands: item3.Hands,
+                            loot_id: item3.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+                    if (shopSlot3 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item3.Slot === 'Offhand') {
+                    //Is offhand
                 } else {
-                    rIP3 = Math.floor(Math.random() * (pool3.length));
-                }
-
-                //console.log('Contents of pool3 at position rIP3: ', pool3[rIP3]);
-
-                //add selection to final list
-                await iPool.push(pool3[rIP3]);
-                rIP3 = 2;
-                //=================================================================
-
-
-                //RUN THROUGH 4
-                //run through again
-                //await console.log('==============================================');
-                rarG = await grabRar(user.level);
-               // console.log('\nRarity Grabbed 4: ', rarG);
-
-                var pool4 = [];
-                //for loop adding all items of requested rarity to iPool for selection
-                for (var i = 0; i < lootList.length; i++) {
-
-                    if (lootList[i].Rar_id === rarG) {
-                        await pool4.push(lootList[i]);
-                        //console.log('CONTENTS OF lootList AT POSITION ' + i + ': ', lootList[i].Name, lootList[i].Value, lootList[i].Loot_id, lootList[i].Type);
+                    //Is armor
+                    const shopSlot3 = await LootShop.update(
+                        {
+                            name: item3.Name,
+                            value: item3.Value,
+                            rarity: item3.Rarity,
+                            rar_id: item3.Rar_id,
+                            attack: 0,
+                            defence: item3.Defence,
+                            type: item3.Type,
+                            slot: item3.Slot,
+                            loot_id: item3.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+                    if (shopSlot3 > 0) {
+                        //ShopSlot 1 updated
                     }
                 }
 
-                //console.log('\nLENGTH OF ARRAY pool4: ', pool4.length);
-
-                //list finished, select one item 
-                var rIP4;
-                if (pool4.length <= 1) {
-                    rIP4 = 0;
+                if (item4.Slot === 'Mainhand') {
+                    //Item 4 is a weapon
+                    const shopSlot4 = await LootShop.update(
+                        {
+                            name: item4.Name,
+                            value: item4.Value,
+                            rarity: item4.Rarity,
+                            rar_id: item4.Rar_id,
+                            attack: item4.Attack,
+                            defence: 0,
+                            type: item4.Type,
+                            slot: item4.Slot,
+                            hands: item4.Hands,
+                            loot_id: item4.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+                    if (shopSlot4 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item4.Slot === 'Offhand') {
+                    //Is offhand
                 } else {
-                    rIP4 = Math.floor(Math.random() * (pool4.length));
-                }
-
-                //console.log('Contents of pool4 at position rIP4: ', pool4[rIP4]);
-
-                //add selection to final list
-                await iPool.push(pool4[rIP4]);
-                rIP4 = 3;
-                //=================================================================
-
-
-                //console.log('Contents of iPool at position 0: ', iPool[0]);
-                //console.log('Contents of iPool at position 1: ', iPool[1]);
-                //console.log('Contents of iPool at position 2: ', iPool[2]);
-                //console.log('Contents of iPool at position 3: ', iPool[3]);
-
-                //console.log('Contents of iPool at position 4 should be undefined: ', iPool[4]);
-
-                console.log(`REFERENCE TO ITEM OBJECT:\n ${iPool[rIP1].Name}\n ${iPool[rIP2].Name}\n ${iPool[rIP3].Name}\n ${iPool[rIP4].Name}\n`);
-
+                    //Is armor
+                    const shopSlot4 = await LootShop.update(
+                        {
+                            name: item4.Name,
+                            value: item4.Value,
+                            rarity: item4.Rarity,
+                            rar_id: item4.Rar_id,
+                            attack: 0,
+                            defence: item4.Defence,
+                            type: item4.Type,
+                            slot: item4.Slot,
+                            loot_id: item4.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+                    if (shopSlot4 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                }               
+            }
+            if (!edit) {         
                 await setTomorrow(user);
 
-                const shop = [
-                    LootShop.create(
+                if (item1.Slot === 'Mainhand') {
+                    //Item 1 is a weapon
+                    const shopSlot1 = await LootShop.create(
                         {
-                            name: iPool[rIP1].Name,
-                            value: iPool[rIP1].Value,
-                            rarity: iPool[rIP1].Rarity,
-                            rar_id: iPool[rIP1].Rar_id,
-                            attack: iPool[rIP1].Attack,
-                            type: iPool[rIP1].Type,
-                            loot_id: iPool[rIP1].Loot_id,
+                            name: item1.Name,
+                            value: item1.Value,
+                            rarity: item1.Rarity,
+                            rar_id: item1.Rar_id,
+                            attack: item1.Attack,
+                            defence: 0,
+                            type: item1.Type,
+                            slot: item1.Slot,
+                            hands: item1.Hands,
+                            loot_id: item1.Loot_id,
                             spec_id: interaction.user.id,
                             shop_slot: 1,
-                        }
-                    ),
-                    LootShop.create(
+                        });
+                    if (shopSlot1 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item1.Slot === 'Offhand') {
+                    //Is offhand
+                } else {
+                    //Is armor
+                    const shopSlot1 = await LootShop.create(
                         {
-                            name: iPool[rIP2].Name,
-                            value: iPool[rIP2].Value,
-                            rarity: iPool[rIP2].Rarity,
-                            rar_id: iPool[rIP2].Rar_id,
-                            attack: iPool[rIP2].Attack,
-                            type: iPool[rIP2].Type,
-                            loot_id: iPool[rIP2].Loot_id,
+                            name: item1.Name,
+                            value: item1.Value,
+                            rarity: item1.Rarity,
+                            rar_id: item1.Rar_id,
+                            attack: 0,
+                            defence: item1.Defence,
+                            type: item1.Type,
+                            slot: item1.Slot,
+                            loot_id: item1.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 1,
+                        });
+                    if (shopSlot1 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                }
+
+                if (item2.Slot === 'Mainhand') {
+                    //Item 2 is a weapon
+                    const shopSlot2 = await LootShop.create(
+                        {
+                            name: item2.Name,
+                            value: item2.Value,
+                            rarity: item2.Rarity,
+                            rar_id: item2.Rar_id,
+                            attack: item2.Attack,
+                            defence: 0,
+                            type: item2.Type,
+                            slot: item2.Slot,
+                            hands: item2.Hands,
+                            loot_id: item2.Loot_id,
                             spec_id: interaction.user.id,
                             shop_slot: 2,
-                        }
-                    ),
-                    LootShop.create(
+                        });
+                    if (shopSlot2 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item2.Slot === 'Offhand') {
+                    //Is offhand
+
+                } else {
+                    //Is armor
+                    const shopSlot2 = await LootShop.create(
                         {
-                            name: iPool[rIP3].Name,
-                            value: iPool[rIP3].Value,
-                            rarity: iPool[rIP3].Rarity,
-                            rar_id: iPool[rIP3].Rar_id,
-                            attack: iPool[rIP3].Attack,
-                            type: iPool[rIP3].Type,
-                            loot_id: iPool[rIP3].Loot_id,
+                            name: item2.Name,
+                            value: item2.Value,
+                            rarity: item2.Rarity,
+                            rar_id: item2.Rar_id,
+                            attack: 0,
+                            defence: item2.Defence,
+                            type: item2.Type,
+                            slot: item2.Slot,
+                            loot_id: item2.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 2,
+                        });
+                    if (shopSlot2 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                }
+
+                if (item3.Slot === 'Mainhand') {
+                    //Item 3 is a weapon
+                    const shopSlot3 = await LootShop.create(
+                        {
+                            name: item3.Name,
+                            value: item3.Value,
+                            rarity: item3.Rarity,
+                            rar_id: item3.Rar_id,
+                            attack: item3.Attack,
+                            defence: 0,
+                            type: item3.Type,
+                            slot: item3.Slot,
+                            hands: item3.Hands,
+                            loot_id: item3.Loot_id,
                             spec_id: interaction.user.id,
                             shop_slot: 3,
-                        }
-                    ),
-                    LootShop.create(
+                        });
+                    if (shopSlot3 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item3.Slot === 'Offhand') {
+                    //Is offhand
+                } else {
+                    //Is armor
+                    const shopSlot3 = await LootShop.create(
                         {
-                            name: iPool[rIP4].Name,
-                            value: iPool[rIP4].Value,
-                            rarity: iPool[rIP4].Rarity,
-                            rar_id: iPool[rIP4].Rar_id,
-                            attack: iPool[rIP4].Attack,
-                            type: iPool[rIP4].Type,
-                            loot_id: iPool[rIP4].Loot_id,
+                            name: item3.Name,
+                            value: item3.Value,
+                            rarity: item3.Rarity,
+                            rar_id: item3.Rar_id,
+                            attack: 0,
+                            defence: item3.Defence,
+                            type: item3.Type,
+                            slot: item3.Slot,
+                            loot_id: item3.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 3,
+                        });
+                    if (shopSlot3 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                }
+
+                if (item4.Slot === 'Mainhand') {
+                    //Item 4 is a weapon
+                    const shopSlot4 = await LootShop.create(
+                        {
+                            name: item4.Name,
+                            value: item4.Value,
+                            rarity: item4.Rarity,
+                            rar_id: item4.Rar_id,
+                            attack: item4.Attack,
+                            defence: 0,
+                            type: item4.Type,
+                            slot: item4.Slot,
+                            hands: item4.Hands,
+                            loot_id: item4.Loot_id,
                             spec_id: interaction.user.id,
                             shop_slot: 4,
-                        }
-                    ),
-                ];
-
-                //this await forces the shop to return its data before closing the file 
-                await Promise.all(shop);
-
-                //log that data is synced
-                console.log('Database synced');
-                //close the connection
-                //==========================================
-
-
+                        });
+                    if (shopSlot4 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                } else if (item4.Slot === 'Offhand') {
+                    //Is offhand
+                } else {
+                    //Is armor
+                    const shopSlot4 = await LootShop.create(
+                        {
+                            name: item4.Name,
+                            value: item4.Value,
+                            rarity: item4.Rarity,
+                            rar_id: item4.Rar_id,
+                            attack: 0,
+                            defence: item4.Defence,
+                            type: item4.Type,
+                            slot: item4.Slot,
+                            loot_id: item4.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 4,
+                        });
+                    if (shopSlot4 > 0) {
+                        //ShopSlot 1 updated
+                    }
+                }                
             } else {
                 //something went wrong :o
                 console.log('\nSOMETHING WENT WRONG!\n');
@@ -830,18 +974,59 @@ module.exports = {
 
             await uData.save();
 
+            const theItem = item;
+
             //if item is not found create a new one with the values requested
-            return LootStore.create({
-                name: item.name,
-                value: item.value,
-                loot_id: item.loot_id,
-                spec_id: interaction.user.id,
-                rarity: item.rarity,
-                rar_id: item.rar_id,
-                attack: item.attack,
-                type: item.type,
-                amount: 1
-            });
+            if (theItem.slot === 'Mainhand') {
+                //Item is a weapon store accordingly
+                const newItem = await LootStore.create({
+                    name: theItem.name,
+                    value: theItem.value,
+                    loot_id: theItem.loot_id,
+                    spec_id: interaction.user.id,
+                    rarity: theItem.rarity,
+                    rar_id: theItem.rar_id,
+                    attack: theItem.attack,
+                    defence: 0,
+                    type: theItem.type,
+                    slot: theItem.slot,
+                    hands: theItem.hands,
+                    amount: 1
+                });
+
+                const itemAdded = await LootStore.findOne({
+                    where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                });
+
+                console.log(itemAdded);
+
+                return newItem;
+            } else if (theItem.Slot === 'Offhand') {
+                //Item is an offhand
+            } else {
+                //Item is armor
+                const newItem = await LootStore.create({
+                    name: theItem.name,
+                    value: theItem.value,
+                    loot_id: theItem.loot_id,
+                    spec_id: interaction.user.id,
+                    rarity: theItem.rarity,
+                    rar_id: theItem.rar_id,
+                    attack: 0,
+                    defence: theItem.defence,
+                    type: theItem.type,
+                    slot: theItem.slot,
+                    amount: 1
+                });
+
+                const itemAdded = await LootStore.findOne({
+                    where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                });
+
+                console.log(itemAdded);
+
+                return newItem;
+            }
         }
 
         async function payUp(cost, uData) {
