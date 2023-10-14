@@ -6,10 +6,13 @@
 		"Attack": 15,
 		"Type": "BLUNT",
 
+		"Slot": "Mainhand",
+		"Hands": "One",
+
 		"Rarity": "Rare",
 		"Rar_id": 2,
 
-		"Loot_id": 102,
+		"Loot_id": 1002,
 		"Spec_id": 0
 	},
 	{
@@ -19,10 +22,13 @@
 		"Attack": 7,
 		"Type": "BLUNT",
 
+		"Slot": "Mainhand",
+		"Hands": "Two",
+
 		"Rarity": "Uncommon",
 		"Rar_id": 1,
 
-		"Loot_id": 114,
+		"Loot_id": 1014,
 		"Spec_id": 0
 	},
 	{
@@ -32,10 +38,13 @@
 		"Attack": 8,
 		"Type": "BLUNT",
 
+		"Slot": "Mainhand",
+		"Hands": "One",
+
 		"Rarity": "Uncommon",
 		"Rar_id": 1,
 
-		"Loot_id": 140,
+		"Loot_id": 1040,
 		"Spec_id": 0
 	},
 	{
@@ -45,10 +54,13 @@
 		"Attack": 3,
 		"Type": "SLASH",
 
+		"Slot": "Mainhand",
+		"Hands": "One",
+
 		"Rarity": "Common",
 		"Rar_id": 0,
 
-		"Loot_id": 101,
+		"Loot_id": 1001,
 		"Spec_id": 0
 	},
 	{
@@ -58,10 +70,13 @@
 		"Attack": 150,
 		"Type": "NULL",
 
+		"Slot": "Mainhand",
+		"Hands": "Two",
+
 		"Rarity": "???",
 		"Rar_id": 8,
 
-		"Loot_id": 158,
+		"Loot_id": 1058,
 		"Spec_id": 0
 	},
 	{
@@ -71,10 +86,13 @@
 		"Attack": 50,
 		"Type": "DARK",
 
+		"Slot": "Mainhand",
+		"Hands": "Two",
+
 		"Rarity": "Mystic",
 		"Rar_id": 5,
 
-		"Loot_id": 150,
+		"Loot_id": 1050,
 		"Spec_id": 0
 	},
 	{
@@ -84,10 +102,13 @@
 		"Attack": 1,
 		"Type": " ",
 
+		"Slot": " ",
+		"Hands": " ",
+
 		"Rarity": " ",
 		"Rar_id": 11,
 
-		"Loot_id": 100,
+		"Loot_id": 1000,
 		"Spec_id": 0
 	}
 ]

@@ -14,7 +14,11 @@ module.exports = (sequelize, DataTypes) => {
         value: DataTypes.INTEGER,//value of the item
 
         attack: DataTypes.INTEGER,
+        defence: DataTypes.INTEGER,
         type: DataTypes.TEXT,
+
+        slot: DataTypes.TEXT,
+        hands: DataTypes.TEXT,
 
         rarity: DataTypes.TEXT,//rarity of the item in text format 
         rar_id: DataTypes.INTEGER,
