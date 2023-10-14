@@ -1,5 +1,5 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { ActiveEnemy, Equipped, LootStore, LootDrop, UserData, Pigmy } = require('../../dbObjects.js');
+const { ActiveEnemy, Equipped, LootStore, LootDrop, UserData, Pigmy, Loadout } = require('../../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
 const { userDamageAlt } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
@@ -511,7 +511,15 @@ async function enemyDead(enemy, interaction, user) {
 
         const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: reference.loot_id }] });
 
-        const iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}**`)
+        var iVal;
+
+        if (item.defence) {
+            //item is armor
+            iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.defence}**\nType: **${item.type}**\nEquip Slot: **${item.slot}**\nAmount Owned: **${item.amount}**`);
+        } else if (item.attack) {
+            //item is weapon
+            iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nEquip Slot: **${item.slot}**\nHands Needed: **${item.hands}**\nAmount Owned: **${item.amount}**`);
+        }
 
         const itemDropEmbed = new EmbedBuilder()
             .setTitle('~LOOT DROPPED~')
@@ -638,8 +646,15 @@ async function resetKillCount(user, interaction) {
 //This method spawns a drop embed upon stealing an item successfully
 async function showStolen(itemRef, interaction) {
     const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: itemRef.loot_id }] });
+    var iVal;
 
-    const iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}**`)
+    if (item.defence) {
+        //item is armor
+        iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.defence}**\nType: **${item.type}**\nEquip Slot: **${item.slot}**\nAmount Owned: **${item.amount}**`);
+    } else if (item.attack) {
+        //item is weapon
+        iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nEquip Slot: **${item.slot}**\nHands Needed: **${item.hands}**\nAmount Owned: **${item.amount}**`);
+    }
 
     const itemDropEmbed = new EmbedBuilder()
         .setTitle('~LOOT STOLEN~')
@@ -667,6 +682,51 @@ async function showStolen(itemRef, interaction) {
 async function takeDamage(eDamage, user, enemy, interaction) {
     var currentHealth = user.health;
 
+    const userEquipped = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+
+    if (userEquipped) {
+        const headSlotID = userEquipped.headslot;
+        const chestSlotID = userEquipped.chestslot;
+        const legSlotID = userEquipped.legslot;
+
+        var headSlotItem;
+        var chestSlotItem;
+        var legSlotItem;
+
+        for (var i = 0; i < lootList.length; i++) {
+            if (lootList[i].Loot_id === headSlotID) {
+                //Helmet found
+                headSlotItem = lootList[i];
+            } else if (lootList[i].Loot_id === chestSlotID) {
+                //Chest found
+                chestSlotItem = lootList[i];
+            } else if (lootList[i].Loot_id === legSlotID) {
+                //Legs found
+                legSlotItem = lootList[i];
+            } else {/**Do nothing not found*/ }
+        }
+
+        var defence = 0;
+
+        if (!headSlotItem && !chestSlotItem && !legSlotItem) {
+            //No armor equipped ignore all extra defence calculations
+        } else {
+            if (headSlotItem) {
+                defence += headSlotItem.defence;
+                console.log(`Defence from Helm: ${headSlotItem.defence}`);
+            }
+            if (chestSlotItem) {
+                defence += chestSlotItem.defence;
+                console.log(`Defence from Chestplate: ${chestSlotItem.defence}`);
+            }
+            if (legSlotItem) {
+                defence += legSlotItem.defence;
+                console.log(`Defence from Legwear: ${legSlotItem.defence}`);
+            }
+        }
+        console.log(`Total Defence from Armor: ${defence}`);
+    }
+
     if (user.pclass === 'Warrior') {
         //5% damage reduction
         eDamage -= (eDamage * 0.05);
@@ -676,6 +736,11 @@ async function takeDamage(eDamage, user, enemy, interaction) {
     } else if (user.pclass === 'Mage') {
         //5% damage increase
         eDamage += (eDamage * 0.05);
+    }
+
+    if (defence > 0) {
+        //Player has defence use accordingly
+        eDamage -= defence;
     }
 
     if ((currentHealth - eDamage) <= 0) {
@@ -808,51 +873,114 @@ function enemyDamage(enemy) {
 async function makeUniqueItem(prefabItem, interaction, user) {
     const edit = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-    if (edit) {
-        const maker = await LootDrop.update(
-            {
-                name: prefabItem.Name,
-                value: prefabItem.Value,
-                rarity: prefabItem.Rarity,
-                rar_id: prefabItem.Rar_id,
-                attack: prefabItem.Attack,
-                type: prefabItem.Type,
-                loot_id: prefabItem.Loot_id,
-                spec_id: interaction.user.id,
-            }, { where: [{ spec_id: interaction.user.id }] });
+    var editType = 'Weapon';
 
-        console.log('ITEM UPDATED!', maker);
-
-        var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
-
-        console.log('LOOT UPDATED: ', item);
-
-        var iFound = await addItem(item, user, interaction);
-
-        return iFound;
+    if (prefabItem.Defence > 0) {
+        //Item is armor
+        editType = 'Armor';
+    } else if (prefabItem.Attack > 0) {
+        //Item is weapon
     }
-    else if (!edit) {
-        const maker = await LootDrop.create(
-            {
-                name: prefabItem.Name,
-                value: prefabItem.Value,
-                rarity: prefabItem.Rarity,
-                rar_id: prefabItem.Rar_id,
-                attack: prefabItem.Attack,
-                type: prefabItem.Type,
-                loot_id: prefabItem.Loot_id,
-                spec_id: interaction.user.id,
-            });
 
-        console.log('ITEM CREATED!', maker);
+    if (editType === 'Weapon') {
+        if (edit) {
+            const maker = await LootDrop.update(
+                {
+                    name: prefabItem.Name,
+                    value: prefabItem.Value,
+                    rarity: prefabItem.Rarity,
+                    rar_id: prefabItem.Rar_id,
+                    attack: prefabItem.Attack,
+                    type: prefabItem.Type,
+                    slot: prefabItem.Slot,
+                    hands: prefabItem.Hands,
+                    loot_id: prefabItem.Loot_id,
+                    spec_id: interaction.user.id,
+                }, { where: [{ spec_id: interaction.user.id }] });
 
-        var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+            console.log('ITEM UPDATED!', maker);
 
-        console.log('LOOT CREATED: ', item);
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-        var iFound = await addItem(item, user, interaction);
+            console.log('LOOT UPDATED: ', item);
 
-        return iFound;
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        }
+        else if (!edit) {
+            const maker = await LootDrop.create(
+                {
+                    name: prefabItem.Name,
+                    value: prefabItem.Value,
+                    rarity: prefabItem.Rarity,
+                    rar_id: prefabItem.Rar_id,
+                    attack: prefabItem.Attack,
+                    type: prefabItem.Type,
+                    slot: prefabItem.Slot,
+                    hands: prefabItem.Hands,
+                    loot_id: prefabItem.Loot_id,
+                    spec_id: interaction.user.id,
+                });
+
+            console.log('ITEM CREATED!', maker);
+
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+            console.log('LOOT CREATED: ', item);
+
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        }
+    } else if (editType === 'Armor') {
+        if (edit) {
+            const maker = await LootDrop.update(
+                {
+                    name: prefabItem.Name,
+                    value: prefabItem.Value,
+                    rarity: prefabItem.Rarity,
+                    rar_id: prefabItem.Rar_id,
+                    defence: prefabItem.Defence,
+                    type: prefabItem.Type,
+                    slot: prefabItem.Slot,
+                    loot_id: prefabItem.Loot_id,
+                    spec_id: interaction.user.id,
+                }, { where: [{ spec_id: interaction.user.id }] });
+
+            console.log('ITEM UPDATED!', maker);
+
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+            console.log('LOOT UPDATED: ', item);
+
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        } else if (!edit) {
+            const maker = await LootDrop.create(
+                {
+                    name: prefabItem.Name,
+                    value: prefabItem.Value,
+                    rarity: prefabItem.Rarity,
+                    rar_id: prefabItem.Rar_id,
+                    defence: prefabItem.Defence,
+                    type: prefabItem.Type,
+                    slot: prefabItem.Slot,
+                    loot_id: prefabItem.Loot_id,
+                    spec_id: interaction.user.id,
+                });
+
+            console.log('ITEM CREATED!', maker);
+
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+            console.log('LOOT CREATED: ', item);
+
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        }
     }
 }
 
@@ -900,51 +1028,114 @@ async function makeItem(enemy, interaction, user, hasRar) {
 
     const edit = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-    if (edit) {
-        const maker = await LootDrop.update(
-            {
-                name: iPool[rIP1].Name,
-                value: iPool[rIP1].Value,
-                rarity: iPool[rIP1].Rarity,
-                rar_id: iPool[rIP1].Rar_id,
-                attack: iPool[rIP1].Attack,
-                type: iPool[rIP1].Type,
-                loot_id: iPool[rIP1].Loot_id,
-                spec_id: interaction.user.id,
-            }, { where: [{ spec_id: interaction.user.id }] });
+    var editType = 'Weapon';
 
-        console.log('ITEM UPDATED!', maker);
-
-        var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
-
-        console.log('LOOT UPDATED: ', item);
-
-        var iFound = await addItem(item, user, interaction);
-
-        return iFound;
+    if (iPool[rIP1].Defence > 0) {
+        //Item is armor
+        editType = 'Armor';
+    } else if (iPool[rIP1].Attack > 0) {
+        //Item is weapon
     }
-    else if (!edit) {
-        const maker = await LootDrop.create(
-            {
-                name: iPool[rIP1].Name,
-                value: iPool[rIP1].Value,
-                rarity: iPool[rIP1].Rarity,
-                rar_id: iPool[rIP1].Rar_id,
-                attack: iPool[rIP1].Attack,
-                type: iPool[rIP1].Type,
-                loot_id: iPool[rIP1].Loot_id,
-                spec_id: interaction.user.id,
-            });
 
-        console.log('ITEM CREATED!', maker);
+    if (editType === 'Weapon') {
+        if (edit) {
+            const maker = await LootDrop.update(
+                {
+                    name: iPool[rIP1].Name,
+                    value: iPool[rIP1].Value,
+                    rarity: iPool[rIP1].Rarity,
+                    rar_id: iPool[rIP1].Rar_id,
+                    attack: iPool[rIP1].Attack,
+                    type: iPool[rIP1].Type,
+                    slot: iPool[rIP1].Slot,
+                    hands: iPool[rIP1].Hands,
+                    loot_id: iPool[rIP1].Loot_id,
+                    spec_id: interaction.user.id,
+                }, { where: [{ spec_id: interaction.user.id }] });
 
-        var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+            console.log('ITEM UPDATED!', maker);
 
-        console.log('LOOT CREATED: ', item);
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-        var iFound = await addItem(item, user, interaction);
+            console.log('LOOT UPDATED: ', item);
 
-        return iFound;
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        }
+        else if (!edit) {
+            const maker = await LootDrop.create(
+                {
+                    name: iPool[rIP1].Name,
+                    value: iPool[rIP1].Value,
+                    rarity: iPool[rIP1].Rarity,
+                    rar_id: iPool[rIP1].Rar_id,
+                    attack: iPool[rIP1].Attack,
+                    type: iPool[rIP1].Type,
+                    slot: iPool[rIP1].Slot,
+                    hands: iPool[rIP1].Hands,
+                    loot_id: iPool[rIP1].Loot_id,
+                    spec_id: interaction.user.id,
+                });
+
+            console.log('ITEM CREATED!', maker);
+
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+            console.log('LOOT CREATED: ', item);
+
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        }
+    } else if (editType === 'Armor') {
+        if (edit) {
+            const maker = await LootDrop.update(
+                {
+                    name: iPool[rIP1].Name,
+                    value: iPool[rIP1].Value,
+                    rarity: iPool[rIP1].Rarity,
+                    rar_id: iPool[rIP1].Rar_id,
+                    defence: iPool[rIP1].Defence,
+                    type: iPool[rIP1].Type,
+                    slot: iPool[rIP1].Slot,
+                    loot_id: iPool[rIP1].Loot_id,
+                    spec_id: interaction.user.id,
+                }, { where: [{ spec_id: interaction.user.id }] });
+
+            console.log('ITEM UPDATED!', maker);
+
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+            console.log('LOOT UPDATED: ', item);
+
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        } else if (!edit) {
+            const maker = await LootDrop.create(
+                {
+                    name: iPool[rIP1].Name,
+                    value: iPool[rIP1].Value,
+                    rarity: iPool[rIP1].Rarity,
+                    rar_id: iPool[rIP1].Rar_id,
+                    defence: iPool[rIP1].Defence,
+                    type: iPool[rIP1].Type,
+                    slot: iPool[rIP1].Slot,
+                    loot_id: iPool[rIP1].Loot_id,
+                    spec_id: interaction.user.id,
+                });
+
+            console.log('ITEM CREATED!', maker);
+
+            var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+
+            console.log('LOOT CREATED: ', item);
+
+            var iFound = await addItem(item, user, interaction);
+
+            return iFound;
+        }
     }
 }
 
@@ -984,25 +1175,52 @@ async function addItem(item, user, interaction) {
     //if item is not found create a new one with the values requested
     console.log('TOTAL ITEM COUNT WAS INCREASED!');
 
-    const newItem = await LootStore.create({
-        name: item.name,
-        value: item.value,
-        loot_id: item.loot_id,
-        spec_id: interaction.user.id,
-        rarity: item.rarity,
-        rar_id: item.rar_id,
-        attack: item.attack,
-        type: item.type,
-        amount: 1
-    });
+    if (item.defence > 0) {
+        //is armor
+        const newItem = await LootStore.create({
+            name: item.name,
+            value: item.value,
+            loot_id: item.loot_id,
+            spec_id: interaction.user.id,
+            rarity: item.rarity,
+            rar_id: item.rar_id,
+            defence: item.defence,
+            type: item.type,
+            slot: item.slot,
+            amount: 1
+        });
 
-    const itemAdded = await LootStore.findOne({
-        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
-    });
+        const itemAdded = await LootStore.findOne({
+            where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+        });
 
-    console.log(itemAdded);
+        console.log(itemAdded);
 
-    return newItem;
+        return newItem;
+    } else if (item.attack > 0) {
+        //is weapon
+        const newItem = await LootStore.create({
+            name: item.name,
+            value: item.value,
+            loot_id: item.loot_id,
+            spec_id: interaction.user.id,
+            rarity: item.rarity,
+            rar_id: item.rar_id,
+            attack: item.attack,
+            type: item.type,
+            slot: item.slot,
+            hands: item.hands,
+            amount: 1
+        });
+
+        const itemAdded = await LootStore.findOne({
+            where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+        });
+
+        console.log(itemAdded);
+
+        return newItem;
+    }   
 }
 
 module.exports = { initialDisplay };
