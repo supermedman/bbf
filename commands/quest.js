@@ -54,7 +54,7 @@ module.exports = {
                 
 
                 if (user.level < 5) {
-                    return interaction.followUp('Sorry! You need to be at least level 5 to start quests.. ``startcombat`` use this to gain some levels!')
+                    return interaction.followUp('Sorry! You need to be at least level 5 to start quests.. ``/startcombat`` use this to gain some levels!')
                 }
                 const maxQLvl = Math.round(user.level / 5)
 
@@ -151,7 +151,7 @@ module.exports = {
                 //user found quest already active/not claimed
                 //prompt user to deal with ongoing quest
                 console.log('Quest found in progress or complete!');
-                return interaction.followUp('You already have a quest in progress.. Use ``quest claim`` for more info!');
+                return interaction.followUp('You already have a quest in progress.. Use ``/quest claim`` for more info!');
             }
 		} else if (interaction.options.getSubcommand() === 'claim') {
             const qFound = await Questing.findOne({ where: [{ user_id: interaction.user.id }] });
@@ -278,61 +278,106 @@ module.exports = {
                                 //console.log('FILTERED RESULT', filtered.Name);
 
                                 const mappedItem = await tmpCopy.map(item => ({ ...item, Amount: 1 }),);
-                                console.log('AFTER MAPPED NEW ITEM: ', mappedItem);
+                                //console.log('AFTER MAPPED NEW ITEM: ', mappedItem);
 
                                 totPages += 1;
 
                                 await iGained.push(...mappedItem);
                             }
-                            
-                            
-                            const edit = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-                            if (edit) {
-                                const maker = await LootDrop.update(
-                                    {
-                                        name: iPool[randItemPos].Name,
-                                        value: iPool[randItemPos].Value,
-                                        rarity: iPool[randItemPos].Rarity,
-                                        rar_id: iPool[randItemPos].Rar_id,
-                                        attack: iPool[randItemPos].Attack,
-                                        type: iPool[randItemPos].Type,
-                                        loot_id: iPool[randItemPos].Loot_id,
+                            var theItem = iPool[randItemPos];
+
+                            const lootStore = await LootStore.findOne({
+                                where: { spec_id: interaction.user.id, loot_id: theItem.Loot_id },
+                            });
+
+                            console.log('UserItem: ', lootStore);
+
+                            //check if an item was found in the previous .findOne()
+                            //this checks if there is an item stored in the UserItems and adds one to the amount as defined in the dbInit script
+                            //then return as a save call on the userItem data
+                            if (lootStore) {
+                                const inc = await lootStore.increment('amount');
+
+                                if (inc) console.log('AMOUNT WAS UPDATED!');
+
+                                await lootStore.save();
+                            } else {
+                                //increase item total
+                                //grab reference to user
+                                const uData = await grabU();
+                                //increase item total
+                                uData.totitem += 1;
+
+                                await uData.save();
+
+                                if (theItem.Slot === 'Mainhand') {
+                                    //Item is a weapon store accordingly
+                                    const newItem = await LootStore.create({
+                                        name: theItem.Name,
+                                        value: theItem.Value,
+                                        loot_id: theItem.Loot_id,
                                         spec_id: interaction.user.id,
-                                    }, { where: [{ spec_id: interaction.user.id }] });
-
-                                //await Promise(maker);
-                                console.log('ITEM UPDATED!', maker);
-
-                                var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
-
-                                //console.log('LOOT MATCH CHECK: ', item);
-
-                                await addItem(item);
-                            }
-                            else if (!edit) {
-                                const maker = await LootDrop.create(
-                                    {
-                                        name: iPool[randItemPos].Name,
-                                        value: iPool[randItemPos].Value,
-                                        rarity: iPool[randItemPos].Rarity,
-                                        rar_id: iPool[randItemPos].Rar_id,
-                                        attack: iPool[randItemPos].Attack,
-                                        type: iPool[randItemPos].Type,
-                                        loot_id: iPool[randItemPos].Loot_id,
-                                        spec_id: interaction.user.id,
+                                        rarity: theItem.Rarity,
+                                        rar_id: theItem.Rar_id,
+                                        attack: theItem.Attack,
+                                        defence: 0,
+                                        type: theItem.Type,
+                                        slot: theItem.Slot,
+                                        hands: theItem.Hands,
+                                        amount: 1
                                     });
 
-                                //await Promise(maker);
-                                console.log('ITEM CREATED!', maker);
+                                    const itemAdded = await LootStore.findOne({
+                                        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                                    });
 
-                                var item = await LootDrop.findOne({ where: [{ spec_id: interaction.user.id }] });
+                                    console.log(itemAdded);
+                                } else if (theItem.Slot === 'Offhand') {
+                                    //Item is an offhand
+                                    const newItem = await LootStore.create({
+                                        name: theItem.Name,
+                                        value: theItem.Value,
+                                        loot_id: theItem.Loot_id,
+                                        spec_id: interaction.user.id,
+                                        rarity: theItem.Rarity,
+                                        rar_id: theItem.Rar_id,
+                                        attack: theItem.Attack,
+                                        defence: 0,
+                                        type: theItem.Type,
+                                        slot: theItem.Slot,
+                                        hands: theItem.Hands,
+                                        amount: 1
+                                    });
 
-                                //console.log('LOOT MATCH CHECK: ', item);
+                                    const itemAdded = await LootStore.findOne({
+                                        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                                    });
 
-                                await addItem(item);
-                            }
+                                    console.log(itemAdded);
+                                } else {
+                                    //Item is armor
+                                    const newItem = await LootStore.create({
+                                        name: theItem.Name,
+                                        value: theItem.Value,
+                                        loot_id: theItem.Loot_id,
+                                        spec_id: interaction.user.id,
+                                        rarity: theItem.Rarity,
+                                        rar_id: theItem.Rar_id,
+                                        attack: 0,
+                                        defence: theItem.Defence,
+                                        type: theItem.Type,
+                                        slot: theItem.Slot,
+                                        amount: 1
+                                    });
 
+                                    const itemAdded = await LootStore.findOne({
+                                        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                                    });
+
+                                    console.log(itemAdded);
+                                }
+                            }                     
                         }
 
                         //calculate xp gained and add to overall total
@@ -402,18 +447,19 @@ module.exports = {
                     const interactiveButtons = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
                
                     var pos = 1;//  Start at position 2 in the array
-
-                    for (var i = 0; i < iGained.length;) {
-                                           
-                        var list = (iGained.slice((pos - 1), pos).map(item =>
-                            `Name: **${item.Name}**\nValue: **${item.Value}c**\nRarity: **${item.Rarity}**\nAttack: **${item.Attack}**\nType: **${item.Type}**\nAmount: **${item.Amount}** `)
+                    var i = 0;
+                    
+                    //Assign list to be used in multiple handles
+                    var list = [];
+                    //First check for all mainhand items dropped adding each one to the embed list 
+                    var mainHand = iGained.filter(item => item.Slot === 'Mainhand');
+                    for (var x = 0; x < mainHand.length;) {
+                        //Mainhand weapons found list them out
+                        list = (mainHand.slice((pos - 1), pos).map(item => `Name: ** ${item.Name} **\nValue: ** ${item.Value}c **\nRarity: ** ${item.Rarity} **\nAttack: ** ${item.Attack} **\nType: ** ${item.Type}**\nSlot: **${item.Slot}**\nHands: **${item.Hands}**\nAmount: ** ${item.Amount} ** `)
                             .join('\n\n'));
+                        x++;
+                        i++;
 
-                        //convert list to string to avoid any errors
-                        console.log(`\nList \n${list.toString()} \n@ pos ${i}`);//log the outcome
-                        i++
-                        
-                        //create discord embed using list mapped in previous for loop
                         const embed = new EmbedBuilder()
                             .setTitle("~LOOT GAINED~")
                             .setDescription(`Page ${i + 1}/${totPages}`)
@@ -425,9 +471,85 @@ module.exports = {
                                 }
                             )
 
-                        await embedPages.push(embed);//add new embed to embed pages   
+                        await embedPages.push(embed);//add new embed to embed pages  
                         pos++;
                     }
+                    pos = 1;
+                    var offHand = iGained.filter(item => item.Slot === 'Offhand');
+                    for (var y = 0; y < offHand.length;) {
+                        list = (offHand.slice((pos - 1), pos).map(off => `Name: **${off.Name}** \nValue: **${off.Value}c** \nRarity: **${off.Rarity}** \nAttack: **${off.Attack}** \nType: **${off.Type}**\nSlot: **${off.Slot}**\nAmount: ** ${off.Amount} ** `)
+                            .join('\n\n'));
+                        y++;
+                        i++;
+
+                        const embed = new EmbedBuilder()
+                            .setTitle("~LOOT GAINED~")
+                            .setDescription(`Page ${i + 1}/${totPages}`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: ("<< ITEM >>"),
+                                    value: list
+                                }
+                            )
+
+                        await embedPages.push(embed);//add new embed to embed pages  
+                        pos++;
+                    }
+                    pos = 1;
+                    //ADD FILTERED SLOT CHECK HERE WHEN WORKING
+                    //============================================
+                    var armorSlot = [];
+                    //============================================
+                    var headSlot = iGained.filter(item => item.Slot === 'Headslot');
+                    var chestSlot = iGained.filter(item => item.Slot === 'Chestslot');
+                    var legSlot = iGained.filter(item => item.Slot === 'Legslot');
+                    await armorSlot.concat(headSlot, chestSlot, legSlot);
+                    for (var z = 0; z < armorSlot.length;) {
+                        list = (armorSlot.slice((pos - 1), pos).map(gear => `Name: **${gear.Name}** \nValue: **${gear.Value}c** \nRarity: **${gear.Rarity}** \nDefence: **${gear.Defence}** \nType: **${gear.Type}**\nSlot: **${gear.Slot}**\nAmount: ** ${gear.Amount} ** `)
+                            .join('\n\n'));
+                        z++;
+                        i++;
+
+                        const embed = new EmbedBuilder()
+                            .setTitle("~LOOT GAINED~")
+                            .setDescription(`Page ${i + 1}/${totPages}`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: ("<< ITEM >>"),
+                                    value: list
+                                }
+                            )
+
+                        await embedPages.push(embed);//add new embed to embed pages  
+                        pos++;
+                    }
+
+
+                        //list = (iGained.slice((pos - 1), pos).map(item =>
+                        //    `Name: **${item.Name}**\nValue: **${item.Value}c**\nRarity: **${item.Rarity}**\nAttack: **${item.Attack}**\nType: **${item.Type}**\nAmount: **${item.Amount}** `)
+                        //    .join('\n\n'));
+
+                        //convert list to string to avoid any errors
+                        //console.log(`\nList \n${list.toString()} \n@ pos ${i}`);//log the outcome
+                        
+                        
+                        ////create discord embed using list mapped in previous for loop
+                        //const embed = new EmbedBuilder()
+                        //    .setTitle("~LOOT GAINED~")
+                        //    .setDescription(`Page ${i + 1}/${totPages}`)
+                        //    .setColor(0000)
+                        //    .addFields(
+                        //        {
+                        //            name: ("<< ITEM >>"),
+                        //            value: list
+                        //        }
+                        //    )
+
+                        //await embedPages.push(embed);//add new embed to embed pages   
+                        //pos++;
+                    
 
                     await destroyQuest();
 
