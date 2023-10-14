@@ -6,11 +6,26 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
         },
         //These values are all stored as loot_id's for quick access and references 
-        headslot: DataTypes.INTEGER,
-        chestslot: DataTypes.INTEGER,
-        legslot: DataTypes.INTEGER,
-        mainhand: DataTypes.INTEGER,
-        offhand: DataTypes.INTEGER,
+        headslot: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        chestslot: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        legslot: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        mainhand: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        offhand: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
     },
         {
             timestamps: false,
