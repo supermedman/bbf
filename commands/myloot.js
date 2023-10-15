@@ -301,7 +301,7 @@ module.exports = {
                         }
                     }
                     if (collInteract.customId === 'delete-page') {
-                        await i.deferUpdate();
+                        await collInteract.deferUpdate();
                         wait(5000).then(async () => {
                             await collector.stop();
                         });

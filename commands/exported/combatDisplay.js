@@ -46,6 +46,11 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 //This method is used after the first time displaying an enemy for continued combat handles
 async function display(interaction, uData) {
     const enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
+    if (!enemy) {
+        //Something went horribly wrong :)
+        console.error(error);
+    }
+
     const hasPng = await pngCheck(enemy);
 
     const hideButton = new ButtonBuilder()

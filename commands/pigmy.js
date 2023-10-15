@@ -347,8 +347,17 @@ module.exports = {
 			const background = await Canvas.loadImage(pigmyList[pig.refid].BackRef);		
 			context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
+			var pigRef;
+
+			for (var i = 0; i < pigmyList.length; i++) {
+				if (pigmyList[i].ID === pig.refid) {
+					//pigmy found
+					pigRef = pigmyList[i];
+				} else {/**NOT FOUND*/}
+            }
+
 			//assign values to be used on the canvas
-			const pigStuff = `Level: ${pig.level} \nXP: ${pig.exp} \nType: ${pig.type} \nMood: ${pig.mood} \n`;
+			const pigStuff = `Level: ${pig.level} \nXP: ${pig.exp} \nType: ${pig.type} \nMood: ${pig.mood} \nBuffs: ${pigRef.Buff}`;
 
 			// Slightly smaller text placed below and to the left of the pigmy's display name
 			context.font = applyText(canvas, pigStuff);

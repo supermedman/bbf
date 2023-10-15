@@ -46,7 +46,7 @@ module.exports = {
 					newAssign = await GuildData.findOne({ where: { guildid: guildID } });
 					console.log(newAssign);
 					console.log(`newAssign Channel ID: ${newAssign.spawnchannel}`);
-					if (newAssign.spawnchannel === 0) {
+					if (newAssign.spawnchannel === '0') {
 						//no channel is assigned complete action and report success!
 						const editChannel = await GuildData.update({ spawnchannel: newChannelID }, { where: { guildid: guildID } });
 						
@@ -54,7 +54,7 @@ module.exports = {
 							//updated spawn channel success!
 							//Retrieve Channel object for further use
 							const newChannel = interaction.guild.channels.cache.find(c => c.id === newChannelID);
-							await interaction.followUp(`Channel ${newChannel.name} is now the spawn channel!`);
+							await interaction.followUp(`Channel ${newChannel.Name} is now the spawn channel!`);
 						} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
 												
 					} else {
@@ -63,7 +63,7 @@ module.exports = {
 						console.log(`New Channel: ${newChannel}`);
 						const curChannel = await interaction.guild.channels.cache.find(c2 => c2.id === newAssign.spawnchannel);
 						console.log(`Current Channel: ${curChannel}`);
-						console.log(`Current Spawn Channel: ${curChannel.name} \nNew spawn channel: ${newChannel.name}`);
+						console.log(`Current Spawn Channel: ${curChannel.Name} \nNew spawn channel: ${newChannel.Name}`);
 
 						const acceptButton = new ButtonBuilder()
 							.setLabel("Yes")
