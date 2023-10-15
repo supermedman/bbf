@@ -1,6 +1,6 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
-const { LootStore, UserData } = require('../dbObjects.js');
+const { LootStore, UserData, Loadout } = require('../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -55,6 +55,23 @@ module.exports = {
         if (item) {
             if (!amountsell) {
 
+                var disableSellOne = false;
+                var disableSellAll = false;
+
+                const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+                if (!currentLoadout) {
+                    //Nothing is equipped yet
+                } else {
+                    //Something is equipped
+                    if (item.loot_id === currentLoadout.headslot || currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand) {
+                        //Item is equipped restrict selling all!
+                        disableSellAll = true;
+                        if (item.amount === 1) {
+                            disableSellOne = true;
+                        }
+                    }
+                }
+
                 const cancelButton = new ButtonBuilder()
                     .setLabel("Cancel")
                     .setStyle(ButtonStyle.Danger)
@@ -65,6 +82,7 @@ module.exports = {
                     .setLabel("SELL ONE")
                     .setStyle(ButtonStyle.Success)
                     .setEmoji('✅')
+                    .setDisabled(disableSellOne)
                     .setCustomId('confirm');
 
                 const leaveOneButton = new ButtonBuilder()
@@ -77,6 +95,7 @@ module.exports = {
                     .setLabel("SELL ALL")
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji('💲')
+                    .setDisabled(disableSellAll)
                     .setCustomId('sell-all');
 
                 const sellButtons = new ActionRowBuilder().addComponents(cancelButton, sellOneButton, leaveOneButton, sellAllButton);
@@ -141,19 +160,42 @@ module.exports = {
                 });
             } else if (amountsell) {
                 //handle user input sell amount
-                if (amountsell > item.amount) {
-                    return interaction.followUp(`You do not have that many ${item.name}`);
-                } else if (amountsell === item.amount) {
-                    var uData = await grabU();
-                    await sellAll(item, uData);
+                const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+                if (!currentLoadout) {
+                    //Nothing is equipped yet
+                    if (amountsell > item.amount) {
+                        return interaction.followUp(`You do not have that many ${item.name}`);
+                    } else if (amountsell === item.amount) {
+                        var uData = await grabU();
+                        await sellAll(item, uData);
+                    } else {
+                        var uData = await grabU();
+                        await sell(item, amountsell, uData);
+                    }
                 } else {
-                    var uData = await grabU();
-                    await sell(item, amountsell, uData);
-                }
+                    //Something is equipped
+                    if (item.loot_id === currentLoadout.headslot || currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand) {
+                        //Item is equipped restrict selling all!
+                        if (amountsell > item.amount) {
+                            return interaction.followUp(`You do not have that many ${item.name}`);                                                  
+                        }
+                        if (amountsell > (item.amount - 1)) {
+                            //Amount -1 is counting the one currently equipped
+                            return interaction.followUp(`You cannot sell all of ${item.name}, it is currently equipped!`);
+                        } else if (amountsell === (item.amount - 1)) {
+                            //Leaving one item due to being equipped selling the rest
+                            var uData = await grabU();
+                            await leaveOne(item, uData);
+                        } else {
+                            var uData = await grabU();
+                            await sell(item, amountsell, uData);
+                        }
+                    }
+                }              
             }
 		} else {
 			console.log('ITEM NOT FOUND!');
-			return interaction.followUp('You dont have that item in your inventory.. to see your loot use the command ``myloot``');
+			return interaction.followUp('You dont have that item in your inventory.. to see your loot use the command ``/myloot``');
         }
 
         //this method sells the user defined amount of items
@@ -190,7 +232,7 @@ module.exports = {
         //This method sells all but one of the item selected and does nothing if only one item is already present
         async function leaveOne(item, uData) {
 
-            if (item.amount == 1) {
+            if (item.amount === 1) {
                 await interaction.followUp(`You only have one of this item, no items have been sold!`);
                 return;
             }
