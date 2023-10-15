@@ -314,76 +314,7 @@ module.exports = {
                     } else if (!embedMsg) {
                         //do nothing
                     }
-                });
-
-                await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] }).then(async embedMsg => {
-                    const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1200000 });
-
-                    var currentPage = 0;
-
-                    collectorBut.on('collect', async i => {
-                        if (i.user.id === interaction.user.id) {
-                            //delete the embed here                             
-                            //first check for what button has been pressed
-                            //second find what discord embed page is currently displayed
-                            //third change page accordingly
-                            //fourth.. figure out why it wont be that easy
-
-
-
-                            if (i.customId === 'next-page') {
-                                //always start on first page
-                                //check what page is currently active
-                                //add 1 to embed array 
-                                //show results and increase currentPage + 1
-
-                                console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                                //if statment to check if currently on the last page
-                                if (currentPage === embedPages.length - 1) {
-                                    currentPage = 0;                                  
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                } else {
-                                    currentPage += 1;                                  
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                }
-
-
-                            } else if (i.customId === 'back-page') {
-                                //check what page is currently active
-                                //add 1 to embed array 
-                                //show results and decrease currentPage - 1
-
-                                console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                                if (currentPage === 0) {
-                                    currentPage = embedPages.length - 1;                                 
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                } else {
-                                    currentPage -= 1;                                    
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    await i.deferUpdate();
-                                    await wait(1000);
-                                }
-                            } else if (i.customId === 'delete-page') {
-                                //embedMsg.edit(`:white_check_mark: Inventory Cancelled.`);
-                                await i.deferUpdate();
-                                wait(5000).then(async () => {                                                                    
-                                    await embedMsg.delete();
-                                }).catch(console.error);
-                            }
-                        } else {
-                            i.reply({ content: `Nice try slick!`, ephemeral: true });
-                        }
-                    });
-
-                }).catch(console.error);
+                });              
             }
             else if (theUser.totitem <= 5) {
                 try {
