@@ -59,17 +59,57 @@ module.exports = {
                 var disableSellAll = false;
 
                 const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+
+                //const loadOutFilter = [{ slot: [currentLoadout.headslot, currentLoadout.chestslot, currentLoadout.legslot, currentLoadout.mainhand, currentLoadout.offhand], userid: [interaction.user.id] }];
+           
                 if (!currentLoadout) {
                     //Nothing is equipped yet
                 } else {
                     //Something is equipped
-                    if (item.loot_id === currentLoadout.headslot || currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand) {
+                    if (item.loot_id === currentLoadout.headslot) {
+                        //Item is equipped restrict selling all!
+                        disableSellAll = true;
+                        if (item.amount === 1) {
+                           disableSellOne = true;
+                        }
+                    }
+                    if (item.loot_id === currentLoadout.chestslot) {
                         //Item is equipped restrict selling all!
                         disableSellAll = true;
                         if (item.amount === 1) {
                             disableSellOne = true;
                         }
                     }
+                    if (item.loot_id === currentLoadout.legslot) {
+                        //Item is equipped restrict selling all!
+                        disableSellAll = true;
+                        if (item.amount === 1) {
+                            disableSellOne = true;
+                        }
+                    }
+                    if (item.loot_id === currentLoadout.mainhand) {
+                        //Item is equipped restrict selling all!
+                        disableSellAll = true;
+                        if (item.amount === 1) {
+                            disableSellOne = true;
+                        }
+                    }
+                    if (item.loot_id === currentLoadout.offhand) {
+                        //Item is equipped restrict selling all!
+                        disableSellAll = true;
+                        if (item.amount === 1) {
+                            disableSellOne = true;
+                        }
+                    }
+                    //let checkPass = currentLoadout;
+                    //checkPass = checkPass.filter(item.loot_id === loadOutFilter.slot && item.spec_id === loadOutFilter.userid);
+                    //if (checkPass.length > 0) {
+                    //    //Item is equipped restrict selling all!
+                    //    disableSellAll = true;
+                    //    if (item.amount === 1) {
+                    //        disableSellOne = true;
+                    //    }
+                    //}
                 }
 
                 const cancelButton = new ButtonBuilder()
@@ -173,11 +213,32 @@ module.exports = {
                         await sell(item, amountsell, uData);
                     }
                 } else {
-                    //Something is equipped
-                    if (item.loot_id === currentLoadout.headslot || currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand) {
+                    var isEquipped = false;
+                    //Something is equipped|| currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand
+                    if (item.loot_id === currentLoadout.headslot) {
                         //Item is equipped restrict selling all!
+                        isEquipped = true;
+                    }
+                    if (item.loot_id === currentLoadout.chestslot) {
+                        //Item is equipped restrict selling all!
+                        isEquipped = true;
+                    }
+                    if (item.loot_id === currentLoadout.legslot) {
+                        //Item is equipped restrict selling all!
+                        isEquipped = true;
+                    }
+                    if (item.loot_id === currentLoadout.mainhand) {
+                        //Item is equipped restrict selling all!
+                        isEquipped = true;
+                    }
+                    if (item.loot_id === currentLoadout.offhand) {
+                        //Item is equipped restrict selling all!
+                        isEquipped = true;
+                    }
+                    if (isEquipped = true) {
+                        //Restrict selling
                         if (amountsell > item.amount) {
-                            return interaction.followUp(`You do not have that many ${item.name}`);                                                  
+                            return interaction.followUp(`You do not have that many ${item.name}`);
                         }
                         if (amountsell > (item.amount - 1)) {
                             //Amount -1 is counting the one currently equipped
@@ -190,7 +251,17 @@ module.exports = {
                             var uData = await grabU();
                             await sell(item, amountsell, uData);
                         }
-                    }
+                    } else {
+                        if (amountsell > item.amount) {
+                            return interaction.followUp(`You do not have that many ${item.name}`);
+                        } else if (amountsell === item.amount) {
+                            var uData = await grabU();
+                            await sellAll(item, uData);
+                        } else {
+                            var uData = await grabU();
+                            await sell(item, amountsell, uData);
+                        }
+                    }                 
                 }              
             }
 		} else {
