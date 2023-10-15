@@ -317,10 +317,51 @@ module.exports = {
                 });              
             }
             else if (theUser.totitem <= 5) {
-                try {
-                    var list = (items
-                        .map(item => `Name: **${item.name}**\nValue: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}**`)
-                        .join('\n\n'));
+                const listedInOrder = items;
+                var i = 0;
+                var tempItemRef = [];
+                var itemStringValue = ` `;
+
+                
+                    do {
+                        if (listedInOrder[i].slot === 'Mainhand') {
+                            //Item is weapon
+                            tempItemRef.push(listedInOrder[i]);
+                            itemStringValue = tempItemRef.map(wep =>
+                                `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**\n\n`);
+                            list.push(itemStringValue);
+                            tempItemRef = [];
+                            i++;
+                        } else if (listedInOrder[i].slot === 'Offhand') {
+                            //Item is offhand
+                            tempItemRef.push(listedInOrder[i]);
+                            itemStringValue = tempItemRef.map(off => `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\n\n`);
+                            list.push(itemStringValue);
+                            tempItemRef = [];
+                            i++;
+                        } else if (listedInOrder[i].slot === 'Headslot') {
+                            //Item is helm
+                            tempItemRef.push(listedInOrder[i]);
+                            itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
+                            list.push(itemStringValue);
+                            tempItemRef = [];
+                            i++;
+                        } else if (listedInOrder[i].slot === 'Chestslot') {
+                            //Item is chestplate
+                            tempItemRef.push(listedInOrder[i]);
+                            itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
+                            list.push(itemStringValue);
+                            tempItemRef = [];
+                            i++;
+                        } else if (listedInOrder[i].slot === 'Legslot') {
+                            //Item is leggings
+                            tempItemRef.push(listedInOrder[i]);
+                            itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
+                            list.push(itemStringValue);
+                            tempItemRef = [];
+                            i++;
+                        }
+                    } while (i < listedInOrder.length)
 
                     console.log('ITEMS IN list: \n', list);
 
@@ -335,9 +376,7 @@ module.exports = {
                             }
                         )
 
-                    interaction.followUp({ embeds: [openInv] });
-                } catch (err) { console.error(err); }
-
+                    await interaction.followUp({ embeds: [openInv] });               
             }
         }
 	},
