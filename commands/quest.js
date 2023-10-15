@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
-const { Questing, LootDrop, LootStore, UserData } = require('../dbObjects.js');
+const { Questing, LootStore, UserData } = require('../dbObjects.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar } = require('./exported/grabRar.js');
 
@@ -98,12 +98,10 @@ module.exports = {
                         if (currentPage === embedPages.length - 1) {
                             currentPage = 0;
                             await collInteract.deferUpdate();
-                            await wait(1000);
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         } else {
                             currentPage += 1;
                             await collInteract.deferUpdate();
-                            await wait(1000);
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         }
                     }
@@ -113,19 +111,16 @@ module.exports = {
                         if (currentPage === 0) {
                             currentPage = embedPages.length - 1;
                             await collInteract.deferUpdate();
-                            await wait(1000);
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         } else {
                             currentPage -= 1;
                             await collInteract.deferUpdate();
-                            await wait(1000);
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         }
                     }
                     if (collInteract.customId === 'select-quest') {
                         console.log('Quest Selected!');
                         await collInteract.deferUpdate();
-                        await wait(1000);
                         const quest = qPool[currentPage];
 
                         await Questing.create(
@@ -573,12 +568,10 @@ module.exports = {
                             if (currentPage === embedPages.length - 1) {
                                 currentPage = 0;
                                 await collInteract.deferUpdate();
-                                await wait(1000);
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                             } else {
                                 currentPage += 1;
                                 await collInteract.deferUpdate();
-                                await wait(1000);
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                             }
                         }
@@ -588,18 +581,15 @@ module.exports = {
                             if (currentPage === 0) {
                                 currentPage = embedPages.length - 1;
                                 await collInteract.deferUpdate();
-                                await wait(1000);
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                             } else {
                                 currentPage -= 1;
                                 await collInteract.deferUpdate();
-                                await wait(1000);
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                             }
                         }
                         if (collInteract.customId === 'delete-page') {
                             await collInteract.deferUpdate();
-                            await wait(1000);
                             await collector.stop();
                         }
                     });
