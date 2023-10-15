@@ -269,7 +269,7 @@ module.exports = {
                 var currentPage = 0;
 
                 collector.on('collect', async (collInteract) => {
-                    if (i.customId === 'next-page') {
+                    if (collInteract.customId === 'next-page') {
                         console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
                         //if statment to check if currently on the last page
@@ -285,7 +285,7 @@ module.exports = {
                             await wait(1000);
                         }
                     }
-                    if (i.customId === 'back-page') {
+                    if (collInteract.customId === 'back-page') {
                         console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
                         if (currentPage === 0) {
@@ -300,7 +300,7 @@ module.exports = {
                             await wait(1000);
                         }
                     }
-                    if (i.customId === 'delete-page') {
+                    if (collInteract.customId === 'delete-page') {
                         await i.deferUpdate();
                         wait(5000).then(async () => {
                             await collector.stop();
