@@ -1058,7 +1058,7 @@
         "Name": "Plate Helmet",
         "Value": 25,
 
-        "Defence": 3,
+        "Defence": 2,
         "Type": "BLUNT",
 
         "Slot": "Headslot",
@@ -1118,7 +1118,7 @@
         "Name": "Plate Leggings",
         "Value": 25,
 
-        "Defence": 3,
+        "Defence": 2,
         "Type": "BLUNT",
 
         "Slot": "Legslot",
@@ -1127,6 +1127,231 @@
         "Rar_id": 1,
 
         "Loot_id": 71,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Nessys Cat Ears",
+        "Value": 150000,
+
+        "Defence": 25,
+        "Type": "NULL",
+
+        "Slot": "Headslot",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 72,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Nessys Maids Outfit",
+        "Value": 1500000,
+
+        "Defence": 25,
+        "Type": "NULL",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 73,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Nessys Pantyhose",
+        "Value": 150000,
+
+        "Defence": 25,
+        "Type": "NULL",
+
+        "Slot": "Legslot",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "Loot_id": 74,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Oathkeeper's Crystal Helm",
+        "Value": 55,
+
+        "Defence": 2,
+        "Type": "SLASH",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 75,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Oathkeeper's Crystal Cuirass",
+        "Value": 110,
+
+        "Defence": 4,
+        "Type": "SLASH",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 76,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Oathkeeper's Crystal Greaves",
+        "Value": 55,
+
+        "Defence": 2,
+        "Type": "SLASH",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "Loot_id": 77,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Hero's Gilded Crown",
+        "Value": 150,
+
+        "Defence": 3,
+        "Type": "SLASH",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 78,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Hero's Gilded Aegis",
+        "Value": 300,
+
+        "Defence": 6,
+        "Type": "SLASH",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 79,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Hero's Gilded Sabatons",
+        "Value": 150,
+
+        "Defence": 3,
+        "Type": "SLASH",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "Loot_id": 80,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghostwalker's Darkwoven Beret",
+        "Value": 275,
+
+        "Defence": 4,
+        "Type": "DARK",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 81,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghostwalker's Darkwoven Hauberk",
+        "Value": 550,
+
+        "Defence": 8,
+        "Type": "DARK",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 82,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghostwalker's Darkwoven Mail-Skirt",
+        "Value": 275,
+
+        "Defence": 4,
+        "Type": "DARK",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "Loot_id": 83,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodlord's Gold-Stained Visage",
+        "Value": 475,
+
+        "Defence": 5,
+        "Type": "MAGIC",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 84,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodlord's Gold-Stained Battleplate",
+        "Value": 950,
+
+        "Defence": 10,
+        "Type": "MAGIC",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 85,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodlord's Gold-Stained Legplates",
+        "Value": 475,
+
+        "Defence": 5,
+        "Type": "MAGIC",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "Loot_id": 86,
         "Spec_id": 0
     },
     {
@@ -1141,7 +1366,7 @@
         "Rarity": " ",
         "Rar_id": 11,
 
-        "Loot_id": 0,
+        "Loot_id": 10000,
         "Spec_id": 0
     },
     {
@@ -1156,7 +1381,7 @@
         "Rarity": " ",
         "Rar_id": 11,
 
-        "Loot_id": 0,
+        "Loot_id": 10000,
         "Spec_id": 0
     },
     {
@@ -1171,7 +1396,7 @@
         "Rarity": " ",
         "Rar_id": 11,
 
-        "Loot_id": 0,
+        "Loot_id": 10000,
         "Spec_id": 0
     },
     {
@@ -1187,7 +1412,7 @@
         "Rarity": " ",
         "Rar_id": 11,
 
-        "Loot_id": 0,
+        "Loot_id": 10000,
         "Spec_id": 0
     },
     {
@@ -1203,7 +1428,7 @@
         "Rarity": " ",
         "Rar_id": 11,
 
-        "Loot_id": 0,
+        "Loot_id": 10000,
         "Spec_id": 0
     }
 ]
