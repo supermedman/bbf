@@ -134,7 +134,7 @@ async function display(interaction, uData) {
                     //Steal has either been a success, or an error has occured!
                     //Generate item with actionToTake                          
                     const usedRar = actionToTake;
-                    const itemRef = await makeItem(enemy, interaction, user, usedRar);
+                    const itemRef = await makeItem(enemy, interaction, uData, usedRar);
                     await showStolen(itemRef, interaction);
                     stealDisabled = true;
                     await collector.stop();
@@ -281,7 +281,7 @@ async function display(interaction, uData) {
                     //Steal has either been a success, or an error has occured!
                     //Generate item with actionToTake                          
                     const usedRar = actionToTake;
-                    const itemRef = await makeItem(enemy, interaction, user, usedRar);
+                    const itemRef = await makeItem(enemy, interaction, uData, usedRar);
                     await showStolen(itemRef, interaction);
                     stealDisabled = true;
                     await collector.stop();
