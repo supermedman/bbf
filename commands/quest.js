@@ -504,7 +504,7 @@ module.exports = {
                     var headSlot = iGained.filter(item => item.Slot === 'Headslot');
                     var chestSlot = iGained.filter(item => item.Slot === 'Chestslot');
                     var legSlot = iGained.filter(item => item.Slot === 'Legslot');
-                    await armorSlot.concat(headSlot, chestSlot, legSlot);
+                    armorSlot = armorSlot.concat(headSlot, chestSlot, legSlot);
                     for (var z = 0; z < armorSlot.length;) {
                         list = (armorSlot.slice((pos - 1), pos).map(gear => `Name: **${gear.Name}** \nValue: **${gear.Value}c** \nRarity: **${gear.Rarity}** \nDefence: **${gear.Defence}** \nType: **${gear.Type}**\nSlot: **${gear.Slot}**\nAmount: ** ${gear.Amount} ** `)
                             .join('\n\n'));

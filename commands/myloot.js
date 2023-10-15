@@ -17,10 +17,10 @@ module.exports = {
 
             const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
 
-            const tooMany = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+            const theUser = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
 
             //***THIS DOES NOT WORK NEED TO FIX IT ASAP***
-            if (tooMany.totitem > 5) {
+            if (theUser.totitem > 5) {
                 //user has more then 5 items, need to separate onto different pages
                 //do this by making a button for going forward a page and going back a page
                 //allow buttons to loop from page 1 to last page and vice-versa
@@ -51,17 +51,19 @@ module.exports = {
                     );
 
                 //define the maximum page limit per items assigned to user in question
-                const totalItems = tooMany.totitem;
+                const totalItems = theUser.totitem;
                 console.log('Total Items / 5:', (totalItems / 5));
                 //THIS BREAKS!!
                 //ADD CHECK FOR ADDITIONAL PAGES FOR LEFTOVER ITEMS
-                var maxEmbedPages = Math.round((totalItems / 5));
-                if ((totalItems % 5) < 0.6 && (totalItems % 5) > 0) {
-                    //Remainder exists, add extra page to the list
-                    maxEmbedPages += 1;
-                } else {
-                    //do nothing
-                } 
+                //var maxEmbedPages = Math.round((totalItems / 5));
+                var maxEmbedPages = 0;
+                console.log(`REMAINDER LOOT ITEMS: ${(totalItems % 5)}`);
+                //if ((totalItems % 5) > 0 && (totalItems % 5) < 3) {
+                //    //Remainder exists, add extra page to the list
+                //    maxEmbedPages += 1;
+                //} else {
+                //    //do nothing
+                //} 
                 console.log(`maxEmbedPages: ${maxEmbedPages}`);
                 //total number of full loot pages found, figure out how to catch if there is remaining
                 var embedPages = [];
@@ -70,22 +72,24 @@ module.exports = {
 
                 //this for loop will loop for x given maxEmbedPages 
                 //ex. if user has 20 items this will run 4 times and create 4 embeds
-                for (var i = 0; i < maxEmbedPages; i++) {
+                
+                var i = 0;
+                var list = [];
 
-                    //if there are more than 5 items left loop 5 times else loop iLeft times
-                    if (iLeft > 5) {
-                        //this for loop will loop 5 times
+                const mainHand = await items.filter(item => item.slot === 'Mainhand');
+                console.log(`mainHand contents: ${mainHand}`);
+
+                var weaponsLeft = mainHand.length;
+                console.log(`WeaponsLeft: ${weaponsLeft}`);
+                for (var x = 0; x < mainHand.length;) {
+                    if (weaponsLeft > 5) {
                         for (var n = 0; n < 5; n++) {
-                            var list = (items.slice(curPos, (curPos + 5)).map(item =>
-                                `Name: **${item.name}**\nValue: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}** `)
+                            list = (mainHand.slice(curPos, (curPos + 5)).map(item =>
+                                `Name: ** ${item.name} **\nValue: ** ${item.value}c **\nRarity: ** ${item.rarity} **\nAttack: ** ${item.attack} **\nType: ** ${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount: ** ${item.amount} **`)
                                 .join('\n\n'));
                         }
-                        curPos += 5;//increase curPos by 5 in order to start next embed page where prior page ended
-
-                        list.toString();//convert list to string to avoid any errors
-
-                        console.log(`\nList \n${list.toString()} \n@ pos ${i}`);//log the outcome
-
+                        curPos += 5;
+                        maxEmbedPages++;
                         //create discord embed using list mapped in previous for loop
                         const embed = new EmbedBuilder()
                             .setTitle("~INVENTORY~")
@@ -98,19 +102,19 @@ module.exports = {
                                 }
                             );
 
-                        await embedPages.push(embed);//add new embed to embed pages 
-                    }
-                    else if (iLeft < 5) {
-                        //this for loop will loop iLeft times
-                        for (var n = 0; n < iLeft; n++) {
-                            var list = (items.slice(curPos, (curPos + iLeft)).map(item =>
-                                `Name: **${item.name}**\nValue: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}** `)
+                        await embedPages.push(embed);//add new embed to embed pages
+                        i++;
+                        x += 5;
+                        iLeft -= 5;
+                        weaponsLeft -= 5;
+                        console.log(`WeaponsLeft: ${weaponsLeft}`);
+                    } else if (weaponsLeft < 5) {
+                        for (var n = 0; n < weaponsLeft; n++) {
+                            list = (mainHand.slice(curPos, (curPos + weaponsLeft)).map(item =>
+                                `Name: ** ${item.name} **\nValue: ** ${item.value}c **\nRarity: ** ${item.rarity} **\nAttack: ** ${item.attack} **\nType: ** ${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount: ** ${item.amount} **`)
                                 .join('\n\n'));
                         }
-                       
-                        //convert list to string to avoid any errors
-                        console.log(`\nList \n${list.toString()} \n@ pos ${i}`);//log the outcome
-
+                        maxEmbedPages++;
                         //create discord embed using list mapped in previous for loop
                         const embed = new EmbedBuilder()
                             .setTitle("~INVENTORY~")
@@ -122,12 +126,140 @@ module.exports = {
                                     value: list
                                 }
                             );
-                        await embedPages.push(embed);//add new embed to embed pages 
-                    }
-
-                    iLeft -= 5;
-
+                        await embedPages.push(embed);//add new embed to embed pages  
+                        i++;
+                        iLeft -= weaponsLeft;
+                        weaponsLeft = 0;
+                        console.log(`WeaponsLeft: ${weaponsLeft}`);
+                        x = mainHand.length;
+                    }                   
                 }
+                curPos = 0;
+                const offHand = await items.filter(item => item.slot === 'Offhand');
+                console.log(`offHand contents: ${offHand}`);
+
+                var offHandsLeft = offHand.length;
+                console.log(`OffhandLeft: ${offHandsLeft}`);
+
+                for (var y = 0; y < offHand.length;) {
+                    if (offHandsLeft > 5) {
+                        for (var n = 0; n < 5; n++) {
+                            list = (offHand.slice(curPos, (curPos + 5)).map(off =>
+                                `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+                                .join('\n\n'));
+                        }
+                        curPos += 5;
+                        maxEmbedPages++;
+                        //create discord embed using list mapped in previous for loop
+                        const embed = new EmbedBuilder()
+                            .setTitle("~INVENTORY~")
+                            .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: ("<< ITEMS STORED >>"),
+                                    value: list
+                                }
+                            );
+
+                        await embedPages.push(embed);//add new embed to embed pages
+                        i++;
+                        y += 5;
+                        iLeft -= 5;
+                        offHandsLeft -= 5;
+                    } else if (offHandsLeft < 5) {
+                        for (var n = 0; n < offHandsLeft; n++) {
+                            list = (offHand.slice(curPos, (curPos + offHandsLeft)).map(off =>
+                                `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+                                .join('\n\n'));
+                        }
+                        maxEmbedPages++;
+                        //create discord embed using list mapped in previous for loop
+                        const embed = new EmbedBuilder()
+                            .setTitle("~INVENTORY~")
+                            .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: ("<< ITEMS STORED >>"),
+                                    value: list
+                                }
+                            );
+                        await embedPages.push(embed);//add new embed to embed pages 
+                        i++;
+                        y += offHandsLeft;
+                        iLeft -= offHandsLeft;
+                        offHandsLeft = 0;
+                    }
+                }
+                curPos = 0;
+                var armorSlot = [];
+                const headSlot = await items.filter(item => item.slot === 'Headslot');
+                console.log(`headSlot contents: ${headSlot}`);
+
+                const chestSlot = await items.filter(item => item.slot === 'Chestslot');
+                console.log(`chestSlot contents: ${chestSlot}`);
+
+                const legSlot = await items.filter(item => item.slot === 'Legslot');
+                console.log(`legSlot contents: ${legSlot}`);
+
+                armorSlot = armorSlot.concat(headSlot, chestSlot, legSlot);
+                console.log(`armorSlot contents: ${armorSlot}`);
+
+                var armorLeft = armorSlot.length;
+                console.log(`ArmorLeft: ${armorLeft}`);
+
+                for (var z = 0; z < armorSlot.length;) {
+                    if (armorLeft > 5) {
+                        for (var n = 0; n < 5; n++) {
+                            list = (armorSlot.slice(curPos, (curPos + 5)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                                .join('\n\n'));
+                        }
+                        curPos += 5;
+                        maxEmbedPages++;
+                        //create discord embed using list mapped in previous for loop
+                        const embed = new EmbedBuilder()
+                            .setTitle("~INVENTORY~")
+                            .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: ("<< ITEMS STORED >>"),
+                                    value: list
+                                }
+                            );
+
+                        await embedPages.push(embed);//add new embed to embed pages
+                        i++;
+                        z += 5;
+                        iLeft -= 5;
+                        armorLeft -= 5;
+                    } else if (armorLeft < 5) {
+                        for (var n = 0; n < armorLeft; n++) {
+                            list = (armorSlot.slice(curPos, (curPos + armorLeft)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                                .join('\n\n'));
+                        }
+                        maxEmbedPages++;
+                        //create discord embed using list mapped in previous for loop
+                        const embed = new EmbedBuilder()
+                            .setTitle("~INVENTORY~")
+                            .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: ("<< ITEMS STORED >>"),
+                                    value: list
+                                }
+                            );
+                        await embedPages.push(embed);//add new embed to embed pages 
+                        i++;
+                        z += armorLeft;
+                        iLeft -= armorLeft;
+                        armorLeft = 0;
+                    }
+                }
+                console.log(`iLeft should be 0 by this point: ${iLeft}`);
+                                 
                 await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] }).then(async embedMsg => {
                     const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1200000 });
 
@@ -197,7 +329,7 @@ module.exports = {
 
                 }).catch(console.error);
             }
-            else if (tooMany.totitem <= 5) {
+            else if (theUser.totitem <= 5) {
                 try {
                     var list = (items
                         .map(item => `Name: **${item.name}**\nValue: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nAmount Owned: **${item.amount}**`)
