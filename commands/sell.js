@@ -235,7 +235,7 @@ module.exports = {
                         //Item is equipped restrict selling all!
                         isEquipped = true;
                     }
-                    if (isEquipped = true) {
+                    if (isEquipped === true) {
                         //Restrict selling
                         if (amountsell > item.amount) {
                             return interaction.followUp(`You do not have that many ${item.name}`);
