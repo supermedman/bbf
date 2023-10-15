@@ -527,6 +527,24 @@ module.exports = {
                     }
                 } else if (item1.Slot === 'Offhand') {
                     //Is offhand
+                    const shopSlot1 = await LootShop.update(
+                        {
+                            name: item1.Name,
+                            value: item1.Value,
+                            rarity: item1.Rarity,
+                            rar_id: item1.Rar_id,
+                            attack: item1.Attack,
+                            defence: 0,
+                            type: item1.Type,
+                            slot: item1.Slot,
+                            hands: item1.Hands,
+                            loot_id: item1.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+                    if (shopSlot1 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot1 = await LootShop.update(
@@ -570,7 +588,24 @@ module.exports = {
                     }
                 } else if (item2.Slot === 'Offhand') {
                     //Is offhand
-
+                    const shopSlot2 = await LootShop.update(
+                        {
+                            name: item2.Name,
+                            value: item2.Value,
+                            rarity: item2.Rarity,
+                            rar_id: item2.Rar_id,
+                            attack: item2.Attack,
+                            defence: 0,
+                            type: item2.Type,
+                            slot: item2.Slot,
+                            hands: item2.Hands,
+                            loot_id: item2.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+                    if (shopSlot2 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot2 = await LootShop.update(
@@ -614,6 +649,24 @@ module.exports = {
                     }
                 } else if (item3.Slot === 'Offhand') {
                     //Is offhand
+                    const shopSlot3 = await LootShop.update(
+                        {
+                            name: item3.Name,
+                            value: item3.Value,
+                            rarity: item3.Rarity,
+                            rar_id: item3.Rar_id,
+                            attack: item3.Attack,
+                            defence: 0,
+                            type: item3.Type,
+                            slot: item3.Slot,
+                            hands: item3.Hands,
+                            loot_id: item3.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+                    if (shopSlot3 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot3 = await LootShop.update(
@@ -657,6 +710,24 @@ module.exports = {
                     }
                 } else if (item4.Slot === 'Offhand') {
                     //Is offhand
+                    const shopSlot4 = await LootShop.update(
+                        {
+                            name: item4.Name,
+                            value: item4.Value,
+                            rarity: item4.Rarity,
+                            rar_id: item4.Rar_id,
+                            attack: item4.Attack,
+                            defence: 0,
+                            type: item4.Type,
+                            slot: item4.Slot,
+                            hands: item4.Hands,
+                            loot_id: item4.Loot_id,
+                            spec_id: interaction.user.id,
+                        },
+                        { where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+                    if (shopSlot4 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot4 = await LootShop.update(
