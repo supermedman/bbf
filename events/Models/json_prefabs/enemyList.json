@@ -1064,15 +1064,15 @@
         "Description": "Krelya is the second hand to Wadon, God of Souls.. \nThis fight will not be easy.",
 
         "Level": 25,
-        "MinDmg": 50,
-        "MaxDmg": 70,
+        "MinDmg": 65,
+        "MaxDmg": 100,
         "Health": 3000,
         "Defence": 34,
 
         "WeakTo": "NONE",
         "Dead": false,
-        "XpMin": 1700,
-        "XpMax": 1800,
+        "XpMin": 2000,
+        "XpMax": 2500,
 
         "ConstKey": 59,
 
@@ -1687,6 +1687,186 @@
         "XpMax": 600,
 
         "ConstKey": 91,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Delirious Hunter",
+        "Description": "...",
+
+        "Level": 23,
+        "MinDmg": 35,
+        "MaxDmg": 75,
+        "Health": 2200,
+        "Defence": 32,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 1400,
+        "XpMax": 1600,
+
+        "ConstKey": 92,
+        "SpecId": 0
+    },
+    {
+        "Name": "Chaosfiend",
+        "Description": "...",
+
+        "Level": 24,
+        "MinDmg": 40,
+        "MaxDmg": 90,
+        "Health": 2500,
+        "Defence": 35,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 1600,
+        "XpMax": 1800,
+
+        "ConstKey": 93,
+        "SpecId": 0
+    },
+    {
+        "Name": "Sorrowscream",
+        "Description": "...",
+
+        "Level": 21,
+        "MinDmg": 30,
+        "MaxDmg": 62,
+        "Health": 1900,
+        "Defence": 27,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 1100,
+        "XpMax": 1200,
+
+        "ConstKey": 94,
+        "SpecId": 0
+    },
+    {
+        "Name": "Soultaur",
+        "Description": "...",
+
+        "Level": 22,
+        "MinDmg": 32,
+        "MaxDmg": 74,
+        "Health": 2100,
+        "Defence": 28,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 1200,
+        "XpMax": 1300,
+
+        "ConstKey": 95,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bladewraith",
+        "Description": "...",
+
+        "Level": 18,
+        "MinDmg": 35,
+        "MaxDmg": 80,
+        "Health": 1000,
+        "Defence": 19,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 600,
+        "XpMax": 750,
+
+        "ConstKey": 96,
+        "SpecId": 0
+    },
+    {
+        "Name": "Quiet Eyes",
+        "Description": "...",
+
+        "Level": 20,
+        "MinDmg": 10,
+        "MaxDmg": 150,
+        "Health": 1500,
+        "Defence": 25,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 900,
+        "XpMax": 1100,
+
+        "ConstKey": 97,
+        "SpecId": 0
+    },
+    {
+        "Name": "Iron-Scaled Corpse Monster",
+        "Description": "...",
+
+        "Level": 19,
+        "MinDmg": 30,
+        "MaxDmg": 80,
+        "Health": 1350,
+        "Defence": 23,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 900,
+        "XpMax": 1000,
+
+        "ConstKey": 98,
+        "SpecId": 0
+    },
+    {
+        "Name": "Chaoslich",
+        "Description": "...",
+
+        "Level": 17,
+        "MinDmg": 25,
+        "MaxDmg": 56,
+        "Health": 800,
+        "Defence": 19,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 580,
+        "XpMax": 600,
+
+        "ConstKey": 99,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Child of Fayrn",
+        "Description": "There will surely be no haven, waken nor dreamt, should you end this fight the victor...",
+
+        "Level": 25,
+        "MinDmg": 70,
+        "MaxDmg": 130,
+        "Health": 3500,
+        "Defence": 35,
+
+        "WeakTo": "NONE",
+        "Dead": false,
+        "XpMin": 2000,
+        "XpMax": 2500,
+
+        "ConstKey": 100,
+        "SpecId": 0
+    },
+    {
+        "Name": "Buldak, The Spicy",
+        "Description": "You've done enough, and that is where your living participation ends..",
+
+        "Level": 69,
+        "MinDmg": 150,
+        "MaxDmg": 300,
+        "Health": 25000,
+        "Defence": 75,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 10000,
+        "XpMax": 15000,
+
+        "ConstKey": 101,
         "SpecId": 0
     },
     {
