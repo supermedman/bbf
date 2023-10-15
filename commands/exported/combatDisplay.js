@@ -6,6 +6,7 @@ const { isLvlUp } = require('./levelup.js');
 const { grabRar } = require('./grabRar.js');
 const { stealing } = require('./handleSteal.js');
 const { hiding } = require('./handleHide.js');
+const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./findLoadout.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -802,80 +803,46 @@ async function showStolen(itemRef, interaction) {
 async function takeDamage(eDamage, user, enemy, interaction) {
     var currentHealth = user.health;
 
-    const userEquipped = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+    var defence = 0;
+    const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+    if (currentLoadout) {
+        var headSlotItem = await findHelmSlot(currentLoadout.headslot);
+        var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
+        var legSlotItem = await findLegSlot(currentLoadout.legslot);
 
-    if (userEquipped) {
-        const headSlotID = userEquipped.headslot;
-        console.log(headSlotID);
-        const chestSlotID = userEquipped.chestslot;
-        console.log(chestSlotID);
-        const legSlotID = userEquipped.legslot;
-        console.log(legSlotID);
-
-        var headSlotItem = [];
-        var chestSlotItem = [];
-        var legSlotItem = [];
-
-        for (var i = 0; i < lootList.length; i++) {
-            if (lootList[i].Loot_id === headSlotID) {
-                //Helmet found
-                headSlotItem = lootList[i];
-                console.log(headSlotItem);
-            } else {/**Do nothing not found*/ }
-        }
-        for (var i = 0; i < lootList.length; i++) {
-            if (lootList[i].Loot_id === chestSlotID) {
-                //Chest found
-                chestSlotItem = lootList[i];
-                console.log(chestSlotItem);
-            } else {/**Do nothing not found*/ }
-        }
-        for (var i = 0; i < lootList.length; i++) {
-            if (lootList[i].Loot_id === legSlotID) {
-                //Legs found
-                legSlotItem = lootList[i];
-                console.log(legSlotItem);
-            } else {/**Do nothing not found*/ }
-        }
-
-        var defence = 0;
-
-        if (!headSlotItem && !chestSlotItem && !legSlotItem) {
-            //No armor equipped ignore all extra defence calculations
+        if (headSlotItem === 'NONE') {
+            //No item equipped
+            defence += 0;
         } else {
-            if (headSlotItem) {
-                if (typeof headSlotItem.Defence !== 'Number') {
-                    defence += 0;
-                } else {
-                    defence += headSlotItem.Defence + 0.001;
-                    console.log(`Defence from Helm: ${headSlotItem.Defence}`);
-                }
-            }
-            if (chestSlotItem) {
-                if (typeof chestSlotItem.Defence !== 'Number') {
-                    defence += 0;
-                } else {
-                    defence += chestSlotItem.Defence + 0.001;
-                    console.log(`Defence from Chestplate: ${chestSlotItem.Defence}`);
-                }
-            }
-            if (legSlotItem) {
-                if (typeof legSlotItem.Defence !== 'Number') {
-                    defence += 0;
-                } else {
-                    defence += legSlotItem.Defence + 0.001;
-                    console.log(`Defence from Legwear: ${legSlotItem.Defence}`);
-                }
-            }
+            //Item found add defence
+            defence += headSlotItem.Defence;
         }
+
+        if (chestSlotItem === 'NONE') {
+            //No item equipped
+            defence += 0;
+        } else {
+            //Item found add defence
+            defence += chestSlotItem.Defence;
+        }
+
+        if (legSlotItem === 'NONE') {
+            //No item equipped
+            defence += 0;
+        } else {
+            //Item found add defence
+            defence += legSlotItem.Defence;
+        }
+
         console.log(`Total Defence from Armor: ${defence}`);
 
         if (defence > 0) {
             //Player has defence use accordingly
-            if ((eDamage -= defence) < 0) {
+            if ((eDamage -= defence) <= 0) {
                 eDamage = 0;
+            } else {
+                eDamage -= defence;
             }
-            eDamage -= defence;
         }
     }
 
@@ -888,6 +855,10 @@ async function takeDamage(eDamage, user, enemy, interaction) {
     } else if (user.pclass === 'Mage') {
         //5% damage increase
         eDamage += (eDamage * 0.05);
+    }
+
+    if (eDamage < 0) {
+        eDamage = 0;
     }
 
     if ((currentHealth - eDamage) <= 0) {
