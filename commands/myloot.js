@@ -26,29 +26,25 @@ module.exports = {
                 //allow buttons to loop from page 1 to last page and vice-versa
                 console.log('TOO MANY ITEMS!');
 
-                //CREATE THREE BUTTONS FOR PAGE OPTIONS
-                const interactiveButtons = new ActionRowBuilder()
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Back")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('◀️')
-                            .setCustomId('back-page'),
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Cancel")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('*️⃣')
-                            .setCustomId('delete-page')
-                    )
-                    .addComponents(
-                        new ButtonBuilder()
-                            .setLabel("Forward")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('▶️')
-                            .setCustomId('next-page'),
-                    );
+                const backButton = new ButtonBuilder()
+                    .setLabel("Back")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('◀️')
+                    .setCustomId('back-page');
+
+                const cancelButton = new ButtonBuilder()
+                    .setLabel("Cancel")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('*️⃣')
+                    .setCustomId('delete-page');
+
+                const forwardButton = new ButtonBuilder()
+                    .setLabel("Forward")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('▶️')
+                    .setCustomId('next-page')
+
+                const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
 
                 //define the maximum page limit per items assigned to user in question
                 const totalItems = theUser.totitem;
@@ -108,7 +104,7 @@ module.exports = {
                         iLeft -= 5;
                         weaponsLeft -= 5;
                         console.log(`WeaponsLeft: ${weaponsLeft}`);
-                    } else if (weaponsLeft < 5) {
+                    } else if (weaponsLeft <= 5) {
                         for (var n = 0; n < weaponsLeft; n++) {
                             list = (mainHand.slice(curPos, (curPos + weaponsLeft)).map(item =>
                                 `Name: ** ${item.name} **\nValue: ** ${item.value}c **\nRarity: ** ${item.rarity} **\nAttack: ** ${item.attack} **\nType: ** ${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount: ** ${item.amount} **`)
@@ -167,7 +163,7 @@ module.exports = {
                         y += 5;
                         iLeft -= 5;
                         offHandsLeft -= 5;
-                    } else if (offHandsLeft < 5) {
+                    } else if (offHandsLeft <= 5) {
                         for (var n = 0; n < offHandsLeft; n++) {
                             list = (offHand.slice(curPos, (curPos + offHandsLeft)).map(off =>
                                 `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
@@ -234,7 +230,7 @@ module.exports = {
                         z += 5;
                         iLeft -= 5;
                         armorLeft -= 5;
-                    } else if (armorLeft < 5) {
+                    } else if (armorLeft <= 5) {
                         for (var n = 0; n < armorLeft; n++) {
                             list = (armorSlot.slice(curPos, (curPos + armorLeft)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
                                 .join('\n\n'));
@@ -259,7 +255,67 @@ module.exports = {
                     }
                 }
                 console.log(`iLeft should be 0 by this point: ${iLeft}`);
-                                 
+
+                const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+                const filter = (i) => i.user.id === interaction.user.id;
+
+                const collector = embedMsg.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 1200000,
+                });
+
+                var currentPage = 0;
+
+                collector.on('collect', async (collInteract) => {
+                    if (i.customId === 'next-page') {
+                        console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+
+                        //if statment to check if currently on the last page
+                        if (currentPage === embedPages.length - 1) {
+                            currentPage = 0;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                        } else {
+                            currentPage += 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                        }
+                    }
+                    if (i.customId === 'back-page') {
+                        console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+
+                        if (currentPage === 0) {
+                            currentPage = embedPages.length - 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                        } else {
+                            currentPage -= 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            await collInteract.deferUpdate();
+                            await wait(1000);
+                        }
+                    }
+                    if (i.customId === 'delete-page') {
+                        await i.deferUpdate();
+                        wait(5000).then(async () => {
+                            await collector.stop();
+                        });
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete();
+                    } else if (!embedMsg) {
+                        //do nothing
+                    }
+                });
+
                 await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] }).then(async embedMsg => {
                     const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 1200000 });
 
