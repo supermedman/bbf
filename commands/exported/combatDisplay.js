@@ -90,11 +90,34 @@ async function display(interaction, uData) {
                     stealDisabled = true;
                     stealButton.setDisabled(true);
                     await collInteract.editReply({ components: [row] });
-                    await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                    //await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+
+                    const emptyPockets = new EmbedBuilder()
+                        .setTitle('Nothing to steal')
+                        .setColor('NotQuiteBlack')
+                        .addFields(
+                            { name: 'No really..', value: 'There isnt anything here!', inline: true },
+                        );
+
+                    await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
+                        emptyPockets.delete();
+                    }, 15000)).catch(console.error);
                 } else if (actionToTake === 'FAILED') {
                     //Steal has failed!
                     //Punish player
-                    await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                    //await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+
+                    const stealFailed = new EmbedBuilder()
+                        .setTitle('Failed!')
+                        .setColor('DarkRed')
+                        .addFields(
+                            { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
+                        );
+
+                    await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
+                        stealFailed.delete();
+                    }, 15000)).catch(console.error);
+
                     await collector.stop();
                     await stealPunish(enemy, uData, interaction);
                 } else if (actionToTake === 'UNIQUE ITEM') {
@@ -121,11 +144,35 @@ async function display(interaction, uData) {
                     const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
                     if (actionToTake === 'FAILED') {
                         //hide failed 
-                        await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                        //await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+
+                        const hideFailed = new EmbedBuilder()
+                            .setTitle('Failed!')
+                            .setColor('DarkRed')
+                            .addFields(
+                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
+                            );
+
+                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
+                            hideFailed.delete();
+                        }, 15000)).catch(console.error);
+
                         await collector.stop();
                         await stealPunish(enemy, uData, interaction);
                     } else if (actionToTake === 'SUCCESS') {
-                        await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                        //await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
+
+                        const hideSuccess = new EmbedBuilder()
+                            .setTitle('Success!')
+                            .setColor('LuminousVividPink')
+                            .addFields(
+                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
+                            );
+
+                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
+                            hideSuccess.delete();
+                        }, 15000)).catch(console.error);
+
                         hideButton.setLabel('Escape!');
                         attackButton.setLabel('BackStab!');
                         await collInteract.editReply({ components: [row] });
@@ -133,7 +180,19 @@ async function display(interaction, uData) {
                     }
                 } else {
                     //USER ESCAPED
-                    await collInteract.channel.send('Escaped successfully!');
+                    //await collInteract.channel.send('Escaped successfully!');
+
+                    const escapeSuccess = new EmbedBuilder()
+                        .setTitle('Success!')
+                        .setColor('NotQuiteBlack')
+                        .addFields(
+                            { name: 'Well Done!', value: 'Escaped successfully!', inline: true },
+                        );
+
+                    await collInteract.channel.send({ embeds: [escapeSuccess] }).then(async escapeSuccess => setTimeout(() => {
+                        escapeSuccess.delete();
+                    }, 15000)).catch(console.error);
+
                     await collector.stop();
                     isHidden = false;
                 }
@@ -178,11 +237,34 @@ async function display(interaction, uData) {
                     stealDisabled = true;
                     stealButton.setDisabled(true);
                     await collInteract.editReply({ components: [row] });
-                    await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+                    //await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+
+                    const emptyPockets = new EmbedBuilder()
+                        .setTitle('Nothing to steal')
+                        .setColor('NotQuiteBlack')
+                        .addFields(
+                            { name: 'No really..', value: 'There isnt anything here!', inline: true },
+                        );
+
+                    await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
+                        emptyPockets.delete();
+                    }, 15000)).catch(console.error);
                 } else if (actionToTake === 'FAILED') {
                     //Steal has failed!
                     //Punish player
-                    await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+                    //await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+
+                    const stealFailed = new EmbedBuilder()
+                        .setTitle('Failed!')
+                        .setColor('DarkRed')
+                        .addFields(
+                            { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
+                        );
+
+                    await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
+                        stealFailed.delete();
+                    }, 15000)).catch(console.error);
+
                     await collector.stop();
                     await stealPunish(enemy, uData, interaction);
                 } else if (actionToTake === 'UNIQUE ITEM') {
@@ -209,11 +291,35 @@ async function display(interaction, uData) {
                     const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
                     if (actionToTake === 'FAILED') {
                         //hide failed 
-                        await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+                        //await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
+
+                        const hideFailed = new EmbedBuilder()
+                            .setTitle('Failed!')
+                            .setColor('DarkRed')
+                            .addFields(
+                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
+                            );
+
+                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
+                            hideFailed.delete();
+                        }, 15000)).catch(console.error);
+
                         await collector.stop();
                         await stealPunish(enemy, uData, interaction);
                     } else if (actionToTake === 'SUCCESS') {
-                        await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
+                        //await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
+
+                        const hideSuccess = new EmbedBuilder()
+                            .setTitle('Success!')
+                            .setColor('LuminousVividPink')
+                            .addFields(
+                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
+                            );
+
+                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
+                            hideSuccess.delete();
+                        }, 15000)).catch(console.error);
+
                         hideButton.setLabel('Escape!');
                         attackButton.setLabel('BackStab!');
                         await collInteract.editReply({ components: [row] });
@@ -221,7 +327,19 @@ async function display(interaction, uData) {
                     }
                 } else {
                     //USER ESCAPED
-                    await collInteract.channel.send('Escaped successfully!');
+                    //await collInteract.channel.send('Escaped successfully!');
+
+                    const escapeSuccess = new EmbedBuilder()
+                        .setTitle('Success!')
+                        .setColor('NotQuiteBlack')
+                        .addFields(
+                            { name: 'Well Done!', value: 'Escaped successfully!', inline: true },
+                        );
+
+                    await collInteract.channel.send({ embeds: [escapeSuccess] }).then(async escapeSuccess => setTimeout(() => {
+                        escapeSuccess.delete();
+                    }, 15000)).catch(console.error);
+
                     await collector.stop();
                     isHidden = false;
                 }
@@ -653,7 +771,7 @@ async function showStolen(itemRef, interaction) {
         //Item is weapon
         iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`);
     } else if (item.slot === 'Offhand') {
-
+        iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`);
     } else {
         iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`);
     }
@@ -953,6 +1071,28 @@ async function makeUniqueItem(prefabItem, interaction, user) {
         return newItem;
     } else if (theItem.Slot === 'Offhand') {
         //Item is an offhand
+        const newItem = await LootStore.create({
+            name: theItem.Name,
+            value: theItem.Value,
+            loot_id: theItem.Loot_id,
+            spec_id: interaction.user.id,
+            rarity: theItem.Rarity,
+            rar_id: theItem.Rar_id,
+            attack: theItem.Attack,
+            defence: 0,
+            type: theItem.Type,
+            slot: theItem.Slot,
+            hands: theItem.Hands,
+            amount: 1
+        });
+
+        const itemAdded = await LootStore.findOne({
+            where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+        });
+
+        console.log(itemAdded);
+
+        return newItem;
     } else {
         //Item is armor
         const newItem = await LootStore.create({
@@ -1074,6 +1214,28 @@ async function makeItem(enemy, interaction, user, hasRar) {
         return newItem;
     } else if (theItem.Slot === 'Offhand') {
         //Item is an offhand
+        const newItem = await LootStore.create({
+            name: theItem.Name,
+            value: theItem.Value,
+            loot_id: theItem.Loot_id,
+            spec_id: interaction.user.id,
+            rarity: theItem.Rarity,
+            rar_id: theItem.Rar_id,
+            attack: theItem.Attack,
+            defence: 0,
+            type: theItem.Type,
+            slot: theItem.Slot,
+            hands: theItem.Hands,
+            amount: 1
+        });
+
+        const itemAdded = await LootStore.findOne({
+            where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+        });
+
+        console.log(itemAdded);
+
+        return newItem;
     } else {
         //Item is armor
         const newItem = await LootStore.create({
