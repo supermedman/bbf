@@ -703,6 +703,24 @@ module.exports = {
                     }
                 } else if (item1.Slot === 'Offhand') {
                     //Is offhand
+                    const shopSlot1 = await LootShop.create(
+                        {
+                            name: item1.Name,
+                            value: item1.Value,
+                            rarity: item1.Rarity,
+                            rar_id: item1.Rar_id,
+                            attack: item1.Attack,
+                            defence: 0,
+                            type: item1.Type,
+                            slot: item1.Slot,
+                            hands: item1.Hands,
+                            loot_id: item1.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 1,
+                        });
+                    if (shopSlot1 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot1 = await LootShop.create(
@@ -746,7 +764,24 @@ module.exports = {
                     }
                 } else if (item2.Slot === 'Offhand') {
                     //Is offhand
-
+                    const shopSlot2 = await LootShop.create(
+                        {
+                            name: item2.Name,
+                            value: item2.Value,
+                            rarity: item2.Rarity,
+                            rar_id: item2.Rar_id,
+                            attack: item2.Attack,
+                            defence: 0,
+                            type: item2.Type,
+                            slot: item2.Slot,
+                            hands: item2.Hands,
+                            loot_id: item2.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 2,
+                        });
+                    if (shopSlot2 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot2 = await LootShop.create(
@@ -790,6 +825,24 @@ module.exports = {
                     }
                 } else if (item3.Slot === 'Offhand') {
                     //Is offhand
+                    const shopSlot3 = await LootShop.create(
+                        {
+                            name: item3.Name,
+                            value: item3.Value,
+                            rarity: item3.Rarity,
+                            rar_id: item3.Rar_id,
+                            attack: item3.Attack,
+                            defence: 0,
+                            type: item3.Type,
+                            slot: item3.Slot,
+                            hands: item3.Hands,
+                            loot_id: item3.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 3,
+                        });
+                    if (shopSlot3 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot3 = await LootShop.create(
@@ -833,6 +886,24 @@ module.exports = {
                     }
                 } else if (item4.Slot === 'Offhand') {
                     //Is offhand
+                    const shopSlot4 = await LootShop.create(
+                        {
+                            name: item4.Name,
+                            value: item4.Value,
+                            rarity: item4.Rarity,
+                            rar_id: item4.Rar_id,
+                            attack: item4.Attack,
+                            defence: 0,
+                            type: item4.Type,
+                            slot: item4.Slot,
+                            hands: item4.Hands,
+                            loot_id: item4.Loot_id,
+                            spec_id: interaction.user.id,
+                            shop_slot: 4,
+                        });
+                    if (shopSlot4 > 0) {
+                        //ShopSlot 1 updated
+                    }
                 } else {
                     //Is armor
                     const shopSlot4 = await LootShop.create(
@@ -1003,6 +1074,28 @@ module.exports = {
                 return newItem;
             } else if (theItem.Slot === 'Offhand') {
                 //Item is an offhand
+                const newItem = await LootStore.create({
+                    name: theItem.name,
+                    value: theItem.value,
+                    loot_id: theItem.loot_id,
+                    spec_id: interaction.user.id,
+                    rarity: theItem.rarity,
+                    rar_id: theItem.rar_id,
+                    attack: theItem.attack,
+                    defence: 0,
+                    type: theItem.type,
+                    slot: theItem.slot,
+                    hands: theItem.hands,
+                    amount: 1
+                });
+
+                const itemAdded = await LootStore.findOne({
+                    where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                });
+
+                console.log(itemAdded);
+
+                return newItem;
             } else {
                 //Item is armor
                 const newItem = await LootStore.create({
