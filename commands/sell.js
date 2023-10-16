@@ -510,6 +510,7 @@ module.exports = {
 
                     //const offHandItem; TO BE ADDED
 
+                    console.log(`equippedList contents after comparing all values: ${equippedList}`);
                     //EQUIPPED HAS BEEN HANDLED: DISPLAY FURTHER
 
 
@@ -566,14 +567,23 @@ module.exports = {
                                 components: [interactiveButtons],
                             });
 
-                            const sellComplete = await handleSellAll(fullItemMatchList, equippedList);
-
-                            if (sellComplete === 'FAILED') {
-                                //Something went wrong :/
-                            } else if (sellComplete === 'SUCCESS') {
-                                //All items sold successfully!!
-                                await collector.stop();
-                            }
+                            if (equippedList.length === 0) {
+                                const sellComplete = await handleSellAllClean(fullItemMatchList);
+                                if (sellComplete === 'FAILED') {
+                                    //Something went wrong :/
+                                } else if (sellComplete === 'SUCCESS') {
+                                    //All items sold successfully!!
+                                    await collector.stop();
+                                }
+                            } else {
+                                const sellComplete = await handleSellAll(fullItemMatchList, equippedList);
+                                if (sellComplete === 'FAILED') {
+                                    //Something went wrong :/
+                                } else if (sellComplete === 'SUCCESS') {
+                                    //All items sold successfully!!
+                                    await collector.stop();
+                                }
+                            }                          
                         }
 
                         if (collInteract.customId === 'cancel') {
