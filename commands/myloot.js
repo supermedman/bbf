@@ -20,7 +20,105 @@ module.exports = {
             const theUser = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
 
             //***THIS DOES NOT WORK NEED TO FIX IT ASAP***
-            if (theUser.totitem > 5) {
+            if (theUser.totitem < 5) {
+                const itemAmount = theUser.totitem;
+
+                var listedInOrder = [];
+                var i = 0;
+                //var pos = 1;
+                var tempItemRef = [];
+                var itemStringValue = ` `;
+                let list = [];
+
+                const mainHand = await items.filter(item => item.slot === 'Mainhand');
+                console.log(`mainHand contents: ${mainHand}`);
+
+                const offHand = await items.filter(item => item.slot === 'Offhand');
+                console.log(`offHand contents: ${offHand}`);
+
+                const headSlot = await items.filter(item => item.slot === 'Headslot');
+                console.log(`headSlot contents: ${headSlot}`);
+
+                const chestSlot = await items.filter(item => item.slot === 'Chestslot');
+                console.log(`chestSlot contents: ${chestSlot}`);
+
+                const legSlot = await items.filter(item => item.slot === 'Legslot');
+                console.log(`legSlot contents: ${legSlot}`);
+
+                listedInOrder = listedInOrder.concat(mainHand, offHand, headSlot, chestSlot, legSlot);
+                console.log(listedInOrder);
+                do {
+                    if (listedInOrder[i].slot === 'Mainhand') {
+                        //Item is weapon
+                        tempItemRef.push(listedInOrder[i]);
+                        console.log(tempItemRef);
+                        itemStringValue = (tempItemRef.map(wep =>
+                            `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**`)
+                            .join('\n\n'));
+                        console.log(itemStringValue);
+                        list.push(itemStringValue);
+                        tempItemRef = [];
+                        i++;
+                    } else if (listedInOrder[i].slot === 'Offhand') {
+                        //Item is offhand
+                        tempItemRef.push(listedInOrder[i]);
+                        console.log(tempItemRef);
+                        itemStringValue = (tempItemRef.map(off =>
+                            `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+                            .join('\n\n'));
+                        list.push(itemStringValue);
+                        tempItemRef = [];
+                        i++;
+                    } else if (listedInOrder[i].slot === 'Headslot') {
+                        //Item is helm
+                        tempItemRef.push(listedInOrder[i]);
+                        console.log(tempItemRef);
+                        itemStringValue = (tempItemRef.map(gear =>
+                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                            .join('\n\n'));
+                        list.push(itemStringValue);
+                        tempItemRef = [];
+                        i++;
+                    } else if (listedInOrder[i].slot === 'Chestslot') {
+                        //Item is chestplate
+                        tempItemRef.push(listedInOrder[i]);
+                        console.log(tempItemRef);
+                        itemStringValue = (tempItemRef.map(gear =>
+                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                            .join('\n\n'));
+                        list.push(itemStringValue);
+                        tempItemRef = [];
+                        i++;
+                    } else if (listedInOrder[i].slot === 'Legslot') {
+                        //Item is leggings
+                        tempItemRef.push(listedInOrder[i]);
+                        console.log(tempItemRef);
+                        itemStringValue = (tempItemRef.map(gear =>
+                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                            .join('\n\n'));
+                        list.push(itemStringValue);
+                        tempItemRef = [];
+                        i++;
+                    }
+                } while (i < itemAmount)
+
+                console.log('ITEMS IN list: \n', list.toString());
+
+                list = list.toString();
+
+                const openInv = new EmbedBuilder()
+                    .setTitle("~INVENTORY~")
+                    .setColor(0000)
+                    .setDescription("These are the items currently in your inventory!")
+                    .addFields(
+                        {
+                            name: ("<< ITEMS STORED >>"),
+                            value: list
+                        }
+                    )
+
+                await interaction.followUp({ embeds: [openInv] });
+            } else if (theUser.totitem >= 5) {                
                 //user has more then 5 items, need to separate onto different pages
                 //do this by making a button for going forward a page and going back a page
                 //allow buttons to loop from page 1 to last page and vice-versa
@@ -68,9 +166,9 @@ module.exports = {
 
                 //this for loop will loop for x given maxEmbedPages 
                 //ex. if user has 20 items this will run 4 times and create 4 embeds
-                
+
                 var i = 0;
-                var list = [];
+                let list = [];
 
                 const mainHand = await items.filter(item => item.slot === 'Mainhand');
                 console.log(`mainHand contents: ${mainHand}`);
@@ -128,7 +226,7 @@ module.exports = {
                         weaponsLeft = 0;
                         console.log(`WeaponsLeft: ${weaponsLeft}`);
                         x = mainHand.length;
-                    }                   
+                    }
                 }
                 curPos = 0;
                 const offHand = await items.filter(item => item.slot === 'Offhand');
@@ -314,69 +412,7 @@ module.exports = {
                     } else if (!embedMsg) {
                         //do nothing
                     }
-                });              
-            }
-            else if (theUser.totitem <= 5) {
-                const listedInOrder = items;
-                var i = 0;
-                var tempItemRef = [];
-                var itemStringValue = ` `;
-
-                
-                    do {
-                        if (listedInOrder[i].slot === 'Mainhand') {
-                            //Item is weapon
-                            tempItemRef.push(listedInOrder[i]);
-                            itemStringValue = tempItemRef.map(wep =>
-                                `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**\n\n`);
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Offhand') {
-                            //Item is offhand
-                            tempItemRef.push(listedInOrder[i]);
-                            itemStringValue = tempItemRef.map(off => `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\n\n`);
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Headslot') {
-                            //Item is helm
-                            tempItemRef.push(listedInOrder[i]);
-                            itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Chestslot') {
-                            //Item is chestplate
-                            tempItemRef.push(listedInOrder[i]);
-                            itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Legslot') {
-                            //Item is leggings
-                            tempItemRef.push(listedInOrder[i]);
-                            itemStringValue = tempItemRef.map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`);
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        }
-                    } while (i < listedInOrder.length)
-
-                    console.log('ITEMS IN list: \n', list);
-
-                    const openInv = new EmbedBuilder()
-                        .setTitle("~INVENTORY~")
-                        .setColor(0000)
-                        .setDescription("These are the items currently in your inventory!")
-                        .addFields(
-                            {
-                                name: ("<< ITEMS STORED >>"),
-                                value: list
-                            }
-                        )
-
-                    await interaction.followUp({ embeds: [openInv] });               
+                });
             }
         }
 	},
