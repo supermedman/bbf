@@ -53,7 +53,7 @@ module.exports = {
                         tempItemRef.push(listedInOrder[i]);
                         console.log(tempItemRef);
                         itemStringValue = (tempItemRef.map(wep =>
-                            `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**`)
+                            `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**\n\n`)
                             .join('\n\n'));
                         console.log(itemStringValue);
                         list.push(itemStringValue);
@@ -64,7 +64,7 @@ module.exports = {
                         tempItemRef.push(listedInOrder[i]);
                         console.log(tempItemRef);
                         itemStringValue = (tempItemRef.map(off =>
-                            `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+                            `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\n\n`)
                             .join('\n\n'));
                         list.push(itemStringValue);
                         tempItemRef = [];
@@ -74,7 +74,7 @@ module.exports = {
                         tempItemRef.push(listedInOrder[i]);
                         console.log(tempItemRef);
                         itemStringValue = (tempItemRef.map(gear =>
-                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`)
                             .join('\n\n'));
                         list.push(itemStringValue);
                         tempItemRef = [];
@@ -84,7 +84,7 @@ module.exports = {
                         tempItemRef.push(listedInOrder[i]);
                         console.log(tempItemRef);
                         itemStringValue = (tempItemRef.map(gear =>
-                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`)
                             .join('\n\n'));
                         list.push(itemStringValue);
                         tempItemRef = [];
@@ -94,7 +94,7 @@ module.exports = {
                         tempItemRef.push(listedInOrder[i]);
                         console.log(tempItemRef);
                         itemStringValue = (tempItemRef.map(gear =>
-                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                            `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`)
                             .join('\n\n'));
                         list.push(itemStringValue);
                         tempItemRef = [];
