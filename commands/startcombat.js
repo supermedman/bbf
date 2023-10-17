@@ -403,9 +403,9 @@ module.exports = {
                     time: 40000,
                 });
 
-                collector.on('collect', async (collInteract) => {
-                    await collInteract.deferUpdate();
+                collector.on('collect', async (collInteract) => {                   
                     if (collInteract.customId === 'steal') {
+                        await collInteract.deferUpdate();
                         const uData = await grabU();
                         const actionToTake = await stealing(enemy, uData, pigmy);
                         //ACTIONS TO HANDLE: 'NO ITEM'||'FAILED'||'UNIQUE ITEM'
@@ -464,6 +464,7 @@ module.exports = {
                             await resetHasItem(enemy); //Upon completion reload enemy
                         }
                     } else if (collInteract.customId === 'hide') {
+                        await collInteract.deferUpdate();
                         const uData = await grabU();
                         if (isHidden === false) {
                             const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
@@ -522,6 +523,7 @@ module.exports = {
                             isHidden = false;
                         }
                     } else if (collInteract.customId === 'onehit') {
+                        await collInteract.deferUpdate();
                         //run once reprompt reaction
                         const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                         var dmgDealt = await userDamage(interaction, item);
@@ -555,9 +557,9 @@ module.exports = {
                     time: 40000,
                 });
 
-                collector.on('collect', async (collInteract) => {
-                    await collInteract.deferUpdate();
+                collector.on('collect', async (collInteract) => {                   
                     if (collInteract.customId === 'steal') {
+                        await collInteract.deferUpdate();
                         const uData = await grabU();
                         const actionToTake = await stealing(enemy, uData);
                         //ACTIONS TO HANDLE:
@@ -617,6 +619,7 @@ module.exports = {
                             await resetHasItem(enemy); //Upon completion reload enemy
                         }
                     } else if (collInteract.customId === 'hide') {
+                        await collInteract.deferUpdate();
                         const uData = await grabU();
                         if (isHidden === false) {
                             const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
@@ -676,6 +679,7 @@ module.exports = {
                         }
                     } else if (collInteract.customId === 'onehit') {
                         //run once reprompt reaction
+                        await collInteract.deferUpdate();
                         const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
                         var dmgDealt = await userDamage(interaction, item);
                         //await i.deferUpdate();
@@ -1007,6 +1011,17 @@ module.exports = {
         async function takeDamage(eDamage, user, enemy) {          
             var currentHealth = user.health;
 
+            if (user.pclass === 'Warrior') {
+                //5% damage reduction
+                eDamage -= (eDamage * 0.05);
+            } else if (user.pclass === 'Paladin') {
+                //15% damage reduction
+                eDamage -= (eDamage * 0.15);
+            } else if (user.pclass === 'Mage') {
+                //5% damage increase
+                eDamage += (eDamage * 0.05);
+            }
+
             var defence = 0;
             const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
             if (currentLoadout) {
@@ -1048,19 +1063,7 @@ module.exports = {
                         eDamage -= defence;
                     }
                 }
-            }
-            
-
-            if (user.pclass === 'Warrior') {
-                //5% damage reduction
-                eDamage -= (eDamage * 0.05);
-            } else if (user.pclass === 'Paladin') {
-                //15% damage reduction
-                eDamage -= (eDamage * 0.15);
-            } else if (user.pclass === 'Mage') {
-                //5% damage increase
-                eDamage += (eDamage * 0.05);
-            }
+            }         
 
             if (eDamage < 0) {
                 eDamage = 0;
