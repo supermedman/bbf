@@ -88,8 +88,8 @@ async function display(interaction, uData) {
         });
 
         collector.on('collect', async (collInteract) => {
-            await collInteract.deferUpdate();
             if (collInteract.customId === 'steal') {
+                await collInteract.deferUpdate();
                 const actionToTake = await stealing(enemy, uData, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
                 if (actionToTake === 'NO ITEM') {
                     //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
@@ -146,6 +146,7 @@ async function display(interaction, uData) {
                     await resetHasItem(enemy, uData, interaction); //Upon completion reload enemy
                 }
             } else if (collInteract.customId === 'hide') {
+                await collInteract.deferUpdate();
                 if (isHidden === false) {
                     const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
                     if (actionToTake === 'FAILED') {
@@ -203,6 +204,7 @@ async function display(interaction, uData) {
                     isHidden = false;
                 }
             } else if (collInteract.customId === 'onehit') {
+                await collInteract.deferUpdate();
                 //run once reprompt reaction
                 const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
                 var dmgDealt = await userDamageAlt(uData, item);
@@ -808,6 +810,17 @@ async function showStolen(itemRef, interaction) {
 async function takeDamage(eDamage, user, enemy, interaction) {
     var currentHealth = user.health;
 
+    if (user.pclass === 'Warrior') {
+        //5% damage reduction
+        eDamage -= (eDamage * 0.05);
+    } else if (user.pclass === 'Paladin') {
+        //15% damage reduction
+        eDamage -= (eDamage * 0.15);
+    } else if (user.pclass === 'Mage') {
+        //5% damage increase
+        eDamage += (eDamage * 0.05);
+    }
+
     var defence = 0;
     const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
     if (currentLoadout) {
@@ -849,18 +862,7 @@ async function takeDamage(eDamage, user, enemy, interaction) {
                 eDamage -= defence;
             }
         }
-    }
-
-    if (user.pclass === 'Warrior') {
-        //5% damage reduction
-        eDamage -= (eDamage * 0.05);
-    } else if (user.pclass === 'Paladin') {
-        //15% damage reduction
-        eDamage -= (eDamage * 0.15);
-    } else if (user.pclass === 'Mage') {
-        //5% damage increase
-        eDamage += (eDamage * 0.05);
-    }
+    }   
 
     if (eDamage < 0) {
         eDamage = 0;
