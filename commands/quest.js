@@ -170,7 +170,10 @@ module.exports = {
                     //**ADD IN ALL LOOT, COINS, XP, AND TOKENS HERE**
                     console.log('QUEST COMPLETED LOGGING REWARDS!');
                     const hrs = await Math.floor(qFound.qlength / (1000 * 60 * 60));
-                    const maxE = ((10 * hrs) + (Math.round(Math.random() * (5 - 1) + 1) * qFound.qlevel));
+                    //10 * hrs 
+                    // +
+                    //1-5 * quest level
+                    const maxE = ((8 * hrs) + (Math.round(Math.random() * (4 - 1) + 1) * qFound.qlevel));
 
                     var ePool = [];             
                     var totXP = 0;
@@ -215,7 +218,7 @@ module.exports = {
                         var lChance = Math.random();//rng which will decide whether loot is dropped
                         var HI = false;//set hasitem to false
 
-                        const multChance = 0.850 - (0.050 * qFound.qlevel);//Loot drop rate = 15% +5% per Quest level
+                        const multChance = 0.850 - (0.020 * qFound.qlevel);//Loot drop rate = 15% +2% per Quest level
                         //console.log('LOOT DROP CHANCE: ', multChance);
 
                         if (lChance >= multChance) {
