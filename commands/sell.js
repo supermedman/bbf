@@ -438,7 +438,7 @@ module.exports = {
                     });
 
                 } else {
-                    const equippedList = [];
+                    var equippedList = [];
                     //Loadout was found, compare values here
                     const headSlotItem = await findHelmSlot(currentLoadout.headslot);
                     if (headSlotItem === 'NONE') {
@@ -451,9 +451,10 @@ module.exports = {
                         const headSlotMatch = await fullItemMatchList.filter(item => item.loot_id === headSlotItem.Loot_id);
                         if (headSlotMatch.length === 0) {
                             //Item not found 
+                            console.log(`No headslot match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(headSlotMatch.Loot_id);
+                            equippedList.push(headSlotMatch);
                         }
                     }
 
@@ -467,10 +468,11 @@ module.exports = {
                         //USE .filter() TO FIND A MATCH
                         const chestSlotMatch = await fullItemMatchList.filter(item => item.loot_id === chestSlotItem.Loot_id);
                         if (chestSlotMatch.length === 0) {
-                            //Item not found 
+                            //Item not found
+                            console.log(`No chestslot match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(chestSlotMatch.Loot_id);
+                            equippedList.push(chestSlotMatch);
                         }
                     }
 
@@ -485,9 +487,10 @@ module.exports = {
                         const legSlotMatch = await fullItemMatchList.filter(item => item.loot_id === legSlotItem.Loot_id);
                         if (legSlotMatch.length === 0) {
                             //Item not found 
+                            console.log(`No legslot match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(legSlotMatch.Loot_id);
+                            equippedList.push(legSlotMatch);
                         }
                     }
 
@@ -502,9 +505,10 @@ module.exports = {
                         const mainHandMatch = await fullItemMatchList.filter(item => item.loot_id === mainHandItem.Loot_id);
                         if (mainHandMatch.length === 0) {
                             //Item not found 
+                            console.log(`No mainHand match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(mainHandMatch.Loot_id);
+                            equippedList.push(mainHandMatch);
                         }
                     }
 
@@ -650,7 +654,7 @@ module.exports = {
                     //Second check for equipped id match at n position
                     for (var e = 0; e < equippedList.length; e++) {
                         //Third: If match leave one, If not sell all
-                        if (fullItemMatchList[n].loot_id === equippedList[e]) {
+                        if (fullItemMatchList[n].loot_id === equippedList[e].Loot_id) {
                             //Item matches equipped item, leave one!
                             await leaveOne(fullItemMatchList[n], uData);
                             console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
