@@ -18,5 +18,9 @@ const ActiveEnemy = require('./events/Models/ActiveEnemy')(sequelize, Sequelize.
 const UserData = require('./events/Models/UserData')(sequelize, Sequelize.DataTypes);
 const GuildData = require('./events/Models/GuildData')(sequelize, Sequelize.DataTypes);
 const Loadout = require('./events/Models/Loadout')(sequelize, Sequelize.DataTypes);
+const Milestones = require('./events/Models/Milestones')(sequelize, Sequelize.DataTypes);
+const ActiveDungeon = require('./events/Models/ActiveDungeon')(sequelize, Sequelize.DataTypes);
+const ActiveDungeonEnemy = require('./events/Models/ActiveDungeonEnemy')(sequelize, Sequelize.DataTypes);
+const ActiveDungeonBoss = require('./events/Models/ActiveDungeonBoss')(sequelize, Sequelize.DataTypes);
 
-module.exports = { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData, Loadout };
+module.exports = { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData, Loadout, Milestones, ActiveDungeon, ActiveDungeonEnemy, ActiveDungeonBoss };
