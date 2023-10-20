@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         qlength: DataTypes.INTEGER,
         qlevel: DataTypes.INTEGER,
         qname: DataTypes.TEXT,
+        qid: DataTypes.INTEGER,
 
     });
 };
