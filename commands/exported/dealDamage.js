@@ -239,6 +239,81 @@ async function userDamageAlt(user, item) {
 }
 
 //========================================
+// This method calculates damage dealt by the user and returns that value
+async function userDamageLoadout(user, item) {
+    const pigmy = await Pigmy.findOne({ where: { spec_id: user.userid } });
+
+    var totDamageBuff = 0;
+    var strUP = 0;
+    var intUP = 0;
+
+    if (pigmy) {
+        //pigmy found check for happiness and type
+        totDamageBuff = pigmy.level * 0.02;
+        if (pigmy.happiness >= 50) {
+            //Pigmy is still happy apply damage buff
+            if (pigmy.type === 'NONE') {
+                //Normal pigmy equipped apply additional damage
+                totDamageBuff += (pigmy.level * 1);
+            } else if (pigmy.type === 'Fire') {
+                //Fire pigmy equipped apply 1.5x damage
+                totDamageBuff += (pigmy.level * 1.5);
+                //str + 5
+                strUP = 5;
+            } else if (pigmy.type === 'Frost') {
+                //Frost pigmy equipped apply 2x damage
+                totDamageBuff += (pigmy.level * 2);
+                //int + 5
+                intUP = 5;
+            }
+        } else if (pigmy.happiness < 50) {
+            if (pigmy.type === 'Fire') {
+                strUP = 5;
+            } else if (pigmy.type === 'Frost') {
+                intUP = 5;
+            }
+        }
+    }
+
+    console.log(`Pigmy Damage Buff: ${totDamageBuff}`);
+    //=========================
+    //const spd = user.speed;
+    const str = user.strength;
+    //const dex = user.dexterity;
+    const int = user.intelligence;
+    const pclass = user.pclass;
+
+    var dmgMod = 0;
+    //=========================
+
+    dmgMod = (((int + intUP) * 8) + ((str + strUP) * 2));
+
+    if (pclass === 'Warrior') {
+        dmgMod += (dmgMod * 0.05);
+    } else if (pclass === 'Paladin') {
+        dmgMod -= (dmgMod * 0.05);
+    } else if (pclass === 'Mage') {
+        dmgMod += (dmgMod * 0.15);
+    }
+
+    console.log(`Damage Mod: ${dmgMod}`);
+
+    //-------------------------------------------------------------------------------
+    //here the damage modifier is applied to the damage dealt and the final value is returned
+    var dmgDealt = dmgMod + totDamageBuff;
+
+    console.log('ITEM EQUIPPED: ', item);
+
+    if (item) {
+        console.log('ITEM DAMAGE: ', item.Attack);
+        dmgDealt += item.Attack;
+    }
+
+    console.log('Damage Dealt to Enemy ' + dmgDealt);
+    return dmgDealt;
+}
+
+//========================================
 // This method calculates damage dealt by an enemy and returns that value
 function enemyDamage(enemy) {
     // First: grab enemy damage min and max
@@ -249,4 +324,4 @@ function enemyDamage(enemy) {
     return dmgDealt;
 }
 
-module.exports = { userDamage, userDamageAlt, enemyDamage };
+module.exports = { userDamage, userDamageAlt, userDamageLoadout, enemyDamage };
