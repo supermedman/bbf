@@ -5,7 +5,7 @@
         "Time": "1hr",
         "Level": 10,
         "ELevel": "1-5",
-        "ID": 0
+        "ID": 100
     },
     {
         "Name": "Deep Dark Woods",
@@ -13,6 +13,7 @@
         "Time": "4hr",
         "Level": 1,
         "ELevel": "1-5",
+        "IsLockedBy": 0,
         "ID": 1
     },
     {
@@ -21,6 +22,7 @@
         "Time": "4hr",
         "Level": 1,
         "ELevel": "1-5",
+        "IsLockedBy": 0,
         "ID": 6
     },
     {
@@ -29,6 +31,7 @@
         "Time": "8hr",
         "Level": 2,
         "ELevel": "5-10",
+        "IsLockedBy": 0,
         "ID": 2
     },
     {
@@ -37,6 +40,7 @@
         "Time": "4hr",
         "Level": 2,
         "ELevel": "5-10",
+        "IsLockedBy": 0,
         "ID": 7
     },
     {
@@ -45,23 +49,52 @@
         "Time": "8hr",
         "Level": 3,
         "ELevel": "10-15",
+        "IsLockedBy": 0,
         "ID": 3
     },
     {
-        "Name": "Perilous Dungeon",
+        "Name": "Perilous Ruins",
         "Length": 36000000,
         "Time": "10hr",
         "Level": 4,
         "ELevel": "15-20",
+        "IsLockedBy": 0,
         "ID": 4
     },
     {
-        "Name": "Cultist Hideaway",
+        "Name": "Krelya's Cultist Hideaway",
         "Length": 36000000,
         "Time": "10hr",
         "Level": 5,
         "ELevel": "20-25",
+        "IsLockedBy": 0,
         "ID": 5
+    },
+    {
+        "Name": "Raid Smuggler Camp",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 5,
+        "ELevel": "20-25",
+        "IsLockedBy": 0,
+        "ID": 9
+    },
+    {
+        "Name": "Locate Alleged Dungeon Site From Marked Map",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 6,
+        "ELevel": "25-30",
+        "IsLockedBy": 5,
+        "ID": 8
+    },
+    {
+        "Name": "Clear Soul Dungeon Site of Enemies",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 6,
+        "ELevel": "25-30",
+        "IsLockedBy": 8,
+        "ID": 10
     }
-
 ]

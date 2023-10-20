@@ -441,6 +441,10 @@
         "XpMax": 20,
 
         "ConstKey": 24,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/HauntSnare.png",
+        "Image": "attachment://HauntSnare.png",
+
         "SpecId": 0
     },
     {
@@ -459,6 +463,10 @@
         "XpMax": 15,
 
         "ConstKey": 25,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Crimson-Crow.png",
+        "Image": "attachment://Crimson-Crow.png",
+
         "SpecId": 0
     },
     {
@@ -477,6 +485,10 @@
         "XpMax": 25,
 
         "ConstKey": 26,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Rage-Deer.png",
+        "Image": "attachment://Rage-Deer.png",
+
         "SpecId": 0
     },
     {
@@ -549,6 +561,10 @@
         "XpMax": 40,
 
         "ConstKey": 30,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Ice-Tooth.png",
+        "Image": "attachment://Ice-Tooth.png",
+
         "SpecId": 0
     },
     {
@@ -1339,6 +1355,10 @@
         "XpMax": 30,
 
         "ConstKey": 73,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Tombling.png",
+        "Image": "attachment://Tombling.png",
+
         "SpecId": 0
     },
     {
@@ -1381,16 +1401,16 @@
         "Name": "Soulgolem",
         "Description": "A massive golem infused with souls of the dammed \nOne of the servants of Wadon",
 
-        "Level": 12,
-        "MinDmg": 20,
-        "MaxDmg": 34,
-        "Health": 245,
-        "Defence": 13,
+        "Level": 18,
+        "MinDmg": 45,
+        "MaxDmg": 60,
+        "Health": 700,
+        "Defence": 20,
 
         "WeakTo": "NULL",
         "Dead": false,
-        "XpMin": 235,
-        "XpMax": 245,
+        "XpMin": 750,
+        "XpMax": 800,
 
         "ConstKey": 76,
         "SpecId": 0
@@ -1745,7 +1765,7 @@
     },
     {
         "Name": "Soultaur",
-        "Description": "...",
+        "Description": "Condensed souls, refined through battle, the product of which makes up Wadons upper ranks!",
 
         "Level": 22,
         "MinDmg": 32,
