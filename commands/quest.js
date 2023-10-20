@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
-const { Questing, LootStore, UserData } = require('../dbObjects.js');
+const { Questing, LootStore, UserData, Milestones } = require('../dbObjects.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar } = require('./exported/grabRar.js');
 
@@ -56,27 +56,154 @@ module.exports = {
                 if (user.level < 5) {
                     return interaction.followUp('Sorry! You need to be at least level 5 to start quests.. ``/startcombat`` use this to gain some levels!')
                 }
-                const maxQLvl = Math.round(user.level / 5)
+                const maxQLvl = Math.round(user.level / 5);
 
+                /**
+                 *          Implementing Storyline Quests & Milstones.js logging
+                 *              
+                 *          How will it work?
+                 *              - Check for db entry
+                 *              - If none exists create one (currentquestline = 'Souls')
+                 *              - If exists check questing progress
+                 *              
+                 *          First Storyline Quest Order 
+                 *              - ID-5 Krelya's Cultist Hideaway
+                 *              - ID-8 Locate Alleged Dungeon Site
+                 *              - ID-10 Clear Soul Dungeon Site of Enemies
+                 * 
+                 * 
+                 * */
+
+                var userMilestone = await Milestones.findOne({where: {userid: interaction.user.id}});
+
+                if (!userMilestone) {
+                    //Generating new Milestones profile
+                    const newMilestone = await Milestones.create({
+                        userid: interaction.user.id,
+                        currentquestline: 'Souls',
+                        nextstoryquest: 5,
+                        questlinedungeon: 1,
+                    });
+
+                    userMilestone = await Milestones.findOne({ where: { userid: newMilestone.userid } });
+                } 
+                //Milestones data exists handle accordingly
+                //Check laststoryquest value
                 var qPool = [];
                 var embedPages = [];
 
-                for (var i = 0; i < questList.length; i++) {
-                    if (questList[i].Level <= maxQLvl) {
-                        qPool.push(questList[i]);
-                        const questEmbed = new EmbedBuilder()
-                            .setColor(0000)
-                            .setTitle(`Quest: ${i}`)
-                            .addFields(
-                                {
-                                    name: `Name: ${questList[i].Name}`,
-                                    value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
-                                }
-                            );
+                if (userMilestone.nextstoryquest === 5) {
+                    //User has not started first quest in storyline
+                    //Show only quests locked by ID-0
+                    for (var i = 0; i < questList.length; i++) {
+                        //Filter out locked quests
+                        if (questList[i].IsLockedBy === 0) {
+                            //Filter out by max level
+                            if (questList[i].Level <= maxQLvl) {
+                                qPool.push(questList[i]);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${questList[i].Name}`,
+                                            value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
+                                        }
+                                    );
 
-                        embedPages.push(questEmbed);
+                                embedPages.push(questEmbed);
+                            }
+                        }
                     }
-                }
+                } else if (userMilestone.laststoryquest === 10) {
+                    for (var i = 0; i < questList.length; i++) {
+                        //Filter out locked quests
+                        if (questList[i].IsLockedBy === 0) {
+                            //Filter out by max level
+                            if (questList[i].Level <= maxQLvl) {
+                                qPool.push(questList[i]);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${questList[i].Name}`,
+                                            value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                    }
+                } else {
+                    //User has completed at least one story quest
+                    //Retrieve which one
+                    const lastSQuest = userMilestone.laststoryquest;
+                    if (lastSQuest === 5) {
+                        //First story quest completed
+                        for (var i = 0; i < questList.length; i++) {
+                            //Filter out locked quests
+                            if (questList[i].IsLockedBy === 0 || questList[i].IsLockedBy === 5) {
+                                //Filter out by max level
+                                if (questList[i].Level <= maxQLvl) {
+                                    qPool.push(questList[i]);
+                                    const questEmbed = new EmbedBuilder()
+                                        .setColor(0000)
+                                        .setTitle(`Quest: ${i}`)
+                                        .addFields(
+                                            {
+                                                name: `Name: ${questList[i].Name}`,
+                                                value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
+                                            }
+                                        );
+
+                                    embedPages.push(questEmbed);
+                                }
+                            }
+                        }
+                    }
+                    if (lastSQuest === 8) {
+                        //Second story quest completed
+                        for (var i = 0; i < questList.length; i++) {
+                            //Filter out locked quests
+                            if (questList[i].IsLockedBy === 0 || questList[i].IsLockedBy === 8) {
+                                //Filter out by max level
+                                if (questList[i].Level <= maxQLvl) {
+                                    qPool.push(questList[i]);
+                                    const questEmbed = new EmbedBuilder()
+                                        .setColor(0000)
+                                        .setTitle(`Quest: ${i}`)
+                                        .addFields(
+                                            {
+                                                name: `Name: ${questList[i].Name}`,
+                                                value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
+                                            }
+                                        );
+
+                                    embedPages.push(questEmbed);
+                                }
+                            }
+                        }
+                    }
+                }            
+
+                //for (var i = 0; i < questList.length; i++) {
+                //    if (questList[i].Level <= maxQLvl) {
+                //        qPool.push(questList[i]);
+                //        const questEmbed = new EmbedBuilder()
+                //            .setColor(0000)
+                //            .setTitle(`Quest: ${i}`)
+                //            .addFields(
+                //                {
+                //                    name: `Name: ${questList[i].Name}`,
+                //                    value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
+                //                }
+                //            );
+
+                //        embedPages.push(questEmbed);
+                //    }
+                //}
 
                 const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 
@@ -129,6 +256,7 @@ module.exports = {
                                 qlength: quest.Length,
                                 qlevel: quest.Level,
                                 qname: quest.Name,
+                                qid: quest.ID,
                             }
                         );
                         await interaction.followUp(`You have started a quest in ${quest.Name}!`);
@@ -547,7 +675,108 @@ module.exports = {
 
                         //await embedPages.push(embed);//add new embed to embed pages   
                         //pos++;
-                    
+
+                    //==========================================================
+                    //  HANDLE QUEST STORY LINE HERE
+                    // quest reference qFound
+
+                    var userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+
+                    if (!userMilestone) {
+                        //Generating new Milestones profile
+                        const newMilestone = await Milestones.create({
+                            userid: interaction.user.id,
+                            currentquestline: 'Souls',
+                            nextstoryquest: 5,
+                            questlinedungeon: 1,
+                        });
+
+                        userMilestone = await Milestones.findOne({ where: { userid: newMilestone.userid } });
+                    } 
+
+                    if (qFound.qid === 5 || qFound.qid === 8 || qFound.qid === 10) {
+                        //Quest is part of story line!
+                        await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+
+                        if (qFound.qid === 5) {                           
+                            await Milestones.update({ nextstoryquest: 8 }, { where: { userid: interaction.user.id } });
+
+                            // ========== STORY ==========
+                            // While clearing out the cultists you manage to extort information, finding references to an unknown location.
+                            // Depicted throughout their lair are muirals and alters giving thanks and ritual to their god.
+                            // Your dilligent searching comes with reward providing you a map marked with a location!
+
+                            // New Quest unlocked! if (userMilestone.laststoryquest === 5)
+
+                            var QSDescription = 'NEW Quest Unlocked!';
+                        
+                            const theAdventure = `While clearing out the cultists you manage to extort information, finding references to an unknown location.\nDepicted throughout their lair are muirals and alters giving thanks and ritual to their god.\nYour dilligent searching comes with reward providing you a map marked with a location!`;
+
+                            const questStoryEmbed = new EmbedBuilder()
+                                .setTitle('Quest Progress')
+                                .setDescription(QSDescription)
+                                .setColor('DarkAqua')
+                                .addFields({
+                                    name: 'Adventure', value: theAdventure
+                                });
+
+                            await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                storyEmbed.delete();
+                            }, 300000)).catch(console.error);
+
+                        } else if (qFound.qid === 8) {                      
+                            await Milestones.update({ nextstoryquest: 10 }, { where: { userid: interaction.user.id } });
+
+                            // ========== STORY ==========
+                            // Upon arriving at the marked location you are met with a large run-down castle town scattered are pillars and engravings of souls.
+                            // This must be the dungeon of souls!!
+                            // Crawling with monsters and creatures in numbers untold, you make for a tactical retreat!
+                            // This will be a mission all on its own, but no doubt it will be worth it!
+
+                            // NEW Quest unlocked! if (userMilestone.laststoryquest === 8)
+
+                            var QSDescription = 'NEW Quest Unlocked!';
+
+                            const theAdventure = `Upon arriving at the marked location you are met with a large run-down castle town, scattered are pillars and engravings of souls.\nThis must be the dungeon of souls!!\nCrawling with monsters and creatures in numbers untold, you make for a tactical retreat!\nThis will be a mission all on its own, but no doubt it will be worth it!`;
+
+                            const questStoryEmbed = new EmbedBuilder()
+                                .setTitle('Quest Progress')
+                                .setDescription(QSDescription)
+                                .setColor('DarkAqua')
+                                .addFields({
+                                    name: 'Adventure', value: theAdventure
+                                });
+
+                            await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                storyEmbed.delete();
+                            }, 300000)).catch(console.error);
+
+                        } else if (qFound.qid === 10) {                       
+                            //Final story quest completed, Souls Dungeon now unlocked!
+
+                            // ========== STORY ==========
+                            // After hours of gruling battles and slaying you secure the surroundings. 
+                            // You are now ready to enter the dungeon of souls, ruled by ``Wadon``!
+
+                            var QSDescription = 'NEW DUNGEON Unlocked!';
+                          
+                            const theAdventure = 'After hours of gruling battles and slaying you secure the surroundings.\nYou are now ready to enter the dungeon of souls, ruled by ``Wadon``!';
+
+                            const questStoryEmbed = new EmbedBuilder()
+                                .setTitle('Quest Progress')
+                                .setDescription(QSDescription)
+                                .setColor('DarkAqua')
+                                .addFields({
+                                    name: 'Adventure', value: theAdventure
+                                });
+
+                            await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                storyEmbed.delete();
+                            }, 300000)).catch(console.error);
+                        }
+                    }
+
+                    //==========================================================
 
                     await destroyQuest();
 
