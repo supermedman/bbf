@@ -1,0 +1,110 @@
+[
+	{
+		"Name": "Wadon, God Of Souls",
+		"NameRef": "Wadon",
+
+		"Intro": "Well, well, well.. We meet face to face at last!",
+		"IntroC": "Navy",
+
+		"Line_One": "You've been busy reaping souls in my stead, and I am truely disheartened saying this...",
+		"Line_OneC": "Navy",
+
+		"Line_Two": "AHAHAHA WHO AM I KIDDING!! YOUR DEATH WILL NOT BE PAINLESS!!!",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 35,
+		"MinDmg": 75,
+		"MaxDmg": 100,
+		"Health": 7500,
+		"StageHealth": 3000,
+		"Defence": 45,
+
+		"WeakTo": "NULL",
+
+		"ConstKey": 1001,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Wadon-god-of-souls.png",
+		"Image": "attachment://Wadon-god-of-souls.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Wadon-god-of-souls-closeup.png",
+		"Image_Closeup": "attachment://Wadon-god-of-souls-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "SoulEater Wadon",
+		"NameRef": "Wadon",
+
+		"Intro": "HOW DARE YOU STAND YOUR GROUND BEFORE ME!!!",
+		"IntroC": "DarkRed",
+
+		"Line_One": "COWER AND SHAKE, BONES SHALL BREAK",
+		"Line_OneC": "DarkRed",
+
+		"Line_Two": "I WILL CONSUME YOU!!!",
+		"Line_TwoC": "Blue",
+
+		"Level": 35,
+		"MinDmg": 100,
+		"MaxDmg": 250,
+		"Health": 3000,
+		"StageHealth": 1,
+		"Defence": 40,
+
+		"WeakTo": "NONE",
+
+		"ConstKey": 1002,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Wadon-god-of-souls.png",
+		"Image": "attachment://Wadon-god-of-souls.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Wadon-god-of-souls-closeup.png",
+		"Image_Closeup": "attachment://Wadon-god-of-souls-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Wadon",
+		"NameRef": "Wadon",
+
+		"Intro": "...",
+		"IntroC": "DarkGold",
+
+		"Line_One": "...",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "You will regret this... I only wish it would be these eyes that see it happen...",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 35,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+		"Health": 1,
+		"StageHealth": 0,
+		"Defence": 0,
+
+		"WeakTo": "NULL",
+
+		"Dead": false,
+		"XpMin": 15000,
+		"XpMax": 20000,
+
+		"Blueprint": "Soul God's Reaver",
+		"BlueprintID": 1,
+
+		"AchievementGet": "WADON",
+
+		"ConstKey": 1003,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Wadon-god-of-souls.png",
+		"Image": "attachment://Wadon-god-of-souls.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Wadon-god-of-souls-closeup.png",
+		"Image_Closeup": "attachment://Wadon-god-of-souls-closeup.png",
+
+		"SpecId": 0
+	}
+]

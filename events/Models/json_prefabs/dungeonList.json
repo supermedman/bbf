@@ -1,0 +1,30 @@
+[
+    {
+        "Name": "Dungeon of Souls",
+        "Boss": "Wadon",
+
+        "Floors": 10,
+        "BossFloor": 10,
+        "SavePoints": 2,
+
+        "RequiredQuestID": 10,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 79, 79, 61, 61 ],
+        "Floor2": [ 39, 39, 39, 61, 61 ],
+        "Floor3": [ 47, 47, 47, 47, 47 ],
+        "Floor4": [ 45, 45, 76 ],
+
+        "Floor5": [ 45, 45, 45, 45, 45, 76, 76 ],
+        
+        "Floor6": [ 76, 76, 95 ],
+        "Floor7": [ 76, 76, 76, 95, 95 ],
+        "Floor8": [ 76, 76, 76, 76, 95, 95, 95 ],
+        "Floor9": [ 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 76, 76, 95, 95, 95, 95, 95, 59],
+
+        "DungeonID": 1,
+        "DungeonSpecID": 0
+    }
+]
