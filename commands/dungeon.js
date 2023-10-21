@@ -188,9 +188,7 @@ module.exports = {
 						infoEmbed.delete();
 					}
 				});
-			}
-
-		
+			}	
         }
 
 		//This method Creates a new ActiveDungeon database entry and returns the object
