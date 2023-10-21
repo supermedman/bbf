@@ -260,7 +260,7 @@ module.exports = {
 
                             await collInteract.editReply({ components: [buttonsA] });
 
-                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
                             return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
 
                             //wipe db after this
@@ -292,7 +292,7 @@ module.exports = {
 
                             await collInteract.editReply({ components: [buttonsA] });
 
-                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
                             return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
                             //wipe db after this
                         }
@@ -324,7 +324,7 @@ module.exports = {
 
                             await collInteract.editReply({ components: [buttonsA] });
 
-                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
                             return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
                             //wipe db after this
                         }
@@ -356,7 +356,7 @@ module.exports = {
 
                             await collInteract.editReply({ components: [buttonsA] });
 
-                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount + 1} ${item.name}`);
+                            if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
                             return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
                             //wipe db after this
                         }
