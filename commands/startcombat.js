@@ -420,8 +420,7 @@ module.exports = {
                         stealDisabled = true;
                         stealButton.setDisabled(true);
                         await collInteract.editReply({ components: [row] });
-                        //await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
-
+                        
                         const emptyPockets = new EmbedBuilder()
                             .setTitle('Nothing to steal')
                             .setColor('NotQuiteBlack')
@@ -449,7 +448,6 @@ module.exports = {
                         await collector.stop();
                         await stealPunish(enemy, uData, interaction);
                     } else if (actionToTake === 'UNIQUE ITEM') {
-                        //WIP
                         //Unique item detected!
                         //Find item here
                         const itemToMake = await getUniqueItem(enemy);
@@ -470,8 +468,7 @@ module.exports = {
                 }
 
                 if (collInteract.customId === 'hide') {
-                    await collInteract.deferUpdate();
-                    const uData = await grabU();
+                    await collInteract.deferUpdate();                    
                     if (isHidden === false) {
                         const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
                         if (actionToTake === 'FAILED') {
@@ -596,102 +593,7 @@ module.exports = {
             }
 
         }
-
-        //========================================
-        // This method is for dealing damage to an enemy until it dies
-        async function dealDeath(dmgDealt, item) {
-            //run attack function till enemy health reaches 0
-            var enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
-            if (enemy) {
-                if (enemy.health === null) {
-                    console.log("Enemy has null as health an error has occured")
-                    enemy.health = 0;
-                    return enemyDead(enemy);
-                }
-
-                //while statment to run until enemy has died
-                var atkCount = 0;
-                var eHealth = enemy.health;
-
-                var Itype;
-
-                if (!item) {
-                    Itype = 'NONE';
-                } else {
-                    Itype = item.type.toLowerCase();
-
-                    console.log('Weapon Type after toLowerCase(): ', Itype);
-                }
-
-                const Etype = enemy.weakto.toLowerCase();
-
-                console.log('Enemy Weakto after toLowerCase(): ', Etype);
-
-                if (Itype === Etype) {
-                    dmgDealt = dmgDealt * 1.5;
-                    console.log('New dmgDealt: ', dmgDealt);
-                }
-
-                while (!eDead) {
-                    
-                    if (enemy.defence <= 0) {
-                        //if statment to check if enemy dies after attack when defence = 0
-                        if ((eHealth - dmgDealt) <= 0) {
-                            //sets the enemy to dead then returns
-                            console.log('ENEMY IS DEAD');
-                            eDead = true;
-
-                        }
-                        else {
-                            //deals damage to enemy without defence
-                            eHealth = eHealth - dmgDealt;
-                            console.log('CURRENT ENEMY HEALTH WITHOUT DEFENCE: ', eHealth);
-                        }
-                    }
-                    else {
-                        //if statment to check if enemy dies after attack while applying defence
-                        var dmg = ((dmgDealt - (enemy.defence * 2)) + 1);
-                        console.log('True damage done to enemy: ',dmg);
-
-
-                        if (dmg <= 0) {
-                            dmg = 1;
-                        }
-
-                        if ((eHealth - dmg) <= 0) {
-                            //sets the enemy to dead then returns
-                            console.log('ENEMY IS DEAD');
-
-                            eDead = true;
-                        }
-                        else {
-                            //deals damage to enemy while including defences                               
-                            eHealth = eHealth - dmg;
-                            console.log('CURRENT ENEMY HEALTH AFTER DEFENCE: ', eHealth);
-                        }
-                    }
-                    atkCount++;
-                }
-                //enemy is dead at this point call display and return dead
-
-                const attackCountEmbed = new EmbedBuilder()
-                    .setTitle("Attack Counter")
-                    .setColor(0000)
-                    .addFields(
-                        { name: 'Number of Attacks: ', value: ' ' + atkCount + ' ', inline: true },
-                    );
-
-                interaction.channel.send({ embeds: [attackCountEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 5000));
-
-                return display(eDead, pDead);
-            }
-            else {
-                //no enemy found!
-            }
-        }
-
+       
         //========================================
         //this method is for dealing damage to an enemy takes the enemy id, damageDealt, and users id 
         async function dealDamage(dmgDealt, item, enemy) {

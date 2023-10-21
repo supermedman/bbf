@@ -1,7 +1,7 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { ActiveEnemy, Equipped, LootStore, UserData, Pigmy, Loadout } = require('../../dbObjects.js');
+const { ActiveEnemy, LootStore, UserData, Pigmy, Loadout } = require('../../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
-const { userDamageAlt } = require('./dealDamage.js');
+const { userDamageLoadout } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
 const { grabRar } = require('./grabRar.js');
 const { stealing } = require('./handleSteal.js');
@@ -74,303 +74,170 @@ async function display(interaction, uData) {
 
     const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
 
+    var attachment;
+
     if (hasPng) {
-        const attachment = await displayEWpic(interaction, enemy, true);
-
-        const message = await interaction.channel.send({ components: [row], files: [attachment] });
-
-        const filter = (i) => i.user.id === interaction.user.id;
-
-        const collector = message.createMessageComponentCollector({
-            componentType: ComponentType.Button,
-            filter,
-            time: 40000,
-        });
-
-        collector.on('collect', async (collInteract) => {
-            if (collInteract.customId === 'steal') {
-                await collInteract.deferUpdate();
-                const actionToTake = await stealing(enemy, uData, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
-                if (actionToTake === 'NO ITEM') {
-                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
-                    stealDisabled = true;
-                    stealButton.setDisabled(true);
-                    await collInteract.editReply({ components: [row] });
-                    //await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
-
-                    const emptyPockets = new EmbedBuilder()
-                        .setTitle('Nothing to steal')
-                        .setColor('NotQuiteBlack')
-                        .addFields(
-                            { name: 'No really..', value: 'There isnt anything here!', inline: true },
-                        );
-
-                    await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
-                        emptyPockets.delete();
-                    }, 15000)).catch(console.error);
-                } else if (actionToTake === 'FAILED') {
-                    //Steal has failed!
-                    //Punish player
-                    //await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
-
-                    const stealFailed = new EmbedBuilder()
-                        .setTitle('Failed!')
-                        .setColor('DarkRed')
-                        .addFields(
-                            { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
-                        );
-
-                    await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
-                        stealFailed.delete();
-                    }, 15000)).catch(console.error);
-
-                    await collector.stop();
-                    await stealPunish(enemy, uData, interaction);
-                } else if (actionToTake === 'UNIQUE ITEM') {
-                    //WIP
-                    //Unique item detected!
-                    //Find item here
-                    const itemToMake = await getUniqueItem(enemy);
-                    const uItemRef = await makeUniqueItem(itemToMake, interaction, uData);
-                    await showStolen(uItemRef, interaction);
-                    await collector.stop();
-                    await resetHasUniqueItem(enemy, uData, interaction);
-                } else {
-                    //Steal has either been a success, or an error has occured!
-                    //Generate item with actionToTake                          
-                    const usedRar = actionToTake;
-                    const itemRef = await makeItem(enemy, interaction, uData, usedRar);
-                    await showStolen(itemRef, interaction);
-                    stealDisabled = true;
-                    await collector.stop();
-                    await resetHasItem(enemy, uData, interaction); //Upon completion reload enemy
-                }
-            } else if (collInteract.customId === 'hide') {
-                await collInteract.deferUpdate();
-                if (isHidden === false) {
-                    const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
-                    if (actionToTake === 'FAILED') {
-                        //hide failed 
-                        //await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
-
-                        const hideFailed = new EmbedBuilder()
-                            .setTitle('Failed!')
-                            .setColor('DarkRed')
-                            .addFields(
-                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
-                            hideFailed.delete();
-                        }, 15000)).catch(console.error);
-
-                        await collector.stop();
-                        await stealPunish(enemy, uData, interaction);
-                    } else if (actionToTake === 'SUCCESS') {
-                        //await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
-
-                        const hideSuccess = new EmbedBuilder()
-                            .setTitle('Success!')
-                            .setColor('LuminousVividPink')
-                            .addFields(
-                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
-                            hideSuccess.delete();
-                        }, 15000)).catch(console.error);
-
-                        hideButton.setLabel('Escape!');
-                        attackButton.setLabel('BackStab!');
-                        await collInteract.editReply({ components: [row] });
-                        isHidden = true;
-                    }
-                } else {
-                    //USER ESCAPED
-                    //await collInteract.channel.send('Escaped successfully!');
-
-                    const escapeSuccess = new EmbedBuilder()
-                        .setTitle('Success!')
-                        .setColor('NotQuiteBlack')
-                        .addFields(
-                            { name: 'Well Done!', value: 'Escaped successfully!', inline: true },
-                        );
-
-                    await collInteract.channel.send({ embeds: [escapeSuccess] }).then(async escapeSuccess => setTimeout(() => {
-                        escapeSuccess.delete();
-                    }, 15000)).catch(console.error);
-
-                    await collector.stop();
-                    isHidden = false;
-                }
-            } else if (collInteract.customId === 'onehit') {
-                await collInteract.deferUpdate();
-                //run once reprompt reaction
-                const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
-                var dmgDealt = await userDamageAlt(uData, item);
-                if (isHidden === true) {
-                    //BACKSTAB
-                    dmgDealt = dmgDealt * 1.5;
-                    isHidden = false;
-                }
-                await collector.stop();
-                await hitOnce(dmgDealt, item, uData, enemy, interaction);
-            }
-        });
-
-        collector.on('end', () => {
-            if (message) {
-                message.delete();
-            }
-        });      
+        attachment = await displayEWpic(interaction, enemy, true);
     } else {
-        const attachment = await displayEWOpic(interaction, enemy, true);
+        attachment = await displayEWOpic(interaction, enemy, true);
+    }
 
-        const message = await interaction.channel.send({ components: [row], files: [attachment] });
+    const message = await interaction.followUp({ components: [row], files: [attachment] });
 
-        const filter = (i) => i.user.id === interaction.user.id;
+    const filter = (i) => i.user.id === interaction.user.id;
 
-        const collector = message.createMessageComponentCollector({
-            componentType: ComponentType.Button,
-            filter,
-            time: 40000,
-        });
+    const collector = message.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter,
+        time: 40000,
+    });
 
-        collector.on('collect', async (collInteract) => {
+    collector.on('collect', async (collInteract) => {
+
+        if (collInteract.customId === 'steal') {
             await collInteract.deferUpdate();
-            if (collInteract.customId === 'steal') {
-                const actionToTake = await stealing(enemy, uData);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
-                if (actionToTake === 'NO ITEM') {
-                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
-                    stealDisabled = true;
-                    stealButton.setDisabled(true);
-                    await collInteract.editReply({ components: [row] });
-                    //await collInteract.channel.send({ content: 'Looks like that enemy has empty pockets!', ephemeral: true });
+            const actionToTake = await stealing(enemy, uData, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
+            if (actionToTake === 'NO ITEM') {
+                //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                stealDisabled = true;
+                stealButton.setDisabled(true);
+                await collInteract.editReply({ components: [row] });
+                
+                const emptyPockets = new EmbedBuilder()
+                    .setTitle('Nothing to steal')
+                    .setColor('NotQuiteBlack')
+                    .addFields(
+                        { name: 'No really..', value: 'There isnt anything here!', inline: true },
+                    );
 
-                    const emptyPockets = new EmbedBuilder()
-                        .setTitle('Nothing to steal')
-                        .setColor('NotQuiteBlack')
-                        .addFields(
-                            { name: 'No really..', value: 'There isnt anything here!', inline: true },
-                        );
+                await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
+                    emptyPockets.delete();
+                }, 15000)).catch(console.error);
 
-                    await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
-                        emptyPockets.delete();
-                    }, 15000)).catch(console.error);
-                } else if (actionToTake === 'FAILED') {
-                    //Steal has failed!
-                    //Punish player
-                    //await collInteract.channel.send({ content: 'Oh NO! You got caught red handed!', ephemeral: true });
+            } else if (actionToTake === 'FAILED') {
+                //Steal has failed! Punish player
+                const stealFailed = new EmbedBuilder()
+                    .setTitle('Failed!')
+                    .setColor('DarkRed')
+                    .addFields(
+                        { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
+                    );
 
-                    const stealFailed = new EmbedBuilder()
+                await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
+                    stealFailed.delete();
+                }, 15000)).catch(console.error);
+
+                await collector.stop();
+                await stealPunish(enemy, uData, interaction);
+            } else if (actionToTake === 'UNIQUE ITEM') {
+                //Unique item detected! Find item here
+                const itemToMake = await getUniqueItem(enemy);
+                const uItemRef = await makeUniqueItem(itemToMake, interaction, uData);
+                await showStolen(uItemRef, interaction);
+                await collector.stop();
+                await resetHasUniqueItem(enemy, uData, interaction);
+            } else {
+                //Steal has either been a success, or an error has occured!
+                //Generate item with actionToTake                          
+                const usedRar = actionToTake;
+                const itemRef = await makeItem(enemy, interaction, uData, usedRar);
+                await showStolen(itemRef, interaction);
+                stealDisabled = true;
+                await collector.stop();
+                await resetHasItem(enemy, uData, interaction); //Upon completion reload enemy
+            }
+        }
+
+        if (collInteract.customId === 'hide') {
+            await collInteract.deferUpdate();
+            if (isHidden === false) {
+                const actionToTake = await hiding(enemy, uData, pigmy);//'FAILED'||'SUCCESS'
+                if (actionToTake === 'FAILED') {
+                    //hide failed                  
+                    const hideFailed = new EmbedBuilder()
                         .setTitle('Failed!')
                         .setColor('DarkRed')
                         .addFields(
-                            { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
+                            { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
                         );
 
-                    await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
-                        stealFailed.delete();
+                    await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
+                        hideFailed.delete();
                     }, 15000)).catch(console.error);
 
                     await collector.stop();
                     await stealPunish(enemy, uData, interaction);
-                } else if (actionToTake === 'UNIQUE ITEM') {
-                    //WIP
-                    //Unique item detected!
-                    //Find item here
-                    const itemToMake = await getUniqueItem(enemy);
-                    const uItemRef = await makeUniqueItem(itemToMake, interaction, uData);
-                    await showStolen(uItemRef, interaction);
-                    await collector.stop();
-                    await resetHasUniqueItem(enemy, uData, interaction);
-                } else {
-                    //Steal has either been a success, or an error has occured!
-                    //Generate item with actionToTake                          
-                    const usedRar = actionToTake;
-                    const itemRef = await makeItem(enemy, interaction, uData, usedRar);
-                    await showStolen(itemRef, interaction);
-                    stealDisabled = true;
-                    await collector.stop();
-                    await resetHasItem(enemy, uData, interaction); //Upon completion reload enemy
-                }
-            } else if (collInteract.customId === 'hide') {
-                if (isHidden === false) {
-                    const actionToTake = await hiding(enemy, uData);//'FAILED'||'SUCCESS'
-                    if (actionToTake === 'FAILED') {
-                        //hide failed 
-                        //await collInteract.channel.send({ content: 'Oh NO! You failed to hide!', ephemeral: true });
-
-                        const hideFailed = new EmbedBuilder()
-                            .setTitle('Failed!')
-                            .setColor('DarkRed')
-                            .addFields(
-                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
-                            hideFailed.delete();
-                        }, 15000)).catch(console.error);
-
-                        await collector.stop();
-                        await stealPunish(enemy, uData, interaction);
-                    } else if (actionToTake === 'SUCCESS') {
-                        //await collInteract.channel.send({ content: 'You managed to hide!', ephemeral: true });
-
-                        const hideSuccess = new EmbedBuilder()
-                            .setTitle('Success!')
-                            .setColor('LuminousVividPink')
-                            .addFields(
-                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
-                            hideSuccess.delete();
-                        }, 15000)).catch(console.error);
-
-                        hideButton.setLabel('Escape!');
-                        attackButton.setLabel('BackStab!');
-                        await collInteract.editReply({ components: [row] });
-                        isHidden = true;
-                    }
-                } else {
-                    //USER ESCAPED
-                    //await collInteract.channel.send('Escaped successfully!');
-
-                    const escapeSuccess = new EmbedBuilder()
+                } else if (actionToTake === 'SUCCESS') {
+                    const hideSuccess = new EmbedBuilder()
                         .setTitle('Success!')
-                        .setColor('NotQuiteBlack')
+                        .setColor('LuminousVividPink')
                         .addFields(
-                            { name: 'Well Done!', value: 'Escaped successfully!', inline: true },
+                            { name: 'Well Done!', value: 'You managed to hide!', inline: true },
                         );
 
-                    await collInteract.channel.send({ embeds: [escapeSuccess] }).then(async escapeSuccess => setTimeout(() => {
-                        escapeSuccess.delete();
+                    await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
+                        hideSuccess.delete();
                     }, 15000)).catch(console.error);
 
-                    await collector.stop();
-                    isHidden = false;
+                    hideButton.setLabel('Escape!');
+                    attackButton.setLabel('BackStab!');
+                    await collInteract.editReply({ components: [row] });
+                    isHidden = true;
                 }
-            } else if (collInteract.customId === 'onehit') {
-                //run once reprompt reaction
-                const item = await Equipped.findOne({ where: [{ spec_id: uData.userid }] });
-                var dmgDealt = await userDamageAlt(uData, item);
+            } else {
+                //USER ESCAPED
+                const escapeSuccess = new EmbedBuilder()
+                    .setTitle('Success!')
+                    .setColor('NotQuiteBlack')
+                    .addFields(
+                        { name: 'Well Done!', value: 'Escaped successfully!', inline: true },
+                    );
+
+                await collInteract.channel.send({ embeds: [escapeSuccess] }).then(async escapeSuccess => setTimeout(() => {
+                    escapeSuccess.delete();
+                }, 15000)).catch(console.error);
+
+                await collector.stop();
+                isHidden = false;
+            }
+        }
+
+        if (collInteract.customId === 'onehit') {
+            //run once reprompt reaction
+            const currentLoadout = await Loadout.findOne({ where: { spec_id: uData.userid } });
+            if (currentLoadout) {
+                const weapon = await findMainHand(currentLoadout.mainhand);
+                var dmgDealt = await userDamageLoadout(uData, weapon);
                 if (isHidden === true) {
                     //BACKSTAB
                     dmgDealt = dmgDealt * 1.5;
                     isHidden = false;
+                } else {
+                    await collInteract.deferUpdate();
                 }
                 await collector.stop();
-                await hitOnce(dmgDealt, item, uData, enemy, interaction);
+                await hitOnce(dmgDealt, weapon, uData, enemy, interaction);
+            } else {
+                //No loadout, no weapon, procced as normal
+                var dmgDealt = await userDamageLoadout(uData);
+                if (isHidden === true) {
+                    //BACKSTAB
+                    dmgDealt = dmgDealt * 1.5;
+                    isHidden = false;
+                } else {
+                    await collInteract.deferUpdate();
+                }
+                await collector.stop();
+                await hitOnce(dmgDealt, weapon, uData, enemy, interaction);
             }
-        });
+        }
+    });
 
-        collector.on('end', () => {
-            if (message) {
-                message.delete();
-            }
-        });
-    }
+    collector.on('end', () => {
+        if (message) {
+            message.delete();
+        }
+    });   
 }
 
 /**
@@ -434,181 +301,177 @@ async function getUniqueItem(enemy) {
  * @param {any} dmgDealt
  * @param {any} item
  * @param {any} user OBJECT: User Data reference
- * @param {any} Enemy
+ * @param {any} enemy
  * @param {any} interaction STATIC INTERACTION OBJECT
  */
 //========================================
 //This method handles the bulk of combat calculations and value changes.
-async function hitOnce(dmgDealt, item, user, Enemy, interaction) {
+async function hitOnce(dmgDealt, item, user, enemy, interaction) {
     //call up the enemy on file that is currently being attacked
     //apply defense and weaknesses to damage given and then deal the final amount to the enemy
-    //check if the attack kills, if not a kill, display how much health the enemy has left
-    console.log(Enemy.constkey);
-    var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: Enemy.constkey }] });
-    if (copyCheck) {
-        const enemy = copyCheck;
-        if (enemy.health === null) {
-            console.log("Enemy has null as health an error has occured")
-            return enemyDead(enemy, interaction, user); //enemy is dead
-        }
+    //check if the attack kills, if not a kill, display how much health the enemy has left   
+    if (enemy.health === null) {
+        console.log("Enemy has null as health an error has occured")
+        return enemyDead(enemy, interaction, user); //enemy is dead
+    }
 
-        var eHealth = enemy.health;
-        console.log('Enemy Health = ', eHealth);
-        const eDefence = enemy.defence;
-        console.log('Enemy Defence = ', eDefence);
+    var eHealth = enemy.health;
+    console.log('Enemy Health = ', eHealth);
+    const eDefence = enemy.defence;
+    console.log('Enemy Defence = ', eDefence);
 
-        var Itype;
-        console.log('dmgDealt: ', dmgDealt);
+    var Itype;
+    console.log('dmgDealt: ', dmgDealt);
 
-        if (!item) {
-            Itype = 'NONE';
-        } else {
-            Itype = item.type.toLowerCase();
-            console.log('Weapon Type after toLowerCase(): ', Itype);
+    if (!item) {
+        Itype = 'NONE';
+    } else {
+        Itype = item.Type.toLowerCase();
+        console.log('Weapon Type after toLowerCase(): ', Itype);
 
-            const Etype = enemy.weakto.toLowerCase();
-            console.log('Enemy Weakto after toLowerCase(): ', Etype);
+        const Etype = enemy.weakto.toLowerCase();
+        console.log('Enemy Weakto after toLowerCase(): ', Etype);
 
-            if (Itype === Etype) {
-                dmgDealt += (dmgDealt * 0.5);
-                console.log('New dmgDealt: ', dmgDealt);
-            }
-        }
-
-        var embedColour = 'NotQuiteBlack';
-        var embedTitle = 'Damage Dealt';
-
-        const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
-
-        var spdUP = 0;
-        var dexUP = 0;
-
-        if (pigmy) {
-            //pigmy found check for happiness and type                                                     
-            if (pigmy.type === 'Fire') {
-                //Fire pigmy equipped apply + 0.10 dex
-                dexUP = 0.10;
-            } else if (pigmy.type === 'Frost') {
-                //Frost pigmy equipped apply + 0.10 spd
-                spdUP = 0.10;
-            }
-        }
-
-        var dhChance;
-        var isDH = false;
-        let runCount = 1;
-        if (user.pclass === 'Thief') {
-            dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
-        } else { dhChance = ((user.speed * 0.02) + spdUP); }
-        console.log('Current 2 hit chance: ', dhChance);
-
-        const procCall1 = Math.random();
-        console.log('RNG rolled for double hit: ', procCall1, '\n');
-
-        //======================
-        // First proc call if statment to check for double
-        if (procCall1 <= dhChance) {
-            //double attack has triggered
-            runCount = 2;
-            console.log('Double hit!\n');
-            isDH = true;
-            embedColour = 'Aqua';
-            embedTitle = 'Double Hit!';
-        }
-        //======================
-
-        // Do {attack for n times} While (n < runCount)
-        var i = 0;
-        const staticDmg = dmgDealt;
-        do {
-            //  Implement Critical here
-            dmgDealt = staticDmg;
-            var critChance;
-            if (user.pclass === 'Thief') {
-                critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
-            } else { critChance = ((user.dexterity * 0.02) + dexUP); }
-            console.log('Current crit chance: ', critChance);
-
-            const procCall2 = Math.random();
-            console.log('RNG rolled for crit chance: ', procCall2, '\n');
-
-            //======================
-            // Second proc call if statment to check for crit
-            if (procCall2 <= critChance) {
-                //attack is now a critical hit
-                dmgDealt *= 2;
-                console.log('Critical hit!\nNew damage before defence: ', dmgDealt, '\n');
-                embedColour = 'LuminousVividPink';
-                embedTitle = 'Critical Hit!';
-            } else if (isDH) {
-                embedColour = 'Aqua';
-                embedTitle = 'Double Hit!';
-            } else {
-                embedColour = 'NotQuiteBlack';
-                embedTitle = 'Damage Dealt';
-            }
-            //======================
-
-            dmgDealt -= (eDefence * 2);
-
-            //if statment to check if enemy dies after attack
-            if ((eHealth - dmgDealt) <= 0) {
-                console.log('ENEMY IS DEAD');
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-                return enemyDead(enemy, interaction, user); // enemy is dead
-            } else {
-                eHealth -= dmgDealt;
-                eHealth = Number.parseFloat(eHealth).toFixed(1);
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-                console.log('CURRENT ENEMY HEALTH: ', eHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                //NEW METHOD TO DEAL DAMAGE  
-                await hitE(eHealth, enemy);
-            }
-            i++;
-        } while (i < runCount)
-
-        /**
-            Deal with enemy damaging player calculations and handling here!!
-            
-            If enemy is still alive then player gets attacked
-
-            Using similar calculations to dealing damage to enemy handle player damage taken
-
-            Account for player class and stats when dealing damage
-        */
-        const eDamage = await enemyDamage(enemy);
-        console.log(`Enemy damge: ${eDamage}`);
-        const dead = await takeDamage(eDamage, user, enemy, interaction);
-        const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
-
-        if (!dead) {
-            console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${Enemy}`);
-            return await display(interaction, uData);
+        if (Itype === Etype) {
+            dmgDealt += (dmgDealt * 0.5);
+            console.log('New dmgDealt: ', dmgDealt);
         }
     }
+
+    var embedColour = 'NotQuiteBlack';
+    var embedTitle = 'Damage Dealt';
+
+    const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
+    var spdUP = 0;
+    var dexUP = 0;
+
+    if (pigmy) {
+        //pigmy found check for happiness and type                                                     
+        if (pigmy.type === 'Fire') {
+            //Fire pigmy equipped apply + 0.10 dex
+            dexUP = 0.10;
+        } else if (pigmy.type === 'Frost') {
+            //Frost pigmy equipped apply + 0.10 spd
+            spdUP = 0.10;
+        }
+    }
+
+    var dhChance;
+    var isDH = false;
+    let runCount = 1;
+    if (user.pclass === 'Thief') {
+        dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
+    } else { dhChance = ((user.speed * 0.02) + spdUP); }
+    console.log('Current 2 hit chance: ', dhChance);
+
+    const procCall1 = Math.random();
+    console.log('RNG rolled for double hit: ', procCall1, '\n');
+
+    //======================
+    // First proc call if statment to check for double
+    if (procCall1 <= dhChance) {
+        //double attack has triggered
+        runCount = 2;
+        console.log('Double hit!\n');
+        isDH = true;
+        embedColour = 'Aqua';
+        embedTitle = 'Double Hit!';
+    }
+    //======================
+
+    // Do {attack for n times} While (n < runCount)
+    var i = 0;
+    const staticDmg = dmgDealt;
+    do {
+        //  Implement Critical here
+        dmgDealt = staticDmg;
+        var critChance;
+        if (user.pclass === 'Thief') {
+            critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
+        } else { critChance = ((user.dexterity * 0.02) + dexUP); }
+        console.log('Current crit chance: ', critChance);
+
+        const procCall2 = Math.random();
+        console.log('RNG rolled for crit chance: ', procCall2, '\n');
+
+        //======================
+        // Second proc call if statment to check for crit
+        if (procCall2 <= critChance) {
+            //attack is now a critical hit
+            dmgDealt *= 2;
+            console.log('Critical hit!\nNew damage before defence: ', dmgDealt, '\n');
+            embedColour = 'LuminousVividPink';
+            embedTitle = 'Critical Hit!';
+        } else if (isDH) {
+            embedColour = 'Aqua';
+            embedTitle = 'Double Hit!';
+        } else {
+            embedColour = 'NotQuiteBlack';
+            embedTitle = 'Damage Dealt';
+        }
+        //======================
+
+        dmgDealt -= (eDefence * 2);
+
+        //if statment to check if enemy dies after attack
+        if ((eHealth - dmgDealt) <= 0) {
+            console.log('ENEMY IS DEAD');
+            dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
+
+            const attackDmgEmbed = new EmbedBuilder()
+                .setTitle(embedTitle)
+                .setColor(embedColour)
+                .addFields(
+                    { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
+                );
+
+            await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
+                attkEmbed.delete();
+            }, 15000)).catch(console.error);
+            return enemyDead(enemy, interaction, user); // enemy is dead
+        } else {
+            eHealth -= dmgDealt;
+            eHealth = Number.parseFloat(eHealth).toFixed(1);
+            dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
+            console.log('CURRENT ENEMY HEALTH: ', eHealth);
+
+            const attackDmgEmbed = new EmbedBuilder()
+                .setTitle(embedTitle)
+                .setColor(embedColour)
+                .addFields(
+                    { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
+                );
+
+            await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
+                attkEmbed.delete();
+            }, 15000)).catch(console.error);
+
+            //NEW METHOD TO DEAL DAMAGE  
+            await hitE(eHealth, enemy);
+        }
+        i++;
+    } while (i < runCount)
+
+    /**
+        Deal with enemy damaging player calculations and handling here!!
+            
+        If enemy is still alive then player gets attacked
+
+        Using similar calculations to dealing damage to enemy handle player damage taken
+
+        Account for player class and stats when dealing damage
+    */
+    const eDamage = await enemyDamage(enemy);
+    console.log(`Enemy damge: ${eDamage}`);
+    const dead = await takeDamage(eDamage, user, enemy, interaction);
+    const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+
+    if (!dead) {
+        console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${Enemy}`);
+        return await display(interaction, uData);
+    }
+    
 }
 
 /**
