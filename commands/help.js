@@ -35,7 +35,7 @@ module.exports = {
 			return interaction.reply(`Welcome back! Looks like you've tested your skills once or twice, however you still lack the experience needed to strike out on your own through quests! Come back once you've reached level 5! :)`);
 		}
 
-		if (uData.level > 6 && uData.qt === 0) {
+		if (uData.level >= 5 && uData.qt === 0) {
 			//User can start quests and has not 
 			return interaction.reply(`Congratulations on your success, you are now ready for \`/quest start\`! Good luck out there.`);
 		}
