@@ -21,54 +21,31 @@ const lootList = require('../../events/Models/json_prefabs/lootList.json');
 
 const combatEmitter = new EventEmitter();
 
-const enemyLoadEmitter = new EventEmitter();
+const destroyerE = new EventEmitter();
 
-const bossLoadEmitter = new EventEmitter();
+destroyerE.on('endALL', () => {
+    combatEmitter.removeAllListeners();
+});
+
 
 var interaction;
 var userID;
 var fullKilledList = [];
 var killedEnemies = [];
-var enemyToFight;
-var madeBoss;
 var theE = 0;
 var theB = 0;
 
 //This method loads one floor for combat 
 async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUserID) {
-    //Grab reference to dungeonList grabbing 
-    interaction = interactionRef;   
-    userID = collectedUserID;
-    //console.log(`CollectedUserID: ${collectedUserID}`);
-    console.log(`userID: ${userID}`);
-    //console.log(`InteractionRef: ${interactionRef}`);
-    //console.log(`Interaction: ${interaction}`);  
-    //ex. 
-    // Floor1 is loaded
-    // Floor1 = [79, 79, 61, 61]
-    // Load enemy w. constKey 79 
-    // Initiate combat script
-    // Combat script returns 'Kill'||'Killed'
-    // 'Kill' - Enemy is dead add data to kill array
-    // 'Killed' - Player is dead, clear kill array, set currentFloor to last save
-    // for (var i = 0; i < Floor1.length;) 
-    // await loadEnemy(Floor1[i])
-    // Returns 'Kill'||'Killed'
-    // If (Kill)
-    // .push(enemy)
-    // i++;
-    // If (Killed)
-    // = []
-    // currentFloor = lastsave
-    // Return 'DEAD' to dungeon.js
-    // embed('Continue?') 'Yes'||'No'
-
+    
     combatEmitter.on('LoadEnemy', async (floorEnemies, constKey) => {
         console.log('Loading next enemy');
         console.log(`theE: ${theE}`);
 
         constKey = floorEnemies[theE];
         console.log(`constKey: ${constKey}`);
+
+        const enemyLoadEmitter = new EventEmitter();
 
         enemyLoadEmitter.once('EnemyLoaded', async (enemyToFight) => {
             console.log(`enemyToFight: ${enemyToFight}`);
@@ -77,7 +54,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
             dungeonCombat(constKey, interaction, killEmitter);
 
-            killEmitter.once('Kill', async () => {
+            killEmitter.once('EKill', async () => {
                 console.log('Enemy killed');
                 killedEnemies.push(enemyToFight);
                 await destroyEnemy();
@@ -92,25 +69,27 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
                 }
             });
 
-            killEmitter.once('Killed', async () => {
+            killEmitter.once('EKilled', async () => {
                 console.log('Player killed');
                 await clearProgress('Enemy');
                 combatEmitter.emit('Failed');
             });
         });
 
-        await loadEnemy(constKey);
+        await loadEnemy(constKey, enemyLoadEmitter);
     });
 
 
 
 
-    combatEmitter.on('LoadBoss', async (bossRef, constKey) => {
+    combatEmitter.on('LoadBoss', async (bossRef) => {
         console.log(`Loading Boss at stage: `);
         console.log(`theB: ${theB}`);
 
-        constKey = bossRef[theB].ConstKey;
+        var constKey = bossRef[theB].ConstKey;
         console.log(`constKey Boss: ${constKey}`);       
+
+        const bossLoadEmitter = new EventEmitter();
 
         bossLoadEmitter.once('BossLoaded', async (madeBoss) => {
             console.log('BOSS LOADED');
@@ -118,7 +97,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
             loadBossStage(madeBoss, bossRef[theB], interaction, bossKillEmitter);
 
-            bossKillEmitter.once('Kill', async () => {
+            bossKillEmitter.once('BKill', async () => {
                 console.log('Boss stage Complete!');
                 await destroyBoss();
                 theB++;
@@ -127,50 +106,21 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
                 } else if (theB >= bossRef.length) {
                     //Boss is dead!!!
                     //VICTORY!!!!
+                    theB = 0;
                     combatEmitter.emit('Victory');
                 }
             });
 
-            bossKillEmitter.once('Killed', async () => {
+            bossKillEmitter.once('BKilled', async () => {
                 console.log('Player killed');
                 await clearProgress('Boss');
                 combatEmitter.emit('Failed');
             });
         });
 
-        await loadBoss(constKey);
+        await loadBoss(constKey, bossLoadEmitter);
     });
 
-
-
-
-
-    var activeFloor;
-    console.log('activeFloor First: ', activeFloor);
-    if (currentFloor === 0) {
-        //Start at floor 1
-        activeFloor = 1;
-    } else {
-        activeFloor = currentFloor;
-    }
-    console.log('activeFloor Second: ', activeFloor);
-
-    const theDungeon = await findDungeon(dungeonId);
-    console.log(`theDungeon.Name: ${theDungeon.Name}`);
-
-    const bossFloor = theDungeon.BossFloor;
-
-    var cf = activeFloor;
-    console.log(`cf: ${cf}`);
-
-    if (cf !== bossFloor) {
-        console.log(`LOADING NORMAL FLOOR`);
-        var floorStr = `Floor${cf}`;
-        await loadFloor(floorStr, theDungeon);
-    } else {
-        console.log(`LOADING BOSS FLOOR`);
-        await loadBossFloor(theDungeon.Boss);
-    }
 
     combatEmitter.on('LoadFloor', async () => {
         console.log('Loading Floor');
@@ -224,6 +174,11 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
     combatEmitter.on('Failed', async () => {
         console.log('Player has died');
+        await destroyBoss();
+        destroyerE.emit('endALL');
+
+        theE = 0;
+        theB = 0;
 
         const reviveButton = new ButtonBuilder()
             .setCustomId('primary')
@@ -274,8 +229,71 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
     combatEmitter.on('Victory', async () => {
         console.log('Boss has been killed!');
+        theB = 0;
+        destroyerE.emit('endALL');
+        await dungeonISCOMPLETE(true);
         await giveBossDrops(theDungeon.Boss);
     });
+
+    //Grab reference to dungeonList grabbing 
+    interaction = interactionRef;
+    userID = collectedUserID;
+    theE = 0;
+    theB = 0;
+    //console.log(`CollectedUserID: ${collectedUserID}`);
+    console.log(`userID: ${userID}`);
+    //console.log(`InteractionRef: ${interactionRef}`);
+    //console.log(`Interaction: ${interaction}`);  
+    //ex. 
+    // Floor1 is loaded
+    // Floor1 = [79, 79, 61, 61]
+    // Load enemy w. constKey 79 
+    // Initiate combat script
+    // Combat script returns 'Kill'||'Killed'
+    // 'Kill' - Enemy is dead add data to kill array
+    // 'Killed' - Player is dead, clear kill array, set currentFloor to last save
+    // for (var i = 0; i < Floor1.length;) 
+    // await loadEnemy(Floor1[i])
+    // Returns 'Kill'||'Killed'
+    // If (Kill)
+    // .push(enemy)
+    // i++;
+    // If (Killed)
+    // = []
+    // currentFloor = lastsave
+    // Return 'DEAD' to dungeon.js
+    // embed('Continue?') 'Yes'||'No'
+    await destroyBoss();
+    await destroyEnemy();
+
+
+
+    var activeFloor;
+    console.log('activeFloor First: ', activeFloor);
+    if (currentFloor === 0) {
+        //Start at floor 1
+        activeFloor = 1;
+    } else {
+        activeFloor = currentFloor;
+    }
+    console.log('activeFloor Second: ', activeFloor);
+
+    const theDungeon = await findDungeon(dungeonId);
+    console.log(`theDungeon.Name: ${theDungeon.Name}`);
+
+    const bossFloor = theDungeon.BossFloor;
+
+    var cf = activeFloor;
+    console.log(`cf: ${cf}`);
+
+    if (cf !== bossFloor) {
+        console.log(`LOADING NORMAL FLOOR`);
+        var floorStr = `Floor${cf}`;
+        await loadFloor(floorStr, theDungeon);
+    } else if (cf === bossFloor) {
+        console.log(`LOADING BOSS FLOOR`);
+        await loadBossFloor(theDungeon.Boss);
+    }
 }
 
 //This function loads the current floor as given, grabs full array object from dungeon and iterates for each enemy combat
@@ -290,59 +308,28 @@ async function loadFloor(floor, dungeon) {
 }
 
 //This method loads the inital prefab enemy pertaining to the constKey provided, then attempts to add it as an active enemy
-async function loadEnemy(constKey) {
+async function loadEnemy(constKey, enemyLoadEmitter) {
     let currentEnemy;
     console.log(`currentEnemy before search: ${currentEnemy}`);
-    for (var i = 0; i < enemyList.length; i++) {
+    for (var i = 0; i < enemyList.length;) {
         if (enemyList[i].ConstKey === constKey) {
             //Enemy match found!
             //Adding to active list and preparing for combat
-            currentEnemy = await addEnemy(enemyList[i]);
-            enemyLoadEmitter.emit('EnemyLoaded', currentEnemy);
-            console.log(`currentEnemy during search: ${currentEnemy}`);
-        }
+            currentEnemy = await addEnemy(enemyList[i], enemyLoadEmitter);
+            console.log(`currentEnemy after search: ${currentEnemy}`);
+            i = enemyList.length.length;
+        } else { i++;/**NOT FOUND*/ }
+        console.log(`currentEnemy during search: ${currentEnemy}`);
     }
-    console.log(`currentEnemy after search: ${currentEnemy}`);
-    //return currentEnemy;
-    //Enemy found and created, return results for combat
 }
 
-async function addEnemy(enemyFab) {
-    const relicEnemyData = await ActiveDungeonEnemy.findOne({ where: { specid: userID } });
-    if (relicEnemyData) {
+async function addEnemy(enemyFab, enemyLoadEmitter) {
+    const dupeEnemyData = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyFab.ConstKey }] });
+    if (dupeEnemyData) {
+        await destroyEnemy();
         try {
-            console.log(`TRYING TO UPDATE ENEMY!`);
-            await ActiveDungeonEnemy.update({
-                name: enemyFab.Name,
-                description: enemyFab.Description,
-                level: enemyFab.Level,
-                mindmg: enemyFab.MinDmg,
-                maxdmg: enemyFab.MaxDmg,
-                health: enemyFab.Health,
-                defence: enemyFab.Defence,
-                weakto: enemyFab.WeakTo,
-                dead: false,
-                xpmin: enemyFab.XpMin,
-                xpmax: enemyFab.XpMax,
-                constkey: enemyFab.ConstKey,
-            }, { where: {specid: userID}});
-
-            const enemy = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyFab.ConstKey }] });
-
-            if (!enemy) {
-                //No enemy, loading failed
-                console.log('ENEMY UPDATING FAILED!!');
-            } else {
-                return enemy;
-            }
-
-        } catch (err) {
-            console.error('An error has occured!', err);
-        }
-    } else {
-        try {
-            console.log(`TRYING TO ADD NEW ENEMY!`);
-            await ActiveDungeonEnemy.create({
+            console.log(`TRYING TO ADD NEW ENEMY! 1`);
+            const createEnemy = await ActiveDungeonEnemy.create({
                 name: enemyFab.Name,
                 description: enemyFab.Description,
                 level: enemyFab.Level,
@@ -358,14 +345,35 @@ async function addEnemy(enemyFab) {
                 specid: userID,
             });
 
-            const enemy = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyFab.ConstKey }] });
+            const enemy = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: createEnemy.constkey }] });
 
-            if (!enemy) {
-                //No enemy, loading failed
-                console.log('ENEMY ADDING FAILED!!');
-            } else {
-                return enemy;
-            }
+            return enemyLoadEmitter.emit('EnemyLoaded', enemy);
+
+        } catch (err) {
+            console.error('An error has occured!', err);
+        }
+    } else if (!dupeEnemyData){
+        try {
+            console.log(`TRYING TO ADD NEW ENEMY! 2`);
+            const createEnemy = await ActiveDungeonEnemy.create({
+                name: enemyFab.Name,
+                description: enemyFab.Description,
+                level: enemyFab.Level,
+                mindmg: enemyFab.MinDmg,
+                maxdmg: enemyFab.MaxDmg,
+                health: enemyFab.Health,
+                defence: enemyFab.Defence,
+                weakto: enemyFab.WeakTo,
+                dead: false,
+                xpmin: enemyFab.XpMin,
+                xpmax: enemyFab.XpMax,
+                constkey: enemyFab.ConstKey,
+                specid: userID,
+            });
+
+            const enemy = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: createEnemy.constkey }] });
+
+            return enemyLoadEmitter.emit('EnemyLoaded', enemy);
 
         } catch (err) {
             console.error('An error has occured!', err);
@@ -378,61 +386,34 @@ async function loadBossFloor(boss) {
     const bossRef = bossList.filter(theBoss => theBoss.NameRef === boss);
     console.log(`CONTENTS OF bossRef: ${bossRef}`);
 
-    var constKey = 0;
-    combatEmitter.emit('LoadBoss', bossRef, constKey);          
+    combatEmitter.emit('LoadBoss', bossRef);          
 }
 
-async function loadBoss(constKey) {
+async function loadBoss(constKey, bossLoadEmitter) {
     let currentBoss;
     console.log(`currentBoss before search: ${currentBoss}`);
-    for (var i = 0; i < bossList.length; i++) {
+    for (var i = 0; i < bossList.length;) {
         if (bossList[i].ConstKey === constKey) {
             //Boss match found!
             //Adding to active list and preping for combat
-            currentBoss = await addBoss(bossList[i]);
-            bossLoadEmitter.emit('BossLoaded', currentBoss);
-            console.log(`currentBoss during search: ${currentBoss}`);
-        }
+            currentBoss = await addBoss(bossList[i], bossLoadEmitter);
+            console.log(`currentBoss after search: ${currentBoss}`);
+            i = bossList.length;
+            //return bossLoadEmitter.emit('BossLoaded', currentBoss);            
+        } else { i++;/**NOT FOUND*/ }
+        console.log(`currentBoss during search: ${currentBoss}`);        
     }
-    console.log(`currentBoss after search: ${currentBoss}`);
-    //return currentBoss;
 }
 
 //This method adds a new boss to the activeDungeonBoss db
-async function addBoss(boss) {
-    const relicBossData = await ActiveDungeonBoss.findOne({ where: { specid: userID } });
-    if (relicBossData) {
-        //Boss exists wtf dont load another instead destroy data and make new one 
+async function addBoss(boss, bossLoadEmitter) {
+    const dupeBossData = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: boss.ConstKey }] });
+    if (dupeBossData) {
+        await destroyBoss();
+        
         try {
-            console.log(`TRYING TO UPDATE BOSS!`);
-            await ActiveDungeonBoss.update({
-                name: boss.Name,
-                level: boss.Level,
-                mindmg: boss.MinDmg,
-                maxdmg: boss.MaxDmg,
-                health: boss.Health,
-                defence: boss.Defence,
-                weakto: boss.WeakTo,
-                constkey: boss.ConstKey,               
-            }, { where: {specid: userID}});
-
-            const enemy = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: boss.ConstKey }] });
-
-            if (!enemy) {
-                //No enemy, loading failed
-                console.log('BOSS UPDATING FAILED!!');
-                //return;
-            } else {
-                return enemy;
-            }
-
-        } catch (err) {
-            console.error('An error has occured!', err);
-        }
-    } else {
-        try {
-            console.log(`TRYING TO ADD NEW BOSS!`);
-            await ActiveDungeonBoss.create({
+            console.log(`TRYING TO ADD NEW BOSS! 1`);
+            const createEnemy = await ActiveDungeonBoss.create({
                 name: boss.Name,
                 level: boss.Level,
                 mindmg: boss.MinDmg,
@@ -444,20 +425,35 @@ async function addBoss(boss) {
                 specid: userID,
             });
 
-            const enemy = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: boss.ConstKey }] });
+            const enemy = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: createEnemy.constkey }] });
 
-            if (!enemy) {
-                //No enemy, loading failed
-                console.log('BOSS ADDING FAILED!!');
-                //return;
-            } else {
-                return enemy;
-            }
-
+            return bossLoadEmitter.emit('BossLoaded', enemy);
         } catch (err) {
             console.error('An error has occured!', err);
         }
-    } 
+         
+    } else if (!dupeBossData) {
+        try {
+            console.log(`TRYING TO ADD NEW BOSS! 2`);
+            const createEnemy = await ActiveDungeonBoss.create({
+                name: boss.Name,
+                level: boss.Level,
+                mindmg: boss.MinDmg,
+                maxdmg: boss.MaxDmg,
+                health: boss.Health,
+                defence: boss.Defence,
+                weakto: boss.WeakTo,
+                constkey: boss.ConstKey,
+                specid: userID,
+            });
+
+            const enemy = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: createEnemy.constkey }] });
+            console.log(`BOSS AFTER BEING ADDED TO DATABASE WAITING TO RETURN TO COMBAT ${enemy}`);
+            return bossLoadEmitter.emit('BossLoaded', enemy);
+        } catch (err) {
+            console.error('An error has occured!', err);
+        }
+    }
 }
 
 //This method retrieves dungeon reference for all further interactions
@@ -736,12 +732,25 @@ async function giveBossDrops(bossName) {
     await isLvlUp(xpGained, cGained, interaction);
 }
 
+async function dungeonISCOMPLETE(status) {
+    const completeStatus = await ActiveDungeon.update({ completed: status }, { where: { dungeonspecid: userID } });
+    if (completeStatus > 0) {
+        return console.log('DUNGEON IS COMPLETE!');
+    }
+}
+
 async function destroyEnemy() {
-    await ActiveDungeonEnemy.destroy({ where: { specid: userID } });
+    const dataChange = await ActiveDungeonEnemy.destroy({ where: { specid: userID } });
+    if (dataChange > 0) {
+        return console.log('ENEMY DESTROYED');
+    }
 }
 
 async function destroyBoss() {
-    await ActiveDungeonBoss.destroy({ where: { specid: userID } });
+    const dataChange = await ActiveDungeonBoss.destroy({ where: { specid: userID } });
+    if (dataChange > 0) {
+        return console.log('BOSS DESTROYED');
+    }
 }
 
 
@@ -1007,7 +1016,7 @@ async function dungeonCombat(enemyConstKey, interaction, killEmitter) {
                 await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                     attkEmbed.delete();
                 }, 15000)).catch(console.error);
-                killEmitter.emit('Kill');
+                killEmitter.emit('EKill');
                 return; // enemy is dead
             } else {
                 eHealth -= dmgDealt;
@@ -1127,7 +1136,7 @@ async function dungeonCombat(enemyConstKey, interaction, killEmitter) {
             //Player has died =========================================================== HANDLE THIS DIFFERENTLY!!!!!!
             console.log('PLAYER IS DEAD :O');
             await hitP(0);
-            killEmitter.emit('Killed');
+            killEmitter.emit('EKilled');
             return true;
         } else {
             currentHealth -= eDamage;
@@ -1509,7 +1518,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter) {
                 await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
                     attkEmbed.delete();
                 }, 15000)).catch(console.error);
-                bossKillEmitter.emit('Kill');
+                bossKillEmitter.emit('BKill');
                 return; // enemy is dead
             } else {
                 eHealth -= dmgDealt;
@@ -1626,7 +1635,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter) {
             //Player has died =========================================================== HANDLE THIS DIFFERENTLY!!!!!!
             console.log('PLAYER IS DEAD :O');
             await hitP(0);
-            bossKillEmitter.emit('Killed');
+            bossKillEmitter.emit('BKilled');
             return true;
         } else {
             currentHealth -= eDamage;
