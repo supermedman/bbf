@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 const { UserData, Milestones, ActiveDungeon } = require('../dbObjects.js');
 const { loadDungeon } = require('./exported/handleDungeon.js');
@@ -188,9 +188,7 @@ module.exports = {
 						infoEmbed.delete();
 					}
 				});
-			}
-
-		
+			}	
         }
 
 		//This method Creates a new ActiveDungeon database entry and returns the object

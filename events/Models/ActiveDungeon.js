@@ -8,5 +8,9 @@ module.exports = (sequelize, DataTypes) => {
         currentfloor: DataTypes.INTEGER,
         lastsave: DataTypes.INTEGER,
         currenthealth: DataTypes.INTEGER,
+        completed: {
+            type: DataTypes.BOOLEAN,
+            defaultvalue: false,
+        },
     });
 };

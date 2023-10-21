@@ -912,7 +912,7 @@
         "Spec_id": 0
     },
     {
-        "Name": "Dragon’s Tongue",
+        "Name": "Dragon's Tongue",
         "Value": 1450,
 
         "Attack": 85,
@@ -1133,7 +1133,7 @@
         "Name": "Nessys Cat Ears",
         "Value": 150000,
 
-        "Defence": 25,
+        "Defence": 35,
         "Type": "NULL",
 
         "Slot": "Headslot",
@@ -1146,9 +1146,9 @@
     },
     {
         "Name": "Nessys Maids Outfit",
-        "Value": 1500000,
+        "Value": 300000,
 
-        "Defence": 25,
+        "Defence": 70,
         "Type": "NULL",
 
         "Slot": "Chestslot",
@@ -1163,7 +1163,7 @@
         "Name": "Nessys Pantyhose",
         "Value": 150000,
 
-        "Defence": 25,
+        "Defence": 35,
         "Type": "NULL",
 
         "Slot": "Legslot",
@@ -1355,18 +1355,214 @@
         "Spec_id": 0
     },
     {
-        "Name": "TmpHelm",
-        "Value": 10,
+        "Name": "Dragon's Obsidian Gaze",
+        "Value": 1450,
 
-        "Defence": 1,
-        "Type": " ",
+        "Defence": 6,
+        "Type": "FIRE",
 
         "Slot": "Headslot",
 
-        "Rarity": " ",
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 87,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Dragon's Scaled Breastplate",
+        "Value": 2900,
+
+        "Defence": 12,
+        "Type": "FIRE",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 88,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Dragon's Wrathful Bone Platelegs",
+        "Value": 1450,
+
+        "Defence": 6,
+        "Type": "FIRE",
+
+        "Slot": "Legslot",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "Loot_id": 89,
+        "Spec_id": 0
+    },
+    {
+        "Name": "TimeEdge, Crown of Ending Magic",
+        "Value": 2000,
+
+        "Defence": 8,
+        "Type": "MAGIC",
+
+        "Slot": "Headslot",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 90,
+        "Spec_id": 0
+    },
+    {
+        "Name": "TimeEdge, Raiment of Lost Worlds",
+        "Value": 4000,
+
+        "Defence": 16,
+        "Type": "MAGIC",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 91,
+        "Spec_id": 0
+    },
+    {
+        "Name": "TimeEdge, Exile Cloth Legwraps",
+        "Value": 2000,
+
+        "Defence": 8,
+        "Type": "MAGIC",
+
+        "Slot": "Legslot",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "Loot_id": 92,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Wadira's Insanity, Fetish of Corruption",
+        "Value": 3950,
+
+        "Attack": 140,
+        "Type": "DARK",
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 93,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Wadira's Deflector of Illusions",
+        "Value": 3950,
+
+        "Defence": 10,
+        "Type": "DARK",
+
+        "Slot": "Headslot",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 94,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Wadira's Token of Regrets",
+        "Value": 4900,
+
+        "Defence": 20,
+        "Type": "DARK",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 95,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Wadira's Emissary of Ashes",
+        "Value": 3950,
+
+        "Defence": 10,
+        "Type": "DARK",
+
+        "Slot": "Legslot",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "Loot_id": 96,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Dusk, Crown of Burning Lands",
+        "Value": 9000,
+
+        "Defence": 14,
+        "Type": "FIRE",
+
+        "Slot": "Headslot",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "Loot_id": 97,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Midnight, Terror of the Nightend",
+        "Value": 18000,
+
+        "Defence": 28,
+        "Type": "FIRE",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "Loot_id": 98,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Twilight, Legguards of Fire",
+        "Value": 9000,
+
+        "Defence": 14,
+        "Type": "FIRE",
+
+        "Slot": "Legslot",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "Loot_id": 99,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Boar Mask",
+        "Value": 100000000,
+
+        "Defence": 30,
+        "Type": "NULL",
+
+        "Slot": "Headslot",
+
+        "Rarity": "lol",
         "Rar_id": 11,
 
-        "Loot_id": 10000,
+        "Loot_id": 20001,
         "Spec_id": 0
     },
     {

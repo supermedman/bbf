@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         specid: {
             type: DataTypes.STRING,
             defaultValue: 0,
+            unique: true,
         },
     },
         {
