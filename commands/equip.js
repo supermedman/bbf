@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { LootStore, Equipped, Loadout } = require('../dbObjects.js');
+const { LootStore, Loadout } = require('../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -164,164 +164,62 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'weapon') {
             const itemname = interaction.options.getString('mainhand');
             console.log(itemname);
-
             const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
             console.log(item.loot_id);
 
-            //CHECK LOADOUT HERE AS WELL
-            
-            if (item.spec_id !== interaction.user.id) {
-                //something is wrong!
-                console.log(interaction.user.id);
-                item.spec_id = interaction.user.id;
-                console.log(item.spec_id);
-                if (item) {
-                    //item found!
-                    const eqitem = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                    const equipInLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+            if (item) {
+                const equipInLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
 
-                    console.log(eqitem);
-                    if (eqitem && equipInLoadout) {
-                        //item already equipped therefore overwrite and update
-
-                        const newitem = await Equipped.update(
-                            {
-                                name: item.name,
-                                value: item.value,
-                                attack: item.attack,
-                                type: item.type,
-                                rarity: item.rarity,
-                                rar_id: item.rar_id,
-                                loot_id: item.loot_id,
-                            }, { where: [{ spec_id: interaction.user.id }] });
-
-                        console.log('ITEM UPDATED IN EQUIPPED: ', newitem);
-                        interaction.followUp('Item equipped successfully!');
-
-                        const newLoad = await Loadout.update({ mainhand: item.loot_id }, { where: { spec_id: interaction.user.id } });
-                        if (newLoad > 0) {
-                            //item  updated
+                if (equipInLoadout) {
+                    //LoadoutFound update slot
+                    if (item.hands === 'One') {
+                        const newWeapon = await Loadout.update({
+                            mainhand: item.loot_id,
+                        }, { where: { spec_id: interaction.user.id } });
+                        if (newWeapon > 0) {
+                            console.log('mainhand UPDATED!');
+                            return interaction.followUp('Weapon equipped!');
                         }
-                    } else if (eqitem) {
-                        const newitem = await Equipped.update(
-                            {
-                                name: item.name,
-                                value: item.value,
-                                attack: item.attack,
-                                type: item.type,
-                                rarity: item.rarity,
-                                rar_id: item.rar_id,
-                                loot_id: item.loot_id,
-                            }, { where: [{ spec_id: interaction.user.id }] });
-
-                        console.log('ITEM UPDATED IN EQUIPPED: ', newitem);
-                        interaction.followUp('Item equipped successfully!');
-                    } else if (!eqitem) {
-                        //no items equipped therefore make new one
-                        const newitem = await Equipped.create(
-                            {
-                                name: item.name,
-                                value: item.value,
-                                attack: item.attack,
-                                type: item.type,
-                                rarity: item.rarity,
-                                rar_id: item.rar_id,
-                                spec_id: interaction.user.id,
-                                loot_id: item.loot_id,
-                            });
-
-                        console.log('ITEM ADDED TO EQUIPPED: ', newitem);
-                        interaction.followUp('Item equipped successfully!');
+                    } else if (item.hands === 'Two') {
+                        const newWeapon = await Loadout.update({
+                            mainhand: item.loot_id,
+                            offhand: item.loot_id,
+                        }, { where: { spec_id: interaction.user.id } });
+                        if (newWeapon > 0) {
+                            console.log('mainhand UPDATED!');
+                            return interaction.followUp('Weapon equipped!');
+                        }
+                    } else {
+                        //Hands === null
+                        return interaction.followUp('That item has an invalid hands value!!');
                     }
-                    if (!equipInLoadout) {
-                        const newLoad = await Loadout.create({
+                } else {
+                    //New Loadout
+                    if (item.hands === 'One') {
+                        const newWeapon = await Loadout.create({
                             mainhand: item.loot_id,
                             spec_id: interaction.user.id,
                         });
-                        if (newLoad > 0) {
-                            //item  updated
-                            interaction.followUp('Item equipped successfully!');
+                        if (newWeapon > 0) {
+                            console.log('mainhand CREATED!');
+                            return interaction.followUp('Weapon equipped!');
                         }
-                    }
-                }
-                else if (!item) {
-                    //item not found!
-                    return interaction.followUp('That item could not be found.. please use ``/myloot`` for a list of items you have!');
-                }
-
-            } else {
-                if (item) {
-                    //item found!
-                    const eqitem = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-                    const equipInLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
-
-                    console.log(eqitem);
-                    if (eqitem && equipInLoadout) {
-                        //item already equipped therefore overwrite and update
-
-                        const newitem = await Equipped.update(
-                            {
-                                name: item.name,
-                                value: item.value,
-                                attack: item.attack,
-                                type: item.type,
-                                rarity: item.rarity,
-                                rar_id: item.rar_id,
-                                loot_id: item.loot_id,
-                            }, { where: [{ spec_id: interaction.user.id }] });
-
-                        console.log('ITEM UPDATED IN EQUIPPED: ', newitem);
-                        interaction.followUp('Item equipped successfully!');
-                        const newLoad = await Loadout.update({ mainhand: item.loot_id }, { where: { spec_id: interaction.user.id } });
-                        if (newLoad > 0) {
-                            //item  updated
-                        }
-                    } else if (eqitem) {
-                        const newitem = await Equipped.update(
-                            {
-                                name: item.name,
-                                value: item.value,
-                                attack: item.attack,
-                                type: item.type,
-                                rarity: item.rarity,
-                                rar_id: item.rar_id,
-                                loot_id: item.loot_id,
-                            }, { where: [{ spec_id: interaction.user.id }] });
-
-                        console.log('ITEM UPDATED IN EQUIPPED: ', newitem);
-                        interaction.followUp('Item equipped successfully!');
-                    } else if (!eqitem) {
-                        //no items equipped therefore make new one
-                        const newitem = await Equipped.create(
-                            {
-                                name: item.name,
-                                value: item.value,
-                                attack: item.attack,
-                                type: item.type,
-                                rarity: item.rarity,
-                                rar_id: item.rar_id,
-                                spec_id: interaction.user.id,
-                                loot_id: item.loot_id,
-                            });
-
-                        console.log('ITEM ADDED TO EQUIPPED: ', newitem);
-                        interaction.followUp('Item equipped successfully!');
-                    }
-                    if (!equipInLoadout) {
-                        const newLoad = await Loadout.create({
+                    } else if (item.hands === 'Two') {
+                        const newWeapon = await Loadout.create({
                             mainhand: item.loot_id,
+                            offhand: item.loot_id,
                             spec_id: interaction.user.id,
                         });
-                        if (newLoad > 0) {
-                            //item  updated
+                        if (newWeapon > 0) {
+                            console.log('mainhand CREATED!');
+                            return interaction.followUp('Weapon equipped!');
                         }
+                    } else {
+                        //Hands === null
+                        return interaction.followUp('That item has an invalid hands value!!');
                     }
                 }
-                else if (!item) {
-                    //item not found!
-                    return interaction.reply('That item could not be found.. please use ``/myloot`` for a list of items you have!');
-                }
-            }
+            }           
         }
         if (interaction.options.getSubcommand() === 'helm') {
             const itemname = interaction.options.getString('headslot');

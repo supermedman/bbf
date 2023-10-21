@@ -1,10 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { Equipped, Loadout } = require('../dbObjects.js');
-const { userDamage } = require('./exported/dealDamage.js');
+const { Loadout, UserData } = require('../dbObjects.js');
+const { userDamageLoadout } = require('./exported/dealDamage.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./exported/findLoadout.js');
-
-const lootList = require('../events/Models/json_prefabs/lootList.json');
-const uniqueLootList = require('../events/Models/json_prefabs/uniqueLootList.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -27,6 +24,7 @@ module.exports = {
             var chestSlotEmbed;
             var legSlotEmbed;
             var mainHandEmbed;
+            var damageEmbed;
 
             if (headSlotItem === 'NONE') {
                 //No item equipped
@@ -96,6 +94,11 @@ module.exports = {
                 mainHandEmbed = new EmbedBuilder()
                     .setTitle('NOTHING EQUIPPED')
                     .addFields({ name: 'No mainhand equipped', value: list, });
+
+                damageEmbed = new EmbedBuilder()
+                    .setTitle('NOTHING EQUIPPED')
+                    .addFields({ name: 'No mainhand equipped', value: list, });
+
             } else {
                 //Item found add it
                 var list = (`\nValue: **${mainHandItem.Value}c** \nRarity: **${mainHandItem.Rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.Slot}** \nHands: **${mainHandItem.Hands}**`);
@@ -109,51 +112,30 @@ module.exports = {
                             value: list,
 
                         });
+
+                const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+
+                const weapondmgmod = await userDamageLoadout(uData, mainHandItem);
+                console.log(weapondmgmod);
+
+                list = (`Total damage dealt before defence calculations: \n${weapondmgmod}`);
+                damageEmbed = new EmbedBuilder()
+                    .setTitle(`**${mainHandItem.Name}**`)
+                    .setColor(0000)
+                    .addFields(
+                        {
+                            name: (`*${mainHandItem.Rarity}*`),
+                            value: list
+
+                        });
             }
 
-            interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, mainHandEmbed] });
+            interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, mainHandEmbed, damageEmbed] });
 
         } else {
             //No items equipped
             return interaction.followUp('You have not equipped anything yet! Use ``/equip < Loadout-Slot > < Item-Name >`` to equip something, dont forget to start the word with a CAPITAL LETTER!');
-        }
-
-        const item = await Equipped.findOne({ where: [{ spec_id: interaction.user.id }] });
-
-        if (item) {
-            //user has item equipped
-            var list = (`\nValue: **${item.value}c** \nRarity: **${item.rarity}** \nAttack: **${item.attack}** \nType: **${item.type}**`);
-
-            const itemEmbed = new EmbedBuilder()
-                .setTitle('CURRENTLY EQUIPPED')
-                .setColor(0000)
-                .addFields(
-                    {
-                        name: (`**${item.name}**`),
-                        value: list
-
-                    }
-            )
-            const weapondmgmod = await userDamage(interaction, item);
-            console.log(weapondmgmod);
-
-            list = (`Total damage dealt before defence calculations: \n${weapondmgmod}`);
-            const damageEmbed = new EmbedBuilder()
-                .setTitle(`**${item.name}**`)
-                .setColor(0000)
-                .addFields(
-                    {
-                        name: (`*${item.rarity}*`),
-                        value: list
-
-                    }
-            )
-
-            interaction.followUp({ embeds: [itemEmbed, damageEmbed] });
-        } else {
-            //no item equipped!
-            return interaction.followUp('You have no weapon equipped! Use the command ``/equip < Item-Name >`` to equip an item.');
-        }
+        }       
 	},
 
 };
