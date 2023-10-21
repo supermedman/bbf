@@ -468,7 +468,7 @@ async function hitOnce(dmgDealt, item, user, enemy, interaction) {
     const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
 
     if (!dead) {
-        console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${Enemy}`);
+        console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
         return await display(interaction, uData);
     }
     

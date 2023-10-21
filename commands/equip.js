@@ -40,6 +40,15 @@ module.exports = {
                     option.setName('legslot')
                         .setDescription('Item to equip')
                         .setAutocomplete(true)
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('secondary')
+                .setDescription('Offhand to be equipped')
+                .addStringOption(option =>
+                    option.setName('offhand')
+                        .setDescription('Item to equip')
+                        .setAutocomplete(true)
                         .setRequired(true))),
 		
 	async autocomplete(interaction) {
@@ -157,7 +166,35 @@ module.exports = {
                     filtered.map(choice => ({ name: choice, value: choice })),
                 );
             }
-        }   
+        }
+        if (focusedOption.name === 'offhand') {
+            const focusedValue = interaction.options.getFocused(false);
+            //Look for mainhand items only
+            const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }, { slot: 'Offhand' }] });
+
+            if (focusedValue) {
+                let first = focusedValue.charAt();
+                console.log(first);
+                for (var n = 0; n < items.length; n++) {
+                    if (items[n].name.charAt() === first) {//Check for item starting with the letter provided
+                        var picked = items[n].name;//assign picked to item name at postion n in the items list found
+                        //prevent any type errors			
+                        choices.push(picked.toString());//push each name one by one into the choices array
+                    } else {
+                        //Item name does not match keep looking
+                    }
+
+                }
+                console.log(choices);
+                console.log(focusedValue);
+
+                //Mapping the complete list of options for discord to handle and present to the user
+                const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+                await interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice })),
+                );
+            }
+        }
 	},
     async execute(interaction) {
         await interaction.deferReply();
@@ -173,22 +210,44 @@ module.exports = {
                 if (equipInLoadout) {
                     //LoadoutFound update slot
                     if (item.hands === 'One') {
-                        const newWeapon = await Loadout.update({
-                            mainhand: item.loot_id,
-                        }, { where: { spec_id: interaction.user.id } });
-                        if (newWeapon > 0) {
-                            console.log('mainhand UPDATED!');
-                            return interaction.followUp('Weapon equipped!');
-                        }
+                        if (equipInLoadout.mainhand === equipInLoadout.offhand) {
+                            const newWeapon = await Loadout.update({
+                                mainhand: item.loot_id,
+                                offhand: 0,
+                            }, { where: { spec_id: interaction.user.id } });
+                            if (newWeapon > 0) {
+                                console.log('mainhand UPDATED!');
+                                return interaction.followUp('Weapon equipped! Offhand available!');
+                            }
+                        } else {
+                            const newWeapon = await Loadout.update({
+                                mainhand: item.loot_id,
+                            }, { where: { spec_id: interaction.user.id } });
+                            if (newWeapon > 0) {
+                                console.log('mainhand UPDATED!');
+                                return interaction.followUp('Weapon equipped!');
+                            }
+                        }                    
                     } else if (item.hands === 'Two') {
-                        const newWeapon = await Loadout.update({
-                            mainhand: item.loot_id,
-                            offhand: item.loot_id,
-                        }, { where: { spec_id: interaction.user.id } });
-                        if (newWeapon > 0) {
-                            console.log('mainhand UPDATED!');
-                            return interaction.followUp('Weapon equipped!');
-                        }
+                        if (equipInLoadout.offhand !== 0) {
+                            const newWeapon = await Loadout.update({
+                                mainhand: item.loot_id,
+                                offhand: item.loot_id,
+                            }, { where: { spec_id: interaction.user.id } });
+                            if (newWeapon > 0) {
+                                console.log('mainhand UPDATED!');
+                                return interaction.followUp('Weapon equipped, Replaced offhand slot!');
+                            }
+                        } else {
+                            const newWeapon = await Loadout.update({
+                                mainhand: item.loot_id,
+                                offhand: item.loot_id,
+                            }, { where: { spec_id: interaction.user.id } });
+                            if (newWeapon > 0) {
+                                console.log('mainhand UPDATED!');
+                                return interaction.followUp('Weapon equipped!');
+                            }
+                        }                      
                     } else {
                         //Hands === null
                         return interaction.followUp('That item has an invalid hands value!!');
@@ -311,6 +370,42 @@ module.exports = {
                     if (newLegs > 0) {
                         console.log('LEGSLOT CREATED!');
                         return interaction.followUp('Leggings equipped!');
+                    }
+                }
+            }
+        }
+        if (interaction.options.getSubcommand() === 'secondary') {
+            const itemname = interaction.options.getString('offhand');
+            console.log(itemname);
+            const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            console.log(item.loot_id);
+
+            if (item) {
+                const equipInLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+
+                if (equipInLoadout) {
+                    //LoadoutFound update slot
+                    if (equipInLoadout.mainhand === equipInLoadout.offhand) {
+                        //Two handed weapon equipped!
+                        return interaction.followUp('You cannot equip this as your weapon requires two hands!!');
+                    } else {
+                        const newOffhand = await Loadout.update({
+                            offhand: item.loot_id,
+                        }, { where: { spec_id: interaction.user.id } });
+                        if (newOffhand > 0) {
+                            console.log('offhand UPDATED!');
+                            return interaction.followUp('offhand equipped!');
+                        }
+                    }                
+                } else {
+                    //New Loadout
+                    const newOffhand = await Loadout.create({
+                        offhand: item.loot_id,
+                        spec_id: interaction.user.id,
+                    });
+                    if (newOffhand > 0) {
+                        console.log('offhand CREATED!');
+                        return interaction.followUp('offhand equipped!');
                     }
                 }
             }
