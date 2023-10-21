@@ -23,7 +23,7 @@ module.exports = {
         Milestones.sync();
         ActiveDungeon.sync();
         ActiveDungeonEnemy.sync({ force: true });
-        ActiveDungeonBoss.sync();
+        ActiveDungeonBoss.sync({force: true});
         ActiveEnemy.sync();
 	},
 };
