@@ -233,9 +233,9 @@ module.exports = {
                 time: 45000,
             });
 
-            collector.on('collect', async (collInteract) => {
-                await collInteract.deferUpdate();
+            collector.on('collect', async (collInteract) => {               
                 if (collInteract.customId === 'slot1') {
+                    await collInteract.deferUpdate();
                     const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
                     if (item) {
                         console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -268,6 +268,7 @@ module.exports = {
                     } else console.log('ITEM NOT FOUND!');//item not found :( 
                 }
                 if (collInteract.customId === 'slot2') {
+                    await collInteract.deferUpdate();
                     const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
                     if (item) {
                         console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -300,6 +301,7 @@ module.exports = {
                     } else console.log('ITEM NOT FOUND!');//item not found :(
                 }
                 if (collInteract.customId === 'slot3') {
+                    await collInteract.deferUpdate();
                     const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
                     if (item) {
                         console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -332,6 +334,7 @@ module.exports = {
                     } else console.log('ITEM NOT FOUND!');//item not found :(
                 }
                 if (collInteract.customId === 'slot4') {
+                    await collInteract.deferUpdate();
                     const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
                     if (item) {
                         console.log('ITEM FOUND!', item);//item was found yaaaay
@@ -364,6 +367,7 @@ module.exports = {
                     } else console.log('ITEM NOT FOUND!');//item not found :(
                 }
                 if (collInteract.customId === 'refresh') {
+                    await collInteract.deferUpdate();
                     if (uData.coins < refreshCost) {
                         //user does not have enough to refresh the shop
                         return interaction.channel.send("It wouldnt be worthwhile to show you more, you lack the coin.. this aint a charity!");
