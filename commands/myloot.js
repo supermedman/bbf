@@ -369,32 +369,28 @@ module.exports = {
                 collector.on('collect', async (collInteract) => {
                     if (collInteract.customId === 'next-page') {
                         console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
+                        await collInteract.deferUpdate();
                         //if statment to check if currently on the last page
                         if (currentPage === embedPages.length - 1) {
                             currentPage = 0;
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            await collInteract.deferUpdate();
                             await wait(1000);
                         } else {
                             currentPage += 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            await collInteract.deferUpdate();
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });                
                             await wait(1000);
                         }
                     }
                     if (collInteract.customId === 'back-page') {
                         console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
+                        await collInteract.deferUpdate();
                         if (currentPage === 0) {
                             currentPage = embedPages.length - 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            await collInteract.deferUpdate();
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });                     
                             await wait(1000);
                         } else {
                             currentPage -= 1;
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            await collInteract.deferUpdate();
                             await wait(1000);
                         }
                     }
