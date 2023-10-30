@@ -1189,7 +1189,7 @@ async function dungeonCombat(enemyConstKey, interaction, killEmitter) {
                         cntrEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    return hitOnce(counterDamage, item, enemy, true);
+                    return hitOnce(counterDamage, item, user, enemy, true);
                 }
             } else {
                 return takeDamage(eDamage, user, enemy, true);
@@ -1831,7 +1831,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter) {
                         cntrEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    return hitOnce(counterDamage, item, enemy, true);
+                    return hitOnce(counterDamage, item, user, enemy, true);
                 }
             } else {
                 return takeDamage(eDamage, user, enemy, true);
