@@ -70,7 +70,12 @@ async function display(interaction, uData) {
         .setDisabled(stealDisabled)
         .setStyle(ButtonStyle.Secondary);
 
-    const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton);
+    const blockButton = new ButtonBuilder()
+        .setCustomId('block')
+        .setLabel('Block Attack')
+        .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton);
 
     const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
 
@@ -216,9 +221,10 @@ async function display(interaction, uData) {
                     await collInteract.deferUpdate();
                 }
                 await collector.stop();
-                await hitOnce(dmgDealt, weapon, uData, enemy, interaction);
+                await hitOnce(dmgDealt, weapon, uData, enemy, interaction, false);
             } else {
                 //No loadout, no weapon, procced as normal
+                var weapon;
                 var dmgDealt = await userDamageLoadout(uData);
                 if (isHidden === true) {
                     //BACKSTAB
@@ -228,8 +234,15 @@ async function display(interaction, uData) {
                     await collInteract.deferUpdate();
                 }
                 await collector.stop();
-                await hitOnce(dmgDealt, weapon, uData, enemy, interaction);
+                await hitOnce(dmgDealt, weapon, uData, enemy, interaction, false);
             }
+        }
+
+        if (collInteract.customId === 'block') {
+            await collInteract.deferUpdate();
+
+            await collector.stop();
+            await blockAttack(enemy, uData, interaction);
         }
     });
 
@@ -270,7 +283,7 @@ function pngCheck(enemy) {
 async function stealPunish(enemy, user, interaction) {
     const eDamage = await enemyDamage(enemy);
     console.log(`Enemy damge: ${eDamage}`);
-    const dead = await takeDamage(eDamage, user, enemy, interaction);
+    const dead = await takeDamage(eDamage, user, enemy, interaction, false);
     //Reload player info after being attacked
     const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
     if (!dead) {
@@ -306,7 +319,7 @@ async function getUniqueItem(enemy) {
  */
 //========================================
 //This method handles the bulk of combat calculations and value changes.
-async function hitOnce(dmgDealt, item, user, enemy, interaction) {
+async function hitOnce(dmgDealt, item, user, enemy, interaction, isBlocked) {
     //call up the enemy on file that is currently being attacked
     //apply defense and weaknesses to damage given and then deal the final amount to the enemy
     //check if the attack kills, if not a kill, display how much health the enemy has left   
@@ -412,7 +425,11 @@ async function hitOnce(dmgDealt, item, user, enemy, interaction) {
         }
         //======================
 
-        dmgDealt -= (eDefence * 2);
+        if (isBlocked === true) {
+            //Defence is ignored when a counter attack is made!
+        } else if (isBlocked === false) {
+            dmgDealt -= (eDefence * 2);
+        }
 
         //if statment to check if enemy dies after attack
         if ((eHealth - dmgDealt) <= 0) {
@@ -464,7 +481,7 @@ async function hitOnce(dmgDealt, item, user, enemy, interaction) {
     */
     const eDamage = await enemyDamage(enemy);
     console.log(`Enemy damge: ${eDamage}`);
-    const dead = await takeDamage(eDamage, user, enemy, interaction);
+    const dead = await takeDamage(eDamage, user, enemy, interaction, false);
     const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
 
     if (!dead) {
@@ -472,6 +489,110 @@ async function hitOnce(dmgDealt, item, user, enemy, interaction) {
         return await display(interaction, uData);
     }
     
+}
+
+async function blockAttack(enemy, user, interaction) {
+    var eDamage = await enemyDamage(enemy);
+
+    var currentHealth = user.health;
+
+    if (user.pclass === 'Warrior') {
+        //5% damage reduction
+        eDamage -= (eDamage * 0.05);
+    } else if (user.pclass === 'Paladin') {
+        //15% damage reduction
+        eDamage -= (eDamage * 0.15);
+    } else if (user.pclass === 'Mage') {
+        //5% damage increase
+        eDamage += (eDamage * 0.05);
+    }
+
+    var defence = 0;
+    const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+    if (currentLoadout) {
+        var headSlotItem = await findHelmSlot(currentLoadout.headslot);
+        var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
+        var legSlotItem = await findLegSlot(currentLoadout.legslot);
+
+        if (headSlotItem === 'NONE') {
+            //No item equipped
+            defence += 0;
+        } else {
+            //Item found add defence
+            defence += headSlotItem.Defence;
+        }
+
+        if (chestSlotItem === 'NONE') {
+            //No item equipped
+            defence += 0;
+        } else {
+            //Item found add defence
+            defence += chestSlotItem.Defence;
+        }
+
+        if (legSlotItem === 'NONE') {
+            //No item equipped
+            defence += 0;
+        } else {
+            //Item found add defence
+            defence += legSlotItem.Defence;
+        }
+
+        console.log(`Total Defence from Armor: ${defence}`);
+
+
+        let blockStrength;
+        if (defence > 0) {
+            defence *= 1.5;
+            blockStrength = defence;
+            //blockStrength -= eDamage;
+            if ((blockStrength - eDamage) <= 0) {
+                //Player takes damage
+                eDamage -= blockStrength;
+                const dmgBlockedEmbed = new EmbedBuilder()
+                    .setTitle("Damage Blocked")
+                    .setColor('DarkRed')
+                    .addFields({ name: 'BLOCKED: ', value: ' ' + blockStrength + ' ', inline: true });
+
+                await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
+                    blockedEmbed.delete();
+                }, 15000)).catch(console.error);
+
+                return takeDamage(eDamage, user, enemy, interaction, true);
+            } else {
+                //Player deals damage
+                blockStrength -= eDamage;
+
+                const dmgBlockedEmbed = new EmbedBuilder()
+                    .setTitle("Damage Blocked")
+                    .setColor('DarkRed')
+                    .addFields({ name: 'BLOCKED: ', value: ' ' + blockStrength + ' ', inline: true });
+
+                await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
+                    blockedEmbed.delete();
+                }, 15000)).catch(console.error);
+
+                var item;
+                let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
+                console.log(`counterDamage: ${counterDamage}`);
+
+                const counterEmbed = new EmbedBuilder()
+                    .setTitle("Counter Attack!")
+                    .setColor('DarkRed')
+                    .addFields({ name: 'DAMAGE: ', value: ' ' + counterDamage + ' ', inline: true });
+
+                await interaction.channel.send({ embeds: [counterEmbed] }).then(async cntrEmbed => setTimeout(() => {
+                    cntrEmbed.delete();
+                }, 15000)).catch(console.error);
+
+                return hitOnce(counterDamage, item, user, enemy, interaction, true);
+            }
+        } else {
+            return takeDamage(eDamage, user, enemy, interaction, true);
+        }
+    } else if (!currentLoadout) {
+        return takeDamage(eDamage, user, enemy, interaction, true);
+    }
 }
 
 /**
@@ -670,92 +791,121 @@ async function showStolen(itemRef, interaction) {
  */
 //========================================
 // This method calculates damage dealt to user 
-async function takeDamage(eDamage, user, enemy, interaction) {
+async function takeDamage(eDamage, user, enemy, interaction, isBlocked) {
     var currentHealth = user.health;
 
-    if (user.pclass === 'Warrior') {
-        //5% damage reduction
-        eDamage -= (eDamage * 0.05);
-    } else if (user.pclass === 'Paladin') {
-        //15% damage reduction
-        eDamage -= (eDamage * 0.15);
-    } else if (user.pclass === 'Mage') {
-        //5% damage increase
-        eDamage += (eDamage * 0.05);
-    }
-
-    var defence = 0;
-    const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
-    if (currentLoadout) {
-        var headSlotItem = await findHelmSlot(currentLoadout.headslot);
-        var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
-        var legSlotItem = await findLegSlot(currentLoadout.legslot);
-
-        if (headSlotItem === 'NONE') {
-            //No item equipped
-            defence += 0;
+    if (isBlocked === true) {
+        if ((currentHealth - eDamage) <= 0) {
+            //Player has died
+            console.log('PLAYER IS DEAD :O');
+            await hitP(0, user);
+            await playerDead(user, enemy, interaction);
+            return true;
         } else {
-            //Item found add defence
-            defence += headSlotItem.Defence;
+            currentHealth -= eDamage;
+            currentHealth = Number.parseFloat(currentHealth).toFixed(1);
+            console.log('CURRENT PLAYER HEALTH: ', currentHealth);
+
+            const attackDmgEmbed = new EmbedBuilder()
+                .setTitle("Damage Taken")
+                .setColor('DarkRed')
+                .addFields(
+                    { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
+                    { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
+                );
+
+            await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
+                attkEmbed.delete();
+            }, 15000)).catch(console.error);
+
+            await hitP(currentHealth, user);
+            return display(interaction, user);
+        }
+    } else if (isBlocked === false) {
+        if (user.pclass === 'Warrior') {
+            //5% damage reduction
+            eDamage -= (eDamage * 0.05);
+        } else if (user.pclass === 'Paladin') {
+            //15% damage reduction
+            eDamage -= (eDamage * 0.15);
+        } else if (user.pclass === 'Mage') {
+            //5% damage increase
+            eDamage += (eDamage * 0.05);
         }
 
-        if (chestSlotItem === 'NONE') {
-            //No item equipped
-            defence += 0;
-        } else {
-            //Item found add defence
-            defence += chestSlotItem.Defence;
-        }
+        var defence = 0;
+        const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+        if (currentLoadout) {
+            var headSlotItem = await findHelmSlot(currentLoadout.headslot);
+            var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
+            var legSlotItem = await findLegSlot(currentLoadout.legslot);
 
-        if (legSlotItem === 'NONE') {
-            //No item equipped
-            defence += 0;
-        } else {
-            //Item found add defence
-            defence += legSlotItem.Defence;
-        }
-
-        console.log(`Total Defence from Armor: ${defence}`);
-
-        if (defence > 0) {
-            //Player has defence use accordingly
-            if ((eDamage -= defence) <= 0) {
-                eDamage = 0;
+            if (headSlotItem === 'NONE') {
+                //No item equipped
+                defence += 0;
             } else {
-                eDamage -= defence;
+                //Item found add defence
+                defence += headSlotItem.Defence;
+            }
+
+            if (chestSlotItem === 'NONE') {
+                //No item equipped
+                defence += 0;
+            } else {
+                //Item found add defence
+                defence += chestSlotItem.Defence;
+            }
+
+            if (legSlotItem === 'NONE') {
+                //No item equipped
+                defence += 0;
+            } else {
+                //Item found add defence
+                defence += legSlotItem.Defence;
+            }
+
+            console.log(`Total Defence from Armor: ${defence}`);
+
+            if (defence > 0) {
+                //Player has defence use accordingly
+                if ((eDamage -= defence) <= 0) {
+                    eDamage = 0;
+                } else {
+                    eDamage -= defence;
+                }
             }
         }
-    }   
 
-    if (eDamage < 0) {
-        eDamage = 0;
-    }
+        if (eDamage < 0) {
+            eDamage = 0;
+        }
 
-    if ((currentHealth - eDamage) <= 0) {
-        //Player has died
-        console.log('PLAYER IS DEAD :O');
-        await hitP(0, user);
-        await playerDead(user, enemy, interaction);
-        return true;
-    } else {
-        currentHealth -= eDamage;
-        currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-        console.log('CURRENT PLAYER HEALTH: ', currentHealth);
+        if ((currentHealth - eDamage) <= 0) {
+            //Player has died
+            console.log('PLAYER IS DEAD :O');
+            await hitP(0, user);
+            await playerDead(user, enemy, interaction);
+            return true;
+        } else {
+            currentHealth -= eDamage;
+            currentHealth = Number.parseFloat(currentHealth).toFixed(1);
+            console.log('CURRENT PLAYER HEALTH: ', currentHealth);
 
-        const attackDmgEmbed = new EmbedBuilder()
-            .setTitle("Damage Taken")
-            .setColor('DarkRed')
-            .addFields(
-                { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-            );
+            const attackDmgEmbed = new EmbedBuilder()
+                .setTitle("Damage Taken")
+                .setColor('DarkRed')
+                .addFields(
+                    { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
+                    { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
+                );
 
-        await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-            attkEmbed.delete();
-        }, 15000)).catch(console.error);
+            await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
+                attkEmbed.delete();
+            }, 15000)).catch(console.error);
 
-        await hitP(currentHealth, user);
-        return false;
+            await hitP(currentHealth, user);
+            return false;
+        }
     }
 }
 
