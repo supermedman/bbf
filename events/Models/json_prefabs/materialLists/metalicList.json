@@ -1,0 +1,63 @@
+[
+	{
+		"Name": "Scrap Metal",
+		"Value": 10,
+
+		"Rarity": "Common",
+		"Rar_id": 0,
+
+		"Mat_id": 1,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Raw Ore",
+		"Value": 10,
+
+		"Rarity": "Uncommon",
+		"Rar_id": 1,
+
+		"Mat_id": 2,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Iron Ingot",
+		"Value": 10,
+
+		"Rarity": "Rare",
+		"Rar_id": 2,
+
+		"Mat_id": 3,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Steel Ingot",
+		"Value": 10,
+
+		"Rarity": "Very Rare",
+		"Rar_id": 3,
+
+		"Mat_id": 4,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Raw Phasemetal",
+		"Value": 10,
+
+		"Rarity": "Epic",
+		"Rar_id": 4,
+
+		"Mat_id": 5,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Phasemetal Scrap",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 6,
+		"Spec_id": 0
+	}
+
+]

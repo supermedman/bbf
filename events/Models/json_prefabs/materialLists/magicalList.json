@@ -1,0 +1,103 @@
+[
+	{
+		"Name": "Refined Essence",
+		"Value": 10,
+
+		"Rarity": "Epic",
+		"Rar_id": 4,
+
+		"Mat_id": 1,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure DARK",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 2,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure LIGHT",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 3,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure SLASH",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 4,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure FIRE",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 5,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure FROST",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 6,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure MAGIC",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure BLUNT",
+		"Value": 10,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure NULL",
+		"Value": 10,
+
+		"Rarity": "FORGOTTEN",
+		"Rar_id": 10,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure NESSY",
+		"Value": 10,
+
+		"Rarity": "FORGOTTEN",
+		"Rar_id": 10,
+
+		"Mat_id": 10,
+		"Spec_id": 0
+	}
+
+]
