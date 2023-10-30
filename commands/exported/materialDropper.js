@@ -5,28 +5,27 @@ const { MaterialStore } = require('../../dbObjects.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
+const warnedForm = chalk.bold.yellowBright;
+//console.log(warnedForm('Testing warning here!'));
+
+const errorForm = chalk.bold.redBright.bgWhite;
+//console.log(errorForm('Testing error here!'));
+
+const successResult = chalk.italic.whiteBright.bgGreen;
+//console.log(successResult('Testing success here!'));
+
+const failureResult = chalk.italic.whiteBright.dim.bgRed;
+//console.log(failureResult('Testing failure here!'));
+
+const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
+    //console.log(basicInfoForm('Testing basic info here!'));
+
 /**
  * 
  * @param {any} enemy Reference to enemy object
  * @param {any} user Reference to user object
  */
 async function grabMat(enemy, user) {
-
-    const warnedForm = chalk.bold.yellowBright;
-    //console.log(warnedForm('Testing warning here!'));
-
-    const errorForm = chalk.bold.redBright.bgWhite;
-    //console.log(errorForm('Testing error here!'));
-
-    const successResult = chalk.italic.whiteBright.bgGreen;
-    console.log(successResult('Testing success here!'));
-
-    const failureResult = chalk.italic.whiteBright.bgRed;
-    console.log(failureResult('Testing failure here!'));
-
-    const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
-    console.log(basicInfoForm('Testing basic info here!'));
-
     let matTypes;
     for (var i = 0; i < enemyList.length; i++) {
         //if enemy with player level or lower can be found continue
@@ -93,8 +92,11 @@ async function grabMat(enemy, user) {
         if (droppedNum <= 0) {
             droppedNum = 1;
         } else {
-            droppedNum;
+            Math.floor(droppedNum);
         }
+
+        console.log(basicInfoForm('MaterialAmountDropped: ', droppedNum));
+
         const result = await handleMaterialAdding(finalMaterial, droppedNum, user, passType);
         return result;
     } else {
@@ -105,18 +107,18 @@ async function grabMat(enemy, user) {
 
 //This method creates a new material entry || increments an existing one
 async function handleMaterialAdding(material, droppedAmount, user, matType) {
-    const matStore = MaterialStore.findOne({
+    const matStore = await MaterialStore.findOne({
         where: [{ spec_id: user.userid }, { mat_id: material.Mat_id }, { mattype: matType }]
     });
 
     console.log(basicInfoForm('UserMaterial: ', matStore));
 
     if (matStore) {
-        const inc = await matStore.update({ amount: droppedAmount });
+        droppedAmount += matStore.amount;
+        const inc = await MaterialStore.update({ amount: droppedAmount },
+            { where: [{ spec_id: user.userid }, { mat_id: material.Mat_id }, { mattype: matType }] });
 
-        if (inc) console.log(successResult('AMOUNT WAS UPDATED!'));
-
-        await matStore.save();
+        if (inc) console.log(successResult('AMOUNT WAS UPDATED!', droppedAmount));
 
         return matStore;
     }
