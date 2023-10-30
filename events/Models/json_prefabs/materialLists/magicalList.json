@@ -1,7 +1,7 @@
 [
 	{
 		"Name": "Refined Essence",
-		"Value": 10,
+		"Value": 75,
 
 		"Rarity": "Epic",
 		"Rar_id": 4,
@@ -11,7 +11,7 @@
 	},
 	{
 		"Name": "Pure DARK",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -21,7 +21,7 @@
 	},
 	{
 		"Name": "Pure LIGHT",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -31,7 +31,7 @@
 	},
 	{
 		"Name": "Pure SLASH",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -41,7 +41,7 @@
 	},
 	{
 		"Name": "Pure FIRE",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -51,7 +51,7 @@
 	},
 	{
 		"Name": "Pure FROST",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -61,7 +61,7 @@
 	},
 	{
 		"Name": "Pure MAGIC",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -71,7 +71,7 @@
 	},
 	{
 		"Name": "Pure BLUNT",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
@@ -81,7 +81,7 @@
 	},
 	{
 		"Name": "Pure NULL",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "FORGOTTEN",
 		"Rar_id": 10,
@@ -91,10 +91,10 @@
 	},
 	{
 		"Name": "Pure NESSY",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "FORGOTTEN",
-		"Rar_id": 10,
+		"Rar_id": 11,
 
 		"Mat_id": 10,
 		"Spec_id": 0
