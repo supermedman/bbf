@@ -35,6 +35,18 @@ var killedEnemies = [];
 var theE = 0;
 var theB = 0;
 
+/**
+ *  THERE IS AN ISSUE WITH DUPING CAUSED BY A COUNT FOUND IN THE DATABASE
+ *  LOOK INTO WHERE THE BOSSES AND ENEMIES ARE FOUND/ADDED
+ *  VALUES ARE BEING MIXED AROUND AND IT APPEARS AS IF MORE THAN ONE THING IS DUPING DURING COMBAT!!!
+ *  
+ *  POSSIBLE FIX IS REMOVAL OF GLOBAL DECLARATION OF USERID AND INTERACTION
+ *  
+ * @param {any} currentFloor
+ * @param {any} dungeonId
+ * @param {any} interactionRef
+ * @param {any} collectedUserID
+ */
 //This method loads one floor for combat 
 async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUserID) {
     
@@ -271,7 +283,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
     // embed('Continue?') 'Yes'||'No'
     await destroyBoss();
     await destroyEnemy();
-
+    await setFullHealth();
 
 
     var activeFloor;
@@ -494,6 +506,17 @@ async function saveFloor(floor) {
     }
 }
 
+//This method resets player health to full upon calling the dungeon, this prevents incorrect health values persisting upon boss kill
+async function setFullHealth() {
+    const user = await UserData.findOne({ where: { userid: userID } });
+    const totalHealth = 100 + (user.strength * 10);
+    const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: { dungeonspecid: userID } });
+    if (currentHealthEdit > 0) {
+        //Health reset
+        return;
+    }
+}
+
 //This method handles loot reward generation and updating userdata values accordingly
 async function giveFloorProgress() {
     var totXP = 0;
@@ -674,7 +697,7 @@ async function giveFloorProgress() {
         var cGained = ((xpGained - 5) + 1);
         totCoin += cGained;
 
-        count++;//increase count and run through again
+        count++;//increase count and run through again 
     }
 
     totXP = Math.round(totXP);
@@ -1232,7 +1255,7 @@ async function dungeonCombat(enemyConstKey, interaction, killEmitter) {
                 }, 15000)).catch(console.error);
 
                 await hitP(currentHealth);
-                return false;
+                return await display();
             }
         } else if (isBlocked === false) {
             console.log(`EnemyDamage before class mod: ${eDamage}`);
@@ -1891,7 +1914,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter) {
                 }, 15000)).catch(console.error);
 
                 await hitP(currentHealth);
-                return false;
+                return await display();
             }
         } else if (isBlocked === false) {
             if (user.pclass === 'Warrior') {
