@@ -12,6 +12,8 @@
         "XpMin": 5,
         "XpMax": 15,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 1,
         "HasUnique": true,
 
@@ -28,10 +30,13 @@
         "MaxDmg": 6,
         "Health": 10,
         "Defence": 0,
+
         "WeakTo": "Fire",
         "Dead": false,
         "XpMin": 20,
         "XpMax": 25,
+
+        "DropTypes": ["slimy"],
 
         "ConstKey": 13,
 
@@ -48,10 +53,13 @@
         "MaxDmg": 1,
         "Health": 5,
         "Defence": 5,
+
         "WeakTo": "Blunt",
         "Dead": false,
         "XpMin": 30,
         "XpMax": 35,
+
+        "DropTypes": [ "rocky" ],
 
         "ConstKey": 14,
         "HasUnique": true,
@@ -76,6 +84,8 @@
         "XpMin": 10,
         "XpMax": 18,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 2,
         "HasUnique": true,
 
@@ -93,6 +103,8 @@
         "Dead": false,
         "XpMin": 20,
         "XpMax": 25,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 17,
         "SpecId": 0
@@ -112,6 +124,8 @@
         "XpMin": 20,
         "XpMax": 28,
 
+        "DropTypes": [ "gemy" ],
+
         "ConstKey": 3,
         "SpecId": 0
     },
@@ -129,6 +143,8 @@
         "Dead": false,
         "XpMin": 20,
         "XpMax": 30,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 4,
         "SpecId": 0
@@ -148,6 +164,8 @@
         "XpMin": 35,
         "XpMax": 43,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 5,
         "SpecId": 0
     },
@@ -163,6 +181,8 @@
         "Dead": false,
         "XpMin": 30,
         "XpMax": 35,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 15,
         "SpecId": 0
@@ -182,6 +202,8 @@
         "XpMin": 40,
         "XpMax": 47,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 6,
         "SpecId": 0
     },
@@ -197,6 +219,8 @@
         "Dead": false,
         "XpMin": 35,
         "XpMax": 50,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 17,
         "SpecId": 0
@@ -216,6 +240,8 @@
         "XpMin": 60,
         "XpMax": 70,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 7,
         "SpecId": 0
     },
@@ -233,6 +259,8 @@
         "Dead": false,
         "XpMin": 80,
         "XpMax": 90,
+
+        "DropTypes": [ "fleshy", "skinny" ],
 
         "ConstKey": 8,
         "SpecId": 0
@@ -270,6 +298,8 @@
         "XpMin": 75,
         "XpMax": 80,
 
+        "DropTypes": [ "fleshy", "metalic", "herby" ],
+
         "ConstKey": 10,
         "SpecId": 0
     },
@@ -287,6 +317,8 @@
         "Dead": false,
         "XpMin": 75,
         "XpMax": 80,
+
+        "DropTypes": [ "fleshy", "skinny" ],
 
         "ConstKey": 11,
         "SpecId": 0
@@ -306,6 +338,8 @@
         "XpMin": 75,
         "XpMax": 90,
 
+        "DropTypes": [ "magical", "rocky", "gemy" ],
+
         "ConstKey": 12,
         "SpecId": 0
     },
@@ -322,6 +356,8 @@
         "XpMin": 80,
         "XpMax": 90,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 19,
         "SpecId": 0
     },
@@ -337,6 +373,8 @@
         "Dead": false,
         "XpMin": 80,
         "XpMax": 95,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 16,
         "SpecId": 0
@@ -355,6 +393,8 @@
         "Dead": false,
         "XpMin": 5,
         "XpMax": 10,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 20,
 
@@ -378,6 +418,8 @@
         "XpMin": 5,
         "XpMax": 10,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 21,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Snakeflare.png",
@@ -399,6 +441,8 @@
         "Dead": false,
         "XpMin": 5,
         "XpMax": 10,
+
+        "DropTypes": [ "fleshy", "skinny" ],
 
         "ConstKey": 22,
 
@@ -422,6 +466,8 @@
         "XpMin": 10,
         "XpMax": 15,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 23,
         "SpecId": 0
     },
@@ -439,6 +485,8 @@
         "Dead": false,
         "XpMin": 15,
         "XpMax": 20,
+
+        "DropTypes": [ "magical", "fleshy", "skinny" ],
 
         "ConstKey": 24,
 
@@ -462,6 +510,8 @@
         "XpMin": 10,
         "XpMax": 15,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 25,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Crimson-Crow.png",
@@ -484,6 +534,8 @@
         "XpMin": 20,
         "XpMax": 25,
 
+        "DropTypes": [ "fleshy", "skinny" ],
+
         "ConstKey": 26,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Rage-Deer.png",
@@ -505,6 +557,8 @@
         "Dead": false,
         "XpMin": 25,
         "XpMax": 30,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 27,
         "SpecId": 0
@@ -542,6 +596,8 @@
         "XpMin": 35,
         "XpMax": 40,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 29,
         "SpecId": 0
     },
@@ -559,6 +615,8 @@
         "Dead": false,
         "XpMin": 35,
         "XpMax": 40,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 30,
 
@@ -582,6 +640,8 @@
         "XpMin": 40,
         "XpMax": 45,
 
+        "DropTypes": [ "woody", "herby" ],
+
         "ConstKey": 31,
         "SpecId": 0
     },
@@ -599,6 +659,8 @@
         "Dead": false,
         "XpMin": 45,
         "XpMax": 50,
+
+        "DropTypes": [ "fleshy", "woody" ],
 
         "ConstKey": 32,
         "SpecId": 0
@@ -618,6 +680,8 @@
         "XpMin": 50,
         "XpMax": 55,
 
+        "DropTypes": [ "woody", "herby" ],
+
         "ConstKey": 33,
         "SpecId": 0
     },
@@ -635,6 +699,8 @@
         "Dead": false,
         "XpMin": 55,
         "XpMax": 60,
+
+        "DropTypes": [ "fleshy", "magical" ],
 
         "ConstKey": 34,
         "SpecId": 0
@@ -654,6 +720,8 @@
         "XpMin": 55,
         "XpMax": 60,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 35,
         "SpecId": 0
     },
@@ -671,6 +739,8 @@
         "Dead": false,
         "XpMin": 60,
         "XpMax": 65,
+
+        "DropTypes": [ "fleshy", "metalic" ],
 
         "ConstKey": 36,
         "SpecId": 0
@@ -690,6 +760,8 @@
         "XpMin": 75,
         "XpMax": 80,
 
+        "DropTypes": [ "magical", "rocky" ],
+
         "ConstKey": 37,
         "SpecId": 0
     },
@@ -707,6 +779,8 @@
         "Dead": false,
         "XpMin": 85,
         "XpMax": 90,
+
+        "DropTypes": [ "fleshy", "magical", "herby" ],
 
         "ConstKey": 38,
         "SpecId": 0
@@ -726,6 +800,8 @@
         "XpMin": 105,
         "XpMax": 110,
 
+        "DropTypes": [ "magical", "skinny" ],
+
         "ConstKey": 39,
         "SpecId": 0
     },
@@ -743,6 +819,8 @@
         "Dead": false,
         "XpMin": 115,
         "XpMax": 120,
+
+        "DropTypes": [ "fleshy", "skinny" ],
 
         "ConstKey": 40,
         "HasUnique": true,
@@ -764,6 +842,8 @@
         "XpMin": 155,
         "XpMax": 160,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 41,
         "SpecId": 0
     },
@@ -781,6 +861,8 @@
         "Dead": false,
         "XpMin": 145,
         "XpMax": 150,
+
+        "DropTypes": [ "fleshy", "metalic" ],
 
         "ConstKey": 42,
         "SpecId": 0
@@ -800,6 +882,8 @@
         "XpMin": 145,
         "XpMax": 150,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 43,
         "SpecId": 0
     },
@@ -817,6 +901,8 @@
         "Dead": false,
         "XpMin": 155,
         "XpMax": 160,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 44,
         "SpecId": 0
@@ -836,6 +922,8 @@
         "XpMin": 190,
         "XpMax": 200,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 45,
         "SpecId": 0
     },
@@ -853,6 +941,8 @@
         "Dead": false,
         "XpMin": 210,
         "XpMax": 220,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 46,
         "SpecId": 0
@@ -872,6 +962,8 @@
         "XpMin": 220,
         "XpMax": 230,
 
+        "DropTypes": [ "fleshy", "skinny" ],
+
         "ConstKey": 47,
         "SpecId": 0
     },
@@ -889,6 +981,8 @@
         "Dead": false,
         "XpMin": 230,
         "XpMax": 240,
+
+        "DropTypes": [ "fleshy", "skinny", "metalic", "herby" ],
 
         "ConstKey": 48,
         "SpecId": 0
@@ -908,6 +1002,8 @@
         "XpMin": 260,
         "XpMax": 270,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 49,
         "SpecId": 0
     },
@@ -926,7 +1022,10 @@
         "XpMin": 320,
         "XpMax": 350,
 
+        "DropTypes": [ "magical", "metalic" ],
+
         "ConstKey": 50,
+        "HasUnique": true,
         "SpecId": 0
     },
     {
@@ -943,6 +1042,8 @@
         "Dead": false,
         "XpMin": 770,
         "XpMax": 800,
+
+        "DropTypes": [ "fleshy", "skinny", "metalic", "herby" ],
 
         "ConstKey": 51,
         "SpecId": 0
@@ -962,6 +1063,8 @@
         "XpMin": 870,
         "XpMax": 900,
 
+        "DropTypes": [ "fleshy", "skinny" ],
+
         "ConstKey": 52,
         "SpecId": 0
     },
@@ -979,6 +1082,8 @@
         "Dead": false,
         "XpMin": 580,
         "XpMax": 600,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 53,
         "SpecId": 0
@@ -998,6 +1103,8 @@
         "XpMin": 280,
         "XpMax": 300,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 54,
         "SpecId": 0
     },
@@ -1015,6 +1122,8 @@
         "Dead": false,
         "XpMin": 430,
         "XpMax": 450,
+
+        "DropTypes": [ "fleshy", "magical", "skinny" ],
 
         "ConstKey": 55,
         "SpecId": 0
@@ -1034,6 +1143,8 @@
         "XpMin": 830,
         "XpMax": 850,
 
+        "DropTypes": [ "magical", "herby" ],
+
         "ConstKey": 56,
         "SpecId": 0
     },
@@ -1052,6 +1163,8 @@
         "XpMin": 960,
         "XpMax": 1000,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 57,
         "SpecId": 0
     },
@@ -1069,6 +1182,8 @@
         "Dead": false,
         "XpMin": 1160,
         "XpMax": 1200,
+
+        "DropTypes": [ "fleshy", "magical" ],
 
         "ConstKey": 58,
         "HasUnique": true,
@@ -1089,6 +1204,8 @@
         "Dead": false,
         "XpMin": 2000,
         "XpMax": 2500,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 59,
 
@@ -1112,6 +1229,8 @@
         "XpMin": 200,
         "XpMax": 210,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 60,
         "SpecId": 0
     },
@@ -1129,6 +1248,8 @@
         "Dead": false,
         "XpMin": 50,
         "XpMax": 55,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 61,
         "SpecId": 0
@@ -1148,6 +1269,8 @@
         "XpMin": 350,
         "XpMax": 360,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 62,
         "SpecId": 0
     },
@@ -1165,6 +1288,8 @@
         "Dead": false,
         "XpMin": 240,
         "XpMax": 245,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 63,
         "SpecId": 0
@@ -1184,6 +1309,8 @@
         "XpMin": 270,
         "XpMax": 280,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 64,
         "SpecId": 0
     },
@@ -1201,6 +1328,8 @@
         "Dead": false,
         "XpMin": 280,
         "XpMax": 300,
+
+        "DropTypes": [ "fleshy", "metalic", "magical", "skinny" ],
 
         "ConstKey": 65,
         "SpecId": 0
@@ -1220,6 +1349,8 @@
         "XpMin": 75,
         "XpMax": 80,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 66,
         "SpecId": 0
     },
@@ -1237,6 +1368,8 @@
         "Dead": false,
         "XpMin": 210,
         "XpMax": 230,
+
+        "DropTypes": [ "fleshy", "skinny" ],
 
         "ConstKey": 67,
         "SpecId": 0
@@ -1256,6 +1389,8 @@
         "XpMin": 185,
         "XpMax": 200,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 68,
         "SpecId": 0
     },
@@ -1273,6 +1408,8 @@
         "Dead": false,
         "XpMin": 35,
         "XpMax": 40,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 69,
 
@@ -1296,6 +1433,8 @@
         "XpMin": 40,
         "XpMax": 50,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 70,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/SteamStep.png",
@@ -1318,6 +1457,8 @@
         "XpMin": 230,
         "XpMax": 240,
 
+        "DropTypes": [ "fleshy", "magical", "metalic" ],
+
         "ConstKey": 71,
         "SpecId": 0
     },
@@ -1336,6 +1477,8 @@
         "XpMin": 235,
         "XpMax": 250,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 72,
         "SpecId": 0
     },
@@ -1353,6 +1496,8 @@
         "Dead": false,
         "XpMin": 25,
         "XpMax": 30,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 73,
 
@@ -1376,6 +1521,8 @@
         "XpMin": 210,
         "XpMax": 220,
 
+        "DropTypes": [ "fleshy", "herby", "magical" ],
+
         "ConstKey": 74,
         "SpecId": 0
     },
@@ -1393,6 +1540,8 @@
         "Dead": false,
         "XpMin": 190,
         "XpMax": 200,
+
+        "DropTypes": [ "fleshy", "woody", "herby" ],
 
         "ConstKey": 75,
         "SpecId": 0
@@ -1412,6 +1561,8 @@
         "XpMin": 750,
         "XpMax": 800,
 
+        "DropTypes": [ "magical", "rocky", "metalic" ],
+
         "ConstKey": 76,
         "SpecId": 0
     },
@@ -1429,6 +1580,8 @@
         "Dead": false,
         "XpMin": 220,
         "XpMax": 230,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 77,
         "SpecId": 0
@@ -1448,6 +1601,8 @@
         "XpMin": 75,
         "XpMax": 80,
 
+        "DropTypes": [ "fleshy", "magical" ],
+
         "ConstKey": 78,
         "SpecId": 0
     },
@@ -1465,6 +1620,8 @@
         "Dead": false,
         "XpMin": 45,
         "XpMax": 50,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 79,
         "SpecId": 0
@@ -1484,6 +1641,8 @@
         "XpMin": 200,
         "XpMax": 210,
 
+        "DropTypes": [ "fleshy", "skinny" ],
+
         "ConstKey": 80,
         "SpecId": 0
     },
@@ -1501,6 +1660,8 @@
         "Dead": false,
         "XpMin": 25,
         "XpMax": 30,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 81,
 
@@ -1524,6 +1685,8 @@
         "XpMin": 105,
         "XpMax": 110,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 82,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Cinder-Morph.png",
@@ -1545,6 +1708,8 @@
         "Dead": false,
         "XpMin": 8,
         "XpMax": 10,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 83,
 
@@ -1568,6 +1733,8 @@
         "XpMin": 140,
         "XpMax": 150,
 
+        "DropTypes": [ "magical", "rocky", "metalic" ],
+
         "ConstKey": 84,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Ash-Golem.png",
@@ -1589,6 +1756,8 @@
         "Dead": false,
         "XpMin": 75,
         "XpMax": 80,
+
+        "DropTypes": [ "fleshy", "slimy" ],
 
         "ConstKey": 85,
 
@@ -1612,6 +1781,8 @@
         "XpMin": 95,
         "XpMax": 100,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 86,
 
         "PngRef": "./events/Models/json_prefabs/boss-list-png/Savage-Frost-Serpent.png",
@@ -1634,6 +1805,8 @@
         "XpMin": 1200,
         "XpMax": 1300,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 87,
         "SpecId": 0
     },
@@ -1651,6 +1824,8 @@
         "Dead": false,
         "XpMin": 1100,
         "XpMax": 1200,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 88,
         "SpecId": 0
@@ -1670,6 +1845,8 @@
         "XpMin": 250,
         "XpMax": 270,
 
+        "DropTypes": [ "magical", "metalic", "herby" ],
+
         "ConstKey": 89,
         "SpecId": 0
     },
@@ -1687,6 +1864,8 @@
         "Dead": false,
         "XpMin": 580,
         "XpMax": 600,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 90,
         "SpecId": 0
@@ -1724,6 +1903,8 @@
         "XpMin": 1400,
         "XpMax": 1600,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 92,
         "SpecId": 0
     },
@@ -1741,6 +1922,8 @@
         "Dead": false,
         "XpMin": 1600,
         "XpMax": 1800,
+
+        "DropTypes": [ "magical" ],
 
         "ConstKey": 93,
         "SpecId": 0
@@ -1778,6 +1961,8 @@
         "XpMin": 1200,
         "XpMax": 1300,
 
+        "DropTypes": [ "magical" ],
+
         "ConstKey": 95,
         "SpecId": 0
     },
@@ -1795,6 +1980,8 @@
         "Dead": false,
         "XpMin": 600,
         "XpMax": 750,
+
+        "DropTypes": [ "magical", "metalic", "herby" ],
 
         "ConstKey": 96,
         "SpecId": 0
@@ -1814,6 +2001,8 @@
         "XpMin": 900,
         "XpMax": 1100,
 
+        "DropTypes": [ "fleshy" ],
+
         "ConstKey": 97,
         "SpecId": 0
     },
@@ -1831,6 +2020,8 @@
         "Dead": false,
         "XpMin": 900,
         "XpMax": 1000,
+
+        "DropTypes": [ "magical", "metalic", "skinny", "fleshy" ],
 
         "ConstKey": 98,
         "SpecId": 0
@@ -1850,6 +2041,8 @@
         "XpMin": 580,
         "XpMax": 600,
 
+        "DropTypes": [ "fleshy", "magical", "herby" ],
+
         "ConstKey": 99,
         "SpecId": 0
     },
@@ -1867,6 +2060,8 @@
         "Dead": false,
         "XpMin": 2000,
         "XpMax": 2500,
+
+        "DropTypes": [ "fleshy" ],
 
         "ConstKey": 100,
         "SpecId": 0
@@ -1903,6 +2098,8 @@
         "Dead": false,
         "XpMin": 200000,
         "XpMax": 280000,
+
+        "DropTypes": [ "slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy" ],
 
         "ConstKey": 0,
         "SpecId": 0
