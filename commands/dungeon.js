@@ -6,6 +6,7 @@ const { loadDungeon } = require('./exported/handleDungeon.js');
 const dungeonList = require('../events/Models/json_prefabs/dungeonList.json');
 
 module.exports = {
+	cooldown: 60,
 	data: new SlashCommandBuilder()
 		.setName('dungeon')
 		.setDescription('Delve deep and find riches!')
@@ -214,7 +215,7 @@ module.exports = {
 					return addedDungeon;//Return dungeon object 
 				}
 			} catch (err) {
-				console.log(`An error has occured! Logging ERROR: ${err}`);
+				return console.log(`An error has occured! Logging ERROR: ${err}`);
             }			
         }
 	},
