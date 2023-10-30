@@ -1,10 +1,15 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout } = require('../dbObjects.js');
+
+const chalk = require('chalk');
+
+const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout, MaterialStore } = require('../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
-const { grabRar } = require('./exported/grabRar.js');
+const { grabRar, grabColour } = require('./exported/grabRar.js');
 const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
+const { grabMat } = require('./exported/materialDropper.js');
+
 const { userDamageLoadout, enemyDamage } = require('./exported/dealDamage.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./exported/findLoadout.js');
 
@@ -14,6 +19,12 @@ const lootList = require('../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../events/Models/json_prefabs/deathMsgList.json');
 const uniqueLootList = require('../events/Models/json_prefabs/uniqueLootList.json');
 
+const warnedForm = chalk.bold.yellowBright;
+const errorForm = chalk.bold.redBright.bgWhite;
+const successResult = chalk.italic.whiteBright.bgGreen;
+const failureResult = chalk.italic.whiteBright.dim.bgRed;
+const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
+
 module.exports = {
     cooldown: 10,
     data: new SlashCommandBuilder()
@@ -22,6 +33,12 @@ module.exports = {
 
     async execute(interaction) {
         await interaction.deferReply();
+
+        //const warnedForm = chalk.bold.yellowBright;
+        //console.log(warnedForm('Testing chalk here!'));
+
+        
+        //console.log(basicInfoForm('Testing basic info here!'));
 
         var constKey;
         var specCode;
@@ -199,6 +216,35 @@ module.exports = {
             await isLvlUp(xpGained, cCalc, interaction);
 
             const user = await grabU();
+
+            var foundMaterial = await grabMat(enemy, user);
+            if (foundMaterial === 0) {
+                //Do nothing, invalid return value given
+            } else if (!foundMaterial) {
+                //Error occured ignore futher..
+            } else {
+                console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
+                const updatedMat = await MaterialStore.findOne({ where: [{ name: foundMaterial.name }, { spec_id: interaction.user.id }] });
+
+                if (updatedMat) foundMaterial = updatedMat;
+
+                var materialListed = `Value: ${foundMaterial.value}\nRarity: ${foundMaterial.rarity}\nAmount: ${foundMaterial.amount}`;
+
+                const matDropEmbedColour = await grabColour(updatedMat.rar_id);
+
+                const materialDropEmbed = new EmbedBuilder()
+                    .setTitle('~MATERIALS DROPPED~')
+                    .setColor(matDropEmbedColour)
+                    .addFields({
+                        name: `${foundMaterial.name}\n`,
+                        value: materialListed
+                    });
+
+                await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
+                    matDropEmbed.delete();
+                }, 10000)).catch(console.error);
+            }
+
             const newtotalK = user.totalkills + 1;
             const newCurK = user.killsthislife + 1;
 
@@ -222,9 +268,11 @@ module.exports = {
                     iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`);
                 }
 
+                const dropEmbedColour = await grabColour(item.rar_id);
+
                 const itemDropEmbed = new EmbedBuilder()
                     .setTitle('~LOOT DROPPED~')
-                    .setColor(0000)
+                    .setColor(dropEmbedColour)
                     .addFields({
 
                         name: (`${item.name}\n`),
