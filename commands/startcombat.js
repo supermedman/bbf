@@ -1,5 +1,5 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveEnemy, Equipped, LootStore, Pigmy, Loadout } = require('../dbObjects.js');
+const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout } = require('../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar } = require('./exported/grabRar.js');
@@ -387,7 +387,12 @@ module.exports = {
                 .setDisabled(stealDisabled)
                 .setStyle(ButtonStyle.Secondary);
 
-            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton);
+            const blockButton = new ButtonBuilder()
+                .setCustomId('block')
+                .setLabel('Block Attack')
+                .setStyle(ButtonStyle.Secondary);
+
+            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton);
 
             const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
 
@@ -446,7 +451,7 @@ module.exports = {
                         }, 15000)).catch(console.error);
 
                         await collector.stop();
-                        await stealPunish(enemy, uData, interaction);
+                        await stealPunish(enemy, uData);
                     } else if (actionToTake === 'UNIQUE ITEM') {
                         //Unique item detected!
                         //Find item here
@@ -485,7 +490,7 @@ module.exports = {
                             }, 15000)).catch(console.error);
 
                             await collector.stop();
-                            await stealPunish(enemy, uData, interaction);
+                            await stealPunish(enemy, uData);
                         } else if (actionToTake === 'SUCCESS') {
                             const hideSuccess = new EmbedBuilder()
                                 .setTitle('Success!')
@@ -535,9 +540,10 @@ module.exports = {
                             await collInteract.deferUpdate();
                         }
                         await collector.stop();
-                        await dealDamage(dmgDealt, weapon, enemy);
+                        await dealDamage(dmgDealt, weapon, enemy, false);
                     } else {
                         //No loadout, no weapon, procced as normal
+                        var weapon;
                         var dmgDealt = await userDamageLoadout(uData);
                         if (isHidden === true) {
                             //BACKSTAB
@@ -547,8 +553,15 @@ module.exports = {
                             await collInteract.deferUpdate();
                         }
                         await collector.stop();
-                        await dealDamage(dmgDealt, weapon, enemy);
+                        await dealDamage(dmgDealt, weapon, enemy, false);
                     }
+                }
+
+                if (collInteract.customId === 'block') {
+                    await collInteract.deferUpdate();
+
+                    await collector.stop();
+                    await blockAttack(enemy, uData);
                 }
             });
 
@@ -566,10 +579,10 @@ module.exports = {
         * @param {any} interaction STATIC INTERACTION OBJECT
         */
         //This method is used when a user fails to steal from an enemy resulting in being attacked
-        async function stealPunish(enemy, user, interaction) {
+        async function stealPunish(enemy, user) {
             const eDamage = await enemyDamage(enemy);
             console.log(`Enemy damge: ${eDamage}`);
-            const dead = await takeDamage(eDamage, user, enemy, interaction);
+            const dead = await takeDamage(eDamage, user, enemy, false);
             //Reload player info after being attacked           
             if (!dead) {
                 return await display();
@@ -596,7 +609,7 @@ module.exports = {
        
         //========================================
         //this method is for dealing damage to an enemy takes the enemy id, damageDealt, and users id 
-        async function dealDamage(dmgDealt, item, enemy) {
+        async function dealDamage(dmgDealt, item, enemy, isBlocked) {
             //call up the enemy on file that is currently being attacked
             //NEED TO MAKE A NEW ENEMY OF THE SAME TYPE WHEN THIS IS CALLED IN ORDER TO RECORD DAMAGE DONE
             //apply defense and weaknesses to damage given and then deal the final amount to the enemy
@@ -706,7 +719,12 @@ module.exports = {
                 }
                 //======================
 
-                dmgDealt -= (eDefence * 2);
+                if (isBlocked === true) {
+                    //Defence is ignored when a counter attack is made!
+                } else if (isBlocked === false) {
+                    dmgDealt -= (eDefence * 2);
+                }
+                
 
                 //if statment to check if enemy dies after attack
                 if ((eHealth - dmgDealt) <= 0) {
@@ -758,7 +776,7 @@ module.exports = {
             */
             const eDamage = await enemyDamage(enemy);
             console.log(`Enemy damge: ${eDamage}`);
-            const dead = await takeDamage(eDamage, user, enemy);
+            const dead = await takeDamage(eDamage, user, enemy, false);
 
             if (!dead) {
                 await display();
@@ -766,9 +784,10 @@ module.exports = {
 
         }
 
-        //========================================
-        // This method calculates damage dealt to user 
-        async function takeDamage(eDamage, user, enemy) {          
+        //This method takes user defence and calculates reflect damage if defence is stronger than enemies attack
+        async function blockAttack(enemy, user) {
+            var eDamage = await enemyDamage(enemy);
+
             var currentHealth = user.health;
 
             if (user.pclass === 'Warrior') {
@@ -812,49 +831,184 @@ module.exports = {
                     //Item found add defence
                     defence += legSlotItem.Defence;
                 }
-                                                      
+
                 console.log(`Total Defence from Armor: ${defence}`);
 
+
+                let blockStrength;
                 if (defence > 0) {
-                    //Player has defence use accordingly
-                    if ((eDamage -= defence) <= 0) {
-                        eDamage = 0;
+                    defence *= 1.5;
+                    blockStrength = defence;
+                    //blockStrength -= eDamage;
+                    if ((blockStrength - eDamage) <= 0) {
+                        //Player takes damage
+                        eDamage -= blockStrength;
+                        const dmgBlockedEmbed = new EmbedBuilder()
+                            .setTitle("Damage Blocked")
+                            .setColor('DarkRed')
+                            .addFields({ name: 'BLOCKED: ', value: ' ' + blockStrength + ' ', inline: true });
+
+                        await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
+                            blockedEmbed.delete();
+                        }, 15000)).catch(console.error);
+
+                        return takeDamage(eDamage, user, enemy, true);
                     } else {
-                        eDamage -= defence;
+                        //Player deals damage
+                        blockStrength -= eDamage;
+
+                        const dmgBlockedEmbed = new EmbedBuilder()
+                            .setTitle("Damage Blocked")
+                            .setColor('DarkRed')
+                            .addFields({ name: 'BLOCKED: ', value: ' ' + blockStrength + ' ', inline: true });
+
+                        await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
+                            blockedEmbed.delete();
+                        }, 15000)).catch(console.error);
+
+                        var item;
+                        let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
+                        console.log(`counterDamage: ${counterDamage}`);
+
+                        const counterEmbed = new EmbedBuilder()
+                            .setTitle("Counter Attack!")
+                            .setColor('DarkRed')
+                            .addFields({ name: 'DAMAGE: ', value: ' ' + counterDamage + ' ', inline: true });
+
+                        await interaction.channel.send({ embeds: [counterEmbed] }).then(async cntrEmbed => setTimeout(() => {
+                            cntrEmbed.delete();
+                        }, 15000)).catch(console.error);
+
+                        return dealDamage(counterDamage, item, enemy, true);
+                    }
+                } else {
+                    return takeDamage(eDamage, user, enemy, true);
+                }
+            } else if (!currentLoadout) {
+                return takeDamage(eDamage, user, enemy, true);
+            }
+
+        }
+
+        //========================================
+        // This method calculates damage dealt to user 
+        async function takeDamage(eDamage, user, enemy, isBlocked) {          
+            var currentHealth = user.health;
+
+            if (isBlocked === true) {
+                if ((currentHealth - eDamage) <= 0) {
+                    //Player has died
+                    console.log('PLAYER IS DEAD :O');
+                    await hitP(0);
+                    await playerDead(user, enemy);
+                    return true;
+                } else {
+                    currentHealth -= eDamage;
+                    currentHealth = Number.parseFloat(currentHealth).toFixed(1);
+                    console.log('CURRENT PLAYER HEALTH: ', currentHealth);
+
+                    const attackDmgEmbed = new EmbedBuilder()
+                        .setTitle("Damage Taken")
+                        .setColor('DarkRed')
+                        .addFields(
+                            { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
+                            { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
+                        );
+
+                    await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
+                        attkEmbed.delete();
+                    }, 15000)).catch(console.error);
+
+                    await hitP(currentHealth);
+                    return display();
+                }
+            } else if (isBlocked === false) {
+
+                if (user.pclass === 'Warrior') {
+                    //5% damage reduction
+                    eDamage -= (eDamage * 0.05);
+                } else if (user.pclass === 'Paladin') {
+                    //15% damage reduction
+                    eDamage -= (eDamage * 0.15);
+                } else if (user.pclass === 'Mage') {
+                    //5% damage increase
+                    eDamage += (eDamage * 0.05);
+                }
+
+                var defence = 0;
+                const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+                if (currentLoadout) {
+                    var headSlotItem = await findHelmSlot(currentLoadout.headslot);
+                    var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
+                    var legSlotItem = await findLegSlot(currentLoadout.legslot);
+
+                    if (headSlotItem === 'NONE') {
+                        //No item equipped
+                        defence += 0;
+                    } else {
+                        //Item found add defence
+                        defence += headSlotItem.Defence;
+                    }
+
+                    if (chestSlotItem === 'NONE') {
+                        //No item equipped
+                        defence += 0;
+                    } else {
+                        //Item found add defence
+                        defence += chestSlotItem.Defence;
+                    }
+
+                    if (legSlotItem === 'NONE') {
+                        //No item equipped
+                        defence += 0;
+                    } else {
+                        //Item found add defence
+                        defence += legSlotItem.Defence;
+                    }
+
+                    console.log(`Total Defence from Armor: ${defence}`);
+
+                    if (defence > 0) {
+                        //Player has defence use accordingly
+                        if ((eDamage -= defence) <= 0) {
+                            eDamage = 0;
+                        } else {
+                            eDamage -= defence;
+                        }
                     }
                 }
-            }         
 
-            if (eDamage < 0) {
-                eDamage = 0;
-            }
-            
+                if (eDamage < 0) {
+                    eDamage = 0;
+                }
 
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died
-                console.log('PLAYER IS DEAD :O');
-                await hitP(0);
-                await playerDead(user, enemy);
-                return true;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log('CURRENT PLAYER HEALTH: ', currentHealth);
 
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
+                if ((currentHealth - eDamage) <= 0) {
+                    //Player has died
+                    console.log('PLAYER IS DEAD :O');
+                    await hitP(0);
+                    await playerDead(user, enemy);
+                    return true;
+                } else {
+                    currentHealth -= eDamage;
+                    currentHealth = Number.parseFloat(currentHealth).toFixed(1);
+                    console.log('CURRENT PLAYER HEALTH: ', currentHealth);
 
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
+                    const attackDmgEmbed = new EmbedBuilder()
+                        .setTitle("Damage Taken")
+                        .setColor('DarkRed')
+                        .addFields(
+                            { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
+                            { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
+                        );
 
-                await hitP(currentHealth);
-                return false;
+                    await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
+                        attkEmbed.delete();
+                    }, 15000)).catch(console.error);
+
+                    await hitP(currentHealth);
+                    return false;
+                }
             }
         }
 
