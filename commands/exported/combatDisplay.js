@@ -1,17 +1,27 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { ActiveEnemy, LootStore, UserData, Pigmy, Loadout } = require('../../dbObjects.js');
+
+const chalk = require('chalk');
+
+const { ActiveEnemy, LootStore, UserData, Pigmy, Loadout, MaterialStore } = require('../../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
 const { userDamageLoadout } = require('./dealDamage.js');
 const { isLvlUp } = require('./levelup.js');
-const { grabRar } = require('./grabRar.js');
+const { grabRar, grabColour } = require('./grabRar.js');
 const { stealing } = require('./handleSteal.js');
 const { hiding } = require('./handleHide.js');
+const { grabMat } = require('./materialDropper.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./findLoadout.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
+
+const warnedForm = chalk.bold.yellowBright;
+const errorForm = chalk.bold.redBright.bgWhite;
+const successResult = chalk.italic.whiteBright.bgGreen;
+const failureResult = chalk.italic.whiteBright.dim.bgRed;
+const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
 
 var constKey;
 var specCode;
@@ -613,6 +623,34 @@ async function enemyDead(enemy, interaction, user) {
 
     await isLvlUp(xpGained, cCalc, interaction, user);
 
+    var foundMaterial = await grabMat(enemy, user);
+    if (foundMaterial === 0) {
+        //Do nothing, invalid return value given
+    } else if (!foundMaterial) {
+        //Error occured ignore futher..
+    } else {
+        console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
+        const updatedMat = await MaterialStore.findOne({ where: [{ name: foundMaterial.name }, { spec_id: interaction.user.id }] });
+
+        if (updatedMat) foundMaterial = updatedMat;
+
+        var materialListed = `Value: ${foundMaterial.value}\nRarity: ${foundMaterial.rarity}\nAmount: ${foundMaterial.amount}`;
+
+        const matDropEmbedColour = await grabColour(updatedMat.rar_id);
+
+        const materialDropEmbed = new EmbedBuilder()
+            .setTitle('~MATERIALS DROPPED~')
+            .setColor(matDropEmbedColour)
+            .addFields({
+                name: `${foundMaterial.name}\n`,
+                value: materialListed
+            });
+
+        await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
+            matDropEmbed.delete();
+        }, 10000)).catch(console.error);
+    }
+
     const newtotalK = user.totalkills + 1;
     const newCurK = user.killsthislife + 1;
 
@@ -636,9 +674,11 @@ async function enemyDead(enemy, interaction, user) {
             iVal = (`Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`);
         }
 
+        const dropEmbedColour = await grabColour(item.rar_id);
+
         const itemDropEmbed = new EmbedBuilder()
             .setTitle('~LOOT DROPPED~')
-            .setColor(0000)
+            .setColor(dropEmbedColour)
             .addFields({
 
                 name: (`${item.name}\n`),
