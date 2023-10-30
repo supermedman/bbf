@@ -774,14 +774,18 @@ module.exports = {
         
                 Account for player class and stats when dealing damage
             */
-            const eDamage = await enemyDamage(enemy);
-            console.log(`Enemy damge: ${eDamage}`);
-            const dead = await takeDamage(eDamage, user, enemy, false);
 
-            if (!dead) {
+            if (isBlocked === true) {
                 await display();
-            }
+            } else if (isBlocked === false) {
+                const eDamage = await enemyDamage(enemy);
+                console.log(`Enemy damge: ${eDamage}`);
+                const dead = await takeDamage(eDamage, user, enemy, false);
 
+                if (!dead) {
+                    await display();
+                }
+            }
         }
 
         //This method takes user defence and calculates reflect damage if defence is stronger than enemies attack
