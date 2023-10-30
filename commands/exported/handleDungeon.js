@@ -910,7 +910,7 @@ async function dungeonCombat(enemyConstKey, interaction, killEmitter) {
                 await collInteract.deferUpdate();
 
                 await collector.stop();
-                await blockAttack(enemy, uData);
+                await blockAttack(enemy, user);
             }
         });
 
@@ -1568,7 +1568,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter) {
                 await collInteract.deferUpdate();
 
                 await collector.stop();
-                await blockAttack(enemy, uData);
+                await blockAttack(enemy, user);
             }
         });
 
