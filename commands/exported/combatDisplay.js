@@ -479,16 +479,20 @@ async function hitOnce(dmgDealt, item, user, enemy, interaction, isBlocked) {
 
         Account for player class and stats when dealing damage
     */
-    const eDamage = await enemyDamage(enemy);
-    console.log(`Enemy damge: ${eDamage}`);
-    const dead = await takeDamage(eDamage, user, enemy, interaction, false);
-    const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
-
-    if (!dead) {
-        console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
+    if (isBlocked === true) {
+        const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
         return await display(interaction, uData);
-    }
-    
+    } else if (isBlocked === false) {
+        const eDamage = await enemyDamage(enemy);
+        console.log(`Enemy damge: ${eDamage}`);
+        const dead = await takeDamage(eDamage, user, enemy, interaction, false);
+        const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+
+        if (!dead) {
+            console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
+            return await display(interaction, uData);
+        }
+    }   
 }
 
 async function blockAttack(enemy, user, interaction) {
