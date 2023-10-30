@@ -11,7 +11,7 @@
 	},
 	{
 		"Name": "Soapstone",
-		"Value": 10,
+		"Value": 15,
 
 		"Rarity": "Uncommon",
 		"Rar_id": 1,
@@ -21,7 +21,7 @@
 	},
 	{
 		"Name": "Limestone",
-		"Value": 10,
+		"Value": 25,
 
 		"Rarity": "Rare",
 		"Rar_id": 2,
@@ -31,7 +31,7 @@
 	},
 	{
 		"Name": "Marble",
-		"Value": 10,
+		"Value": 45,
 
 		"Rarity": "Very Rare",
 		"Rar_id": 3,
@@ -41,7 +41,7 @@
 	},
 	{
 		"Name": "Granite",
-		"Value": 10,
+		"Value": 75,
 
 		"Rarity": "Epic",
 		"Rar_id": 4,
@@ -51,7 +51,7 @@
 	},
 	{
 		"Name": "Basalt",
-		"Value": 10,
+		"Value": 100,
 
 		"Rarity": "Mystic",
 		"Rar_id": 5,
