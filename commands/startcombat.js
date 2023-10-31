@@ -217,7 +217,7 @@ module.exports = {
 
             const user = await grabU();
 
-            var foundMaterial = await grabMat(enemy, user);
+            var foundMaterial = await grabMat(enemy, user, interaction);
             if (foundMaterial === 0) {
                 //Do nothing, invalid return value given
             } else if (!foundMaterial) {
@@ -242,7 +242,7 @@ module.exports = {
 
                 await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
                     matDropEmbed.delete();
-                }, 10000)).catch(console.error);
+                }, 20000)).catch(console.error);
             }
 
             const newtotalK = user.totalkills + 1;
@@ -281,7 +281,7 @@ module.exports = {
 
                 await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
                     dropEmbed.delete();
-                }, 10000)).catch(console.error);
+                }, 20000)).catch(console.error);
             }
 
             //const ref = new ActionRowBuilder()
