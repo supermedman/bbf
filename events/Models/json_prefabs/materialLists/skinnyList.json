@@ -58,6 +58,16 @@
 
 		"Mat_id": 6,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Worked Magical Hide",
+		"Value": 200,
+
+		"Rarity": "?",
+		"Rar_id": 6,
+
+		"Mat_id": 7,
+		"Spec_id": 0
 	}
 
 ]
