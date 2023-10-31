@@ -1,0 +1,169 @@
+[
+    {
+        "Name": "Soul God's Reaver",
+        "Description": "A tool fit for a god, use mainly to remove the force of life... by way of excessive force",
+
+        "PassiveCategory": "Equip",
+
+        "LevelOnCreate": 1,
+        "UseLevel": 35,
+
+        "Damage": 450,
+        "Type": "SPIRIT",
+
+        "CoinCost": 250000,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Soul",
+        "Material1_Amount": 25,
+
+        "Material2": "Phasemetal Ingot",
+        "Material2_Amount": 50,
+
+        "Material3": "Refined Essence",
+        "Material3_Amount": 150,
+
+        "Material4": "Worked Magical Hide",
+        "Material4_Amount": 15,
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "Loot_id": 30000,
+        "BlueprintID": 1
+    },
+    {
+        "Name": "Minor Healing",
+        "Description": "Heals for 45",
+
+        "ActiveCategory": "Healing",
+        "PassiveCategory": "Potion",
+
+        "Duration": 0,
+        "CoolDown": 5,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 5,
+        "CoinCost": 100,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Dandielion",
+        "Material1_Amount": 10,
+
+        "Material2": "Foxtail",
+        "Material2_Amount": 5,
+
+        "Material3": "Red Slime",
+        "Material3_Amount": 2,
+
+        "PotionID": 1,
+        "BlueprintID": 2
+    },
+    {
+        "Name": "Stone Skin",
+        "Description": "Increases base defence by 15",
+
+        "ActiveCategory": "Reinforce",
+        "PassiveCategory": "Potion",
+
+        "Duration": 1,
+        "CoolDown": 3,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 8,
+        "CoinCost": 175,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Slimy Eyeball",
+        "Material1_Amount": 3,
+
+        "Material2": "Limestone",
+        "Material2_Amount": 5,
+
+        "Material3": "Granite",
+        "Material3_Amount": 1,
+
+        "PotionID": 2,
+        "BlueprintID": 3
+    },
+    {
+        "Name": "Minor Ton of Stats",
+        "Description": "Increases ALL base stats by 1",
+
+        "ActiveCategory": "Tons",
+        "PassiveCategory": "Potion",
+
+        "Duration": 10,
+        "CoolDown": 15,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 8,
+        "CoinCost": 200,
+        "MaterialTypeAmount": 5,
+
+        "Material1": "Purple Slime",
+        "Material1_Amount": 10,
+
+        "Material2": "Raw Ore",
+        "Material2_Amount": 10,
+
+        "Material3": "Smelly Entrails",
+        "Material3_Amount": 10,
+
+        "Material4": "Foxtail",
+        "Material4_Amount": 10,
+
+        "Material5": "Refined Essence",
+        "Material5_Amount": 1,
+
+        "PotionID": 3,
+        "BlueprintID": 4
+    },
+    {
+        "Name": "Potion TEMP",
+        "Description": "Description here",
+
+        "ActiveCategory": "PotionType",
+        "PassiveCategory": "Potion",
+
+        "Duration": 1,
+        "CoolDown": 1,
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+
+        "UseLevel": 1,
+        "CoinCost": 10,
+        "MaterialTypeAmount": 6,
+
+        "Material1": "Mat1",
+        "Material1_Amount": 0,
+
+        "Material2": "Mat2",
+        "Material2_Amount": 0,
+
+        "Material3": "Mat3",
+        "Material3_Amount": 0,
+
+        "Material4": "Mat4",
+        "Material4_Amount": 0,
+
+        "Material5": "Mat5",
+        "Material5_Amount": 0,
+
+        "Material6": "Mat6",
+        "Material6_Amount": 0,
+
+        "PotionID": 0,
+        "BlueprintID": 0
+    }
+]
