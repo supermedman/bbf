@@ -23,5 +23,28 @@ const ActiveDungeon = require('./events/Models/ActiveDungeon')(sequelize, Sequel
 const ActiveDungeonEnemy = require('./events/Models/ActiveDungeonEnemy')(sequelize, Sequelize.DataTypes);
 const ActiveDungeonBoss = require('./events/Models/ActiveDungeonBoss')(sequelize, Sequelize.DataTypes);
 const MaterialStore = require('./events/Models/MaterialStore')(sequelize, Sequelize.DataTypes);
+const OwnedBlueprints = require('./events/Models/OwnedBlueprints')(sequelize, Sequelize.DataTypes);
+const OwnedPotions = require('./events/Models/OwnedPotions')(sequelize, Sequelize.DataTypes);
+const UniqueCrafted = require('./events/Models/UniqueCrafted')(sequelize, Sequelize.DataTypes);
 
-module.exports = { Equipped, LootStore, LootShop, LootDrop, Pigmy, Pighouse, Questing, ActiveEnemy, UserData, GuildData, Loadout, Milestones, ActiveDungeon, ActiveDungeonEnemy, ActiveDungeonBoss, MaterialStore };
+module.exports = {
+	Equipped,
+	LootStore,
+	LootShop,
+	LootDrop,
+	Pigmy,
+	Pighouse,
+	Questing,
+	ActiveEnemy,
+	UserData,
+	GuildData,
+	Loadout,
+	Milestones,
+	ActiveDungeon,
+	ActiveDungeonEnemy,
+	ActiveDungeonBoss,
+	MaterialStore,
+	OwnedBlueprints,
+	OwnedPotions,
+	UniqueCrafted
+};
