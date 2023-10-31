@@ -923,6 +923,7 @@
         "XpMax": 200,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Soul",
 
         "ConstKey": 45,
         "SpecId": 0
@@ -1206,6 +1207,7 @@
         "XpMax": 2500,
 
         "DropTypes": [ "fleshy" ],
+        "UniqueType": "Soul",
 
         "ConstKey": 59,
 
@@ -1562,6 +1564,7 @@
         "XpMax": 800,
 
         "DropTypes": [ "magical", "rocky", "metalic" ],
+        "UniqueType": "Soul",
 
         "ConstKey": 76,
         "SpecId": 0
@@ -1962,6 +1965,7 @@
         "XpMax": 1300,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Soul",
 
         "ConstKey": 95,
         "SpecId": 0
