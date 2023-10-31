@@ -348,6 +348,12 @@ async function grabColour(rarid) {
     if (rarid === 10) {
         return 0xff06ff;
     }
+    if (rarid === 11) {
+        return 0x0000ff;
+    }
+    if (rarid === 12) {
+        return 0xb45f06;
+    }
 }
 
 module.exports = { grabRar, grabColour };
