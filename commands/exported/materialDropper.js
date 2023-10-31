@@ -1,3 +1,5 @@
+const { EmbedBuilder } = require('discord.js');
+
 const chalk = require('chalk');
 
 const { grabRar } = require('./grabRar.js');
@@ -18,20 +20,29 @@ const failureResult = chalk.italic.whiteBright.dim.bgRed;
 //console.log(failureResult('Testing failure here!'));
 
 const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
-    //console.log(basicInfoForm('Testing basic info here!'));
+//console.log(basicInfoForm('Testing basic info here!'));
+
+const specialInfoForm = chalk.bold.cyan.bgBlackBright;
+//console.log(specialInfoForm('Testing special info here!'));
 
 /**
  * 
  * @param {any} enemy Reference to enemy object
  * @param {any} user Reference to user object
+ * @param {any} interaction Reference to interaction object
  */
-async function grabMat(enemy, user) {
+async function grabMat(enemy, user, interaction) {
+    var hasUniqueType;
     let matTypes;
     for (var i = 0; i < enemyList.length; i++) {
         //if enemy with player level or lower can be found continue
         if (enemyList[i].ConstKey === enemy.constkey) {
             //Match found pull data
             matTypes = enemyList[i].DropTypes;
+            if (enemyList[i].UniqueType) {
+                console.log(specialInfoForm('Enemy found has unique mat type of: ', enemyList[i].UniqueType));
+                hasUniqueType = enemyList[i].UniqueType;
+            } else {/**DO NOTHING NO UNIQUE TYPE*/}
         } else {/**enemy not found keep looking*/ }
     }
 
@@ -54,6 +65,52 @@ async function grabMat(enemy, user) {
         passType = `${matTypes[0]}`;
     }
 
+    //========================================
+    //UNIQUE LIST CHECK AND HANDLE 
+    if (hasUniqueType) {
+        //Enemy has unique type, recall enemy prefab and locate which unique mat to drop
+        console.log(specialInfoForm('Enemy has unique mat type!', hasUniqueType));
+
+        const uniqueListStr = `uniqueList.json`;
+        const foundUniqueList = require(`../../events/Models/json_prefabs/materialLists/${uniqueListStr}`);
+        if (!foundUniqueList) {
+            console.log(errorForm('UniqueList NOT FOUND!'));
+            //return 0;
+        }
+
+        let uniqueMatDrop;
+        for (var y = 0; y < foundUniqueList.length; y++) {
+            if (foundUniqueList[y].UniqueMatch === hasUniqueType) {
+                //Material found successfully, create and display drop embed separtely 
+                uniqueMatDrop = foundUniqueList[y];
+            } else {/**DO NOTHING KEEP LOOKING*/ }
+        }
+
+        if (!uniqueMatDrop) console.log(errorForm('UniqueMaterial NOT FOUND!'));
+        console.log(successResult(`UniqueMaterial Dropped: ${uniqueMatDrop}`));
+
+        var theUnique = await handleMaterialAdding(uniqueMatDrop, 1, user, hasUniqueType);
+
+        const updatedMat = await MaterialStore.findOne({ where: [{ name: theUnique.name }, { spec_id: interaction.user.id }] });
+
+        if (updatedMat) theUnique = updatedMat;
+
+        var matListedDisplay = `Value: ${theUnique.value}\nRarity: ${theUnique.rarity}\nAmount: ${theUnique.amount}`;
+
+        const theUniqueEmbed = new EmbedBuilder()
+            .setTitle('~Unique Material~')
+            .setColor(0000)
+            .addFields({
+                name: `${theUnique.name}\n`,
+                value: matListedDisplay
+            });
+
+        await interaction.channel.send({ embeds: [theUniqueEmbed] }).then(async theUniEmbed => setTimeout(() => {
+            theUniEmbed.delete();
+        }, 20000)).catch(console.error);
+    } else if (!hasUniqueType) console.log(basicInfoForm('No unique materials found!'));
+    //========================================
+
     const foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
     if (!foundMaterialList) {
         console.log(errorForm('MaterialList NOT FOUND!'));
@@ -62,14 +119,6 @@ async function grabMat(enemy, user) {
 
     var foundRar = await grabRar(enemy.level);
     //Use foundRar to drop an item from the list found!
-
-    //========================================
-    //TEMPORARY RAR_ID CHECK REVERT
-    if (foundRar > 5) {
-        foundRar = 5;
-    }
-    //========================================
-
     let matDropPool = [];
     for (var x = 0; x < foundMaterialList.length; x++) {
         if (foundMaterialList[x].Rar_id === foundRar) {
@@ -87,7 +136,7 @@ async function grabMat(enemy, user) {
         console.log(successResult(`Material Dropped: ${finalMaterial.Name}`));
 
         let droppedNum = 1;
-        droppedNum += (100 * ((enemy.level * 0.01) - (foundRar * 0.02)));
+        droppedNum += (100 * ((enemy.level * 0.01) - ((foundRar * 0.02) + 0.2)));
 
         if (droppedNum <= 0) {
             droppedNum = 1;

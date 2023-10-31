@@ -1,0 +1,64 @@
+[
+	{
+		"Name": "Soul",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+		"UniqueMatch": "Soul",
+
+		"Mat_id": 1,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Temp2",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 2,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Temp3",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 3,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Temp4",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 4,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Temp5",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 5,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Temp6",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 6,
+		"Spec_id": 0
+	}
+
+]

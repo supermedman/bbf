@@ -42,6 +42,9 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     constKey = theEnemy.constkey;
     stealDisabled = false;
     isHidden = false;
+    if (interaction === false) {
+
+    }
     if (uData.health <= 0) return playerDead(uData, 'Fayrn', interaction);
     //Only user && interaction objects need to be passed futher!
     await display(interaction, uData);
@@ -623,7 +626,7 @@ async function enemyDead(enemy, interaction, user) {
 
     await isLvlUp(xpGained, cCalc, interaction, user);
 
-    var foundMaterial = await grabMat(enemy, user);
+    var foundMaterial = await grabMat(enemy, user, interaction);
     if (foundMaterial === 0) {
         //Do nothing, invalid return value given
     } else if (!foundMaterial) {
@@ -648,7 +651,7 @@ async function enemyDead(enemy, interaction, user) {
 
         await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
             matDropEmbed.delete();
-        }, 10000)).catch(console.error);
+        }, 20000)).catch(console.error);
     }
 
     const newtotalK = user.totalkills + 1;
@@ -687,7 +690,7 @@ async function enemyDead(enemy, interaction, user) {
 
         await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
             dropEmbed.delete();
-        }, 10000)).catch(console.error);
+        }, 20000)).catch(console.error);
     }
 
     const killedEmbed = new EmbedBuilder()
