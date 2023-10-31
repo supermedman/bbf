@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { Loadout, UserData } = require('../dbObjects.js');
 const { userDamageLoadout } = require('./exported/dealDamage.js');
+const { grabColour } = require('./exported/grabRar.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./exported/findLoadout.js');
 
 module.exports = {
@@ -21,9 +22,17 @@ module.exports = {
             var mainHandItem = await findMainHand(currentLoadout.mainhand);
 
             var headSlotEmbed;
+            var headSlotColour;
+
             var chestSlotEmbed;
+            var chestSlotColour;
+
             var legSlotEmbed;
+            var legSlotColour;
+
             var mainHandEmbed;
+            var mainHandColour;
+
             var damageEmbed;
 
             if (headSlotItem === 'NONE') {
@@ -35,9 +44,11 @@ module.exports = {
             } else {
                 //Item found add defence
                 var list = (`\nValue: **${headSlotItem.Value}** \nRarity: **${headSlotItem.Rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.Slot}**`);
+                headSlotColour = await grabColour(headSlotItem.Rar_id);
+
                 headSlotEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
-                    .setColor(0000)
+                    .setColor(headSlotColour)
                     .addFields(
                         {
                             name: (`**${headSlotItem.Name}**`),
@@ -55,10 +66,11 @@ module.exports = {
             } else {
                 //Item found add it
                 var list = (`\nValue: **${chestSlotItem.Value}** \nRarity: **${chestSlotItem.Rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.Slot}**`);
+                chestSlotColour = await grabColour(chestSlotItem.Rar_id);
 
                 chestSlotEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
-                    .setColor(0000)
+                    .setColor(chestSlotColour)
                     .addFields(
                         {
                             name: (`**${chestSlotItem.Name}**`),
@@ -76,10 +88,11 @@ module.exports = {
             } else {
                 //Item found add it
                 var list = (`\nValue: **${legSlotItem.Value}** \nRarity: **${legSlotItem.Rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.Slot}**`);
+                legSlotColour = await grabColour(legSlotItem.Rar_id);
 
                 legSlotEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
-                    .setColor(0000)
+                    .setColor(legSlotColour)
                     .addFields(
                         {
                             name: (`**${legSlotItem.Name}**`),
@@ -102,10 +115,11 @@ module.exports = {
             } else {
                 //Item found add it
                 var list = (`\nValue: **${mainHandItem.Value}c** \nRarity: **${mainHandItem.Rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.Slot}** \nHands: **${mainHandItem.Hands}**`);
+                mainHandColour = await grabColour(mainHandItem.Rar_id);
 
                 mainHandEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
-                    .setColor(0000)
+                    .setColor(mainHandColour)
                     .addFields(
                         {
                             name: (`**${mainHandItem.Name}**`),
@@ -121,7 +135,7 @@ module.exports = {
                 list = (`Total damage dealt before defence calculations: \n${weapondmgmod}`);
                 damageEmbed = new EmbedBuilder()
                     .setTitle(`**${mainHandItem.Name}**`)
-                    .setColor(0000)
+                    .setColor(mainHandColour)
                     .addFields(
                         {
                             name: (`*${mainHandItem.Rarity}*`),
