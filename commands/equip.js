@@ -259,7 +259,9 @@ module.exports = {
                             mainhand: item.loot_id,
                             spec_id: interaction.user.id,
                         });
-                        if (newWeapon > 0) {
+
+                        const theWeapon = await Loadout.findOne({ where: { spec_id: newWeapon.spec_id } });
+                        if (theWeapon) {
                             console.log('mainhand CREATED!');
                             return interaction.followUp('Weapon equipped!');
                         }
@@ -269,7 +271,8 @@ module.exports = {
                             offhand: item.loot_id,
                             spec_id: interaction.user.id,
                         });
-                        if (newWeapon > 0) {
+                        const theWeapon = await Loadout.findOne({ where: { spec_id: newWeapon.spec_id } });
+                        if (theWeapon) {
                             console.log('mainhand CREATED!');
                             return interaction.followUp('Weapon equipped!');
                         }
@@ -304,7 +307,10 @@ module.exports = {
                         headslot: item.loot_id,
                         spec_id: interaction.user.id,
                     });
-                    if (newHelm > 0) {
+
+                    const theHelm = await Loadout.findOne({ where: { spec_id: newHelm.spec_id } });
+
+                    if (theHelm) {
                         console.log('HEADSLOT CREATED!');
                         return interaction.followUp('Helm equipped!');
                     }
@@ -336,7 +342,10 @@ module.exports = {
                         chestslot: item.loot_id,
                         spec_id: interaction.user.id,
                     });
-                    if (newChest > 0) {
+
+                    const theChest = await Loadout.findOne({ where: { spec_id: newChest.spec_id } });
+
+                    if (theChest) {
                         console.log('CHESTSLOT CREATED!');
                         return interaction.followUp('Chestpiece equipped!');
                     }
@@ -367,7 +376,9 @@ module.exports = {
                         legslot: item.loot_id,
                         spec_id: interaction.user.id,
                     });
-                    if (newLegs > 0) {
+                    const theLegs = await Loadout.findOne({ where: { spec_id: newLegs.spec_id } });
+
+                    if (theLegs) {
                         console.log('LEGSLOT CREATED!');
                         return interaction.followUp('Leggings equipped!');
                     }
@@ -403,7 +414,10 @@ module.exports = {
                         offhand: item.loot_id,
                         spec_id: interaction.user.id,
                     });
-                    if (newOffhand > 0) {
+
+                    const theOffhand = await Loadout.findOne({ where: { spec_id: newOffhand.spec_id } });
+
+                    if (theOffhand) {
                         console.log('offhand CREATED!');
                         return interaction.followUp('offhand equipped!');
                     }
