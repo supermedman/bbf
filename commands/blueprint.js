@@ -27,8 +27,6 @@ module.exports = {
 					.setDescription('View all currently craftable blueprints')),
 
 	async execute(interaction) { 
-		if (interaction.user.id !== '794729738601889822') return interaction.reply('This command is under construction!');
-
 		await interaction.deferReply();
 
 		const userData = await UserData.findOne({ where: { userid: interaction.user.id } });
