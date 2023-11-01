@@ -923,7 +923,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
             if (collInteract.customId === 'onehit') {
                 const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
                 if (currentLoadout) {
-                    const weapon = await findMainHand(currentLoadout.mainhand);
+                    const weapon = await findMainHand(currentLoadout.mainhand, userID);
                     var dmgDealt = await userDamageLoadout(user, weapon);
                     if (isHidden === true) {
                         //BACKSTAB
@@ -1145,9 +1145,9 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
         var defence = 0;
         const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
         if (currentLoadout) {
-            var headSlotItem = await findHelmSlot(currentLoadout.headslot);
-            var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
-            var legSlotItem = await findLegSlot(currentLoadout.legslot);
+            var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+            var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
 
             if (headSlotItem === 'NONE') {
                 //No item equipped
@@ -1282,9 +1282,9 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
             var defence = 0;
             const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
             if (currentLoadout) {
-                var headSlotItem = await findHelmSlot(currentLoadout.headslot);
-                var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
-                var legSlotItem = await findLegSlot(currentLoadout.legslot);
+                var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+                var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+                var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
 
                 if (headSlotItem === 'NONE') {
                     //No item equipped
@@ -1581,7 +1581,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
             if (collInteract.customId === 'onehit') {
                 const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
                 if (currentLoadout) {
-                    const weapon = await findMainHand(currentLoadout.mainhand);
+                    const weapon = await findMainHand(currentLoadout.mainhand, userID);
                     var dmgDealt = await userDamageLoadout(user, weapon);
                     if (isHidden === true) {
                         //BACKSTAB
@@ -1787,9 +1787,9 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
         var defence = 0;
         const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
         if (currentLoadout) {
-            var headSlotItem = await findHelmSlot(currentLoadout.headslot);
-            var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
-            var legSlotItem = await findLegSlot(currentLoadout.legslot);
+            var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+            var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
 
             if (headSlotItem === 'NONE') {
                 //No item equipped
@@ -1939,9 +1939,9 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
             var defence = 0;
             const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
             if (currentLoadout) {
-                var headSlotItem = await findHelmSlot(currentLoadout.headslot);
-                var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
-                var legSlotItem = await findLegSlot(currentLoadout.legslot);
+                var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+                var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+                var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
 
                 if (headSlotItem === 'NONE') {
                     //No item equipped
