@@ -16,10 +16,31 @@ module.exports = {
 
         if (currentLoadout) {
             //User has items equipped
-            var headSlotItem = await findHelmSlot(currentLoadout.headslot);
-            var chestSlotItem = await findChestSlot(currentLoadout.chestslot);
-            var legSlotItem = await findLegSlot(currentLoadout.legslot);
-            var mainHandItem = await findMainHand(currentLoadout.mainhand);
+            var headSlotItem = await findHelmSlot(currentLoadout.headslot, interaction.user.id);
+            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, interaction.user.id);
+            var legSlotItem = await findLegSlot(currentLoadout.legslot, interaction.user.id);
+            var mainHandItem = await findMainHand(currentLoadout.mainhand, interaction.user.id);
+
+            let headUnique = false;
+            if (!headSlotItem.value) {
+                //Item is crafted Unique
+                headUnique = true;
+            }
+            let chestUnique = false;
+            if (!chestSlotItem.value) {
+                //Item is crafted Unique
+                chestUnique = true;
+            }
+            let legsUnique = false;
+            if (!legSlotItem.value) {
+                //Item is crafted Unique
+                legsUnique = true;
+            }
+            let mainHandUnique = false;
+            if (!mainHandItem.value) {
+                //Item is crafted Unique
+                mainHandUnique = true;
+            }
 
             var headSlotEmbed;
             var headSlotColour;
@@ -43,15 +64,24 @@ module.exports = {
                     .addFields({ name: 'No Helm equipped', value: list, });
             } else {
                 //Item found add defence
-                var list = (`\nValue: **${headSlotItem.Value}** \nRarity: **${headSlotItem.Rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.Slot}**`);
-                headSlotColour = await grabColour(headSlotItem.Rar_id);
-
+                let list;
+                let headName;
+                if (headUnique === true) {
+                    list = (`\nValue: **${headSlotItem.value}** \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}**`);
+                    headSlotColour = await grabColour(headSlotItem.rar_id);
+                    headName = `**${headSlotItem.name}**`;
+                } else {
+                    list = (`\nValue: **${headSlotItem.Value}** \nRarity: **${headSlotItem.Rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.Slot}**`);
+                    headSlotColour = await grabColour(headSlotItem.Rar_id);
+                    headName = `**${headSlotItem.Name}**`;
+                }
+                
                 headSlotEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
                     .setColor(headSlotColour)
                     .addFields(
                         {
-                            name: (`**${headSlotItem.Name}**`),
+                            name: (`${headName}`),
                             value: list,
 
                         });
@@ -65,15 +95,25 @@ module.exports = {
                     .addFields({ name: 'No Chestplate equipped', value: list, });
             } else {
                 //Item found add it
-                var list = (`\nValue: **${chestSlotItem.Value}** \nRarity: **${chestSlotItem.Rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.Slot}**`);
-                chestSlotColour = await grabColour(chestSlotItem.Rar_id);
+                let list;
+                let chestName;
+                if (chestUnique === true) {
+                    list = (`\nValue: **${chestSlotItem.value}** \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}**`);
+                    chestSlotColour = await grabColour(chestSlotItem.rar_id);
+                    chestName = `**${chestSlotItem.name}**`;
+                } else {
+                    list = (`\nValue: **${chestSlotItem.Value}** \nRarity: **${chestSlotItem.Rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.Slot}**`);
+                    chestSlotColour = await grabColour(chestSlotItem.Rar_id);
+                    chestName = `**${chestSlotItem.Name}**`;
+                }
+                
 
                 chestSlotEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
                     .setColor(chestSlotColour)
                     .addFields(
                         {
-                            name: (`**${chestSlotItem.Name}**`),
+                            name: (`${chestName}`),
                             value: list,
 
                         });
@@ -87,15 +127,26 @@ module.exports = {
                     .addFields({ name: 'No Leggings equipped', value: list, });
             } else {
                 //Item found add it
-                var list = (`\nValue: **${legSlotItem.Value}** \nRarity: **${legSlotItem.Rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.Slot}**`);
-                legSlotColour = await grabColour(legSlotItem.Rar_id);
+                let list;
+                let legsName;
+                if (legsUnique === true) {
+                    list = (`\nValue: **${legSlotItem.value}** \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}**`);
+                    legSlotColour = await grabColour(legSlotItem.rar_id);
+                    legsName = `**${legSlotItem.name}**`;
+                } else {
+                    list = (`\nValue: **${legSlotItem.Value}** \nRarity: **${legSlotItem.Rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.Slot}**`);
+                    legSlotColour = await grabColour(legSlotItem.Rar_id);
+                    legsName = `**${legSlotItem.Name}**`;
+                }
+
+                
 
                 legSlotEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
                     .setColor(legSlotColour)
                     .addFields(
                         {
-                            name: (`**${legSlotItem.Name}**`),
+                            name: (`${legsName}`),
                             value: list,
 
                         });
@@ -114,15 +165,29 @@ module.exports = {
 
             } else {
                 //Item found add it
-                var list = (`\nValue: **${mainHandItem.Value}c** \nRarity: **${mainHandItem.Rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.Slot}** \nHands: **${mainHandItem.Hands}**`);
-                mainHandColour = await grabColour(mainHandItem.Rar_id);
+                let list;
+                let mainHandName;
+                let mainHandRarity;
+                if (mainHandUnique === true) {
+                    list = (`\nValue: **${mainHandItem.value}c** \nRarity: **${mainHandItem.rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.slot}** \nHands: **${mainHandItem.hands}**`);
+                    mainHandColour = await grabColour(mainHandItem.rar_id);
+                    mainHandName = `**${mainHandItem.name}**`;
+                    mainHandRarity = `*${mainHandItem.rarity}*`;
+                } else {
+                    list = (`\nValue: **${mainHandItem.Value}c** \nRarity: **${mainHandItem.Rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.Slot}** \nHands: **${mainHandItem.Hands}**`);
+                    mainHandColour = await grabColour(mainHandItem.Rar_id);
+                    mainHandName = `**${mainHandItem.Name}**`;
+                    mainHandRarity = `*${mainHandItem.Rarity}*`;
+                }
+
+                
 
                 mainHandEmbed = new EmbedBuilder()
                     .setTitle('CURRENTLY EQUIPPED')
                     .setColor(mainHandColour)
                     .addFields(
                         {
-                            name: (`**${mainHandItem.Name}**`),
+                            name: (`${mainHandName}`),
                             value: list,
 
                         });
@@ -134,11 +199,11 @@ module.exports = {
 
                 list = (`Total damage dealt before defence calculations: \n${weapondmgmod}`);
                 damageEmbed = new EmbedBuilder()
-                    .setTitle(`**${mainHandItem.Name}**`)
+                    .setTitle(`${mainHandName}`)
                     .setColor(mainHandColour)
                     .addFields(
                         {
-                            name: (`*${mainHandItem.Rarity}*`),
+                            name: (`${mainHandRarity}`),
                             value: list
 
                         });
