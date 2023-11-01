@@ -24,10 +24,10 @@ async function findHelmSlot(headSlotID) {
             } else {/**Do nothing not found*/ }
         }
         if (!headSlotItem) {
-            for (var i = 0; i < uniqueLootList.length; i++) {
-                if (uniqueLootList[i].Loot_id === headSlotID) {
+            for (var x = 0; x < uniqueLootList.length; x++) {
+                if (uniqueLootList[x].Loot_id === headSlotID) {
                     //Helmet found
-                    headSlotItem = lootList[i];
+                    headSlotItem = uniqueLootList[x];
                     console.log(headSlotItem);
                 } else {/**Do nothing not found*/ }
             }
@@ -60,10 +60,10 @@ async function findChestSlot(chestSlotID) {
             } else {/**Do nothing not found*/ }
         }
         if (!chestSlotItem) {
-            for (var i = 0; i < uniqueLootList.length; i++) {
-                if (uniqueLootList[i].Loot_id === chestSlotID) {
+            for (var x = 0; x < uniqueLootList.length; x++) {
+                if (uniqueLootList[x].Loot_id === chestSlotID) {
                     //Chest found
-                    chestSlotItem = lootList[i];
+                    chestSlotItem = uniqueLootList[x];
                     console.log(chestSlotItem);
                 } else {/**Do nothing not found*/ }
             }
@@ -97,10 +97,10 @@ async function findLegSlot(legSlotID) {
             } else {/**Do nothing not found*/ }
         }
         if (!legSlotItem) {
-            for (var i = 0; i < uniqueLootList.length; i++) {
-                if (uniqueLootList[i].Loot_id === legSlotID) {
+            for (var x = 0; x < uniqueLootList.length; x++) {
+                if (uniqueLootList[x].Loot_id === legSlotID) {
                     //Legs found
-                    legSlotItem = lootList[i];
+                    legSlotItem = uniqueLootList[x];
                     console.log(legSlotItem);
                 } else {/**Do nothing not found*/ }
             }
@@ -118,24 +118,25 @@ async function findLegSlot(legSlotID) {
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findMainHand(mainHandID) {
-    var mainHandItem;
+    let mainHandItem;
     if (mainHandID === 0) {
         //Nothing equipped
         return 'NONE';
     } else {
         console.log(mainHandID);
 
-
-        for (var i = 0; i < lootList.length; i++) {
-            if (lootList[i].Loot_id === mainHandID) {
-                //Weapon found
-                mainHandItem = lootList[i];
-                console.log(mainHandItem);
-            } else {/**Do nothing not found*/ }
-        }
+        if (mainHandID > 1000) {
+            for (var x = 0; x < uniqueLootList.length; x++) {
+                if (uniqueLootList[x].Loot_id === mainHandID) {
+                    //Weapon found
+                    mainHandItem = uniqueLootList[x];
+                    console.log(mainHandItem);
+                } else {/**Do nothing not found*/ }
+            }
+        }     
         if (!mainHandItem) {
-            for (var i = 0; i < uniqueLootList.length; i++) {
-                if (uniqueLootList[i].Loot_id === mainHandID) {
+            for (var i = 0; i < lootList.length; i++) {
+                if (lootList[i].Loot_id === mainHandID) {
                     //Weapon found
                     mainHandItem = lootList[i];
                     console.log(mainHandItem);

@@ -1,4 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
+const { checkUnlockedBluey } = require('./createBlueprint.js');
 const { UserData, Pighouse, Pigmy } = require('../../dbObjects.js');
 
 //========================================
@@ -63,6 +64,8 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 			} else { nxtLvl = 50 * (Math.pow((curlvl + i), 2) - 1); }
 			
 			console.log('Current xp needed to level: ', nxtLvl);
+
+			await checkUnlockedBluey(newlvl, uData.userid);
 
 			const lvlUpEmbed = new EmbedBuilder()
 				.setTitle("LEVEL UP!")

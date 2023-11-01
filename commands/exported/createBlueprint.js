@@ -1,17 +1,11 @@
-const chalk = require('chalk');
-
-const warnedForm = chalk.bold.yellowBright;
-//console.log(warnedForm('Testing warning here!'));
-const errorForm = chalk.bold.redBright.bgWhite;
-//console.log(errorForm('Testing error here!'));
-const successResult = chalk.italic.whiteBright.bgGreen;
-//console.log(successResult('Testing success here!'));
-const failureResult = chalk.italic.whiteBright.dim.bgRed;
-//console.log(failureResult('Testing failure here!'));
-const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
-//console.log(basicInfoForm('Testing basic info here!'));
-const specialInfoForm = chalk.bold.cyan.bgBlackBright;
-//console.log(specialInfoForm('Testing special info here!'));
+const {
+    warnedForm,
+    errorForm,
+    successResult,
+    failureResult,
+    basicInfoForm,
+    specialInfoForm
+} = require('../../chalkPresets.js');
 
 const blueprintList = require('../../events/Models/json_prefabs/blueprintList.json');
 
@@ -61,4 +55,58 @@ async function createNewBlueprint(BPID, userID) {
     }
 }
 
-module.exports = { createNewBlueprint };
+async function checkUnlockedBluey(level, userID) {
+    const levelBPs = blueprintList.filter(bluey => bluey.UseLevel <= level);
+    if (levelBPs.length > 0) {
+        //Blueprints NEED checking
+        const userBPs = await OwnedBlueprints.findAll({ where: { spec_id: userID } });
+        if (!userBPs) {
+            console.log(warnedForm('USER HAS NO BLUEPRINTS!'));
+        } else {
+            const firstFilter = levelBPs.filter(bluey => (bluey.IsUnlocked === true) && (bluey.IsDropped === false));
+            const secondFilter = firstFilter.filter(bluey => bluey.BlueprintID !== userBPs.blueprintid);
+            console.log(basicInfoForm('secondFilter results: ', secondFilter));
+
+            if (!secondFilter) return console.log(errorForm('SOMETHING WENT WRONG WHILE FILTERING!!'));
+            await itterateMakeBluey(secondFilter, secondFilter.length, userID);
+        }
+    } else {
+        //No blueprints to check
+        console.log(specialInfoForm('NO BLUEPRINTS FOR LEVELS'));
+    }
+}
+
+async function itterateMakeBluey(unlockedList, runCount, userID) {
+    let curRun = 0;
+    do {
+        try {
+            let thisIsBool = false;
+            if (unlockedList[curRun].Rarity === 'Unique') {
+                thisIsBool = true;
+            }
+
+            const newBP = await OwnedBlueprints.create({
+                name: unlockedList[curRun].Name,
+                onlyone: thisIsBool,
+                passivecategory: unlockedList[curRun].PassiveCategory,
+                blueprintid: unlockedList[curRun].BlueprintID,
+                spec_id: userID,
+            });
+
+            if (newBP) {
+                //Blueprint added successfully!
+                console.log(successResult('NEW BLUEPRINT ADDED!'));
+                const theBlueprint = await OwnedBlueprints.findOne({
+                    where: [{ blueprintid: unlockedList[curRun].BlueprintID }, { spec_id: userID }]
+                });
+
+                console.log(specialInfoForm('theBlueprint: ', theBlueprint));
+                curRun++;
+            }
+        } catch (err) {
+            return console.log(errorForm('AN ERROR HAS OCCURED: ', err));
+        }
+    } while (curRun < runCount) 
+}
+
+module.exports = { createNewBlueprint, checkUnlockedBluey };
