@@ -275,8 +275,6 @@ module.exports = {
 
 		if (interaction.options.getSubcommand() === 'available') {
 			//View ONLY blueprints ready for crafting
-			if (interaction.user.id !== '501177494137995264') return interaction.channel.send('This section is under construction!');
-
 			const userBlueprints = await OwnedBlueprints.findAll({ where: { spec_id: interaction.user.id } });
 			const userMaterial = await MaterialStore.findOne({ where: { spec_id: interaction.user.id } });
 			if (!userMaterial) return interaction.followUp('You have no materials yet! Get some by killing enemies');
@@ -755,9 +753,9 @@ module.exports = {
 				totalkills: 0,
 				killsthislevel: 0,
 				currentlevel: 1,
-				damage: equip.Damage,
-				defence: 0,
-				type: equip.Type,
+				Attack: equip.Damage,
+				Defence: 0,
+				Type: equip.Type,
 				slot: equip.Slot,
 				hands: equip.Hands,
 				rarity: equip.Rarity,
