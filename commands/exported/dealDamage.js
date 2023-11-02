@@ -1,5 +1,5 @@
 
-const { UserData, Pigmy } = require('../../dbObjects.js');
+const { UserData, Pigmy, ActiveStatus } = require('../../dbObjects.js');
 
 /**
  *  Main damage calculating functions for both user and enemies
@@ -243,6 +243,8 @@ async function userDamageAlt(user, item) {
 async function userDamageLoadout(user, item) {
     const pigmy = await Pigmy.findOne({ where: { spec_id: user.userid } });
 
+    const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: user.userid }, { activec: 'Tons' }] });
+
     var totDamageBuff = 0;
     var strUP = 0;
     var intUP = 0;
@@ -273,6 +275,13 @@ async function userDamageLoadout(user, item) {
                 intUP = 5;
             }
         }
+    }
+
+    if (extraStats) {
+        if (extraStats.duration > 0) {
+            strUP += extraStats.curreffect;
+            intUP += extraStats.curreffect;
+        }     
     }
 
     console.log(`Pigmy Damage Buff: ${totDamageBuff}`);
