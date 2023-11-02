@@ -725,6 +725,35 @@ async function enemyDead(enemy, interaction, user) {
         }, 20000)).catch(console.error);
     }
 
+    const activeEffect = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
+    if (!activeEffect) {
+        //No active effects to manage
+    } else if (activeEffect) {
+        console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+        const activeEffects = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
+        let runCount = 0;
+        let currEffect;
+        do {
+            currEffect = activeEffects[runCount];
+            var coolDownReduce = currEffect.cooldown - 1;
+            var durationReduce = currEffect.duration - 1;
+
+            if (durationReduce <= 0) {
+                durationReduce = 0;
+            }
+
+            if (coolDownReduce <= 0) {
+                //Cooldown Complete!
+                console.log(basicInfoForm('COOLDOWN COMPLETE!'));
+                await ActiveStatus.destroy({ where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+            } else {
+                await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+                await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+            }
+            runCount++;
+        } while (runCount < activeEffects.length)
+    }
+
     const newtotalK = user.totalkills + 1;
     const newCurK = user.killsthislife + 1;
 
