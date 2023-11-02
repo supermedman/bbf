@@ -26,6 +26,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             defaultValue: 0,
         },
+        potionone: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        potiontwo: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
     },
         {
             timestamps: false,
