@@ -248,29 +248,35 @@ module.exports = {
                 }, 20000)).catch(console.error);
             }
 
-            const activeEffects = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
-            if (!activeEffects) {
+            const activeEffect = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
+            if (!activeEffect) {
                 //No active effects to manage
-            } else {
+            } else if (activeEffect) {
                 console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+                const activeEffects = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
                 let runCount = 0;
                 let currEffect;
                 do {
                     currEffect = activeEffects[runCount];
                     var coolDownReduce = currEffect.cooldown - 1;
+                    var durationReduce = currEffect.duration - 1;
+
+                    if (durationReduce <= 0) {
+                        durationReduce = 0;
+                    }
 
                     if (coolDownReduce <= 0) {
                         //Cooldown Complete!
                         console.log(basicInfoForm('COOLDOWN COMPLETE!'));
                         await ActiveStatus.destroy({ where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
-                    } else await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+                    } else {
+                        await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+                        await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+                    } 
                     runCount++;
                 } while (runCount < activeEffects.length)
             }
-
-            
-
-            
+  
             const newtotalK = user.totalkills + 1;
             const newCurK = user.killsthislife + 1;
 
@@ -786,6 +792,12 @@ module.exports = {
                 }
             }
 
+            const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Tons' }] });
+            if (extraStats) {
+                spdUP += (extraStats.curreffect / 50);
+                dexUP += (extraStats.curreffect / 50);
+            }
+
             var dhChance;
             var isDH = false;
             let runCount = 1;
@@ -914,7 +926,13 @@ module.exports = {
         async function blockAttack(enemy, user) {
             var eDamage = await enemyDamage(enemy);
 
+            const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Tons' }] });
             var currentHealth = user.health;
+            if (extraStats) {
+                if (extraStats.duration > 0) {
+                    currentHealth += (extraStats.curreffect * 10);
+                }
+            }
 
             if (user.pclass === 'Warrior') {
                 //5% damage reduction
@@ -960,6 +978,13 @@ module.exports = {
 
                 console.log(`Total Defence from Armor: ${defence}`);
 
+                const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Reinforce' }] });
+
+                if (extraDefence) {
+                    if (extraDefence.duration > 0) {
+                        defence += extraDefence.curreffect;
+                    }                   
+                }
 
                 let blockStrength;
                 if (defence > 0) {
@@ -1018,8 +1043,14 @@ module.exports = {
 
         //========================================
         // This method calculates damage dealt to user 
-        async function takeDamage(eDamage, user, enemy, isBlocked) {          
+        async function takeDamage(eDamage, user, enemy, isBlocked) {
+            const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Tons' }] });
             var currentHealth = user.health;
+            if (extraStats) {
+                if (extraStats.duration > 0) {
+                    currentHealth += (extraStats.curreffect * 10);
+                }        
+            }
 
             if (isBlocked === true) {
                 if ((currentHealth - eDamage) <= 0) {
@@ -1093,6 +1124,14 @@ module.exports = {
                     }
 
                     console.log(`Total Defence from Armor: ${defence}`);
+
+                    const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Reinforce' }] });
+
+                    if (extraDefence) {
+                        if (extraDefence.duration > 0) {
+                            defence += extraDefence.curreffect;
+                        }                     
+                    }
 
                     if (defence > 0) {
                         //Player has defence use accordingly
