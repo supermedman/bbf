@@ -21,25 +21,25 @@ module.exports = {
             var legSlotItem = await findLegSlot(currentLoadout.legslot, interaction.user.id);
             var mainHandItem = await findMainHand(currentLoadout.mainhand, interaction.user.id);
 
-            let headUnique = false;
-            if (!headSlotItem.value) {
+            let headUnique = true;
+            if (headSlotItem.Value) {
                 //Item is crafted Unique
-                headUnique = true;
+                headUnique = false;
             }
-            let chestUnique = false;
-            if (!chestSlotItem.value) {
+            let chestUnique = true;
+            if (chestSlotItem.Value) {
                 //Item is crafted Unique
-                chestUnique = true;
+                chestUnique = false;
             }
-            let legsUnique = false;
-            if (!legSlotItem.value) {
+            let legsUnique = true;
+            if (legSlotItem.Value) {
                 //Item is crafted Unique
-                legsUnique = true;
+                legsUnique = false;
             }
-            let mainHandUnique = false;
-            if (!mainHandItem.value) {
+            let mainHandUnique = true;
+            if (mainHandItem.Value) {
                 //Item is crafted Unique
-                mainHandUnique = true;
+                mainHandUnique = false;
             }
 
             var headSlotEmbed;

@@ -36,7 +36,7 @@
         "XpMin": 20,
         "XpMax": 25,
 
-        "DropTypes": ["slimy"],
+        "DropTypes": [ "slimy" ],
 
         "ConstKey": 13,
 
@@ -2005,7 +2005,7 @@
         "XpMin": 900,
         "XpMax": 1100,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "slimy" ],
 
         "ConstKey": 97,
         "SpecId": 0
@@ -2045,7 +2045,7 @@
         "XpMin": 580,
         "XpMax": 600,
 
-        "DropTypes": [ "fleshy", "magical", "herby" ],
+        "DropTypes": [ "slimy", "magical", "herby" ],
 
         "ConstKey": 99,
         "SpecId": 0
@@ -2085,7 +2085,710 @@
         "XpMin": 10000,
         "XpMax": 15000,
 
+        "DropTypes": [ "fleshy", "slimy" ],
+
         "ConstKey": 101,
+        "SpecId": 0
+    },
+    {
+        "Name": "Flamecreep",
+        "Description": "...",
+
+        "Level": 23,
+        "MinDmg": 55,
+        "MaxDmg": 80,
+        "Health": 1850,
+        "Defence": 20,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 2400,
+        "XpMax": 2600,
+
+        "DropTypes": [ "skinny", "magical" ],
+
+        "ConstKey": 102,
+        "SpecId": 0
+    },
+    {
+        "Name": "Chaoscat",
+        "Description": "...",
+
+        "Level": 23,
+        "MinDmg": 50,
+        "MaxDmg": 90,
+        "Health": 1850,
+        "Defence": 11,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 2400,
+        "XpMax": 2600,
+
+        "DropTypes": [ "skinny", "herby", "magical" ],
+
+        "ConstKey": 103,
+        "SpecId": 0
+    },
+    {
+        "Name": "Icy Troglodyte",
+        "Description": "...",
+
+        "Level": 24,
+        "MinDmg": 60,
+        "MaxDmg": 90,
+        "Health": 2000,
+        "Defence": 14,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 2600,
+        "XpMax": 2700,
+
+        "DropTypes": [ "skinny", "fleshy", "herby", "metalic", "rocky" ],
+
+        "ConstKey": 104,
+        "SpecId": 0
+    },
+    {
+        "Name": "Tattooed Jester Bear",
+        "Description": "...",
+
+        "Level": 25,
+        "MinDmg": 75,
+        "MaxDmg": 140,
+        "Health": 5000,
+        "Defence": 5,
+
+        "WeakTo": "NONE",
+        "Dead": false,
+        "XpMin": 3000,
+        "XpMax": 3500,
+
+        "DropTypes": [ "gemy", "skinny", "metalic", "slimy" ],
+
+        "ConstKey": 105,
+        "SpecId": 0
+    },
+    {
+        "Name": "Electric Razor Drake",
+        "Description": "...",
+
+        "Level": 26,
+        "MinDmg": 90,
+        "MaxDmg": 125,
+        "Health": 2890,
+        "Defence": 25,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 3000,
+        "XpMax": 3200,
+
+        "DropTypes": [ "metalic", "magical", "skinny", "rocky" ],
+
+        "ConstKey": 106,
+        "SpecId": 0
+    },
+    {
+        "Name": "Blazetree",
+        "Description": "...",
+
+        "Level": 27,
+        "MinDmg": 90,
+        "MaxDmg": 140,
+        "Health": 3000,
+        "Defence": 35,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 3000,
+        "XpMax": 3300,
+
+        "DropTypes": [ "woody", "herby", "magical" ],
+
+        "ConstKey": 107,
+        "SpecId": 0
+    },
+    {
+        "Name": "Plaguesoul",
+        "Description": "...",
+
+        "Level": 25,
+        "MinDmg": 80,
+        "MaxDmg": 120,
+        "Health": 2050,
+        "Defence": 15,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 2500,
+        "XpMax": 2890,
+
+        "DropTypes": [ "magical", "fleshy", "slimy" ],
+        "UniqueType": "Soul",
+
+        "ConstKey": 108,
+        "SpecId": 0
+    },
+    {
+        "Name": "Gasgirl",
+        "Description": "...",
+
+        "Level": 24,
+        "MinDmg": 65,
+        "MaxDmg": 90,
+        "Health": 2000,
+        "Defence": 15,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 2400,
+        "XpMax": 2800,
+
+        "DropTypes": [ "fleshy", "herby", "slimy" ],
+
+        "ConstKey": 109,
+        "SpecId": 0
+    },
+    {
+        "Name": "Blazeseeker",
+        "Description": "...",
+
+        "Level": 26,
+        "MinDmg": 50,
+        "MaxDmg": 130,
+        "Health": 2200,
+        "Defence": 25,
+
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 2600,
+        "XpMax": 3000,
+
+        "DropTypes": [ "magical", "skinny", "gemy", "rocky" ],
+
+        "ConstKey": 110,
+        "SpecId": 0
+    },
+    {
+        "Name": "Phasechild",
+        "Description": "...",
+
+        "Level": 28,
+        "MinDmg": 100,
+        "MaxDmg": 150,
+        "Health": 2500,
+        "Defence": 13,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 2800,
+        "XpMax": 3200,
+
+        "DropTypes": [ "metalic", "magical", "herby" ],
+
+        "ConstKey": 111,
+        "SpecId": 0
+    },
+    {
+        "Name": "Grumpy Guardian",
+        "Description": "...",
+
+        "Level": 34,
+        "MinDmg": 100,
+        "MaxDmg": 185,
+        "Health": 4500,
+        "Defence": 40,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 3400,
+        "XpMax": 3800,
+
+        "DropTypes": [ "rocky", "metalic", "woody" ],
+
+        "ConstKey": 112,
+        "SpecId": 0
+    },
+    {
+        "Name": "Gallsword",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 33,
+        "MinDmg": 100,
+        "MaxDmg": 130,
+        "Health": 4350,
+        "Defence": 30,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 3300,
+        "XpMax": 3900,
+
+        "DropTypes": [ "metalic" ],
+
+        "ConstKey": 113,
+        "SpecId": 0
+    },
+    {
+        "Name": "Cavetaur",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 32,
+        "MinDmg": 100,
+        "MaxDmg": 125,
+        "Health": 4000,
+        "Defence": 15,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 3200,
+        "XpMax": 3800,
+
+        "DropTypes": [ "rocky", "herby", "woody" ],
+
+        "ConstKey": 114,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vamptalon",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 31,
+        "MinDmg": 100,
+        "MaxDmg": 115,
+        "Health": 4000,
+        "Defence": 20,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 3100,
+        "XpMax": 3700,
+
+        "DropTypes": [ "herby", "magical" ],
+
+        "ConstKey": 115,
+        "SpecId": 0
+    },
+    {
+        "Name": "Nightling",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 25,
+        "MinDmg": 80,
+        "MaxDmg": 120,
+        "Health": 2200,
+        "Defence": 18,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 2500,
+        "XpMax": 3200,
+
+        "DropTypes": [ "rocky", "magical" ],
+
+        "ConstKey": 116,
+        "SpecId": 0
+    },
+    {
+        "Name": "Glowtaur",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 35,
+        "MinDmg": 100,
+        "MaxDmg": 150,
+        "Health": 5000,
+        "Defence": 28,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 3500,
+        "XpMax": 4000,
+
+        "DropTypes": [ "skinny", "rocky", "herby" ],
+
+        "ConstKey": 117,
+        "SpecId": 0
+    },
+    {
+        "Name": "Doomflayer",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 36,
+        "MinDmg": 100,
+        "MaxDmg": 154,
+        "Health": 5200,
+        "Defence": 30,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 3600,
+        "XpMax": 4100,
+
+        "DropTypes": [ "slimy", "magical" ],
+
+        "ConstKey": 118,
+        "SpecId": 0
+    },
+    {
+        "Name": "Abyssseeker",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 30,
+        "MinDmg": 100,
+        "MaxDmg": 125,
+        "Health": 3500,
+        "Defence": 22,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 3000,
+        "XpMax": 3600,
+
+        "DropTypes": [ "slimy", "magical" ],
+
+        "ConstKey": 119,
+        "SpecId": 0
+    },
+    {
+        "Name": "Mournstep",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 28,
+        "MinDmg": 95,
+        "MaxDmg": 130,
+        "Health": 3000,
+        "Defence": 21,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 2800,
+        "XpMax": 3400,
+
+        "DropTypes": [ "rocky", "woody" ],
+
+        "ConstKey": 120,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vicious Tomb Dog",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 38,
+        "MinDmg": 100,
+        "MaxDmg": 170,
+        "Health": 5500,
+        "Defence": 24,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 3800,
+        "XpMax": 4600,
+
+        "DropTypes": [ "skinny", "metalic", "magical" ],
+
+        "ConstKey": 121,
+        "SpecId": 0
+    },
+    {
+        "Name": "Insidious Guardian",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 39,
+        "MinDmg": 100,
+        "MaxDmg": 185,
+        "Health": 6000,
+        "Defence": 40,
+
+        "WeakTo": "NONE",
+        "Dead": false,
+        "XpMin": 3900,
+        "XpMax": 4800,
+
+        "DropTypes": [ "rocky", "woody", "gemy", "magical", "metalic" ],
+
+        "ConstKey": 122,
+        "SpecId": 0
+    },
+    {
+        "Name": "Gloomsnake",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 19,
+        "MinDmg": 60,
+        "MaxDmg": 80,
+        "Health": 1400,
+        "Defence": 6,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 1900,
+        "XpMax": 2100,
+
+        "DropTypes": [ "fleshy" ],
+
+        "ConstKey": 123,
+        "SpecId": 0
+    },
+    {
+        "Name": "Aurataur",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 26,
+        "MinDmg": 85,
+        "MaxDmg": 100,
+        "Health": 2150,
+        "Defence": 18,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 2600,
+        "XpMax": 2900,
+
+        "DropTypes": [ "magical", "metalic" ],
+
+        "ConstKey": 124,
+        "SpecId": 0
+    },
+    {
+        "Name": "Barbling",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 14,
+        "MinDmg": 45,
+        "MaxDmg": 60,
+        "Health": 520,
+        "Defence": 6,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 1000,
+        "XpMax": 1400,
+
+        "DropTypes": [ "metalic", "woody" ],
+
+        "ConstKey": 125,
+        "SpecId": 0
+    },
+    {
+        "Name": "Moldling",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 13,
+        "MinDmg": 45,
+        "MaxDmg": 50,
+        "Health": 500,
+        "Defence": 5,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 1000,
+        "XpMax": 1300,
+
+        "DropTypes": [ "herby", "woody" ],
+
+        "ConstKey": 126,
+        "SpecId": 0
+    },
+    {
+        "Name": "Toxinling",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 12,
+        "MinDmg": 40,
+        "MaxDmg": 55,
+        "Health": 460,
+        "Defence": 3,
+
+        "WeakTo": "Magic",
+        "Dead": false,
+        "XpMin": 1000,
+        "XpMax": 1200,
+
+        "DropTypes": [ "herby", "woody" ],
+
+        "ConstKey": 127,
+        "SpecId": 0
+    },
+    {
+        "Name": "Hauntman",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 38,
+        "MinDmg": 100,
+        "MaxDmg": 165,
+        "Health": 5480,
+        "Defence": 23,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 3800,
+        "XpMax": 4200,
+
+        "DropTypes": [ "magical", "gemy", "metalic", "rocky" ],
+
+        "ConstKey": 128,
+        "SpecId": 0
+    },
+    {
+        "Name": "Phasestep",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 27,
+        "MinDmg": 99,
+        "MaxDmg": 125,
+        "Health": 2340,
+        "Defence": 12,
+
+        "WeakTo": "NULL",
+        "Dead": false,
+        "XpMin": 2700,
+        "XpMax": 3000,
+
+        "DropTypes": [ "metalic", "magical", "gemy" ],
+
+        "ConstKey": 129,
+        "SpecId": 0
+    },
+    {
+        "Name": "Frightsnare",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 16,
+        "MinDmg": 50,
+        "MaxDmg": 85,
+        "Health": 600,
+        "Defence": 10,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 1600,
+        "XpMax": 1700,
+
+        "DropTypes": [ "slimy", "magical" ],
+
+        "ConstKey": 130,
+        "SpecId": 0
+    },
+    {
+        "Name": "Bonespawn",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 29,
+        "MinDmg": 100,
+        "MaxDmg": 135,
+        "Health": 3000,
+        "Defence": 16,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 2900,
+        "XpMax": 3200,
+
+        "DropTypes": [ "rocky", "fleshy", "skinny" ],
+
+        "ConstKey": 131,
+        "SpecId": 0
+    },
+    {
+        "Name": "Dawnling",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 15,
+        "MinDmg": 54,
+        "MaxDmg": 80,
+        "Health": 550,
+        "Defence": 7,
+
+        "WeakTo": "Dark",
+        "Dead": false,
+        "XpMin": 1050,
+        "XpMax": 1200,
+
+        "DropTypes": [ "magical", "gemy", "metalic" ],
+
+        "ConstKey": 132,
+        "SpecId": 0
+    },
+    {
+        "Name": "Infernalmutant",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 16,
+        "MinDmg": 58,
+        "MaxDmg": 85,
+        "Health": 700,
+        "Defence": 9,
+
+        "WeakTo": "Slash",
+        "Dead": false,
+        "XpMin": 1600,
+        "XpMax": 1700,
+
+        "DropTypes": [ "skinny", "fleshy", "metalic" ],
+
+        "ConstKey": 133,
+        "SpecId": 0
+    },
+    {
+        "Name": "Phantomhound",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 39,
+        "MinDmg": 105,
+        "MaxDmg": 185,
+        "Health": 5750,
+        "Defence": 20,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 3900,
+        "XpMax": 4300,
+
+        "DropTypes": [ "skinny", "magical", "fleshy" ],
+
+        "ConstKey": 134,
+        "SpecId": 0
+    },
+    {
+        "Name": "Vaporling",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 41,
+        "MinDmg": 120,
+        "MaxDmg": 160,
+        "Health": 6000,
+        "Defence": 3,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 4100,
+        "XpMax": 5000,
+
+        "DropTypes": [ "magical", "gemy" ],
+
+        "ConstKey": 135,
+        "SpecId": 0
+    },
+    {
+        "Name": "COPY",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 1000,
+        "MinDmg": 0,
+        "MaxDmg": 1,
+        "Health": 10,
+        "Defence": 1,
+
+        "WeakTo": " ",
+        "Dead": false,
+        "XpMin": 0,
+        "XpMax": 2,
+
+        "DropTypes": [ " " ],
+
+        "ConstKey": 0,
         "SpecId": 0
     },
     {
