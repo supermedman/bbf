@@ -1,4 +1,13 @@
-const { UniqueCrafted } = require('../../dbObjects.js');
+const { UniqueCrafted, OwnedPotions } = require('../../dbObjects.js');
+
+const {
+    warnedForm,
+    errorForm,
+    successResult,
+    failureResult,
+    basicInfoForm,
+    specialInfoForm
+} = require('../../chalkPresets.js');
 
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
@@ -8,6 +17,7 @@ const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.
 /**
  * 
  * @param {any} headSlotID ID reference 
+ * @param {any} userID ID reference
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findHelmSlot(headSlotID, userID) {
@@ -68,6 +78,7 @@ async function findHelmSlot(headSlotID, userID) {
 /**
  * 
  * @param {any} chestSlotID ID reference
+ * @param {any} userID ID reference
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findChestSlot(chestSlotID, userID) {
@@ -128,6 +139,7 @@ async function findChestSlot(chestSlotID, userID) {
 /**
  * 
  * @param {any} legSlotID ID reference
+ * @param {any} userID ID reference
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findLegSlot(legSlotID, userID) {
@@ -188,6 +200,7 @@ async function findLegSlot(legSlotID, userID) {
 /**
  * 
  * @param {any} mainHandID ID reference
+ * @param {any} userID ID reference
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findMainHand(mainHandID, userID) {
@@ -247,6 +260,7 @@ async function findMainHand(mainHandID, userID) {
 /**
  * 
  * @param {any} offHandID ID reference
+ * @param {any} userID ID reference
  */
 async function findOffHand(offHandID, userID) {
     var offHandItem;
@@ -256,4 +270,53 @@ async function findOffHand(offHandID, userID) {
     } else { }
 }
 
-module.exports = { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand };
+/**
+ * 
+ * @param {any} potionOneID ID reference
+ * @param {any} userID ID reference
+ */
+async function findPotionOne(potionOneID, userID) {
+    let potionOne;
+    if (potionOneID === 0) {
+        //Nothing equipped
+        return 'NONE';
+    } else {
+        console.log(specialInfoForm('PotionOne found ID: ', potionOneID));
+
+        potionOne = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionOneID }] });
+
+        if (potionOne) {
+            return potionOne;
+        } else {
+            console.log(errorForm('PotionOne NOT FOUND ERROR HAS OCCURED!'));
+            return 'NONE';
+        } 
+    }
+}
+
+/**
+ * 
+ * @param {any} potionTwoID ID reference
+ * @param {any} userID ID reference
+ */ 
+async function findPotionTwo(potionTwoID, userID) {
+    let potionTwo;
+    if (potionTwoID === 0) {
+        //Nothing equipped
+        return 'NONE';
+    } else {
+        console.log(specialInfoForm('PotionTwo found ID: ', potionTwoID));
+
+        potionTwo = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionTwoID }] });
+
+        if (potionTwo) {
+            return potionTwo;
+        } else {
+            console.log(errorForm('PotionTwo NOT FOUND ERROR HAS OCCURED!'));
+            return 'NONE';
+        } 
+    }
+}
+
+
+module.exports = { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotionOne, findPotionTwo };

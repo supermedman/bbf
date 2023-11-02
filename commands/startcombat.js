@@ -1,8 +1,15 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const chalk = require('chalk');
+const {
+    warnedForm,
+    errorForm,
+    successResult,
+    failureResult,
+    basicInfoForm,
+    specialInfoForm
+} = require('../chalkPresets.js');
 
-const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout, MaterialStore } = require('../dbObjects.js');
+const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout, MaterialStore, ActiveStatus, OwnedPotions } = require('../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
@@ -11,19 +18,14 @@ const { hiding } = require('./exported/handleHide.js');
 const { grabMat } = require('./exported/materialDropper.js');
 
 const { userDamageLoadout, enemyDamage } = require('./exported/dealDamage.js');
-const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./exported/findLoadout.js');
+const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotionOne, findPotionTwo } = require('./exported/findLoadout.js');
 
 //Prefab grabbing 
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../events/Models/json_prefabs/deathMsgList.json');
 const uniqueLootList = require('../events/Models/json_prefabs/uniqueLootList.json');
-
-const warnedForm = chalk.bold.yellowBright;
-const errorForm = chalk.bold.redBright.bgWhite;
-const successResult = chalk.italic.whiteBright.bgGreen;
-const failureResult = chalk.italic.whiteBright.dim.bgRed;
-const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
+const activeCategoryEffects = require('../events/Models/json_prefabs/activeCategoryEffects.json');
 
 module.exports = {
     cooldown: 10,
@@ -44,6 +46,7 @@ module.exports = {
         var specCode;
         var stealDisabled = false;
         var isHidden = false;
+        var potionOneDisabled = true;
 
         let messageCount = 0;
 
@@ -245,6 +248,29 @@ module.exports = {
                 }, 20000)).catch(console.error);
             }
 
+            const activeEffects = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
+            if (!activeEffects) {
+                //No active effects to manage
+            } else {
+                console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+                let runCount = 0;
+                let currEffect;
+                do {
+                    currEffect = activeEffects[runCount];
+                    var coolDownReduce = currEffect.cooldown - 1;
+
+                    if (coolDownReduce <= 0) {
+                        //Cooldown Complete!
+                        console.log(basicInfoForm('COOLDOWN COMPLETE!'));
+                        await ActiveStatus.destroy({ where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+                    } else await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: interaction.user.id }, { potionid: currEffect.potionid }] });
+                    runCount++;
+                } while (runCount < activeEffects.length)
+            }
+
+            
+
+            
             const newtotalK = user.totalkills + 1;
             const newCurK = user.killsthislife + 1;
 
@@ -415,6 +441,37 @@ module.exports = {
         // This method displays the enemy in its current state
         async function display() {
             const uData = await grabU();
+            const hasLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+            if (!hasLoadout) {
+                //No loadout keep potions disabled
+            } else {
+                const checkPotOne = await findPotionOne(hasLoadout.potionone, uData.userid);
+                
+                if ((checkPotOne === 'NONE')) {
+                    //Both potion slots are empty keep buttons disabled
+                    potionOneDisabled = true;
+                   
+                } else {
+                    const activeEffects = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
+                    if (checkPotOne === 'NONE') {
+                        //Keep disabled
+                    } else {
+                        if (!activeEffects) {
+                            //user has no active effects
+                            potionOneDisabled = false;                         
+                        } else {
+                            //Check both effects against currently equipped potions
+                            if (activeEffects.cooldown > 0) {
+                                potionOneDisabled = true;
+                            } else {
+                                potionOneDisabled = false;
+                            }
+                        }                      
+                    }                                                
+                }
+            }
+            
+
             var enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
             const hasPng = await pngCheck(enemy);
 
@@ -440,7 +497,13 @@ module.exports = {
                 .setLabel('Block Attack')
                 .setStyle(ButtonStyle.Secondary);
 
-            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton);
+            const potionOneButton = new ButtonBuilder()
+                .setCustomId('potone')
+                .setLabel('Potion One')
+                .setDisabled(potionOneDisabled)
+                .setStyle(ButtonStyle.Secondary);          
+
+            const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton, potionOneButton);
 
             const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
 
@@ -611,6 +674,17 @@ module.exports = {
                     await collector.stop();
                     await blockAttack(enemy, uData);
                 }
+
+                if (collInteract.customId === 'potone') {
+                    //Potion One Used!
+                    await collInteract.deferUpdate();
+                    const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+                    const hasPotOne = await findPotionOne(currentLoadout.potionone, uData.userid);
+                    await usePotOne(hasPotOne, uData);
+                    await collector.stop();
+                    await display();
+                    
+                }                
             });
 
             collector.on('end', () => {
@@ -1022,11 +1096,7 @@ module.exports = {
 
                     if (defence > 0) {
                         //Player has defence use accordingly
-                        if ((eDamage -= defence) <= 0) {
-                            eDamage = 0;
-                        } else {
-                            eDamage -= defence;
-                        }
+                        eDamage -= defence;
                     }
                 }
 
@@ -1404,8 +1474,131 @@ module.exports = {
 
                 return newItem;
             }           
-        }    
-        
+        }
+
+        async function usePotOne(potion, user) {
+            //User used potion in slot one!
+            let appliedCurrEffect;
+            if (potion.activecategory === 'Healing') {
+                
+                const filterHeal = activeCategoryEffects.filter(effect => effect.Name === 'Healing');         
+                console.log(basicInfoForm('filterHeal @ potion: ', filterHeal[0][`${potion.name}`]));
+                const healAmount = filterHeal[0][`${potion.name}`];
+                let newHealth;
+                if (healAmount > 0) {
+                    console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
+                    appliedCurrEffect = 0;
+                    const totalHealth = 100 + (user.strength * 10);
+                    if (user.health === totalHealth) {
+                        return await interaction.followUp('You are already at maximum health!!');
+                    } else {
+                        if ((user.health + healAmount) > totalHealth) {
+                            newHealth = totalHealth;
+                            console.log(specialInfoForm('newHealth if max health reached: ', newHealth));
+                        } else {
+                            newHealth = user.health + healAmount;
+                            console.log(specialInfoForm('newHealth if no constraint reached: ', newHealth));
+                        }
+                        console.log(specialInfoForm('newHealth after checks: ', newHealth));
+
+                        const editRow = UserData.update({ health: newHealth }, { where: { userid: interaction.user.id } });
+                        if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
+                    }
+                }
+            }
+            if (potion.activecategory === 'Reinforce') {
+                const filterDefence = activeCategoryEffects.filter(effect => effect.Name === 'Reinforce');
+                const defenceAmount = filterDefence[0][`${potion.name}`];               
+                if (defenceAmount > 0) {
+                    console.log(successResult('FOUND DEFENCE BOOST'));
+                    appliedCurrEffect = defenceAmount;
+                }
+            }
+            if (potion.activecategory === 'Tons') {
+                const filterStats = activeCategoryEffects.filter(effect => effect.Name === 'Tons');
+                const statBoost = filterStats[0][`${potion.name}`];                
+                if (statBoost > 0) {
+                    console.log(successResult('FOUND STAT BOOST'));
+                    appliedCurrEffect = statBoost;
+                }
+            }
+
+            const hasActiveStatus = await ActiveStatus.findOne({ where: [{potionid: potion.potion_id}, { spec_id: user.userid }] });
+            try {
+                if (!hasActiveStatus) {
+                    //Need to create new entry
+                    await ActiveStatus.create({
+                        name: potion.name,
+                        curreffect: appliedCurrEffect,
+                        activec: potion.activecategory,
+                        cooldown: potion.cooldown,
+                        duration: potion.duration,
+                        potionid: potion.potion_id,
+
+                        spec_id: user.userid,
+                    });
+
+                    const refindPot = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: user.userid }] });
+
+                    if (refindPot) {
+                        console.log(successResult('Potion One entry created SUCCESSFULLY!'));
+
+                        const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: user.userid }, { potion_id: potion.potion_id }] });
+
+                        const minusOne = thePotToReduce.amount - 1;
+
+                        if (minusOne <= 0) {
+                            //Destroy potion entry
+                            const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: user.userid }, { potion_id: potion.potion_id }] });
+                            if (destroyed > 0) {
+                                console.log(successResult('POTION ENTRY DESTROYED!'));
+                            } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
+                        } else {
+                            const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: user.userid }, { potion_id: thePotToReduce.potion_id }] });
+
+                            if (removedPot > 0) {
+                                console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
+                            } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
+                        }                    
+                    } else console.log(warnedForm('SOMETHING WENT WRONG CREATING NEW STATUS ENTRY'));
+                } else {
+                    //Need to update existing entry
+                    const updatedEntry = await ActiveStatus.update({
+                        name: potion.name,
+                        curreffect: appliedCurrEffect,
+                        activec: potion.activecategory,
+                        cooldown: potion.cooldown,
+                        duration: potion.duration,                       
+                    }, {
+                        where: [{ potionid: potion.potion_id }, { spec_id: user.userid }]
+                    });
+
+                    if (updatedEntry > 0) {
+                        console.log(successResult('Potion One entry update SUCCESSFULLY!'));
+                        const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: user.userid }, { potion_id: potion.potion_id }] });
+
+                        const minusOne = thePotToReduce.amount - 1;
+
+                        if (minusOne <= 0) {
+                            //Destroy potion entry
+                            const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: user.userid }, { potion_id: potion.potion_id }] });
+                            if (destroyed > 0) {
+                                console.log(successResult('POTION ENTRY DESTROYED!'));
+                            } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
+                        } else {
+                            const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: user.userid }, { potion_id: thePotToReduce.potion_id }] });
+
+                            if (removedPot > 0) {
+                                console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
+                            } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
+                        }
+                    } else console.log(warnedForm('SOMETHING WENT WRONG UPDATING STATUS ENTRY'));
+                }
+            } catch (err) {
+                console.log(errorForm('AN ERROR HAS OCCURED! ', err));
+            }
+        }
+     
         //========================================
         //this method grabs user data
         async function grabU() {

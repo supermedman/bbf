@@ -18,7 +18,8 @@ const {
     MaterialStore,
     OwnedBlueprints,
     OwnedPotions,
-    UniqueCrafted
+    UniqueCrafted,
+    ActiveStatus
 } = require('../dbObjects.js');
 
 //const { } = require('../dbObjects.js');
@@ -46,6 +47,7 @@ module.exports = {
         Questing.sync();
 
         UserData.sync();
+        ActiveStatus.sync();
         
         LootStore.sync();
         UniqueCrafted.sync();

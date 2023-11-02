@@ -1,0 +1,18 @@
+[
+    {
+        "Name": "Healing",
+        "Minor Healing": 45,
+        "Medium": 0,
+        "Major": 0
+    },
+    {
+        "Name": "Reinforce",
+        "Stone Skin": 15
+    },
+    {
+        "Name": "Tons",
+        "Minor": 1,
+        "Medium": 3,
+        "Major": 5
+    }
+]
