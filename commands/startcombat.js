@@ -11,7 +11,7 @@ const {
 
 const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout, MaterialStore, ActiveStatus, OwnedPotions } = require('../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
-const { isLvlUp } = require('./exported/levelup.js');
+const { isLvlUp, isUniqueLevelUp } = require('./exported/levelup.js');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
 const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
@@ -155,10 +155,43 @@ module.exports = {
                      * 
                      * */
 
-                    var lChance = Math.random();
+                    var lootChance = Math.random();
+                    var chanceToBeat = 0.850;
                     var HI = false;
 
-                    if (lChance >= 0.850) {
+                    const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+                    const uCheck = await grabU();
+
+                    if (uCheck.pclass === 'Thief') {
+                        chanceToBeat -= 0.10;
+                    }
+
+                    console.log(basicInfoForm('Chance to beat after ThiefCheck: ', chanceToBeat));
+
+                    if (uCheck.level >= 31) {
+                        //User above level 31 increase drop chance
+                        if ((Math.floor(uCheck.level / 4) * 0.01) > 0.25) {
+                            chanceToBeat -= 0.25;
+                        } else {
+                            chanceToBeat -= (Math.floor(uCheck.level / 4) * 0.01);
+                        }
+                    }
+
+                    console.log(basicInfoForm('Chance to beat after LevelCheck: ', chanceToBeat));
+
+                    if (pigmy) {
+                        if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
+                            chanceToBeat -= 0.25;
+                        } else {
+                            chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02); //Pigmy level increases drop rate by 2% per level
+                        }
+                    }
+
+                    console.log(basicInfoForm('Chance to beat after PigmyCheck: ', chanceToBeat));
+
+                    console.log(specialInfoForm('Rolled Loot Chance:\n' + lootChance + '\nChance to beat:\n', chanceToBeat));
+
+                    if (lootChance >= chanceToBeat) {
                         //hasitem:true
                         HI = true;
                     }
@@ -289,7 +322,9 @@ module.exports = {
                     runCount++;
                 } while (runCount < activeEffects.length)
             }
-  
+
+            await isUniqueLevelUp(interaction, user);
+
             const newtotalK = user.totalkills + 1;
             const newCurK = user.killsthislife + 1;
 
@@ -1399,6 +1434,41 @@ module.exports = {
             }
             console.log('Rarity Grabbed: ', rarG);
 
+            //How does it effect the rarity ?
+            //  - @Max stat: 10 % chance + 1 to rarID
+            //  - @Max stat: 10 % chance + 1 to rarID
+            //  - Max 5 % chance + 1 to rarID
+            //  - Base 5 % chance + 1 to rarID
+            const uData = await grabU();
+            const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
+            let chanceToBeat = 1;
+            let upgradeChance = Math.random();
+            if (uData.pclass === 'Thief') {
+                chanceToBeat -= 0.05;
+            }
+
+            if (pigmy) {
+                if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
+                    chanceToBeat -= 0.05;
+                } else {
+                    chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
+                }
+            }
+
+            if (uData.level >= 31) {
+                if ((Math.floor(uData.level / 5) * 0.01) > 0.10) {
+                    chanceToBeat -= 0.10;
+                } else {
+                    chanceToBeat -= (Math.floor(uData.level / 5) * 0.01);
+                }
+            }
+
+            if (rarG < 10) {
+                if (upgradeChance >= chanceToBeat) {
+                    rarG++;
+                }
+            }
 
             var iPool = [];
             //for loop adding all items of requested rarity to iPool for selection
@@ -1450,7 +1520,7 @@ module.exports = {
 
             //increase item total
             //grab reference to user
-            const uData = await grabU();
+            
             //increase item total
             uData.totitem += 1;
 
