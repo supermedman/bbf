@@ -37,8 +37,35 @@ module.exports = {
 
 		 
 		 */
+
+		const givenDungeon = interaction.options.getString('name');
+
+		const dungeonName = givenDungeon.toLowerCase();
+
+		const dungeonMatch = [];
+		for (var i = 0; i < dungeonList.length; i++) {
+			if (dungeonList[i].Boss.toLowerCase() === dungeonName) {
+				//Match found
+				dungeonMatch.push(dungeonList[i]);
+			}
+		}
+
+		if (dungeonMatch.length === 0) {
+			const noMatchEmbed = new EmbedBuilder()
+				.setTitle('Dungeon Not Found!')
+				.setDescription(dungeonName)
+				.setColor('DarkRed')
+				.addFields({
+					name: 'Who rules the dungeon? Hint:', value: `${dungeonMatch[0].DungeonHint}`
+				});
+
+			return await interaction.followUp({ embeds: [noMatchEmbed] }).then(embedMsg => setTimeout(() => {
+				embedMsg.delete();
+			}, 30000)).catch(console.error);
+        }
+
 		//First check ActiveDungeon for dungeon progress
-		const activeDungeon = await ActiveDungeon.findOne({ where: { dungeonspecid: interaction.user.id } });
+		const activeDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: interaction.user.id }, {dungeonid: dungeonMatch[0].DungeonID}] });
 		if (activeDungeon) {
 			//ActiveDungeon found, begin loading dungeon progress!
 			console.log('ACTIVE DUNGEON FOUND LOADING UP!');
@@ -58,18 +85,6 @@ module.exports = {
 			if (!userMilestone) return interaction.followUp('You have yet to start a quest! Please use ``/quest start``');
 			if (userMilestone.laststoryquest !== 10) return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 
-			const givenDungeon = interaction.options.getString('name');
-
-			const dungeonName = givenDungeon.toLowerCase();
-
-			const dungeonMatch = [];
-			for (var i = 0; i < dungeonList.length; i++) {
-				if (dungeonList[i].Boss.toLowerCase() === dungeonName) {
-					//Match found
-					dungeonMatch.push(dungeonList[i]);
-				}
-			}
-
 			if (dungeonMatch.length === 0) {
 				//No match found!!
 
@@ -78,7 +93,7 @@ module.exports = {
 					.setDescription(dungeonName)
 					.setColor('DarkRed')
 					.addFields({
-						name: 'Who rules the dungeon? Hint:', value: 'God Of Souls!'
+						name: 'Who rules the dungeon? Hint:', value: `${dungeonMatch[0].DungeonHint}`
 					});
 
 				await interaction.followUp({ embeds: [noMatchEmbed] }).then(embedMsg => setTimeout(() => {
