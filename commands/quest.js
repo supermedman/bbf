@@ -1,12 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const wait = require('node:timers/promises').setTimeout;
-const { Questing, LootStore, UserData, Milestones } = require('../dbObjects.js');
+//const wait = require('node:timers/promises').setTimeout;
+const { Questing, LootStore, UserData, Milestones, ActiveStatus } = require('../dbObjects.js');
 const { isLvlUp } = require('./exported/levelup.js');
-const { grabRar } = require('./exported/grabRar.js');
+const { grabRar, grabColour } = require('./exported/grabRar.js');
 
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../events/Models/json_prefabs/lootList.json');
 const questList = require('../events/Models/json_prefabs/questList.json');
+const activeCategoryEffects = require('../events/Models/json_prefabs/activeCategoryEffects.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -247,7 +248,7 @@ module.exports = {
                     }
                     if (collInteract.customId === 'select-quest') {
                         console.log('Quest Selected!');
-                        await collInteract.deferUpdate();
+                       // await collInteract.deferUpdate();
                         const quest = qPool[currentPage];
 
                         await Questing.create(
@@ -522,6 +523,13 @@ module.exports = {
                     
                     totXP = Math.round(totXP);
                     totCoin = Math.round(totCoin);
+
+                    const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+                    if (extraEXP) {
+                        if (extraEXP.duration > 0) {
+                            totXP *= extraEXP.curreffect;
+                        }
+                    }
 
                     //display current results in console log                                                                    
                     console.log(`Listing of totals after all calculations have been done: \n${totCoin}c \n${totXP}xp \n${totQT}qt \n${totItem}items \n${maxE}killed`);
