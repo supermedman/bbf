@@ -707,6 +707,13 @@ async function giveFloorProgress(interaction, userID) {
     totXP = Math.round(totXP);
     totCoin = Math.round(totCoin);
 
+    const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+    if (extraEXP) {
+        if (extraEXP.duration > 0) {
+            totXP *= extraEXP.curreffect;
+        }
+    }
+
     var xpGainList = `Xp Gained: ${totXP}`;
     var coinGainList = `Coins Gained: ${totCoin}`;
     var totalItemsList = `Total items Gained: ${totItem}`;
@@ -741,7 +748,13 @@ async function giveBossDrops(bossName, interaction, userID) {
         }
     }
 
-    const xpGained = Math.floor(Math.random() * (bossForRewards.XpMax - bossForRewards.XpMin + 1) + bossForRewards.XpMin);
+    var xpGained = Math.floor(Math.random() * (bossForRewards.XpMax - bossForRewards.XpMin + 1) + bossForRewards.XpMin);
+    const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+    if (extraEXP) {
+        if (extraEXP.duration > 0) {
+            xpGained *= extraEXP.curreffect;
+        }
+    }
     const cGained = Math.round((xpGained - 5) * 1.5);
 
     const blueprint = bossForRewards.Blueprint;
@@ -1545,6 +1558,14 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
             if (statBoost > 0) {
                 console.log(successResult('FOUND STAT BOOST'));
                 appliedCurrEffect = statBoost;
+            }
+        }
+        if (potion.activecategory === 'EXP') {
+            const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
+            const expBoost = filterEXP[0][`${potion.name}`];
+            if (expBoost > 0) {
+                console.log(successResult('FOUND EXP BOOST'));
+                appliedCurrEffect = expBoost;
             }
         }
 
@@ -2439,6 +2460,14 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
             if (statBoost > 0) {
                 console.log(successResult('FOUND STAT BOOST'));
                 appliedCurrEffect = statBoost;
+            }
+        }
+        if (potion.activecategory === 'EXP') {
+            const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
+            const expBoost = filterEXP[0][`${potion.name}`];
+            if (expBoost > 0) {
+                console.log(successResult('FOUND EXP BOOST'));
+                appliedCurrEffect = expBoost;
             }
         }
 
