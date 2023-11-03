@@ -704,25 +704,25 @@ async function enemyDead(enemy, interaction, user) {
         //Error occured ignore futher..
     } else {
         console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
-        const updatedMat = await MaterialStore.findOne({ where: [{ name: foundMaterial.name }, { spec_id: interaction.user.id }] });
+        //const updatedMat = await MaterialStore.findOne({ where: [{ name: foundMaterial.name }, { spec_id: interaction.user.id }] });
 
-        if (updatedMat) foundMaterial = updatedMat;
+        //if (updatedMat) foundMaterial = updatedMat;
 
-        var materialListed = `Value: ${foundMaterial.value}\nRarity: ${foundMaterial.rarity}\nAmount: ${foundMaterial.amount}`;
+        //var materialListed = `Value: ${foundMaterial.value}\nRarity: ${foundMaterial.rarity}\nAmount: ${foundMaterial.amount}`;
 
-        const matDropEmbedColour = await grabColour(updatedMat.rar_id);
+        //const matDropEmbedColour = await grabColour(updatedMat.rar_id);
 
-        const materialDropEmbed = new EmbedBuilder()
-            .setTitle('~MATERIALS DROPPED~')
-            .setColor(matDropEmbedColour)
-            .addFields({
-                name: `${foundMaterial.name}\n`,
-                value: materialListed
-            });
+        //const materialDropEmbed = new EmbedBuilder()
+        //    .setTitle('~MATERIALS DROPPED~')
+        //    .setColor(matDropEmbedColour)
+        //    .addFields({
+        //        name: `${foundMaterial.name}\n`,
+        //        value: materialListed
+        //    });
 
-        await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
-            matDropEmbed.delete();
-        }, 20000)).catch(console.error);
+        //await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
+        //    matDropEmbed.delete();
+        //}, 20000)).catch(console.error);
     }
 
     const activeEffect = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });

@@ -1,29 +1,18 @@
 const { EmbedBuilder } = require('discord.js');
 
-const chalk = require('chalk');
+const {
+    warnedForm,
+    errorForm,
+    successResult,
+    failureResult,
+    basicInfoForm,
+    specialInfoForm
+} = require('../../chalkPresets.js');
 
-const { grabRar } = require('./grabRar.js');
+const { grabRar, grabColour } = require('./grabRar.js');
 const { MaterialStore } = require('../../dbObjects.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
-
-const warnedForm = chalk.bold.yellowBright;
-//console.log(warnedForm('Testing warning here!'));
-
-const errorForm = chalk.bold.redBright.bgWhite;
-//console.log(errorForm('Testing error here!'));
-
-const successResult = chalk.italic.whiteBright.bgGreen;
-//console.log(successResult('Testing success here!'));
-
-const failureResult = chalk.italic.whiteBright.dim.bgRed;
-//console.log(failureResult('Testing failure here!'));
-
-const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
-//console.log(basicInfoForm('Testing basic info here!'));
-
-const specialInfoForm = chalk.bold.cyan.bgBlackBright;
-//console.log(specialInfoForm('Testing special info here!'));
 
 /**
  * 
@@ -95,14 +84,16 @@ async function grabMat(enemy, user, interaction) {
 
         if (updatedMat) theUnique = updatedMat;
 
-        var matListedDisplay = `Value: ${theUnique.value}\nRarity: ${theUnique.rarity}\nAmount: ${theUnique.amount}`;
+        var uniqueMatListedDisplay = `Value: ${theUnique.value}\nRarity: ${theUnique.rarity}\nAmount: ${theUnique.amount}`;
+
+        const uniqueMatColour = await grabColour(12);
 
         const theUniqueEmbed = new EmbedBuilder()
             .setTitle('~Unique Material~')
-            .setColor(0000)
+            .setColor(uniqueMatColour)
             .addFields({
                 name: `${theUnique.name}\n`,
-                value: matListedDisplay
+                value: uniqueMatListedDisplay
             });
 
         await interaction.channel.send({ embeds: [theUniqueEmbed] }).then(async theUniEmbed => setTimeout(() => {
@@ -124,7 +115,11 @@ async function grabMat(enemy, user, interaction) {
         if (foundMaterialList[x].Rar_id === foundRar) {
             //Rarity match add to list
             matDropPool.push(foundMaterialList[x]);
-        } else {/**DO NOTHING KEEP LOOKING*/ }
+        } else {/**KEEP LOOKING*/}
+    }
+
+    if (matDropPool.length === 0) {
+        matDropPool.push(foundMaterialList[foundMaterialList.length - 1]);
     }
 
     if (matDropPool.length > 0) {
@@ -147,6 +142,25 @@ async function grabMat(enemy, user, interaction) {
         console.log(basicInfoForm('MaterialAmountDropped: ', droppedNum));
 
         const result = await handleMaterialAdding(finalMaterial, droppedNum, user, passType);
+
+        var matListedDisplay = `Value: ${finalMaterial.Value}\nRarity: ${finalMaterial.Rarity}\nAmount: ${droppedNum}`;
+
+        const matColour = await grabColour(foundRar);
+
+        const theMaterialEmbed = new EmbedBuilder()
+            .setTitle('~Material Dropped~')
+            .setColor(matColour)
+            .addFields({
+                name: `${finalMaterial.Name}\n`,
+                value: matListedDisplay
+            });
+
+        await interaction.channel.send({ embeds: [theMaterialEmbed] }).then(async theMatEmbed => setTimeout(() => {
+            theMatEmbed.delete();
+        }, 20000)).catch(console.error);
+
+        //await interaction.channel.send(`${droppedNum} ${finalMaterial.Name} have dropped!`);
+
         return result;
     } else {
         console.log(failureResult(`matDropPool Empty!!`));

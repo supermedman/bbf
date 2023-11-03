@@ -65,7 +65,7 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 			
 			console.log('Current xp needed to level: ', nxtLvl);
 
-			await checkUnlockedBluey(newlvl, uData.userid);
+			await checkUnlockedBluey(newlvl, uData.userid, interaction);
 
 			const lvlUpEmbed = new EmbedBuilder()
 				.setTitle("LEVEL UP!")

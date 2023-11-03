@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { MaterialStore } = require('../dbObjects');
 
 const {
@@ -9,6 +9,7 @@ const {
 	basicInfoForm,
 	specialInfoForm
 } = require('../chalkPresets.js');
+const { grabColour } = require('./exported/grabRar');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,6 +18,20 @@ module.exports = {
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('combine')
+				.setDescription('Combine to upgrade material type and rarity!')
+				.addStringOption(option =>
+					option.setName('type')
+						.setDescription('Material type to combine')
+						.setAutocomplete(true)
+						.setRequired(true))
+				.addStringOption(option =>
+					option.setName('rarity')
+						.setDescription('Material rarity to combine')
+						.setAutocomplete(true)
+						.setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('view')
 				.setDescription('Combine to upgrade material type and rarity!')
 				.addStringOption(option =>
 					option.setName('type')
@@ -152,6 +167,7 @@ module.exports = {
 				if (collInteract.customId === 'accept') {
 					await collInteract.deferUpdate();
 					await handleMaterials(totalNewMaterials, totalRemainingMats, matType, chosenRarID);
+					await collector.stop();
 				}
 
 				if (collInteract.customId === 'cancel') {
@@ -166,6 +182,55 @@ module.exports = {
                 }
 			});
         }
+
+		if (interaction.options.getSubcommand() === 'view') {
+			const matType = interaction.options.getString('type');
+			const rarType = interaction.options.getString('rarity');
+
+			var chosenRarID;
+			if (rarType === 'common') {
+				chosenRarID = 0;
+			} else if (rarType === 'uncommon') {
+				chosenRarID = 1;
+			} else if (rarType === 'rare') {
+				chosenRarID = 2;
+			} else if (rarType === 'very rare') {
+				chosenRarID = 3;
+			} else if (rarType === 'epic') {
+				chosenRarID = 4;
+			} else if (rarType === 'mystic') {
+				chosenRarID = 5;
+			} else if (rarType === '?') {
+				chosenRarID = 6;
+			} else if (rarType === '??') {
+				chosenRarID = 7;
+			} else if (rarType === '???') {
+				chosenRarID = 8;
+			} else if (rarType === '????') {
+				chosenRarID = 9;
+			}
+
+			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
+
+			if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type or rarity!');
+
+			const theMaterial = fullMatMatchList[0];
+
+			const embedColour = await grabColour(chosenRarID);
+
+			const list = `Category: ${theMaterial.mattype} \nRarity: ${theMaterial.rarity} \nValue: ${theMaterial.value} \nAmount: ${theMaterial.amount}`;
+
+			const displayEmbed = new EmbedBuilder()
+				.setTitle('~MATERIAL~')
+				.setColor(embedColour)
+				.addFields({
+					name: `${theMaterial.name}`, value: list,
+				});
+
+			await interaction.followUp({ embeds: [displayEmbed] }).then(async embedMsg => setTimeout(() => {
+				embedMsg.delete();
+			}, 60000)).catch(console.error(errorForm('An error has occured while deleting message')));
+		}
 
 		async function handleMaterials(newMatAmount, remainingMatAmount, matType, chosenRarID) {
 
@@ -195,7 +260,7 @@ module.exports = {
 
 				const finalMaterial = matDropPool[0];
 				console.log(successResult(`Material Dropped: ${finalMaterial.Name}`));
-				
+
 				let droppedNum = newMatAmount;
 
 				const result = await handleMaterialAdding(finalMaterial, droppedNum, interaction.user.id, passType);
@@ -211,9 +276,9 @@ module.exports = {
 						if (matUpdated > 0) {
 							//Material updated successfully
 						}
-                    }		
-                }
-			}
+					}
+				}
+			} else return interaction.followUp('That item cannot be combined further!');
 		}
 
 		//This method creates a new material entry || increments an existing one
