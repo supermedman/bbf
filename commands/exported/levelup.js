@@ -1,6 +1,16 @@
 const { EmbedBuilder } = require('discord.js');
+
+const {
+	warnedForm,
+	errorForm,
+	successResult,
+	failureResult,
+	basicInfoForm,
+	specialInfoForm
+} = require('../../chalkPresets.js');
+
 const { checkUnlockedBluey } = require('./createBlueprint.js');
-const { UserData, Pighouse, Pigmy } = require('../../dbObjects.js');
+const { UserData, Pighouse, Pigmy, UniqueCrafted, Loadout } = require('../../dbObjects.js');
 
 //========================================
 //basic user data refrence method
@@ -85,6 +95,84 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 	return await editPData(totalXp, newlvl, totCoin, uData);
 }
 
+/**
+ * 
+ * @param {any} interaction
+ * @param {any} userRef
+ */
+async function isUniqueLevelUp(interaction, userRef) {
+	let user;
+	if (!userRef) {
+		user = await grabU(interaction);
+	} else {
+		user = userRef;
+	}
+
+	console.log(basicInfoForm('CHECKING GEAR FOR UNIQUES'));
+
+	const allOwnedCrafted = await UniqueCrafted.findAll({ where: { spec_id: interaction.user.id } });
+	if (!allOwnedCrafted) return console.log(failureResult('User has no crafted gear'));
+	const userLoadout = await Loadout.findOne({ where: { spec_id: user.userid } });
+	if (!userLoadout) return console.log(failureResult('User has no loadout'));
+
+	let curGearCheckID;
+	let curGearCheckSlot;
+	let curRun = 0;
+	do {
+		curGearCheckID = allOwnedCrafted[curRun].loot_id;
+		curGearCheckSlot = allOwnedCrafted[curRun].slot.toLowerCase();
+
+		if (userLoadout[`${curGearCheckSlot}`] >= 30000) {
+			//Equipped gear is unique Increment kills!
+			const grabbedUnique = await UniqueCrafted.findOne({ where: [{ spec_id: user.userid }, { loot_id: curGearCheckID }] });
+			if (!grabbedUnique) return console.log(errorForm('Unique item not found after loot id check'));
+
+			var plusOneTotalKills = (grabbedUnique.totalkills + 1);
+			await grabbedUnique.update({ totalkills: plusOneTotalKills });
+
+			console.log(basicInfoForm('CHECKING FOR LEVEL UP'));
+
+			let curLvl = grabbedUnique.currentlevel;
+			const nxtLvl = 3 * (Math.pow(curLvl, 2));
+
+			var plusOneCurrentKills = (grabbedUnique.killsthislevel + 1);
+
+			if (plusOneCurrentKills >= nxtLvl) {
+				//LevelUP!
+				console.log(specialInfoForm('IS LEVEL UP!'));
+				if (grabbedUnique.Attack > 0) {
+					//Is weapon
+					const newAttack = (grabbedUnique.Attack + 10);
+					plusOneCurrentKills = 0;
+					curLvl++;
+					await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
+					await grabbedUnique.update({ currentlevel: curLvl });
+					await grabbedUnique.update({ Attack: newAttack });
+
+					console.log(successResult('ALL WEAPON VALUES UPDATED!'));                   
+				}
+				if (grabbedUnique.Defence > 0) {
+					//Is armor
+					const newDefence = (grabbedUnique.Defence + 3);
+					plusOneCurrentKills = 0;
+					curLvl++;
+
+					await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
+					await grabbedUnique.update({ currentlevel: curLvl });
+					await grabbedUnique.update({ Defence: newDefence });
+
+					console.log(successResult('ALL ARMOR VALUES UPDATED!'));		
+                }
+			} else {
+				//Not level up
+				console.log(specialInfoForm('IS NOT LEVEL UP!'));
+				const updateCheck = await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
+				if (updateCheck > 0) console.log(successResult('No level up, Kills increased'));
+            }
+        }
+		curRun++;
+    } while (curRun < allOwnedCrafted)
+}
 
 //========================================
 //this method is used to update the users points based on whether they have leveled up or not
@@ -192,4 +280,4 @@ async function editPigOut(pig, newlvl, totalXp, interaction) {
 	
 }
 
-module.exports = { isLvlUp, isPigLvlUp };
+module.exports = { isLvlUp, isPigLvlUp, isUniqueLevelUp };
