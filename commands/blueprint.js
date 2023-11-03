@@ -739,6 +739,21 @@ module.exports = {
 
 				console.log(successResult(`New Potion Entry: ${thePotion}`));
 
+				const list = `Value: ${potion.Value} \nDuration: ${potion.Duration} \nCooldown: ${potion.CoolDown} \nTotal Amount: ${thePotion.amount}`;
+
+				const potionEmbed = new EmbedBuilder()
+					.setTitle('~POTION CREATED~')
+					.setColor(0000)
+					.addFields({
+						name: `${potion.Name}`, value: list,
+					});
+
+				await interaction.followUp({ embeds: [potionEmbed] }).then(async potEmbed => setTimeout(() => {
+					potEmbed.delete();
+				}, 60000)).catch(console.error);
+
+				//await interaction.followUp(`New Potion Created! You now have ${thePotion.amount} ${thePotion.name}`);
+
 				return thePotion;
             }
 		}
@@ -762,6 +777,7 @@ module.exports = {
 				rar_id: equip.Rar_id,
 				loot_id: equip.Loot_id,
 				spec_id: interaction.user.id,
+				blueprintid: equip.BlueprintID,
 			});
 
 			if (newEquip) {
@@ -770,6 +786,21 @@ module.exports = {
 				});
 
 				console.log(successResult(`New Unique Entry: ${theEquip}`));
+
+				const list = `Value: ${theEquip.value} \nCurrent Level: ${theEquip.currentlevel} \nType: ${theEquip.Type} \nSlot: ${theEquip.slot} \nHands: ${theEquip.hands}`;
+
+				const equipEmbed = new EmbedBuilder()
+					.setTitle('~GEAR CREATED~')
+					.setColor(0000)
+					.addFields({
+						name: `${theEquip.name}`, value: list,
+					});
+
+				await interaction.followUp({ embeds: [equipEmbed] }).then(async eqEmbed => setTimeout(() => {
+					eqEmbed.delete();
+				}, 60000)).catch(console.error);
+
+				//await interaction.followUp(`New Equip Created! You now have ${theEquip.name}`);
 
 				return theEquip;
             }
@@ -800,14 +831,27 @@ module.exports = {
 
 				var subtractResult = curCheckMat.amount - compNumTemp;
 
-				var successCheck = await MaterialStore.update(
-					{ amount: subtractResult },
-					{ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
+				if (subtractResult <= 0) {
+					//destroy entry
+					var successCheck = await MaterialStore.destroy(
+						{ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
 
-				if (successCheck > 0) {
-					//Updated successfully, itterate
-					curRun++;
-				} else console.log(errorForm('Something went wrong while updating materials spent'));
+					if (successCheck > 0) {
+						//Updated successfully, itterate
+						curRun++;
+					} else console.log(errorForm('Something went wrong while updating materials spent'));
+				} else {
+					var successCheck = await MaterialStore.update(
+						{ amount: subtractResult },
+						{ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
+
+					if (successCheck > 0) {
+						//Updated successfully, itterate
+						curRun++;
+					} else console.log(errorForm('Something went wrong while updating materials spent'));
+                }
+
+				
 			} while (curRun < runCount)
 
 			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
