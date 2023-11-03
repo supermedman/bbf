@@ -11,7 +11,7 @@
 		"Spec_id": 0
 	},
 	{
-		"Name": "Temp2",
+		"Name": "Pure NULL",
 		"Value": 300,
 
 		"Rarity": "Unique",
@@ -21,7 +21,7 @@
 		"Spec_id": 0
 	},
 	{
-		"Name": "Temp3",
+		"Name": "Pure DARK",
 		"Value": 300,
 
 		"Rarity": "Unique",
@@ -31,7 +31,7 @@
 		"Spec_id": 0
 	},
 	{
-		"Name": "Temp4",
+		"Name": "Pure LIGHT",
 		"Value": 300,
 
 		"Rarity": "Unique",
@@ -41,7 +41,7 @@
 		"Spec_id": 0
 	},
 	{
-		"Name": "Temp5",
+		"Name": "Pure SLASH",
 		"Value": 300,
 
 		"Rarity": "Unique",
@@ -51,7 +51,7 @@
 		"Spec_id": 0
 	},
 	{
-		"Name": "Temp6",
+		"Name": "Pure FIRE",
 		"Value": 300,
 
 		"Rarity": "Unique",
@@ -59,6 +59,45 @@
 
 		"Mat_id": 6,
 		"Spec_id": 0
-	}
+	},
+	{
+		"Name": "Pure FROST",
+		"Value": 300,
 
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure MAGIC",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure BLUNT",
+		"Value": 300,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure NESSY",
+		"Value": 500,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+
+		"Mat_id": 10,
+		"Spec_id": 0
+	}
 ]

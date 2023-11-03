@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 //const wait = require('node:timers/promises').setTimeout;
-const { Pighouse, Pigmy } = require('../dbObjects.js');
+const { Pighouse, Pigmy, ActiveStatus } = require('../dbObjects.js');
 const { isLvlUp, isPigLvlUp } = require('./exported/levelup.js');
 const Canvas = require('@napi-rs/canvas');
 
@@ -227,13 +227,13 @@ module.exports = {
 				var cGained = (((xpGained - 5) * 1.2) + 1);
 				totCoin += cGained;
 
-				totXP = Math.round(totXP);
+				totXP = Math.round(totXP);				
 				totCoin = Math.round(totCoin);
 				console.log('Total player xp: ', totXP);
 				console.log('Total player coins: ', totCoin);
 
 				//calculate pigmy xp gained
-				var pigXp = Math.round(Math.floor(totXP * 0.2));
+				var pigXp = Math.round(Math.floor(totXP * 1.2));
 				console.log('Total pigmy xp: ', pigXp);				
 
 				//==============================
@@ -255,6 +255,13 @@ module.exports = {
 						newHappiness = 0;
 					}
 					await updateHappiness(pig, newHappiness);
+				}
+
+				const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+				if (extraEXP) {
+					if (extraEXP.duration > 0) {
+						totXP *= extraEXP.curreffect;
+					}
 				}
 
 				totXP = Math.round(totXP);

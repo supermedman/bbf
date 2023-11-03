@@ -692,7 +692,13 @@ async function blockAttack(enemy, user, interaction) {
 //========================================
 // This method handles when enemy has died 
 async function enemyDead(enemy, interaction, user) {
-    const xpGained = Math.floor(Math.random() * (enemy.xpmax - enemy.xpmin + 1) + enemy.xpmin);
+    var xpGained = Math.floor(Math.random() * (enemy.xpmax - enemy.xpmin + 1) + enemy.xpmin);
+    const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+    if (extraEXP) {
+        if (extraEXP.duration > 0) {
+            xpGained *= extraEXP.curreffect;
+        }
+    }
     const cCalc = ((xpGained - 5) + 1);
 
     await isLvlUp(xpGained, cCalc, interaction, user);
@@ -1458,6 +1464,14 @@ async function usePotOne(potion, user, interaction) {
         if (statBoost > 0) {
             console.log(successResult('FOUND STAT BOOST'));
             appliedCurrEffect = statBoost;
+        }
+    }
+    if (potion.activecategory === 'EXP') {
+        const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
+        const expBoost = filterEXP[0][`${potion.name}`];
+        if (expBoost > 0) {
+            console.log(successResult('FOUND EXP BOOST'));
+            appliedCurrEffect = expBoost;
         }
     }
 

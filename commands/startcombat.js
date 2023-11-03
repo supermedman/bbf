@@ -213,7 +213,21 @@ module.exports = {
          * 
          */
         async function enemyDead(enemy) {
-            const xpGained = Math.floor(Math.random() * (enemy.xpmax - enemy.xpmin + 1) + enemy.xpmin);
+            var xpGained = Math.floor(Math.random() * (enemy.xpmax - enemy.xpmin + 1) + enemy.xpmin);
+
+            const activeEffect = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
+
+            if (!activeEffect) {
+                //No Active effects to manage
+            } else {
+                const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+                if (extraEXP) {
+                    if (extraEXP.duration > 0) {
+                        xpGained *= extraEXP.curreffect;
+                    }
+                }
+            }
+
             const cCalc = ((xpGained - 5) + 1);
 
             await isLvlUp(xpGained, cCalc, interaction);
@@ -248,7 +262,6 @@ module.exports = {
                 //}, 20000)).catch(console.error);
             }
 
-            const activeEffect = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
             if (!activeEffect) {
                 //No active effects to manage
             } else if (activeEffect) {
@@ -1561,6 +1574,14 @@ module.exports = {
                 if (statBoost > 0) {
                     console.log(successResult('FOUND STAT BOOST'));
                     appliedCurrEffect = statBoost;
+                }
+            }
+            if (potion.activecategory === 'EXP') {
+                const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
+                const expBoost = filterEXP[0][`${potion.name}`];
+                if (expBoost > 0) {
+                    console.log(successResult('FOUND EXP BOOST'));
+                    appliedCurrEffect = expBoost;
                 }
             }
 

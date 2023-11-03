@@ -2,17 +2,24 @@
     {
         "Name": "Healing",
         "Minor Healing": 45,
-        "Medium": 0,
-        "Major": 0
+        "Medium Healing": 100,
+        "Major Healing": 200
     },
     {
         "Name": "Reinforce",
-        "Stone Skin": 15
+        "Stone Skin": 15,
+        "Iron Skin": 30
     },
     {
         "Name": "Tons",
-        "Minor": 1,
-        "Medium": 3,
-        "Major": 5
+        "Minor Ton of Stats": 1,
+        "Medium Ton of Stats": 3,
+        "Major Ton of Stats": 5
+    },
+    {
+        "Name": "EXP",
+        "Minor EXP": 0.05,
+        "Medium EXP": 0.10,
+        "Major EXP": 0.15
     }
 ]
