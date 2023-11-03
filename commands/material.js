@@ -31,6 +31,20 @@ module.exports = {
 						.setRequired(true)))
 		.addSubcommand(subcommand =>
 			subcommand
+				.setName('dismantle')
+				.setDescription('Dismantle into lower tier materials by type and rarity!')
+				.addStringOption(option =>
+					option.setName('type')
+						.setDescription('Material type to dismantle')
+						.setAutocomplete(true)
+						.setRequired(true))
+				.addStringOption(option =>
+					option.setName('rarity')
+						.setDescription('Material rarity to dismantle')
+						.setAutocomplete(true)
+						.setRequired(true)))
+		.addSubcommand(subcommand =>
+			subcommand
 				.setName('view')
 				.setDescription('Combine to upgrade material type and rarity!')
 				.addStringOption(option =>
@@ -231,6 +245,149 @@ module.exports = {
 				embedMsg.delete();
 			}, 60000)).catch(console.error(errorForm('An error has occured while deleting message')));
 		}
+
+		if (interaction.options.getSubcommand() === 'dismantle') {
+			const matType = interaction.options.getString('type');
+			const rarType = interaction.options.getString('rarity');
+
+			var chosenRarID;
+			if (rarType === 'common') {
+				chosenRarID = 0;
+			} else if (rarType === 'uncommon') {
+				chosenRarID = 1;
+			} else if (rarType === 'rare') {
+				chosenRarID = 2;
+			} else if (rarType === 'very rare') {
+				chosenRarID = 3;
+			} else if (rarType === 'epic') {
+				chosenRarID = 4;
+			} else if (rarType === 'mystic') {
+				chosenRarID = 5;
+			} else if (rarType === '?') {
+				chosenRarID = 6;
+			} else if (rarType === '??') {
+				chosenRarID = 7;
+			} else if (rarType === '???') {
+				chosenRarID = 8;
+			} else if (rarType === '????') {
+				chosenRarID = 9;
+			}
+
+			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
+
+			if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type or rarity!');
+
+			const totalMaterials = await fullMatMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
+			console.log(basicInfoForm('totalMaterials: ', totalMaterials));
+
+			const totalNewMaterials = Math.floor((totalMaterials * 5));
+			console.log(basicInfoForm('totalNewMaterials: ', totalNewMaterials));
+
+			const acceptButton = new ButtonBuilder()
+				.setLabel("Yes")
+				.setStyle(ButtonStyle.Success)
+				.setEmoji('✅')
+				.setCustomId('accept');
+
+			const cancelButton = new ButtonBuilder()
+				.setLabel("No")
+				.setStyle(ButtonStyle.Danger)
+				.setEmoji('❌')
+				.setCustomId('cancel');
+
+			const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
+
+			const list = `Total materials to be dismantled ${totalMaterials}, Total new materials ${totalNewMaterials}`;
+
+
+			const confirmEmbed = new EmbedBuilder()
+				.setColor('Blurple')
+				.setTitle('Confirm Dismantle')
+				.addFields(
+					{
+						name: `Would you really like to dismantle ALL: ${rarType} ${matType} owned?`,
+						value: list,
+
+					});
+
+			const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
+
+			const filter = (i) => i.user.id === interaction.user.id;
+
+			const collector = embedMsg.createMessageComponentCollector({
+				ComponentType: ComponentType.Button,
+				filter,
+				time: 120000,
+			});
+
+			collector.on('collect', async (collInteract) => {
+				if (collInteract.customId === 'accept') {
+					await collInteract.deferUpdate();
+					await handleDismantleMaterials(totalNewMaterials, matType, chosenRarID);
+					await collector.stop();
+				}
+
+				if (collInteract.customId === 'cancel') {
+					await collInteract.deferUpdate();
+					await collector.stop();
+				}
+			});
+
+			collector.on('end', () => {
+				if (embedMsg) {
+					embedMsg.delete();
+				}
+			});
+		}
+
+		async function handleDismantleMaterials(newMatAmount, matType, chosenRarID) {
+			const remainingMatAmount = 0;
+			var passType;
+			let listStr;
+			listStr = `${matType}List.json`;
+			passType = `${matType}`;
+
+			const foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+			if (!foundMaterialList) {
+				console.log(errorForm('MaterialList NOT FOUND!'));
+				return 0;
+			}
+
+			var foundRar = (chosenRarID - 1);
+
+			let matDropPool = [];
+			for (var x = 0; x < foundMaterialList.length; x++) {
+				if (foundMaterialList[x].Rar_id === foundRar) {
+					//Rarity match add to list
+					matDropPool.push(foundMaterialList[x]);
+				} else {/**KEEP LOOKING*/ }
+			}
+
+			if (matDropPool.length > 0) {
+				console.log(successResult(`matDropPool Contents: ${matDropPool}`));
+
+				const finalMaterial = matDropPool[0];
+				console.log(successResult(`Material Dropped: ${finalMaterial.Name}`));
+
+				let droppedNum = newMatAmount;
+
+				const result = await handleMaterialAdding(finalMaterial, droppedNum, interaction.user.id, passType);
+				await interaction.followUp(`${droppedNum} ${finalMaterial.Name} Dropped!`);
+				if (result) {
+					if (remainingMatAmount === 0) {
+						const matDestroyed = await MaterialStore.destroy({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: passType }] });
+						if (matDestroyed > 0) {
+							//Material updated successfully
+						}
+					} else {
+						const matUpdated = await MaterialStore.update({ amount: remainingMatAmount }, { where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: passType }] });
+						if (matUpdated > 0) {
+							//Material updated successfully
+						}
+					}
+				}
+			} else return interaction.followUp('That item cannot be dismantled further!');
+        }
 
 		async function handleMaterials(newMatAmount, remainingMatAmount, matType, chosenRarID) {
 
