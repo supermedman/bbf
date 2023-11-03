@@ -94,7 +94,8 @@ module.exports = {
 Speed: ${uData.speed}
 Strength: ${uData.strength}
 Dexterity: ${uData.dexterity}
-Intelligence: ${uData.intelligence}\n
+Intelligence: ${uData.intelligence}
+Current Health: ${uData.health}\n
 Perk Points: ${uData.points}
 \nLevel: ${uData.level}
 \nXP to next level: ${uData.xp}/${nxtLvl}
@@ -136,7 +137,8 @@ Enemies Killed Since: ${uData.killsthislife}
 Speed: ${uData.speed}
 Strength: ${uData.strength}
 Dexterity: ${uData.dexterity}
-Intelligence: ${uData.intelligence}\n
+Intelligence: ${uData.intelligence}
+Current Health: ${uData.health}\n
 Perk Points: ${uData.points}
 \nLevel: ${uData.level}
 \nXP to next level: ${uData.xp}/${nxtLvl}
