@@ -10,93 +10,43 @@
 		"Spec_id": 0
 	},
 	{
-		"Name": "Pure DARK",
-		"Value": 100,
+		"Name": "Broom Splinters",
+		"Value": 10,
 
-		"Rarity": "Mystic",
-		"Rar_id": 5,
+		"Rarity": "Common",
+		"Rar_id": 0,
 
 		"Mat_id": 2,
 		"Spec_id": 0
 	},
 	{
-		"Name": "Pure LIGHT",
-		"Value": 100,
+		"Name": "Fairy Dust",
+		"Value": 15,
 
-		"Rarity": "Mystic",
-		"Rar_id": 5,
+		"Rarity": "Unommon",
+		"Rar_id": 1,
 
 		"Mat_id": 3,
 		"Spec_id": 0
 	},
 	{
-		"Name": "Pure SLASH",
-		"Value": 100,
+		"Name": "Greycap SparklShrooms",
+		"Value": 25,
 
-		"Rarity": "Mystic",
-		"Rar_id": 5,
+		"Rarity": "Rare",
+		"Rar_id": 2,
 
 		"Mat_id": 4,
 		"Spec_id": 0
 	},
 	{
-		"Name": "Pure FIRE",
-		"Value": 100,
+		"Name": "Black Ether Fluid",
+		"Value": 45,
 
-		"Rarity": "Mystic",
-		"Rar_id": 5,
+		"Rarity": "Very Rare",
+		"Rar_id": 3,
 
 		"Mat_id": 5,
-		"Spec_id": 0
-	},
-	{
-		"Name": "Pure FROST",
-		"Value": 100,
-
-		"Rarity": "Mystic",
-		"Rar_id": 5,
-
-		"Mat_id": 6,
-		"Spec_id": 0
-	},
-	{
-		"Name": "Pure MAGIC",
-		"Value": 100,
-
-		"Rarity": "Mystic",
-		"Rar_id": 5,
-
-		"Mat_id": 7,
-		"Spec_id": 0
-	},
-	{
-		"Name": "Pure BLUNT",
-		"Value": 100,
-
-		"Rarity": "Mystic",
-		"Rar_id": 5,
-
-		"Mat_id": 8,
-		"Spec_id": 0
-	},
-	{
-		"Name": "Pure NULL",
-		"Value": 100,
-
-		"Rarity": "FORGOTTEN",
-		"Rar_id": 10,
-
-		"Mat_id": 9,
-		"Spec_id": 0
-	},
-	{
-		"Name": "Pure NESSY",
-		"Value": 100,
-
-		"Rarity": "FORGOTTEN",
-		"Rar_id": 11,
-
-		"Mat_id": 10,
 		"Spec_id": 0
 	}
 
