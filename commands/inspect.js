@@ -67,7 +67,7 @@ module.exports = {
                 let list;
                 let headName;
                 if (headUnique === true) {
-                    list = (`\nValue: **${headSlotItem.value}** \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}**`);
+                    list = (`\nValue: **${headSlotItem.value}** \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}** \nLevel: **${headSlotItem.currentlevel}**`);
                     headSlotColour = await grabColour(headSlotItem.rar_id);
                     headName = `**${headSlotItem.name}**`;
                 } else {
@@ -98,7 +98,7 @@ module.exports = {
                 let list;
                 let chestName;
                 if (chestUnique === true) {
-                    list = (`\nValue: **${chestSlotItem.value}** \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}**`);
+                    list = (`\nValue: **${chestSlotItem.value}** \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}** \nLevel: **${chestSlotItem.currentlevel}**`);
                     chestSlotColour = await grabColour(chestSlotItem.rar_id);
                     chestName = `**${chestSlotItem.name}**`;
                 } else {
@@ -130,7 +130,7 @@ module.exports = {
                 let list;
                 let legsName;
                 if (legsUnique === true) {
-                    list = (`\nValue: **${legSlotItem.value}** \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}**`);
+                    list = (`\nValue: **${legSlotItem.value}** \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}** \nLevel: **${legSlotItem.currentlevel}**`);
                     legSlotColour = await grabColour(legSlotItem.rar_id);
                     legsName = `**${legSlotItem.name}**`;
                 } else {
@@ -166,10 +166,12 @@ module.exports = {
             } else {
                 //Item found add it
                 let list;
+                let killList;
                 let mainHandName;
                 let mainHandRarity;
                 if (mainHandUnique === true) {
-                    list = (`\nValue: **${mainHandItem.value}c** \nRarity: **${mainHandItem.rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.slot}** \nHands: **${mainHandItem.hands}**`);
+                    killList = `Total Kills: **${mainHandItem.totalkills}** \nKills this level: **${mainHandItem.killsthislevel}**`;
+                    list = (`\nValue: **${mainHandItem.value}c** \nRarity: **${mainHandItem.rarity}** \nAttack: **${mainHandItem.Attack}** \nType: **${mainHandItem.Type}** \nSlot: **${mainHandItem.slot}** \nHands: **${mainHandItem.hands}** \nLevel: **${mainHandItem.currentlevel}** \n${killList}`);
                     mainHandColour = await grabColour(mainHandItem.rar_id);
                     mainHandName = `**${mainHandItem.name}**`;
                     mainHandRarity = `*${mainHandItem.rarity}*`;
