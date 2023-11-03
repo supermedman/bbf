@@ -129,6 +129,134 @@
         "BlueprintID": 4
     },
     {
+        "Name": "Medium Healing",
+        "Description": "Heals for 100",
+
+        "ActiveCategory": "Healing",
+        "PassiveCategory": "Potion",
+
+        "Duration": 0,
+        "CoolDown": 10,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 13,
+        "CoinCost": 350,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Bloodroot",
+        "Material1_Amount": 5,
+
+        "Material2": "Red Slime",
+        "Material2_Amount": 15,
+
+        "Material3": "Pink Slime",
+        "Material3_Amount": 6,
+
+        "Material4": "Bloodied Heart",
+        "Material4_Amount": 3,
+
+        "PotionID": 4,
+        "BlueprintID": 5
+    },
+    {
+        "Name": "Iron Skin",
+        "Description": "Increases base defence by 30",
+
+        "ActiveCategory": "Reinforce",
+        "PassiveCategory": "Potion",
+
+        "Duration": 3,
+        "CoolDown": 5,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 13,
+        "CoinCost": 365,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Raw Ore",
+        "Material1_Amount": 30,
+
+        "Material2": "Bloodied Heart",
+        "Material2_Amount": 1,
+
+        "Material3": "Smelly Entrails",
+        "Material3_Amount": 3,
+
+        "Material4": "Iron Ingot",
+        "Material4_Amount": 15,
+
+        "PotionID": 5,
+        "BlueprintID": 6
+    },
+    {
+        "Name": "Minor EXP",
+        "Description": "Increases EXP gain by 5%",
+
+        "ActiveCategory": "EXP",
+        "PassiveCategory": "Potion",
+
+        "Duration": 50,
+        "CoolDown": 55,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 15,
+        "CoinCost": 500,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Refined Essence",
+        "Material1_Amount": 25,
+
+        "Material2": "Rainbow Slime",
+        "Material2_Amount": 5,
+
+        "Material3": "Infused Silverroot",
+        "Material3_Amount": 10,
+
+        "PotionID": 6,
+        "BlueprintID": 7
+    },
+    {
+        "Name": "Medium Ton of Stats",
+        "Description": "Increases ALL base stats by 3",
+
+        "ActiveCategory": "Tons",
+        "PassiveCategory": "Potion",
+
+        "Duration": 20,
+        "CoolDown": 30,
+
+        "IsDropped": false,
+        "IsUnlocked": true,
+
+        "UseLevel": 15,
+        "CoinCost": 500,
+        "MaterialTypeAmount": 5,
+
+        "Material1": "Pink Slime",
+        "Material1_Amount": 10,
+
+        "Material2": "Steel Ingot",
+        "Material2_Amount": 10,
+
+        "Material3": "Magical Glands",
+        "Material3_Amount": 10,
+
+        "Material4": "Silverroot",
+        "Material4_Amount": 10,
+
+        "Material5": "Pure NULL",
+        "Material5_Amount": 1,
+
+        "PotionID": 7,
+        "BlueprintID": 8
+    },
+    {
         "Name": "Potion TEMP",
         "Description": "Description here",
 
