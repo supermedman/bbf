@@ -1,3 +1,5 @@
+const { EmbedBuilder } = require('discord.js');
+
 const {
     warnedForm,
     errorForm,
@@ -55,7 +57,7 @@ async function createNewBlueprint(BPID, userID) {
     }
 }
 
-async function checkUnlockedBluey(level, userID) {
+async function checkUnlockedBluey(level, userID, interaction) {
     const levelBPs = blueprintList.filter(bluey => bluey.UseLevel <= level);
     if (levelBPs.length > 0) {
         //Blueprints NEED checking
@@ -68,7 +70,7 @@ async function checkUnlockedBluey(level, userID) {
             console.log(basicInfoForm('secondFilter results: ', secondFilter));
 
             if (!secondFilter) return console.log(errorForm('SOMETHING WENT WRONG WHILE FILTERING!!'));
-            await itterateMakeBluey(secondFilter, secondFilter.length, userID);
+            await itterateMakeBluey(secondFilter, secondFilter.length, userID, interaction);
         }
     } else {
         //No blueprints to check
@@ -76,32 +78,52 @@ async function checkUnlockedBluey(level, userID) {
     }
 }
 
-async function itterateMakeBluey(unlockedList, runCount, userID) {
+async function itterateMakeBluey(unlockedList, runCount, userID, interaction) {
     let curRun = 0;
     do {
         try {
-            let thisIsBool = false;
-            if (unlockedList[curRun].Rarity === 'Unique') {
-                thisIsBool = true;
-            }
-
-            const newBP = await OwnedBlueprints.create({
-                name: unlockedList[curRun].Name,
-                onlyone: thisIsBool,
-                passivecategory: unlockedList[curRun].PassiveCategory,
-                blueprintid: unlockedList[curRun].BlueprintID,
-                spec_id: userID,
+            const copyCheck = await OwnedBlueprints.findOne({
+                where: [{ spec_id: userID }, { blueprintid: unlockedList[curRun].BlueprintID }]
             });
 
-            if (newBP) {
-                //Blueprint added successfully!
-                console.log(successResult('NEW BLUEPRINT ADDED!'));
-                const theBlueprint = await OwnedBlueprints.findOne({
-                    where: [{ blueprintid: unlockedList[curRun].BlueprintID }, { spec_id: userID }]
+            if (copyCheck) {
+                curRun++;
+            } else {
+                let thisIsBool = false;
+                if (unlockedList[curRun].Rarity === 'Unique') {
+                    thisIsBool = true;
+                }
+
+                const newBP = await OwnedBlueprints.create({
+                    name: unlockedList[curRun].Name,
+                    onlyone: thisIsBool,
+                    passivecategory: unlockedList[curRun].PassiveCategory,
+                    blueprintid: unlockedList[curRun].BlueprintID,
+                    spec_id: userID,
                 });
 
-                console.log(specialInfoForm('theBlueprint: ', theBlueprint));
-                curRun++;
+                if (newBP) {
+                    //Blueprint added successfully!
+                    console.log(successResult('NEW BLUEPRINT ADDED!'));
+                    const theBlueprint = await OwnedBlueprints.findOne({
+                        where: [{ blueprintid: unlockedList[curRun].BlueprintID }, { spec_id: userID }]
+                    });
+
+                    console.log(specialInfoForm('theBlueprint: ', theBlueprint));
+
+                    const list = `Blueprint Type: ${unlockedList[curRun].PassiveCategory} \nBlueprint Level: ${unlockedList[curRun].UseLevel}`
+
+                    const blueyEmbed = new EmbedBuilder()
+                        .setTitle('~BLUEPRINT UNLOCKED~')
+                        .addFields({
+                            name: `${unlockedList[curRun].Name}`, value: list,
+                        });
+
+                    await interaction.channel.send({ embeds: [blueyEmbed] }).then(async embedMsg => setTimeout(() => {
+                        embedMsg.delete();
+                    }, 90000));
+                    curRun++;
+                }
             }
         } catch (err) {
             return console.log(errorForm('AN ERROR HAS OCCURED: ', err));
