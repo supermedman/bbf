@@ -96,5 +96,50 @@
         "ELevel": "25-30",
         "IsLockedBy": 8,
         "ID": 10
+    },
+    {
+        "Name": "Big Game Hunting",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 7,
+        "ELevel": "30-35",
+        "IsLockedBy": 0,
+        "ID": 11
+    },
+    {
+        "Name": "WIP",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 6,
+        "ELevel": "25-30",
+        "IsLockedBy": 100,
+        "ID": 12
+    },
+    {
+        "Name": "WIP",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 7,
+        "ELevel": "30-35",
+        "IsLockedBy": 12,
+        "ID": 13
+    },
+    {
+        "Name": "WIP",
+        "Length": 14400000,
+        "Time": "4hr",
+        "Level": 8,
+        "ELevel": "35-40",
+        "IsLockedBy": 13,
+        "ID": 14
+    },
+    {
+        "Name": "WIP",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 8,
+        "ELevel": "35-40",
+        "IsLockedBy": 14,
+        "ID": 15
     }
 ]

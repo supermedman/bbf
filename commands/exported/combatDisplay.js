@@ -12,7 +12,7 @@ const {
 const { ActiveEnemy, LootStore, UserData, Pigmy, Loadout, MaterialStore, ActiveStatus, OwnedPotions } = require('../../dbObjects.js');
 const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
 const { userDamageLoadout } = require('./dealDamage.js');
-const { isLvlUp } = require('./levelup.js');
+const { isLvlUp, isUniqueLevelUp } = require('./levelup.js');
 const { grabRar, grabColour } = require('./grabRar.js');
 const { stealing } = require('./handleSteal.js');
 const { hiding } = require('./handleHide.js');
@@ -760,6 +760,8 @@ async function enemyDead(enemy, interaction, user) {
         } while (runCount < activeEffects.length)
     }
 
+    await isUniqueLevelUp(interaction, user);
+
     const newtotalK = user.totalkills + 1;
     const newCurK = user.killsthislife + 1;
 
@@ -1295,6 +1297,36 @@ async function makeItem(enemy, interaction, user, hasRar) {
         rarG = hasRar;
     } 
     console.log('Rarity Grabbed: ', rarG);
+
+    const pigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+
+    let chanceToBeat = 1;
+    let upgradeChance = Math.random();
+    if (uData.pclass === 'Thief') {
+        chanceToBeat -= 0.05;
+    }
+
+    if (pigmy) {
+        if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
+            chanceToBeat -= 0.05;
+        } else {
+            chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
+        }
+    }
+
+    if (user.level >= 31) {
+        if ((Math.floor(user.level / 5) * 0.01) > 0.10) {
+            chanceToBeat -= 0.10;
+        } else {
+            chanceToBeat -= (Math.floor(user.level / 5) * 0.01);
+        }
+    }
+
+    if (rarG < 10) {
+        if (upgradeChance >= chanceToBeat) {
+            rarG++;
+        }
+    }
 
     var iPool = [];
     //for loop adding all items of requested rarity to iPool for selection

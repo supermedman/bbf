@@ -1,4 +1,13 @@
-const { ActiveEnemy } = require('../../dbObjects.js');
+const {
+    warnedForm,
+    errorForm,
+    successResult,
+    failureResult,
+    basicInfoForm,
+    specialInfoForm
+} = require('../../chalkPresets.js');
+
+const { ActiveEnemy, Pigmy } = require('../../dbObjects.js');
 const { initialDisplay } = require('./combatDisplay.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
@@ -9,47 +18,67 @@ const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
  */
 //========================================
 //This method Generates an enemy based on the users level
-async function loadEnemy(interaction, user) {
+async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
     const uData = user;
 
-    let ePool = [];
-    //for loop to search enemy prefab list
-    for (var i = 0; i < enemyList.length; i++) {
-        //if enemy with player level or lower can be found continue
-        if (enemyList[i].Level <= uData.level) {
-            ePool.push(enemyList[i]); //enemy found add to ePool
-        } else {/**enemy not found keep looking*/ }
-    }
+    
 
-    if (ePool.length <= 0) {
-        //SOMETHING WENT WRONG DEAL WITH IT HERE
-        console.log(ePool);
-    } else {
-        //this will grab a random number to be used to grab an enemy from the array ePool
-        const rEP = Math.floor(Math.random() * (ePool.length));
-        console.log('RANDOM ENEMY POSITION: ', rEP);
-        console.log('ENEMY GRABBED SHOWN WITH ConstKey: ', ePool[rEP].ConstKey);
-
-        const cEnemy = ePool[rEP];
-        //let hasPng = false;
-        console.log(cEnemy);
-
-        if (cEnemy.PngRef) {
-            hasPng = true;
-            pFile = cEnemy.Image;
-            pRef = cEnemy.PngRef;
+    var ePool = [];
+    if (altSpawner === true) {
+        console.log('ALTSPAWN')
+        for (var i = 0; i < enemyList.length; i++) {
+            //if enemy with player level or lower can be found continue
+            if (enemyList[i].ConstKey === altSpawnCode) {
+                ePool.push(enemyList[i]); //enemy found add to ePool
+            } else {/**enemy not found keep looking*/ }
         }
 
-        //constKey = cEnemy.ConstKey;
+        const cEnemy = ePool[0];
+
         const specCode = uData.userid + cEnemy.ConstKey;
-        const theEnemy = await addEnemy(cEnemy, specCode);
+        const theEnemy = await addEnemy(cEnemy, specCode, user);
         await initialDisplay(uData, specCode, interaction, theEnemy);
+        //return theEnemy;
+    } else if (!altSpawner) {
+        //for loop to search enemy prefab list
+        for (var i = 0; i < enemyList.length; i++) {
+            //if enemy with player level or lower can be found continue
+            if (enemyList[i].Level <= uData.level) {
+                ePool.push(enemyList[i]); //enemy found add to ePool
+            } else {/**enemy not found keep looking*/ }
+        }
+
+        if (ePool.length <= 0) {
+            //SOMETHING WENT WRONG DEAL WITH IT HERE
+            console.log(ePool);
+        } else {
+            //this will grab a random number to be used to grab an enemy from the array ePool
+            const rEP = Math.floor(Math.random() * (ePool.length));
+            console.log('RANDOM ENEMY POSITION: ', rEP);
+            console.log('ENEMY GRABBED SHOWN WITH ConstKey: ', ePool[rEP].ConstKey);
+
+            const cEnemy = ePool[rEP];
+            //let hasPng = false;
+            console.log(cEnemy);
+
+            if (cEnemy.PngRef) {
+                hasPng = true;
+                pFile = cEnemy.Image;
+                pRef = cEnemy.PngRef;
+            }
+
+            //constKey = cEnemy.ConstKey;
+            const specCode = uData.userid + cEnemy.ConstKey;
+            const theEnemy = await addEnemy(cEnemy, specCode, user);
+            await initialDisplay(uData, specCode, interaction, theEnemy);
+        }
     }
+    
 }
 
 //========================================
 //This method Adds the selected enemy into the ActiveEnemy database 
-async function addEnemy(cEnemy, specCode) {
+async function addEnemy(cEnemy, specCode, user) {
 
     try {
         var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: cEnemy.ConstKey }] });
@@ -99,10 +128,37 @@ async function addEnemy(cEnemy, specCode) {
              * 
              * */
 
-            var lChance = Math.random();
+            var lootChance = Math.random();
+            var chanceToBeat = 0.850;
             var HI = false;
 
-            if (lChance >= 0.850) {
+            const pigmy = await Pigmy.findOne({ where: { spec_id: user.userid } });           
+
+            if (user.pclass === 'Thief') {
+                chanceToBeat -= 0.10;
+            }
+
+            if (user.level >= 31) {
+                //User above level 31 increase drop chance
+                if ((Math.floor(user.level / 4) * 0.01) > 0.25) {
+                    chanceToBeat -= 0.25;
+                } else {
+                    chanceToBeat -= (Math.floor(user.level / 4) * 0.01);
+                }
+            }
+
+            if (pigmy) {
+                if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
+                    chanceToBeat -= 0.25;
+                } else {
+                    chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02); //Pigmy level increases drop rate by 2% per level
+                }
+            }
+
+            console.log(specialInfoForm('Rolled Loot Chance: \n'+ lootChance+'\nChance to beat: \n', chanceToBeat));
+
+
+            if (lootChance >= chanceToBeat) {
                 //hasitem:true
                 HI = true;
             }
