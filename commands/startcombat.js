@@ -1627,6 +1627,8 @@ module.exports = {
 
                         const editRow = UserData.update({ health: newHealth }, { where: { userid: interaction.user.id } });
                         if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
+
+                        await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
                     }
                 }
             }
@@ -1636,6 +1638,7 @@ module.exports = {
                 if (defenceAmount > 0) {
                     console.log(successResult('FOUND DEFENCE BOOST'));
                     appliedCurrEffect = defenceAmount;
+                    await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
                 }
             }
             if (potion.activecategory === 'Tons') {
@@ -1644,6 +1647,7 @@ module.exports = {
                 if (statBoost > 0) {
                     console.log(successResult('FOUND STAT BOOST'));
                     appliedCurrEffect = statBoost;
+                    await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
                 }
             }
             if (potion.activecategory === 'EXP') {
@@ -1652,6 +1656,7 @@ module.exports = {
                 if (expBoost > 0) {
                     console.log(successResult('FOUND EXP BOOST'));
                     appliedCurrEffect = expBoost;
+                    await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
                 }
             }
 
