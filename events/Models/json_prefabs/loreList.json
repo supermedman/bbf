@@ -1,0 +1,65 @@
+[
+    {
+        "StoryLine": 1,
+        "StoryPart": 1,
+
+        "Lore": "While clearing out the cultists you manage to extort information, finding references to an unknown location.\nDepicted throughout their lair are muirals and alters giving thanks and ritual to their god.\nYour dilligent searching comes with reward providing you a map marked with a location!",
+
+        "QuestID": 5
+
+    },
+    {
+        "StoryLine": 1,
+        "StoryPart": 2,
+
+        "Lore": "Upon arriving at the marked location you are met with a large run-down castle town, scattered are pillars and engravings of souls.\nThis must be the dungeon of souls!!\nCrawling with monsters and creatures in numbers untold, you make for a tactical retreat!\nThis will be a mission all on its own, but no doubt it will be worth it!",
+
+        "QuestID": 8
+
+    },
+    {
+        "StoryLine": 1,
+        "StoryPart": 3,
+
+        "Lore": "After hours of gruling battles and slaying you secure the surroundings.\nYou are now ready to enter the dungeon of souls, ruled by ``Wadon``!",
+
+        "QuestID": 10
+
+    },
+    {
+        "StoryLine": 2,
+        "StoryPart": 1,
+
+        "Lore": "You setout as a sell-sword, hoping to make some coin, acquire a bit of renown, maybe even learn a thing or two.\nUpon arriving at the town which had put out the hire, you find it utterly empty on first inspection..\nNot only empty, but completely unlit! Every sconce, brazier, and hearth sits with a lingering lightless chill...\nThis will certainly require a more thorough investigation!",
+
+        "QuestID": 12
+
+    },
+    {
+        "StoryLine": 2,
+        "StoryPart": 2,
+
+        "Lore": "During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.\nDeciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!\nYou follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... \nThere is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.\nYou grow tired of waiting, your weapon grows weary from lack of bloodshed...",
+
+        "QuestID": 13
+
+    },
+    {
+        "StoryLine": 2,
+        "StoryPart": 3,
+
+        "Lore": "Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!\nYou manage to take down three before the remaining five take notice, followed by immediate counter action..\nA deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.\nYou stand in defiance against them, causing the smallest of the three to turn and run..\nThe broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light temporarily blinding you!\nHe lurches forward swinging his massive fists.. ***CRACK***!! You take the full force, still unable to see, you swing against the pain, feeling your weapon find flesh..\nYour sight returns near instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!\nHe collapses, gurgling and sobbing. You leave the pitiful sight going after the remaining cultists frozen with shock and horror...\nSometime later after your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.\nShe reveals the location of their goddess and her domain!!",
+
+        "QuestID": 14
+
+    },
+    {
+        "StoryLine": 2,
+        "StoryPart": 4,
+
+        "Lore": "You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..\nArriving at the outer perimeter greets your senses, dulling them and everything around you, even still you push onwards into the fray!\nHours of slaughter leaves you worn and your weapon giddy.\nYou are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!",
+
+        "QuestID": 15
+
+    }
+]

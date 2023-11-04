@@ -878,94 +878,130 @@ module.exports = {
                                 }, { where: { userid: interaction.user.id } });
 
                                 userMilestone = await Milestones.findOne({ where: { userid: updateMilestone.userid } });
-                            } else {
-                                if (qFound.qid === 5 || qFound.qid === 8 || qFound.qid === 10) {
-                                    //Quest is part of story line!
-                                    await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
-
-                                    if (qFound.qid === 5) {
-                                        await Milestones.update({ nextstoryquest: 8 }, { where: { userid: interaction.user.id } });
-
-                                        // ========== STORY ==========
-                                        // While clearing out the cultists you manage to extort information, finding references to an unknown location.
-                                        // Depicted throughout their lair are muirals and alters giving thanks and ritual to their god.
-                                        // Your dilligent searching comes with reward providing you a map marked with a location!
-
-                                        // New Quest unlocked! if (userMilestone.laststoryquest === 5)
-
-                                        var QSDescription = 'NEW Quest Unlocked!';
-
-                                        const theAdventure = `While clearing out the cultists you manage to extort information, finding references to an unknown location.\nDepicted throughout their lair are muirals and alters giving thanks and ritual to their god.\nYour dilligent searching comes with reward providing you a map marked with a location!`;
-
-                                        const questStoryEmbed = new EmbedBuilder()
-                                            .setTitle('Quest Progress')
-                                            .setDescription(QSDescription)
-                                            .setColor('DarkAqua')
-                                            .addFields({
-                                                name: 'Adventure', value: theAdventure
-                                            });
-
-                                        await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                            storyEmbed.delete();
-                                        }, 300000)).catch(console.error);
-
-                                    } else if (qFound.qid === 8) {
-                                        await Milestones.update({ nextstoryquest: 10 }, { where: { userid: interaction.user.id } });
-
-                                        // ========== STORY ==========
-                                        // Upon arriving at the marked location you are met with a large run-down castle town scattered are pillars and engravings of souls.
-                                        // This must be the dungeon of souls!!
-                                        // Crawling with monsters and creatures in numbers untold, you make for a tactical retreat!
-                                        // This will be a mission all on its own, but no doubt it will be worth it!
-
-                                        // NEW Quest unlocked! if (userMilestone.laststoryquest === 8)
-
-                                        var QSDescription = 'NEW Quest Unlocked!';
-
-                                        const theAdventure = `Upon arriving at the marked location you are met with a large run-down castle town, scattered are pillars and engravings of souls.\nThis must be the dungeon of souls!!\nCrawling with monsters and creatures in numbers untold, you make for a tactical retreat!\nThis will be a mission all on its own, but no doubt it will be worth it!`;
-
-                                        const questStoryEmbed = new EmbedBuilder()
-                                            .setTitle('Quest Progress')
-                                            .setDescription(QSDescription)
-                                            .setColor('DarkAqua')
-                                            .addFields({
-                                                name: 'Adventure', value: theAdventure
-                                            });
-
-                                        await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                            storyEmbed.delete();
-                                        }, 300000)).catch(console.error);
-
-                                    } else if (qFound.qid === 10) {
-                                        //Final story quest completed, Souls Dungeon now unlocked!
-
-                                        // ========== STORY ==========
-                                        // After hours of gruling battles and slaying you secure the surroundings. 
-                                        // You are now ready to enter the dungeon of souls, ruled by ``Wadon``!
-
-                                        var QSDescription = 'NEW DUNGEON Unlocked!';
-
-                                        const theAdventure = 'After hours of gruling battles and slaying you secure the surroundings.\nYou are now ready to enter the dungeon of souls, ruled by ``Wadon``!';
-
-                                        const questStoryEmbed = new EmbedBuilder()
-                                            .setTitle('Quest Progress')
-                                            .setDescription(QSDescription)
-                                            .setColor('DarkAqua')
-                                            .addFields({
-                                                name: 'Adventure', value: theAdventure
-                                            });
-
-                                        await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                            storyEmbed.delete();
-                                        }, 300000)).catch(console.error);
-                                    }
-                                }
                             }
                         }                 
                     }
 
                     if (userMilestone.currentquestline === 'Dark') {
                         //WIP
+                        if (qFound.qid === 12 || qFound.qid === 13 || qFound.qid === 14 || qFound.qid === 15) {
+                            await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+
+                            if (qFound.qid === 12) {
+                                await Milestones.update({ nextstoryquest: 13 }, { where: { userid: interaction.user.id } });
+
+                                // ========== STORY ==========
+
+                                // You setout as a sell-sword, hoping to make some coin, acquire a bit of renown, maybe even learn a thing or two.
+                                // Upon arriving at the town which had put out the hire, you find it utterly empty on first inspection..
+                                // Not only empty, but completely unlit! Every sconce, brazier, and hearth sits with a lingering lightless chill...
+                                // This will certainly require a more thorough investigation!
+
+                                var QSDescription = 'NEW Quest Unlocked!';
+
+                                const theAdventure = 'You setout as a sell-sword, hoping to make some coin, acquire a bit of renown, maybe even learn a thing or two.\nUpon arriving at the town which had put out the hire, you find it utterly empty on first inspection..\nNot only empty, but completely unlit! Every sconce, brazier, and hearth sits with a lingering lightless chill...\nThis will certainly require a more thorough investigation!';
+
+                                const questStoryEmbed = new EmbedBuilder()
+                                    .setTitle('Quest Progress')
+                                    .setDescription(QSDescription)
+                                    .setColor('DarkAqua')
+                                    .addFields({
+                                        name: 'Adventure', value: theAdventure
+                                    });
+
+                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                    storyEmbed.delete();
+                                }, 300000)).catch(console.error);
+                            }
+                            if (qFound.qid === 13) {
+                                await Milestones.update({ nextstoryquest: 14 }, { where: { userid: interaction.user.id } });
+
+                                // ========== STORY ==========
+
+                                // During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.
+                                // Deciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!
+                                // You follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... 
+                                // There is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.
+                                // You grow tired of waiting, your weapon grows weary from lack of bloodshed...
+
+                                var QSDescription = 'NEW Quest Unlocked!';
+
+                                const theAdventure = 'During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.\nDeciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!\nYou follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... \nThere is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.\nYou grow tired of waiting, your weapon grows weary from lack of bloodshed...';
+
+                                const questStoryEmbed = new EmbedBuilder()
+                                    .setTitle('Quest Progress')
+                                    .setDescription(QSDescription)
+                                    .setColor('DarkAqua')
+                                    .addFields({
+                                        name: 'Adventure', value: theAdventure
+                                    });
+
+                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                    storyEmbed.delete();
+                                }, 300000)).catch(console.error);
+                            }
+                            if (qFound.qid === 14) {
+                                await Milestones.update({ nextstoryquest: 15 }, { where: { userid: interaction.user.id } });
+
+                                // ========== STORY ==========
+
+                                // Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!
+                                // You manage to take down three before the remaining five take notice, followed by immediate counter action..
+                                // A deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.
+                                // You stand in defiance against them, causing the smallest of the three to turn and run.. 
+                                // The broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light temporarily blinding you!
+                                // He lurches forward swinging his massive fists.. ***CRACK***!! You take the full force, still unable to see, you swing against the pain, feeling your weapon find flesh..
+                                // Your sight returns near instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!
+                                // He collapses, gurgling and sobbing. You leave the pitiful sight going after the remaining cultists frozen with shock and horror...
+                                // Sometime later after your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.
+                                // She reveals the location of their goddess and her domain!!
+
+
+                                var QSDescription = 'NEW Quest Unlocked!';
+
+                                const theAdventure = 'Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!\nYou manage to take down three before the remaining five take notice, followed by immediate counter action..\nA deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.\nYou stand in defiance against them, causing the smallest of the three to turn and run..\nThe broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light temporarily blinding you!\nHe lurches forward swinging his massive fists.. ***CRACK***!! You take the full force, still unable to see, you swing against the pain, feeling your weapon find flesh..\nYour sight returns near instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!\nHe collapses, gurgling and sobbing. You leave the pitiful sight going after the remaining cultists frozen with shock and horror...\nSometime later after your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.\nShe reveals the location of their goddess and her domain!!';
+
+                                const questStoryEmbed = new EmbedBuilder()
+                                    .setTitle('Quest Progress')
+                                    .setDescription(QSDescription)
+                                    .setColor('DarkAqua')
+                                    .addFields({
+                                        name: 'Adventure', value: theAdventure
+                                    });
+
+                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                    storyEmbed.delete();
+                                }, 300000)).catch(console.error);
+                            }
+                            if (qFound.qid === 15) {
+                                //Final story quest completed, new dungeon unlocked
+
+                                // ========== STORY ==========
+
+                                // You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..
+                                // Arriving at the outer perimiter greets your senses, dulling them and everything around you, even still you push onwards into the frey!
+                                // Hours of slaughter leaves you worn and your weapon giddy. 
+                                // You are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!
+
+
+                                var QSDescription = 'NEW DUNGEON Unlocked!';
+
+                                const theAdventure = 'You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..\nArriving at the outer perimeter greets your senses, dulling them and everything around you, even still you push onwards into the fray!\nHours of slaughter leaves you worn and your weapon giddy.\nYou are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!';
+
+                                const questStoryEmbed = new EmbedBuilder()
+                                    .setTitle('Quest Progress')
+                                    .setDescription(QSDescription)
+                                    .setColor('DarkAqua')
+                                    .addFields({
+                                        name: 'Adventure', value: theAdventure
+                                    });
+
+                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                    storyEmbed.delete();
+                                }, 300000)).catch(console.error);
+                            }
+
+                        }
                     }
 
                     //==========================================================

@@ -125,7 +125,9 @@ module.exports = {
 				chosenRarID = 8;
 			} else if (rarType === '????') {
 				chosenRarID = 9;
-			}
+			} else {
+				return interaction.followUp('That was not a valid option!');
+            }
 
 			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
 
@@ -222,6 +224,8 @@ module.exports = {
 				chosenRarID = 8;
 			} else if (rarType === '????') {
 				chosenRarID = 9;
+			} else {
+				return interaction.followUp('That was not a valid option!');
 			}
 
 			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
@@ -271,6 +275,8 @@ module.exports = {
 				chosenRarID = 8;
 			} else if (rarType === '????') {
 				chosenRarID = 9;
+			} else {
+				return interaction.followUp('That was not a valid option!');
 			}
 
 			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });

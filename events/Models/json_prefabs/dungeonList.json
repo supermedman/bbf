@@ -44,24 +44,24 @@
         "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
         "Image": "attachment://Dungeon-background.jpeg",
 
-        "Floor1": [ 3 ],
-        "Floor2": [ 2 ],
-        "Floor3": [ 4 ],
-        "Floor4": [ 3 ],
+        "Floor1": [ 24, 24, 60 ],
+        "Floor2": [ 60, 60 ],
+        "Floor3": [ 61, 61, 61, 61 ],
+        "Floor4": [ 61, 61, 77 ],
 
-        "Floor5": [ 5 ],
+        "Floor5": [ 77, 77, 77, 77, 116 ],
 
-        "Floor6": [ 4 ],
-        "Floor7": [ 5 ],
-        "Floor8": [ 6 ],
-        "Floor9": [ 7 ],
+        "Floor6": [ 116, 116, 60, 60 ],
+        "Floor7": [ 77, 77, 136, 136, 131 ],
+        "Floor8": [ 136, 136, 116, 116, 131, 121 ],
+        "Floor9": [ 131, 131, 131, 136, 136, 136, 122 ],
 
-        "Floor10": [ 3 ],
+        "Floor10": [ 131, 121, 121 ],
 
-        "Floor11": [ 2 ],
-        "Floor12": [ 4 ],
-        "Floor13": [ 3 ],
-        "Floor14": [ 5 ],
+        "Floor11": [ 122, 122 ],
+        "Floor12": [ 136, 136, 136, 122 ],
+        "Floor13": [ 131, 131, 131 ],
+        "Floor14": [ 136, 136, 136, 136, 122 ],
 
         "DungeonID": 2,
         "DungeonSpecID": 0

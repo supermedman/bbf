@@ -3,7 +3,7 @@
         "Name": " ",
         "Length": 3600000,
         "Time": "1hr",
-        "Level": 10,
+        "Level": 20,
         "ELevel": "1-5",
         "ID": 100
     },
@@ -107,7 +107,7 @@
         "ID": 11
     },
     {
-        "Name": "WIP",
+        "Name": "Sellsword for developing town",
         "Length": 28800000,
         "Time": "8hr",
         "Level": 6,
@@ -116,7 +116,7 @@
         "ID": 12
     },
     {
-        "Name": "WIP",
+        "Name": "Investigate Lightless Town",
         "Length": 36000000,
         "Time": "10hr",
         "Level": 7,
@@ -125,7 +125,7 @@
         "ID": 13
     },
     {
-        "Name": "WIP",
+        "Name": "Interrogate Captured Dark Servant",
         "Length": 14400000,
         "Time": "4hr",
         "Level": 8,
@@ -134,7 +134,7 @@
         "ID": 14
     },
     {
-        "Name": "WIP",
+        "Name": "Clear Entrance to Dungeon of the Dark",
         "Length": 36000000,
         "Time": "10hr",
         "Level": 8,
