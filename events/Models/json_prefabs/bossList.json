@@ -106,5 +106,113 @@
 		"Image_Closeup": "attachment://Wadon-god-of-souls-closeup.png",
 
 		"SpecId": 0
+	},
+	{
+		"Name": "Dyvulla, Goddess Of The Dark",
+		"NameRef": "Dyvulla",
+
+		"Intro": "...",
+		"IntroC": "Navy",
+
+		"Line_One": "...",
+		"Line_OneC": "Navy",
+
+		"Line_Two": "...",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 45,
+		"MinDmg": 100,
+		"MaxDmg": 175,
+		"Health": 10000,
+		"StageHealth": 5000,
+		"Defence": 50,
+
+		"WeakTo": "Light",
+
+		"ConstKey": 1004,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark.png",
+		"Image": "attachment://Dyvulla-goddess-of-the-dark.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark-closeup.png",
+		"Image_Closeup": "attachment://Dyvulla-goddess-of-the-dark-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "DarkBringer Dyvulla",
+		"NameRef": "Dyvulla",
+
+		"Intro": "...",
+		"IntroC": "DarkRed",
+
+		"Line_One": "...",
+		"Line_OneC": "DarkRed",
+
+		"Line_Two": "...",
+		"Line_TwoC": "Blue",
+
+		"Level": 45,
+		"MinDmg": 175,
+		"MaxDmg": 280,
+		"Health": 5000,
+		"StageHealth": 1,
+		"Defence": 35,
+
+		"WeakTo": "NONE",
+
+		"ConstKey": 1005,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark.png",
+		"Image": "attachment://Dyvulla-goddess-of-the-dark.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark-closeup.png",
+		"Image_Closeup": "attachment://Dyvulla-goddess-of-the-dark-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Dyvulla",
+		"NameRef": "Dyvulla",
+
+		"Intro": "...",
+		"IntroC": "DarkGold",
+
+		"Line_One": "...",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "...",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 45,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+		"Health": 1,
+		"StageHealth": 0,
+		"Defence": 0,
+
+		"WeakTo": "Light",
+
+		"Dead": false,
+		"XpMin": 25000,
+		"XpMax": 35000,
+
+		"Blueprint": "Dark Bringers Visage",
+		"BlueprintID": 10,
+
+		"AchievementGet": "DYVULLA",
+
+		"ConstKey": 1006,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark.png",
+		"Image": "attachment://Dyvulla-goddess-of-the-dark.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark-closeup.png",
+		"Image_Closeup": "attachment://Dyvulla-goddess-of-the-dark-closeup.png",
+
+		"SpecId": 0
 	}
 ]
