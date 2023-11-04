@@ -8,7 +8,7 @@
         "LevelOnCreate": 1,
         "UseLevel": 35,
 
-        "Damage": 450,
+        "Attack": 450,
         "Type": "SPIRIT",
 
         "CoinCost": 250000,
@@ -255,6 +255,41 @@
 
         "PotionID": 7,
         "BlueprintID": 8
+    },
+    {
+        "Name": "Dark Bringers Visage",
+        "Description": "Born of warped magics an the refined source of Dyvullas power. This will surely keep your skull intact",
+
+        "PassiveCategory": "Equip",
+
+        "LevelOnCreate": 1,
+        "UseLevel": 45,
+
+        "Defence": 40,
+        "Type": "Dark",
+
+        "CoinCost": 500000,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Pure DARK",
+        "Material1_Amount": 30,
+
+        "Material2": "Phasemetal Ingot",
+        "Material2_Amount": 100,
+
+        "Material3": "Refined Essence",
+        "Material3_Amount": 200,
+
+        "Material4": "Sapphire",
+        "Material4_Amount": 20,
+
+        "Slot": "Headslot",
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "Loot_id": 30001,
+        "BlueprintID": 10
     },
     {
         "Name": "Potion TEMP",
