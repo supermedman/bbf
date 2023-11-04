@@ -1541,6 +1541,8 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
 
                     const editRow = ActiveDungeon.update({ currenthealth: newHealth }, { where: { dungeonspecid: interaction.user.id } });
                     if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
+
+                    await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
                 }
             }
         }
@@ -1550,6 +1552,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
             if (defenceAmount > 0) {
                 console.log(successResult('FOUND DEFENCE BOOST'));
                 appliedCurrEffect = defenceAmount;
+                await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
             }
         }
         if (potion.activecategory === 'Tons') {
@@ -1558,6 +1561,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
             if (statBoost > 0) {
                 console.log(successResult('FOUND STAT BOOST'));
                 appliedCurrEffect = statBoost;
+                await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
             }
         }
         if (potion.activecategory === 'EXP') {
@@ -1566,6 +1570,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
             if (expBoost > 0) {
                 console.log(successResult('FOUND EXP BOOST'));
                 appliedCurrEffect = expBoost;
+                await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
             }
         }
 
@@ -2443,6 +2448,8 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
 
                     const editRow = ActiveDungeon.update({ currenthealth: newHealth }, { where: { dungeonspecid: interaction.user.id } });
                     if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
+
+                    await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
                 }
             }
         }
@@ -2452,6 +2459,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
             if (defenceAmount > 0) {
                 console.log(successResult('FOUND DEFENCE BOOST'));
                 appliedCurrEffect = defenceAmount;
+                await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
             }
         }
         if (potion.activecategory === 'Tons') {
@@ -2460,6 +2468,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
             if (statBoost > 0) {
                 console.log(successResult('FOUND STAT BOOST'));
                 appliedCurrEffect = statBoost;
+                await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
             }
         }
         if (potion.activecategory === 'EXP') {
@@ -2468,6 +2477,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
             if (expBoost > 0) {
                 console.log(successResult('FOUND EXP BOOST'));
                 appliedCurrEffect = expBoost;
+                await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
             }
         }
 
