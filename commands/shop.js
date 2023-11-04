@@ -63,7 +63,7 @@ module.exports = {
             //    }
             //}          
 
-            console.log(listedInOrder);
+            //console.log(listedInOrder);
             var i = 0;
             var tempItemRef = [];
             var itemStringValue = ` `;
@@ -162,7 +162,7 @@ module.exports = {
             //===================================================
             //console.log('ITEMS IN list after armor: \n', list);
            
-            console.log('ITEMS IN list: \n', list);
+            //console.log('ITEMS IN list: \n', list);
 
             list = list.toString();
 
@@ -366,13 +366,13 @@ module.exports = {
 
                     } else console.log('ITEM NOT FOUND!');//item not found :(
                 }
-                if (collInteract.customId === 'refresh') {
-                    await collInteract.deferUpdate();
+                if (collInteract.customId === 'refresh') {                   
                     if (uData.coins < refreshCost) {
                         //user does not have enough to refresh the shop
                         return interaction.channel.send("It wouldnt be worthwhile to show you more, you lack the coin.. this aint a charity!");
                     } else {
-                        //subtract the refresh cost from user coins                       
+                        //subtract the refresh cost from user coins
+                        await collInteract.deferUpdate();
                         var cost = uData.coins - refreshCost;
                         payUp(cost, uData);
                         await checkShop(uData, refreshCost);
@@ -1103,7 +1103,7 @@ module.exports = {
                 where: { spec_id: interaction.user.id, loot_id: item.loot_id },
             });
 
-            console.log('UserItem: ', lootStore);
+            //console.log('UserItem: ', lootStore);
 
             //check if an item was found in the previous .findOne()
             //this checks if there is an item stored in the UserItems and adds one to the amount as defined in the dbInit script
