@@ -877,7 +877,7 @@ module.exports = {
                                     questlinedungeon: 2,
                                 }, { where: { userid: interaction.user.id } });
 
-                                userMilestone = await Milestones.findOne({ where: { userid: updateMilestone.userid } });
+                                if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });                       
                             }
                         }                 
                     }
@@ -1160,7 +1160,7 @@ module.exports = {
         //========================================
         //this method is used to update the users xp based on the xp calculated in the display function
         async function editPData(uData, totalQT) {
-            const addQT = await UserData.update({ qt: totalQT }, { where: { username: uData.username } });
+            const addQT = await UserData.update({ qt: totalQT }, { where: { userid: interaction.user.id } });
             if (addQT > 0) {
                 return;
             }
