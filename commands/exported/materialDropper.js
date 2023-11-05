@@ -84,7 +84,7 @@ async function grabMat(enemy, user, interaction) {
 
         if (updatedMat) theUnique = updatedMat;
 
-        var uniqueMatListedDisplay = `Value: ${theUnique.value}\nRarity: ${theUnique.rarity}\nAmount: ${theUnique.amount}`;
+        var uniqueMatListedDisplay = `Value: ${theUnique.value}\nRarity: ${theUnique.rarity}\nAmount: ${1}`;
 
         const uniqueMatColour = await grabColour(12);
 
@@ -131,7 +131,7 @@ async function grabMat(enemy, user, interaction) {
         console.log(successResult(`Material Dropped: ${finalMaterial.Name}`));
 
         let droppedNum = 1;
-        droppedNum += Math.floor(100 * ((enemy.level * 0.01) - ((foundRar * 0.02) + 0.2)));
+        droppedNum += Math.floor(100 * ((enemy.level * 0.01) - ((foundRar * 0.02) + 0.02)));
 
         if (droppedNum <= 0) {
             droppedNum = 1;
