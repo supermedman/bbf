@@ -1,5 +1,14 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
+const {
+	warnedForm,
+	errorForm,
+	successResult,
+	failureResult,
+	basicInfoForm,
+	specialInfoForm
+} = require('../chalkPresets.js');
+
 const { UserData, Milestones, ActiveDungeon } = require('../dbObjects.js');
 const { loadDungeon } = require('./exported/handleDungeon.js');
 
@@ -83,7 +92,22 @@ module.exports = {
 			const userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
 
 			if (!userMilestone) return interaction.followUp('You have yet to start a quest! Please use ``/quest start``');
-			if (userMilestone.laststoryquest !== 10) return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+			if (givenDungeon === 'wadon') {
+				if (userMilestone.currentquestline === 'Souls') {
+					if (userMilestone.laststoryquest < 10) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'dyvulla') {
+				if (userMilestone.currentquestline === 'Dark') {
+					if (userMilestone.laststoryquest < 15) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+            }
+			//if (userMilestone.laststoryquest !== 10) return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 
 			if (dungeonMatch.length === 0) {
 				//No match found!!
@@ -222,7 +246,7 @@ module.exports = {
 				});
 
 				//Grab dungeon reference after creation
-				const addedDungeon = await ActiveDungeon.findOne({ where: { dungeonspecid: interaction.user.id } });
+				const addedDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: interaction.user.id }, {dungeonid: dungeon.DungeonID}] });
 				if (!addedDungeon) {
 					//Dungeon not added something went wrong 
 				} else {
@@ -230,7 +254,7 @@ module.exports = {
 					return addedDungeon;//Return dungeon object 
 				}
 			} catch (err) {
-				return console.log(`An error has occured! Logging ERROR: ${err}`);
+				return console.log(errorForm(`An error has occured! Logging ERROR: ${err}`));
             }			
         }
 	},
