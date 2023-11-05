@@ -111,67 +111,70 @@ async function isUniqueLevelUp(interaction, userRef) {
 	console.log(basicInfoForm('CHECKING GEAR FOR UNIQUES'));
 
 	const allOwnedCrafted = await UniqueCrafted.findAll({ where: { spec_id: interaction.user.id } });
-	if (!allOwnedCrafted) return console.log(failureResult('User has no crafted gear'));
+	if (allOwnedCrafted.length <= 0) return console.log(failureResult('User has no crafted gear'));
 	const userLoadout = await Loadout.findOne({ where: { spec_id: user.userid } });
 	if (!userLoadout) return console.log(failureResult('User has no loadout'));
 
 	let curGearCheckID;
 	let curGearCheckSlot;
 	let curRun = 0;
-	do {
-		curGearCheckID = allOwnedCrafted[curRun].loot_id;
-		curGearCheckSlot = allOwnedCrafted[curRun].slot.toLowerCase();
+	
+		do {
+			curGearCheckID = allOwnedCrafted[curRun].loot_id;
+			curGearCheckSlot = allOwnedCrafted[curRun].slot.toLowerCase();
 
-		if (userLoadout[`${curGearCheckSlot}`] >= 30000) {
-			//Equipped gear is unique Increment kills!
-			const grabbedUnique = await UniqueCrafted.findOne({ where: [{ spec_id: user.userid }, { loot_id: curGearCheckID }] });
-			if (!grabbedUnique) return console.log(errorForm('Unique item not found after loot id check'));
+			if (userLoadout[`${curGearCheckSlot}`] >= 30000) {
+				//Equipped gear is unique Increment kills!
+				const grabbedUnique = await UniqueCrafted.findOne({ where: [{ spec_id: user.userid }, { loot_id: curGearCheckID }] });
+				if (!grabbedUnique) return console.log(errorForm('Unique item not found after loot id check'));
 
-			var plusOneTotalKills = (grabbedUnique.totalkills + 1);
-			await grabbedUnique.update({ totalkills: plusOneTotalKills });
+				var plusOneTotalKills = (grabbedUnique.totalkills + 1);
+				await grabbedUnique.update({ totalkills: plusOneTotalKills });
 
-			console.log(basicInfoForm('CHECKING FOR LEVEL UP'));
+				console.log(basicInfoForm('CHECKING FOR LEVEL UP'));
 
-			let curLvl = grabbedUnique.currentlevel;
-			const nxtLvl = 3 * (Math.pow(curLvl, 2));
+				let curLvl = grabbedUnique.currentlevel;
+				const nxtLvl = 3 * (Math.pow(curLvl, 2));
 
-			var plusOneCurrentKills = (grabbedUnique.killsthislevel + 1);
+				var plusOneCurrentKills = (grabbedUnique.killsthislevel + 1);
 
-			if (plusOneCurrentKills >= nxtLvl) {
-				//LevelUP!
-				console.log(specialInfoForm('IS LEVEL UP!'));
-				if (grabbedUnique.Attack > 0) {
-					//Is weapon
-					const newAttack = (grabbedUnique.Attack + 10);
-					plusOneCurrentKills = 0;
-					curLvl++;
-					await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
-					await grabbedUnique.update({ currentlevel: curLvl });
-					await grabbedUnique.update({ Attack: newAttack });
+				if (plusOneCurrentKills >= nxtLvl) {
+					//LevelUP!
+					console.log(specialInfoForm('IS LEVEL UP!'));
+					if (grabbedUnique.Attack > 0) {
+						//Is weapon
+						const newAttack = (grabbedUnique.Attack + 10);
+						plusOneCurrentKills = 0;
+						curLvl++;
+						await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
+						await grabbedUnique.update({ currentlevel: curLvl });
+						await grabbedUnique.update({ Attack: newAttack });
 
-					console.log(successResult('ALL WEAPON VALUES UPDATED!'));                   
+						console.log(successResult('ALL WEAPON VALUES UPDATED!'));
+						await interaction.channel.send(`Weapon levelup! ${grabbedUnique.name} is now level ${curLvl}`);
+					}
+					if (grabbedUnique.Defence > 0) {
+						//Is armor
+						const newDefence = (grabbedUnique.Defence + 3);
+						plusOneCurrentKills = 0;
+						curLvl++;
+
+						await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
+						await grabbedUnique.update({ currentlevel: curLvl });
+						await grabbedUnique.update({ Defence: newDefence });
+
+						console.log(successResult('ALL ARMOR VALUES UPDATED!'));
+						await interaction.channel.send(`Armor levelup! ${grabbedUnique.name} is now level ${curLvl}`);
+					}
+				} else {
+					//Not level up
+					console.log(specialInfoForm('IS NOT LEVEL UP!'));
+					const updateCheck = await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
+					if (updateCheck > 0) console.log(successResult('No level up, Kills increased'));
 				}
-				if (grabbedUnique.Defence > 0) {
-					//Is armor
-					const newDefence = (grabbedUnique.Defence + 3);
-					plusOneCurrentKills = 0;
-					curLvl++;
-
-					await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
-					await grabbedUnique.update({ currentlevel: curLvl });
-					await grabbedUnique.update({ Defence: newDefence });
-
-					console.log(successResult('ALL ARMOR VALUES UPDATED!'));		
-                }
-			} else {
-				//Not level up
-				console.log(specialInfoForm('IS NOT LEVEL UP!'));
-				const updateCheck = await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
-				if (updateCheck > 0) console.log(successResult('No level up, Kills increased'));
-            }
-        }
-		curRun++;
-    } while (curRun < allOwnedCrafted)
+			}
+			curRun++;
+		} while (curRun < allOwnedCrafted)	
 }
 
 //========================================
