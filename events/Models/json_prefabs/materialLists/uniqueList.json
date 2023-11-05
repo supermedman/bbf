@@ -16,6 +16,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Null",
 
 		"Mat_id": 2,
 		"Spec_id": 0
@@ -37,6 +38,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Light",
 
 		"Mat_id": 4,
 		"Spec_id": 0
@@ -47,6 +49,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Slash",
 
 		"Mat_id": 5,
 		"Spec_id": 0
@@ -57,6 +60,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Fire",
 
 		"Mat_id": 6,
 		"Spec_id": 0
@@ -67,6 +71,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Frost",
 
 		"Mat_id": 7,
 		"Spec_id": 0
@@ -77,6 +82,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Magic",
 
 		"Mat_id": 8,
 		"Spec_id": 0
@@ -87,6 +93,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Blunt",
 
 		"Mat_id": 9,
 		"Spec_id": 0
@@ -97,6 +104,7 @@
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
+		"UniqueMatch": "Nessy",
 
 		"Mat_id": 10,
 		"Spec_id": 0
