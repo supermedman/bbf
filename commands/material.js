@@ -222,26 +222,36 @@ module.exports = {
         }
 
 		if (interaction.options.getSubcommand() === 'view') {
-			const matType = interaction.options.getString('type');
+			const matType = interaction.options.getString('typeview');
 			const showAll = interaction.options.getBoolean('all');
 			const rarType = interaction.options.getString('rarity');
 
 			if (showAll === true) {
+				var fullMatMatchList;
+				if (matType !== 'unique') {
+					fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { mattype: matType }] });
+					console.log(specialInfoForm(`fullMatMatchList NOT UNIQUE: ${fullMatMatchList}`));
 
-				const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { mattype: matType }] });
+					if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
+				} else {
+					fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rarity: 'Unique' }] });
+					console.log(specialInfoForm(`fullMatMatchList IS UNIQUE: ${fullMatMatchList}`));
 
-				if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
-
+					if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
+                }
+				
 				var embedPages = [];
 
 				let matSlice;
+				let embedColour = 0000;
+				let list = ``;
 
 				let curRun = 0;
 				do {
 					matSlice = fullMatMatchList[curRun];
+					embedColour = await grabColour(matSlice.rar_id);
 
-					var embedColour = await grabColour(matSlice.rar_id);
-					var list = `Category: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nValue: ${matSlice.value} \nAmount: ${matSlice.amount}`
+					list = `Category: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nValue: ${matSlice.value} \nAmount: ${matSlice.amount}`
 
 					if (matSlice) {
 						const displayEmbed = new EmbedBuilder()
