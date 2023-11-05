@@ -2798,6 +2798,101 @@
         "SpecId": 0
     },
     {
+        "Name": "Purple Slime",
+        "Description": "Its a purple slime :P",
+        "Level": 8,
+        "MinDmg": 10,
+        "MaxDmg": 15,
+        "Health": 80,
+        "Defence": 0,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 25,
+        "XpMax": 35,
+
+        "DropTypes": [ "slimy" ],
+
+        "ConstKey": 137,
+        "SpecId": 0
+    },
+    {
+        "Name": "Red Slime",
+        "Description": "Its a red slime :P",
+        "Level": 13,
+        "MinDmg": 15,
+        "MaxDmg": 26,
+        "Health": 200,
+        "Defence": 1,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 130,
+        "XpMax": 180,
+
+        "DropTypes": [ "slimy" ],
+
+        "ConstKey": 138,
+        "SpecId": 0
+    },
+    {
+        "Name": "Pink Slime",
+        "Description": "Its a pink slime :P",
+        "Level": 19,
+        "MinDmg": 40,
+        "MaxDmg": 65,
+        "Health": 650,
+        "Defence": 2,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 190,
+        "XpMax": 500,
+
+        "DropTypes": [ "slimy" ],
+
+        "ConstKey": 139,
+        "SpecId": 0
+    },
+    {
+        "Name": "Sparkly Slime",
+        "Description": "Its a sparkly slime :P",
+        "Level": 25,
+        "MinDmg": 85,
+        "MaxDmg": 100,
+        "Health": 1000,
+        "Defence": 3,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 2000,
+        "XpMax": 2500,
+
+        "DropTypes": [ "slimy" ],
+
+        "ConstKey": 140,
+        "SpecId": 0
+    },
+    {
+        "Name": "Rainbow Slime",
+        "Description": "Its a rainbow slime :P",
+        "Level": 31,
+        "MinDmg": 100,
+        "MaxDmg": 120,
+        "Health": 3400,
+        "Defence": 4,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 3100,
+        "XpMax": 3400,
+
+        "DropTypes": [ "slimy" ],
+
+        "ConstKey": 141,
+        "SpecId": 0
+    },
+    {
         "Name": "COPY",
         "Description": "Not enough is yet known about this creature!",
 
