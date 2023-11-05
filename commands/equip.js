@@ -697,7 +697,7 @@ module.exports = {
             }
         }
 
-        if (interaction.options.getSubcommand() === 'potionone') {
+        if (interaction.options.getSubcommand() === 'potion') {
             const itemname = interaction.options.getString('slotone');
             console.log(itemname);
             const item = await OwnedPotions.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
