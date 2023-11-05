@@ -49,10 +49,10 @@ module.exports = {
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('view')
-				.setDescription('Combine to upgrade material type and rarity!')
+				.setDescription('View all of a material type or one material type and rarity!')
 				.addStringOption(option =>
-					option.setName('type')
-						.setDescription('Material type to combine')
+					option.setName('typeview')
+						.setDescription('Material type to view')
 						.setAutocomplete(true)
 						.setRequired(true))
 				.addBooleanOption(option =>
@@ -61,7 +61,7 @@ module.exports = {
 						.setRequired(true))
 				.addStringOption(option =>
 					option.setName('rarity')
-						.setDescription('Material rarity to combine')
+						.setDescription('Material rarity to view')
 						.setAutocomplete(true))),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
@@ -83,6 +83,23 @@ module.exports = {
 					filtered.map(choice => ({ name: choice, value: choice })),
 				);
 			}	
+		}
+
+		if (focusedOption.name === 'typeview') {
+			const focusedValue = interaction.options.getFocused(false);
+
+			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "unique"];
+
+			if (focusedValue) {
+				console.log(choices);
+				console.log(focusedValue);
+
+				//Mapping the complete list of options for discord to handle and present to the user
+				const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+				await interaction.respond(
+					filtered.map(choice => ({ name: choice, value: choice })),
+				);
+			}
 		}
 
 		if (focusedOption.name === 'rarity') {
@@ -205,26 +222,36 @@ module.exports = {
         }
 
 		if (interaction.options.getSubcommand() === 'view') {
-			const matType = interaction.options.getString('type');
+			const matType = interaction.options.getString('typeview');
 			const showAll = interaction.options.getBoolean('all');
 			const rarType = interaction.options.getString('rarity');
 
 			if (showAll === true) {
+				var fullMatMatchList;
+				if (matType !== 'unique') {
+					fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { mattype: matType }] });
+					console.log(specialInfoForm(`fullMatMatchList NOT UNIQUE: ${fullMatMatchList}`));
 
-				const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { mattype: matType }] });
+					if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
+				} else {
+					fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rarity: 'Unique' }] });
+					console.log(specialInfoForm(`fullMatMatchList IS UNIQUE: ${fullMatMatchList}`));
 
-				if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
-
+					if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
+                }
+				
 				var embedPages = [];
 
 				let matSlice;
+				let embedColour = 0000;
+				let list = ``;
 
 				let curRun = 0;
 				do {
 					matSlice = fullMatMatchList[curRun];
+					embedColour = await grabColour(matSlice.rar_id);
 
-					var embedColour = await grabColour(matSlice.rar_id);
-					var list = `Category: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nValue: ${matSlice.value} \nAmount: ${matSlice.amount}`
+					list = `Category: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nValue: ${matSlice.value} \nAmount: ${matSlice.amount}`
 
 					if (matSlice) {
 						const displayEmbed = new EmbedBuilder()
@@ -308,30 +335,33 @@ module.exports = {
 			} else if (showAll === false) {
 				if (!rarType) return interaction.followUp('Please select a rarity to display!');
 				var chosenRarID;
-				if (rarType === 'common') {
-					chosenRarID = 0;
-				} else if (rarType === 'uncommon') {
-					chosenRarID = 1;
-				} else if (rarType === 'rare') {
-					chosenRarID = 2;
-				} else if (rarType === 'very rare') {
-					chosenRarID = 3;
-				} else if (rarType === 'epic') {
-					chosenRarID = 4;
-				} else if (rarType === 'mystic') {
-					chosenRarID = 5;
-				} else if (rarType === '?') {
-					chosenRarID = 6;
-				} else if (rarType === '??') {
-					chosenRarID = 7;
-				} else if (rarType === '???') {
-					chosenRarID = 8;
-				} else if (rarType === '????') {
-					chosenRarID = 9;
+				if (matType === 'unique') {
+					return await interaction.channel.send('You cannot view one of unique material type, please use this command where <all> is <true> and leave the <rarity> option blank!');
 				} else {
-					return interaction.followUp('That was not a valid option!');
-				}
-
+					if (rarType === 'common') {
+						chosenRarID = 0;
+					} else if (rarType === 'uncommon') {
+						chosenRarID = 1;
+					} else if (rarType === 'rare') {
+						chosenRarID = 2;
+					} else if (rarType === 'very rare') {
+						chosenRarID = 3;
+					} else if (rarType === 'epic') {
+						chosenRarID = 4;
+					} else if (rarType === 'mystic') {
+						chosenRarID = 5;
+					} else if (rarType === '?') {
+						chosenRarID = 6;
+					} else if (rarType === '??') {
+						chosenRarID = 7;
+					} else if (rarType === '???') {
+						chosenRarID = 8;
+					} else if (rarType === '????') {
+						chosenRarID = 9;
+					} else {
+						return interaction.followUp('That was not a valid option!');
+					}
+                }
 				const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
 
 				if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type or rarity!');

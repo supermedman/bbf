@@ -76,7 +76,7 @@ module.exports = {
 
         let choices = [];
 
-        if (focusedOption.name === 'potion') {
+        if (focusedOption.name === 'slotone') {
             const focusedValue = interaction.options.getFocused(false);
 
             const items = await OwnedPotions.findAll({ where: { spec_id: interaction.user.id } });
@@ -105,7 +105,7 @@ module.exports = {
             }
         }
       
-        if (focusedOption.name === 'unique') {
+        if (focusedOption.name === 'any') {
             const focusedValue = interaction.options.getFocused(false);
             //Look for all
             const items = await UniqueCrafted.findAll({ where: { spec_id: interaction.user.id } });
@@ -697,7 +697,7 @@ module.exports = {
             }
         }
 
-        if (interaction.options.getSubcommand() === 'potionone') {
+        if (interaction.options.getSubcommand() === 'potion') {
             const itemname = interaction.options.getString('slotone');
             console.log(itemname);
             const item = await OwnedPotions.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
