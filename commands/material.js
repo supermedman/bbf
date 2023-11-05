@@ -55,12 +55,14 @@ module.exports = {
 						.setDescription('Material type to combine')
 						.setAutocomplete(true)
 						.setRequired(true))
+				.addBooleanOption(option =>
+					option.setName('all')
+						.setDescription('Whether or not to show all of this type')
+						.setRequired(true))
 				.addStringOption(option =>
 					option.setName('rarity')
 						.setDescription('Material rarity to combine')
-						.setAutocomplete(true)
-						.setRequired(true))),
-
+						.setAutocomplete(true))),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -204,53 +206,153 @@ module.exports = {
 
 		if (interaction.options.getSubcommand() === 'view') {
 			const matType = interaction.options.getString('type');
+			const showAll = interaction.options.getBoolean('all');
 			const rarType = interaction.options.getString('rarity');
 
-			var chosenRarID;
-			if (rarType === 'common') {
-				chosenRarID = 0;
-			} else if (rarType === 'uncommon') {
-				chosenRarID = 1;
-			} else if (rarType === 'rare') {
-				chosenRarID = 2;
-			} else if (rarType === 'very rare') {
-				chosenRarID = 3;
-			} else if (rarType === 'epic') {
-				chosenRarID = 4;
-			} else if (rarType === 'mystic') {
-				chosenRarID = 5;
-			} else if (rarType === '?') {
-				chosenRarID = 6;
-			} else if (rarType === '??') {
-				chosenRarID = 7;
-			} else if (rarType === '???') {
-				chosenRarID = 8;
-			} else if (rarType === '????') {
-				chosenRarID = 9;
-			} else {
-				return interaction.followUp('That was not a valid option!');
-			}
+			if (showAll === true) {
 
-			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
+				const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { mattype: matType }] });
 
-			if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type or rarity!');
+				if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type!');
 
-			const theMaterial = fullMatMatchList[0];
+				var embedPages = [];
 
-			const embedColour = await grabColour(chosenRarID);
+				let matSlice;
 
-			const list = `Category: ${theMaterial.mattype} \nRarity: ${theMaterial.rarity} \nValue: ${theMaterial.value} \nAmount: ${theMaterial.amount}`;
+				let curRun = 0;
+				do {
+					matSlice = fullMatMatchList[curRun];
 
-			const displayEmbed = new EmbedBuilder()
-				.setTitle('~MATERIAL~')
-				.setColor(embedColour)
-				.addFields({
-					name: `${theMaterial.name}`, value: list,
+					var embedColour = await grabColour(matSlice.rar_id);
+					var list = `Category: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nValue: ${matSlice.value} \nAmount: ${matSlice.amount}`
+
+					if (matSlice) {
+						const displayEmbed = new EmbedBuilder()
+							.setTitle('~MATERIAL~')
+							.setColor(embedColour)
+							.addFields({
+								name: `${matSlice.name}`, value: list,
+							});
+						embedPages.push(displayEmbed);
+                    }
+					curRun++;
+				} while (curRun < fullMatMatchList.length)
+
+				const backButton = new ButtonBuilder()
+					.setLabel("Back")
+					.setStyle(ButtonStyle.Secondary)
+					.setEmoji('◀️')
+					.setCustomId('back-page');
+
+				const cancelButton = new ButtonBuilder()
+					.setLabel("Cancel")
+					.setStyle(ButtonStyle.Secondary)
+					.setEmoji('*️⃣')
+					.setCustomId('delete-page');
+
+				const forwardButton = new ButtonBuilder()
+					.setLabel("Forward")
+					.setStyle(ButtonStyle.Secondary)
+					.setEmoji('▶️')
+					.setCustomId('next-page');
+
+				const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+				const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+				const filter = (ID) => ID.user.id === interaction.user.id;
+
+				const collector = embedMsg.createMessageComponentCollector({
+					componentType: ComponentType.Button,
+					filter,
+					time: 300000,
 				});
 
-			await interaction.followUp({ embeds: [displayEmbed] }).then(async embedMsg => setTimeout(() => {
-				embedMsg.delete();
-			}, 60000)).catch(console.error(errorForm('An error has occured while deleting message')));
+				var currentPage = 0;
+
+				collector.on('collect', async (collInteract) => {
+					if (collInteract.customId === 'next-page') {
+						await collInteract.deferUpdate();
+						if (currentPage === embedPages.length - 1) {
+							currentPage = 0;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						} else {
+							currentPage += 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						}
+					}
+
+					if (collInteract.customId === 'back-page') {
+						await collInteract.deferUpdate();
+						if (currentPage === 0) {
+							currentPage = embedPages.length - 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						} else {
+							currentPage -= 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						}
+					}
+
+					if (collInteract.customId === 'delete-page') {
+						await collInteract.deferUpdate();
+						await collector.stop();
+					}
+				});
+
+				collector.on('end', () => {
+					if (embedMsg) {
+						embedMsg.delete();
+					}
+				});
+
+			} else if (showAll === false) {
+				if (!rarType) return interaction.followUp('Please select a rarity to display!');
+				var chosenRarID;
+				if (rarType === 'common') {
+					chosenRarID = 0;
+				} else if (rarType === 'uncommon') {
+					chosenRarID = 1;
+				} else if (rarType === 'rare') {
+					chosenRarID = 2;
+				} else if (rarType === 'very rare') {
+					chosenRarID = 3;
+				} else if (rarType === 'epic') {
+					chosenRarID = 4;
+				} else if (rarType === 'mystic') {
+					chosenRarID = 5;
+				} else if (rarType === '?') {
+					chosenRarID = 6;
+				} else if (rarType === '??') {
+					chosenRarID = 7;
+				} else if (rarType === '???') {
+					chosenRarID = 8;
+				} else if (rarType === '????') {
+					chosenRarID = 9;
+				} else {
+					return interaction.followUp('That was not a valid option!');
+				}
+
+				const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
+
+				if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type or rarity!');
+
+				const theMaterial = fullMatMatchList[0];
+
+				const embedColour = await grabColour(chosenRarID);
+
+				const list = `Category: ${theMaterial.mattype} \nRarity: ${theMaterial.rarity} \nValue: ${theMaterial.value} \nAmount: ${theMaterial.amount}`;
+
+				const displayEmbed = new EmbedBuilder()
+					.setTitle('~MATERIAL~')
+					.setColor(embedColour)
+					.addFields({
+						name: `${theMaterial.name}`, value: list,
+					});
+
+				await interaction.followUp({ embeds: [displayEmbed] }).then(async embedMsg => setTimeout(() => {
+					embedMsg.delete();
+				}, 60000)).catch(console.error(errorForm('An error has occured while deleting message')));
+            }
 		}
 
 		if (interaction.options.getSubcommand() === 'dismantle') {
