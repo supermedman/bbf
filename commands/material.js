@@ -42,7 +42,10 @@ module.exports = {
 					option.setName('rarity')
 						.setDescription('Material rarity to dismantle')
 						.setAutocomplete(true)
-						.setRequired(true)))
+						.setRequired(true))
+				.addIntegerOption(option =>
+					option.setName('amount')
+						.setDescription('The amount to dismantle')))
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('view')
@@ -282,12 +285,32 @@ module.exports = {
 			const fullMatMatchList = await MaterialStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: matType }] });
 
 			if (fullMatMatchList.length <= 0) return interaction.followUp('You have no materials of that type or rarity!');
+			const theAmount = interaction.options.getInteger('amount');
+			let totalMaterials;
+			let totalNewMaterials;
+			let theRemainder;
+			if (!theAmount) {
+				totalMaterials = await fullMatMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
+				console.log(basicInfoForm('totalMaterials: ', totalMaterials));
 
-			const totalMaterials = await fullMatMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
-			console.log(basicInfoForm('totalMaterials: ', totalMaterials));
-
-			const totalNewMaterials = Math.floor((totalMaterials * 5));
-			console.log(basicInfoForm('totalNewMaterials: ', totalNewMaterials));
+				totalNewMaterials = Math.floor((totalMaterials * 5));
+				console.log(basicInfoForm('totalNewMaterials: ', totalNewMaterials));
+			} else {
+				totalMaterials = await fullMatMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
+				console.log(basicInfoForm('totalMaterials: ', totalMaterials));
+				if (totalMaterials < theAmount) {
+					return interaction.followUp('You do not have that many materials of that type or rarity!');
+				} else if (totalMaterials === theAmount) {
+					totalNewMaterials = Math.floor((totalMaterials * 5));
+					console.log(basicInfoForm('totalNewMaterials: ', totalNewMaterials));
+				} else {
+					theRemainder = totalMaterials - theAmount;
+					totalMaterials = theAmount;
+					totalNewMaterials = Math.floor((totalMaterials * 5));
+					console.log(basicInfoForm('totalNewMaterials: ', totalNewMaterials));
+                }
+            }
+			
 
 			const acceptButton = new ButtonBuilder()
 				.setLabel("Yes")
@@ -311,7 +334,7 @@ module.exports = {
 				.setTitle('Confirm Dismantle')
 				.addFields(
 					{
-						name: `Would you really like to dismantle ALL: ${rarType} ${matType} owned?`,
+						name: `Would you really like to dismantle ${totalMaterials}: ${rarType} ${matType} owned?`,
 						value: list,
 
 					});
@@ -329,7 +352,7 @@ module.exports = {
 			collector.on('collect', async (collInteract) => {
 				if (collInteract.customId === 'accept') {
 					await collInteract.deferUpdate();
-					await handleDismantleMaterials(totalNewMaterials, matType, chosenRarID);
+					await handleDismantleMaterials(totalNewMaterials, matType, chosenRarID, theRemainder);
 					await collector.stop();
 				}
 
@@ -346,8 +369,11 @@ module.exports = {
 			});
 		}
 
-		async function handleDismantleMaterials(newMatAmount, matType, chosenRarID) {
-			const remainingMatAmount = 0;
+		async function handleDismantleMaterials(newMatAmount, matType, chosenRarID, theRemainder) {
+			let remainingMatAmount = 0;
+			if (theRemainder) {
+				remainingMatAmount = theRemainder;
+            }
 			var passType;
 			let listStr;
 			listStr = `${matType}List.json`;
@@ -384,11 +410,13 @@ module.exports = {
 						const matDestroyed = await MaterialStore.destroy({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: passType }] });
 						if (matDestroyed > 0) {
 							//Material updated successfully
+							console.log(successResult('Material dismantled and destroyed!'));
 						}
 					} else {
 						const matUpdated = await MaterialStore.update({ amount: remainingMatAmount }, { where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }, { mattype: passType }] });
 						if (matUpdated > 0) {
 							//Material updated successfully
+							console.log(successResult('Material dismantled!'));
 						}
 					}
 				}
