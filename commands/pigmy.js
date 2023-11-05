@@ -1,8 +1,19 @@
-const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 //const wait = require('node:timers/promises').setTimeout;
-const { Pighouse, Pigmy, ActiveStatus } = require('../dbObjects.js');
+const { Pighouse, Pigmy, ActiveStatus, MaterialStore } = require('../dbObjects.js');
 const { isLvlUp, isPigLvlUp } = require('./exported/levelup.js');
 const Canvas = require('@napi-rs/canvas');
+
+const {
+	warnedForm,
+	errorForm,
+	successResult,
+	failureResult,
+	basicInfoForm,
+	specialInfoForm
+} = require('../chalkPresets.js');
+
+const { grabRar, grabColour } = require('./exported/grabRar');
 
 const pigmyList = require('../events/Models/json_prefabs/pigmyList.json');
 
@@ -211,6 +222,142 @@ module.exports = {
 				//var iGained = [];
 				//var totItem = 0;
 
+				// Material types per hour 2
+				// Materials per hour ~5 
+				// Per material * (100 * ((piglevel * 0.01) - ((rarity * 0.02) + 0.02)));
+				// Reduced per each by +-10 total for diffHappy of pigmy
+
+				let choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy"];
+
+				// let halfHrs = Math.floor(hrs/2);
+				// ||
+				// LEAVE HRS ALONE
+
+				var totPages = 0;
+
+				let matHrChoices = [];
+				let matsThisHr;
+
+				let matsToAdd = [];
+
+				let pigDiffHappy = (-1) * ((100 - pig.happiness) / 100);
+				let curRun = 0;
+				do { 
+					var chanceChoiceONE = Math.floor(Math.random() * (choices.length));
+					//console.log(specialInfoForm('chanceChoiceONE: ', chanceChoiceONE));
+					var chanceChoiceTWO = Math.floor(Math.random() * (choices.length));
+					//console.log(specialInfoForm('chanceChoiceTWO: ', chanceChoiceTWO));
+
+					matHrChoices.push(choices[chanceChoiceONE]);
+					matHrChoices.push(choices[chanceChoiceTWO]);
+				 	
+					// This is 5 + ((1-5) + (1 per 5 pig levels)
+					// Maximum 30 @ pigLevel 100
+					// Minimum 6 @ pigLevel 1
+					matsThisHr = 5 + (Math.floor(Math.random() * ((1 - 5) + 1) + Math.floor(pig.level / 5)));
+				 	
+					matsThisHr -= (pigDiffHappy * matsThisHr);
+				 	
+					if (matsThisHr <= 0) {
+				 		matsThisHr = 1;
+					}
+				 	
+					var passType;
+					let listStr;
+				 	
+					let matTypeChosen;
+					let rolledMatPos;
+					let foundRar;
+				 	
+					let foundMaterialList;
+					let tmpMat = [];
+					for (var matRun = 0; matRun < matsThisHr; matRun++) {
+				 		tmpMat = [];
+
+				 		rolledMatPos = Math.floor(Math.random() * (matHrChoices.length));
+						//console.log(specialInfoForm('rolledMatPos: ', rolledMatPos));
+						matTypeChosen = matHrChoices[rolledMatPos];
+
+
+
+				 		listStr = `${matTypeChosen}List.json`;
+				 		passType = `${matTypeChosen}`;
+				 		
+				 		foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+				 		
+				 		foundRar = await grabRar(pig.level);
+				 		
+				 		let matDropPool = [];
+				 		for (var x = 0; x < foundMaterialList.length; x++) {
+				 			if (foundMaterialList[x].Rar_id === foundRar) {
+				 				//Rarity match add to list
+				 				matDropPool.push(foundMaterialList[x]);
+				 			}
+				 		}
+				 		
+						if (matDropPool.length > 0) {
+							tmpMat.push(matDropPool[0]);
+				 			
+				 			var droppedNum = Math.floor(100 * ((pig.level * 0.01) - ((foundRar * 0.02) + 0.02)));
+
+							if (droppedNum <= 0) {
+								droppedNum = 1;
+                            }
+				 		
+				 			var matNew = true;
+				 			for (const item of matsToAdd) {
+				 				if (item.Name === tmpMat[0].Name) {
+				 					matNew = false;
+				 					console.log(basicInfoForm('DupeMat'));
+				 					item.Amount += droppedNum;
+				 					break;
+				 				}
+				 			}
+				 			
+				 			if (matNew === true) {
+				 				console.log(basicInfoForm('BEFORE MAPPED NEW MAT: ', tmpMat[0].Name));
+				 				
+				 				const mappedMat = await tmpMat.map(mat => ({ ...mat, Amount: droppedNum}),);
+				 				
+				 				totPages += 1;
+				 				
+				 				matsToAdd.push(...mappedMat);
+				 			}
+				 			
+				 			var theMaterial = matDropPool[0];
+				 			
+							const matStore = await MaterialStore.findOne({
+								where: [{ spec_id: interaction.user.id }, { mat_id: theMaterial.Mat_id }, { mattype: passType }]
+							});
+				 			
+							if (matStore) {
+				  				droppedNum += matStore.amount;
+				 				const inc = await MaterialStore.update({amount: droppedNum},
+									{ where: [{spec_id: interaction.user.id}, {mat_id: theMaterial.Mat_id}, {mattype: passType}] 
+				 				});
+				 				
+				 				if (inc) console.log(successResult('Amount was UPDATED!'));
+				 			} else {
+				 				const createdMat = await MaterialStore.create({
+				 					name: theMaterial.Name,
+				 					value: theMaterial.Value,
+				 					mattype: passType,
+				 					mat_id: theMaterial.Mat_id,
+				 					rarity: theMaterial.Rarity,
+				 					rar_id: theMaterial.Rar_id,
+				 					amount: droppedNum,
+				 					spec_id: interaction.user.id
+				 				});
+				 				
+				 				if (createdMat) console.log(successResult('New Material Added!'));
+				 			}
+				 		}
+					}
+					curRun++;
+				} while (curRun < hrs) 
+				  
+
+
 				var totXP = 0;
 				var totCoin = 0;
 
@@ -295,9 +442,113 @@ module.exports = {
 							value: rewards
 						}
 					);
-				interaction.followUp({ embeds: [pigClaimEmbed] }).then(async pigClaimEmbed => setTimeout(() => {
+				await interaction.followUp({ embeds: [pigClaimEmbed] }).then(async pigClaimEmbed => setTimeout(() => {
 					pigClaimEmbed.delete();
 				}, 100000)).catch(console.error);
+
+				const backButton = new ButtonBuilder()
+					.setLabel("Back")
+					.setStyle(ButtonStyle.Secondary)
+					.setEmoji('◀️')
+					.setCustomId('back-page');
+
+				const finishButton = new ButtonBuilder()
+					.setLabel("Finish")
+					.setStyle(ButtonStyle.Success)
+					.setEmoji('*️⃣')
+					.setCustomId('delete-page');
+
+				const forwardButton = new ButtonBuilder()
+					.setLabel("Forward")
+					.setStyle(ButtonStyle.Secondary)
+					.setEmoji('▶️')
+					.setCustomId('next-page');
+
+				const interactiveButtons = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
+
+				const rarityTypes = ["Common", "Uncommon", "Rare", "Very Rare", "Epic", "Mystic", "?", "??", "???", "????"];
+
+				let fullRarList;
+				let rarCheckNum = 0;
+
+				let embedColour;
+				let matListings;
+
+				let embedPages = [];
+
+				let pageRun = 0;
+				do {
+					fullRarList = matsToAdd.filter(mat => mat.Rarity === rarityTypes[rarCheckNum]);
+					if (fullRarList.length <= 0) {
+						//There are no mats of this rarity, check next Rarity
+						rarCheckNum++;
+					} else {
+						embedColour = await grabColour(rarCheckNum);
+						for (const matCheck of fullRarList) {
+							matListings = `Value: ${matCheck.Value}\nRarity: ${matCheck.Rarity}\nAmount: ${matCheck.Amount}`;
+
+							const theMaterialEmbed = new EmbedBuilder()
+								.setTitle('~Material Dropped~')
+								.setDescription(`Page ${(pageRun + 1)}/${totPages}`)
+								.setColor(embedColour)
+								.addFields({
+									name: `${matCheck.Name}`,
+									value: matListings
+								});
+
+							embedPages.push(theMaterialEmbed);
+							pageRun++;
+                        }
+					}
+					rarCheckNum++;
+                } while (pageRun < matsToAdd.length)
+
+				const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+				const filter = (ID) => ID.user.id === interaction.user.id;
+
+				const collector = embedMsg.createMessageComponentCollector({
+					componentType: ComponentType.Button,
+					filter,
+					time: 300000,
+				});
+
+				var currentPage = 0;
+
+				collector.on('collect', async (collInteract) => {
+					if (collInteract.customId === 'next-page') {
+						await collInteract.deferUpdate();
+						if (currentPage === embedPages.length - 1) {
+							currentPage = 0;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						} else {
+							currentPage += 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						}
+					}
+
+					if (collInteract.customId === 'back-page') {
+						await collInteract.deferUpdate();
+						if (currentPage === 0) {
+							currentPage = embedPages.length - 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						} else {
+							currentPage -= 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						}
+					}
+
+					if (collInteract.customId === 'delete-page') {
+						await collInteract.deferUpdate();
+						await collector.stop();
+					}
+				});
+
+				collector.on('end', () => {
+					if (embedMsg) {
+						embedMsg.delete();
+					}
+				});
 
 			} else {
 				var timeCon = timeLeft;
