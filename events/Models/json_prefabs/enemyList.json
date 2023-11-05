@@ -280,6 +280,8 @@
         "XpMin": 70,
         "XpMax": 75,
 
+        "DropTypes": [ "skinny" ],
+
         "ConstKey": 9,
         "SpecId": 0
     },
@@ -578,6 +580,8 @@
         "Dead": false,
         "XpMin": 25,
         "XpMax": 30,
+
+        "DropTypes": [ "magical", "gemy" ],
 
         "ConstKey": 28,
         "SpecId": 0
@@ -1799,7 +1803,7 @@
     },
     {
         "Name": "Urratis",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 22,
         "MinDmg": 30,
@@ -1819,7 +1823,7 @@
     },
     {
         "Name": "Cryptees",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 21,
         "MinDmg": 30,
@@ -1859,7 +1863,7 @@
     },
     {
         "Name": "Ravaging Rot Hog",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 17,
         "MinDmg": 30,
@@ -1879,7 +1883,7 @@
     },
     {
         "Name": "The Muted Babbler",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 17,
         "MinDmg": 30,
@@ -1892,12 +1896,14 @@
         "XpMin": 580,
         "XpMax": 600,
 
+        "DropTypes": [ "skinny", "gemy", "fleshy" ],
+
         "ConstKey": 91,
         "SpecId": 0
     },
     {
         "Name": "The Delirious Hunter",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 23,
         "MinDmg": 35,
@@ -1917,7 +1923,7 @@
     },
     {
         "Name": "Chaosfiend",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 24,
         "MinDmg": 40,
@@ -1937,7 +1943,7 @@
     },
     {
         "Name": "Sorrowscream",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 21,
         "MinDmg": 30,
@@ -1949,6 +1955,8 @@
         "Dead": false,
         "XpMin": 1100,
         "XpMax": 1200,
+
+        "DropTypes": [ "magical", "woody" ],
 
         "ConstKey": 94,
         "SpecId": 0
@@ -1976,7 +1984,7 @@
     },
     {
         "Name": "Bladewraith",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 18,
         "MinDmg": 35,
@@ -1996,7 +2004,7 @@
     },
     {
         "Name": "Quiet Eyes",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 20,
         "MinDmg": 10,
@@ -2016,7 +2024,7 @@
     },
     {
         "Name": "Iron-Scaled Corpse Monster",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 19,
         "MinDmg": 30,
@@ -2036,7 +2044,7 @@
     },
     {
         "Name": "Chaoslich",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 17,
         "MinDmg": 25,
@@ -2096,7 +2104,7 @@
     },
     {
         "Name": "Flamecreep",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 23,
         "MinDmg": 55,
@@ -2116,7 +2124,7 @@
     },
     {
         "Name": "Chaoscat",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 23,
         "MinDmg": 50,
@@ -2136,7 +2144,7 @@
     },
     {
         "Name": "Icy Troglodyte",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 24,
         "MinDmg": 60,
@@ -2156,7 +2164,7 @@
     },
     {
         "Name": "Tattooed Jester Bear",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 25,
         "MinDmg": 75,
@@ -2176,7 +2184,7 @@
     },
     {
         "Name": "Electric Razor Drake",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 26,
         "MinDmg": 90,
@@ -2196,7 +2204,7 @@
     },
     {
         "Name": "Blazetree",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 27,
         "MinDmg": 90,
@@ -2216,7 +2224,7 @@
     },
     {
         "Name": "Plaguesoul",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 25,
         "MinDmg": 80,
@@ -2237,7 +2245,7 @@
     },
     {
         "Name": "Gasgirl",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 24,
         "MinDmg": 65,
@@ -2257,7 +2265,7 @@
     },
     {
         "Name": "Blazeseeker",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 26,
         "MinDmg": 50,
@@ -2277,7 +2285,7 @@
     },
     {
         "Name": "Phasechild",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 28,
         "MinDmg": 100,
@@ -2297,7 +2305,7 @@
     },
     {
         "Name": "Grumpy Guardian",
-        "Description": "...",
+        "Description": "Not enough is yet known about this creature!",
 
         "Level": 34,
         "MinDmg": 100,
