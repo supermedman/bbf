@@ -3,6 +3,15 @@ const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentTyp
 const EventEmitter = require('events');
 //const wait = require('node:timers/promises').setTimeout;
 
+const {
+    warnedForm,
+    errorForm,
+    successResult,
+    failureResult,
+    basicInfoForm,
+    specialInfoForm
+} = require('../../chalkPresets.js');
+
 const { ActiveDungeonEnemy, ActiveDungeon, UserData, LootStore, ActiveDungeonBoss, Pigmy, Loadout, ActiveStatus, OwnedPotions } = require('../../dbObjects.js');
 //const { dungeonCombat } = require('./dungeonCombat.js');
 const { isLvlUp } = require('./levelup.js');
@@ -67,7 +76,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
             const killEmitter = new EventEmitter();
 
-            dungeonCombat(constKey, interaction, killEmitter, userID, theE);
+            dungeonCombat(constKey, interaction, killEmitter, userID, theE, dungeonId);
 
             killEmitter.once('EKill', async (interaction, userID, theE) => {
                 console.log('Enemy killed');
@@ -86,7 +95,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
             killEmitter.once('EKilled', async (interaction, userID, theE) => {
                 console.log('Player killed');
-                await clearProgress('Enemy', interaction, userID);
+                await clearProgress('Enemy', interaction, userID, dungeonId);
                 combatEmitter.emit('Failed', interaction, userID, theE);
             });
         });
@@ -111,7 +120,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
             console.log('BOSS LOADED');
             const bossKillEmitter = new EventEmitter();
 
-            loadBossStage(madeBoss, bossRef[theB], interaction, bossKillEmitter, userID, theB);
+            loadBossStage(madeBoss, bossRef[theB], interaction, bossKillEmitter, userID, theB, dungeonId);
 
             bossKillEmitter.once('BKill', async (interaction, userID, theB) => {
                 console.log('Boss stage Complete!');
@@ -129,7 +138,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
             bossKillEmitter.once('BKilled', async (interaction, userID, theB) => {
                 console.log('Player killed');
-                await clearProgress('Boss', interaction, userID);
+                await clearProgress('Boss', interaction, userID, dungeonId);
                 combatEmitter.emit('Failed', interaction, userID, 0, theB);
             });
         });
@@ -163,7 +172,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
         if (((cf + 1) % 5) === 0) {
             //Int of 5, save floor reached!
             console.log('SAVE POINT REACHED!');
-            await saveFloor((cf + 1), interaction, userID);
+            await saveFloor((cf + 1), interaction, userID, dungeonId);
             await giveFloorProgress(interaction, userID);
 
             var addingCF = cf + 1;
@@ -184,7 +193,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
             cf++;
             combatEmitter.emit('LoadFloor', interaction, userID, theE);
         }
-        if (cf === bossFloor) {
+        if ((cf + 1) === bossFloor) {
             //Boss floor reached handle differently
             await loadBossFloor(theDungeon.Boss, interaction, userID, theB);
         } 
@@ -207,7 +216,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
 
         const grief = new ActionRowBuilder().addComponents(reviveButton);
 
-        const activeDung = await ActiveDungeon.findOne({ where: { dungeonspecid: userID } });
+        const activeDung = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
 
         var list = `Fighting fearlessly till the end, you nonetheless succumbed to the darkness..`;
 
@@ -251,7 +260,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
         console.log('Boss has been killed!');
         theB = 0;
         destroyerE.emit('endALL');
-        await dungeonISCOMPLETE(true, interaction, userID);
+        await dungeonISCOMPLETE(true, interaction, userID, dungeonId);
         await giveBossDrops(theDungeon.Boss, interaction, userID);
     });
 
@@ -287,7 +296,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
     // embed('Continue?') 'Yes'||'No'
     await destroyBoss(userID);
     await destroyEnemy(userID);
-    await setFullHealth(userID);
+    await setFullHealth(userID, dungeonId);
 
 
     var activeFloor;
@@ -496,13 +505,13 @@ function tempFloorSave(killedEnemies) {
 }
 
 //This method saves floor progress at intervals of 5
-async function saveFloor(floor, interaction, userID) {
+async function saveFloor(floor, interaction, userID, dungeonID) {
     const user = await UserData.findOne({ where: { userid: userID } });
     const totalHealth = 100 + (user.strength * 10);
 
-    const currentFloorEdit = ActiveDungeon.update({ currentfloor: floor }, { where: { dungeonspecid: userID } });
-    const lastSaveEdit = ActiveDungeon.update({ lastsave: floor }, { where: { dungeonspecid: userID } });
-    const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: { dungeonspecid: userID } });
+    const currentFloorEdit = ActiveDungeon.update({ currentfloor: floor }, { where: [{ dungeonspecid: userID }, {dungeonid: dungeonID}] });
+    const lastSaveEdit = ActiveDungeon.update({ lastsave: floor }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonID }] });
+    const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonID }] });
 
     if (currentFloorEdit > 0 && lastSaveEdit > 0 && currentHealthEdit > 0) {
         //Success on all saves!
@@ -511,10 +520,10 @@ async function saveFloor(floor, interaction, userID) {
 }
 
 //This method resets player health to full upon calling the dungeon, this prevents incorrect health values persisting upon boss kill
-async function setFullHealth(userID) {
+async function setFullHealth(userID, dungeonID) {
     const user = await UserData.findOne({ where: { userid: userID } });
     const totalHealth = 100 + (user.strength * 10);
-    const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: { dungeonspecid: userID } });
+    const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonID }] });
     if (currentHealthEdit > 0) {
         //Health reset
         return;
@@ -781,8 +790,8 @@ async function giveBossDrops(bossName, interaction, userID) {
     await isLvlUp(xpGained, cGained, interaction);
 }
 
-async function dungeonISCOMPLETE(status, interaction, userID) {
-    const completeStatus = await ActiveDungeon.update({ completed: status }, { where: { dungeonspecid: userID } });
+async function dungeonISCOMPLETE(status, interaction, userID, dungeonId) {
+    const completeStatus = await ActiveDungeon.update({ completed: status }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
     if (completeStatus > 0) {
         return console.log('DUNGEON IS COMPLETE!');
     }
@@ -803,16 +812,16 @@ async function destroyBoss(userID) {
 }
 
 //This method clears dungeon progress upon player death
-async function clearProgress(battle, interaction, userID) {
-    const activeDungeon = await ActiveDungeon.findOne({ where: { dungeonspecid: userID } });
-    const lastSaveReset = await ActiveDungeon.update({ currentfloor: activeDungeon.lastsave }, { where: { dungeonspecid: userID } });
+async function clearProgress(battle, interaction, userID, dungeonId) {
+    const activeDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+    const lastSaveReset = await ActiveDungeon.update({ currentfloor: activeDungeon.lastsave }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
     if (lastSaveReset > 0) {
         fullKilledList = [];
 
         const user = await UserData.findOne({ where: { userid: userID } });
         const totalHealth = 100 + (user.strength * 10);
 
-        const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: { dungeonspecid: userID } });
+        const currentHealthEdit = ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         if (currentHealthEdit > 0) {
             if (battle === 'Enemy') {
                 return await destroyEnemy(userID);
@@ -826,7 +835,7 @@ async function clearProgress(battle, interaction, userID) {
 //=========================================================================
 //TEMP FIX FOR COMBAT FOR NOW!!!
 
-async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDRef, theE) {
+async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDRef, theE, dungeonId) {
     var constKey = enemyConstKey;
     console.log(`constKey: ${constKey}`);
     var specCode = userIDRef;
@@ -997,7 +1006,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
                 //Potion One Used!
                 await collInteract.deferUpdate();
                 const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
-                const hasPotOne = await findPotionOne(currentLoadout.potionone, uData.userid);
+                const hasPotOne = await findPotionOne(currentLoadout.potionone, user.userid);
                 await usePotOne(hasPotOne, user);
                 await collector.stop();
                 await display();
@@ -1345,7 +1354,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
     //========================================
     // This method calculates damage dealt to user 
     async function takeDamage(theEnemyDamage, user, enemy, isBlocked) {
-        const dungeonUser = await ActiveDungeon.findOne({ where: { dungeonspecid: interaction.user.id } });   
+        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Tons' }] });
         var currentHealth = dungeonUser.currenthealth;
         if (extraStats) {
@@ -1481,7 +1490,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
     //========================================
     //this method updates the enemies health after being attacked and returns
     async function hitP(currentHealth) {
-        const dealDmg = ActiveDungeon.update({ currenthealth: currentHealth }, { where: { dungeonspecid: interaction.user.id } });
+        const dealDmg = ActiveDungeon.update({ currenthealth: currentHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         if (dealDmg) {
             console.log('Player Health has been updated');
             return;
@@ -1526,7 +1535,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
                 console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
                 appliedCurrEffect = 0;
                 const totalHealth = 100 + (user.strength * 10);
-                const dungUser = await ActiveDungeon.findOne({ where: { dungeonspecid: interaction.user.id } });
+                const dungUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: user.userid }, { dungeonid: dungeonId }] });
                 if (dungUser.currenthealth === totalHealth) {
                     return await interaction.followUp('You are already at maximum health!!');
                 } else {
@@ -1539,7 +1548,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
                     }
                     console.log(specialInfoForm('newHealth after checks: ', newHealth));
 
-                    const editRow = ActiveDungeon.update({ currenthealth: newHealth }, { where: { dungeonspecid: interaction.user.id } });
+                    const editRow = ActiveDungeon.update({ currenthealth: newHealth }, { where: [{ dungeonspecid: user.userid }, { dungeonid: dungeonId }] });
                     if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
 
                     await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
@@ -1673,7 +1682,7 @@ async function dungeonCombat(enemyConstKey, interactionRef, killEmitter, userIDR
 
 //=========================================================
 //This method handles BOSS COMBAT
-async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userID, theB) {
+async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userID, theB, dungeonId) {
     console.log(`ATTEMPTING TO LOAD BOSS HERE!`);
     constKey = enemy.constkey;
     specCode = enemy.specid;
@@ -2255,7 +2264,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
     //========================================
     // This method calculates damage dealt to user 
     async function takeDamage(theEnemyDamage, user, enemy, isBlocked) {
-        const dungeonUser = await ActiveDungeon.findOne({ where: { dungeonspecid: interaction.user.id } });      
+        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'Tons' }] });
         var currentHealth = dungeonUser.currenthealth;
         if (extraStats) {
@@ -2388,7 +2397,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
     //========================================
     //this method updates the enemies health after being attacked and returns
     async function hitP(currentHealth) {
-        const dealDmg = ActiveDungeon.update({ currenthealth: currentHealth }, { where: { dungeonspecid: interaction.user.id } });
+        const dealDmg = ActiveDungeon.update({ currenthealth: currentHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         if (dealDmg) {
             console.log('Player Health has been updated');
             return;
@@ -2433,7 +2442,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
                 console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
                 appliedCurrEffect = 0;
                 const totalHealth = 100 + (user.strength * 10);
-                const dungUser = await ActiveDungeon.findOne({ where: { dungeonspecid: interaction.user.id } });
+                const dungUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
                 if (dungUser.currenthealth === totalHealth) {
                     return await interaction.followUp('You are already at maximum health!!');
                 } else {
@@ -2446,7 +2455,7 @@ async function loadBossStage(enemy, bossRef, interaction, bossKillEmitter, userI
                     }
                     console.log(specialInfoForm('newHealth after checks: ', newHealth));
 
-                    const editRow = ActiveDungeon.update({ currenthealth: newHealth }, { where: { dungeonspecid: interaction.user.id } });
+                    const editRow = ActiveDungeon.update({ currenthealth: newHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
                     if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
 
                     await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
