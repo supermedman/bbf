@@ -60,6 +60,22 @@ module.exports = {
 		}
 
 		if (dungeonMatch.length === 0) {
+			const userMilesCheck = await Milestones.findOne({ where: { userid: interaction.user.id } });
+
+			if (userMilesCheck.currentquestline === 'Souls') {
+				if (userMilesCheck.laststoryquest < 10) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[0]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Dark') {
+				if (userMilesCheck.laststoryquest < 15) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[1]);
+			}
+
 			const noMatchEmbed = new EmbedBuilder()
 				.setTitle('Dungeon Not Found!')
 				.setDescription(dungeonName)
