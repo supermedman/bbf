@@ -239,35 +239,113 @@ module.exports = {
 				fbcTotalMats = firstBackCheck.reduce((totalAmount, mat) => totalAmount + mat.amount, 0);
             }
 			let rarRun = 0;
-			if ((fbcTotalMats < (5 * inputAmount)) || (!firstBackCheck)) {
+			if (firstBackCheck.length <= 0) {
 				//Try to combine lower as normal
-				if (!firstBackCheck) {
-					do {
-						curRarRunList = filterLower.filter(mat => mat.rar_id === rarRun);
+				do {
+					curRarRunList = filterLower.filter(mat => mat.rar_id === rarRun);
+					
+					if (curRarRunList.length <= 0) {
+						//No materials of this rarity found, ignore for now and continue to next rarity
+						addedRarMats = 0;
+						rarRun++;
+					} else {
 						console.log(specialInfoForm(`Current material being checked: ${curRarRunList[0].name}`));
 
-						if (curRarRunList.length <= 0) {
-							//No materials of this rarity found, ignore for now and continue to next rarity
-							addedRarMats = 0;
+						matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === rarRun);
+						tempMatCopy.push(matListStaticSlice[0]);
+
+						const totRarMat = await curRarRunList.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
+						if (totRarMat < ((5 ** (chosenRarID - rarRun)) * inputAmount)) {
+							//Not enough to combine, ignore for now and continue to next rarity
 							rarRun++;
 						} else {
-							matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === rarRun);
-							tempMatCopy.push(matListStaticSlice[0]);
+							const totNewRarMat = Math.floor((((5 ** (chosenRarID - rarRun)) * inputAmount) / 5)); //New Rarity materials created
+							if (totNewRarMat > 0) {
+								addedRarMats = totNewRarMat; //This will assign the final outcome value passed further!
+							} else addedRarMats = 0;
 
-							const totRarMat = await curRarRunList.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
-							if (totRarMat < ((5 ** (chosenRarID - rarRun)) * inputAmount)) {
-								//Not enough to combine, ignore for now and continue to next rarity
-								rarRun++;
+							const totRemainRarMat = (totRarMat - ((5 ** (chosenRarID - rarRun)) * inputAmount)); //Remaing old rarity materials
+							if (totRemainRarMat > 0) {
+								//Prepare remaining entry
+								const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: totRemainRarMat }),);
+
+								tempMatCopy = [];
+
+								console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
+								console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
+
+								remainingMatsList.push(...mappedMat);
 							} else {
-								const totNewRarMat = Math.floor((((5 ** (chosenRarID - rarRun)) * inputAmount) / 5)); //New Rarity materials created
-								if (totNewRarMat > 0) {
-									addedRarMats = totNewRarMat; //This will assign the final outcome value passed further!
-								} else addedRarMats = 0;
+								//Prepare destroy entry
+								const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
 
-								const totRemainRarMat = (totRarMat - ((5 ** (chosenRarID - rarRun)) * inputAmount)); //Remaing old rarity materials
-								if (totRemainRarMat > 0) {
+								tempMatCopy = [];
+
+								console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
+								console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
+
+								destroyMatsList.push(...mappedMat);
+							}
+							rarRun++;
+						}
+					}
+				} while (rarRun < chosenRarID)
+			} else if (fbcTotalMats < (5 * inputAmount)) {
+				const fbcMatDiffStatic = (fbcTotalMats - (5 * inputAmount)); //THIS WILL BE A NEGATIVE VALUE!!
+				let fbcMatDiffValue = fbcMatDiffStatic;
+				addedRarMats = 0;
+				rarRun = chosenRarID - 2; //This one less than last rar checked allowing access to this logic
+				do {
+					curRarRunList = filterLower.filter(mat => mat.rar_id === rarRun);
+					
+					if (curRarRunList.length <= 0) {
+						//No materials of this rarity found, ignore for now and continue to next rarity
+						//addedRarMats = 0;
+						fbcMatDiffValue *= 5;
+						rarRun--;
+					} else {
+						tempMatCopy = [];
+						console.log(specialInfoForm(`Current material being checked: ${curRarRunList[0].name}`));
+						matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === rarRun);
+						tempMatCopy.push(matListStaticSlice[0]);
+
+						console.log(specialInfoForm(`Current material being checked: ${matListStaticSlice[0].Name}`));
+
+						const totRarMat = await curRarRunList.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
+
+						if (totRarMat < (5 * inputAmount)) {
+							//Not enough to combine, ignore for now and continue to next rarity
+							console.log(specialInfoForm('NOT ENOUGH TO COMBINE, CHECKING NEXT RARITY'));
+							fbcMatDiffValue *= 5;
+							rarRun--;
+						} else {
+							// if final rarity is epic, chosenRarID = 4
+							// at this point very rare has been checked and failed
+
+							// if rarity being checked is rare, rarRun = 2
+							// if rarity being checked is uncommon, rarRun = 1
+							// if rarity being checked is common, rarRun = 0
+
+							const totNewRarMat = Math.floor((((5 ** (chosenRarID - rarRun)) * inputAmount) / 5));
+
+							const checkDiffOne = fbcMatDiffValue + totNewRarMat;
+							if (Math.sign(checkDiffOne) === 1) {
+								console.log(specialInfoForm('DIFFERENCE HAS BEEN MADE UP'));
+								//Difference has been made up, stop search and start upwards proccess
+
+								//This value is the remaining after subtracting the needed materials
+								const totRemainingRarMats = (totRarMat - ((-1 * fbcMatDiffValue)));
+								console.log(specialInfoForm(`totRemainingRarMats: ${totRemainingRarMats}`));
+								//This gives the number of base materials needed to set fbcMatDiffValue to 0
+								const totNeededForCombine = totRarMat - totRemainingRarMats;
+								console.log(specialInfoForm(`totNeededForCombine: ${totNeededForCombine}`));
+
+								addedRarMats = totNeededForCombine;
+
+								//This checks which list to put the material into for later handling
+								if (totRemainingRarMats > 0) {
 									//Prepare remaining entry
-									const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: totRemainRarMat }),);
+									const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: totRemainingRarMats }),);
 
 									tempMatCopy = [];
 
@@ -286,145 +364,99 @@ module.exports = {
 
 									destroyMatsList.push(...mappedMat);
 								}
-								rarRun++;
-							}
-						}
-					} while (rarRun < chosenRarID)
-				} else if (fbcTotalMats < (5 * inputAmount)) {
-					const fbcMatDiffStatic = (fbcTotalMats - (5 * inputAmount)); //THIS WILL BE A NEGATIVE VALUE!!
-					let fbcMatDiffValue = fbcMatDiffStatic;
-					addedRarMats = 0;
-					rarRun = chosenRarID - 2; //This one less than last rar checked allowing access to this logic
-					do {
-						curRarRunList = filterLower.filter(mat => mat.rar_id === rarRun);
-						console.log(specialInfoForm(`Current material being checked: ${curRarRunList[0].name}`));
 
-						if (curRarRunList.length <= 0) {
-							//No materials of this rarity found, ignore for now and continue to next rarity
-							//addedRarMats = 0;
-							fbcMatDiffValue *= 5;
-							rarRun--;
-						} else {
-							tempMatCopy = [];
-							matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === rarRun);
-							tempMatCopy.push(matListStaticSlice[0]);
+								if (rarRun === (chosenRarID - 2)) {
+									console.log(specialInfoForm('RARRUN IS @ STARTING POSITION HANDLE EXITING'));
+									//Currently at second top most level || Rarity first evaluated
+									//Recheck firstBackCheck with further backchecked values then try to combineCheck
+									matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === (chosenRarID - 1));
+									tempMatCopy.push(matListStaticSlice[0]);
 
-							console.log(specialInfoForm(`Current material being checked: ${matListStaticSlice[0].Name}`));
+									fbcTotalMats = firstBackCheck.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
 
-							const totRarMat = await curRarRunList.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
+									//Success!!
+									const fbcRemainingMats = fbcTotalMats - (5 * inputAmount);
+									if (fbcRemainingMats > 0) {
+										//Prepare remaining entry
+										const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: fbcRemainingMats }),);
 
-							if (totRarMat < (5 * inputAmount)) {
-								//Not enough to combine, ignore for now and continue to next rarity
-								console.log(specialInfoForm('NOT ENOUGH TO COMBINE, CHECKING NEXT RARITY'));
+										tempMatCopy = [];
+
+										console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
+										console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
+
+										remainingMatsList.push(...mappedMat);
+									} else {
+										//Prepare destroy entry
+										const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
+
+										tempMatCopy = [];
+
+										console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
+										console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
+
+										destroyMatsList.push(...mappedMat);
+									}
+
+									addedRarMats = inputAmount;
+									fbcMatDiffValue = 0;
+									break;
+								} else {
+									fbcMatDiffValue /= 5;
+									rarRun++;
+								}
+							} else if (Math.sign(checkDiffOne) === -1) {
+								//Difference has not yet been made up, continue search
+								console.log(specialInfoForm('DIFFERENCE REMAINING CHECKING NEXT RAR DOWN'));
+								fbcMatDiffValue += totNewRarMat;
 								fbcMatDiffValue *= 5;
 								rarRun--;
-							} else {
-								// if final rarity is epic, chosenRarID = 4
-								// at this point very rare has been checked and failed
+							} else if (Math.sign(checkDiffOne) === 0) {
+								console.log(specialInfoForm('DIFFERENCE IS EXACTLY 0'));
+								//This means an exact match was made and the outcome is 0
+								//This value is the remaining after subtracting the needed materials
+								const totRemainingRarMats = (totRarMat - ((-1 * fbcMatDiffValue) * 5));
+								//This gives the number of base materials needed to set fbcMatDiffValue to 0
+								const totNeededForCombine = totRarMat - totRemainingRarMats;
 
-								// if rarity being checked is rare, rarRun = 2
-								// if rarity being checked is uncommon, rarRun = 1
-								// if rarity being checked is common, rarRun = 0
+								addedRarMats = totNeededForCombine;
 
-								const totNewRarMat = Math.floor((((5 ** (chosenRarID - rarRun)) * inputAmount) / 5));
+								//This checks which list to put the material into for later handling
+								if (totRemainingRarMats > 0) {
+									//Prepare remaining entry
+									const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: totRemainingRarMats }),);
 
-								const checkDiffOne = fbcMatDiffValue + totNewRarMat;
-								if (Math.sign(checkDiffOne) === 1) {
-									console.log(specialInfoForm('DIFFERENCE HAS BEEN MADE UP'));
-									//Difference has been made up, stop search and start upwards proccess
+									tempMatCopy = [];
 
-									//This value is the remaining after subtracting the needed materials
-									const totRemainingRarMats = (totRarMat - ((-1 * fbcMatDiffValue)));
-									console.log(specialInfoForm(`totRemainingRarMats: ${totRemainingRarMats}`));
-									//This gives the number of base materials needed to set fbcMatDiffValue to 0
-									const totNeededForCombine = totRarMat - totRemainingRarMats;
-									console.log(specialInfoForm(`totNeededForCombine: ${totNeededForCombine}`));
+									console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
+									console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
-									addedRarMats = totNeededForCombine;
+									remainingMatsList.push(...mappedMat);
+								} else {
+									//Prepare destroy entry
+									const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
 
-									//This checks which list to put the material into for later handling
-									if (totRemainingRarMats > 0) {
+									tempMatCopy = [];
+
+									console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
+									console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
+
+									destroyMatsList.push(...mappedMat);
+								}
+
+								if (rarRun === (chosenRarID - 2)) {
+									//Currently at second top most level || Rarity first evaluated
+									//Recheck firstBackCheck with further backchecked values then try to combineCheck
+									matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === (chosenRarID - 1));
+									tempMatCopy.push(matListStaticSlice[0]);
+
+									fbcTotalMats = firstBackCheck.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
+
+									//Success!!
+									const fbcRemainingMats = fbcTotalMats - (5 * inputAmount);
+									if (fbcRemainingMats > 0) {
 										//Prepare remaining entry
-										const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: totRemainingRarMats }),);
-
-										tempMatCopy = [];
-
-										console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
-										console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
-
-										remainingMatsList.push(...mappedMat);
-									} else {
-										//Prepare destroy entry
-										const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
-
-										tempMatCopy = [];
-
-										console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
-										console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
-
-										destroyMatsList.push(...mappedMat);
-									}
-									
-									if (rarRun === (chosenRarID - 2)) {
-										console.log(specialInfoForm('RARRUN IS @ STARTING POSITION HANDLE EXITING'));
-										//Currently at second top most level || Rarity first evaluated
-										//Recheck firstBackCheck with further backchecked values then try to combineCheck
-										matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === (chosenRarID - 1));
-										tempMatCopy.push(matListStaticSlice[0]);
-
-										fbcTotalMats = firstBackCheck.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
-
-										//Success!!
-										const fbcRemainingMats = fbcTotalMats - (5 * inputAmount);
-										if (fbcRemainingMats > 0) {
-											//Prepare remaining entry
-											const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: fbcRemainingMats }),);
-
-											tempMatCopy = [];
-
-											console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
-											console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
-
-											remainingMatsList.push(...mappedMat);
-										} else {
-											//Prepare destroy entry
-											const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
-
-											tempMatCopy = [];
-
-											console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
-											console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
-
-											destroyMatsList.push(...mappedMat);
-										}
-
-										addedRarMats = inputAmount;
-										fbcMatDiffValue = 0;
-										break;
-									} else {
-										fbcMatDiffValue /= 5;
-										rarRun++;
-                                    }
-								} else if (Math.sign(checkDiffOne) === -1) {
-									//Difference has not yet been made up, continue search
-									console.log(specialInfoForm('DIFFERENCE REMAINING CHECKING NEXT RAR DOWN'));
-									fbcMatDiffValue += totNewRarMat;
-									fbcMatDiffValue *= 5;
-									rarRun--;
-								} else if (Math.sign(checkDiffOne) === 0) {
-									console.log(specialInfoForm('DIFFERENCE IS EXACTLY 0'));
-									//This means an exact match was made and the outcome is 0
-									//This value is the remaining after subtracting the needed materials
-									const totRemainingRarMats = (totRarMat - ((-1 * fbcMatDiffValue) * 5));
-									//This gives the number of base materials needed to set fbcMatDiffValue to 0
-									const totNeededForCombine = totRarMat - totRemainingRarMats;
-
-									addedRarMats = totNeededForCombine;
-
-									//This checks which list to put the material into for later handling
-									if (totRemainingRarMats > 0) {
-										//Prepare remaining entry
-										const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: totRemainingRarMats }),);
+										const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: fbcRemainingMats }),);
 
 										tempMatCopy = [];
 
@@ -444,51 +476,18 @@ module.exports = {
 										destroyMatsList.push(...mappedMat);
 									}
 
-									if (rarRun === (chosenRarID - 2)) {
-										//Currently at second top most level || Rarity first evaluated
-										//Recheck firstBackCheck with further backchecked values then try to combineCheck
-										matListStaticSlice = foundMaterialList.filter(mat => mat.Rar_id === (chosenRarID - 1));
-										tempMatCopy.push(matListStaticSlice[0]);
-
-										fbcTotalMats = firstBackCheck.reduce((totalAmount, mat) => totalAmount + mat.amount, addedRarMats);
-
-										//Success!!
-										const fbcRemainingMats = fbcTotalMats - (5 * inputAmount);
-										if (fbcRemainingMats > 0) {
-											//Prepare remaining entry
-											const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: fbcRemainingMats }),);
-
-											tempMatCopy = [];
-
-											console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
-											console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
-
-											remainingMatsList.push(...mappedMat);
-										} else {
-											//Prepare destroy entry
-											const mappedMat = await tempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
-
-											tempMatCopy = [];
-
-											console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
-											console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
-
-											destroyMatsList.push(...mappedMat);
-										}
-
-										addedRarMats = inputAmount;
-										fbcMatDiffValue = 0;
-									} else {
-										fbcMatDiffValue /= 5;
-										rarRun++;
-									}
-                                }
-                            }
+									addedRarMats = inputAmount;
+									fbcMatDiffValue = 0;
+								} else {
+									fbcMatDiffValue /= 5;
+									rarRun++;
+								}
+							}
 						}
-					} while ((fbcMatDiffValue !== 0) || (rarRun > -1))
+					}
+				} while ((fbcMatDiffValue !== 0) || (rarRun > -1))
 
-					if (rarRun === -1) console.log(warnedForm('Combine check unsucsessful, providing options for continuing anyway..'));
-                }
+				if (rarRun === -1) console.log(warnedForm('Combine check unsucsessful, providing options for continuing anyway..'));
 			} else {
 				//Leave all lower values alone and finish using only these values
 				//fbcTotalMats
