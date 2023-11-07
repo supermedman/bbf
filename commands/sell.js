@@ -439,8 +439,9 @@ module.exports = {
 
                 } else {
                     var equippedList = [];
+                    const userID = interaction.user.id;
                     //Loadout was found, compare values here
-                    const headSlotItem = await findHelmSlot(currentLoadout.headslot);
+                    const headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
                     if (headSlotItem === 'NONE') {
                         //NO ITEM FOUND
                     } else if (headSlotItem.Rar_id !== chosenRarID){
@@ -454,11 +455,11 @@ module.exports = {
                             console.log(`No headslot match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(headSlotMatch);
+                            equippedList.push(headSlotMatch[0].Loot_id);
                         }
                     }
 
-                    const chestSlotItem = await findChestSlot(currentLoadout.chestslot);
+                    const chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
                     if (chestSlotItem === 'NONE') {
                         //NO ITEM FOUND
                     } else if (chestSlotItem.Rar_id !== chosenRarID) {
@@ -472,11 +473,11 @@ module.exports = {
                             console.log(`No chestslot match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(chestSlotMatch);
+                            equippedList.push(chestSlotMatch[0].Loot_id);
                         }
                     }
 
-                    const legSlotItem = await findLegSlot(currentLoadout.legslot);
+                    const legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
                     if (legSlotItem === 'NONE') {
                         //NO ITEM FOUND
                     } else if (legSlotItem.Rar_id !== chosenRarID) {
@@ -490,11 +491,11 @@ module.exports = {
                             console.log(`No legslot match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(legSlotMatch);
+                            equippedList.push(legSlotMatch[0].Loot_id);
                         }
                     }
 
-                    const mainHandItem = await findMainHand(currentLoadout.mainhand);
+                    const mainHandItem = await findMainHand(currentLoadout.mainhand, userID);
                     if (mainHandItem === 'NONE') {
                         //NO ITEM FOUND
                     } else if (mainHandItem.Rar_id !== chosenRarID) {
@@ -508,7 +509,7 @@ module.exports = {
                             console.log(`No mainHand match`);
                         } else {
                             //Item found push to equippedList
-                            equippedList.push(mainHandMatch);
+                            equippedList.push(mainHandMatch[0].Loot_id);
                         }
                     }
 
@@ -571,16 +572,20 @@ module.exports = {
                                 components: [interactiveButtons],
                             });
 
-                            if (equippedList.length === 0) {
-                                const sellComplete = await handleSellAllClean(fullItemMatchList);
+
+                            //const sellComplete = await fullItemMatchListClean.forEach(handleSellAll(equippedList));
+
+
+                            if (equippedList.length !== 0) {
+                                const sellComplete = await handleSellAll(fullItemMatchList, equippedList);
                                 if (sellComplete === 'FAILED') {
                                     //Something went wrong :/
                                 } else if (sellComplete === 'SUCCESS') {
                                     //All items sold successfully!!
                                     await collector.stop();
                                 }
-                            } else {
-                                const sellComplete = await handleSellAll(fullItemMatchList, equippedList);
+                            } else if (equippedList.length === 0) {                              
+                                const sellComplete = await handleSellAllClean(fullItemMatchList);
                                 if (sellComplete === 'FAILED') {
                                     //Something went wrong :/
                                 } else if (sellComplete === 'SUCCESS') {
@@ -659,7 +664,7 @@ module.exports = {
                             await leaveOne(fullItemMatchList[n], uData);
                             console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
                             n++;
-                        } else {
+                        } else if (fullItemMatchList[n].loot_id !== equippedList[e].Loot_id) {
                             //Item does not match sell all
                             await sellAll(fullItemMatchList[n], uData);
                             console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
