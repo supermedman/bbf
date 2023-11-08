@@ -40,10 +40,18 @@ module.exports = {
 
 		if (interaction.options.getSubcommand() === 'view') {
 			//View ALL owned blueprints
-			
+
+			const allOwnedMats = await MaterialStore.findAll({ where: { spec_id: interaction.user.id } });
+			if (!allOwnedMats) console.log(warnedForm('NO MATERIALS FOUND!'));
+
 			const userBlueprints = await OwnedBlueprints.findAll({ where: { spec_id: interaction.user.id } });
 
 			var embedPages = [];
+			var availableCrafts = [];
+
+			let cancelCraftButton = new ButtonBuilder();
+			let cancelCraftObject;
+			var cancelCraftButtonPages = [];
 
 			const equipList = await userBlueprints.filter(bluey => bluey.passivecategory === 'Equip');
 			console.log(specialInfoForm('equipList: ', equipList));
@@ -79,7 +87,10 @@ module.exports = {
 
 						let matStrType = '';
 						let matStrAmount = '';
+						let curCheckMat;
 						let fieldValueObj;
+						let totCheckSuccess = 0;
+						let filteredResult = false;
 						for (var matPos = 0; matPos < grabbedMTA; matPos++) {
 							console.log(basicInfoForm('matPos on current itteration: ', matPos));
 
@@ -88,20 +99,68 @@ module.exports = {
 							matStrType = `Material${addingOne}`;
 							matStrAmount = `Material${addingOne}_Amount`;
 
-							//Embed: fields: {name: this}
-							listedMatsName = bpSlice.map(mats =>
-								`${matStrType}: ${mats[`${matStrType}`]}`);
-							console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+							var compValTemp = ``;
 
-							//Embed: fields: {value: this}
-							listedMatsValue = bpSlice.map(mats =>
-								`Amount: ${mats[`${matStrAmount}`]}`);
-							console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+							compValTemp = bpSlice.map(bluey =>
+								`${bluey[`${matStrType}`]}`);
 
-							fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), inline: true, };
-							console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+							var compNumTemp = ``;
 
-							finalFields.push(fieldValueObj);
+							compNumTemp = bpSlice.map(bluey =>
+								`${bluey[`${matStrAmount}`]}`);
+
+							//FIND MATERIAL FROM OWNED MATERIALS
+							curCheckMat = await MaterialStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
+							if (!curCheckMat) {
+								//Material not found Blueprint is unavailable to craft
+								console.log(failureResult('Material Type not found blueprint discarded'));
+								filteredResult = false;
+								//finalFields = [];
+							} else {
+								if (compNumTemp <= curCheckMat.amount) {
+									//Player has more material than needed, check success!
+									console.log(successResult('Material Type found, Material Amount suficient!'));
+									filteredResult = true;
+									totCheckSuccess++;
+								} else {
+									console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
+									filteredResult = false;
+									//finalFields = [];
+								}
+							}
+
+							if (filteredResult === true) {
+								//Embed: fields: {name: this}
+								listedMatsName = bpSlice.map(mats =>
+									`${matStrType}: ${mats[`${matStrType}`]}`);
+								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+
+								//Embed: fields: {value: this}
+								listedMatsValue = bpSlice.map(mats =>
+									`Amount: ${mats[`${matStrAmount}`]}`);
+								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+
+								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
+								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+
+								finalFields.push(fieldValueObj);
+							} else {
+								console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
+								//Embed: fields: {name: this}
+								listedMatsName = bpSlice.map(mats =>
+									`${matStrType}: ${mats[`${matStrType}`]}`);
+								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+
+								//Embed: fields: {value: this}
+								listedMatsValue = bpSlice.map(mats =>
+									`Amount: ${mats[`${matStrAmount}`]}`);
+								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+
+								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
+								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+
+								finalFields.push(fieldValueObj);
+							}
 						}
 
 						console.log(basicInfoForm('grabbedMTA value Second: ', grabbedMTA));
@@ -120,6 +179,27 @@ module.exports = {
 							};
 
 							embedPages.push(embed);
+							
+							if (totCheckSuccess.toString() === grabbedMTA.toString()) {
+								//Enable craft button in place of cancel button
+								cancelCraftObject = {
+									label: "Craft!",
+									style: ButtonStyle.Success,
+									emoji: "⚒",
+									customid: 'craft-page',
+								};
+								cancelCraftButtonPages.push(cancelCraftObject);
+								availableCrafts.push(bpSlice[0]);
+							} else {
+								cancelCraftObject = {
+									label: "Cancel",
+									style: ButtonStyle.Secondary,
+									emoji: "*️⃣",
+									customid: 'delete-page',
+								};
+								cancelCraftButtonPages.push(cancelCraftObject);
+								availableCrafts.push({ Name: 'NONE' });
+							}
 						} else console.log(errorForm('MISSALIGNED FIELD VALUES, SOMETHING WENT WRONG!'));
 
 					} else console.log(failureResult('BLUEPRINT PREFAB ASSIGNMENT FAILURE!'));
@@ -161,6 +241,8 @@ module.exports = {
 						let matStrTypeP = '';
 						let matStrAmountP = '';
 						let fieldValueObjP;
+						let totCheckSuccessP = 0;
+						let filteredResult = false;
 						for (var matPos = 0; matPos < grabbedMTAP; matPos++) {
 							console.log(basicInfoForm('matPos on current itteration: ', matPos));
 
@@ -169,20 +251,73 @@ module.exports = {
 							matStrTypeP = `Material${addingOne}`;
 							matStrAmountP = `Material${addingOne}_Amount`;
 
-							//Embed: fields: {name: this}
-							listedMatsNameP = bpSliceP.map(mats =>
-								`${matStrTypeP}: ${mats[`${matStrTypeP}`]}`);
-							console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
+							var compValTemp = ``;
 
-							//Embed: fields: {value: this}
-							listedMatsValueP = bpSliceP.map(mats =>
-								`Amount: ${mats[`${matStrAmountP}`]}`);
-							console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
+							compValTemp = bpSliceP.map(bluey =>
+								`${bluey[`${matStrTypeP}`]}`);
 
-							fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), inline: true, };
-							console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
+							var compNumTemp = ``;
 
-							finalFieldsP.push(fieldValueObjP);
+							compNumTemp = bpSliceP.map(bluey =>
+								`${bluey[`${matStrAmountP}`]}`);
+
+							//FIND MATERIAL FROM OWNED MATERIALS
+							curCheckMat = await MaterialStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
+							if (!curCheckMat) {
+								//Material not found Blueprint is unavailable to craft
+								console.log(failureResult('Material Type not found blueprint discarded'));
+								filteredResult = false;
+								//finalFieldsP = [];
+								//matPos = grabbedMTAP;
+							} else {
+								if (compNumTemp <= curCheckMat.amount) {
+									//Player has more material than needed, check success!
+									console.log(successResult('Material Type found, Material Amount suficient!'));
+									filteredResult = true;
+									totCheckSuccessP++;
+								} else {
+									console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
+									filteredResult = false;
+									//finalFieldsP = [];
+									//matPos = grabbedMTAP;
+								}
+							}
+
+							if (filteredResult === true) {
+								//Embed: fields: {name: this}
+								listedMatsNameP = bpSliceP.map(mats =>
+									`${matStrTypeP}: ${mats[`${matStrTypeP}`]}`);
+								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
+
+								//Embed: fields: {value: this}
+								listedMatsValueP = bpSliceP.map(mats =>
+									`Amount: ${mats[`${matStrAmountP}`]}`);
+								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
+
+								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
+								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
+
+								finalFieldsP.push(fieldValueObjP);
+								
+							} else {
+								console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
+
+								//Embed: fields: {name: this}
+								listedMatsNameP = bpSliceP.map(mats =>
+									`${matStrTypeP}: ${mats[`${matStrTypeP}`]}`);
+								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
+
+								//Embed: fields: {value: this}
+								listedMatsValueP = bpSliceP.map(mats =>
+									`Amount: ${mats[`${matStrAmountP}`]}`);
+								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
+
+								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
+								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
+
+								finalFieldsP.push(fieldValueObjP);
+								
+							} 
 						}
 
 						var strLength = finalFieldsP.length.toString();
@@ -198,6 +333,28 @@ module.exports = {
 							};
 
 							embedPages.push(embed);
+							
+							if (totCheckSuccessP.toString() === grabbedMTAP.toString()) {
+								//Enable craft button in place of cancel button
+								cancelCraftObject = {
+									label: "Craft!",
+									style: ButtonStyle.Success,
+									emoji: "⚒",
+									customid: 'craft-page',
+								};
+								cancelCraftButtonPages.push(cancelCraftObject);
+								availableCrafts.push(bpSliceP[0]);
+							} else {
+								cancelCraftObject = {
+									label: "Cancel",
+									style: ButtonStyle.Secondary,
+									emoji: "*️⃣",
+									customid: 'delete-page',
+								};
+								cancelCraftButtonPages.push(cancelCraftObject);
+								availableCrafts.push({ Name: 'NONE' });
+							}
+                            
 						} else console.log(errorForm('MISSALIGNED FIELD VALUES, SOMETHING WENT WRONG!'));
 					} else console.log(failureResult('BLUEPRINT PREFAB ASSIGNMENT FAILURE!'));
 					iP++;
@@ -212,20 +369,25 @@ module.exports = {
 				.setEmoji('◀️')
 				.setCustomId('back-page');
 
-			const cancelButton = new ButtonBuilder()
-				.setLabel("Cancel")
-				.setStyle(ButtonStyle.Secondary)
-				.setEmoji('*️⃣')
-				.setCustomId('delete-page');
+			//const cancelButton = new ButtonBuilder()
+			//	.setLabel("Cancel")
+			//	.setStyle(ButtonStyle.Secondary)
+			//	.setEmoji('*️⃣')
+			//	.setCustomId('delete-page');
+
+			cancelCraftButton.setLabel(cancelCraftButtonPages[0].label);
+			cancelCraftButton.setStyle(cancelCraftButtonPages[0].style);
+			cancelCraftButton.setEmoji(cancelCraftButtonPages[0].emoji);
+			cancelCraftButton.setCustomId(cancelCraftButtonPages[0].customid);
 
 			const forwardButton = new ButtonBuilder()
 				.setLabel("Forward")
 				.setStyle(ButtonStyle.Secondary)
 				.setEmoji('▶️')
-				.setCustomId('next-page')
+				.setCustomId('next-page');
 
-			const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
-
+			const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelCraftButton, forwardButton);
+			//const cancelCraftButtons = new ActionRowBuilder().from(firstCancelCraftButton);
 
 
 			const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
@@ -245,10 +407,20 @@ module.exports = {
 					await collInteract.deferUpdate();
 					if (currentPage === embedPages.length - 1) {
 						currentPage = 0;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+						await collInteract.editReply({ components: [interactiveButtons] });
 					} else {
 						currentPage += 1;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+						await collInteract.editReply({ components: [interactiveButtons] });
 					}
 				}
 
@@ -256,10 +428,20 @@ module.exports = {
 					await collInteract.deferUpdate();
 					if (currentPage === 0) {
 						currentPage = embedPages.length - 1;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+						await collInteract.editReply({ components: [interactiveButtons] });
 					} else {
 						currentPage -= 1;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+						await collInteract.editReply({ components: [interactiveButtons] });
 					}
 				}
 
@@ -267,6 +449,13 @@ module.exports = {
 					await collInteract.deferUpdate();
 					await collector.stop();
 				}
+
+				if (collInteract.customId === 'craft-page') {
+					await collInteract.deferUpdate();
+					await collector.stop();
+					console.log(specialInfoForm('availableCrafts[currentPage].Name DATA: ', availableCrafts[currentPage].Name));
+					await craftFromBlueprint(availableCrafts[currentPage], interaction, 1);
+                }
 			});
 
 			collector.on('end', () => {
@@ -374,7 +563,7 @@ module.exports = {
 										`Amount: ${mats[`${matStrAmount}`]}`);
 									console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
-									fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), inline: true, };
+									fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
 									console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 									finalFields.push(fieldValueObj);
@@ -491,7 +680,7 @@ module.exports = {
 										`Amount: ${mats[`${matStrAmountP}`]}`);
 									console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
-									fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), inline: true, };
+									fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
 									console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
 
 									finalFieldsP.push(fieldValueObjP);
@@ -606,7 +795,7 @@ module.exports = {
 										`Amount: ${mats[`${matStrAmountP}`]}`);
 									console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
-									fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), inline: true, };
+									fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
 									console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
 
 									finalFieldsP.push(fieldValueObjP);
@@ -645,11 +834,11 @@ module.exports = {
 				.setEmoji('◀️')
 				.setCustomId('back-page');
 
-			const cancelButton = new ButtonBuilder()
-				.setLabel("Cancel")
-				.setStyle(ButtonStyle.Secondary)
-				.setEmoji('*️⃣')
-				.setCustomId('delete-page');
+			const craftButton = new ButtonBuilder()
+				.setLabel("Craft!")
+				.setStyle(ButtonStyle.Primary)
+				.setEmoji('⚒')
+				.setCustomId('craft-item');
 
 			const forwardButton = new ButtonBuilder()
 				.setLabel("Forward")
@@ -657,13 +846,13 @@ module.exports = {
 				.setEmoji('▶️')
 				.setCustomId('next-page');
 
-			const craftButton = new ButtonBuilder()
-				.setLabel("Craft!")
-				.setStyle(ButtonStyle.Primary)
-				.setEmoji('⚒')
-				.setCustomId('craft-item');
+			const cancelButton = new ButtonBuilder()
+				.setLabel("Cancel")
+				.setStyle(ButtonStyle.Secondary)
+				.setEmoji('*️⃣')
+				.setCustomId('delete-page');
 
-			const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton, craftButton);
+			const interactiveButtons = new ActionRowBuilder().addComponents(backButton, craftButton, forwardButton, cancelButton);
 
 			const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 
@@ -772,7 +961,7 @@ module.exports = {
                     }
 					console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
-					fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), inline: true, };
+					fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
 					console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 					finalFields.push(fieldValueObj);
