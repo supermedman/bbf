@@ -277,7 +277,8 @@ module.exports = {
 					console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
 					console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
-					remainingMatsList.push(...mappedMat);
+					wasCheckedList.push(...mappedMat);
+					checkListPOS++;
 					addedRarMats = inputAmount;
 				} else if (totRemainRarMat === 0) {
 					//Prepare destroy entry
@@ -288,11 +289,12 @@ module.exports = {
 					console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
 					console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
-					destroyMatsList.push(...mappedMat);
+					wasCheckedList.push(...mappedMat);
+					checkListPOS++;
 					addedRarMats = inputAmount;
 				} else if (totRemainRarMat < 0) {
-					const fbcMappedVal = fbcTempMatCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
-					destroyMatsList.push(...fbcMappedVal);
+					const fbcMappedVal = fbcTempMatCopy.map(mat => ({ ...mat, NewAmount: fbcTotalMats}),);
+					//destroyMatsList.push(...fbcMappedVal);
 					wasCheckedList.push(...fbcMappedVal);
 					checkListPOS++;
 					materialDifferenceStaticValue = totRemainRarMat; //This is the amount needed to complete combine
@@ -341,7 +343,8 @@ module.exports = {
 							console.log(errorForm('NO COMMON MATERIALS, COMBINE FAILED!'));
 							matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 							const mappedMat = await matPrefabSlice.map(mat => ({ ...mat, NewAmount: 0 }),);
-							wasCheckedList.push(...mappedMat);
+							wasCheckedList.unshift(...mappedMat);
+							//checkListPOS++;
 							addedRarMats = 0; //THIS IS TEMPORARY!
 							break;
 						} else {
@@ -360,8 +363,6 @@ module.exports = {
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
 
-									wasCheckedList.push(matPrefabSlice[0]);
-
 									const mappedMat = await tmpCopy.map(mat => ({ ...mat, NewAmount: remainingMats }),);
 
 									tmpCopy = [];
@@ -369,6 +370,7 @@ module.exports = {
 									console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
 									console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
+									//wasCheckedList.push(...mappedMat);
 									remainingMatsList.push(...mappedMat);
 									addedRarMats = inputAmount;
 									break;
@@ -377,8 +379,6 @@ module.exports = {
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
 
-									wasCheckedList.push(matPrefabSlice[0]);
-
 									const mappedMat = await tmpCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
 
 									tmpCopy = [];
@@ -386,6 +386,7 @@ module.exports = {
 									console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
 									console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
+									//wasCheckedList.push(...mappedMat);
 									destroyMatsList.push(...mappedMat);
 									addedRarMats = inputAmount;
 									break;
@@ -404,6 +405,7 @@ module.exports = {
 									oneHigherTmpCopy.push(oneHigherMatPrefabSlice[0]);
 
 									if (!highestPossibleCombine.CurrentAmount) {
+										//if ()
 										console.log(specialInfoForm('ATTEMPTING TO CREATE NEW HIGHEST COMBINE ENTRY!'));
 										highestPossibleCombine = {
 											Name: oneHigherTmpCopy[0].Name,
@@ -437,18 +439,18 @@ module.exports = {
 
 									tmpCopy = [];
 
-									if (remainderIFStillCombine > 0) {
-										remainingMatsList.push(...mappedMat);
-									} else if (remainderIFStillCombine === 0) {
-										destroyMatsList.push(...mappedMat);
-                                    }
+									//if (remainderIFStillCombine > 0) {
+									//	remainingMatsList.push(...mappedMat);
+									//} else if (remainderIFStillCombine === 0) {
+									//	destroyMatsList.push(...mappedMat);
+         //                           }
 									
 									if (totalNewIFCombine > 0) {
-										const checkEditOneUp = wasCheckedList[(checkListPOS - 1)];
-										checkEditOneUp.NewAmount = totalNewIFCombine;
+										const checkEditOneUp = wasCheckedList[0];
+										checkEditOneUp.NewAmount += totalNewIFCombine;
 									}
 
-									wasCheckedList.push(...mappedMat);
+									wasCheckedList.unshift(...mappedMat);
 									checkListPOS++;
 								} else if (totalStaticMats > 0) {
 									const remainderIFStillCombine = totalStaticMats;
@@ -461,7 +463,7 @@ module.exports = {
 									tmpCopy = [];
 
 									wasCheckedList.push(...mappedMat);
-									remainingMatsList.push(...mappedMat);
+									//remainingMatsList.push(...mappedMat);
 
 									checkListPOS++;
 								} else {
@@ -469,8 +471,8 @@ module.exports = {
 									tmpCopy.push(matPrefabSlice[0]);
 									const mappedMat = tmpCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
 									tmpCopy = [];
-									wasCheckedList.push(...mappedMat);
-									destroyMatsList.push(...mappedMat);
+									wasCheckedList.unshift(...mappedMat);
+									//destroyMatsList.push(...mappedMat);
 									checkListPOS++;
 								}
 								compDiffCheck = checkingDiff;
@@ -508,7 +510,7 @@ module.exports = {
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
 
-									wasCheckedList.push(matPrefabSlice[0]);
+									//wasCheckedList.push(matPrefabSlice[0]);
 
 									const mappedMat = await tmpCopy.map(mat => ({ ...mat, NewAmount: remainingMats }),);
 
@@ -525,7 +527,7 @@ module.exports = {
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
 
-									wasCheckedList.push(matPrefabSlice[0]);
+									//wasCheckedList.push(matPrefabSlice[0]);
 
 									const mappedMat = await tmpCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
 
@@ -540,9 +542,9 @@ module.exports = {
 								}
 							} else if (checkingDiff < 0) {
 								console.log(failureResult('DIFFERENCE STILL REMAINS: ', checkingDiff));
-								if (isOwnedCheck[0].amount > 5) {
-									const totalNewIFCombine = Math.floor(isOwnedCheck[0].amount / 5);
-									const remainderIFStillCombine = isOwnedCheck[0].amount - (totalNewIFCombine * 5);
+								if (totalStaticMats > 5) {
+									const totalNewIFCombine = Math.floor(totalStaticMats / 5);
+									const remainderIFStillCombine = totalStaticMats - (totalNewIFCombine * 5);
 
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
@@ -569,8 +571,8 @@ module.exports = {
 
 										let totalHighestNewIFCombine;
 
-										if (isOwnedCheck[0].amount > staticMatCostForHIFC) {
-											totalHighestNewIFCombine = Math.floor(isOwnedCheck[0].amount / staticMatCostForHIFC);
+										if (totalStaticMats > staticMatCostForHIFC) {
+											totalHighestNewIFCombine = Math.floor(totalStaticMats / staticMatCostForHIFC);
 										} else {
 											totalHighestNewIFCombine = 0;
 										}
@@ -586,22 +588,21 @@ module.exports = {
 
 									tmpCopy = [];
 
-									if (remainderIFStillCombine > 0) {
-										remainingMatsList.push(...mappedMat);
-									} else if (remainderIFStillCombine === 0) {
-										destroyMatsList.push(...mappedMat);
-									}
+									//if (remainderIFStillCombine > 0) {
+									//	remainingMatsList.push(...mappedMat);
+									//} else if (remainderIFStillCombine === 0) {
+									//	destroyMatsList.push(...mappedMat);
+									//}
 
 									if (totalNewIFCombine > 0) {
-										const checkEditOneUp = wasCheckedList[(checkListPOS - 1)];
-										checkEditOneUp.NewAmount = totalNewIFCombine;
+										const checkEditOneUp = wasCheckedList[0];
+										checkEditOneUp.NewAmount += totalNewIFCombine;
 									}
 
-									wasCheckedList.push(...mappedMat);
+									wasCheckedList.unshift(...mappedMat);
 									checkListPOS++;
-								} else if (isOwnedCheck[0].amount > 0) {
-									const totalNewIFCombine = Math.floor(isOwnedCheck[0].amount / 5);
-									const remainderIFStillCombine = isOwnedCheck[0].amount - (totalNewIFCombine * 5);
+								} else if (totalStaticMats > 0) {
+									const remainderIFStillCombine = totalStaticMats;
 
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
@@ -610,8 +611,8 @@ module.exports = {
 
 									tmpCopy = [];
 
-									wasCheckedList.push(...mappedMat);
-									remainingMatsList.push(...mappedMat);
+									wasCheckedList.unshift(...mappedMat);
+									//remainingMatsList.push(...mappedMat);
 
 									checkListPOS++;
 								} else {
@@ -619,8 +620,8 @@ module.exports = {
 									tmpCopy.push(matPrefabSlice[0]);
 									const mappedMat = tmpCopy.map(mat => ({ ...mat, NewAmount: 0 }),);
 									tmpCopy = [];
-									wasCheckedList.push(...mappedMat);
-									destroyMatsList.push(...mappedMat);
+									wasCheckedList.unshift(...mappedMat);
+									//destroyMatsList.push(...mappedMat);
 									checkListPOS++;
                                 }
 								compDiffCheck = checkingDiff;
@@ -639,19 +640,45 @@ module.exports = {
 			if (highestPossibleCombine && highestPossibleCombine.CurrentAmount > 0) {
 				//BACK TRACK VALUES TO MAKE HIGHEST POSSIBLE COMBINE WITH VALUES PROVIDED!
 				console.log(warnedForm('INCOMPLETE COMBINE RECONSTRUCTION IN PROGRESS!'));
-				let breakPoint = 0;
+				let carryUpVal = 0;
+				let breakPoint = checkListPOS;
+				console.log(specialInfoForm(`breakPoint = checkListPOS: ${breakPoint}, Length of wasCheckedList: ${wasCheckedList.length}`));
 				for (const material of wasCheckedList) {
 					console.log(specialInfoForm(`OLD VALUES!! Name: ${material.Name} \nNewAmount: ${material.NewAmount}`));
-					const matModFive = Math.floor(material.NewAmount % 5);
+
+					const matModFive = Math.floor((material.NewAmount + carryUpVal) % 5);
+					console.log(basicInfoForm(`carryUpVal 1st @ ${breakPoint}: ${carryUpVal}`));
+
+					//carryUpVal = 0;
 					if (matModFive > 0) {
+						carryUpVal = Math.floor((material.NewAmount + carryUpVal) / 5);
 						material.NewAmount = matModFive;
+						remainingMatsList.push(material);
 					} else {
+						carryUpVal = Math.floor((material.NewAmount + carryUpVal) / 5);
 						material.NewAmount = 0;
-                    }
+						destroyMatsList.push(material);
+					}
+
+					if (carryUpVal <= 0) carryUpVal = 0;
+					console.log(basicInfoForm(`carryUpVal 2nd @ ${breakPoint}: ${carryUpVal}`));
+
 					console.log(specialInfoForm(`NEW VALUES!! Name: ${material.Name} \nNewAmount: ${material.NewAmount}`));
-					breakPoint++;
-					if (breakPoint === wasCheckedList.length) break;
+					breakPoint--;
+					if (breakPoint === 0) break;
 				}
+				if (carryUpVal > 0) {
+					const theWantedMaterial = foundMaterialList.filter(mat => mat.Rar_id === chosenRarID);
+					highestPossibleCombine = {
+						Name: theWantedMaterial[0].Name,
+						Value: theWantedMaterial[0].Value,
+						MatType: theWantedMaterial[0].MatType,
+						Mat_id: theWantedMaterial[0].Mat_id,
+						Rarity: theWantedMaterial[0].Rarity,
+						Rar_id: theWantedMaterial[0].Rar_id,
+						CurrentAmount: carryUpVal,
+					};
+                }
             }
 
 			// How to handle amount specification...
