@@ -11,7 +11,7 @@ const {
     specialInfoForm
 } = require('../chalkPresets.js');
 
-const { UserData, LootStore, MaterialStore } = require('../dbObjects.js');
+const { UserData, LootStore, MaterialStore, OwnedPotions } = require('../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,7 +24,11 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('materials')
-                .setDescription('View a list of all owned materials')),
+                .setDescription('View a list of all owned materials'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('potions')
+                .setDescription('View a list of all owned potions')),
 
     async execute(interaction) {
         await interaction.deferReply();
@@ -260,7 +264,7 @@ module.exports = {
                         if (offHandsLeft > 5) {
                             for (var n = 0; n < 5; n++) {
                                 list = (offHand.slice(curPos, (curPos + 5)).map(off =>
-                                    `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+                                    `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\nAmount Owned: ${off.amount}`)
                                     .join('\n\n'));
                             }
                             curPos += 5;
@@ -285,7 +289,7 @@ module.exports = {
                         } else if (offHandsLeft <= 5) {
                             for (var n = 0; n < offHandsLeft; n++) {
                                 list = (offHand.slice(curPos, (curPos + offHandsLeft)).map(off =>
-                                    `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**`)
+                                    `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\nAmount Owned: ${off.amount}`)
                                     .join('\n\n'));
                             }
                             maxEmbedPages++;
@@ -327,7 +331,7 @@ module.exports = {
                     for (var z = 0; z < armorSlot.length;) {
                         if (armorLeft > 5) {
                             for (var n = 0; n < 5; n++) {
-                                list = (armorSlot.slice(curPos, (curPos + 5)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                                list = (armorSlot.slice(curPos, (curPos + 5)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\nAmount Owned: ${gear.amount}`)
                                     .join('\n\n'));
                             }
                             curPos += 5;
@@ -351,7 +355,7 @@ module.exports = {
                             armorLeft -= 5;
                         } else if (armorLeft <= 5) {
                             for (var n = 0; n < armorLeft; n++) {
-                                list = (armorSlot.slice(curPos, (curPos + armorLeft)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**`)
+                                list = (armorSlot.slice(curPos, (curPos + armorLeft)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\nAmount Owned: ${gear.amount}`)
                                     .join('\n\n'));
                             }
                             maxEmbedPages++;
@@ -456,7 +460,7 @@ module.exports = {
                 if (matSlice) {
                     //name, value, rarity, amount
                     listedDefaults = 
-                        `Value: ${matSlice.value} \nRarity: ${matSlice.rarity} \nAmount Owned: ${matSlice.amount}`;
+                        `Value: ${matSlice.value} \nType: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nAmount Owned: ${matSlice.amount}`;
 
                     grabbedName = `${matSlice.name}`;
                     grabbedColour = await grabColour(matSlice.rar_id);
@@ -475,6 +479,114 @@ module.exports = {
                 } else console.log(errorForm('matSlice ERROR NOT FOUND!'));
                 i++;
             } while (i < allMatsOwned.length)
+
+            if (embedPages.length <= 0) return console.log(errorForm('NO EMBED PAGES EXIST ERROR'));
+
+            const backButton = new ButtonBuilder()
+                .setLabel("Back")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('◀️')
+                .setCustomId('back-page');
+
+            const cancelButton = new ButtonBuilder()
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('*️⃣')
+                .setCustomId('delete-page');
+
+            const forwardButton = new ButtonBuilder()
+                .setLabel("Forward")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('▶️')
+                .setCustomId('next-page')
+
+            const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+            const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+            const filter = (ID) => ID.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 300000,
+            });
+
+            var currentPage = 0;
+
+            collector.on('collect', async (collInteract) => {
+                if (collInteract.customId === 'next-page') {
+                    await collInteract.deferUpdate();
+                    if (currentPage === embedPages.length - 1) {
+                        currentPage = 0;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    } else {
+                        currentPage += 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    }
+                }
+
+                if (collInteract.customId === 'back-page') {
+                    await collInteract.deferUpdate();
+                    if (currentPage === 0) {
+                        currentPage = embedPages.length - 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    } else {
+                        currentPage -= 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    }
+                }
+
+                if (collInteract.customId === 'delete-page') {
+                    await collInteract.deferUpdate();
+                    await collector.stop();
+                }
+            });
+
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete();
+                }
+            });
+        }
+
+        if (interaction.options.getSubcommand() === 'potions') {
+            const potionCheck = await OwnedPotions.findOne({ where: { spec_id: interaction.user.id } });
+            if (!potionCheck) return interaction.followUp('You have no potions! Use ``/blueprint available`` to make some!');
+
+            const allPotsOwned = await OwnedPotions.findAll({ where: { spec_id: interaction.user.id } });
+
+            var embedPages = [];
+
+            let listedDefaults;
+            let grabbedName;
+
+            let potSlice;
+            let i = 0;
+            do {
+                potSlice = allPotsOwned[i];
+
+                if (potSlice) {
+                    //name, value, rarity, amount
+                    listedDefaults =
+                        `Value: ${potSlice.value} \nDuration: ${potSlice.duration} \nCool Down: ${potSlice.cooldown} \nAmount Owned: ${potSlice.amount}`;
+
+                    grabbedName = `${potSlice.name}`;                   
+
+                    const embed = {
+                        title: `~OWNED POTIONS~`,
+                        color: 0000,
+                        fields: [
+                            {
+                                name: `${grabbedName}`, value: `${listedDefaults}`,
+                            }
+                        ],
+                    };
+
+                    embedPages.push(embed);
+                } else console.log(errorForm('potSlice ERROR NOT FOUND!'));
+                i++;
+            } while (i < allPotsOwned.length)
 
             if (embedPages.length <= 0) return console.log(errorForm('NO EMBED PAGES EXIST ERROR'));
 
