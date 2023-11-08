@@ -193,7 +193,7 @@ async function loadDungeon(currentFloor, dungeonId, interactionRef, collectedUse
             cf++;
             combatEmitter.emit('LoadFloor', interaction, userID, theE);
         }
-        if ((cf + 1) === bossFloor) {
+        if (cf === bossFloor) {
             //Boss floor reached handle differently
             await loadBossFloor(theDungeon.Boss, interaction, userID, theB);
         } 
