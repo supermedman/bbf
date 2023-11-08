@@ -385,7 +385,7 @@ module.exports = {
 
 				//==============================
 				//	Alter final results based on happiness of the pigmy
-				if (pig.happiness < 90) {
+				if (pig.happiness < 80) {
 					//Pigmy is not at maximum happiness = decrease rewards
 					const diffHappy = (100 - pig.happiness);
 					totXP -= (-(diffHappy / 100) * totXP);
@@ -484,6 +484,7 @@ module.exports = {
 						rarCheckNum++;
 					} else {
 						embedColour = await grabColour(rarCheckNum);
+						let breakPoint = 0;
 						for (const matCheck of fullRarList) {
 							matListings = `Value: ${matCheck.Value}\nRarity: ${matCheck.Rarity}\nAmount: ${matCheck.Amount}`;
 
@@ -498,9 +499,11 @@ module.exports = {
 
 							embedPages.push(theMaterialEmbed);
 							pageRun++;
-                        }
+							breakPoint++;
+							if (breakPoint === fullRarList.length) break;
+						}
+						rarCheckNum++;
 					}
-					rarCheckNum++;
                 } while (pageRun < matsToAdd.length)
 
 				const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
