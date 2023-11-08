@@ -74,9 +74,14 @@ module.exports = {
 					bpSlice = await blueprintList.filter(blueySlice => blueySlice.BlueprintID === equipList[i].blueprintid);
 					//Blueprint reference should be found, use values for display
 					if (bpSlice.length > 0) {
-						listedDefaults = bpSlice.map(bluey =>
-							`Coin Cost: ${bluey.CoinCost} \nRequired Level: ${bluey.UseLevel} \nSlot: ${bluey.Slot} \nHands: ${bluey.Hands} \nRarity: ${bluey.Rarity} \nMaterial Types Needed: ${bluey.MaterialTypeAmount}`);
-
+						if (bpSlice[0].Hands === undefined) {
+							listedDefaults = bpSlice.map(bluey =>
+								`Coin Cost: ${bluey.CoinCost} \nRequired Level: ${bluey.UseLevel} \nSlot: ${bluey.Slot} \nRarity: ${bluey.Rarity} \nMaterial Types Needed: ${bluey.MaterialTypeAmount}`);
+						} else {
+							listedDefaults = bpSlice.map(bluey =>
+								`Coin Cost: ${bluey.CoinCost} \nRequired Level: ${bluey.UseLevel} \nSlot: ${bluey.Slot} \nHands: ${bluey.Hands} \nRarity: ${bluey.Rarity} \nMaterial Types Needed: ${bluey.MaterialTypeAmount}`);
+                        }
+						
 						//fieldValueObj = { name: 'info', value: `${listedDefaults}` };
 						//finalFields.push(fieldValueObj);
 
@@ -124,7 +129,7 @@ module.exports = {
 									totCheckSuccess++;
 								} else {
 									console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
-									filteredResult = false;
+									filteredResult = true;
 									//finalFields = [];
 								}
 							}
@@ -137,7 +142,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Amount: ${mats[`${matStrAmount}`]}`);
+									`Amount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
@@ -153,7 +158,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Amount: ${mats[`${matStrAmount}`]}`);
+									`Amount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
@@ -277,7 +282,7 @@ module.exports = {
 									totCheckSuccessP++;
 								} else {
 									console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
-									filteredResult = false;
+									filteredResult = true;
 									//finalFieldsP = [];
 									//matPos = grabbedMTAP;
 								}
@@ -291,7 +296,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Amount: ${mats[`${matStrAmountP}`]}`);
+									`Amount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
@@ -309,7 +314,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Amount: ${mats[`${matStrAmountP}`]}`);
+									`Amount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
