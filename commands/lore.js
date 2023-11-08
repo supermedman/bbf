@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 const {
 	warnedForm,
@@ -14,7 +14,7 @@ const { Milestones } = require('../dbObjects.js');
 const loreList = require('../events/Models/json_prefabs/loreList.json');
 
 module.exports = {
-	cooldown: 60,
+	cooldown: 30,
 	data: new SlashCommandBuilder()
 		.setName('lore')
 		.setDescription('Recall the tellings of your great adventures!')
