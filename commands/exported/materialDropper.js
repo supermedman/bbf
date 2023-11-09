@@ -143,7 +143,7 @@ async function grabMat(enemy, user, interaction) {
 
         const result = await handleMaterialAdding(finalMaterial, droppedNum, user, passType);
 
-        var matListedDisplay = `Value: ${finalMaterial.Value}\nRarity: ${finalMaterial.Rarity}\nAmount: ${droppedNum}`;
+        var matListedDisplay = `Value: ${finalMaterial.Value}\nMaterial Type: **${passType}**\nRarity: ${finalMaterial.Rarity}\nAmount: ${droppedNum}`;
 
         const matColour = await grabColour(foundRar);
 
