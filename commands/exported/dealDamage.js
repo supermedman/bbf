@@ -267,6 +267,11 @@ async function userDamageLoadout(user, item) {
                 totDamageBuff += (pigmy.level * 2);
                 //int + 5
                 intUP = 5;
+            } else if (pigmy.type === 'NULL') {
+                //Phase pigmy equipped apply 20x damage
+                totDamageBuff += (pigmy.level * 20);
+                //int + 5
+                //intUP = 5;
             }
         } else if (pigmy.happiness < 50) {
             if (pigmy.type === 'Fire') {
