@@ -277,8 +277,8 @@ module.exports = {
 					console.log(specialInfoForm(`remainder mappedMat: ${mappedMat[0]}`));
 					console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
-					wasCheckedList.push(...mappedMat);
-					checkListPOS++;
+					remainingMatsList.push(...mappedMat);
+					//checkListPOS++;
 					addedRarMats = inputAmount;
 				} else if (totRemainRarMat === 0) {
 					//Prepare destroy entry
@@ -289,8 +289,8 @@ module.exports = {
 					console.log(specialInfoForm(`destroy mappedMat: ${mappedMat[0]}`));
 					console.log(specialInfoForm(`mappedMat.Name: ${mappedMat[0].Name}`));
 
-					wasCheckedList.push(...mappedMat);
-					checkListPOS++;
+					destroyMatsList.push(...mappedMat);
+					//checkListPOS++;
 					addedRarMats = inputAmount;
 				} else if (totRemainRarMat < 0) {
 					const fbcMappedVal = fbcTempMatCopy.map(mat => ({ ...mat, NewAmount: fbcTotalMats}),);
@@ -1324,8 +1324,8 @@ module.exports = {
 								break;
 							}
 							rarCheckNum++;
+							curRun++;
 						}
-						curRun++;
 					} while (curRun < fullMatMatchList.length)
 				} else {
 					do {

@@ -15,15 +15,19 @@
         "MaterialTypeAmount": 4,
 
         "Material1": "Soul",
+        "Rarity1": "Unique",
         "Material1_Amount": 25,
 
-        "Material2": "Phasemetal Ingot",
-        "Material2_Amount": 20,
+        "Material2": "Phasemetal Scrap",
+        "Rarity2": "Mystic",
+        "Material2_Amount": 35,
 
         "Material3": "Refined Essence",
+        "Rarity3": "Epic",
         "Material3_Amount": 75,
 
         "Material4": "Worked Magical Hide",
+        "Rarity4": "?",
         "Material4_Amount": 15,
 
         "Slot": "Mainhand",
@@ -53,12 +57,15 @@
         "MaterialTypeAmount": 3,
 
         "Material1": "Dandielion",
+        "Rarity1": "Common",
         "Material1_Amount": 10,
 
         "Material2": "Foxtail",
+        "Rarity2": "Uncommon",
         "Material2_Amount": 5,
 
         "Material3": "Red Slime",
+        "Rarity3": "Rare",
         "Material3_Amount": 2,
 
         "PotionID": 1,
@@ -82,12 +89,15 @@
         "MaterialTypeAmount": 3,
 
         "Material1": "Slimy Eyeball",
+        "Rarity1": "Common",
         "Material1_Amount": 3,
 
         "Material2": "Limestone",
+        "Rarity2": "Rare",
         "Material2_Amount": 5,
 
         "Material3": "Granite",
+        "Rarity3": "Epic",
         "Material3_Amount": 1,
 
         "PotionID": 2,
@@ -111,18 +121,23 @@
         "MaterialTypeAmount": 5,
 
         "Material1": "Purple Slime",
+        "Rarity1": "Uncommon",
         "Material1_Amount": 10,
 
         "Material2": "Raw Ore",
+        "Rarity2": "Uncommon",
         "Material2_Amount": 10,
 
         "Material3": "Smelly Entrails",
+        "Rarity3": "Uncommon",
         "Material3_Amount": 10,
 
         "Material4": "Foxtail",
+        "Rarity4": "Uncommon",
         "Material4_Amount": 10,
 
         "Material5": "Refined Essence",
+        "Rarity5": "Epic",
         "Material5_Amount": 1,
 
         "PotionID": 3,
@@ -146,15 +161,19 @@
         "MaterialTypeAmount": 4,
 
         "Material1": "Bloodroot",
+        "Rarity1": "Rare",
         "Material1_Amount": 5,
 
         "Material2": "Red Slime",
+        "Rarity2": "Rare",
         "Material2_Amount": 15,
 
         "Material3": "Pink Slime",
+        "Rarity3": "Very Rare",
         "Material3_Amount": 6,
 
         "Material4": "Bloodied Heart",
+        "Rarity4": "Rare",
         "Material4_Amount": 3,
 
         "PotionID": 4,
@@ -178,15 +197,19 @@
         "MaterialTypeAmount": 4,
 
         "Material1": "Raw Ore",
+        "Rarity1": "Uncommon",
         "Material1_Amount": 30,
 
         "Material2": "Bloodied Heart",
+        "Rarity2": "Rare",
         "Material2_Amount": 1,
 
         "Material3": "Smelly Entrails",
+        "Rarity3": "Uncommon",
         "Material3_Amount": 3,
 
         "Material4": "Iron Ingot",
+        "Rarity4": "Rare",
         "Material4_Amount": 15,
 
         "PotionID": 5,
@@ -210,12 +233,15 @@
         "MaterialTypeAmount": 3,
 
         "Material1": "Refined Essence",
+        "Rarity1": "Epic",
         "Material1_Amount": 25,
 
         "Material2": "Rainbow Slime",
+        "Rarity2": "Mystic",
         "Material2_Amount": 5,
 
         "Material3": "Infused Silverroot",
+        "Rarity3": "Epic",
         "Material3_Amount": 10,
 
         "PotionID": 6,
@@ -239,18 +265,23 @@
         "MaterialTypeAmount": 5,
 
         "Material1": "Pink Slime",
+        "Rarity1": "Very Rare",
         "Material1_Amount": 10,
 
         "Material2": "Steel Ingot",
+        "Rarity2": "Very Rare",
         "Material2_Amount": 10,
 
         "Material3": "Magical Glands",
+        "Rarity3": "Very Rare",
         "Material3_Amount": 10,
 
         "Material4": "Silverroot",
+        "Rarity4": "Very Rare",
         "Material4_Amount": 10,
 
         "Material5": "Pure NULL",
+        "Rarity5": "Unique",
         "Material5_Amount": 1,
 
         "PotionID": 7,
@@ -272,15 +303,19 @@
         "MaterialTypeAmount": 4,
 
         "Material1": "Pure DARK",
+        "Rarity1": "Unique",
         "Material1_Amount": 30,
 
         "Material2": "Phasemetal Ingot",
-        "Material2_Amount": 100,
+        "Rarity2": "?",
+        "Material2_Amount": 75,
 
         "Material3": "Refined Essence",
+        "Rarity3": "Epic",
         "Material3_Amount": 200,
 
         "Material4": "Sapphire",
+        "Rarity4": "?",
         "Material4_Amount": 20,
 
         "Slot": "Headslot",
@@ -309,21 +344,27 @@
         "MaterialTypeAmount": 6,
 
         "Material1": "Mat1",
+        "Rarity1": "Rar1",
         "Material1_Amount": 0,
 
         "Material2": "Mat2",
+        "Rarity2": "Rar2",
         "Material2_Amount": 0,
 
         "Material3": "Mat3",
+        "Rarity3": "Rar3",
         "Material3_Amount": 0,
 
         "Material4": "Mat4",
+        "Rarity4": "Rar4",
         "Material4_Amount": 0,
 
         "Material5": "Mat5",
+        "Rarity5": "Rar5",
         "Material5_Amount": 0,
 
         "Material6": "Mat6",
+        "Rarity6": "Rar6",
         "Material6_Amount": 0,
 
         "PotionID": 0,

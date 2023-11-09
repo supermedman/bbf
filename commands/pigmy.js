@@ -201,12 +201,12 @@ module.exports = {
 			const now = new Date().getTime();
 
 			//7200000 minimum length of time before a pigmy claim can be made
-			const diffTime = Math.abs(now - then);
-			const timeLeft = Math.floor(7200000 - diffTime);
+			const diffTime = Math.round(Math.abs(now - then));
+			const timeLeft = Math.round(7200000 - diffTime);
 			console.log('TIME LEFT: ', timeLeft);
 
 			if (timeLeft <= 0) {
-				let hrs = await Math.round(Math.abs(timeLeft / (1000 * 60 * 60)));
+				let hrs = Math.abs(timeLeft / (1000 * 60 * 60));
 				console.log(`Hours since last claim: ${hrs}`);
 				//PUT A RESTRICTION ON LENGTH LMAOOOOO
 				if (hrs > 72) {

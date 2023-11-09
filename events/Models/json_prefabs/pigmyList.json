@@ -43,5 +43,20 @@
         "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Frost-Background.jpg",
 
         "ID": 2
+    },
+    {
+        "Name": "Phase Pigmy",
+        "Type": "NULL",
+        "Cost": 4000,
+
+        "DPL": 20,
+        "Buff": "WORK IN PROGRESS",
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Phase-Pigmy.png",
+        "Image": "attachment://Phase-Pigmy.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Phase-Background.jpg",
+
+        "ID": 3
     }
 ]
