@@ -92,6 +92,7 @@ module.exports = {
 
 						let matStrType = '';
 						let matStrAmount = '';
+						let matStrRarity = '';
 						let curCheckMat;
 						let fieldValueObj;
 						let totCheckSuccess = 0;
@@ -103,6 +104,8 @@ module.exports = {
 
 							matStrType = `Material${addingOne}`;
 							matStrAmount = `Material${addingOne}_Amount`;
+
+							matStrRarity = `Rarity${addingOne}`;
 
 							var compValTemp = ``;
 
@@ -142,7 +145,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Amount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
+									`Rarity: ${mats[`${matStrRarity}`]} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
@@ -158,7 +161,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Amount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
+									`Rarity: ${mats[`${matStrRarity}`]} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
@@ -245,6 +248,7 @@ module.exports = {
 
 						let matStrTypeP = '';
 						let matStrAmountP = '';
+						let matStrRarityP = '';
 						let fieldValueObjP;
 						let totCheckSuccessP = 0;
 						let filteredResult = false;
@@ -255,6 +259,8 @@ module.exports = {
 
 							matStrTypeP = `Material${addingOne}`;
 							matStrAmountP = `Material${addingOne}_Amount`;
+
+							matStrRarityP = `Rarity${addingOne}`;
 
 							var compValTemp = ``;
 
@@ -296,7 +302,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Amount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
+									`Rarity: ${mats[`${matStrRarityP}`]} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
@@ -314,7 +320,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Amount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
+									`Rarity: ${mats[`${matStrRarityP}`]} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
