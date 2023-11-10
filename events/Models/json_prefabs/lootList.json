@@ -12,6 +12,8 @@
         "Rarity": "Common",
         "Rar_id": 0,
 
+        "DismantleTypes": [ "metalic", "woody" ],
+
         "Loot_id": 1,
         "Spec_id": 0
     },
@@ -27,6 +29,8 @@
 
         "Rarity": "Common",
         "Rar_id": 0,
+
+        "DismantleTypes": [ "rocky" ],
 
         "Loot_id": 2,
         "Spec_id": 0
@@ -44,6 +48,8 @@
         "Rarity": "Common",
         "Rar_id": 0,
 
+        "DismantleTypes": [ "woody", "skinny" ],
+
         "Loot_id": 3,
         "Spec_id": 0
     },
@@ -59,6 +65,8 @@
 
         "Rarity": "Common",
         "Rar_id": 0,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 4,
         "Spec_id": 0
@@ -76,6 +84,8 @@
         "Rarity": "Common",
         "Rar_id": 0,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 5,
         "Spec_id": 0
     },
@@ -91,6 +101,8 @@
 
         "Rarity": "Uncommon",
         "Rar_id": 1,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 6,
         "Spec_id": 0
@@ -108,6 +120,8 @@
         "Rarity": "Common",
         "Rar_id": 0,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 7,
         "Spec_id": 0
     },
@@ -123,6 +137,8 @@
 
         "Rarity": "Uncommon",
         "Rar_id": 1,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 8,
         "Spec_id": 0
@@ -140,6 +156,8 @@
         "Rarity": "Common",
         "Rar_id": 0,
 
+        "DismantleTypes": [ "woody" ],
+
         "Loot_id": 9,
         "Spec_id": 0
     },
@@ -155,6 +173,8 @@
 
         "Rarity": "Rare",
         "Rar_id": 2,
+
+        "DismantleTypes": [ "magical", "skinny" ],
 
         "Loot_id": 10,
         "Spec_id": 0
@@ -172,6 +192,8 @@
         "Rarity": "Rare",
         "Rar_id": 2,
 
+        "DismantleTypes": [ "magical", "skinny" ],
+
         "Loot_id": 11,
         "Spec_id": 0
     },
@@ -187,6 +209,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "magical", "skinny" ],
 
         "Loot_id": 12,
         "Spec_id": 0
@@ -204,6 +228,8 @@
         "Rarity": "Epic",
         "Rar_id": 4,
 
+        "DismantleTypes": [ "metalic", "magical" ],
+
         "Loot_id": 13,
         "Spec_id": 0
     },
@@ -219,6 +245,8 @@
 
         "Rarity": "Mystic",
         "Rar_id": 5,
+
+        "DismantleTypes": [ "magical", "skinny" ],
 
         "Loot_id": 14,
         "Spec_id": 0
@@ -236,6 +264,8 @@
         "Rarity": "?",
         "Rar_id": 6,
 
+        "DismantleTypes": [ "metalic", "magical" ],
+
         "Loot_id": 15,
         "Spec_id": 0
     },
@@ -251,6 +281,8 @@
 
         "Rarity": "??",
         "Rar_id": 7,
+
+        "DismantleTypes": [ "metalic", "magical" ],
 
         "Loot_id": 16,
         "Spec_id": 0
@@ -268,6 +300,8 @@
         "Rarity": "???",
         "Rar_id": 8,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 17,
         "Spec_id": 0
     },
@@ -283,6 +317,8 @@
 
         "Rarity": "????",
         "Rar_id": 9,
+
+        "DismantleTypes": [ "magical", "gemy" ],
 
         "Loot_id": 18,
         "Spec_id": 0
@@ -300,6 +336,8 @@
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
 
+        "DismantleTypes": [ "metalic", "magical", "gemy" ],
+
         "Loot_id": 19,
         "Spec_id": 0
     },
@@ -315,6 +353,8 @@
 
         "Rarity": "????",
         "Rar_id": 9,
+
+        "DismantleTypes": [ "woody", "magical", "gemy" ],
 
         "Loot_id": 20,
         "Spec_id": 0
@@ -332,6 +372,8 @@
         "Rarity": "Common",
         "Rar_id": 0,
 
+        "DismantleTypes": [ "metalic", "woody" ],
+
         "Loot_id": 21,
         "Spec_id": 0
     },
@@ -347,6 +389,8 @@
 
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
+
+        "DismantleTypes": [ "metalic", "magical", "skinny" ],
 
         "Loot_id": 22,
         "Spec_id": 0
@@ -364,6 +408,8 @@
         "Rarity": "????",
         "Rar_id": 9,
 
+        "DismantleTypes": [ "magical", "skinny" ],
+
         "Loot_id": 23,
         "Spec_id": 0
     },
@@ -379,6 +425,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 24,
         "Spec_id": 0
@@ -396,6 +444,8 @@
         "Rarity": "Very Rare",
         "Rar_id": 3,
 
+        "DismantleTypes": [ "metalic", "skinny", "gemy" ],
+
         "Loot_id": 25,
         "Spec_id": 0
     },
@@ -411,6 +461,8 @@
 
         "Rarity": "??",
         "Rar_id": 7,
+
+        "DismantleTypes": [ "metalic", "skinny", "magical" ],
 
         "Loot_id": 26,
         "Spec_id": 0
@@ -428,6 +480,8 @@
         "Rarity": "Epic",
         "Rar_id": 4,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 27,
         "Spec_id": 0
     },
@@ -443,6 +497,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "magical", "woody" ],
 
         "Loot_id": 28,
         "Spec_id": 0
@@ -460,6 +516,8 @@
         "Rarity": "?",
         "Rar_id": 6,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 29,
         "Spec_id": 0
     },
@@ -475,6 +533,8 @@
 
         "Rarity": "Rare",
         "Rar_id": 2,
+
+        "DismantleTypes": [ "gemy" ],
 
         "Loot_id": 30,
         "Spec_id": 0
@@ -492,6 +552,8 @@
         "Rarity": "?",
         "Rar_id": 6,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 31,
         "Spec_id": 0
     },
@@ -507,6 +569,8 @@
 
         "Rarity": "Rare",
         "Rar_id": 2,
+
+        "DismantleTypes": [ "magical", "skinny" ],
 
         "Loot_id": 32,
         "Spec_id": 0
@@ -524,6 +588,8 @@
         "Rarity": "Epic",
         "Rar_id": 4,
 
+        "DismantleTypes": [ "woody", "magical" ],
+
         "Loot_id": 33,
         "Spec_id": 0
     },
@@ -539,6 +605,8 @@
 
         "Rarity": "Mystic",
         "Rar_id": 5,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 34,
         "Spec_id": 0
@@ -556,6 +624,8 @@
         "Rarity": "??",
         "Rar_id": 7,
 
+        "DismantleTypes": [ "metalic", "magical" ],
+
         "Loot_id": 35,
         "Spec_id": 0
     },
@@ -571,6 +641,8 @@
 
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
+
+        "DismantleTypes": [ "metalic", "magical", "gemy", "skinny" ],
 
         "Loot_id": 36,
         "Spec_id": 0
@@ -588,6 +660,8 @@
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
 
+        "DismantleTypes": [ "metalic", "gemy", "skinny" ],
+
         "Loot_id": 37,
         "Spec_id": 0
     },
@@ -603,6 +677,8 @@
 
         "Rarity": "Uncommon",
         "Rar_id": 1,
+
+        "DismantleTypes": [ "fleshy" ],
 
         "Loot_id": 38,
         "Spec_id": 0
@@ -620,6 +696,8 @@
         "Rarity": "Very Rare",
         "Rar_id": 3,
 
+        "DismantleTypes": [ "woody", "skinny" ],
+
         "Loot_id": 39,
         "Spec_id": 0
     },
@@ -635,6 +713,8 @@
 
         "Rarity": "Epic",
         "Rar_id": 4,
+
+        "DismantleTypes": [ "metalic", "woody" ],
 
         "Loot_id": 40,
         "Spec_id": 0
@@ -652,6 +732,8 @@
         "Rarity": "Mystic",
         "Rar_id": 5,
 
+        "DismantleTypes": [ "magical", "skinny" ],
+
         "Loot_id": 41,
         "Spec_id": 0
     },
@@ -667,6 +749,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic", "woody", "magical", "gemy" ],
 
         "Loot_id": 42,
         "Spec_id": 0
@@ -684,6 +768,8 @@
         "Rarity": "??",
         "Rar_id": 7,
 
+        "DismantleTypes": [ "metalic", "magical", "gemy" ],
+
         "Loot_id": 43,
         "Spec_id": 0
     },
@@ -699,6 +785,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic" ],
 
         "Loot_id": 44,
         "Spec_id": 0
@@ -716,6 +804,8 @@
         "Rarity": "???",
         "Rar_id": 8,
 
+        "DismantleTypes": [ "magical", "skinny" ],
+
         "Loot_id": 45,
         "Spec_id": 0
     },
@@ -731,6 +821,8 @@
 
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
+
+        "DismantleTypes": [ "metalic", "magical", "gemy" ],
 
         "Loot_id": 46,
         "Spec_id": 0
@@ -748,6 +840,8 @@
         "Rarity": "Rare",
         "Rar_id": 2,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 47,
         "Spec_id": 0
     },
@@ -763,6 +857,8 @@
 
         "Rarity": "Uncommon",
         "Rar_id": 1,
+
+        "DismantleTypes": [ "metalic" ],
 
         "Loot_id": 48,
         "Spec_id": 0
@@ -780,6 +876,8 @@
         "Rarity": "Uncommon",
         "Rar_id": 1,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 49,
         "Spec_id": 0
     },
@@ -795,6 +893,8 @@
 
         "Rarity": "Epic",
         "Rar_id": 4,
+
+        "DismantleTypes": [ "magical" ],
 
         "Loot_id": 50,
         "Spec_id": 0
@@ -812,6 +912,8 @@
         "Rarity": "Mystic",
         "Rar_id": 5,
 
+        "DismantleTypes": [ "skinny", "magical" ],
+
         "Loot_id": 51,
         "Spec_id": 0
     },
@@ -827,6 +929,8 @@
 
         "Rarity": "Rare",
         "Rar_id": 2,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 52,
         "Spec_id": 0
@@ -844,6 +948,8 @@
         "Rarity": "Mystic",
         "Rar_id": 5,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 53,
         "Spec_id": 0
     },
@@ -859,6 +965,8 @@
 
         "Rarity": "Uncommon",
         "Rar_id": 1,
+
+        "DismantleTypes": [ "gemy" ],
 
         "Loot_id": 54,
         "Spec_id": 0
@@ -876,6 +984,8 @@
         "Rarity": "???",
         "Rar_id": 8,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 55,
         "Spec_id": 0
     },
@@ -891,6 +1001,8 @@
 
         "Rarity": "??",
         "Rar_id": 7,
+
+        "DismantleTypes": [ "magical", "gemy" ],
 
         "Loot_id": 56,
         "Spec_id": 0
@@ -908,6 +1020,8 @@
         "Rarity": "Epic",
         "Rar_id": 4,
 
+        "DismantleTypes": [ "magical", "gemy" ],
+
         "Loot_id": 57,
         "Spec_id": 0
     },
@@ -923,6 +1037,8 @@
 
         "Rarity": "?",
         "Rar_id": 6,
+
+        "DismantleTypes": [ "metalic", "magical" ],
 
         "Loot_id": 58,
         "Spec_id": 0
@@ -940,6 +1056,8 @@
         "Rarity": "Mystic",
         "Rar_id": 5,
 
+        "DismantleTypes": [ "metalic", "magical", "gemy" ],
+
         "Loot_id": 59,
         "Spec_id": 0
     },
@@ -955,6 +1073,8 @@
 
         "Rarity": "?",
         "Rar_id": 6,
+
+        "DismantleTypes": [ "metalic", "woody" ],
 
         "Loot_id": 60,
         "Spec_id": 0
@@ -972,6 +1092,8 @@
         "Rarity": "?",
         "Rar_id": 6,
 
+        "DismantleTypes": [ "metalic", "woody", "magical" ],
+
         "Loot_id": 61,
         "Spec_id": 0
     },
@@ -987,6 +1109,8 @@
 
         "Rarity": "Uncommon",
         "Rar_id": 1,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
 
         "Loot_id": 62,
         "Spec_id": 0
@@ -1004,6 +1128,8 @@
         "Rarity": "Uncommon",
         "Rar_id": 1,
 
+        "DismantleTypes": [ "metalic", "skinny" ],
+
         "Loot_id": 63,
         "Spec_id": 0
     },
@@ -1019,6 +1145,8 @@
 
         "Rarity": "Rare",
         "Rar_id": 2,
+
+        "DismantleTypes": [ "metalic", "woody", "skinny" ],
 
         "Loot_id": 64,
         "Spec_id": 0
@@ -1036,6 +1164,8 @@
         "Rarity": "??",
         "Rar_id": 7,
 
+        "DismantleTypes": [ "fleshy", "magical" ],
+
         "Loot_id": 65,
         "Spec_id": 0
     },
@@ -1050,6 +1180,8 @@
 
         "Rarity": "Common",
         "Rar_id": 0,
+
+        "DismantleTypes": [ "skinny" ],
 
         "Loot_id": 66,
         "Spec_id": 0
@@ -1066,6 +1198,8 @@
         "Rarity": "Uncommon",
         "Rar_id": 1,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 67,
         "Spec_id": 0
     },
@@ -1080,6 +1214,8 @@
 
         "Rarity": "Common",
         "Rar_id": 0,
+
+        "DismantleTypes": [ "skinny" ],
 
         "Loot_id": 68,
         "Spec_id": 0
@@ -1096,6 +1232,8 @@
         "Rarity": "Uncommon",
         "Rar_id": 1,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 69,
         "Spec_id": 0
     },
@@ -1110,6 +1248,8 @@
 
         "Rarity": "Common",
         "Rar_id": 0,
+
+        "DismantleTypes": [ "skinny" ],
 
         "Loot_id": 70,
         "Spec_id": 0
@@ -1126,6 +1266,8 @@
         "Rarity": "Uncommon",
         "Rar_id": 1,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 71,
         "Spec_id": 0
     },
@@ -1140,6 +1282,8 @@
 
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
+
+        "DismantleTypes": [ " " ],
 
         "Loot_id": 72,
         "Spec_id": 0
@@ -1156,6 +1300,8 @@
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
 
+        "DismantleTypes": [ " " ],
+
         "Loot_id": 73,
         "Spec_id": 0
     },
@@ -1170,6 +1316,8 @@
 
         "Rarity": "FORGOTTEN",
         "Rar_id": 10,
+
+        "DismantleTypes": [ " " ],
 
         "Loot_id": 74,
         "Spec_id": 0
@@ -1186,6 +1334,8 @@
         "Rarity": "Rare",
         "Rar_id": 2,
 
+        "DismantleTypes": [ "gemy" ],
+
         "Loot_id": 75,
         "Spec_id": 0
     },
@@ -1200,6 +1350,8 @@
 
         "Rarity": "Rare",
         "Rar_id": 2,
+
+        "DismantleTypes": [ "gemy" ],
 
         "Loot_id": 76,
         "Spec_id": 0
@@ -1216,6 +1368,8 @@
         "Rarity": "Rare",
         "Rar_id": 2,
 
+        "DismantleTypes": [ "gemy" ],
+
         "Loot_id": 77,
         "Spec_id": 0
     },
@@ -1230,6 +1384,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic" ],
 
         "Loot_id": 78,
         "Spec_id": 0
@@ -1246,6 +1402,8 @@
         "Rarity": "Very Rare",
         "Rar_id": 3,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 79,
         "Spec_id": 0
     },
@@ -1260,6 +1418,8 @@
 
         "Rarity": "Very Rare",
         "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic" ],
 
         "Loot_id": 80,
         "Spec_id": 0
@@ -1276,6 +1436,8 @@
         "Rarity": "Epic",
         "Rar_id": 4,
 
+        "DismantleTypes": [ "magical" ],
+
         "Loot_id": 81,
         "Spec_id": 0
     },
@@ -1290,6 +1452,8 @@
 
         "Rarity": "Epic",
         "Rar_id": 4,
+
+        "DismantleTypes": [ "magical" ],
 
         "Loot_id": 82,
         "Spec_id": 0
@@ -1306,6 +1470,8 @@
         "Rarity": "Epic",
         "Rar_id": 4,
 
+        "DismantleTypes": [ "magical" ],
+
         "Loot_id": 83,
         "Spec_id": 0
     },
@@ -1320,6 +1486,8 @@
 
         "Rarity": "Mystic",
         "Rar_id": 5,
+
+        "DismantleTypes": [ "metalic" ],
 
         "Loot_id": 84,
         "Spec_id": 0
@@ -1336,6 +1504,8 @@
         "Rarity": "Mystic",
         "Rar_id": 5,
 
+        "DismantleTypes": [ "metalic" ],
+
         "Loot_id": 85,
         "Spec_id": 0
     },
@@ -1350,6 +1520,8 @@
 
         "Rarity": "Mystic",
         "Rar_id": 5,
+
+        "DismantleTypes": [ "metalic" ],
 
         "Loot_id": 86,
         "Spec_id": 0
@@ -1366,6 +1538,8 @@
         "Rarity": "?",
         "Rar_id": 6,
 
+        "DismantleTypes": [ "metalic", "magical" ],
+
         "Loot_id": 87,
         "Spec_id": 0
     },
@@ -1380,6 +1554,8 @@
 
         "Rarity": "?",
         "Rar_id": 6,
+
+        "DismantleTypes": [ "metalic", "magical" ],
 
         "Loot_id": 88,
         "Spec_id": 0
@@ -1396,6 +1572,8 @@
         "Rarity": "?",
         "Rar_id": 6,
 
+        "DismantleTypes": [ "metalic", "magical" ],
+
         "Loot_id": 89,
         "Spec_id": 0
     },
@@ -1410,6 +1588,8 @@
 
         "Rarity": "??",
         "Rar_id": 7,
+
+        "DismantleTypes": [ "magical" ],
 
         "Loot_id": 90,
         "Spec_id": 0
@@ -1426,6 +1606,8 @@
         "Rarity": "??",
         "Rar_id": 7,
 
+        "DismantleTypes": [ "magical" ],
+
         "Loot_id": 91,
         "Spec_id": 0
     },
@@ -1440,6 +1622,8 @@
 
         "Rarity": "??",
         "Rar_id": 7,
+
+        "DismantleTypes": [ "magical" ],
 
         "Loot_id": 92,
         "Spec_id": 0
@@ -1457,6 +1641,8 @@
         "Rarity": "???",
         "Rar_id": 8,
 
+        "DismantleTypes": [ "magical", "woody", "skinny" ],
+
         "Loot_id": 93,
         "Spec_id": 0
     },
@@ -1471,6 +1657,8 @@
 
         "Rarity": "???",
         "Rar_id": 8,
+
+        "DismantleTypes": [ "magical" ],
 
         "Loot_id": 94,
         "Spec_id": 0
@@ -1487,6 +1675,8 @@
         "Rarity": "???",
         "Rar_id": 8,
 
+        "DismantleTypes": [ "magical" ],
+
         "Loot_id": 95,
         "Spec_id": 0
     },
@@ -1501,6 +1691,8 @@
 
         "Rarity": "???",
         "Rar_id": 8,
+
+        "DismantleTypes": [ "magical" ],
 
         "Loot_id": 96,
         "Spec_id": 0
@@ -1517,6 +1709,8 @@
         "Rarity": "????",
         "Rar_id": 9,
 
+        "DismantleTypes": [ "metalic", "magical" ],
+
         "Loot_id": 97,
         "Spec_id": 0
     },
@@ -1531,6 +1725,8 @@
 
         "Rarity": "????",
         "Rar_id": 9,
+
+        "DismantleTypes": [ "metalic", "gemy", "magical" ],
 
         "Loot_id": 98,
         "Spec_id": 0
@@ -1547,6 +1743,8 @@
         "Rarity": "????",
         "Rar_id": 9,
 
+        "DismantleTypes": [ "metalic", "gemy", "magical" ],
+
         "Loot_id": 99,
         "Spec_id": 0
     },
@@ -1554,13 +1752,15 @@
         "Name": "Boar Mask",
         "Value": 100000000,
 
-        "Defence": 30,
+        "Defence": 40,
         "Type": "NULL",
 
         "Slot": "Headslot",
 
-        "Rarity": "lol",
-        "Rar_id": 11,
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "DismantleTypes": [ "gemy" ],
 
         "Loot_id": 20001,
         "Spec_id": 0
@@ -1577,6 +1777,8 @@
         "Rarity": " ",
         "Rar_id": 11,
 
+        "DismantleTypes": [ " " ],
+
         "Loot_id": 10000,
         "Spec_id": 0
     },
@@ -1591,6 +1793,8 @@
 
         "Rarity": " ",
         "Rar_id": 11,
+
+        "DismantleTypes": [ " " ],
 
         "Loot_id": 10000,
         "Spec_id": 0
@@ -1608,6 +1812,8 @@
         "Rarity": " ",
         "Rar_id": 11,
 
+        "DismantleTypes": [ " " ],
+
         "Loot_id": 10000,
         "Spec_id": 0
     },
@@ -1623,6 +1829,26 @@
 
         "Rarity": " ",
         "Rar_id": 11,
+
+        "DismantleTypes": [ " " ],
+
+        "Loot_id": 10000,
+        "Spec_id": 0
+    },
+    {
+        "Name": "TmpALLDROPTYPES",
+        "Value": 10,
+
+        "Attack": 1,
+        "Type": " ",
+
+        "Slot": "Mainhand",
+        "Hands": " ",
+
+        "Rarity": " ",
+        "Rar_id": 11,
+
+        "DismantleTypes": [ "slimy", "herby", "metalic", "woody", "skinny", "gemy", "rocky", "fleshy", "magical", "TOBEADDED_silky" ],
 
         "Loot_id": 10000,
         "Spec_id": 0
