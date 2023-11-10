@@ -186,7 +186,7 @@ module.exports = {
                 }
             }
 		}
-		else if (interaction.options.getSubcommand() === 'remove') {
+		if (interaction.options.getSubcommand() === 'remove') {
 			//prompt user for confirmation of channel removel
 			//prompt user to use assign subcommand to reactiveate bot
 			const interactiveButtons = new ActionRowBuilder()
