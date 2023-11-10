@@ -477,6 +477,7 @@ module.exports = {
 		}
 
 		if (interaction.options.getSubcommand() === 'available') {
+			if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction, please check back later!');
 			//View ONLY blueprints ready for crafting
 			const userBlueprints = await OwnedBlueprints.findAll({ where: { spec_id: interaction.user.id } });
 			const userMaterial = await MaterialStore.findOne({ where: { spec_id: interaction.user.id } });
@@ -929,7 +930,10 @@ module.exports = {
 
 			const uniqueCheck = await OwnedBlueprints.findOne({ where: [{ spec_id: interaction.user.id }, { onlyone: thisIsBool }] });
 			if (!uniqueCheck) return console.log(errorForm('UNIQUE BP CHECK FAILED TO FIND BP, SOMETHING WENT HORRIBLY WRONG'));
-			const cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: uniqueCheck.name }] });
+			let cannotCraft;
+			if (uniqueCheck) {
+				cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: uniqueCheck.name }, { loot_id: theBlueprint.Loot_id }] });
+            }
 			if (cannotCraft) {
 				//This item already exists and has been crafted, notify user of this!
 				return interaction.followUp('You cannot craft another of these, it is unique.. JUST LIKE YOU :)');
@@ -1039,84 +1043,88 @@ module.exports = {
             }
 		}
 
-		async function makePotion(potion, interaction, grabbedMTA, inputAmount) {
+		async function makePotion(potion, interaction, grabbedMTA, inputAmount) {	
 
+			try {
 
-			await payupMats(grabbedMTA, interaction, potion, inputAmount);
+				await payupMats(grabbedMTA, interaction, potion, inputAmount);
 
-			const hasPot = await OwnedPotions.findOne({
-				where: [{ spec_id: interaction.user.id }, { potion_id: potion.PotionID }]
-			});
-
-			if (hasPot) {
-				if ((inputAmount === 1) || (!inputAmount)) {
-					const inc = await hasPot.increment('amount');
-
-					if (inc) console.log(successResult('Potion Amount was updated!'));
-
-					return await hasPot.save();
-				} else if (inputAmount > 1) {
-					const newAmount = hasPot.amount + inputAmount;
-					const inc = await hasPot.update({ amount: newAmount });
-
-					if (inc > 0) console.log(successResult('Potion Amount updated by inputAmount'));
-
-					return await hasPot.save();
-                }
-			}
-
-			let newPot;
-			if ((inputAmount === 1) || (!inputAmount)) {
-				newPot = await OwnedPotions.create({
-					name: potion.Name,
-					value: potion.CoinCost,
-					activecategory: potion.ActiveCategory,
-					duration: potion.Duration,
-					cooldown: potion.CoolDown,
-					potion_id: potion.PotionID,
-					blueprintid: potion.BlueprintID,
-					amount: 1,
-					spec_id: interaction.user.id,
-				});
-			} else if (inputAmount > 1) {
-				newPot = await OwnedPotions.create({
-					name: potion.Name,
-					value: potion.CoinCost,
-					activecategory: potion.ActiveCategory,
-					duration: potion.Duration,
-					cooldown: potion.CoolDown,
-					potion_id: potion.PotionID,
-					blueprintid: potion.BlueprintID,
-					amount: inputAmount,
-					spec_id: interaction.user.id,
-				});
-			}
-
-			
-
-			if (newPot) {
-				const thePotion = await OwnedPotions.findOne({
+				const hasPot = await OwnedPotions.findOne({
 					where: [{ spec_id: interaction.user.id }, { potion_id: potion.PotionID }]
 				});
 
-				console.log(successResult(`New Potion Entry: ${thePotion}`));
+				if (hasPot) {
+					if ((inputAmount === 1) || (!inputAmount)) {
+						const inc = await hasPot.increment('amount');
 
-				const list = `Value: ${potion.CoinCost} \nDuration: ${potion.Duration} \nCooldown: ${potion.CoolDown} \nTotal Amount: ${thePotion.amount}`;
+						if (inc) console.log(successResult('Potion Amount was updated!'));
 
-				const potionEmbed = new EmbedBuilder()
-					.setTitle('~POTION CREATED~')
-					.setColor(0000)
-					.addFields({
-						name: `${potion.Name}`, value: list,
+						return await hasPot.save();
+					} else if (inputAmount > 1) {
+						const newAmount = hasPot.amount + inputAmount;
+						const inc = await hasPot.update({ amount: newAmount });
+
+						if (inc > 0) console.log(successResult('Potion Amount updated by inputAmount'));
+
+						return await hasPot.save();
+					}
+				}
+
+				let newPot;
+				if ((inputAmount === 1) || (!inputAmount)) {
+					newPot = await OwnedPotions.create({
+						name: potion.Name,
+						value: potion.CoinCost,
+						activecategory: potion.ActiveCategory,
+						duration: potion.Duration,
+						cooldown: potion.CoolDown,
+						potion_id: potion.PotionID,
+						blueprintid: potion.BlueprintID,
+						amount: 1,
+						spec_id: interaction.user.id,
+					});
+				} else if (inputAmount > 1) {
+					newPot = await OwnedPotions.create({
+						name: potion.Name,
+						value: potion.CoinCost,
+						activecategory: potion.ActiveCategory,
+						duration: potion.Duration,
+						cooldown: potion.CoolDown,
+						potion_id: potion.PotionID,
+						blueprintid: potion.BlueprintID,
+						amount: inputAmount,
+						spec_id: interaction.user.id,
+					});
+				}
+
+
+
+				if (newPot) {
+					const thePotion = await OwnedPotions.findOne({
+						where: [{ spec_id: interaction.user.id }, { potion_id: potion.PotionID }]
 					});
 
-				await interaction.followUp({ embeds: [potionEmbed] }).then(async potEmbed => setTimeout(() => {
-					potEmbed.delete();
-				}, 60000)).catch(console.error);
+					console.log(successResult(`New Potion Entry: ${thePotion}`));
 
-				//await interaction.followUp(`New Potion Created! You now have ${thePotion.amount} ${thePotion.name}`);
+					const list = `Value: ${potion.CoinCost} \nDuration: ${potion.Duration} \nCooldown: ${potion.CoolDown} \nTotal Amount: ${thePotion.amount}`;
 
-				return thePotion;
+					const potionEmbed = new EmbedBuilder()
+						.setTitle('~POTION CREATED~')
+						.setColor(0000)
+						.addFields({
+							name: `${potion.Name}`, value: list,
+						});
+
+					await interaction.followUp({ embeds: [potionEmbed] }).then(async potEmbed => setTimeout(() => {
+						potEmbed.delete();
+					}, 60000)).catch(console.error);
+
+					//await interaction.followUp(`New Potion Created! You now have ${thePotion.amount} ${thePotion.name}`);
+
+					return thePotion;
+				}
+			} catch (error) {
+				console.log(errorForm(`AN ERROR HAS OCCURED: ${error}`));
             }
 		}
 
@@ -1166,7 +1174,7 @@ module.exports = {
 
 			if (newEquip) {
 				const theEquip = await UniqueCrafted.findOne({
-					where: [{ spec_id: interaction.user.id }, { blueprintid: equip.BlueprintID }]
+					where: [{ spec_id: interaction.user.id }, { blueprintid: equip.BlueprintID }, { loot_id: equip.Loot_id,}]
 				});
 
 				console.log(successResult(`New Unique Entry: ${theEquip}`));
