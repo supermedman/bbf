@@ -65,9 +65,11 @@ module.exports = {
             } else {
                 //Item found add defence
                 let list;
+                let killList;
                 let headName;
                 if (headUnique === true) {
-                    list = (`\nValue: **${headSlotItem.value}** \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}** \nLevel: **${headSlotItem.currentlevel}**`);
+                    killList = `Total Kills: **${headSlotItem.totalkills}** \nKills this level: **${headSlotItem.killsthislevel}**`;
+                    list = (`\nValue: **${headSlotItem.value}** \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}** \nLevel: **${headSlotItem.currentlevel}** \n${killList}`);
                     headSlotColour = await grabColour(headSlotItem.rar_id);
                     headName = `**${headSlotItem.name}**`;
                 } else {
@@ -96,9 +98,11 @@ module.exports = {
             } else {
                 //Item found add it
                 let list;
+                let killList;
                 let chestName;
                 if (chestUnique === true) {
-                    list = (`\nValue: **${chestSlotItem.value}** \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}** \nLevel: **${chestSlotItem.currentlevel}**`);
+                    killList = `Total Kills: **${chestSlotItem.totalkills}** \nKills this level: **${chestSlotItem.killsthislevel}**`;
+                    list = (`\nValue: **${chestSlotItem.value}** \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}** \nLevel: **${chestSlotItem.currentlevel}** \n${killList}`);
                     chestSlotColour = await grabColour(chestSlotItem.rar_id);
                     chestName = `**${chestSlotItem.name}**`;
                 } else {
@@ -128,9 +132,11 @@ module.exports = {
             } else {
                 //Item found add it
                 let list;
+                let killList;
                 let legsName;
                 if (legsUnique === true) {
-                    list = (`\nValue: **${legSlotItem.value}** \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}** \nLevel: **${legSlotItem.currentlevel}**`);
+                    killList = `Total Kills: **${legSlotItem.totalkills}** \nKills this level: **${legSlotItem.killsthislevel}**`;
+                    list = (`\nValue: **${legSlotItem.value}** \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}** \nLevel: **${legSlotItem.currentlevel}** \n${killList}`);
                     legSlotColour = await grabColour(legSlotItem.rar_id);
                     legsName = `**${legSlotItem.name}**`;
                 } else {
