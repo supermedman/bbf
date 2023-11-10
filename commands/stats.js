@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { UserData } = require('../dbObjects.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { UserData, ActiveStatus } = require('../dbObjects.js');
 const { displayEWOpic, displayEWpic } = require('./exported/displayEnemy.js');
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 module.exports = {
@@ -78,33 +78,9 @@ module.exports = {
             if (user) {
                 const uData = await UserData.findOne({ where: { username: user.username } });
                 if (uData) {
-                    var nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
-                    //Adding temp xp needed change at level 20 to slow proggress for now
-                    if (uData.level === 20) {
-                        //Adding level scale to further restrict leveling		
-                        nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
-                    } else if (uData.level > 20) {
-                        //Adding level scale to further restrict leveling
-                        const lvlScale = 1.5 * (Math.floor(uData.level / 5));
-                        nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
-                    } else {/*DO NOTHING*/ }
-
-                    const list = (
-                        `Class: ${uData.pclass}\n
-Speed: ${uData.speed}
-Strength: ${uData.strength}
-Dexterity: ${uData.dexterity}
-Intelligence: ${uData.intelligence}
-Current Health: ${uData.health}\n
-Perk Points: ${uData.points}
-\nLevel: ${uData.level}
-\nXP to next level: ${uData.xp}/${nxtLvl}
-\nCoins: ${uData.coins}
-\nTotal Enemies Killed: ${uData.totalkills}
-Most Kills In One Life: ${uData.highestkills}
-\nLast Death: ${uData.lastdeath}
-Enemies Killed Since: ${uData.killsthislife}
-                         `);
+                    const nxtLvl = calcNextLevel(uData);
+                    const list = makeListStr(uData, nxtLvl);
+                         
 
                     const userDisplayEmbed = new EmbedBuilder()
                         .setTitle(`Requested Stats for:`)
@@ -121,49 +97,150 @@ Enemies Killed Since: ${uData.killsthislife}
             } else {
                 const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
                 if (uData) {
-                    var nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
-                    //Adding temp xp needed change at level 20 to slow proggress for now
-                    if (uData.level === 20) {
-                        //Adding level scale to further restrict leveling		
-                        nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
-                    } else if (uData.level > 20) {
-                        //Adding level scale to further restrict leveling
-                        const lvlScale = 1.5 * (Math.floor(uData.level / 5));
-                        nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
-                    } else {/*DO NOTHING*/ }
+                    const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
 
-                    const list = (
-                        `Class: ${uData.pclass}\n
-Speed: ${uData.speed}
-Strength: ${uData.strength}
-Dexterity: ${uData.dexterity}
-Intelligence: ${uData.intelligence}
-Current Health: ${uData.health}\n
-Perk Points: ${uData.points}
-\nLevel: ${uData.level}
-\nXP to next level: ${uData.xp}/${nxtLvl}
-\nCoins: ${uData.coins}
-\nTotal Enemies Killed: ${uData.totalkills}
-Most Kills In One Life: ${uData.highestkills}
-\nLast Death: ${uData.lastdeath}
-Enemies Killed Since: ${uData.killsthislife}
-                         `);
+                    if (activeUserStatus.length <= 0) {
+                        const nxtLvl = calcNextLevel(uData);
+                        const list = makeListStr(uData, nxtLvl);                      
 
-                    const userDisplayEmbed = new EmbedBuilder()
-                        .setTitle(`Requested Stats for:`)
-                        .setColor(0000)
-                        .addFields(
-                            {
-                                name: (`${uData.username}`),
-                                value: list
+                        const userDisplayEmbed = new EmbedBuilder()
+                            .setTitle(`Requested Stats for:`)
+                            .setColor(0000)
+                            .addFields(
+                                {
+                                    name: (`${uData.username}`),
+                                    value: list
 
+                                }
+                            )
+                        interaction.followUp({ embeds: [userDisplayEmbed] });
+                    } else {
+                        const nxtLvl = calcNextLevel(uData);
+                        const list = makeListStr(uData, nxtLvl);
+
+                        let embedPages = [];
+
+                        const userDisplayEmbed = {
+                            title: `Requested Stats for: `,
+                            color: 0000,
+                            fields: [{
+                                name: `${uData.username}`,
+                                value: list,
+                            }],
+                        };
+                        embedPages.push(userDisplayEmbed);
+
+                        let curRun = 0;
+                        do {
+
+                            let finalFields = [];
+                            let breakPoint = 0;
+                            for (const status of activeUserStatus) {
+                                let embedFieldsName = ``;
+                                let embedFieldsValue = ``;
+                                let embedFieldsObj;
+
+                                embedFieldsName = `Active effect: ${status.name}`;
+                                if (status.duration <= 0) {
+                                    if (status.curreffect === 0) {
+                                        embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
+                                    } else {
+                                        embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
+                                    }
+                                } else {
+                                    if (status.curreffect === 0) {
+                                        embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
+                                    } else {
+                                        embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
+                                    }
+                                }
+
+                                embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
+                                finalFields.push(embedFieldsObj);
+
+                                breakPoint++;
+                                if (breakPoint === 5) break;
                             }
-                        )
-                    interaction.followUp({ embeds: [userDisplayEmbed] });
+
+                            const embed = {
+                                title: `Active Status Effects: Page ${(curRun + 1)}`,
+                                color: 0000,
+                                fields: finalFields,
+                            };
+
+                            embedPages.push(embed);
+                            curRun++;
+                        } while (curRun < (activeUserStatus.length / 5))
+
+                        const backButton = new ButtonBuilder()
+                            .setLabel("Back")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji('◀️')
+                            .setCustomId('back-page');
+
+                        const cancelButton = new ButtonBuilder()
+				            .setLabel("Cancel")
+				            .setStyle(ButtonStyle.Secondary)
+				            .setEmoji('*️⃣')
+				            .setCustomId('delete-page');
+
+                        const forwardButton = new ButtonBuilder()
+                            .setLabel("Forward")
+                            .setStyle(ButtonStyle.Secondary)
+                            .setEmoji('▶️')
+                            .setCustomId('next-page');
+
+                        const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+                        const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+                        const filter = (ID) => ID.user.id === interaction.user.id;
+
+                        const collector = embedMsg.createMessageComponentCollector({
+                            componentType: ComponentType.Button,
+                            filter,
+                            time: 300000,
+                        });
+
+                        var currentPage = 0;
+
+                        collector.on('collect', async (collInteract) => {
+                            if (collInteract.customId === 'next-page') {
+                                await collInteract.deferUpdate();
+                                if (currentPage === embedPages.length - 1) {
+                                    currentPage = 0;
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                } else {
+                                    currentPage += 1;
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                }
+                            }
+                            if (collInteract.customId === 'back-page') {
+                                await collInteract.deferUpdate();
+                                if (currentPage === 0) {
+                                    currentPage = embedPages.length - 1;
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                } else {
+                                    currentPage -= 1;
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                }
+                            }
+                            if (collInteract.customId === 'delete-page') {
+                                await collInteract.deferUpdate();
+                                await collector.stop();
+                            }
+                        });
+
+                        collector.on('end', () => {
+                            if (embedMsg) {
+                                embedMsg.delete();
+                            }
+                        });
+                    }
                 }
             }
         }
-        else if (interaction.options.getSubcommand() === 'enemy') {
+        if (interaction.options.getSubcommand() === 'enemy') {
             //handle enemies here
             const eTmp = interaction.options.getString('name');
             var enemy;
@@ -185,7 +262,7 @@ Enemies Killed Since: ${uData.killsthislife}
                 }
             }
         }
-        else if (interaction.options.getSubcommand() === 'info') {
+        if (interaction.options.getSubcommand() === 'info') {
             const skill = interaction.options.getString('stat');
             //'speed', 'strength', 'dexterity', 'intelligence'
             if (skill) {
@@ -217,6 +294,40 @@ Enemies Killed Since: ${uData.killsthislife}
             } else {
                 interaction.followUp('You have not selected a valid option, please try again using one of the options provided.');
             }
+        }
+
+
+        function makeListStr(uData, nxtLvl) {
+             const list = `Class: ${uData.pclass}\n
+Speed: ${uData.speed}
+Strength: ${uData.strength}
+Dexterity: ${uData.dexterity}
+Intelligence: ${uData.intelligence}
+Current Health: ${uData.health}\n
+Perk Points: ${uData.points}
+\nLevel: ${uData.level}
+\nXP to next level: ${uData.xp}/${nxtLvl}
+\nCoins: ${uData.coins}
+\nTotal Enemies Killed: ${uData.totalkills}
+Most Kills In One Life: ${uData.highestkills}
+\nLast Death: ${uData.lastdeath}
+Enemies Killed Since: ${uData.killsthislife}`;
+            return list;
+        }
+
+        function calcNextLevel(uData) {
+            let nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
+            //Adding temp xp needed change at level 20 to slow proggress for now
+            if (uData.level === 20) {
+                //Adding level scale to further restrict leveling		
+                nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+            } else if (uData.level > 20) {
+                //Adding level scale to further restrict leveling
+                const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+                nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+            } else {/*DO NOTHING*/ }
+
+            return nxtLvl;
         }
 	},
 
