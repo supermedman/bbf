@@ -431,7 +431,7 @@ module.exports = {
 				//Generate the rewards embed and prep for user
 				const rewards = `${pig.name} has collected: \n**For you** \n${totCoin}c \n${totXP}xp \n**For ${pig.name}** \n${pigXp}xp`;
 				const dynDes = `After searching tirelessly for hours ${pig.name} had success!`;
-
+				hrs = Math.floor(hrs);
 				const pigClaimEmbed = new EmbedBuilder()
 					.setTitle('==**YOU CLAIMED REWARDS**==')
 					.setDescription(dynDes)
