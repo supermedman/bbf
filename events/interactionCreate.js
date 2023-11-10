@@ -41,12 +41,18 @@ module.exports = {
 			} catch (error) {
 				console.error(`Error executing ${interaction.commandName}`);
 				console.error(error);
-				if (interaction.replied || interaction.deferred) {
-					await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+				if (!interaction) {
+					console.log('INTERACTION FAILED TO BE FOUND LOGGING FAILURE!');
 				} else {
-					await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-                }
+					console.log('INTERACTION FOUND DISPLAYING FAILURE!');
+					if (interaction.replied || interaction.deferred) {
+						await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+					} else {
+						await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: false });
+					}
+                		}
 			}
+			
 		} else if (interaction.isAutocomplete()) { 
 			const command = interaction.client.commands.get(interaction.commandName);
 

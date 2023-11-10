@@ -146,6 +146,7 @@ async function isUniqueLevelUp(interaction, userRef) {
 						const newAttack = (grabbedUnique.Attack + 10);
 						plusOneCurrentKills = 0;
 						curLvl++;
+
 						await grabbedUnique.update({ killsthislevel: plusOneCurrentKills });
 						await grabbedUnique.update({ currentlevel: curLvl });
 						await grabbedUnique.update({ Attack: newAttack });
@@ -174,7 +175,7 @@ async function isUniqueLevelUp(interaction, userRef) {
 				}
 			}
 			curRun++;
-		} while (curRun < allOwnedCrafted)	
+		} while (curRun < allOwnedCrafted.length)	
 }
 
 //========================================

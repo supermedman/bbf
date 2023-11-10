@@ -10,7 +10,7 @@ module.exports = {
         	.setDescription('The place to pick up your own pigmy!'),
 
 	async execute(interaction) {
-		await interaction.deferReply();
+		await interaction.deferReply().then(() => console.log('Interaction defered!'));
 		const powned = await Pighouse.findAll({ where: [{ spec_id: interaction.user.id }] });//first check for what pigmies are already owned
 
 		for (var n = 0; n < powned.length; n++) {
