@@ -19,6 +19,8 @@ const { hiding } = require('./handleHide.js');
 const { grabMat } = require('./materialDropper.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotionOne } = require('./findLoadout.js');
 
+const { dropRandomBlueprint } = require('./createBlueprint.js');
+
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
@@ -702,6 +704,14 @@ async function enemyDead(enemy, interaction, user) {
     const cCalc = ((xpGained - 5) + 1);
 
     await isLvlUp(xpGained, cCalc, interaction, user);
+
+    let blueyBaseDropRate = 0.98;
+    const rolledChance = Math.random();
+
+    if (rolledChance > blueyBaseDropRate) {
+        //Blueprint drops!
+        await dropRandomBlueprint(user.level, user.userid, interaction);
+    }
 
     var foundMaterial = await grabMat(enemy, user, interaction);
     if (foundMaterial === 0) {
