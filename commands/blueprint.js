@@ -928,12 +928,16 @@ module.exports = {
 				thisIsBool = true;
 			}
 
-			const uniqueCheck = await OwnedBlueprints.findOne({ where: [{ spec_id: interaction.user.id }, { onlyone: thisIsBool }] });
-			if (!uniqueCheck) return console.log(errorForm('UNIQUE BP CHECK FAILED TO FIND BP, SOMETHING WENT HORRIBLY WRONG'));
 			let cannotCraft;
-			if (uniqueCheck) {
-				cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: uniqueCheck.name }, { loot_id: theBlueprint.Loot_id }] });
-            }
+			if (thisIsBool === true) {
+				const uniqueCheck = await OwnedBlueprints.findOne({ where: [{ spec_id: interaction.user.id }, { onlyone: thisIsBool }] });
+				if (!uniqueCheck) return console.log(errorForm('UNIQUE BP CHECK FAILED TO FIND BP, SOMETHING WENT HORRIBLY WRONG'));
+				
+				if (uniqueCheck) {
+					cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: uniqueCheck.name }, { loot_id: theBlueprint.Loot_id }] });
+				}
+			}
+			
 			if (cannotCraft) {
 				//This item already exists and has been crafted, notify user of this!
 				return interaction.followUp('You cannot craft another of these, it is unique.. JUST LIKE YOU :)');
