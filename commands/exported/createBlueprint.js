@@ -57,6 +57,89 @@ async function createNewBlueprint(BPID, userID) {
     }
 }
 
+async function dropRandomBlueprint(level, userID, interaction) {
+    const levelUnlockedBPList = blueprintList.filter(bluey => bluey.UseLevel <= level);
+    if (levelUnlockedBPList.length > 0) {
+        const userBPList = await OwnedBlueprints.findAll({ where: { spec_id: userID } });
+        if (!userBPList) {
+            console.log(warnedForm('USER HAS NO BLUEPRINTS!'));
+        } else {
+            const droppedFilter = levelUnlockedBPList.filter(bluey => (bluey.IsUnlocked === true) && (bluey.IsDropped === true));
+            if (droppedFilter.length <= 0) return console.log(errorForm('SOMETHING WENT WRONG DURING DROPPED FILTER!'));
+            //if (arr.some((arrVal) => filter.callback.id === arrVal.id)) 
+            //if true convert to false
+            //if false convert to true
+            //return
+            //return userBPList.some((BPID) => bluey.BlueprintID === BPID.blueprintid)       
+            const notOwnedFilter = droppedFilter.filter(bluey => {
+                if (userBPList.some((BPID) => bluey.BlueprintID === BPID.blueprintid)) {
+                    return false;
+                } else return true;                      
+            });
+            console.log(basicInfoForm('notOwnedFilter length: ', notOwnedFilter.length));
+            if (notOwnedFilter.length <= 0) return console.log(warnedForm('No unowned blueprints found!'));
+
+            const randChoice = Math.floor(Math.random() * notOwnedFilter.length);
+            const BPID = notOwnedFilter[randChoice].BlueprintID;
+
+            let blueprintFound;
+            for (var i = 0; i < blueprintList.length; i++) {
+                if (blueprintList[i].BlueprintID === BPID) {
+                    //Blueprint found adding now
+                    blueprintFound = blueprintList[i];
+                } else {/**KEEP LOOKING NOT FOUND*/ }
+            }
+
+            if (!blueprintFound) return console.log(errorForm('BLUEPRINT NOT FOUND'));
+            console.log(successResult('BLUEPRINT FOUND'));
+
+            let thisIsBool = false;
+            if (blueprintFound.Rarity === 'Unique') {
+                thisIsBool = true;
+            }
+
+            let newBP;
+            try {
+                await OwnedBlueprints.create({
+                    name: blueprintFound.Name,
+                    onlyone: thisIsBool,
+                    passivecategory: blueprintFound.PassiveCategory,
+                    blueprintid: blueprintFound.BlueprintID,
+                    spec_id: userID,
+                });
+
+                const theBlueprint = await OwnedBlueprints.findOne({
+                    where: [{ blueprintid: BPID }, { spec_id: userID }]
+                });
+
+                if (theBlueprint) {
+                    //Blueprint added successfully!
+                    console.log(successResult('NEW BLUEPRINT ADDED!'));
+                    console.log(specialInfoForm('theBlueprint: ', theBlueprint));
+                    newBP = theBlueprint;
+                }
+
+            } catch (err) {
+                return console.log(errorForm('AN ERROR HAS OCCURED: ', err));
+            }
+
+            const list = `Blueprint Type: ${newBP.PassiveCategory} \nBlueprint Level: ${newBP.UseLevel}`
+
+            const blueyEmbed = new EmbedBuilder()
+                .setTitle('~BLUEPRINT UNLOCKED~')
+                .addFields({
+                    name: `${newBP.Name}`, value: list,
+                });
+
+            await interaction.channel.send({ embeds: [blueyEmbed] }).then(async embedMsg => setTimeout(() => {
+                embedMsg.delete();
+            }, 90000));
+        }
+    } else {
+        console.log(warnedForm('NO BLUEPRINTS CAN DROP'));
+    }
+}
+
 async function checkUnlockedBluey(level, userID, interaction) {
     const levelBPs = blueprintList.filter(bluey => bluey.UseLevel <= level);
     if (levelBPs.length > 0) {
@@ -64,9 +147,17 @@ async function checkUnlockedBluey(level, userID, interaction) {
         const userBPs = await OwnedBlueprints.findAll({ where: { spec_id: userID } });
         if (!userBPs) {
             console.log(warnedForm('USER HAS NO BLUEPRINTS!'));
+            const firstFilter = levelBPs.filter(bluey => (bluey.IsUnlocked === true) && (bluey.IsDropped === false));
+            if (!firstFilter) return console.log(errorForm('SOMETHING WENT WRONG WHILE FILTERING!!'));
+            await itterateMakeBluey(firstFilter, firstFilter.length, userID, interaction);
         } else {
             const firstFilter = levelBPs.filter(bluey => (bluey.IsUnlocked === true) && (bluey.IsDropped === false));
-            const secondFilter = firstFilter.filter(bluey => bluey.BlueprintID !== userBPs.blueprintid);
+            const secondFilter = firstFilter.filter(bluey => {
+                if (userBPs.some((BPID) => bluey.BlueprintID !== BPID.blueprintid)) {
+                    return false;
+                } else return true;
+                //return userBPs.some((BPID) => bluey.BlueprintID !== BPID.blueprintid)
+            });
             console.log(basicInfoForm('secondFilter results: ', secondFilter));
 
             if (!secondFilter) return console.log(errorForm('SOMETHING WENT WRONG WHILE FILTERING!!'));
@@ -131,4 +222,4 @@ async function itterateMakeBluey(unlockedList, runCount, userID, interaction) {
     } while (curRun < runCount) 
 }
 
-module.exports = { createNewBlueprint, checkUnlockedBluey };
+module.exports = { createNewBlueprint, checkUnlockedBluey, dropRandomBlueprint };
