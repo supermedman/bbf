@@ -318,7 +318,7 @@ async function userDamageLoadout(user, item) {
 
     console.log('ITEM EQUIPPED: ', item);
 
-    if (item) {
+    if (item !== 'NONE') {
         console.log('ITEM DAMAGE: ', item.Attack);
         dmgDealt += item.Attack;
     }

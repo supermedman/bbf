@@ -383,7 +383,7 @@ module.exports = {
                     var ePool = [];             
                     var totXP = 0;
                     var totCoin = 0;
-                    const totQT = (1 * hrs) + 1;
+                    const totQT = (1 * hrs) + (1 * Math.floor(hrs/4));
                     
 
                     const lvlMax = 5 * qFound.qlevel;

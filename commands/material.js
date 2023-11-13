@@ -333,6 +333,9 @@ module.exports = {
 
 				let compDiffCheck = materialDifferenceStaticValue;
 				let curRun = chosenRarID - 2;
+				if (curRun === -1) {
+					curRun = 0;
+                }
 				let maxRun = -1;
 				do {
 					if (curRun === 0) {
