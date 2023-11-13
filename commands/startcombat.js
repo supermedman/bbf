@@ -17,6 +17,8 @@ const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
 const { grabMat } = require('./exported/materialDropper.js');
 
+const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
+
 const { userDamageLoadout, enemyDamage } = require('./exported/dealDamage.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotionOne, findPotionTwo } = require('./exported/findLoadout.js');
 
@@ -27,6 +29,7 @@ const deathMsgList = require('../events/Models/json_prefabs/deathMsgList.json');
 const uniqueLootList = require('../events/Models/json_prefabs/uniqueLootList.json');
 const activeCategoryEffects = require('../events/Models/json_prefabs/activeCategoryEffects.json');
 
+
 module.exports = {
     cooldown: 10,
     data: new SlashCommandBuilder()
@@ -34,7 +37,9 @@ module.exports = {
         .setDescription('The basic combat initiation!'),
 
     async execute(interaction) {
-        await interaction.deferReply();
+        await interaction.deferReply().then(() => console.log(specialInfoForm('Interaction defered!'))).catch((err) => {
+            return console.log(errorForm('AN ERROR OCCURED!: ', err))
+        });
 
         //const warnedForm = chalk.bold.yellowBright;
         //console.log(warnedForm('Testing chalk here!'));
@@ -267,32 +272,21 @@ module.exports = {
 
             const user = await grabU();
 
+            let blueyBaseDropRate = 0.98;
+            const rolledChance = Math.random();
+
+            if (rolledChance > blueyBaseDropRate) {
+                //Blueprint drops!
+                await dropRandomBlueprint(user.level, user.userid, interaction);
+            }
+
             var foundMaterial = await grabMat(enemy, user, interaction);
             if (foundMaterial === 0) {
                 //Do nothing, invalid return value given
             } else if (!foundMaterial) {
                 //Error occured ignore futher..
             } else {
-                console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
-                //const updatedMat = await MaterialStore.findOne({ where: [{ name: foundMaterial.name }, { spec_id: interaction.user.id }] });
-
-                //if (updatedMat) foundMaterial = updatedMat;
-
-                //var materialListed = `Value: ${foundMaterial.value}\nRarity: ${foundMaterial.rarity}\nAmount: ${foundMaterial.amount}`;
-
-                //const matDropEmbedColour = await grabColour(updatedMat.rar_id);
-
-                //const materialDropEmbed = new EmbedBuilder()
-                //    .setTitle('~MATERIALS DROPPED~')
-                //    .setColor(matDropEmbedColour)
-                //    .addFields({
-                //        name: `${foundMaterial.name}\n`,
-                //        value: materialListed
-                //    });
-
-                //await interaction.channel.send({ embeds: [materialDropEmbed] }).then(async matDropEmbed => setTimeout(() => {
-                //    matDropEmbed.delete();
-                //}, 20000)).catch(console.error);
+                console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));                
             }
 
             if (!activeEffect) {
@@ -364,15 +358,15 @@ module.exports = {
                 }, 20000)).catch(console.error);
             }
 
-            //const ref = new ActionRowBuilder()
-            //    .addComponents(
-            //        new ButtonBuilder()
-            //            .setCustomId('primary')
-            //            .setLabel('New Enemy')
-            //            .setStyle(ButtonStyle.Success)
-            //            .setDisabled(true)
-            //            .setEmoji('💀'),
-            //    );
+            const row = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('spawn-new')
+                        .setLabel('New Enemy')
+                        .setStyle(ButtonStyle.Success)
+                        .setDisabled(false)
+                        .setEmoji('💀'),
+                );
 
             const killedEmbed = new EmbedBuilder()
                 .setTitle("YOU KILLED THE ENEMY!")
@@ -383,24 +377,56 @@ module.exports = {
                     { name: 'Coins Gained', value: ' ' + cCalc + ' ', inline: true },
                 );
 
-            interaction.channel.send({ embeds: [killedEmbed]/**, components: [ref]*/ }).then(async embedMsg => setTimeout (() => {
-                //const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
+            if (interaction.user.id !== '501177494137995264') {
+                interaction.channel.send({ embeds: [killedEmbed]/**, components: [ref]*/ }).then(async embedMsg => setTimeout(() => {
+                    //const collectorBut = embedMsg.createMessageComponentCollector({ componentType: ComponentType.Button, time: 40000 });
 
-                //collectorBut.on('collect', async i => {
-                //    if (i.user.id === interaction.user.id) {
-                //        //delete the embed here
-                //        await embedMsg.delete();
-                //        startCombat();//run the entire script over again
+                    //collectorBut.on('collect', async i => {
+                    //    if (i.user.id === interaction.user.id) {
+                    //        //delete the embed here
+                    //        await embedMsg.delete();
+                    //        startCombat();//run the entire script over again
 
-                //    } else {
-                //        i.reply({ content: `Nice try slick!`, ephemeral: true });
-                //    }
-                //});
+                    //    } else {
+                    //        i.reply({ content: `Nice try slick!`, ephemeral: true });
+                    //    }
+                    //});
 
-                //collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
-                embedMsg.delete();
-            }, 25000)).catch(console.error);
-            removeE(constKey);
+                    //collectorBut.on('end', async remove => { if (!embedMsg) { await embedMsg.delete(); } });
+                    embedMsg.delete();
+                }, 25000)).catch(console.error);
+                removeE(constKey);
+            } else {
+
+                const embedMsg = await interaction.channel.send({ embeds: [killedEmbed], components: [row] });
+                    
+                const filter = (i) => i.user.id === interaction.user.id;
+
+                const collector = embedMsg.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 40000,
+                });
+
+                collector.on('collect', async (collInteract) => {          
+                    if (collInteract.customId === 'spawn-new') {
+                        console.log(specialInfoForm('SPAWN-NEW WAS PRESSED!'));
+                        await collInteract.deferUpdate();
+                        //delete the embed here
+                        console.log(specialInfoForm('SPAWN-NEW WAS PRESSED!'));
+                        await collector.stop();
+                        startCombat();//run the entire script over again
+                    }             
+                });
+
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete();
+                    }
+                });
+                
+                removeE(constKey);
+            }
         }
 
         //========================================
@@ -705,7 +731,7 @@ module.exports = {
                             await collInteract.deferUpdate();
                         }
                         await collector.stop();
-                        await dealDamage(dmgDealt, weapon, enemy, false);
+                        dealDamage(dmgDealt, weapon, enemy, false);
                     } else {
                         //No loadout, no weapon, procced as normal
                         var weapon;
@@ -718,7 +744,7 @@ module.exports = {
                             await collInteract.deferUpdate();
                         }
                         await collector.stop();
-                        await dealDamage(dmgDealt, weapon, enemy, false);
+                        dealDamage(dmgDealt, weapon, enemy, false);
                     }
                 }
 
@@ -806,10 +832,15 @@ module.exports = {
             var Itype;
             console.log('dmgDealt: ', dmgDealt);
 
-            if (!item) {
+            if (item === 'NONE') {
                 Itype = 'NONE';
             } else {
-                Itype = item.Type.toLowerCase();
+                try {
+                    Itype = item.Type.toLowerCase();
+                } catch (error) {
+                    console.log(errorForm('AN ERROR OCCURED: ', error));
+                }
+                if (!Itype) Itype = 'none';
                 console.log('Weapon Type after toLowerCase(): ', Itype);
 
                 const Etype = enemy.weakto.toLowerCase();
