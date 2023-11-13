@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 const {
     warnedForm,
@@ -93,7 +93,7 @@ module.exports = {
     },
 	async execute(interaction) { 
         await interaction.deferReply();
-        if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction! Please try again later.');
+        //if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction! Please try again later.');
 
         if (interaction.options.getSubcommand() === 'some') {
             const itemName = interaction.options.getString('item');
@@ -155,13 +155,6 @@ module.exports = {
                 .setEmoji('❌')
                 .setCustomId('cancel');
 
-            const dismantleOneButton = new ButtonBuilder()
-                .setLabel("Dismantle ONE")
-                .setStyle(ButtonStyle.Success)
-                .setEmoji('⚒')
-                .setDisabled(disableDismantleOne)
-                .setCustomId('dismantle-one');
-
             const leaveOneButton = new ButtonBuilder()
                 .setLabel("LEAVE ONE")
                 .setStyle(ButtonStyle.Primary)
@@ -175,7 +168,14 @@ module.exports = {
                 .setDisabled(disableDismantleAll)
                 .setCustomId('dismantle-all');
 
-            const dismantleButtons = new ActionRowBuilder().addComponents(cancelButton, dismantleOneButton, leaveOneButton, dismantleAllButton);
+            const dismantleOneButton = new ButtonBuilder()
+                .setLabel("Dismantle ONE")
+                .setStyle(ButtonStyle.Success)
+                .setEmoji('⚒')
+                .setDisabled(disableDismantleOne)
+                .setCustomId('dismantle-one');
+
+            const dismantleButtons = new ActionRowBuilder().addComponents(cancelButton, leaveOneButton, dismantleAllButton, dismantleOneButton);
 
             const dismantleEmbed = new EmbedBuilder()
                 .setTitle('~Dismantle Options~')
@@ -402,6 +402,7 @@ module.exports = {
                     const result = await handleMultiDismantle(dismantleAll, dismantleOne, leaveOne);
                     if (result[0].title !== undefined) {
                         console.log(successResult('Embed created!!'));
+                        await collector.stop();
                         displayMaterialGain(result);
                     } else {
                         return interaction.followUp(`Error while executing command: ${result}`);
@@ -432,7 +433,7 @@ module.exports = {
             }
 
             console.log(successResult('RawMaterialDrops found! Length of array after dismantleAllList: ', rawMaterialDrops.length));
-
+            //This runs through the list of items with exactly 2 amount
             for (const item of dismantleOneList) {
                 console.log(basicInfoForm('CHECKING dismantleOneList'));
                 const returnedMatList = await dismantleOne(item, true);
