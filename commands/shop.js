@@ -126,7 +126,7 @@ module.exports = {
 
             const refreshButton = new ButtonBuilder()
                 .setCustomId('refresh')
-                .setLabel(`Refresh Shop, Cost ${refreshCost}`)
+                .setLabel(`Reroll Shop, Cost ${refreshCost}`)
                 .setStyle(ButtonStyle.Primary)
                 .setEmoji('🔄');
 
@@ -216,7 +216,7 @@ module.exports = {
 
                                 slotOneButton.setDisabled(true);
                                 refreshCost -= item.value;
-                                refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
+                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
                                 finalFields[0] = {
                                     name: 'SLOT ONE', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
@@ -271,7 +271,7 @@ module.exports = {
 
                                 slotTwoButton.setDisabled(true);
                                 refreshCost -= item.value;
-                                refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
+                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
                                 finalFields[1] = {
                                     name: 'SLOT TWO', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
@@ -327,7 +327,7 @@ module.exports = {
 
                                 slotThreeButton.setDisabled(true);
                                 refreshCost -= item.value;
-                                refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
+                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
                                 finalFields[2] = {
                                     name: 'SLOT THREE', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
@@ -381,7 +381,7 @@ module.exports = {
 
                                 slotFourButton.setDisabled(true);
                                 refreshCost -= item.value;
-                                refreshButton.setLabel(`Refresh Shop, Cost ${refreshCost}`);
+                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
                                 finalFields[3] = {
                                     name: 'SLOT FOUR', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
