@@ -79,6 +79,10 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         PKE_UPK: `Player-Kill-${userID}`,
     };
 
+    const bClear = await clearBoss();
+    const eClear = await clearEnemies();
+    console.log(specialInfoForm(`Status of bClear: ${bClear}\nStatus of eClear: ${eClear}`));
+
     var fullKilledList = [];
     var killedEnemies = [];
 
@@ -631,6 +635,20 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
     async function removeEnemy(constKey) {
         const tableUpdate = await ActiveDungeonEnemy.destroy({ where: [{ specid: userID }, { constkey: constKey }] });
+        if (tableUpdate > 0) {
+            return 'Deleted';
+        } else return 'Failure';
+    }
+
+    async function clearEnemies() {
+        const tableUpdate = await ActiveDungeonEnemy.destroy({ where: { specid: userID } });
+        if (tableUpdate > 0) {
+            return 'Deleted';
+        } else return 'Failure';
+    }
+
+    async function clearBoss() {
+        const tableUpdate = await ActiveDungeonBoss.destroy({ where: { specid: userID } });
         if (tableUpdate > 0) {
             return 'Deleted';
         } else return 'Failure';
