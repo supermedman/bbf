@@ -307,7 +307,8 @@ Current Health: ${uData.health}\n
 Perk Points: ${uData.points}
 \nLevel: ${uData.level}
 \nXP to next level: ${uData.xp}/${nxtLvl}
-\nCoins: ${uData.coins}
+\nCoins: ${uData.coins}\n
+Quest Tokens (Qts): ${uData.qt}
 \nTotal Enemies Killed: ${uData.totalkills}
 Most Kills In One Life: ${uData.highestkills}
 \nLast Death: ${uData.lastdeath}
