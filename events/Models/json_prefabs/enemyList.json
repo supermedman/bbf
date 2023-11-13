@@ -127,6 +127,10 @@
         "DropTypes": [ "gemy" ],
 
         "ConstKey": 3,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Tranceserpent.png",
+        "Image": "attachment://Tranceserpent.png",
+
         "SpecId": 0
     },
     {
@@ -167,6 +171,10 @@
         "DropTypes": [ "magical" ],
 
         "ConstKey": 5,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/MystSoul.png",
+        "Image": "attachment://MystSoul.png",
+
         "SpecId": 0
     },
     {
@@ -185,6 +193,10 @@
         "DropTypes": [ "magical" ],
 
         "ConstKey": 15,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Ghost.png",
+        "Image": "attachment://Ghost.png",
+
         "SpecId": 0
     },
     {
@@ -564,6 +576,10 @@
         "DropTypes": [ "fleshy" ],
 
         "ConstKey": 27,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Thornbug.png",
+        "Image": "attachment://Thornbug.png",
+
         "SpecId": 0
     },
     {
@@ -2799,7 +2815,7 @@
         "XpMin": 2700,
         "XpMax": 3400,
 
-        "DropTypes": [ "rocky", "magical" ],
+        "DropTypes": [ "gemy", "magical" ],
         "UniqueType": "Dark",
 
         "ConstKey": 136,
