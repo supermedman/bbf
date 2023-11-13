@@ -363,6 +363,7 @@ module.exports = {
             const itemname = interaction.options.getString('headslot');
             console.log(itemname);
             const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            if (!item) return interaction.followUp('Hmmm looks like that didnt work, try typing the first letter of the item as a capital, wait for the options and select the one you want!');
             console.log(item.loot_id);
 
             if (item) {
@@ -398,6 +399,7 @@ module.exports = {
             const itemname = interaction.options.getString('chestslot');
             console.log(itemname);
             const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            if (!item) return interaction.followUp('Hmmm looks like that didnt work, try typing the first letter of the item as a capital, wait for the options and select the one you want!');
             console.log(item.loot_id);
 
             if (item) {
@@ -432,6 +434,7 @@ module.exports = {
             const itemname = interaction.options.getString('legslot');
             console.log(itemname);
             const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            if (!item) return interaction.followUp('Hmmm looks like that didnt work, try typing the first letter of the item as a capital, wait for the options and select the one you want!');
             console.log(item.loot_id);
 
             if (item) {
@@ -465,6 +468,7 @@ module.exports = {
             const itemname = interaction.options.getString('offhand');
             console.log(itemname);
             const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            if (!item) return interaction.followUp('Hmmm looks like that didnt work, try typing the first letter of the item as a capital, wait for the options and select the one you want!');
             console.log(item.loot_id);
 
             if (item) {
@@ -505,6 +509,7 @@ module.exports = {
             const itemname = interaction.options.getString('any');
             console.log(itemname);
             const item = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            if (!item) return interaction.followUp('Hmmm looks like that didnt work, try typing the first letter of the item as a capital, wait for the options and select the one you want!');
             console.log(item.loot_id);
 
             if (item) {
@@ -701,6 +706,7 @@ module.exports = {
             const itemname = interaction.options.getString('slotone');
             console.log(itemname);
             const item = await OwnedPotions.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+            if (!item) return interaction.followUp('Hmmm looks like that didnt work, try typing the first letter of the item as a capital, wait for the options and select the one you want!');
             console.log(item.potion_id);
 
             if (item) {
