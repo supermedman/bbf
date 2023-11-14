@@ -188,9 +188,9 @@ async function addPoints(uData) {
 //========================================
 //this method is used to update the users xp based on the xp calculated in the display function
 async function editPData(totalXp, newlvl, cGained, uData) {
-	const editC = await UserData.increment({ coins: cGained }, { where: { username: uData.username } });
-	const editLvl = await UserData.update({ level: newlvl }, { where: { username: uData.username } });
-	const addXp = await UserData.update({ xp: totalXp }, { where: { username: uData.username } });
+	const editC = await UserData.update({ coins: cGained }, { where: { userid: uData.userid } });
+	const editLvl = await UserData.update({ level: newlvl }, { where: { userid: uData.userid } });
+	const addXp = await UserData.update({ xp: totalXp }, { where: { userid: uData.userid } });
 
 	if (editLvl > 0 && addXp > 0 && editC > 0) {
 		return console.log('ALL CHECKS PASSED!');
@@ -206,7 +206,7 @@ async function isPigLvlUp(pigXp, pig, interaction) {
 	const curlvl = pig.level;
 	console.log('Current level before xp added: ', curlvl);
 
-	var nxtPigLvl = 60 * (Math.pow(pig.level, 2) - 1);
+	var nxtPigLvl = 50 * (Math.pow(pig.level, 2) - 1);
 	console.log('Current Xp Pigmy needs to level: ', nxtPigLvl);
 
 	console.log('xp to next level: ', (nxtPigLvl - totalXp));
@@ -219,7 +219,7 @@ async function isPigLvlUp(pigXp, pig, interaction) {
 			totalXp = totalXp - nxtPigLvl;
 			newlvl = curlvl + i;
 
-			nxtPigLvl = 60 * (Math.pow((curlvl + i), 2) - 1);
+			nxtPigLvl = 50 * (Math.pow((curlvl + i), 2) - 1);
 			console.log('Current Xp Pigmy needs to level: ', nxtPigLvl);
 
 			const isDes = `${pig.name} has just leveled up!`;
@@ -239,49 +239,52 @@ async function isPigLvlUp(pigXp, pig, interaction) {
 		} while (nxtPigLvl <= totalXp)
 		
 	}
-	return await editPigOut(pig, newlvl, totalXp, interaction);//edit active pigmy values, reset lcm to the time after values have been edited
+	await editPigOut(pig, newlvl, totalXp, interaction);//edit active pigmy values, reset lcm to the time after values have been edited
 }
 
 //========================================
 //This method updates both the active pigmy and its pighouse counterpart
-async function editPigOut(pig, newlvl, totalXp, interaction) {
+async function editPigOut(pig, newlvl, totalXp, interaction, isClaim) {
 	//await updatePigHouse();//update active pigmies pighouse reference to avoid missing values and lost info
 	//Step 1: Edit active pigmy values
 	//Step 2: Check that values were changed
 	//Step 3: Grab new reference to active pigmy to avoid errors
 	//Step 4: Update lcm to new updatedAt value
 	//Step 5: Update all needed values in pighouse
-	
-	const pigID = interaction.user.id;
-	const editlvl = await Pigmy.update({ level: newlvl }, { where: { spec_id: pigID } });
-	const editXp = await Pigmy.update({ exp: totalXp }, { where: { spec_id: pigID } });
+	const updateLevel = await Pigmy.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+	const updateXP = await Pigmy.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 
-	if (editlvl > 0) {
-		if (editXp > 0) {
-			console.log('editPigOut() Check #1: \nPASSED');
-			const ePig = await Pigmy.findOne({ where: [{ spec_id: interaction.user.id }] });
-			if (ePig) {
-				console.log('editPigOut() Check #2: \nPASSED');
-				const lastClaim = new Date(ePig.updatedAt).getTime();
-				const claimMade = await Pigmy.update({ lcm: lastClaim }, { where: { spec_id: pigID } });
-				if (claimMade > 0) {
-					console.log('editPigOut() Check #3: \nPASSED');
-					const pigIn = await Pighouse.findOne({ where: { spec_id: interaction.user.id, refid: ePig.refid } });
-					if (pigIn) {
-						console.log('editPigOut() Check #4: \nPASSED');
-						const editHlvl = await Pighouse.update({ level: newlvl }, { where: { spec_id: pigID, refid: pigIn.refid } });
-						const editHXp = await Pighouse.update({ exp: totalXp }, { where: { spec_id: pigID, refid: pigIn.refid } });
-						if (editHlvl && editHXp) return console.log('editPigOut() Check #5: \nPASSED');
-					}
-					console.log('editPigOut() Check #4: \nFAILED');
-				}
-				console.log('editPigOut() Check #3: \nFAILED');
+	if (updateLevel > 0 && updateXP > 0) {
+		//Level & xp updated
+		if (isClaim === true) {
+			const updatedPigmy = await Pigmy.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+			const lastClaim = new Date(updatedPigmy.updatedAt).getTime();
+			const updateClaim = await Pigmy.update({ lcm: lastClaim }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+
+			if (updateClaim > 0) {
+				const pigHouseRef = await Pighouse.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+				if (!pigHouseRef) return console.log('AN ERROR OCCURED: Pighouse Ref NOT FOUND');
+				const updateRefLevel = await Pighouse.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+				const updateRefXP = await Pighouse.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+
+				if (updateRefLevel > 0 && updateRefXP > 0) return console.log('All pigmy values updated SUCCESSFULLY!');
 			}
-			console.log('editPigOut() Check #2: \nFAILED');
-        }		
-	}
-	return console.log('Something went wrong while updating pigmy values!');
-	
+		} else if (isClaim === false) {
+			const pigHouseRef = await Pighouse.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+			if (!pigHouseRef) return console.log('AN ERROR OCCURED: Pighouse Ref NOT FOUND');
+			const updateRefLevel = await Pighouse.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+			const updateRefXP = await Pighouse.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+
+			if (updateRefLevel > 0 && updateRefXP > 0) return console.log('All pigmy values updated SUCCESSFULLY!');
+		} else {
+			const pigHouseRef = await Pighouse.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+			if (!pigHouseRef) return console.log('AN ERROR OCCURED: Pighouse Ref NOT FOUND');
+			const updateRefLevel = await Pighouse.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+			const updateRefXP = await Pighouse.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
+
+			if (updateRefLevel > 0 && updateRefXP > 0) return console.log('All pigmy values updated SUCCESSFULLY!');
+		}
+	} else return console.log('AN ERROR OCCURED: Pigmy LEVEL OR XP NOT UPDATED!');
 }
 
 module.exports = { isLvlUp, isPigLvlUp, isUniqueLevelUp };
