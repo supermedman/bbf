@@ -123,12 +123,12 @@ async function dropRandomBlueprint(level, userID, interaction) {
                 return console.log(errorForm('AN ERROR HAS OCCURED: ', err));
             }
 
-            const list = `Blueprint Type: ${newBP.PassiveCategory} \nBlueprint Level: ${newBP.UseLevel}`
+            const list = `Blueprint Type: ${newBP.passivecategory} \nBlueprint Level: ${blueprintFound.UseLevel}`
 
             const blueyEmbed = new EmbedBuilder()
                 .setTitle('~BLUEPRINT UNLOCKED~')
                 .addFields({
-                    name: `${newBP.Name}`, value: list,
+                    name: `${newBP.name}`, value: list,
                 });
 
             await interaction.channel.send({ embeds: [blueyEmbed] }).then(async embedMsg => setTimeout(() => {
