@@ -299,6 +299,8 @@ module.exports = {
 					checkListPOS++;
 					materialDifferenceStaticValue = totRemainRarMat; //This is the amount needed to complete combine
 					console.log(specialInfoForm('materialDifferenceStaticValue WITH FOUND MATERIALS: ', materialDifferenceStaticValue));
+					materialDifferenceStaticValue *= 5;
+					console.log(successResult('materialDifferenceStaticValue AFTER MULT APPLIED: ', materialDifferenceStaticValue));
 				}
 			} else {
 				console.log(failureResult('firstBackCheck is EMPTY!'));
@@ -506,10 +508,10 @@ module.exports = {
 
 							const checkingDiff = compDiffCheck + totalStaticMats;
 							if (checkingDiff >= 0) {
-								const remainingMats = totalStaticMats - checkingDiff;
-								//const totalMatsSpent = totalStaticMats - remainingMats;
+								const totalMatsSpent = totalStaticMats - checkingDiff;
+								const remainingMats = totalStaticMats - totalMatsSpent;
 								if (remainingMats > 0) {
-									//Prepare remaining entry
+									//Prepare remaining entry remainingMats
 									matPrefabSlice = foundMaterialList.filter(mat => mat.Rar_id === curRun);
 									tmpCopy.push(matPrefabSlice[0]);
 

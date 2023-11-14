@@ -79,6 +79,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         PKE_UPK: `Player-Kill-${userID}`,
     };
 
+    await setFullHealth();
     const bClear = await clearBoss();
     const eClear = await clearEnemies();
     console.log(specialInfoForm(`Status of bClear: ${bClear}\nStatus of eClear: ${eClear}`));
@@ -122,6 +123,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         }
     }
 
+    // This function handles boss stage emitter creation and removal as well as incrementing current stage
     async function startBossHandle() {
         const bossStages = bossList.filter(boss => boss.NameRef === theDungeon.Boss);
 
@@ -154,6 +156,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         handleBoss(curStage);
     }
 
+    // This function handles sending and recieving combat outcomes and handles accordingly
     async function handleBoss(curStage) {
         let constKey = curStage.ConstKey;
         let boss = curStage;
@@ -173,6 +176,20 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     //Boss is dead!
                     await dungeonISCOMPLETE(true);
                     giveBossDrops(boss);
+                    //userSpecEEFilter.nextStageE.removeAllListeners(`${userSpecEEFilter.NSE_UPK}`);
+                    if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
+                    if (userSpecEEFilter.eKilledE !== 'NONE') {
+                        userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
+                        userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
+                        userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+                    }
+                    userSpecEEFilter.nextStageE.removeAllListeners(`${userSpecEEFilter.NSE_UPK}`);
+                    //if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
+                    if (userSpecEEFilter.bKilledE !== 'NONE') {
+                        //userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
+                        userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
+                        userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+                    }
                 } else {
                     const deleteBoss = await removeBoss(constKey);
                     if (deleteBoss === 'Deleted') {
@@ -236,6 +253,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         } else return console.log(errorForm(`AN ERROR OCCURED: ${result}`));
     }
 
+    // This function handles db boss creation and deletion where needed
     async function createBoss(boss, constKey) {
         const dupeCheck = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
         if (dupeCheck) {
@@ -283,6 +301,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         }
     }
 
+    // This function removes a specified boss
     async function removeBoss(constKey) {
         const tableUpdate = await ActiveDungeonBoss.destroy({ where: [{ specid: userID }, { constkey: constKey }] });
         if (tableUpdate > 0) {
@@ -290,6 +309,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         } else return 'Failure';
     }
 
+    // This function sets the completed flag in active dungeon to true
     async function dungeonISCOMPLETE(status) {
         const completeStatus = await ActiveDungeon.update({ completed: status }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         if (completeStatus > 0) {
@@ -297,6 +317,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         }
     }
 
+    // This function handles giving boss rewards when defeated
     async function giveBossDrops(boss) {
         const bossForRewards = boss;
 
@@ -333,15 +354,23 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         await isLvlUp(xpGained, cGained, interaction);
     }
 
+    //console.log(specialInfoForm())
+    //console.log(basicInfoForm())
+
+    // This function handles regular floor combat loading each new floor as called
     async function startNormHandle() {
         //Create EEs To be used for combat end call backs
         let floorStr = `Floor${cf}`;
 
         if (userSpecEEFilter.nextFloorE === 'NONE') {
+            console.log(specialInfoForm('nextFloorEmitter: NONE'));
+
             const nextFloorEmitter = new EventEmitter();
 
             userSpecEEFilter.nextFloorE = nextFloorEmitter;
         } else {
+            console.log(specialInfoForm(`nextFloorEmitter found, removing all listeners now!`));
+
             userSpecEEFilter.nextFloorE.removeAllListeners(`${userSpecEEFilter.NFE_UPK}`);
             if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
             if (userSpecEEFilter.eKilledE !== 'NONE') {
@@ -357,8 +386,10 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
         userSpecEEFilter.nextFloorE.on(`${userSpecEEFilter.NFE_UPK}`, () => {
             //Load next floor
+            console.log(basicInfoForm('Loading next floor...'));
             cf++;
             floorStr = `Floor${cf}`;
+            console.log(specialInfoForm(`Floor being loaded: ${floorStr}`));
             loadFloor(floorStr, theDungeon);
         });
 
@@ -380,6 +411,19 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
         //EE HANDLING
         if (userSpecEEFilter.nextEnemyE === 'NONE') {
+            console.log(specialInfoForm('nextEnemyEmitter: NONE'));
+            const nextEnemyEmitter = new EventEmitter();
+
+            userSpecEEFilter.nextEnemyE = nextEnemyEmitter;
+        } else {
+            console.log(specialInfoForm('nextEnemyEmitter found, removing all listeners now!'));
+            if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
+            if (userSpecEEFilter.eKilledE !== 'NONE') {
+                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
+                //userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
+                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+            }
+
             const nextEnemyEmitter = new EventEmitter();
 
             userSpecEEFilter.nextEnemyE = nextEnemyEmitter;
@@ -388,10 +432,15 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         let curPos = 0;
         userSpecEEFilter.nextEnemyE.on(`${userSpecEEFilter.NEE_UPK}`, () => {
             //Load next enemy
+            console.log(basicInfoForm('Loading next enemy...'));
             curPos++;
+            console.log(specialInfoForm(`floorEnemyCKList @ ${curPos} ${floorEnemyCKList[curPos]}`));
+            console.log(specialInfoForm(`floorEnemyObjectList @ ${curPos} ${floorEnemyObjectList[curPos]}`));
             handleEnemy(floorEnemyCKList, floorEnemyObjectList, curPos);
         });
 
+        console.log(specialInfoForm(`floorEnemyCKList @ ${curPos} ${floorEnemyCKList[curPos]}`));
+        console.log(specialInfoForm(`floorEnemyObjectList @ ${curPos} ${floorEnemyObjectList[curPos]}`));
         handleEnemy(floorEnemyCKList, floorEnemyObjectList, curPos);
     }
 
@@ -412,8 +461,10 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
             userSpecEEFilter.eKilledE.once(`${userSpecEEFilter.EKE_UPK}`, async () => {
                 //Enemy killed
+                console.log(basicInfoForm('Enemy killed...'));
                 killedEnemies.push(enemyToAdd);
                 if ((curPos + 1) < floorFabList.length) {
+                    console.log(basicInfoForm('Next enemy exists, prompting next enemy button input now...'));
                     const nextButton = new ButtonBuilder()
                         .setLabel('NEXT ENEMY')
                         .setCustomId('next-enemy')
@@ -462,9 +513,11 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     killedEnemies = [];
                     if (((cf + 1) % 5) === 0) {
                         //Save floor
+                        console.log(specialInfoForm('Save floor reached, saving user data now...'));
                         await saveFloor((cf + 1));
                         await giveFloorProgress();
-
+                        const eClear = await clearEnemies();
+                        console.log(specialInfoForm(`eClear status: ${eClear}`));
                         var addingCF = cf + 1;
                         var saveFloorValList = ` ${addingCF}`
 
@@ -480,6 +533,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                         }, 30000)).catch(console.error);
                     }
                     if ((cf + 1) < bossFloor) {
+                        console.log(basicInfoForm('No next enemy, prompting next floor button input now...'));
                         const nextFloorButton = new ButtonBuilder()
                             .setLabel('NEXT FLOOR')
                             .setCustomId('next-floor')
@@ -578,37 +632,39 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
 
     async function createEnemy(enemyPrefab, constKey) {
-        const dupeCheck = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
-        if (dupeCheck) {
+        const fullClear = await clearEnemies();
+        console.log(specialInfoForm(`clearEnemies Result: ${fullClear}`));
+        //const dupeCheck = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: constKey}] });
+        //if (dupeCheck) {
             //Entry exists await deletion before continuing...
-            const delResult = await removeEnemy(constKey);
-            if (delResult === 'Deleted') {
-                await ActiveDungeonEnemy.create({
-                    name: enemyPrefab.Name,
-                    description: enemyPrefab.Description,
-                    level: enemyPrefab.Level,
-                    mindmg: enemyPrefab.MinDmg,
-                    maxdmg: enemyPrefab.MaxDmg,
-                    health: enemyPrefab.Health,
-                    defence: enemyPrefab.Defence,
-                    weakto: enemyPrefab.WeakTo,
-                    dead: false,
-                    xpmin: enemyPrefab.XpMin,
-                    xpmax: enemyPrefab.XpMax,
-                    constkey: constKey,
-                    specid: userID,
-                });
+            //const delResult = await removeEnemy(constKey);
+            //if (delResult === 'Deleted') {
+            //    await ActiveDungeonEnemy.create({
+            //        name: enemyPrefab.Name,
+            //        description: enemyPrefab.Description,
+            //        level: enemyPrefab.Level,
+            //        mindmg: enemyPrefab.MinDmg,
+            //        maxdmg: enemyPrefab.MaxDmg,
+            //        health: enemyPrefab.Health,
+            //        defence: enemyPrefab.Defence,
+            //        weakto: enemyPrefab.WeakTo,
+            //        dead: false,
+            //        xpmin: enemyPrefab.XpMin,
+            //        xpmax: enemyPrefab.XpMax,
+            //        constkey: constKey,
+            //        specid: userID,
+            //    });
 
-                const enemyAdded = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyPrefab.ConstKey }] });
-                if (enemyAdded) {
-                    console.log(successResult('ENEMY CREATED AND FOUND!'));
-                    return 'Success';
-                } else return 'ERROR-NO: 1';
-            } else if (delResult === 'Failure') {
-                console.log(errorForm('ERROR: ENEMY NOT REMOVED BEFORE LOADING'));
-                return 'ERROR-NO: 0';
-            }
-        } else if (!dupeCheck) {
+            //    const enemyAdded = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyPrefab.ConstKey }] });
+            //    if (enemyAdded) {
+            //        console.log(successResult('ENEMY CREATED AND FOUND!'));
+            //        return 'Success';
+            //    } else return 'ERROR-NO: 1.1';
+            //} else if (delResult === 'Failure') {
+            //    console.log(errorForm('ERROR: ENEMY NOT REMOVED BEFORE LOADING'));
+            //    return 'ERROR-NO: 0.1';
+            //}
+        //} else if (!dupeCheck) {
             await ActiveDungeonEnemy.create({
                 name: enemyPrefab.Name,
                 description: enemyPrefab.Description,
@@ -629,8 +685,8 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
             if (enemyAdded) {
                 console.log(successResult('ENEMY CREATED AND FOUND!'));
                 return 'Success';
-            } else return 'ERROR-NO: 1';
-        }
+            } else return 'ERROR-NO: 1.2';
+        //}
     }
 
     async function removeEnemy(constKey) {
@@ -689,16 +745,16 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
     //This method handles loot reward generation and updating userdata values accordingly
     async function giveFloorProgress() {
-        var totXP = 0;
-        var totCoin = 0;
-        var count = 0;
-        var totItem = 0;
-        var iGained = [];
+        let totXP = 0;
+        let totCoin = 0;
+        let count = 0;
+        let totItem = 0;
+        let iGained = [];
         while (count < fullKilledList.length) {
-            var enemyTempRef = fullKilledList[count];
+            let enemyTempRef = fullKilledList[count];
 
-            var lChance = Math.random();//rng which will decide whether loot is dropped
-            var HI = false;
+            let lChance = Math.random();//rng which will decide whether loot is dropped
+            let HI = false;
 
             const multChance = 0.850;
 
@@ -707,20 +763,19 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 HI = true;
             } else {/**hasitem: false*/ }
 
-            var tmpCopy = [];
-
+            let tmpCopy = [];
             if (HI) {
                 //has item add to list 
                 totItem += 1;
-                var iPool = [];
+                let iPool = [];
                 tmpCopy = [];//Clear tmp array for each item 
 
-                var randR = await grabRar(enemyTempRef.level);
+                let randR = await grabRar(enemyTempRef.level);
 
                 for (var n = 0; n < lootList.length; n++) {
 
                     if (lootList[n].Rar_id === randR) {
-                        await iPool.push(lootList[n]);
+                        iPool.push(lootList[n]);
                         //console.log('CONTENTS OF lootList AT POSITION ' + n + ': ', lootList[n].Name, lootList[n].Value, lootList[n].Loot_id, lootList[n].Type, interaction.user.id);
                     } else {
                         //item not match keep looking
@@ -728,16 +783,16 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 }
 
                 //  Available items added to array, rng grab one  
-                var randItemPos;
+                let randItemPos;
                 if (iPool.length <= 1) {
                     randItemPos = 0;
                 } else {
                     randItemPos = Math.round(Math.random() * (iPool.length - 1));
                 }
 
-                await tmpCopy.push(iPool[randItemPos]);//ADD ITEM SELECTED TO TEMP ARRAY FOR COMPARING
+                tmpCopy.push(iPool[randItemPos]);//ADD ITEM SELECTED TO TEMP ARRAY FOR COMPARING
                 //Assume the item added is new until proven otherwise
-                var itemNew = true;
+                let itemNew = true;
                 for (const item of iGained) {
                     if (item.Loot_id === tmpCopy[0].Loot_id) {
                         itemNew = false;//Item is a dupe, change to false, bypassing new entry creation
@@ -755,12 +810,12 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     //const filtered = await tmpCopy.filter(item => item.Loot_id === tmpCopy[0].Loot_id);
                     //console.log('FILTERED RESULT', filtered.Name);
 
-                    const mappedItem = await tmpCopy.map(item => ({ ...item, Amount: 1 }),);
+                    const mappedItem = tmpCopy.map(item => ({ ...item, Amount: 1 }),);
                     //console.log('AFTER MAPPED NEW ITEM: ', mappedItem);
 
                     //totPages += 1;
 
-                    await iGained.push(...mappedItem);
+                    iGained.push(...mappedItem);
                 }
 
                 var theItem = iPool[randItemPos];
