@@ -19,7 +19,8 @@ const {
     OwnedBlueprints,
     OwnedPotions,
     UniqueCrafted,
-    ActiveStatus
+    ActiveStatus,
+    OwnedTools
 } = require('../dbObjects.js');
 
 //const { } = require('../dbObjects.js');
@@ -54,6 +55,7 @@ module.exports = {
 
         OwnedBlueprints.sync();
         OwnedPotions.sync();
+        OwnedTools.sync();
         MaterialStore.sync();
 
         ActiveDungeon.sync();
