@@ -23,7 +23,7 @@
 		"Name": "Fairy Dust",
 		"Value": 15,
 
-		"Rarity": "Unommon",
+		"Rarity": "Uncommon",
 		"Rar_id": 1,
 
 		"Mat_id": 3,
@@ -47,6 +47,16 @@
 		"Rar_id": 3,
 
 		"Mat_id": 5,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Imperfect Phasesoup",
+		"Value": 100,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 6,
 		"Spec_id": 0
 	}
 
