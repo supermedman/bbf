@@ -481,6 +481,7 @@
         "XpMax": 15,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 23,
         "SpecId": 0
@@ -682,6 +683,7 @@
         "XpMax": 50,
 
         "DropTypes": [ "fleshy", "woody" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 32,
         "SpecId": 0
@@ -742,6 +744,7 @@
         "XpMax": 60,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 35,
         "SpecId": 0
@@ -762,6 +765,7 @@
         "XpMax": 65,
 
         "DropTypes": [ "fleshy", "metalic" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 36,
         "SpecId": 0
@@ -822,6 +826,7 @@
         "XpMax": 110,
 
         "DropTypes": [ "magical", "skinny" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 39,
         "SpecId": 0
@@ -1045,6 +1050,7 @@
         "XpMax": 350,
 
         "DropTypes": [ "magical", "metalic" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 50,
         "HasUnique": true,
@@ -1066,6 +1072,7 @@
         "XpMax": 800,
 
         "DropTypes": [ "fleshy", "skinny", "metalic", "herby" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 51,
         "SpecId": 0
@@ -1126,6 +1133,7 @@
         "XpMax": 300,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 54,
         "SpecId": 0
@@ -1503,6 +1511,7 @@
         "XpMax": 250,
 
         "DropTypes": [ "fleshy" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 72,
         "SpecId": 0
@@ -1547,6 +1556,7 @@
         "XpMax": 220,
 
         "DropTypes": [ "fleshy", "herby", "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 74,
         "SpecId": 0
@@ -1567,6 +1577,7 @@
         "XpMax": 200,
 
         "DropTypes": [ "fleshy", "woody", "herby" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 75,
         "SpecId": 0
@@ -1809,6 +1820,7 @@
         "XpMax": 100,
 
         "DropTypes": [ "fleshy" ],
+        "UniqueType": "Frost",
 
         "ConstKey": 86,
 
@@ -1819,7 +1831,7 @@
     },
     {
         "Name": "Urratis",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Normally these creatures are quite passive. Should they become separated from their magical Cryptees, hell hath no greater fury!",
 
         "Level": 22,
         "MinDmg": 30,
@@ -1833,13 +1845,14 @@
         "XpMax": 1300,
 
         "DropTypes": [ "fleshy" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 87,
         "SpecId": 0
     },
     {
         "Name": "Cryptees",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Normally these creatures are quite passive. Should they become separated from their brute Urratis, hell hath no greater anguish!",
 
         "Level": 21,
         "MinDmg": 30,
@@ -1853,6 +1866,7 @@
         "XpMax": 1200,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 88,
         "SpecId": 0
@@ -1893,6 +1907,7 @@
         "XpMax": 600,
 
         "DropTypes": [ "magical" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 90,
         "SpecId": 0
@@ -2114,6 +2129,7 @@
         "XpMax": 15000,
 
         "DropTypes": [ "fleshy", "slimy" ],
+        "UniqueType": "Null",
 
         "ConstKey": 101,
         "SpecId": 0
@@ -2375,6 +2391,7 @@
         "XpMax": 3800,
 
         "DropTypes": [ "rocky", "herby", "woody" ],
+        "UniqueType": "Blunt",
 
         "ConstKey": 114,
         "SpecId": 0
@@ -2395,6 +2412,7 @@
         "XpMax": 3700,
 
         "DropTypes": [ "herby", "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 115,
         "SpecId": 0
@@ -2516,6 +2534,7 @@
         "XpMax": 4600,
 
         "DropTypes": [ "skinny", "metalic", "magical" ],
+        "UniqueType": "Magic",
 
         "ConstKey": 121,
         "SpecId": 0
