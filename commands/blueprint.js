@@ -9,7 +9,7 @@ const {
 	specialInfoForm
 } = require('../chalkPresets.js');
 
-const { OwnedBlueprints, MaterialStore, UniqueCrafted, OwnedPotions, UserData } = require('../dbObjects.js');
+const { OwnedBlueprints, MaterialStore, UniqueCrafted, OwnedPotions, UserData, OwnedTools } = require('../dbObjects.js');
 
 const blueprintList = require('../events/Models/json_prefabs/blueprintList.json');
 
@@ -145,7 +145,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Rarity: ${mats[`${matStrRarity}`]} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
+									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
@@ -161,7 +161,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Rarity: ${mats[`${matStrRarity}`]} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
+									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
@@ -302,7 +302,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Rarity: ${mats[`${matStrRarityP}`]} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
+									`Rarity: ${mats[`${matStrRarityP}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
@@ -320,7 +320,7 @@ module.exports = {
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Rarity: ${mats[`${matStrRarityP}`]} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
+									`Rarity: ${mats[`${matStrRarityP}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
 								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
@@ -372,7 +372,167 @@ module.exports = {
 					bpSliceP = [];
 					finalFieldsP = [];
 				} while (iP < potionList.length)
-            }
+			}
+			//RUN THROUGH TOOL BLUEPRINTS THIRD
+			const toolList = userBlueprints.filter(bluey => bluey.passivecategory === 'Tool');
+			if (toolList.length <= 0) {
+				console.log(warnedForm('NO TOOL BLUEPRINTS FOUND'));
+			} else {
+				let listedDefaults;
+				let grabbedMTA = 0;
+				let grabbedName;
+				let grabbedDescription;
+
+				let listedMatsName;
+				let listedMatsValue;
+				let finalFields = [];
+
+				let bpSlice = [];
+				let i = 0;
+				do {
+
+					bpSlice = await blueprintList.filter(blueySlice => blueySlice.BlueprintID === toolList[i].blueprintid);
+					//Blueprint reference should be found, use values for display
+					if (bpSlice.length > 0) {
+						listedDefaults = bpSlice.map(bluey =>
+							`Coin Cost: ${bluey.CoinCost} \nRequired Level: ${bluey.UseLevel} \nSlot: ${bluey.ActiveSubCategory} \nRarity: ${bluey.Rarity} \nMaterial Types Needed: ${bluey.MaterialTypeAmount}`);
+
+
+						//fieldValueObj = { name: 'info', value: `${listedDefaults}` };
+						//finalFields.push(fieldValueObj);
+
+						grabbedMTA = bpSlice.map(bluey => bluey.MaterialTypeAmount);
+						console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTA));
+						grabbedName = bpSlice.map(bluey => bluey.Name);
+						grabbedDescription = bpSlice.map(bluey => bluey.Description);
+
+						let matStrType = '';
+						let matStrAmount = '';
+						let matStrRarity = '';
+						let curCheckMat;
+						let fieldValueObj;
+						let totCheckSuccess = 0;
+						let filteredResult = false;
+						for (var matPos = 0; matPos < grabbedMTA; matPos++) {
+							console.log(basicInfoForm('matPos on current itteration: ', matPos));
+
+							var addingOne = (matPos + 1);
+
+							matStrType = `Material${addingOne}`;
+							matStrAmount = `Material${addingOne}_Amount`;
+
+							matStrRarity = `Rarity${addingOne}`;
+
+							var compValTemp = ``;
+
+							compValTemp = bpSlice.map(bluey =>
+								`${bluey[`${matStrType}`]}`);
+
+							var compNumTemp = ``;
+
+							compNumTemp = bpSlice.map(bluey =>
+								`${bluey[`${matStrAmount}`]}`);
+
+							//FIND MATERIAL FROM OWNED MATERIALS
+							curCheckMat = await MaterialStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
+							if (!curCheckMat) {
+								//Material not found Blueprint is unavailable to craft
+								console.log(failureResult('Material Type not found blueprint discarded'));
+								filteredResult = false;
+								//finalFields = [];
+							} else {
+								if (compNumTemp <= curCheckMat.amount) {
+									//Player has more material than needed, check success!
+									console.log(successResult('Material Type found, Material Amount suficient!'));
+									filteredResult = true;
+									totCheckSuccess++;
+								} else {
+									console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
+									filteredResult = true;
+									//finalFields = [];
+								}
+							}
+
+							if (filteredResult === true) {
+								//Embed: fields: {name: this}
+								listedMatsName = bpSlice.map(mats =>
+									`${matStrType}: ${mats[`${matStrType}`]}`);
+								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+
+								//Embed: fields: {value: this}
+								listedMatsValue = bpSlice.map(mats =>
+									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
+								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+
+								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
+								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+
+								finalFields.push(fieldValueObj);
+							} else {
+								console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
+								//Embed: fields: {name: this}
+								listedMatsName = bpSlice.map(mats =>
+									`${matStrType}: ${mats[`${matStrType}`]}`);
+								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+
+								//Embed: fields: {value: this}
+								listedMatsValue = bpSlice.map(mats =>
+									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
+								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+
+								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
+								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+
+								finalFields.push(fieldValueObj);
+							}
+						}
+
+						console.log(basicInfoForm('grabbedMTA value Second: ', grabbedMTA));
+						console.log(basicInfoForm('finalFields.length: ', finalFields.length));
+
+						var strLength = finalFields.length.toString();
+
+						if (strLength === grabbedMTA.toString()) {
+							console.log(successResult('finalFields Values: ', finalFields));
+
+							const embed = {
+								title: `${grabbedName}`,
+								color: 0000,
+								description: `**${grabbedDescription}** \n${listedDefaults}`,
+								fields: finalFields,
+							};
+
+							embedPages.push(embed);
+
+							if (totCheckSuccess.toString() === grabbedMTA.toString()) {
+								//Enable craft button in place of cancel button
+								cancelCraftObject = {
+									label: "Craft!",
+									style: ButtonStyle.Success,
+									emoji: "⚒",
+									customid: 'craft-page',
+								};
+								cancelCraftButtonPages.push(cancelCraftObject);
+								availableCrafts.push(bpSlice[0]);
+							} else {
+								cancelCraftObject = {
+									label: "Cancel",
+									style: ButtonStyle.Secondary,
+									emoji: "*️⃣",
+									customid: 'delete-page',
+								};
+								cancelCraftButtonPages.push(cancelCraftObject);
+								availableCrafts.push({ Name: 'NONE' });
+							}
+						} else console.log(errorForm('MISSALIGNED FIELD VALUES, SOMETHING WENT WRONG!'));
+
+					} else console.log(failureResult('BLUEPRINT PREFAB ASSIGNMENT FAILURE!'));
+
+					i++;
+					bpSlice = [];
+					finalFields = [];
+				} while (i < toolList.length)
+		}
 
 			const backButton = new ButtonBuilder()
 				.setLabel("Back")
@@ -930,11 +1090,17 @@ module.exports = {
 
 			let cannotCraft;
 			if (thisIsBool === true) {
-				const uniqueCheck = await OwnedBlueprints.findOne({ where: [{ spec_id: interaction.user.id }, { onlyone: thisIsBool }] });
+				const uniqueCheck = await OwnedBlueprints.findAll({ where: [{ spec_id: interaction.user.id }, { onlyone: thisIsBool }] });
 				if (!uniqueCheck) return console.log(errorForm('UNIQUE BP CHECK FAILED TO FIND BP, SOMETHING WENT HORRIBLY WRONG'));
 				
 				if (uniqueCheck) {
-					cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: uniqueCheck.name }, { loot_id: theBlueprint.Loot_id }] });
+					const filterMatch = uniqueCheck.filter(bluey => bluey.blueprintid === theBlueprint.BlueprintID);
+					if (filterMatch.Loot_id === undefined) {
+						cannotCraft = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { name: filterMatch[0].name }, { loot_id: theBlueprint.ToolID }] });
+					} else {
+						cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: filterMatch[0].name }, { loot_id: theBlueprint.Loot_id }] });
+                    }
+					
 				}
 			}
 			
@@ -952,6 +1118,8 @@ module.exports = {
 					listedDefaults = `Coin Cost: ${theBlueprint.CoinCost} \nRequired Level: ${theBlueprint.UseLevel} \nSlot: ${theBlueprint.Slot} \nHands: ${theBlueprint.Hands} \nRarity: ${theBlueprint.Rarity} \nMaterial Types Needed: ${theBlueprint.MaterialTypeAmount}`;
 				} else if (theBlueprint.PassiveCategory === 'Potion') {
 					listedDefaults = `Coin Cost: ${theBlueprint.CoinCost} \nRequired Level: ${theBlueprint.UseLevel} \nDuration: ${theBlueprint.Duration} \nCoolDown: ${theBlueprint.CoolDown} \nMaterial Types Needed: ${theBlueprint.MaterialTypeAmount}`;
+				} else if (theBlueprint.PassiveCategory === 'Tool') {
+					listedDefaults = `Coin Cost: ${theBlueprint.CoinCost} \nRequired Level: ${theBlueprint.UseLevel} \nSlot: ${theBlueprint.ActiveSubCategory} \nRarity: ${theBlueprint.Rarity} \nMaterial Types Needed: ${theBlueprint.MaterialTypeAmount}`;
                 }
 
 				let listedMatsName;
@@ -1028,6 +1196,11 @@ module.exports = {
 						if (theBlueprint.PassiveCategory === 'Equip') {
 							await collInteract.deferUpdate();
 							const returnVal = await makeEquip(theBlueprint, interaction, grabbedMTA);
+							if (returnVal) await collector.stop();
+						}
+						if (theBlueprint.PassiveCategory === 'Tool') {
+							await collInteract.deferUpdate();
+							const returnVal = await makeTool(theBlueprint, interaction, grabbedMTA);
 							if (returnVal) await collector.stop();
                         }
 					}
@@ -1201,6 +1374,58 @@ module.exports = {
 				return theEquip;
             }
 		}
+
+		async function makeTool(tool, interaction, grabbedMTA) {
+			let theTool;
+			theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });
+			if (theTool !== undefined) {
+				const addedAmount = theTool.amount + 1;
+				const tableUpdate = await OwnedTools.update({
+					amount: addedAmount,
+				}, { where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });
+				if (tableUpdate > 0) {
+					theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });					
+				}
+			} else {
+				try {
+					await OwnedTools.create({
+						spec_id: interaction.user.id,
+						name: tool.Name,
+						activecategory: tool.ActiveCategory,
+						activesubcategory: tool.ActiveSubCategory,
+						passivecategory: tool.PassiveCategory,
+						rarity: tool.Rarity,
+						rar_id: tool.Rar_id,
+						amount: 1,
+						blueprintid: tool.BlueprintID,
+						tool_id: tool.ToolID,
+					});
+
+					theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });
+				} catch (err) {
+					return console.log(errorForm('AN ERROR OCCURED: ', err));
+				}
+			}
+
+			if (theTool !== undefined) {
+				await payupMats(grabbedMTA, interaction, tool);
+				
+				const list = `Value: ${theTool.value} \nCurrent Level: ${theTool.currentlevel} \nSlot: ${theTool.activesubcategory} \nRarity: ${theTool.rarity} \nAmount Owned: ${theTool.amount}`;
+
+				const toolEmbed = new EmbedBuilder()
+					.setTitle('~TOOL CREATED~')
+					.setColor(0000)
+					.addFields({
+						name: `${theTool.name}`, value: list,
+					});
+
+				await interaction.followUp({ embeds: [toolEmbed] }).then(async tEmbed => setTimeout(() => {
+					tEmbed.delete();
+				}, 60000)).catch(console.error);
+
+				return theTool;
+			} else console.log(errorForm('ERROR: Tool undefined after update/creation!'));
+        }
 
 		async function payupMats(runCount, interaction, theFinalBlue, inputAmount) {
 			let curRun = 0;
