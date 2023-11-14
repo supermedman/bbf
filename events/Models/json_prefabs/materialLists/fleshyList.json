@@ -38,6 +38,16 @@
 
 		"Mat_id": 4,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Fairy Wings",
+		"Value": 75,
+
+		"Rarity": "Epic",
+		"Rar_id": 4,
+
+		"Mat_id": 5,
+		"Spec_id": 0
 	}
 
 ]

@@ -288,6 +288,42 @@
         "BlueprintID": 8
     },
     {
+        "Name": "Medium EXP",
+        "Description": "Increases EXP gain by 10%",
+
+        "ActiveCategory": "EXP",
+        "PassiveCategory": "Potion",
+
+        "Duration": 100,
+        "CoolDown": 100,
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+
+        "UseLevel": 18,
+        "CoinCost": 750,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Refined Essence",
+        "Rarity1": "Epic",
+        "Material1_Amount": 50,
+
+        "Material2": "Rainbow Slime",
+        "Rarity2": "Mystic",
+        "Material2_Amount": 10,
+
+        "Material3": "Infused Silverroot",
+        "Rarity3": "Epic",
+        "Material3_Amount": 20,
+
+        "Material4": "Phaseroot",
+        "Rarity4": "Mystic",
+        "Material4_Amount": 2,
+
+        "PotionID": 8,
+        "BlueprintID": 9
+    },
+    {
         "Name": "Dark Bringers Visage",
         "Description": "Born of warped magics an the refined source of Dyvullas power. This will surely keep your skull intact",
 
@@ -325,6 +361,317 @@
 
         "Loot_id": 30001,
         "BlueprintID": 10
+    },
+    {
+        "Name": "Major Ton of Stats",
+        "Description": "Increases ALL base stats by 5",
+
+        "ActiveCategory": "Tons",
+        "PassiveCategory": "Potion",
+
+        "Duration": 50,
+        "CoolDown": 65,
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+
+        "UseLevel": 20,
+        "CoinCost": 1000,
+        "MaterialTypeAmount": 6,
+
+        "Material1": "Rainbow Slime",
+        "Rarity1": "Mystic",
+        "Material1_Amount": 10,
+
+        "Material2": "Phasemetal Scrap",
+        "Rarity2": "Mystic",
+        "Material2_Amount": 10,
+
+        "Material3": "Imperfect Phasesoup",
+        "Rarity3": "Mystic",
+        "Material3_Amount": 10,
+
+        "Material4": "Phaseroot",
+        "Rarity4": "Mystic",
+        "Material4_Amount": 10,
+
+        "Material5": "Soul",
+        "Rarity5": "Unique",
+        "Material5_Amount": 3,
+
+        "Material6": "Dandielion",
+        "Rarity6": "Common",
+        "Material6_Amount": 150,
+
+        "PotionID": 9,
+        "BlueprintID": 11
+    },
+    {
+        "Name": "Major Healing",
+        "Description": "Heals for 200",
+
+        "ActiveCategory": "Healing",
+        "PassiveCategory": "Potion",
+
+        "Duration": 0,
+        "CoolDown": 15,
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+
+        "UseLevel": 20,
+        "CoinCost": 1250,
+        "MaterialTypeAmount": 5,
+
+        "Material1": "Silverroot",
+        "Rarity1": "Very Rare",
+        "Material1_Amount": 25,
+
+        "Material2": "Red Slime",
+        "Rarity2": "Rare",
+        "Material2_Amount": 15,
+
+        "Material3": "Bloodroot",
+        "Rarity3": "Rare",
+        "Material3_Amount": 30,
+
+        "Material4": "Sparkly Slime",
+        "Rarity4": "Epic",
+        "Material4_Amount": 5,
+
+        "Material5": "Pure MAGIC",
+        "Rarity5": "Unique",
+        "Material5_Amount": 5,
+
+        "PotionID": 10,
+        "BlueprintID": 12
+    },
+    {
+        "Name": "Phasemetal Skin",
+        "Description": "Increases base defence by 75",
+
+        "ActiveCategory": "Reinforce",
+        "PassiveCategory": "Potion",
+
+        "Duration": 10,
+        "CoolDown": 11,
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+
+        "UseLevel": 25,
+        "CoinCost": 1400,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Raw Phasemetal",
+        "Rarity1": "Epic",
+        "Material1_Amount": 30,
+
+        "Material2": "Refined Essence",
+        "Rarity2": "Epic",
+        "Material2_Amount": 10,
+
+        "Material3": "Pure BLUNT",
+        "Rarity3": "Unique",
+        "Material3_Amount": 5,
+
+        "Material4": "Phasemetal Scrap",
+        "Rarity4": "Mystic",
+        "Material4_Amount": 10,
+
+        "PotionID": 11,
+        "BlueprintID": 13
+    },
+    {
+        "Name": "Major EXP",
+        "Description": "Increases EXP gain by 15%",
+
+        "ActiveCategory": "EXP",
+        "PassiveCategory": "Potion",
+
+        "Duration": 200,
+        "CoolDown": 200,
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+
+        "UseLevel": 25,
+        "CoinCost": 1750,
+        "MaterialTypeAmount": 5,
+
+        "Material1": "Refined Essence",
+        "Rarity1": "Epic",
+        "Material1_Amount": 100,
+
+        "Material2": "Rainbow Slime",
+        "Rarity2": "Mystic",
+        "Material2_Amount": 15,
+
+        "Material3": "Infused Silverroot",
+        "Rarity3": "Epic",
+        "Material3_Amount": 40,
+
+        "Material4": "Phaseroot",
+        "Rarity4": "Mystic",
+        "Material4_Amount": 4,
+
+        "Material5": "Pure NULL",
+        "Rarity5": "Unique",
+        "Material5_Amount": 1,
+
+        "PotionID": 12,
+        "BlueprintID": 14
+    },
+    {
+        "Name": "Small Ball",
+        "Description": "Increases pigmy happiness when playing by 5",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+
+        "UseLevel": 10,
+        "CoinCost": 100,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Purple Slime",
+        "Rarity1": "Uncommon",
+        "Material1_Amount": 10,
+
+        "Material2": "Dandielion",
+        "Rarity2": "Common",
+        "Material2_Amount": 10,
+
+        "Material3": "Black Ether Fluid",
+        "Rarity3": "Very Rare",
+        "Material3_Amount": 1,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 1,
+        "BlueprintID": 15
+    },
+    {
+        "Name": "Goblinskin Hat",
+        "Description": "Pigmy increases materials collected when claiming by 1",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Hat",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+
+        "UseLevel": 10,
+        "CoinCost": 100,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Leather Scraps",
+        "Rarity1": "Common",
+        "Material1_Amount": 15,
+
+        "Material2": "Sturdy Branch",
+        "Rarity2": "Common",
+        "Material2_Amount": 1,
+
+        "Material3": "Scrap Metal",
+        "Rarity3": "Common",
+        "Material3_Amount": 1,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 2,
+        "BlueprintID": 16
+    },
+    {
+        "Name": "The Tiny",
+        "Description": "Increases pigmy xp when claiming by 3%",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Title",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+
+        "UseLevel": 15,
+        "CoinCost": 250,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Fairy Dust",
+        "Rarity1": "Uncommon",
+        "Material1_Amount": 25,
+
+        "Material2": "Black Ether Fluid",
+        "Rarity2": "Very Rare",
+        "Material2_Amount": 1,
+
+        "Material3": "Bloodied Heart",
+        "Rarity3": "Rare",
+        "Material3_Amount": 1,
+
+        "Material4": "Pink Slime",
+        "Rarity4": "Very Rare",
+        "Material4_Amount": 1,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 3,
+        "BlueprintID": 17
+    },
+    {
+        "Name": "Tool TEMP",
+        "Description": "Description here",
+
+        "ActiveCategory": "Pigmy||Town||Band||Personal",
+        "ActiveSubCategory": "Pigmy: [Toy, Hat, Title, Style], Town: [Build, Paint, Claim, TBH], Band: [TBH], Personal: [Title, Style, TBH]",
+        "PassiveCategory": "Tool",
+
+        "Duration": 1,
+        "CoolDown": 1,
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+
+        "UseLevel": 1,
+        "CoinCost": 10,
+        "MaterialTypeAmount": 6,
+
+        "Material1": "Mat1",
+        "Rarity1": "Rar1",
+        "Material1_Amount": 0,
+
+        "Material2": "Mat2",
+        "Rarity2": "Rar2",
+        "Material2_Amount": 0,
+
+        "Material3": "Mat3",
+        "Rarity3": "Rar3",
+        "Material3_Amount": 0,
+
+        "Material4": "Mat4",
+        "Rarity4": "Rar4",
+        "Material4_Amount": 0,
+
+        "Material5": "Mat5",
+        "Rarity5": "Rar5",
+        "Material5_Amount": 0,
+
+        "Material6": "Mat6",
+        "Rarity6": "Rar6",
+        "Material6_Amount": 0,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 0,
+        "BlueprintID": 0
     },
     {
         "Name": "Potion TEMP",

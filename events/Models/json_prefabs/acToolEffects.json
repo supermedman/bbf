@@ -1,0 +1,61 @@
+[
+    {
+        "Name": "Pigmy",
+        "SubCategory": [
+            {
+                "Name": "Toy",
+                "Small Ball": 5
+            },
+            {
+                "Name": "Hat",
+                "Goblinskin Hat": 1
+            },
+            {
+                "Name": "Title",
+                "The Tiny": 0.03
+            },
+            {
+                "Name": "Style"
+            }
+        ]
+    },
+    {
+        "Name": "Town",
+        "SubCategory": [
+            {
+                "Name": "Build"
+            },
+            {
+                "Name": "Paint"
+            },
+            {
+                "Name": "Claim"
+            },
+            {
+                "Name": "TBH"
+            }
+        ]
+    },
+    {
+        "Name": "Band",
+        "SubCategory": [           
+            {
+                "Name": "TBH"
+            }
+        ]
+    },
+    {
+        "Name": "Personal",
+        "SubCategory": [
+            {
+                "Name": "Title"
+            },
+            {
+                "Name": "Style"
+            },
+            {
+                "Name": "TBH"
+            }
+        ]
+    }
+]
