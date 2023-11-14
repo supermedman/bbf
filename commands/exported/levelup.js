@@ -263,28 +263,28 @@ async function editPigOut(pig, newlvl, totalXp, interaction, isClaim) {
 
 			if (updateClaim > 0) {
 				const pigHouseRef = await Pighouse.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
-				if (!pigHouseRef) return console.log('AN ERROR OCCURED: Pighouse Ref NOT FOUND');
+				if (!pigHouseRef) return console.log(errorForm('AN ERROR OCCURED: Pighouse Ref NOT FOUND'));
 				const updateRefLevel = await Pighouse.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 				const updateRefXP = await Pighouse.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 
-				if (updateRefLevel > 0 && updateRefXP > 0) return console.log('All pigmy values updated SUCCESSFULLY!');
+				if (updateRefLevel > 0 && updateRefXP > 0) return console.log(successResult('All pigmy values updated SUCCESSFULLY!'));
 			}
 		} else if (isClaim === false) {
 			const pigHouseRef = await Pighouse.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
-			if (!pigHouseRef) return console.log('AN ERROR OCCURED: Pighouse Ref NOT FOUND');
+			if (!pigHouseRef) return console.log(errorForm('AN ERROR OCCURED: Pighouse Ref NOT FOUND'));
 			const updateRefLevel = await Pighouse.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 			const updateRefXP = await Pighouse.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 
-			if (updateRefLevel > 0 && updateRefXP > 0) return console.log('All pigmy values updated SUCCESSFULLY!');
+			if (updateRefLevel > 0 && updateRefXP > 0) return console.log(successResult('All pigmy values updated SUCCESSFULLY!'));
 		} else {
 			const pigHouseRef = await Pighouse.findOne({ where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
-			if (!pigHouseRef) return console.log('AN ERROR OCCURED: Pighouse Ref NOT FOUND');
+			if (!pigHouseRef) return console.log(errorForm('AN ERROR OCCURED: Pighouse Ref NOT FOUND'));
 			const updateRefLevel = await Pighouse.update({ level: newlvl }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 			const updateRefXP = await Pighouse.update({ exp: totalXp }, { where: [{ spec_id: interaction.user.id }, { refid: pig.refid }] });
 
-			if (updateRefLevel > 0 && updateRefXP > 0) return console.log('All pigmy values updated SUCCESSFULLY!');
+			if (updateRefLevel > 0 && updateRefXP > 0) return console.log(successResult('All pigmy values updated SUCCESSFULLY!'));
 		}
-	} else return console.log('AN ERROR OCCURED: Pigmy LEVEL OR XP NOT UPDATED!');
+	} else return console.log(errorForm('AN ERROR OCCURED: Pigmy LEVEL OR XP NOT UPDATED!'));
 }
 
 module.exports = { isLvlUp, isPigLvlUp, isUniqueLevelUp };
