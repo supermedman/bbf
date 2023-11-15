@@ -48,7 +48,7 @@
         "StoryLine": 2,
         "StoryPart": 3,
 
-        "Lore": "Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!\nYou manage to take down three before the remaining five take notice, followed by immediate counter action..\nA deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.\nYou stand in defiance against them, causing the smallest of the three to turn and run..\nThe broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light temporarily blinding you!\nHe lurches forward swinging his massive fists.. ***CRACK***!! You take the full force, still unable to see, you swing against the pain, feeling your weapon find flesh..\nYour sight returns near instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!\nHe collapses, gurgling and sobbing. You leave the pitiful sight going after the remaining cultists frozen with shock and horror...\nSometime later after your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.\nShe reveals the location of their goddess and her domain!!",
+        "Lore": "Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!\nA deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.\nThis, causing the smallest of the three to turn and run..\nThe broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light, blinding you!\nHe lurches forward swinging his massive fists. ***CRACK***! You take the full force, still unable to see, you swing against the pain, your weapon finds flesh.\nYour sight returns instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!\nHe collapses, gurgling and sobbing. You go after the remaining cultist, frozen with shock and horror.\nSometime later, your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.\nShe reveals the location of their goddess and her domain!",
 
         "QuestID": 14
 
@@ -60,6 +60,105 @@
         "Lore": "You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..\nArriving at the outer perimeter greets your senses, dulling them and everything around you, even still you push onwards into the fray!\nHours of slaughter leaves you worn and your weapon giddy.\nYou are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!",
 
         "QuestID": 15
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 1,
+
+        "Lore": "Hard work, tough fought battles, spoils of war, surely youve earned a break! A popular picnic spot, sounded the most pleasant, for a hardened veteran such as yourself.\nYou pack a lunch and setout, the sun nearing its apex, warm against your exposed skin (An uncommon feeling as of late!). You lay out your woven blanket under the shade of a large Bloodoak, resting and enjoying the day as it is..\nAn hour goes by and you notice a lack of other people, none when you arrived, none since. This of course is of no concern, no one is screaming, no smell of blood, no fits or fights for survival.\n*A distant gurgling scream*\nSurely today could not be a better day to picnic!\n*Then there were two*\nYou let another half hour pass before giving in, you pack up and prepare to take a look...",
+
+        "QuestID": 16
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 2,
+
+        "Lore": "You begin your search throughout the mostly peaceful woods, interrupted only briefly by the sound of someone dying a horrible death.. Before returning, to the pleasant peace and quiet, of the wooded ambiance.\nYour search brings you nearer to the death throws, stumbling upon an arm and the thick smell of blood..\nOnwards you press your weapon now at the ready...",
+
+        "QuestID": 17
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 3,
+
+        "Lore": "You slowly follow the trail of limbs, mostly human in origin, some appearing animal in nature.\nYou steady yourself against the putrid scent filling the air, a low squelching ripples out from ahead of you..\nSlowly creeping up, hiding yourself behind a large tree...\nThere it sits, whether it sits amongst the limbs its collected or ***is*** those limbs is something you wish not to dwell on longer than needed!\nYou see fresh corpses, along with those now only resembling the bones with which flesh once clung.\nYou only sense this one creature, if memory serves you well, this is unmistakably an *Iron-Scaled Corpse Monster*!\nA fearsome foe, were you as inexperienced as you once were. Now this is nothing more than an execution!\nAn execution it surely was, swift and decisive.\nYou decided to return before the current dusk turns to dark. Hoping to find clues as to where such a creature came from being so deep in safe woods.",
+
+        "QuestID": 18
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 4,
+
+        "Lore": "Having returned safely, you make for one of the well-known monster clergymen.\nAsking the common whereabouts for such a creature, leads to a larger question you wish you hadnt walked into.\n*Why so many, so suddenly, so widespread?*\nHe hands you a map, marked with each of the most recent abnormal gathering locations of these such creatures.\nAnd so you head to bed, unsure if this is where you wanted that picnic to lead you...",
+
+        "QuestID": 19
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 5,
+
+        "Lore": "You setout geared up and ready for the task, marked on the map, in your hand. Your course charted, provisions stocked, arriving at each location.. Strangely met with one of three outcomes each time;\nthe location abandoned showing signs of slaughter,\nstill living corpse monsters seemingly admiring each others handiwork,\nor human effigies each placed in style of how quickly they fell pray to their wounds..\nAll of these outcomes are unsettling and yield no quarter against the living corpse monsters you come across. Having now crossed off half the locations on your map you realize a pattern forming..\nA radial pattern, spiraling outwards from one of the marked locations *a recently abandoned castle-town*.\nYou change course and decide to head there first to confirm your suspicions..\nThis choice pays off less for you and more for those who you find are not yet dead, you must act quick!!",
+
+        "QuestID": 20
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 6,
+
+        "Lore": "Hours go by freeing bound victims, protecting and providing escape outside the city walls. Focusing less on slaughter and more on the rescue attempts, in hindsight not the best choice considering the foe.\nA disturbing conclusion is drawn after freeing over 50..\nThese people were not meant to die in the conditions found in, rather a lack of food or water would do them in first\nThis is a town of prolonged ``Torture`` and no doubt the resident of one of the gods, a particularly sick and twisted one at that..\nAfter freeing all mobile victims you prepare the trip back to safety, clearing this place will take some time..",
+
+        "QuestID": 21
+
+    },
+    {
+        "StoryLine": 3,
+        "StoryPart": 7,
+
+        "Lore": "Having returned and restocked, having given those victims refuge will keep your name long living, your weapon hand itches again, drawing your mind to the long battles ahead..\n=====\nThe smell arriving still shocks your senses, less and less as you lose yourself to the slaughter:\nYou Slaughter well\nYou Slaughter long\nYou Slaughter the fear\nYou Slaughter the hate\nThis slaughter was always your fate.\nYouve cleared the entrance to the Dungeon of ``Torture`` Ruled by ``Ados``!",
+
+        "QuestID": 22
+
+    },
+    {
+        "StoryLine": 4,
+        "StoryPart": 1,
+
+        "Lore": "You run for what feels like days, his presence still all around you, you mind filled with noise\n***IT NEVER ENDS***\nIt feels like nails through your eyes and ears, you swear you can even taste his words and intentions on the air.\nYou scream, you run, you trip, you fall, you roll, back to your feet you run!\n***YOU MUST HIDE***\nAnd so you shall try..",
+
+        "QuestID": 23
+
+    },
+    {
+        "StoryLine": 4,
+        "StoryPart": 2,
+
+        "Lore": "Tears stinging your eyes, throat raw with whitefire choking back sobs lest he find you.\n***YOU MUST SUBMIT***\nYou shake your head in silent refusal, your perception of the world lost to the ever changing nightmare before you.\n***YOU MUST DANCE***\nThat is exactly what you do, you find without a choice..",
+
+        "QuestID": 24
+
+    },
+    {
+        "StoryLine": 4,
+        "StoryPart": 3,
+
+        "Lore": "You dance, and dance..\nWith each spin you feel your fear grown lighter, the tears stop flowing, the burn in your throat subsides.\nFrom one spin to the next, you find yourself face to face with ``Zimmir`` dancing by his command at the foot of his throne steps..\nHere you pirouette, for the God of Chaos, within his Dungeon..",
+
+        "QuestID": 25
+
+    },
+    {
+        "StoryLine": 0,
+        "StoryPart": 0,
+
+        "Lore": "COPY",
+
+        "QuestID": 0
 
     }
 ]
