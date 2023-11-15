@@ -37,15 +37,7 @@ module.exports = {
         .setDescription('The basic combat initiation!'),
 
     async execute(interaction) {
-        await interaction.deferReply().then(() => console.log(specialInfoForm('Interaction defered!'))).catch((err) => {
-            return console.log(errorForm('AN ERROR OCCURED!: ', err))
-        });
-
-        //const warnedForm = chalk.bold.yellowBright;
-        //console.log(warnedForm('Testing chalk here!'));
-
-        
-        //console.log(basicInfoForm('Testing basic info here!'));
+        if (!interaction) return;
 
         var constKey;
         var specCode;
@@ -55,9 +47,9 @@ module.exports = {
 
         let messageCount = 0;
 
-        startCombat();
-
-        
+        await interaction.deferReply().then(() => startCombat()).catch((err) => {
+            return console.log(errorForm('AN ERROR OCCURED!: ', err));
+        });
 
         async function startCombat() {
             //Tally messages to remove when this is called...
@@ -421,7 +413,11 @@ module.exports = {
 
                 collector.on('end', () => {
                     if (embedMsg) {
-                        embedMsg.delete();
+                        embedMsg.delete().catch(error => {
+                            if (error.code !== 10008) {
+                                console.error('Failed to delete the message:', error);
+                            }
+                        });
                     }
                 });
                 
@@ -489,7 +485,11 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });         
         }
@@ -727,9 +727,9 @@ module.exports = {
                             //BACKSTAB
                             dmgDealt = dmgDealt * 1.5;
                             isHidden = false;
-                        } else {
+                        } else if (isHidden === false) {
                             await collInteract.deferUpdate();
-                        }
+                        } 
                         await collector.stop();
                         dealDamage(dmgDealt, weapon, enemy, false);
                     } else {
@@ -740,7 +740,7 @@ module.exports = {
                             //BACKSTAB
                             dmgDealt = dmgDealt * 1.5;
                             isHidden = false;
-                        } else {
+                        } else if (isHidden === false) {
                             await collInteract.deferUpdate();
                         }
                         await collector.stop();
@@ -769,7 +769,11 @@ module.exports = {
 
             collector.on('end', () => {
                 if (message) {
-                    message.delete();
+                    message.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
