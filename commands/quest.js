@@ -468,7 +468,9 @@ module.exports = {
                     let maxE = ((8 * hrs) + (Math.round(Math.random() * (4)) * qFound.qlevel));
 
                     if (qFound.qlevel > 5) {
-                        maxE -= 15;
+                        if (hrs > 8) {
+                            maxE -= 15;
+                        }
                     }
 
                     var ePool = [];             
