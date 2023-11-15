@@ -524,7 +524,7 @@
     },
     {
         "Name": "Small Ball",
-        "Description": "Increases pigmy happiness when playing by 5",
+        "Description": "Increases pigmy *happiness* when playing by *5*",
 
         "ActiveCategory": "Pigmy",
         "ActiveSubCategory": "Toy",
@@ -557,7 +557,7 @@
     },
     {
         "Name": "Goblinskin Hat",
-        "Description": "Pigmy increases materials collected when claiming by 1",
+        "Description": "Pigmy increases base materials collected when claiming by *1*. *+5* for all *skinny* materials",
 
         "ActiveCategory": "Pigmy",
         "ActiveSubCategory": "Hat",
@@ -590,7 +590,7 @@
     },
     {
         "Name": "The Tiny",
-        "Description": "Increases pigmy xp when claiming by 3%",
+        "Description": "Increases *pigmy xp* when claiming by *3%*",
 
         "ActiveCategory": "Pigmy",
         "ActiveSubCategory": "Title",
@@ -624,6 +624,100 @@
 
         "ToolID": 3,
         "BlueprintID": 17
+    },
+    {
+        "Name": "Spiked Bloodborne Skullstompers",
+        "Description": "Maybe dont wear these indoors, or anywhere outside a Dungeon.. (Brainmatter not included!)",
+
+        "PassiveCategory": "Equip",
+
+        "LevelOnCreate": 1,
+        "UseLevel": 50,
+
+        "Defence": 50,
+        "Type": "Pain",
+
+        "CoinCost": 1000000,
+        "MaterialTypeAmount": 6,
+
+        "Material1": "Pure MAGIC",
+        "Rarity1": "Unique",
+        "Material1_Amount": 30,
+
+        "Material2": "Raw Phase-Leather",
+        "Rarity2": "??",
+        "Material2_Amount": 15,
+
+        "Material3": "Pure NULL",
+        "Rarity3": "Unique",
+        "Material3_Amount": 3,
+
+        "Material4": "Bloodied Heart",
+        "Rarity4": "Rare",
+        "Material4_Amount": 300,
+
+        "Material5": "Soul",
+        "Rarity5": "Unique",
+        "Material5_Amount": 25,
+
+        "Material6": "Phasemetal Alloy",
+        "Rarity6": "??",
+        "Material6_Amount": 20,
+
+        "Slot": "Legslot",
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "Loot_id": 30002,
+        "BlueprintID": 18
+    },
+    {
+        "Name": "Robes of Forced Insanity",
+        "Description": "Replicated from the blade-turning garb of Zimmir.. Are you sure you want to wear this?",
+
+        "PassiveCategory": "Equip",
+
+        "LevelOnCreate": 1,
+        "UseLevel": 55,
+
+        "Defence": 100,
+        "Type": "Chaos",
+
+        "CoinCost": 3000000,
+        "MaterialTypeAmount": 6,
+
+        "Material1": "Well-Woven Phase-Cloth",
+        "Rarity1": "??",
+        "Material1_Amount": 30,
+
+        "Material2": "Imbued Hide",
+        "Rarity2": "Epic",
+        "Material2_Amount": 50,
+
+        "Material3": "Pure MAGIC",
+        "Rarity3": "Unique",
+        "Material3_Amount": 25,
+
+        "Material4": "Pure NULL",
+        "Rarity4": "Unique",
+        "Material4_Amount": 5,
+
+        "Material5": "Soul",
+        "Rarity5": "Unique",
+        "Material5_Amount": 30,
+
+        "Material6": "Phaseroot",
+        "Rarity6": "Mystic",
+        "Material6_Amount": 50,
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "Loot_id": 30003,
+        "BlueprintID": 19
     },
     {
         "Name": "Tool TEMP",
