@@ -1,0 +1,93 @@
+[
+	{
+		"Name": "Tatered Cloth",
+		"Value": 10,
+
+		"Rarity": "Common",
+		"Rar_id": 0,
+
+		"Mat_id": 1,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Cave Spider Silk",
+		"Value": 15,
+
+		"Rarity": "Uncommon",
+		"Rar_id": 1,
+
+		"Mat_id": 2,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Silkworm Silk",
+		"Value": 25,
+
+		"Rarity": "Rare",
+		"Rar_id": 2,
+
+		"Mat_id": 3,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Well-Woven Cloth",
+		"Value": 45,
+
+		"Rarity": "Very Rare",
+		"Rar_id": 3,
+
+		"Mat_id": 4,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Tatered Magic Cloth",
+		"Value": 75,
+
+		"Rarity": "Epic",
+		"Rar_id": 4,
+
+		"Mat_id": 5,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Well-Woven Magic Cloth",
+		"Value": 100,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 6,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Tatered Phase-Cloth",
+		"Value": 200,
+
+		"Rarity": "?",
+		"Rar_id": 6,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Well-Woven Phase-Cloth",
+		"Value": 300,
+
+		"Rarity": "??",
+		"Rar_id": 7,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pink Lace Phase-Cloth",
+		"Value": 400,
+
+		"Rarity": "???",
+		"Rar_id": 8,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	}
+
+]
