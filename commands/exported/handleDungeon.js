@@ -244,7 +244,11 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
                 collector.on('end', () => {
                     if (embedMsg) {
-                        embedMsg.delete();
+                        embedMsg.delete().catch(error => {
+                            if (error.code !== 10008) {
+                                console.error('Failed to delete the message:', error);
+                            }
+                        });
                     }
                 });
             });
@@ -505,7 +509,11 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
                     collector.on('end', () => {
                         if (embedMsg) {
-                            embedMsg.delete();
+                            embedMsg.delete().catch(error => {
+                                if (error.code !== 10008) {
+                                    console.error('Failed to delete the message:', error);
+                                }
+                            });
                         }
                     });
                 } else {
@@ -568,7 +576,11 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
                         collector.on('end', () => {
                             if (embedMsg) {
-                                embedMsg.delete();
+                                embedMsg.delete().catch(error => {
+                                    if (error.code !== 10008) {
+                                        console.error('Failed to delete the message:', error);
+                                    }
+                                });
                             }
                         });
                     }
@@ -621,7 +633,11 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
                 collector.on('end', () => {
                     if (embedMsg) {
-                        embedMsg.delete();
+                        embedMsg.delete().catch(error => {
+                            if (error.code !== 10008) {
+                                console.error('Failed to delete the message:', error);
+                            }
+                        });
                     }
                 });
             });
@@ -1141,7 +1157,11 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
 
         collector.on('end', () => {
             if (message) {
-                message.delete();
+                message.delete().catch(error => {
+                    if (error.code !== 10008) {
+                        console.error('Failed to delete the message:', error);
+                    }
+                });
             }
         });
     }
@@ -1849,7 +1869,11 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
 
     collector.on('end', () => {
         if (dialogEmbed) {
-            dialogEmbed.delete();
+            dialogEmbed.delete().catch(error => {
+                if (error.code !== 10008) {
+                    console.error('Failed to delete the message:', error);
+                }
+            });
         }
     });
 
@@ -2006,7 +2030,11 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
 
         collector.on('end', () => {
             if (message) {
-                message.delete();
+                message.delete().catch(error => {
+                    if (error.code !== 10008) {
+                        console.error('Failed to delete the message:', error);
+                    }
+                });
             }
         });
     }
