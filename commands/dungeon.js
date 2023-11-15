@@ -122,7 +122,23 @@ module.exports = {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
 				}
-            }
+			}
+
+			if (givenDungeon === 'ados') {
+				if (userMilestone.currentquestline === 'Torture') {
+					if (userMilestone.laststoryquest < 22) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'zimmir') {
+				if (userMilestone.currentquestline === 'Chaos') {
+					if (userMilestone.laststoryquest < 25) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
 			//if (userMilestone.laststoryquest !== 10) return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 
 			if (dungeonMatch.length === 0) {
@@ -222,7 +238,8 @@ module.exports = {
 							await collInteract.followUp(`Dungeon Created, NOW LOADING!!`).then(async loadingMessage => setTimeout(() => {
 								loadingMessage.delete();
 							}, 1000)).catch(console.error);
-							
+
+							await collector.stop();
 							await loadDungeon(dungeonCreated.currentfloor, dungeonCreated.dungeonid, collInteract, interaction.user.id);							
 						}
 
@@ -241,7 +258,11 @@ module.exports = {
 
 				collector.on('end', () => {
 					if (infoEmbed) {
-						infoEmbed.delete();
+						infoEmbed.delete().catch(error => {
+							if (error.code !== 10008) {
+								console.error('Failed to delete the message:', error);
+							}
+						});
 					}
 				});
 			}	

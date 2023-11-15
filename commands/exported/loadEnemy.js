@@ -1,3 +1,4 @@
+const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const {
     warnedForm,
     errorForm,
@@ -37,7 +38,59 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
 
         const specCode = uData.userid + cEnemy.ConstKey;
         const theEnemy = await addEnemy(cEnemy, specCode, user);
-        await initialDisplay(uData, specCode, interaction, theEnemy);
+        if (uData.userid === '501177494137995264') {
+            await initialDisplay(uData, specCode, interaction, theEnemy);
+        } else {
+            const fightButton = new ButtonBuilder()
+                .setLabel("Fight!")
+                .setStyle(ButtonStyle.Success)
+                .setEmoji('⚔')
+                .setCustomId('accept');
+
+            const interactiveButtons = new ActionRowBuilder().addComponents(fightButton);
+
+            const enemySpawnEmbed = new EmbedBuilder()
+                .setColor('DarkButNotBlack')
+                .setTitle('An enemy appears!')
+                .addFields(
+                    {
+                        name: `Who dares?`,
+                        value: `Select fight to test your might!`,
+
+                    });
+
+            const embedMsg = await interaction.channel.send({ components: [interactiveButtons], embeds: [enemySpawnEmbed] });
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                time: 120000,
+            });
+
+            collector.on('collect', async (collInteract) => {
+                //const collectedUser = collInteract.user.id;
+                if (collInteract === 'accept') {
+                    await collInteract.deferUpdate();
+                    interactiveButtons.components[0].setDisabled(true);
+
+                    await collInteract.editReply({ components: [interactiveButtons] });
+
+                    await initialDisplay(user, specCode, collInteract, theEnemy);
+                    wait(5000).then(async () => {
+                        await collector.stop();
+                    });
+                }
+            });
+
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
+                }
+            });
+        }
         //return theEnemy;
     } else if (!altSpawner) {
         //for loop to search enemy prefab list

@@ -427,7 +427,11 @@ module.exports = {
 
                 collector.on('end', () => {
                     if (embedMsg) {
-                        embedMsg.delete();
+                        embedMsg.delete().catch(error => {
+                            if (error.code !== 10008) {
+                                console.error('Failed to delete the message:', error);
+                            }
+                        });
                     }
                 });
             } else {
@@ -464,7 +468,9 @@ module.exports = {
                     let maxE = ((8 * hrs) + (Math.round(Math.random() * (4)) * qFound.qlevel));
 
                     if (qFound.qlevel > 5) {
-                        maxE -= 15;
+                        if (hrs > 8) {
+                            maxE -= 15;
+                        }
                     }
 
                     var ePool = [];             
@@ -1520,7 +1526,11 @@ module.exports = {
 
                     collector.on('end', () => {
                         if (embedMsg) {
-                            embedMsg.delete();
+                            embedMsg.delete().catch(error => {
+                                if (error.code !== 10008) {
+                                    console.error('Failed to delete the message:', error);
+                                }
+                            });
                         }
                     });                  
                 } else {

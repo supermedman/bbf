@@ -313,7 +313,11 @@ async function display(interaction, uData) {
 
     collector.on('end', () => {
         if (message) {
-            message.delete();
+            message.delete().catch(error => {
+                if (error.code !== 10008) {
+                    console.error('Failed to delete the message:', error);
+                }
+            });
         }
     });   
 }
@@ -891,7 +895,11 @@ async function playerDead(user, enemy, interaction) {
 
     collector.on('end', () => {
         if (embedMsg) {
-            embedMsg.delete();
+            embedMsg.delete().catch(error => {
+                if (error.code !== 10008) {
+                    console.error('Failed to delete the message:', error);
+                }
+            });
         }
     }); 
 }
@@ -1312,7 +1320,7 @@ async function makeItem(enemy, interaction, user, hasRar) {
 
     let chanceToBeat = 1;
     let upgradeChance = Math.random();
-    if (uData.pclass === 'Thief') {
+    if (user.pclass === 'Thief') {
         chanceToBeat -= 0.05;
     }
 
