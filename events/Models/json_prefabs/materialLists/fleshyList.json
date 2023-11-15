@@ -48,6 +48,16 @@
 
 		"Mat_id": 5,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Sturdy Skull",
+		"Value": 100,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 6,
+		"Spec_id": 0
 	}
 
 ]
