@@ -752,45 +752,42 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         let iGained = [];
         while (count < fullKilledList.length) {
             let enemyTempRef = fullKilledList[count];
-
-            let lChance = Math.random();//rng which will decide whether loot is dropped
+            //console.log(enemyTempRef);
             let HI = false;
 
             const multChance = 0.850;
-
+            let lChance = Math.random();//rng which will decide whether loot is dropped
+            console.log(basicInfoForm('Success chance of having loot:', lChance));
             if (lChance >= multChance) {
                 //hasitem:true
+                console.log(successResult('HAS ITEM!'));
                 HI = true;
-            } else {/**hasitem: false*/ }
+            }
 
             let tmpCopy = [];
-            if (HI) {
+            if (HI === true) {
                 //has item add to list 
                 totItem += 1;
-                let iPool = [];
                 tmpCopy = [];//Clear tmp array for each item 
 
-                let randR = await grabRar(enemyTempRef.level);
+                let randR = await grabRar(enemyTempRef.Level);
 
-                for (var n = 0; n < lootList.length; n++) {
+                let rarFilterList = await lootList.filter(loot => loot.Rar_id === randR);
 
-                    if (lootList[n].Rar_id === randR) {
-                        iPool.push(lootList[n]);
-                        //console.log('CONTENTS OF lootList AT POSITION ' + n + ': ', lootList[n].Name, lootList[n].Value, lootList[n].Loot_id, lootList[n].Type, interaction.user.id);
-                    } else {
-                        //item not match keep looking
-                    }
-                }
-
+                console.log(specialInfoForm(`rarFilterList.length ${rarFilterList.length}`));
                 //  Available items added to array, rng grab one  
                 let randItemPos;
-                if (iPool.length <= 1) {
-                    randItemPos = 0;
-                } else {
-                    randItemPos = Math.round(Math.random() * (iPool.length - 1));
-                }
+                if (rarFilterList.length === 1) {
+                    tmpCopy.push(rarFilterList[0]);
+                } else if (rarFilterList.length > 1) {
+                    randItemPos = Math.round(Math.random() * (rarFilterList.length - 1));
+                } else console.log(errorForm('rarFilterList is EMPTY!!'));
+                
+                console.log(specialInfoForm(`rarFilterList @ ${randItemPos} ${rarFilterList[randItemPos]}`));
 
-                tmpCopy.push(iPool[randItemPos]);//ADD ITEM SELECTED TO TEMP ARRAY FOR COMPARING
+                tmpCopy.push(rarFilterList[randItemPos]);//ADD ITEM SELECTED TO TEMP ARRAY FOR COMPARING
+
+                console.log(specialInfoForm(`tmpCopy contains: ${tmpCopy[0]}`));
                 //Assume the item added is new until proven otherwise
                 let itemNew = true;
                 for (const item of iGained) {
@@ -804,7 +801,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 }
 
                 //Item is new: create new entry and attach amount value, push to array and continue
-                if (itemNew) {
+                if (itemNew === true) {
                     console.log('BEFORE MAPPED NEW ITEM: ', tmpCopy[0].Name);
 
                     //const filtered = await tmpCopy.filter(item => item.Loot_id === tmpCopy[0].Loot_id);
@@ -818,7 +815,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     iGained.push(...mappedItem);
                 }
 
-                var theItem = iPool[randItemPos];
+                var theItem = rarFilterList[randItemPos];
 
                 const lootStore = await LootStore.findOne({
                     where: { spec_id: userID, loot_id: theItem.Loot_id },
@@ -912,7 +909,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     }
                 }
             }
-            var xpGained = Math.floor(Math.random() * (enemyTempRef.xpmax - enemyTempRef.xpmin + 1) + enemyTempRef.xpmin);
+            var xpGained = Math.floor(Math.random() * (enemyTempRef.XpMax - enemyTempRef.XpMin + 1) + enemyTempRef.XpMin);
             //console.log(`Before calc:`, xpGained);
             //xpGained = xpGained * 1 + ((-1) * (1.5 * hrs) ** 0.4 + 3.7); // ** is the same as Math.pow()
             //console.log(`After calc:`, xpGained);
