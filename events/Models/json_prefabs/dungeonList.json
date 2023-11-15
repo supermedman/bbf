@@ -65,5 +65,62 @@
 
         "DungeonID": 2,
         "DungeonSpecID": 0
+    },
+    {
+        "Name": "Dungeon of Torture",
+        "Boss": "Ados",
+
+        "Floors": 15,
+        "BossFloor": 15,
+        "SavePoints": 3,
+
+        "DungeonHint": "God of Torture",
+
+        "RequiredQuestID": 22,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 4, 4, 4, 4, 4 ],
+        "Floor2": [ 4, 46, 4, 46 ],
+        "Floor3": [ 80, 80, 80 ],
+        "Floor4": [ 94, 80, 80, 94 ],
+
+        "Floor5": [ 98, 98, 98, 98, 94 ],
+
+        "Floor6": [ 4, 4, 80, 98, 98, 80 ],
+        "Floor7": [ 98, 80, 98 ],
+        "Floor8": [ 94, 119, 119 ],
+        "Floor9": [ 94, 121, 121, 94 ],
+
+        "Floor10": [ 118 ],
+
+        "Floor11": [ 118, 134, 118 ],
+        "Floor12": [ 122, 135, 118 ],
+        "Floor13": [ 4, 4, 4, 4, 4 ],
+        "Floor14": [ 142, 142, 142 ],
+
+        "DungeonID": 3,
+        "DungeonSpecID": 0
+    },
+    {
+        "Name": "Dungeon of Chaos",
+        "Boss": "Zimmir",
+
+        "Floors": 1,
+        "BossFloor": 1,
+        "SavePoints": 1,
+
+        "DungeonHint": "God of Chaos",
+
+        "RequiredQuestID": 25,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 0 ],
+
+        "DungeonID": 4,
+        "DungeonSpecID": 0
     }
 ]

@@ -125,7 +125,7 @@
         "ID": 13
     },
     {
-        "Name": "Interrogate Captured Dark Servant",
+        "Name": "Captured and Question Dark Servant",
         "Length": 14400000,
         "Time": "4hr",
         "Level": 8,
@@ -141,5 +141,95 @@
         "ELevel": "35-40",
         "IsLockedBy": 14,
         "ID": 15
+    },
+    {
+        "Name": "Enjoy Picnic at a Nearby Park",
+        "Length": 7200000,
+        "Time": "2hr",
+        "Level": 1,
+        "ELevel": "5-10",
+        "IsLockedBy": 101,
+        "ID": 16
+    },
+    {
+        "Name": "Investigate Howling from the Woods",
+        "Length": 10800000,
+        "Time": "3hr",
+        "Level": 8,
+        "ELevel": "35-40",
+        "IsLockedBy": 16,
+        "ID": 17
+    },
+    {
+        "Name": "Follow Bodypart Trail",
+        "Length": 18000000,
+        "Time": "5hr",
+        "Level": 9,
+        "ELevel": "40-45",
+        "IsLockedBy": 17,
+        "ID": 18
+    },
+    {
+        "Name": "Pinpoint Corpse Sightings",
+        "Length": 14400000,
+        "Time": "4hr",
+        "Level": 9,
+        "ELevel": "40-45",
+        "IsLockedBy": 18,
+        "ID": 19
+    },
+    {
+        "Name": "Raid Potential Origin Points",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 9,
+        "ELevel": "40-45",
+        "IsLockedBy": 19,
+        "ID": 20
+    },
+    {
+        "Name": "Rescue Living Victims",
+        "Length": 28800000,
+        "Time": "8hr",
+        "Level": 10,
+        "ELevel": "45-50",
+        "IsLockedBy": 20,
+        "ID": 21
+    },
+    {
+        "Name": "Clear Entrance to Torture Dungeon",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 10,
+        "ELevel": "45-50",
+        "IsLockedBy": 21,
+        "ID": 22
+    },
+    {
+        "Name": "RUN",
+        "Length": 7200000,
+        "Time": "2hr",
+        "Level": 10,
+        "ELevel": "45-50",
+        "IsLockedBy": 102,
+        "ID": 23
+    },
+    {
+        "Name": "HIDE",
+        "Length": 7200000,
+        "Time": "2hr",
+        "Level": 11,
+        "ELevel": "50-55",
+        "IsLockedBy": 23,
+        "ID": 24
+    },
+    {
+        "Name": "PIROUETTE",
+        "Length": 7200000,
+        "Time": "2hr",
+        "Level": 11,
+        "ELevel": "50-55",
+        "IsLockedBy": 24,
+        "ID": 25
     }
 ]

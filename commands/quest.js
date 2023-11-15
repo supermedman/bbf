@@ -8,6 +8,7 @@ const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../events/Models/json_prefabs/lootList.json');
 const questList = require('../events/Models/json_prefabs/questList.json');
 const activeCategoryEffects = require('../events/Models/json_prefabs/activeCategoryEffects.json');
+const loreList = require('../events/Models/json_prefabs/loreList.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -259,7 +260,93 @@ module.exports = {
                     }
                 }
 
-                            
+                if (userMilestone.currentquestline === 'Torture') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 16) {
+                        lockedVal = 101;
+                    }
+                    if (lastSQuest === 16) {
+                        lockedVal = 16;
+                    }
+                    if (lastSQuest === 17) {
+                        lockedVal = 17;
+                    }
+                    if (lastSQuest === 18) {
+                        lockedVal = 18;
+                    }
+                    if (lastSQuest === 19) {
+                        lockedVal = 19;
+                    }
+                    if (lastSQuest === 20) {
+                        lockedVal = 20;
+                    }
+                    if (lastSQuest === 21) {
+                        lockedVal = 21;
+                    }
+                    if (lastSQuest === 22) {
+                        lockedVal = 22;
+                    }
+
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
+
+                if (userMilestone.currentquestline === 'Chaos') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 23) {
+                        lockedVal = 102;
+                    }
+                    if (lastSQuest === 23) {
+                        lockedVal = 23;
+                    }
+                    if (lastSQuest === 24) {
+                        lockedVal = 24;
+                    }                   
+
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
+
 
                 //for (var i = 0; i < questList.length; i++) {
                 //    if (questList[i].Level <= maxQLvl) {
@@ -786,12 +873,23 @@ module.exports = {
                         userMilestone = await Milestones.findOne({ where: { userid: newMilestone.userid } });
                     }
 
+                    // SOULS    - lvl 35    - PARTS: 3
+                    // DARK     - lvl 45    - PARTS: 4
+                    // TORTURE  - lvl 50    - PARTS: 7
+                    // CHAOS    - lvl 55    - PARTS: 3
+                    // LAW      - lvl 65    - PARTS: ?
+                    // HATE     - lvl 75    - PARTS: ?
+                    // MYSTERY  - lvl 85    - PARTS: ?
+                    // SECRETS  - lvl 95    - PARTS: ?
+                    // DREAMS   - lvl 100   - PARTS: ?
+
                     if (userMilestone.currentquestline === 'Souls') {
                         if (!userDungeon) {
                             if (qFound.qid === 5 || qFound.qid === 8 || qFound.qid === 10) {
                                 //Quest is part of story line!
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 1);
                                 await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
-
+                                let curLorePiece;
                                 if (qFound.qid === 5) {
                                     await Milestones.update({ nextstoryquest: 8 }, { where: { userid: interaction.user.id } });
 
@@ -804,7 +902,9 @@ module.exports = {
 
                                     var QSDescription = 'NEW Quest Unlocked!';
 
-                                    const theAdventure = `While clearing out the cultists you manage to extort information, finding references to an unknown location.\nDepicted throughout their lair are muirals and alters giving thanks and ritual to their god.\nYour dilligent searching comes with reward providing you a map marked with a location!`;
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
 
                                     const questStoryEmbed = new EmbedBuilder()
                                         .setTitle('Quest Progress')
@@ -831,7 +931,9 @@ module.exports = {
 
                                     var QSDescription = 'NEW Quest Unlocked!';
 
-                                    const theAdventure = `Upon arriving at the marked location you are met with a large run-down castle town, scattered are pillars and engravings of souls.\nThis must be the dungeon of souls!!\nCrawling with monsters and creatures in numbers untold, you make for a tactical retreat!\nThis will be a mission all on its own, but no doubt it will be worth it!`;
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
 
                                     const questStoryEmbed = new EmbedBuilder()
                                         .setTitle('Quest Progress')
@@ -854,7 +956,9 @@ module.exports = {
 
                                     var QSDescription = 'NEW DUNGEON Unlocked!';
 
-                                    const theAdventure = 'After hours of gruling battles and slaying you secure the surroundings.\nYou are now ready to enter the dungeon of souls, ruled by ``Wadon``!';
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
 
                                     const questStoryEmbed = new EmbedBuilder()
                                         .setTitle('Quest Progress')
@@ -883,124 +987,484 @@ module.exports = {
                     }
 
                     if (userMilestone.currentquestline === 'Dark') {
-                        //WIP
-                        if (qFound.qid === 12 || qFound.qid === 13 || qFound.qid === 14 || qFound.qid === 15) {
-                            await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 2 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 12 || qFound.qid === 13 || qFound.qid === 14 || qFound.qid === 15) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 2);
+                                let curLorePiece;
+                                if (qFound.qid === 12) {
+                                    await Milestones.update({ nextstoryquest: 13 }, { where: { userid: interaction.user.id } });
 
-                            if (qFound.qid === 12) {
-                                await Milestones.update({ nextstoryquest: 13 }, { where: { userid: interaction.user.id } });
+                                    // ========== STORY ==========
 
-                                // ========== STORY ==========
+                                    // You setout as a sell-sword, hoping to make some coin, acquire a bit of renown, maybe even learn a thing or two.
+                                    // Upon arriving at the town which had put out the hire, you find it utterly empty on first inspection..
+                                    // Not only empty, but completely unlit! Every sconce, brazier, and hearth sits with a lingering lightless chill...
+                                    // This will certainly require a more thorough investigation!
 
-                                // You setout as a sell-sword, hoping to make some coin, acquire a bit of renown, maybe even learn a thing or two.
-                                // Upon arriving at the town which had put out the hire, you find it utterly empty on first inspection..
-                                // Not only empty, but completely unlit! Every sconce, brazier, and hearth sits with a lingering lightless chill...
-                                // This will certainly require a more thorough investigation!
+                                    var QSDescription = 'NEW Quest Unlocked!';
 
-                                var QSDescription = 'NEW Quest Unlocked!';
+                                    curLorePiece = fullLoreList[0].Lore;
 
-                                const theAdventure = 'You setout as a sell-sword, hoping to make some coin, acquire a bit of renown, maybe even learn a thing or two.\nUpon arriving at the town which had put out the hire, you find it utterly empty on first inspection..\nNot only empty, but completely unlit! Every sconce, brazier, and hearth sits with a lingering lightless chill...\nThis will certainly require a more thorough investigation!';
+                                    const theAdventure = curLorePiece;
 
-                                const questStoryEmbed = new EmbedBuilder()
-                                    .setTitle('Quest Progress')
-                                    .setDescription(QSDescription)
-                                    .setColor('DarkAqua')
-                                    .addFields({
-                                        name: 'Adventure', value: theAdventure
-                                    });
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
 
-                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                    storyEmbed.delete();
-                                }, 300000)).catch(console.error);
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 13) {
+                                    await Milestones.update({ nextstoryquest: 14 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.
+                                    // Deciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!
+                                    // You follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... 
+                                    // There is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.
+                                    // You grow tired of waiting, your weapon grows weary from lack of bloodshed...
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 14) {
+                                    await Milestones.update({ nextstoryquest: 15 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!
+                                    // You manage to take down three before the remaining five take notice, followed by immediate counter action..
+                                    // A deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.
+                                    // You stand in defiance against them, causing the smallest of the three to turn and run.. 
+                                    // The broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light temporarily blinding you!
+                                    // He lurches forward swinging his massive fists.. ***CRACK***!! You take the full force, still unable to see, you swing against the pain, feeling your weapon find flesh..
+                                    // Your sight returns near instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!
+                                    // He collapses, gurgling and sobbing. You leave the pitiful sight going after the remaining cultists frozen with shock and horror...
+                                    // Sometime later after your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.
+                                    // She reveals the location of their goddess and her domain!!
+
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 15) {
+                                    //Final story quest completed, new dungeon unlocked
+
+                                    // ========== STORY ==========
+
+                                    // You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..
+                                    // Arriving at the outer perimiter greets your senses, dulling them and everything around you, even still you push onwards into the frey!
+                                    // Hours of slaughter leaves you worn and your weapon giddy. 
+                                    // You are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!
+
+
+                                    var QSDescription = 'NEW DUNGEON Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+
                             }
-                            if (qFound.qid === 13) {
-                                await Milestones.update({ nextstoryquest: 14 }, { where: { userid: interaction.user.id } });
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Torture',
+                                nextstoryquest: 16,
+                                questlinedungeon: 3,
+                            }, { where: { userid: interaction.user.id } });
 
-                                // ========== STORY ==========
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
 
-                                // During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.
-                                // Deciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!
-                                // You follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... 
-                                // There is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.
-                                // You grow tired of waiting, your weapon grows weary from lack of bloodshed...
+                    if (userMilestone.currentquestline === 'Torture') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 3 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 16 || qFound.qid === 17 || qFound.qid === 18 || qFound.qid === 19 || qFound.qid === 20 || qFound.qid === 21 || qFound.qid === 22) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 3);
+                                let curLorePiece;
+                                if (qFound.qid === 16) {
+                                    await Milestones.update({ nextstoryquest: 17 }, { where: { userid: interaction.user.id } });
 
-                                var QSDescription = 'NEW Quest Unlocked!';
+                                    // ========== STORY ==========
 
-                                const theAdventure = 'During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.\nDeciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!\nYou follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... \nThere is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.\nYou grow tired of waiting, your weapon grows weary from lack of bloodshed...';
+                                    // Hard work, tough fought battles, spoils of war, surely youve earned a break!
+                                    // A popular picnic spot, sounded the most pleasant, for a hardened veteran such as yourself.
+                                    // You pack a lunch and setout, the sun nearing its apex, warm against your exposed skin (An uncommon feeling as of late!).
+                                    // You lay out your woven blanket under the shade of a large Bloodoak, resting and enjoying the day as it is..
+                                    // An hour goes by and you notice a lack of other people, none when you arrived, none since.
+                                    // This of course is of no concern, no one is screaming, no smell of blood, no fits or fights for survival.
+                                    // *A distant gurgling scream*
+                                    // Surely today could not be a better day to picnic!
+                                    // *Then there were two*
+                                    // You let another half hour pass before giving in, you pack up and prepare to take a look...
 
-                                const questStoryEmbed = new EmbedBuilder()
-                                    .setTitle('Quest Progress')
-                                    .setDescription(QSDescription)
-                                    .setColor('DarkAqua')
-                                    .addFields({
-                                        name: 'Adventure', value: theAdventure
-                                    });
+                                    var QSDescription = 'NEW Quest Unlocked!';
 
-                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                    storyEmbed.delete();
-                                }, 300000)).catch(console.error);
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 17) {
+                                    await Milestones.update({ nextstoryquest: 18 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // You begin your search throughout the mostly peaceful woods, interrupted only briefly by the sound of someone dying a horrible death..
+                                    // Before returning, to the pleasant peace and quiet, of the wooded ambiance.
+                                    // Your search brings you nearer to the death throws, stumbling upon an arm and the thick smell of blood..
+                                    // Onwards you press your weapon now at the ready...
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 18) {
+                                    await Milestones.update({ nextstoryquest: 19 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // You slowly follow the trail of limbs, mostly human in origin, some appearing animal in nature.
+                                    // You steady yourself against the putrid scent filling the air, a low squelching ripples out from ahead of you
+                                    // Slowly creeping up, hiding yourself behind a large tree...
+                                    // There it sits, whether it sits amongst the limbs its collected or ***is*** those limbs is something you wish not to dwell on longer than needed!
+                                    // You see fresh corpses, along with those now only resembling the bones with which flesh once clung.
+                                    // You only sense this one creature, if memory serves you well, this is unmistakably an *Iron-Scaled Corpse Monster*!
+                                    // A fearsome foe, were you as inexperienced as you once were. Now this is nothing more than an execution!
+                                    // An execution it surely was, swift and decisive.
+                                    // You decided to return before the current dusk turns to dark. Hoping to find clues as to where such a creature came from being so deep in safe woods.
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 19) {
+                                    await Milestones.update({ nextstoryquest: 20 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Having returned safely, you make for one of the well-known monster clergymen.
+                                    // Asking the common whereabouts for such a creature, leads to a larger question you wish you hadnt walked into.
+                                    // *Why so many, so suddenly, so widespread?*
+                                    // He hands you a map, marked with each of the most recent abnormal gathering locations of these such creatures.
+                                    // And so you head to bed, unsure if this is where you wanted that picnic to lead you...
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 20) {
+                                    await Milestones.update({ nextstoryquest: 21 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // You setout geared up and ready for the task, marked on the map, in your hand.
+                                    // Your course charted, provisions stocked, arriving at each location..
+                                    // Strangely met with one of three outcomes each time; 
+                                    // the location abandoned showing signs of slaughter, 
+                                    // still living corpse monsters seemingly admiring each others handiwork,
+                                    // or human effigies each placed in style of how quickly they fell pray to their wounds..
+                                    // All of these outcomes are unsettling and yield no quarter against the living corpse monsters you come across.
+                                    // Having now crossed off half the locations on your map you realize a pattern forming..
+                                    // A radial pattern, spiraling outwards from one of the marked locations *a recently abandoned castle-town*.
+                                    // You change course and decide to head there first to confirm your suspicions..
+                                    // This choice pays off less for you and more for those who you find are not yet dead, you must act quick!! 
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[4].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 21) {
+                                    await Milestones.update({ nextstoryquest: 22 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Hours go by freeing bound victims, protecting and providing escape outside the city walls
+                                    // Focusing less on slaughter and more on the rescue attempts, in hindsight not the best choice considering the foe.
+                                    // A disturbing conclusion is drawn after freeing over 50..
+                                    // These people were not meant to die in the conditions found in, rather a lack of food or water would do them in first
+                                    // This is a town of prolonged ``Torture`` and no doubt the resident of one of the gods, a particularly sick and twisted one at that...
+                                    // After freeing all mobile victims you prepare the trip back to safety, clearing this place will take some time..
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[5].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 22) {
+
+                                    // ========== STORY ==========
+
+                                    // Having returned and restocked, having given those victims refuge will keep your name long living,
+                                    // Your weapon hand itches again, drawing your mind to the long battles ahead..
+                                    // =====
+                                    // The smell arriving still shocks your senses, less and less as you lose yourself to the slaughter
+                                    // You Slaughter well, You Slaughter long, You Slaughter the fear, You Slaughter the hate, This slaughter was always your fate.
+                                    // Youve cleared the entrance to the Dungeon of ``Torture`` Ruled by ``Ados``!
+
+                                    var QSDescription = 'NEW DUNGEON Unlocked!';
+
+                                    curLorePiece = fullLoreList[6].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
                             }
-                            if (qFound.qid === 14) {
-                                await Milestones.update({ nextstoryquest: 15 }, { where: { userid: interaction.user.id } });
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Chaos',
+                                nextstoryquest: 23,
+                                questlinedungeon: 4,
+                            }, { where: { userid: interaction.user.id } });
 
-                                // ========== STORY ==========
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
 
-                                // Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!
-                                // You manage to take down three before the remaining five take notice, followed by immediate counter action..
-                                // A deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.
-                                // You stand in defiance against them, causing the smallest of the three to turn and run.. 
-                                // The broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light temporarily blinding you!
-                                // He lurches forward swinging his massive fists.. ***CRACK***!! You take the full force, still unable to see, you swing against the pain, feeling your weapon find flesh..
-                                // Your sight returns near instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!
-                                // He collapses, gurgling and sobbing. You leave the pitiful sight going after the remaining cultists frozen with shock and horror...
-                                // Sometime later after your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.
-                                // She reveals the location of their goddess and her domain!!
+                    if (userMilestone.currentquestline === 'Chaos') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 4 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 23 || qFound.qid === 24 || qFound.qid === 25) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 4);
+                                let curLorePiece;
+                                if (qFound.qid === 23) {
+                                    await Milestones.update({ nextstoryquest: 24 }, { where: { userid: interaction.user.id } });
 
+                                    // ========== STORY ==========
 
-                                var QSDescription = 'NEW Quest Unlocked!';
+                                    // You run for what feels like days, his presence still all around you, you mind filled with noise
+                                    // ***IT NEVER ENDS***
+                                    // It feels like nails through your eyes and ears, you swear you can even taste his words and intentions on the air.
+                                    // You scream, you run, you trip, you fall, you roll, back to your feet you run!
+                                    // ***YOU MUST HIDE***
+                                    // And so you shall try
 
-                                const theAdventure = 'Biding your time paid off greatly, the cultists are wholly unaware of your presence when you initiate your assault!\nA deft lunge into a roll leaves you unscathed, and with two fewer cultists standing against you.\nThis, causing the smallest of the three to turn and run..\nThe broad-shouldered hulk towering over you lets forth a blast, it makes the already dim surroundings void of all remaining light, blinding you!\nHe lurches forward swinging his massive fists. ***CRACK***! You take the full force, still unable to see, you swing against the pain, your weapon finds flesh.\nYour sight returns instantly upon your weapon striking. What luck! You managed to fully remove his arm, thus destroying the spell!\nHe collapses, gurgling and sobbing. You go after the remaining cultist frozen with shock and horror.\nSometime later, your wounds have stopped throbbing, and your ears are no longer ringing. You extract information from the cultist which you bound.\nShe reveals the location of their goddess and her domain!';
+                                    var QSDescription = 'NEW Quest Unlocked!';
 
-                                const questStoryEmbed = new EmbedBuilder()
-                                    .setTitle('Quest Progress')
-                                    .setDescription(QSDescription)
-                                    .setColor('DarkAqua')
-                                    .addFields({
-                                        name: 'Adventure', value: theAdventure
-                                    });
+                                    curLorePiece = fullLoreList[0].Lore;
 
-                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                    storyEmbed.delete();
-                                }, 300000)).catch(console.error);
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 24) {
+                                    await Milestones.update({ nextstoryquest: 25 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Tears stinging your eyes, throat raw with whitefire choking back sobs lest he find you.
+                                    // ***YOU MUST SUBMIT***
+                                    // You shake your head in silent refusal, your perception of the world lost to the ever changing nightmare before you.
+                                    // ***YOU MUST DANCE***
+                                    // That is exactly what you do, you find without a choice..
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 25) {
+                                    // ========== STORY ==========
+
+                                    // You dance, and dance..
+                                    // With each spin you feel your fear grown lighter, the tears stop flowing, the burn in your throat subsides.
+                                    // And then you find yourself face to face with ``Zimmir`` dancing by his command at the foot of his throne steps..
+                                    // Here you pirouette, for the God of Chaos, within his Dungeon..
+
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
                             }
-                            if (qFound.qid === 15) {
-                                //Final story quest completed, new dungeon unlocked
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Law',
+                                nextstoryquest: 27,
+                                questlinedungeon: 5,
+                            }, { where: { userid: interaction.user.id } });
 
-                                // ========== STORY ==========
-
-                                // You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..
-                                // Arriving at the outer perimiter greets your senses, dulling them and everything around you, even still you push onwards into the frey!
-                                // Hours of slaughter leaves you worn and your weapon giddy. 
-                                // You are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!
-
-
-                                var QSDescription = 'NEW DUNGEON Unlocked!';
-
-                                const theAdventure = 'You trek through treacherous lands of blanketed forests and barren rock mountains to reach this lair of darkness..\nArriving at the outer perimeter greets your senses, dulling them and everything around you, even still you push onwards into the fray!\nHours of slaughter leaves you worn and your weapon giddy.\nYou are ready for what resides within the dungeon of the dark, you are ready to face ``Dyvulla``!';
-
-                                const questStoryEmbed = new EmbedBuilder()
-                                    .setTitle('Quest Progress')
-                                    .setDescription(QSDescription)
-                                    .setColor('DarkAqua')
-                                    .addFields({
-                                        name: 'Adventure', value: theAdventure
-                                    });
-
-                                await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
-                                    storyEmbed.delete();
-                                }, 300000)).catch(console.error);
-                            }
-
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
                         }
                     }
 
@@ -1022,7 +1486,7 @@ module.exports = {
 
                     collector.on('collect', async (collInteract) => {
                         if (collInteract.customId === 'next-page') {
-                            console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+                            //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
                             //if statment to check if currently on the last page
                             if (currentPage === embedPages.length - 1) {
@@ -1036,7 +1500,7 @@ module.exports = {
                             }
                         }
                         if (collInteract.customId === 'back-page') {
-                            console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+                            //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
                             if (currentPage === 0) {
                                 currentPage = embedPages.length - 1;

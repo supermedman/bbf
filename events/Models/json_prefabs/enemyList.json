@@ -84,7 +84,7 @@
         "XpMin": 10,
         "XpMax": 18,
 
-        "DropTypes": [ "fleshy", "magical" ],
+        "DropTypes": [ "fleshy", "magical", "silky" ],
 
         "ConstKey": 2,
         "HasUnique": true,
@@ -104,7 +104,7 @@
         "XpMin": 20,
         "XpMax": 25,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 17,
         "SpecId": 0
@@ -135,7 +135,7 @@
     },
     {
         "Name": "Terrorling",
-        "Description": "A small and condensed entity of terror.",
+        "Description": "A small and condensed entity of terror. One of the servants of Ados",
 
         "Level": 3,
         "MinDmg": 10,
@@ -232,7 +232,7 @@
         "XpMin": 35,
         "XpMax": 50,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 17,
         "SpecId": 0
@@ -252,7 +252,7 @@
         "XpMin": 60,
         "XpMax": 70,
 
-        "DropTypes": [ "fleshy", "magical" ],
+        "DropTypes": [ "fleshy", "magical", "silky" ],
 
         "ConstKey": 7,
         "SpecId": 0
@@ -388,7 +388,7 @@
         "XpMin": 80,
         "XpMax": 95,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 16,
         "SpecId": 0
@@ -618,7 +618,7 @@
         "XpMin": 35,
         "XpMax": 40,
 
-        "DropTypes": [ "magical" ],
+        "DropTypes": [ "magical", "silky" ],
 
         "ConstKey": 29,
         "SpecId": 0
@@ -723,7 +723,7 @@
         "XpMin": 55,
         "XpMax": 60,
 
-        "DropTypes": [ "fleshy", "magical" ],
+        "DropTypes": [ "fleshy", "magical", "silky" ],
 
         "ConstKey": 34,
         "SpecId": 0
@@ -743,7 +743,7 @@
         "XpMin": 55,
         "XpMax": 60,
 
-        "DropTypes": [ "magical" ],
+        "DropTypes": [ "magical", "silky" ],
         "UniqueType": "Magic",
 
         "ConstKey": 35,
@@ -805,7 +805,7 @@
         "XpMin": 85,
         "XpMax": 90,
 
-        "DropTypes": [ "fleshy", "magical", "herby" ],
+        "DropTypes": [ "fleshy", "magical", "herby", "silky" ],
 
         "ConstKey": 38,
         "SpecId": 0
@@ -928,7 +928,7 @@
         "XpMin": 155,
         "XpMax": 160,
 
-        "DropTypes": [ "magical" ],
+        "DropTypes": [ "magical", "silky" ],
 
         "ConstKey": 44,
         "SpecId": 0
@@ -956,7 +956,7 @@
     },
     {
         "Name": "The Giant Malformation",
-        "Description": "EWWW WHAT IS THAT!!",
+        "Description": "EWWW WHAT IS THAT!! One of the servants of Ados",
 
         "Level": 11,
         "MinDmg": 16,
@@ -969,7 +969,7 @@
         "XpMin": 210,
         "XpMax": 220,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 46,
         "SpecId": 0
@@ -989,7 +989,7 @@
         "XpMin": 220,
         "XpMax": 230,
 
-        "DropTypes": [ "fleshy", "skinny" ],
+        "DropTypes": [ "fleshy", "skinny", "silky" ],
 
         "ConstKey": 47,
         "SpecId": 0
@@ -1029,7 +1029,7 @@
         "XpMin": 260,
         "XpMax": 270,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 49,
         "SpecId": 0
@@ -1180,7 +1180,7 @@
     },
     {
         "Name": "Chaotic Venom Titan",
-        "Description": "Predicting its next move is like teaching a newborn the social hierarchy",
+        "Description": "Predicting its next move is like teaching a newborn the social hierarchy. One of the servants of Zimmir",
 
         "Level": 20,
         "MinDmg": 30,
@@ -1193,7 +1193,7 @@
         "XpMin": 960,
         "XpMax": 1000,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 57,
         "SpecId": 0
@@ -1213,7 +1213,7 @@
         "XpMin": 1160,
         "XpMax": 1200,
 
-        "DropTypes": [ "fleshy", "magical" ],
+        "DropTypes": [ "fleshy", "magical", "silky" ],
 
         "ConstKey": 58,
         "HasUnique": true,
@@ -1235,7 +1235,7 @@
         "XpMin": 2000,
         "XpMax": 2500,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
         "UniqueType": "Soul",
 
         "ConstKey": 59,
@@ -1260,7 +1260,7 @@
         "XpMin": 200,
         "XpMax": 210,
 
-        "DropTypes": [ "fleshy", "magical" ],
+        "DropTypes": [ "fleshy", "magical", "silky" ],
         "UniqueType": "Dark",
 
         "ConstKey": 60,
@@ -1322,7 +1322,7 @@
         "XpMin": 240,
         "XpMax": 245,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 63,
         "SpecId": 0
@@ -1342,7 +1342,7 @@
         "XpMin": 270,
         "XpMax": 280,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 64,
         "SpecId": 0
@@ -1699,7 +1699,7 @@
         "XpMin": 25,
         "XpMax": 30,
 
-        "DropTypes": [ "magical" ],
+        "DropTypes": [ "magical", "silky" ],
 
         "ConstKey": 81,
 
@@ -1747,7 +1747,7 @@
         "XpMin": 8,
         "XpMax": 10,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 83,
 
@@ -1844,7 +1844,7 @@
         "XpMin": 1200,
         "XpMax": 1300,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
         "UniqueType": "Blunt",
 
         "ConstKey": 87,
@@ -1865,7 +1865,7 @@
         "XpMin": 1100,
         "XpMax": 1200,
 
-        "DropTypes": [ "magical" ],
+        "DropTypes": [ "magical", "silky" ],
         "UniqueType": "Magic",
 
         "ConstKey": 88,
@@ -1947,14 +1947,14 @@
         "XpMin": 1400,
         "XpMax": 1600,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 92,
         "SpecId": 0
     },
     {
         "Name": "Chaosfiend",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Not enough is yet known about this creature! One of the servants of Zimmir",
 
         "Level": 24,
         "MinDmg": 40,
@@ -1974,7 +1974,7 @@
     },
     {
         "Name": "Sorrowscream",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Not enough is yet known about this creature! One of the servants of Ados",
 
         "Level": 21,
         "MinDmg": 30,
@@ -2028,7 +2028,7 @@
         "XpMin": 600,
         "XpMax": 750,
 
-        "DropTypes": [ "magical", "metalic", "herby" ],
+        "DropTypes": [ "magical", "metalic", "herby", "silky" ],
 
         "ConstKey": 96,
         "SpecId": 0
@@ -2055,7 +2055,7 @@
     },
     {
         "Name": "Iron-Scaled Corpse Monster",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Not enough is yet known about this creature! One of the servants of Ados",
 
         "Level": 19,
         "MinDmg": 30,
@@ -2075,7 +2075,7 @@
     },
     {
         "Name": "Chaoslich",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Not enough is yet known about this creature! One of the servants of Zimmir",
 
         "Level": 17,
         "MinDmg": 25,
@@ -2088,7 +2088,7 @@
         "XpMin": 580,
         "XpMax": 600,
 
-        "DropTypes": [ "slimy", "magical", "herby" ],
+        "DropTypes": [ "slimy", "magical", "herby", "silky" ],
 
         "ConstKey": 99,
         "SpecId": 0
@@ -2108,7 +2108,8 @@
         "XpMin": 2000,
         "XpMax": 2500,
 
-        "DropTypes": [ "fleshy" ],
+        "DropTypes": [ "fleshy", "silky" ],
+        "UniqueType": "Null",
 
         "ConstKey": 100,
         "SpecId": 0
@@ -2128,7 +2129,7 @@
         "XpMin": 10000,
         "XpMax": 15000,
 
-        "DropTypes": [ "fleshy", "slimy" ],
+        "DropTypes": [ "fleshy", "slimy", "silky" ],
         "UniqueType": "Null",
 
         "ConstKey": 101,
@@ -2149,14 +2150,14 @@
         "XpMin": 2400,
         "XpMax": 2600,
 
-        "DropTypes": [ "skinny", "magical" ],
+        "DropTypes": [ "skinny", "magical", "silky" ],
 
         "ConstKey": 102,
         "SpecId": 0
     },
     {
         "Name": "Chaoscat",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Not enough is yet known about this creature! One of the servants of Zimmir",
 
         "Level": 23,
         "MinDmg": 50,
@@ -2169,7 +2170,7 @@
         "XpMin": 2400,
         "XpMax": 2600,
 
-        "DropTypes": [ "skinny", "herby", "magical" ],
+        "DropTypes": [ "skinny", "herby", "magical", "silky" ],
 
         "ConstKey": 103,
         "SpecId": 0
@@ -2210,6 +2211,7 @@
         "XpMax": 3500,
 
         "DropTypes": [ "gemy", "skinny", "metalic", "slimy" ],
+        "UniqueType": "Null",
 
         "ConstKey": 105,
         "SpecId": 0
@@ -2290,7 +2292,7 @@
         "XpMin": 2400,
         "XpMax": 2800,
 
-        "DropTypes": [ "fleshy", "herby", "slimy" ],
+        "DropTypes": [ "fleshy", "herby", "slimy", "silky" ],
 
         "ConstKey": 109,
         "SpecId": 0
@@ -2330,7 +2332,8 @@
         "XpMin": 2800,
         "XpMax": 3200,
 
-        "DropTypes": [ "metalic", "magical", "herby" ],
+        "DropTypes": [ "metalic", "magical", "herby", "silky" ],
+        "UniqueType": "Null",
 
         "ConstKey": 111,
         "SpecId": 0
@@ -2432,7 +2435,7 @@
         "XpMin": 2500,
         "XpMax": 3200,
 
-        "DropTypes": [ "rocky", "magical" ],
+        "DropTypes": [ "rocky", "magical", "silky" ],
         "UniqueType": "Dark",
 
         "ConstKey": 116,
@@ -2460,7 +2463,7 @@
     },
     {
         "Name": "Doomflayer",
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "Not enough is yet known about this creature! One of the servants of Ados",
 
         "Level": 36,
         "MinDmg": 100,
@@ -2493,7 +2496,7 @@
         "XpMin": 3000,
         "XpMax": 3600,
 
-        "DropTypes": [ "slimy", "magical" ],
+        "DropTypes": [ "slimy", "magical", "silky" ],
 
         "ConstKey": 119,
         "SpecId": 0
@@ -2754,7 +2757,7 @@
         "XpMin": 1050,
         "XpMax": 1200,
 
-        "DropTypes": [ "magical", "gemy", "metalic" ],
+        "DropTypes": [ "magical", "gemy", "metalic", "silky" ],
 
         "ConstKey": 132,
         "SpecId": 0
@@ -2892,7 +2895,7 @@
         "XpMin": 190,
         "XpMax": 500,
 
-        "DropTypes": [ "slimy" ],
+        "DropTypes": [ "slimy", "silky" ],
 
         "ConstKey": 139,
         "SpecId": 0
@@ -2936,6 +2939,26 @@
         "SpecId": 0
     },
     {
+        "Name": "Corpse Piler",
+        "Description": "Enslaved for the purpose of building corpse monsters, in service of Ados",
+
+        "Level": 45,
+        "MinDmg": 125,
+        "MaxDmg": 180,
+        "Health": 6000,
+        "Defence": 20,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 4500,
+        "XpMax": 5500,
+
+        "DropTypes": [ "magical", "gemy" ],
+
+        "ConstKey": 142,
+        "SpecId": 0
+    },
+    {
         "Name": "COPY",
         "Description": "Not enough is yet known about this creature!",
 
@@ -2963,14 +2986,14 @@
         "MinDmg": 100,
         "MaxDmg": 1000,
         "Health": 7000000,
-        "Defence": 100,
+        "Defence": 1000,
 
         "WeakTo": "NULL",
         "Dead": false,
         "XpMin": 200000,
         "XpMax": 280000,
 
-        "DropTypes": [ "slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy" ],
+        "DropTypes": [ "slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky" ],
 
         "ConstKey": 0,
         "SpecId": 0
