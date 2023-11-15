@@ -427,7 +427,11 @@ module.exports = {
 
                 collector.on('end', () => {
                     if (embedMsg) {
-                        embedMsg.delete();
+                        embedMsg.delete().catch(error => {
+                            if (error.code !== 10008) {
+                                console.error('Failed to delete the message:', error);
+                            }
+                        });
                     }
                 });
             } else {
@@ -1520,7 +1524,11 @@ module.exports = {
 
                     collector.on('end', () => {
                         if (embedMsg) {
-                            embedMsg.delete();
+                            embedMsg.delete().catch(error => {
+                                if (error.code !== 10008) {
+                                    console.error('Failed to delete the message:', error);
+                                }
+                            });
                         }
                     });                  
                 } else {
