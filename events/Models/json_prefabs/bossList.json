@@ -111,13 +111,13 @@
 		"Name": "Dyvulla, Goddess Of The Dark",
 		"NameRef": "Dyvulla",
 
-		"Intro": "...",
+		"Intro": "Ive heard rumors that YOU are the one who bested that over-zealous *Wadon*",
 		"IntroC": "Navy",
 
-		"Line_One": "...",
+		"Line_One": "If you ask me, he always was a bit of a pushover!",
 		"Line_OneC": "Navy",
 
-		"Line_Two": "...",
+		"Line_Two": "Now, shall we dance?",
 		"Line_TwoC": "DarkRed",
 
 		"Level": 45,
@@ -144,13 +144,13 @@
 		"Name": "DarkBringer Dyvulla",
 		"NameRef": "Dyvulla",
 
-		"Intro": "...",
-		"IntroC": "DarkRed",
+		"Intro": "Maybe I underestimated you, it would appear that taking down wadon was no stroke of luck!",
+		"IntroC": "Navy",
 
-		"Line_One": "...",
-		"Line_OneC": "DarkRed",
+		"Line_One": "Id not hold my breath on making it out of here alive, if i were you..",
+		"Line_OneC": "Navy",
 
-		"Line_Two": "...",
+		"Line_Two": "DO HURRY UP AND BECOME ONE WITH DARKNESS FOR ME!!",
 		"Line_TwoC": "Blue",
 
 		"Level": 45,
@@ -177,13 +177,13 @@
 		"Name": "Dyvulla",
 		"NameRef": "Dyvulla",
 
-		"Intro": "...",
+		"Intro": "HOW",
 		"IntroC": "DarkGold",
 
-		"Line_One": "...",
+		"Line_One": "THIS IS WRONG",
 		"Line_OneC": "DarkGold",
 
-		"Line_Two": "...",
+		"Line_Two": "YOU WILL NEVER SURPASS ALL OF US!!!",
 		"Line_TwoC": "DarkButNotBlack",
 
 		"Level": 45,
@@ -212,6 +212,222 @@
 
 		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Dyvulla-goddess-of-the-dark-closeup.png",
 		"Image_Closeup": "attachment://Dyvulla-goddess-of-the-dark-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Ados, God of Torture",
+		"NameRef": "Ados",
+
+		"Intro": "Welcome..",
+		"IntroC": "Grey",
+
+		"Line_One": "I hear you've been making a bit of a mess..",
+		"Line_OneC": "Grey",
+
+		"Line_Two": "Let us see what you can do!",
+		"Line_TwoC": "Grey",
+
+		"Level": 50,
+		"MinDmg": 120,
+		"MaxDmg": 175,
+		"Health": 13000,
+		"StageHealth": 5000,
+		"Defence": 50,
+
+		"WeakTo": "Slash",
+
+		"ConstKey": 1007,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Ados-god-of-torture.png",
+		"Image": "attachment://Ados-god-of-torture.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Ados-god-of-torture-closeup.png",
+		"Image_Closeup": "attachment://Ados-god-of-torture-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Painlover Ados",
+		"NameRef": "Ados",
+
+		"Intro": "Mmmmm.. Delicious..",
+		"IntroC": "Navy",
+
+		"Line_One": "Normally I would savour this! Including a painful and prolonged death for you, however, you seem troublesome.",
+		"Line_OneC": "Navy",
+
+		"Line_Two": "NOW DIE!!",
+		"Line_TwoC": "Red",
+
+		"Level": 50,
+		"MinDmg": 180,
+		"MaxDmg": 280,
+		"Health": 5000,
+		"StageHealth": 1,
+		"Defence": 60,
+
+		"WeakTo": "NONE",
+
+		"ConstKey": 1008,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Ados-god-of-torture.png",
+		"Image": "attachment://Ados-god-of-torture.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Ados-god-of-torture-closeup.png",
+		"Image_Closeup": "attachment://Ados-god-of-torture-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Ados",
+		"NameRef": "Ados",
+
+		"Intro": "It HUUUURRRRTTTSSSS",
+		"IntroC": "DarkGold",
+
+		"Line_One": "SAVE ME BROTHER!! I CANNOT CONTINUE!!",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "ZIMMIR PLEASE!!",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 50,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+		"Health": 1,
+		"StageHealth": 0,
+		"Defence": 0,
+
+		"WeakTo": "Slash",
+
+		"Dead": false,
+		"XpMin": 35000,
+		"XpMax": 48000,
+
+		"Blueprint": "Spiked Bloodborne Skullstompers",
+		"BlueprintID": 18,
+
+		"AchievementGet": "ADOS",
+
+		"ConstKey": 1009,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Ados-god-of-torture.png",
+		"Image": "attachment://Ados-god-of-torture.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Ados-god-of-torture-closeup.png",
+		"Image_Closeup": "attachment://Ados-god-of-torture-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Zimmir, God of Chaos",
+		"NameRef": "Zimmir",
+
+		"Intro": "HAVING FUN ARE WE?",
+		"IntroC": "Fuchsia",
+
+		"Line_One": "I certainly *WAS* until *YOU* had to muck about!",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "Pain shall consume you, ***AS IT DID MY BROTHER***",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 55,
+		"MinDmg": 200,
+		"MaxDmg": 210,
+		"Health": 25000,
+		"StageHealth": 8000,
+		"Defence": 15,
+
+		"WeakTo": "Blunt",
+
+		"ConstKey": 1010,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Zimmir-god-of-chaos.png",
+		"Image": "attachment://Zimmir-god-of-chaos.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Zimmir-god-of-chaos-closeup.png",
+		"Image_Closeup": "attachment://Zimmir-god-of-chaos-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Grieving Zimmir",
+		"NameRef": "Zimmir",
+
+		"Intro": "***MY BROTHER*** may not have been conventional..",
+		"IntroC": "Navy",
+
+		"Line_One": "***MY BROTHER*** may not have been wise..",
+		"Line_OneC": "Navy",
+
+		"Line_Two": "***MY BROTHER***... was still.. my brother",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 55,
+		"MinDmg": 250,
+		"MaxDmg": 300,
+		"Health": 8000,
+		"StageHealth": 1,
+		"Defence": 0,
+
+		"WeakTo": "Blunt",
+
+		"ConstKey": 1011,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Zimmir-god-of-chaos.png",
+		"Image": "attachment://Zimmir-god-of-chaos.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Zimmir-god-of-chaos-closeup.png",
+		"Image_Closeup": "attachment://Zimmir-god-of-chaos-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Zimmir",
+		"NameRef": "Zimmir",
+
+		"Intro": "Im sorry.. Ados",
+		"IntroC": "DarkGold",
+
+		"Line_One": "I- **FAILED** all the same.",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "May ``Fayrn`` bring your doom..",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 55,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+		"Health": 1,
+		"StageHealth": 0,
+		"Defence": 0,
+
+		"WeakTo": "Blunt",
+
+		"Dead": false,
+		"XpMin": 60000,
+		"XpMax": 75000,
+
+		"Blueprint": "Robes of Forced Insanity",
+		"BlueprintID": 19,
+
+		"AchievementGet": "ZIMMIR",
+
+		"ConstKey": 1012,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Zimmir-god-of-chaos.png",
+		"Image": "attachment://Zimmir-god-of-chaos.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Zimmir-god-of-chaos-closeup.png",
+		"Image_Closeup": "attachment://Zimmir-god-of-chaos-closeup.png",
 
 		"SpecId": 0
 	}
