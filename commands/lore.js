@@ -34,7 +34,7 @@ module.exports = {
 		if (focusedOption.name === 'line') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["Souls", "Dark"];
+			choices = ["Souls", "Dark", "Torture", "Chaos"];
 
 			if (focusedValue) {
 				console.log(choices);
@@ -49,9 +49,9 @@ module.exports = {
         }
     },
 	async execute(interaction) { 
-		await interaction.deferReply();
-
+		
 		if (interaction.options.getSubcommand() === 'story') {
+			await interaction.deferReply();
 			const storyStr = interaction.options.getString('line');
 
 			var chosenStory;
@@ -59,10 +59,14 @@ module.exports = {
 				chosenStory = 1;
 			} else if (storyStr === 'Dark') {
 				chosenStory = 2;
+			} else if (storyStr === 'Torture') {
+				chosenStory = 3;
+			} else if (storyStr === 'Chaos') {
+				chosenStory = 4;
 			} else return interaction.followUp('That was not a valid option!');
 
 			const userMilestones = await Milestones.findOne({ where: { userid: interaction.user.id } });
-			if (!userMilestones) return interaction.followUp('You have not completed or started any quests yet! Use the command ``/quest start`` to start and ``quest claim`` to check/finish a quest!');
+			if (!userMilestones) return interaction.followUp('You have not completed or started any quests yet! Use the command ``/quest start`` to start and ``/quest claim`` to check/finish a quest!');
 			if (userMilestones.nextstoryquest === 5) return interaction.followUp('You have not completed any story quests yet! Try raiding ``Krelyas`` hideaway');
 
 			let embedPages = [];
@@ -77,7 +81,7 @@ module.exports = {
 					furthestLore = 1; //First part of Story
 				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
 
-				const fullLoreList = await loreList.filter(lore => lore.StoryLine === 1);
+				const fullLoreList = await loreList.filter(lore => lore.StoryLine === chosenStory);
 				console.log(specialInfoForm('Contents of fullLoreList: ', fullLoreList));
 				let currLorePiece;
 				let currRun = 0;
@@ -116,7 +120,85 @@ module.exports = {
 					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
 				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
 
-				const fullLoreList = loreList.filter(lore => lore.StoryLine === 2);
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = fullLoreList[currRun];
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('~Tales Retold~')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+
+			if (chosenStory === 3) {
+				if (furthestLore >= 22) {
+					furthestLore = 7;
+				} else if (furthestLore === 21) {
+					furthestLore = 6;
+				} else if (furthestLore === 20) {
+					furthestLore = 5;
+				} else if (furthestLore === 19) {
+					furthestLore = 4;
+				} else if (furthestLore === 18) {
+					furthestLore = 3;
+				} else if (furthestLore === 17) {
+					furthestLore = 2;
+				} else if (furthestLore === 16) {
+					furthestLore = 1;
+				} else if (furthestLore === 15) {
+					if (userMilestones.currentquestline === 'Dark') {
+						return interaction.followUp('You have not yet defeated ``Dyvulla``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = await loreList.filter(lore => lore.StoryLine === chosenStory);
+				console.log(specialInfoForm('Contents of fullLoreList: ', fullLoreList));
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = await fullLoreList[currRun];
+					console.log(specialInfoForm('Contents of currLorePiece.Lore: ', currLorePiece.Lore));
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('Quest Progress')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+
+			if (chosenStory === 4) {
+				if (furthestLore >= 25) {
+					furthestLore = 3;
+				} else if (furthestLore === 24) {
+					furthestLore = 2;
+				} else if (furthestLore === 23) {
+					furthestLore = 1;
+				} else if (furthestLore === 22) {
+					if (userMilestones.currentquestline === 'Torture') {
+						return interaction.followUp('You have not yet defeated ``Ados``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
 				let currLorePiece;
 				let currRun = 0;
 				do {
