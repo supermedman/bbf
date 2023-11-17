@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { Loadout, UserData } = require('../dbObjects.js');
 const { userDamageLoadout } = require('./exported/dealDamage.js');
 const { grabColour } = require('./exported/grabRar.js');
-const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand } = require('./exported/findLoadout.js');
+const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion } = require('./exported/findLoadout.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -20,6 +20,8 @@ module.exports = {
             var chestSlotItem = await findChestSlot(currentLoadout.chestslot, interaction.user.id);
             var legSlotItem = await findLegSlot(currentLoadout.legslot, interaction.user.id);
             var mainHandItem = await findMainHand(currentLoadout.mainhand, interaction.user.id);
+            var offHandItem = await findOffHand(currentLoadout.offhand, interaction.user.id);
+            var equippedPotion = await findPotion(currentLoadout.potionone, interaction.user.id);
 
             let headUnique = true;
             if (headSlotItem.Value) {
@@ -41,6 +43,10 @@ module.exports = {
                 //Item is crafted Unique
                 mainHandUnique = false;
             }
+            let offHandUnique = true;
+            if (offHandItem.Value) {
+                offHandUnique = false;
+            }
 
             var headSlotEmbed;
             var headSlotColour;
@@ -53,6 +59,11 @@ module.exports = {
 
             var mainHandEmbed;
             var mainHandColour;
+
+            var offHandEmbed;
+            var offHandColour;
+
+            var potionEmbed;
 
             var damageEmbed;
 
@@ -158,6 +169,45 @@ module.exports = {
                         });
             }
 
+            if (offHandItem === 'NONE') {
+                var list = 'Nothing to see here';
+                offHandEmbed = new EmbedBuilder()
+                    .setTitle('NOTHING EQUIPPED')
+                    .addFields({ name: 'No offhand equipped', value: list, });
+            } else {
+                if (currentLoadout.mainhand === currentLoadout.offhand) {
+                    //TWO HANDED WEAPON EQUIPPED!
+                    var list = `${mainHandItem.name} is taking this spot!`;
+                    offHandEmbed = new EmbedBuilder()
+                        .setTitle('MAINHAND TAKES TWO HANDS')
+                        .addFields({ name: 'Offhand full', value: list, });
+                } else {
+                    let list;
+                    let killList;
+                    let offHandName;
+                    if (offHandUnique === true) {
+                        killList = `Total Kills: **${offHandItem.totalkills}** \nKills this level: **${offHandItem.killsthislevel}**`;
+                        list = (`\nValue: **${offHandItem.value}c** \nRarity: **${offHandItem.rarity}** \nAttack: **${offHandItem.Attack}** \nDefence: **${offHandItem.Defence}** \nType: **${offHandItem.Type}** \nSlot: **${offHandItem.slot}** \nLevel: **${offHandItem.currentlevel}** \n${killList}`);
+                        offHandColour = await grabColour(offHandItem.rar_id, false);
+                        offHandName = `**${offHandItem.name}**`;                       
+                    } else {
+                        list = (`\nValue: **${offHandItem.Value}c** \nRarity: **${offHandItem.Rarity}** \nAttack: **${offHandItem.Attack}**\nDefence: **${offHandItem.Defence}** \nType: **${offHandItem.Type}** \nSlot: **${offHandItem.Slot}**`);
+                        offHandColour = await grabColour(offHandItem.Rar_id, false);
+                        offHandName = `**${offHandItem.Name}**`;             
+                    }
+
+                    offHandEmbed = new EmbedBuilder()
+                        .setTitle('CURRENTLY EQUIPPED')
+                        .setColor(offHandColour)
+                        .addFields(
+                            {
+                                name: (`${offHandName}`),
+                                value: list,
+
+                            });
+                }
+            }
+
             if (mainHandItem === 'NONE') {
                 //No item equipped
                 var list = `Nothing to see here`;
@@ -217,7 +267,7 @@ module.exports = {
                         });
             }
 
-            interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, mainHandEmbed, damageEmbed] });
+            interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, offHandEmbed, mainHandEmbed, damageEmbed] });
 
         } else {
             //No items equipped
