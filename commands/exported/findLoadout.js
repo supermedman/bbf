@@ -21,50 +21,30 @@ const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findHelmSlot(headSlotID, userID) {
-    var headSlotItem;
+    let headSlotItem;
     if (headSlotID === 0) {
         //Nothing equipped
         return 'NONE';
     } else {
         console.log(headSlotID);
 
-        //Normal ID
         if (headSlotID < 1000) {
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === headSlotID) {
-                    //Helmet found
-                    headSlotItem = lootList[i];
-                    console.log(headSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
+            headSlotItem = lootList.filter(item => item.Loot_id === headSlotID);
+            headSlotItem = headSlotItem[0];
         } else if (headSlotID >= 30000) {
-            //Unique Crafted
             headSlotItem = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: headSlotID }] });
         } else if (headSlotID >= 20000) {
-            //Unique Cheated
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === headSlotID) {
-                    //Helmet found
-                    headSlotItem = lootList[i];
-                    console.log(headSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
-        } else if (headSlotID > 1000) {
-            //Unique Normal
-            for (var x = 0; x < uniqueLootList.length; x++) {
-                if (uniqueLootList[x].Loot_id === headSlotID) {
-                    //Helmet found
-                    headSlotItem = uniqueLootList[x];
-                    console.log(headSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
+            headSlotItem = lootList.filter(item => item.Loot_id === headSlotID);
+            headSlotItem = headSlotItem[0];
+        } else if (headSlotID < 1000) {
+            headSlotItem = uniqueLootList.filter(item => item.Loot_id === headSlotID);
+            headSlotItem = headSlotItem[0];
         }
 
         if (headSlotID === 1000) {
             //Temp ITEM
         }
 
-        
         if (!headSlotItem) {
             
         }
@@ -82,43 +62,24 @@ async function findHelmSlot(headSlotID, userID) {
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findChestSlot(chestSlotID, userID) {
-    var chestSlotItem;
+    let chestSlotItem;
     if (chestSlotID === 0) {
         //Nothing equipped
         return 'NONE';
     } else {
         console.log(chestSlotID);
 
-        //Normal ID
         if (chestSlotID < 1000) {
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === chestSlotID) {
-                    //Chest found
-                    chestSlotItem = lootList[i];
-                    console.log(chestSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
+            chestSlotItem = lootList.filter(item => item.Loot_id === chestSlotID);
+            chestSlotItem = chestSlotItem[0];
         } else if (chestSlotID >= 30000) {
-            //Unique Crafted
             chestSlotItem = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: chestSlotID }] });
         } else if (chestSlotID >= 20000) {
-            //Unique Cheated
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === chestSlotID) {
-                    //Chest found
-                    chestSlotItem = lootList[i];
-                    console.log(chestSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
-        } else if (chestSlotID > 1000) {
-            //Unique Normal
-            for (var x = 0; x < uniqueLootList.length; x++) {
-                if (uniqueLootList[x].Loot_id === chestSlotID) {
-                    //Chest found
-                    chestSlotItem = uniqueLootList[x];
-                    console.log(chestSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
+            chestSlotItem = lootList.filter(item => item.Loot_id === chestSlotID);
+            chestSlotItem = chestSlotItem[0];
+        } else if (chestSlotID < 1000) {
+            chestSlotItem = uniqueLootList.filter(item => item.Loot_id === chestSlotID);
+            chestSlotItem = chestSlotItem[0];
         }
 
         if (chestSlotID === 1000) {
@@ -143,50 +104,30 @@ async function findChestSlot(chestSlotID, userID) {
  */
 //This method returns a prefab reference if an item is found, if not returns 'NONE'
 async function findLegSlot(legSlotID, userID) {
-    var legSlotItem;
+    let legSlotItem;
     if (legSlotID === 0) {
         //Nothing equipped
         return 'NONE';
     } else {
         console.log(legSlotID);
 
-        //Normal ID
         if (legSlotID < 1000) {
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === legSlotID) {
-                    //Legs found
-                    legSlotItem = lootList[i];
-                    console.log(legSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
+            legSlotItem = lootList.filter(item => item.Loot_id === legSlotID);
+            legSlotItem = legSlotItem[0];
         } else if (legSlotID >= 30000) {
-            //Unique Crafted
             legSlotItem = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: legSlotID }] });
         } else if (legSlotID >= 20000) {
-            //Unique Cheated
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === legSlotID) {
-                    //Legs found
-                    legSlotItem = lootList[i];
-                    console.log(legSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
-        } else if (legSlotID > 1000) {
-            //Unique Normal
-            for (var x = 0; x < uniqueLootList.length; x++) {
-                if (uniqueLootList[x].Loot_id === legSlotID) {
-                    //Legs found
-                    legSlotItem = uniqueLootList[x];
-                    console.log(legSlotItem);
-                } else {/**Do nothing not found*/ }
-            }
+            legSlotItem = lootList.filter(item => item.Loot_id === legSlotID);
+            legSlotItem = legSlotItem[0];
+        } else if (legSlotID < 1000) {
+            legSlotItem = uniqueLootList.filter(item => item.Loot_id === legSlotID);
+            legSlotItem = legSlotItem[0];
         }
 
         if (legSlotID === 1000) {
             //Temp ITEM
         }
 
-        
         if (!legSlotItem) {
             
         }
@@ -211,36 +152,17 @@ async function findMainHand(mainHandID, userID) {
     } else {
         console.log(mainHandID);
 
-        //Regular loot id
         if (mainHandID < 1000) {
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === mainHandID) {
-                    //Weapon found
-                    mainHandItem = lootList[i];
-                    console.log(mainHandItem);
-                } else {/**Do nothing not found*/ }
-            }
+            mainHandItem = lootList.filter(item => item.Loot_id === mainHandID);
+            mainHandItem = mainHandItem[0];
         } else if (mainHandID >= 30000) {
-            //Unique Crafted
             mainHandItem = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: mainHandID }] });
         } else if (mainHandID >= 20000) {
-            //Unique Cheated
-            for (var i = 0; i < lootList.length; i++) {
-                if (lootList[i].Loot_id === mainHandID) {
-                    //Weapon found
-                    mainHandItem = lootList[i];
-                    console.log(mainHandItem);
-                } else {/**Do nothing not found*/ }
-            }
-        } else if (mainHandID > 1000) {
-            //Special loot id
-            for (var x = 0; x < uniqueLootList.length; x++) {
-                if (uniqueLootList[x].Loot_id === mainHandID) {
-                    //Weapon found
-                    mainHandItem = uniqueLootList[x];
-                    console.log(mainHandItem);
-                } else {/**Do nothing not found*/ }
-            }
+            mainHandItem = lootList.filter(item => item.Loot_id === mainHandID);
+            mainHandItem = mainHandItem[0];
+        } else if (mainHandID < 1000) {
+            mainHandItem = uniqueLootList.filter(item => item.Loot_id === mainHandID);
+            mainHandItem = mainHandItem[0];
         }
 
         if (mainHandID === 10000) {
@@ -263,11 +185,37 @@ async function findMainHand(mainHandID, userID) {
  * @param {any} userID ID reference
  */
 async function findOffHand(offHandID, userID) {
-    var offHandItem;
+    let offHandItem;
     if (offHandID === 0) {
         //Nothing equipped
         return 'NONE';
-    } else { }
+    } else {
+        console.log(offHandID);
+
+        if (offHandID < 1000) {
+            offHandItem = lootList.filter(item => item.Loot_id === offHandID);
+            offHandItem = offHandItem[0];
+        } else if (offHandID >= 30000) {
+            offHandItem = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: offHandID }] });
+        } else if (offHandID >= 20000) {
+            offHandItem = lootList.filter(item => item.Loot_id === offHandID);
+            offHandItem = offHandItem[0];
+        } else if (offHandID < 1000) {
+            offHandItem = uniqueLootList.filter(item => item.Loot_id === offHandID);
+            offHandItem = offHandItem[0];
+        }
+
+        if (offHandID === 10000) {
+            //Temp loot id
+        }
+
+        if (!offHandItem) {
+
+        }
+        if (offHandItem) {
+            //Item found, return entire object!
+            return offHandItem;
+        } }
 }
 
 /**
@@ -275,7 +223,7 @@ async function findOffHand(offHandID, userID) {
  * @param {any} potionOneID ID reference
  * @param {any} userID ID reference
  */
-async function findPotionOne(potionOneID, userID) {
+async function findPotion(potionOneID, userID) {
     let potionOne;
     if (potionOneID === 0) {
         //Nothing equipped
@@ -289,7 +237,7 @@ async function findPotionOne(potionOneID, userID) {
             return potionOne;
         } else {
             console.log(errorForm('PotionOne NOT FOUND ERROR HAS OCCURED!'));
-            return 'NONE';
+            return 'HASNONE';
         } 
     }
 }
@@ -319,4 +267,4 @@ async function findPotionTwo(potionTwoID, userID) {
 }
 
 
-module.exports = { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotionOne, findPotionTwo };
+module.exports = { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion };

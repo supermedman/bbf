@@ -995,7 +995,12 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
 async function startCombat(constKey, interaction, userSpecEEFilter) {
     let isHidden = false;
+
     let potionOneDisabled = true;
+    let potionTxt = 'No Potion';
+
+    let foundLoadout = false;
+
     let userID = userSpecEEFilter.userid;
     let dungeonId = userSpecEEFilter.dungeonid;
     display();
@@ -1010,29 +1015,33 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
 
         const user = await UserData.findOne({ where: { userid: userID } });
         const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-        const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (!currentLoadout) {
+        const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
+        if (userLoadout) foundLoadout = true;
+        if (foundLoadout === false) {
             //No loadout keep potions disabled
         } else {
-            const checkPotOne = await findPotionOne(currentLoadout.potionone, userID);
-            if ((checkPotOne === 'NONE')) {
+            const userPotion = await findPotion(userLoadout.potionone, userID);
+            if (userPotion === 'NONE') {
                 //Both potion slots are empty keep buttons disabled
                 potionOneDisabled = true;
+                potionTxt = 'No Potion';
+            } else if (userPotion === 'HASNONE') {
+                potionOneDisabled = true;
+                potionTxt = '0 Remaining';
             } else {
-                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: checkPotOne.name }] });
-                if (checkPotOne === 'NONE') {
-                    //Keep disabled
+                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
+                if (!activeEffects) {
+                    //user has no active effects
+                    potionOneDisabled = false;
+                    potionTxt = `${userPotion.amount} ${userPotion.name}`;
                 } else {
-                    if (!activeEffects) {
-                        //user has no active effects
-                        potionOneDisabled = false;
+                    //Check both effects against currently equipped potions
+                    if (activeEffects.cooldown > 0) {
+                        potionOneDisabled = true;
+                        potionTxt = `CoolDown: ${userPotion.cooldown}`;
                     } else {
-                        //Check both effects against currently equipped potions
-                        if (activeEffects.cooldown > 0) {
-                            potionOneDisabled = true;
-                        } else {
-                            potionOneDisabled = false;
-                        }
+                        potionOneDisabled = false;
+                        potionTxt = `${userPotion.amount} ${userPotion.name}`;
                     }
                 }
             }
@@ -1062,7 +1071,7 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
 
         const potionOneButton = new ButtonBuilder()
             .setCustomId('potone')
-            .setLabel('Potion One')
+            .setLabel(potionTxt)
             .setDisabled(potionOneDisabled)
             .setStyle(ButtonStyle.Secondary);
 
@@ -1126,19 +1135,28 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
             }
 
             if (collInteract.customId === 'onehit') {
-                if (currentLoadout) {
-                    const weapon = await findMainHand(currentLoadout.mainhand, userID);
-                    let dmgDealt = await userDamageLoadout(user, weapon);
-                    if (isHidden === true) {
-                        //BACKSTAB
-                        dmgDealt = dmgDealt * 1.5;
-                        isHidden = false;
-                    } else await collInteract.deferUpdate();
-                    await collector.stop();
-                    hitOnce(dmgDealt, weapon, user, enemy, false);
-                } else {
-                    //Yeah thats funny, im not catching this case... why are you naked in the dungeon lol
+                let weapon;
+                let offHand;
+                let dmgDealt;
+                if (foundLoadout === true) {
+                    weapon = await findMainHand(userLoadout.mainhand, userID);
+                    if (userLoadout.mainhand !== userLoadout.offhand) {
+                        offHand = await findOffHand(userLoadout.offhand, userID);
+                        console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
+                    }
                 }
+
+                dmgDealt = await userDamageLoadout(user, weapon, offHand);
+
+                if (isHidden === true) {
+                    //BACKSTAB
+                    dmgDealt = dmgDealt * 1.5;
+                    isHidden = false;
+                } else {
+                    await collInteract.deferUpdate();
+                }
+                await collector.stop();
+                await hitOnce(dmgDealt, weapon, offHand, user, enemy, false);
             }
 
             if (collInteract.customId === 'block') {
@@ -1176,30 +1194,47 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
         takeDamage(eDamage, user, false);
     }
 
-    async function hitOnce(dmgDealt, weapon, user, enemy, isBlocked) {
+    async function hitOnce(dmgDealt, weapon, offHand, user, enemy, isBlocked) {
         let eHealth = enemy.health;
         const eDefence = enemy.defence;
 
-        let Itype;
+        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+
+        let mainDmgType;
+        let offDmgType;
+        console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
+
         if (!weapon) {
-            Itype = 'NONE';
+            mainDmgType = 'NONE';
+        }
+        if (!offHand) {
+            offDmgType = 'NONE';
+        }
+
+        const Etype = enemy.weakto.toLowerCase();
+        console.log('Enemy Weakto: ', Etype);
+
+        if (mainDmgType === 'NONE' && offDmgType === 'NONE') {
+            //Do nothing no type match
         } else {
-            Itype = weapon.Type.toLowerCase();
-            console.log('Weapon Type after toLowerCase(): ', Itype);
-
-            const Etype = enemy.weakto.toLowerCase();
-            console.log('Enemy Weakto after toLowerCase(): ', Etype);
-
-            if (Itype === Etype) {
-                dmgDealt *= 1.5;
-                console.log('TYPE MATCH! dmgDealt: ', dmgDealt);
+            if (mainDmgType !== 'NONE') {
+                mainDmgType = weapon.Type.toLowerCase();
+                console.log('Weapon Type: ', mainDmgType);
+            }
+            if (offDmgType !== 'NONE') {
+                offDmgType = offHand.Type.toLowerCase();
+                console.log('Offhand Type: ', offDmgType);
             }
         }
 
-        let embedColour = 'NotQuiteBlack';
-        let embedTitle = 'Damage Dealt';
-
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+        if (mainDmgType === Etype) {
+            dmgDealt += (dmgDealt * 0.5);
+            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
+        }
+        if (offDmgType === Etype) {
+            dmgDealt += (dmgDealt * 0.5);
+            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
+        }
 
         let spdUP = 0;
         let dexUP = 0;
@@ -1388,35 +1423,31 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
         let defence = 0;
         const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
         if (currentLoadout) {
-            var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-            var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+            let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+            let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+            let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+            let offHandItem;
+            if (currentLoadout.offhand === currentLoadout.mainhand) {
+                offHandItem = 'NONE';
+            } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
 
-            if (headSlotItem === 'NONE') {
-                //No item equipped
-                defence += 0;
-            } else {
-                //Item found add defence
+            if (headSlotItem !== 'NONE') {
                 defence += headSlotItem.Defence;
             }
 
-            if (chestSlotItem === 'NONE') {
-                //No item equipped
-                defence += 0;
-            } else {
-                //Item found add defence
+            if (chestSlotItem !== 'NONE') {
                 defence += chestSlotItem.Defence;
             }
 
-            if (legSlotItem === 'NONE') {
-                //No item equipped
-                defence += 0;
-            } else {
-                //Item found add defence
+            if (legSlotItem !== 'NONE') {
                 defence += legSlotItem.Defence;
             }
+            console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
 
-            console.log(`Total Defence from Armor: ${defence}`);
+            if (offHandItem !== 'NONE') {
+                defence += offHandItem.Defence;
+            }
+            console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
 
             const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
 
@@ -1457,7 +1488,6 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
                         blockedEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    let ghostWeapon;
                     let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
                     console.log(`counterDamage: ${counterDamage}`);
 
@@ -1470,7 +1500,9 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
                         cntrEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    return hitOnce(counterDamage, ghostWeapon, user, enemy, true);
+                    let ghostWep, ghostOff;
+
+                    return hitOnce(counterDamage, ghostWep, ghostOff, user, enemy, true);
                 }
             } else {
                 return takeDamage(eDamage, user, true);
@@ -1537,35 +1569,31 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
             let defence = 0;
             const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
             if (currentLoadout) {
-                var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-                var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-                var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+                let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+                let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+                let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+                let offHandItem;
+                if (currentLoadout.offhand === currentLoadout.mainhand) {
+                    offHandItem = 'NONE';
+                } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
 
-                if (headSlotItem === 'NONE') {
-                    //No item equipped
-                    defence += 0;
-                } else {
-                    //Item found add defence
+                if (headSlotItem !== 'NONE') {
                     defence += headSlotItem.Defence;
                 }
 
-                if (chestSlotItem === 'NONE') {
-                    //No item equipped
-                    defence += 0;
-                } else {
-                    //Item found add defence
+                if (chestSlotItem !== 'NONE') {
                     defence += chestSlotItem.Defence;
                 }
 
-                if (legSlotItem === 'NONE') {
-                    //No item equipped
-                    defence += 0;
-                } else {
-                    //Item found add defence
+                if (legSlotItem !== 'NONE') {
                     defence += legSlotItem.Defence;
                 }
+                console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
 
-                console.log(`Total Defence from Armor: ${defence}`);
+                if (offHandItem !== 'NONE') {
+                    defence += offHandItem.Defence;
+                }
+                console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
 
                 const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
 
@@ -1576,10 +1604,9 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
                 }
 
                 if (defence > 0) {
-                    //Player has defence use accordingly             
+                    //Player has defence use accordingly
                     eDamage -= defence;
                 }
-                console.log(`EnemyDamage after defence: ${eDamage}`);
             }
 
             if (eDamage < 0) {
@@ -1788,7 +1815,7 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
     //This method checks for enemy png
     function pngCheck(enemy) {
         const enemyRef = enemyList.filter(eFab => eFab.ConstKey === enemy.constkey);
-        if (enemyRef.PngRef) return true;
+        if (enemyRef[0].PngRef) return true;
         return false;
     }
 }
@@ -1796,7 +1823,12 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
 async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
     console.log(`Loading boss dialog now...`);
     let isHidden = false;
+
     let potionOneDisabled = true;
+    let potionTxt = 'No Potion';
+
+    let foundLoadout = false;
+
     let userID = userSpecEEFilter.userid;
     let dungeonId = userSpecEEFilter.dungeonid;
 
@@ -1889,29 +1921,33 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
 
         const user = await UserData.findOne({ where: { userid: userID } });
         const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-        const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (!currentLoadout) {
+        const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
+        if (userLoadout) foundLoadout = true;
+        if (foundLoadout === false) {
             //No loadout keep potions disabled
         } else {
-            const checkPotOne = await findPotionOne(currentLoadout.potionone, userID);
-            if ((checkPotOne === 'NONE')) {
+            const userPotion = await findPotion(userLoadout.potionone, userID);
+            if (userPotion === 'NONE') {
                 //Both potion slots are empty keep buttons disabled
                 potionOneDisabled = true;
+                potionTxt = 'No Potion';
+            } else if (userPotion === 'HASNONE') {
+                potionOneDisabled = true;
+                potionTxt = '0 Remaining';
             } else {
-                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: checkPotOne.name }] });
-                if (checkPotOne === 'NONE') {
-                    //Keep disabled
+                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
+                if (!activeEffects) {
+                    //user has no active effects
+                    potionOneDisabled = false;
+                    potionTxt = `${userPotion.amount} ${userPotion.name}`;
                 } else {
-                    if (!activeEffects) {
-                        //user has no active effects
-                        potionOneDisabled = false;
+                    //Check both effects against currently equipped potions
+                    if (activeEffects.cooldown > 0) {
+                        potionOneDisabled = true;
+                        potionTxt = `CoolDown: ${userPotion.cooldown}`;
                     } else {
-                        //Check both effects against currently equipped potions
-                        if (activeEffects.cooldown > 0) {
-                            potionOneDisabled = true;
-                        } else {
-                            potionOneDisabled = false;
-                        }
+                        potionOneDisabled = false;
+                        potionTxt = `${userPotion.amount} ${userPotion.name}`;
                     }
                 }
             }
@@ -1941,7 +1977,7 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
 
         const potionOneButton = new ButtonBuilder()
             .setCustomId('potone')
-            .setLabel('Potion One')
+            .setLabel(potionTxt)
             .setDisabled(potionOneDisabled)
             .setStyle(ButtonStyle.Secondary);
 
@@ -1999,19 +2035,28 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
             }
 
             if (collInteract.customId === 'onehit') {
-                if (currentLoadout) {
-                    const weapon = await findMainHand(currentLoadout.mainhand, userID);
-                    let dmgDealt = await userDamageLoadout(user, weapon);
-                    if (isHidden === true) {
-                        //BACKSTAB
-                        dmgDealt = dmgDealt * 1.5;
-                        isHidden = false;
-                    } else await collInteract.deferUpdate();
-                    await collector.stop();
-                    hitOnce(dmgDealt, weapon, user, enemy, false);
-                } else {
-                    //Yeah thats funny, im not catching this case... why are you naked in the dungeon lol
+                let weapon;
+                let offHand;
+                let dmgDealt;
+                if (foundLoadout === true) {
+                    weapon = await findMainHand(userLoadout.mainhand, userID);
+                    if (userLoadout.mainhand !== userLoadout.offhand) {
+                        offHand = await findOffHand(userLoadout.offhand, userID);
+                        console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
+                    }
                 }
+
+                dmgDealt = await userDamageLoadout(user, weapon, offHand);
+
+                if (isHidden === true) {
+                    //BACKSTAB
+                    dmgDealt = dmgDealt * 1.5;
+                    isHidden = false;
+                } else {
+                    await collInteract.deferUpdate();
+                }
+                await collector.stop();
+                await hitOnce(dmgDealt, weapon, offHand, user, enemy, false);
             }
 
             if (collInteract.customId === 'block') {
@@ -2049,30 +2094,47 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         takeDamage(eDamage, user, false);
     }
 
-    async function hitOnce(dmgDealt, weapon, user, enemy, isBlocked) {
+    async function hitOnce(dmgDealt, weapon, offHand, user, enemy, isBlocked) {
         let eHealth = enemy.health;
         const eDefence = enemy.defence;
 
-        let Itype;
+        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+
+        let mainDmgType;
+        let offDmgType;
+        console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
+
         if (!weapon) {
-            Itype = 'NONE';
+            mainDmgType = 'NONE';
+        }
+        if (!offHand) {
+            offDmgType = 'NONE';
+        }
+
+        const Etype = enemy.weakto.toLowerCase();
+        console.log('Enemy Weakto: ', Etype);
+
+        if (mainDmgType === 'NONE' && offDmgType === 'NONE') {
+            //Do nothing no type match
         } else {
-            Itype = weapon.Type.toLowerCase();
-            console.log('Weapon Type after toLowerCase(): ', Itype);
-
-            const Etype = enemy.weakto.toLowerCase();
-            console.log('Enemy Weakto after toLowerCase(): ', Etype);
-
-            if (Itype === Etype) {
-                dmgDealt *= 1.5;
-                console.log('TYPE MATCH! dmgDealt: ', dmgDealt);
+            if (mainDmgType !== 'NONE') {
+                mainDmgType = weapon.Type.toLowerCase();
+                console.log('Weapon Type: ', mainDmgType);
+            }
+            if (offDmgType !== 'NONE') {
+                offDmgType = offHand.Type.toLowerCase();
+                console.log('Offhand Type: ', offDmgType);
             }
         }
 
-        let embedColour = 'NotQuiteBlack';
-        let embedTitle = 'Damage Dealt';
-
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+        if (mainDmgType === Etype) {
+            dmgDealt += (dmgDealt * 0.5);
+            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
+        }
+        if (offDmgType === Etype) {
+            dmgDealt += (dmgDealt * 0.5);
+            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
+        }
 
         let spdUP = 0;
         let dexUP = 0;
@@ -2261,35 +2323,31 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         let defence = 0;
         const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
         if (currentLoadout) {
-            var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-            var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+            let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+            let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+            let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+            let offHandItem;
+            if (currentLoadout.offhand === currentLoadout.mainhand) {
+                offHandItem = 'NONE';
+            } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
 
-            if (headSlotItem === 'NONE') {
-                //No item equipped
-                defence += 0;
-            } else {
-                //Item found add defence
+            if (headSlotItem !== 'NONE') {
                 defence += headSlotItem.Defence;
             }
 
-            if (chestSlotItem === 'NONE') {
-                //No item equipped
-                defence += 0;
-            } else {
-                //Item found add defence
+            if (chestSlotItem !== 'NONE') {
                 defence += chestSlotItem.Defence;
             }
 
-            if (legSlotItem === 'NONE') {
-                //No item equipped
-                defence += 0;
-            } else {
-                //Item found add defence
+            if (legSlotItem !== 'NONE') {
                 defence += legSlotItem.Defence;
             }
+            console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
 
-            console.log(`Total Defence from Armor: ${defence}`);
+            if (offHandItem !== 'NONE') {
+                defence += offHandItem.Defence;
+            }
+            console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
 
             const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
 
@@ -2330,7 +2388,6 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
                         blockedEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    let ghostWeapon;
                     let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
                     console.log(`counterDamage: ${counterDamage}`);
 
@@ -2343,7 +2400,9 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
                         cntrEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    return hitOnce(counterDamage, ghostWeapon, user, enemy, true);
+                    let ghostWep, ghostOff;
+
+                    return hitOnce(counterDamage, ghostWep, ghostOff, user, enemy, true);
                 }
             } else {
                 return takeDamage(eDamage, user, true);
@@ -2410,35 +2469,31 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
             let defence = 0;
             const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
             if (currentLoadout) {
-                var headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-                var chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-                var legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+                let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+                let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+                let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+                let offHandItem;
+                if (currentLoadout.offhand === currentLoadout.mainhand) {
+                    offHandItem = 'NONE';
+                } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
 
-                if (headSlotItem === 'NONE') {
-                    //No item equipped
-                    defence += 0;
-                } else {
-                    //Item found add defence
+                if (headSlotItem !== 'NONE') {
                     defence += headSlotItem.Defence;
                 }
 
-                if (chestSlotItem === 'NONE') {
-                    //No item equipped
-                    defence += 0;
-                } else {
-                    //Item found add defence
+                if (chestSlotItem !== 'NONE') {
                     defence += chestSlotItem.Defence;
                 }
 
-                if (legSlotItem === 'NONE') {
-                    //No item equipped
-                    defence += 0;
-                } else {
-                    //Item found add defence
+                if (legSlotItem !== 'NONE') {
                     defence += legSlotItem.Defence;
                 }
+                console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
 
-                console.log(`Total Defence from Armor: ${defence}`);
+                if (offHandItem !== 'NONE') {
+                    defence += offHandItem.Defence;
+                }
+                console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
 
                 const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
 
@@ -2449,10 +2504,9 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
                 }
 
                 if (defence > 0) {
-                    //Player has defence use accordingly             
+                    //Player has defence use accordingly
                     eDamage -= defence;
                 }
-                console.log(`EnemyDamage after defence: ${eDamage}`);
             }
 
             if (eDamage < 0) {
