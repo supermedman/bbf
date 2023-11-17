@@ -1660,7 +1660,7 @@ module.exports = {
         //This method checks for enemy png
         function pngCheck(enemy) {
             const enemyRef = enemyList.filter(eFab => eFab.ConstKey === enemy.constkey);
-            if (enemyRef.PngRef) return true;
+            if (enemyRef[0].PngRef) return true;
             return false;
         }
     }
