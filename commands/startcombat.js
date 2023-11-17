@@ -253,7 +253,7 @@ module.exports = {
                 const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
                 if (extraEXP) {
                     if (extraEXP.duration > 0) {
-                        xpGained *= extraEXP.curreffect;
+                        xpGained += xpGained * extraEXP.curreffect;
                     }
                 }
             }
@@ -532,7 +532,7 @@ module.exports = {
                     potionOneDisabled = true;
                    
                 } else {
-                    const activeEffects = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
+                    const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, {name: checkPotOne.name}] });
                     if (checkPotOne === 'NONE') {
                         //Keep disabled
                     } else {
