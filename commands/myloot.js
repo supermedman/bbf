@@ -31,9 +31,9 @@ module.exports = {
                 .setDescription('View a list of all owned potions')),
 
     async execute(interaction) {
-        await interaction.deferReply();
-
+        
         if (interaction.options.getSubcommand() === 'gear') {
+            await interaction.deferReply();
             const loFound = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }] });
 
             if (!loFound) {
@@ -439,6 +439,7 @@ module.exports = {
         }
 
         if (interaction.options.getSubcommand() === 'materials') {
+            await interaction.deferReply();
             const matStore = await MaterialStore.findOne({ where: { spec_id: interaction.user.id } });
             if (!matStore) return interaction.followUp('You do not have any materials yet!');
 
@@ -551,8 +552,9 @@ module.exports = {
         }
 
         if (interaction.options.getSubcommand() === 'potions') {
+            await interaction.deferReply();
             const potionCheck = await OwnedPotions.findOne({ where: { spec_id: interaction.user.id } });
-            if (!potionCheck) return interaction.followUp('You have no potions! Use ``/blueprint available`` to make some!');
+            if (!potionCheck) return interaction.followUp('You have no potions! Use ``/blueprint view`` to make some!');
 
             const allPotsOwned = await OwnedPotions.findAll({ where: { spec_id: interaction.user.id } });
 
