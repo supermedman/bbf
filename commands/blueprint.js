@@ -12,6 +12,7 @@ const {
 const { OwnedBlueprints, MaterialStore, UniqueCrafted, OwnedPotions, UserData, OwnedTools } = require('../dbObjects.js');
 
 const blueprintList = require('../events/Models/json_prefabs/blueprintList.json');
+const { grabColour } = require('./exported/grabRar.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -141,15 +142,15 @@ module.exports = {
 								//Embed: fields: {name: this}
 								listedMatsName = bpSlice.map(mats =>
 									`${matStrType}: ${mats[`${matStrType}`]}`);
-								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+								//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
-								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${curCheckMat.mattype} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
+								//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
-								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+								//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 								finalFields.push(fieldValueObj);
 							} else {
@@ -157,15 +158,15 @@ module.exports = {
 								//Embed: fields: {name: this}
 								listedMatsName = bpSlice.map(mats =>
 									`${matStrType}: ${mats[`${matStrType}`]}`);
-								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+								//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
-								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+									`Rarity: ${mats[`${matStrRarity}`]} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
+								//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
-								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+								//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 								finalFields.push(fieldValueObj);
 							}
@@ -179,9 +180,14 @@ module.exports = {
 						if (strLength === grabbedMTA.toString()) {
 							console.log(successResult('finalFields Values: ', finalFields));
 
+							let embedColour = 0000;
+							if (bpSlice[0].Rar_id) {
+								embedColour = await grabColour(bpSlice[0].Rar_id, false);
+							}
+
 							const embed = {
 								title: `${grabbedName}`,
-								color: 0000,
+								color: embedColour,
 								description: `**${grabbedDescription}** \n${listedDefaults}`,
 								fields: finalFields,
 							};
@@ -298,15 +304,15 @@ module.exports = {
 								//Embed: fields: {name: this}
 								listedMatsNameP = bpSliceP.map(mats =>
 									`${matStrTypeP}: ${mats[`${matStrTypeP}`]}`);
-								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
+								//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Rarity: ${mats[`${matStrRarityP}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
-								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
+									`Rarity: ${mats[`${matStrRarityP}`]} \nMaterial Type: ${curCheckMat.mattype} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: ${curCheckMat.amount}`);
+								//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
-								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
+								//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
 
 								finalFieldsP.push(fieldValueObjP);
 								
@@ -316,15 +322,15 @@ module.exports = {
 								//Embed: fields: {name: this}
 								listedMatsNameP = bpSliceP.map(mats =>
 									`${matStrTypeP}: ${mats[`${matStrTypeP}`]}`);
-								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
+								//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsNameP));
 
 								//Embed: fields: {value: this}
 								listedMatsValueP = bpSliceP.map(mats =>
-									`Rarity: ${mats[`${matStrRarityP}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
-								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
+									`Rarity: ${mats[`${matStrRarityP}`]} \nAmount Needed: ${mats[`${matStrAmountP}`]} \nAmount Owned: 0`);
+								//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValueP));
 
 								fieldValueObjP = { name: listedMatsNameP.toString(), value: listedMatsValueP.toString(), };
-								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
+								//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObjP));
 
 								finalFieldsP.push(fieldValueObjP);
 								
@@ -336,9 +342,14 @@ module.exports = {
 						if (strLength === grabbedMTAP.toString()) {
 							console.log(successResult('finalFields Values: ', finalFieldsP));
 
+							let embedColour = 0000;
+							if (bpSliceP[0].Rar_id) {
+								embedColour = await grabColour(bpSliceP[0].Rar_id, false);
+							}
+
 							const embed = {
 								title: `${grabbedNameP}`,
-								color: 0000,
+								color: embedColour,
 								description: `**${grabbedDescriptionP}** \n${listedDefaultsP}`,
 								fields: finalFieldsP,
 							};
@@ -457,15 +468,15 @@ module.exports = {
 								//Embed: fields: {name: this}
 								listedMatsName = bpSlice.map(mats =>
 									`${matStrType}: ${mats[`${matStrType}`]}`);
-								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+								//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
-								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${curCheckMat.mattype} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: ${curCheckMat.amount}`);
+								//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
-								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+								//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 								finalFields.push(fieldValueObj);
 							} else {
@@ -473,15 +484,15 @@ module.exports = {
 								//Embed: fields: {name: this}
 								listedMatsName = bpSlice.map(mats =>
 									`${matStrType}: ${mats[`${matStrType}`]}`);
-								console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+								//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
 
 								//Embed: fields: {value: this}
 								listedMatsValue = bpSlice.map(mats =>
-									`Rarity: ${mats[`${matStrRarity}`]} \nMaterial Type: ${compValTemp} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
-								console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+									`Rarity: ${mats[`${matStrRarity}`]} \nAmount Needed: ${mats[`${matStrAmount}`]} \nAmount Owned: 0`);
+								//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 								fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
-								console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+								//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 								finalFields.push(fieldValueObj);
 							}
@@ -495,9 +506,14 @@ module.exports = {
 						if (strLength === grabbedMTA.toString()) {
 							console.log(successResult('finalFields Values: ', finalFields));
 
+							let embedColour = 0000;
+							if (bpSlice[0].Rar_id) {
+								embedColour = await grabColour(bpSlice[0].Rar_id);
+                            }
+
 							const embed = {
 								title: `${grabbedName}`,
-								color: 0000,
+								color: embedColour,
 								description: `**${grabbedDescription}** \n${listedDefaults}`,
 								fields: finalFields,
 							};
@@ -631,7 +647,11 @@ module.exports = {
 
 			collector.on('end', () => {
 				if (embedMsg) {
-					embedMsg.delete();
+					embedMsg.delete().catch(error => {
+						if (error.code !== 10008) {
+							console.error('Failed to delete the message:', error);
+						}
+					});
 				}
 			});
 		}
@@ -1160,7 +1180,7 @@ module.exports = {
 				}
 
 				const confirmEmbed = {
-					title: 'Crafting',
+					title: `Crafting ${theBlueprint.PassiveCategory}`,
 					color: 0000,
 					description: `${theBlueprint.Description} \n\n${listedDefaults}`,
 					fields: finalFields,
@@ -1219,7 +1239,11 @@ module.exports = {
 
 				collector.on('end', () => {
 					if (embedMsg) {
-						embedMsg.delete();
+						embedMsg.delete().catch(error => {
+							if (error.code !== 10008) {
+								console.error('Failed to delete the message:', error);
+							}
+						});
 					}
 				});
             }
