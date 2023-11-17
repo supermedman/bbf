@@ -329,7 +329,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'EXP' }] });
         if (extraEXP) {
             if (extraEXP.duration > 0) {
-                xpGained *= extraEXP.curreffect;
+                xpGained += xpGained * extraEXP.curreffect;
             }
         }
         const cGained = Math.round((xpGained - 5) * 1.5);
@@ -338,6 +338,9 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         const bpID = bossForRewards.BlueprintID;
 
         await createNewBlueprint(bpID, userID);
+
+        const sBPID = bossForRewards.SecretBPID;
+        await createNewBlueprint(sBPID, userID);
 
         const newAchievement = bossForRewards.AchievementGet;
 
@@ -944,7 +947,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'EXP' }] });
         if (extraEXP) {
             if (extraEXP.duration > 0) {
-                totXP *= extraEXP.curreffect;
+                totXP += totXP * extraEXP.curreffect;               
             }
         }
 
@@ -1016,7 +1019,7 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
                 //Both potion slots are empty keep buttons disabled
                 potionOneDisabled = true;
             } else {
-                const activeEffects = await ActiveStatus.findOne({ where: { spec_id: userID } });
+                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: checkPotOne.name }] });
                 if (checkPotOne === 'NONE') {
                     //Keep disabled
                 } else {
@@ -1895,7 +1898,7 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
                 //Both potion slots are empty keep buttons disabled
                 potionOneDisabled = true;
             } else {
-                const activeEffects = await ActiveStatus.findOne({ where: { spec_id: userID } });
+                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: checkPotOne.name }] });
                 if (checkPotOne === 'NONE') {
                     //Keep disabled
                 } else {
