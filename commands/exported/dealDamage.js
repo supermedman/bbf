@@ -240,7 +240,7 @@ async function userDamageAlt(user, item) {
 
 //========================================
 // This method calculates damage dealt by the user and returns that value
-async function userDamageLoadout(user, item) {
+async function userDamageLoadout(user, item, offHand) {
     const pigmy = await Pigmy.findOne({ where: { spec_id: user.userid } });
 
     const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: user.userid }, { activec: 'Tons' }] });
@@ -316,11 +316,16 @@ async function userDamageLoadout(user, item) {
     //here the damage modifier is applied to the damage dealt and the final value is returned
     var dmgDealt = dmgMod + totDamageBuff;
 
-    console.log('ITEM EQUIPPED: ', item);
-
-    if (item !== 'NONE') {
+    if (item) {
+        //console.log('ITEM EQUIPPED: ', item);
         console.log('ITEM DAMAGE: ', item.Attack);
         dmgDealt += item.Attack;
+    }
+
+    if (offHand) {
+        //console.log('OFFHAND EQUIPPED: ', offHand);
+        console.log('OFFHAND DAMAGE: ', offHand.Attack);
+        if (offHand.Attack > 0) dmgDealt += offHand.Attack;
     }
 
     console.log('Damage Dealt to Enemy ' + dmgDealt);
