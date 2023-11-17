@@ -453,7 +453,7 @@ async function displayBossPic(bossRef, enemy, combat) {
         // Displays Enemy name
         context.font = '25px sans-serif';
         context.fillStyle = 'white';
-        context.fillText(`Name: ${enemy.name}`, 25, 95);
+        context.fillText(`Name: ${enemy.name}`, 25, 75);
 
         // Displays Description text, actual description gets formatted and displayed below this
         //context.font = '20px sans-serif';
@@ -506,10 +506,10 @@ async function displayBossPic(bossRef, enemy, combat) {
         // Displays Enemy Health
         context.font = '25px sans-serif';
         context.fillStyle = 'white';
-        context.fillText(`HP ${enemy.health}`, 460, 285);
+        context.fillText(`HP ${enemy.health}`, 460, 295);
 
         // Move the image downwards vertically and constrain its height to 200, so that it's square
-        context.drawImage(enemyPic, 410, 75, 190, 190);
+        context.drawImage(enemyPic, 410, 75, 215, 200);
 
         const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'enemy-display.png' });
 

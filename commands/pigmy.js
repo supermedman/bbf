@@ -555,8 +555,11 @@ module.exports = {
 				}
 
 				totXP = Math.round(totXP);
+				console.log(basicInfoForm(`Total XP gained after rounding, after happiness reduce: ${totXP}`));
 				totCoin = Math.round(totCoin);
+				console.log(basicInfoForm(`Total Coins gained after rounding, after happiness reduce: ${totCoin}`));
 				pigXp = Math.round(pigXp);
+				console.log(basicInfoForm(`Total Pigmy XP gained after rounding, after happiness reduce: ${pigXp}`));
 
 
 				//==============================
