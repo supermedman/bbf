@@ -4,6 +4,7 @@
         "Description": "A tool fit for a god, use mainly to remove the force of life... by way of excessive force",
 
         "PassiveCategory": "Equip",
+        "OnlyOne": true,
 
         "LevelOnCreate": 1,
         "UseLevel": 35,
@@ -51,6 +52,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 5,
         "CoinCost": 100,
@@ -83,6 +85,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 8,
         "CoinCost": 175,
@@ -115,6 +118,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 8,
         "CoinCost": 200,
@@ -155,6 +159,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 13,
         "CoinCost": 350,
@@ -191,6 +196,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 13,
         "CoinCost": 365,
@@ -227,6 +233,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 15,
         "CoinCost": 500,
@@ -259,6 +266,7 @@
 
         "IsDropped": false,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 15,
         "CoinCost": 500,
@@ -299,6 +307,7 @@
 
         "IsDropped": true,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 18,
         "CoinCost": 750,
@@ -328,6 +337,7 @@
         "Description": "Born of warped magics an the refined source of Dyvullas power. This will surely keep your skull intact",
 
         "PassiveCategory": "Equip",
+        "OnlyOne": true,
 
         "LevelOnCreate": 1,
         "UseLevel": 45,
@@ -374,6 +384,7 @@
 
         "IsDropped": true,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 20,
         "CoinCost": 1000,
@@ -418,6 +429,7 @@
 
         "IsDropped": true,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 20,
         "CoinCost": 1250,
@@ -458,6 +470,7 @@
 
         "IsDropped": true,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 25,
         "CoinCost": 1400,
@@ -494,6 +507,7 @@
 
         "IsDropped": true,
         "IsUnlocked": true,
+        "OnlyOne": false,
 
         "UseLevel": 25,
         "CoinCost": 1750,
@@ -531,7 +545,8 @@
         "PassiveCategory": "Tool",
 
         "IsDropped": false,
-        "IsUnlocked": false,
+        "IsUnlocked": true,
+        "OnlyOne": true,
 
         "UseLevel": 10,
         "CoinCost": 100,
@@ -549,22 +564,23 @@
         "Rarity3": "Very Rare",
         "Material3_Amount": 1,
 
-        "Rarity": "Unique",
-        "Rar_id": 12,
+        "Rarity": "Rare",
+        "Rar_id": 2,
 
         "ToolID": 1,
         "BlueprintID": 15
     },
     {
         "Name": "Goblinskin Hat",
-        "Description": "Pigmy increases base materials collected when claiming by *1*. *+5* for all *skinny* materials",
+        "Description": "Pigmy increases base materials collected when claiming by *1*. *x3* for all *skinny* materials",
 
         "ActiveCategory": "Pigmy",
         "ActiveSubCategory": "Hat",
         "PassiveCategory": "Tool",
 
-        "IsDropped": false,
-        "IsUnlocked": false,
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
 
         "UseLevel": 10,
         "CoinCost": 100,
@@ -582,8 +598,8 @@
         "Rarity3": "Common",
         "Material3_Amount": 1,
 
-        "Rarity": "Unique",
-        "Rar_id": 12,
+        "Rarity": "Rare",
+        "Rar_id": 2,
 
         "ToolID": 2,
         "BlueprintID": 16
@@ -596,8 +612,9 @@
         "ActiveSubCategory": "Title",
         "PassiveCategory": "Tool",
 
-        "IsDropped": false,
-        "IsUnlocked": false,
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
 
         "UseLevel": 15,
         "CoinCost": 250,
@@ -619,8 +636,8 @@
         "Rarity4": "Very Rare",
         "Material4_Amount": 1,
 
-        "Rarity": "Unique",
-        "Rar_id": 12,
+        "Rarity": "Rare",
+        "Rar_id": 2,
 
         "ToolID": 3,
         "BlueprintID": 17
@@ -630,6 +647,7 @@
         "Description": "Maybe dont wear these indoors, or anywhere outside a Dungeon.. (Brainmatter not included!)",
 
         "PassiveCategory": "Equip",
+        "OnlyOne": true,
 
         "LevelOnCreate": 1,
         "UseLevel": 50,
@@ -677,6 +695,7 @@
         "Description": "Replicated from the blade-turning garb of Zimmir.. Are you sure you want to wear this?",
 
         "PassiveCategory": "Equip",
+        "OnlyOne": true,
 
         "LevelOnCreate": 1,
         "UseLevel": 55,
@@ -720,6 +739,206 @@
         "BlueprintID": 19
     },
     {
+        "Name": "Wadon Plushie",
+        "Description": "Increases pigmy *happiness* when playing by *10*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 35,
+        "CoinCost": 2000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 10,
+
+        "Material2": "Pink Slime",
+        "Rarity2": "Very Rare",
+        "Material2_Amount": 25,
+
+        "Material3": "Imbued Hide",
+        "Rarity3": "Epic",
+        "Material3_Amount": 25,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 4,
+        "BlueprintID": 20
+    },
+    {
+        "Name": "Dyvulla Plushie",
+        "Description": "Increases pigmy *happiness* when playing by *15*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 45,
+        "CoinCost": 4000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 15,
+
+        "Material2": "Well-Woven Magic Cloth",
+        "Rarity2": "Mystic",
+        "Material2_Amount": 25,
+
+        "Material3": "Raw Magical Hide",
+        "Rarity3": "Mystic",
+        "Material3_Amount": 25,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 5,
+        "BlueprintID": 22
+    },
+    {
+        "Name": "Ados Plushie",
+        "Description": "Increases pigmy *happiness* when playing by *20*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 50,
+        "CoinCost": 8000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 20,
+
+        "Material2": "Sturdy Skull",
+        "Rarity2": "Mystic",
+        "Material2_Amount": 40,
+
+        "Material3": "Red Slime",
+        "Rarity3": "Rare",
+        "Material3_Amount": 100,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 6,
+        "BlueprintID": 22
+    },
+    {
+        "Name": "Zimmir Plushie",
+        "Description": "Increases pigmy *happiness* when playing by *24*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 55,
+        "CoinCost": 16000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 30,
+
+        "Material2": "Well-Woven Phase-Cloth",
+        "Rarity2": "??",
+        "Material2_Amount": 15,
+
+        "Material3": "Blood Opal",
+        "Rarity3": "??",
+        "Material3_Amount": 15,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 7,
+        "BlueprintID": 23
+    },
+    {
+        "Name": "Flower Crown",
+        "Description": "Pigmy increases base materials collected when claiming by *3*. *x3* for all *herby* materials",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Hat",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
+
+        "UseLevel": 20,
+        "CoinCost": 25000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Dandielion",
+        "Rarity1": "Common",
+        "Material1_Amount": 30,
+
+        "Material2": "Foxtail",
+        "Rarity2": "Uncommon",
+        "Material2_Amount": 30,
+
+        "Material3": "Phaseroot",
+        "Rarity3": "Mystic",
+        "Material3_Amount": 10,
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "ToolID": 8,
+        "BlueprintID": 24
+    },
+    {
+        "Name": "Ball of Entrails",
+        "Description": "Increases pigmy *happiness* when playing by *7*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
+
+        "UseLevel": 15,
+        "CoinCost": 300,
+        "MaterialTypeAmount": 2,
+
+        "Material1": "Smelly Entrails",
+        "Rarity1": "Uncommon",
+        "Material1_Amount": 500,
+
+        "Material2": "Fairy Dust",
+        "Rarity2": "Uncommon",
+        "Material2_Amount": 3,
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "ToolID": 9,
+        "BlueprintID": 25
+    },
+    {
         "Name": "Tool TEMP",
         "Description": "Description here",
 
@@ -732,6 +951,7 @@
 
         "IsDropped": false,
         "IsUnlocked": false,
+        "OnlyOne": false,
 
         "UseLevel": 1,
         "CoinCost": 10,
@@ -779,6 +999,7 @@
 
         "IsDropped": false,
         "IsUnlocked": false,
+        "OnlyOne": false,
 
         "UseLevel": 1,
         "CoinCost": 10,
