@@ -89,8 +89,21 @@ module.exports = {
 				return (highest[`${whereValue}`] || 0) > user[`${whereValue}`] ? highest : user;
 			}, {});
 			console.log(successResult(`Highest ${whereValue} ranking user: ${topRankingUser.username}`));
+
+			let equalRankingList = fullUserList.filter(user => user[`${whereValue}`] === topRankingUser[`${whereValue}`]);
 			
-			topTenList.push(topRankingUser);
+			if (equalRankingList.length > 1) {
+				if (whereValue === 'level') {
+					equalRankingList.sort((highest, user) => {
+						if (highest['xp'] > user['xp']) return -1;
+						if (highest['xp'] < user['xp']) return 1;
+						return 0;
+					});
+					topTenList = topTenList.concat(equalRankingList);
+				} else {
+
+                }
+			} else topTenList.push(topRankingUser);
 
 			let lowerRankingList = fullUserList.filter(user => user[`${whereValue}`] < topRankingUser[`${whereValue}`]);
 
@@ -100,7 +113,7 @@ module.exports = {
 				return 0;
 			});
 
-			let userPos = 0;
+			let userPos = 0 + (topTenList.length - 1);
 			for (const unrankedUser of lowerRankingList) {
 				console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} unranked user: ${unrankedUser.username} value ${unrankedUser[`${whereValue}`]}`));
 				userPos++;
