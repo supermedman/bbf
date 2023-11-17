@@ -94,6 +94,8 @@
 		"Blueprint": "Soul God's Reaver",
 		"BlueprintID": 1,
 
+		"SecretBPID": 20,
+
 		"AchievementGet": "WADON",
 
 		"ConstKey": 1003,
@@ -201,6 +203,8 @@
 
 		"Blueprint": "Dark Bringers Visage",
 		"BlueprintID": 10,
+
+		"SecretBPID": 21,
 
 		"AchievementGet": "DYVULLA",
 
@@ -310,6 +314,8 @@
 		"Blueprint": "Spiked Bloodborne Skullstompers",
 		"BlueprintID": 18,
 
+		"SecretBPID": 22,
+
 		"AchievementGet": "ADOS",
 
 		"ConstKey": 1009,
@@ -417,6 +423,8 @@
 
 		"Blueprint": "Robes of Forced Insanity",
 		"BlueprintID": 19,
+
+		"SecretBPID": 23,
 
 		"AchievementGet": "ZIMMIR",
 

@@ -314,44 +314,59 @@ async function grabRar(level) {
 }
 
 //This method takes a given rarid and returns a hex colour code for use with embeds
-async function grabColour(rarid) {
+async function grabColour(rarid, needStr) {
+    let catchStr = false;
+    if (needStr === true) catchStr = true;
     if (rarid === 0) {
+        if (catchStr === true) return '#dddddd';
         return 0xdddddd;
     }
     if (rarid === 1) {
+        if (catchStr === true) return '#c4c4c4';
         return 0xc4c4c4;
     }
     if (rarid === 2) {
+        if (catchStr === true) return '#ffe8a4';
         return 0xffe8a4;
     }
     if (rarid === 3) {
+        if (catchStr === true) return '#f9cda0';
         return 0xf9cda0;
     }
     if (rarid === 4) {
+        if (catchStr === true) return '#72a3ad';
         return 0x72a3ad;
     }
     if (rarid === 5) {
+        if (catchStr === true) return '#8d7bc3';
         return 0x8d7bc3;
     }
     if (rarid === 6) {
+        if (catchStr === true) return '#a64c78';
         return 0xa64c78;
     }
     if (rarid === 7) {
+        if (catchStr === true) return '#81200d';
         return 0x81200d;
     }
     if (rarid === 8) {
+        if (catchStr === true) return '#e69036';
         return 0xe69036;
     }
     if (rarid === 9) {
+        if (catchStr === true) return '#ff0707';
         return 0xff0707;
     }
     if (rarid === 10) {
+        if (catchStr === true) return '#ff06ff';
         return 0xff06ff;
     }
     if (rarid === 11) {
+        if (catchStr === true) return '#0000ff';
         return 0x0000ff;
     }
     if (rarid === 12) {
+        if (catchStr === true) return '#b45f06';
         return 0xb45f06;
     }
 }

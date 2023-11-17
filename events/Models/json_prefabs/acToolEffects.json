@@ -4,15 +4,34 @@
         "SubCategory": [
             {
                 "Name": "Toy",
-                "Small Ball": 5
+                "Small Ball": 5,
+                "Ball of Entrails": 7,
+                "Wadon Plushie": 10,
+                "Dyvulla Plushie": 15,
+                "Ados Plushie": 20,
+                "Zimmir Plushie": 24
             },
             {
                 "Name": "Hat",
-                "Goblinskin Hat": 1
+                "Goblinskin Hat": [
+                    1,
+                    [ "skinny" ]
+                ],
+                "Flower Crown": [
+                    3,
+                    [ "herby" ]
+                ],
+                "Small Embeded Crown": [
+                    6,
+                    ["metalic", "gemy"]
+                ]
             },
             {
                 "Name": "Title",
-                "The Tiny": 0.03
+                "The Tiny": [ 0.03, 0 ],
+                "The Overbearing": [ 0.05, 0.03 ],
+                "The Demanding": [ 0.07, 0.07 ],
+                "The Ugly": [-0.07, -0.10]
             },
             {
                 "Name": "Style"

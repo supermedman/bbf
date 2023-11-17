@@ -74,7 +74,7 @@ async function display(interaction, uData) {
             potionOneDisabled = true;
 
         } else {
-            const activeEffects = await ActiveStatus.findOne({ where: { spec_id: interaction.user.id } });
+            const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { name: checkPotOne.name }] });
             if (checkPotOne === 'NONE') {
                 //Keep disabled
             } else {
@@ -702,7 +702,7 @@ async function enemyDead(enemy, interaction, user) {
     const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
     if (extraEXP) {
         if (extraEXP.duration > 0) {
-            xpGained *= extraEXP.curreffect;
+            xpGained += xpGained * extraEXP.curreffect;
         }
     }
     const cCalc = ((xpGained - 5) + 1);

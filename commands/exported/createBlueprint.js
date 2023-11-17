@@ -32,6 +32,9 @@ async function createNewBlueprint(BPID, userID) {
     if (blueprintFound.Rarity === 'Unique') {
         thisIsBool = true;
     }
+    if (blueprintFound.OnlyOne === true) {
+        thisIsBool = true;
+    }
 
     try {
         const newBP = await OwnedBlueprints.create({
@@ -95,6 +98,9 @@ async function dropRandomBlueprint(level, userID, interaction) {
 
             let thisIsBool = false;
             if (blueprintFound.Rarity === 'Unique') {
+                thisIsBool = true;
+            }
+            if (blueprintFound.OnlyOne === true) {
                 thisIsBool = true;
             }
 
@@ -182,6 +188,9 @@ async function itterateMakeBluey(unlockedList, runCount, userID, interaction) {
             } else {
                 let thisIsBool = false;
                 if (unlockedList[curRun].Rarity === 'Unique') {
+                    thisIsBool = true;
+                }
+                if (unlockedList[curRun].OnlyOne === true) {
                     thisIsBool = true;
                 }
 

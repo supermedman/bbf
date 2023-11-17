@@ -1087,6 +1087,9 @@ module.exports = {
 			if (theBlueprint.Rarity === 'Unique') {
 				thisIsBool = true;
 			}
+			if (theBlueprint.OnlyOne === true) {
+				thisIsBool = true;
+            }
 
 			let cannotCraft;
 			if (thisIsBool === true) {
@@ -1095,9 +1098,11 @@ module.exports = {
 				
 				if (uniqueCheck) {
 					const filterMatch = uniqueCheck.filter(bluey => bluey.blueprintid === theBlueprint.BlueprintID);
-					if (filterMatch.Loot_id === undefined) {
-						cannotCraft = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { name: filterMatch[0].name }, { loot_id: theBlueprint.ToolID }] });
-					} else {
+					if (filterMatch.PassiveCategory === 'Tool') {
+						console.log(specialInfoForm('IS TOOL!'));
+						cannotCraft = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { name: filterMatch[0].name }, { tool_id: theBlueprint.ToolID }] });
+					} else if (filterMatch.PassiveCategory === 'Equip') {
+						console.log(specialInfoForm('IS LOOT!'));
 						cannotCraft = await UniqueCrafted.findOne({ where: [{ spec_id: interaction.user.id }, { name: filterMatch[0].name }, { loot_id: theBlueprint.Loot_id }] });
                     }
 					
@@ -1306,9 +1311,6 @@ module.exports = {
 		}
 
 		async function makeEquip(equip, interaction, grabbedMTA) {
-
-			await payupMats(grabbedMTA, interaction, equip);
-
 			let newEquip;
 			if (equip.Slot === 'Mainhand') {
 				newEquip = await UniqueCrafted.create({
@@ -1354,6 +1356,8 @@ module.exports = {
 					where: [{ spec_id: interaction.user.id }, { blueprintid: equip.BlueprintID }, { loot_id: equip.Loot_id,}]
 				});
 
+				await payupMats(grabbedMTA, interaction, equip);
+
 				console.log(successResult(`New Unique Entry: ${theEquip}`));
 
 				const list = `Value: ${theEquip.value} \nCurrent Level: ${theEquip.currentlevel} \nType: ${theEquip.Type} \nSlot: ${theEquip.slot} \nHands: ${theEquip.hands}`;
@@ -1378,7 +1382,7 @@ module.exports = {
 		async function makeTool(tool, interaction, grabbedMTA) {
 			let theTool;
 			theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });
-			if (theTool !== undefined) {
+			if (theTool) {
 				const addedAmount = theTool.amount + 1;
 				const tableUpdate = await OwnedTools.update({
 					amount: addedAmount,
@@ -1410,7 +1414,7 @@ module.exports = {
 			if (theTool !== undefined) {
 				await payupMats(grabbedMTA, interaction, tool);
 				
-				const list = `Value: ${theTool.value} \nCurrent Level: ${theTool.currentlevel} \nSlot: ${theTool.activesubcategory} \nRarity: ${theTool.rarity} \nAmount Owned: ${theTool.amount}`;
+				const list = `Value: ${tool.CoinCost} \nSlot: ${theTool.activesubcategory} \nRarity: ${theTool.rarity} \nAmount Owned: ${theTool.amount}`;
 
 				const toolEmbed = new EmbedBuilder()
 					.setTitle('~TOOL CREATED~')

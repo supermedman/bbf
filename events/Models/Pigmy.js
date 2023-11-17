@@ -14,6 +14,23 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         exp: DataTypes.INTEGER,//not static
+
+        toy: {
+            type: DataTypes.STRING,
+            defaultValue: 'NONE',
+            allowNull: false,
+        }, 
+        hat: {
+            type: DataTypes.STRING,
+            defaultValue: 'NONE',
+            allowNull: false,
+        },
+        title: {
+            type: DataTypes.STRING,
+            defaultValue: 'NONE',
+            allowNull: false,
+        },
+
         mood: DataTypes.TEXT,
         happiness: DataTypes.INTEGER,//not static
         playcount: DataTypes.INTEGER,//not static
@@ -25,16 +42,6 @@ module.exports = (sequelize, DataTypes) => {
 
 
         refid: DataTypes.INTEGER, //refrence id for grabbing from json
-
-        /*
-        type: DataTypes.TEXT,//type of pigmy
-
-        png: DataTypes.TEXT,//file link to png of pigmy
-
-        missions: DataTypes.INTEGER,//number of missions pigmy has gone on
-
-        kills: DataTypes.INTEGER,//number of enemies killed
-        */
     },
         {
             timestamps: true,

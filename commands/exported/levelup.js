@@ -188,7 +188,7 @@ async function addPoints(uData) {
 //========================================
 //this method is used to update the users xp based on the xp calculated in the display function
 async function editPData(totalXp, newlvl, cGained, uData) {
-	const editC = await UserData.update({ coins: cGained }, { where: { userid: uData.userid } });
+	const editC = await UserData.increment({ coins: cGained }, { where: { userid: uData.userid } });
 	const editLvl = await UserData.update({ level: newlvl }, { where: { userid: uData.userid } });
 	const addXp = await UserData.update({ xp: totalXp }, { where: { userid: uData.userid } });
 
@@ -199,7 +199,7 @@ async function editPData(totalXp, newlvl, cGained, uData) {
 
 //========================================
 //Method for checking if pigmy has leveled up, then handles the outcome accordingly
-async function isPigLvlUp(pigXp, pig, interaction) {
+async function isPigLvlUp(pigXp, pig, interaction, isClaim) {
 	var totalXp = pig.exp + pigXp;
 	console.log('Current totalXp: ', totalXp);
 
@@ -239,7 +239,7 @@ async function isPigLvlUp(pigXp, pig, interaction) {
 		} while (nxtPigLvl <= totalXp)
 		
 	}
-	await editPigOut(pig, newlvl, totalXp, interaction);//edit active pigmy values, reset lcm to the time after values have been edited
+	await editPigOut(pig, newlvl, totalXp, interaction, isClaim);//edit active pigmy values, reset lcm to the time after values have been edited
 }
 
 //========================================
