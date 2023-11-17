@@ -696,7 +696,7 @@ module.exports = {
                     const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
                     if (extraEXP) {
                         if (extraEXP.duration > 0) {
-                            totXP *= extraEXP.curreffect;
+                            totXP += totXP * extraEXP.curreffect;
                         }
                     }
 
