@@ -318,14 +318,21 @@ async function userDamageLoadout(user, item, offHand) {
 
     if (item) {
         //console.log('ITEM EQUIPPED: ', item);
-        console.log('ITEM DAMAGE: ', item.Attack);
-        dmgDealt += item.Attack;
+        if (item === 'NONE') {
+
+        } else {
+            console.log('ITEM DAMAGE: ', item.Attack);
+            dmgDealt += item.Attack;
+        }
     }
 
     if (offHand) {
-        //console.log('OFFHAND EQUIPPED: ', offHand);
-        console.log('OFFHAND DAMAGE: ', offHand.Attack);
-        if (offHand.Attack > 0) dmgDealt += offHand.Attack;
+        if (offHand === 'NONE') {
+
+        } else {
+            console.log('OFFHAND DAMAGE: ', offHand.Attack);
+            if (offHand.Attack > 0) dmgDealt += offHand.Attack;
+        }
     }
 
     console.log('Damage Dealt to Enemy ' + dmgDealt);
