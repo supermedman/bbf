@@ -11,7 +11,7 @@ const {
     specialInfoForm
 } = require('../chalkPresets.js');
 
-const { UserData, LootStore, MaterialStore, OwnedPotions } = require('../dbObjects.js');
+const { UserData, LootStore, MaterialStore, OwnedPotions, OwnedTools, UniqueCrafted } = require('../dbObjects.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -28,7 +28,15 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('potions')
-                .setDescription('View a list of all owned potions')),
+                .setDescription('View a list of all owned potions'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('tools')
+                .setDescription('View a list of all owned tools'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('unique')
+                .setDescription('View a list of all owned unique gear')),
 
     async execute(interaction) {
         
@@ -36,406 +44,252 @@ module.exports = {
             await interaction.deferReply();
             const loFound = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-            if (!loFound) {
-                return interaction.followUp('Sorry but you dont have any items yet! Use the command ``/shop`` to open the shop and make your first purchase.');
-            } else {
+            if (!loFound) return interaction.followUp('Sorry but you dont have any items yet! Use the command ``/shop`` to open the shop and make your first purchase.');
 
-                const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
+            const userItems = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
 
-                const theUser = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+            //const theUser = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
 
-                //***THIS DOES NOT WORK NEED TO FIX IT ASAP***
-                if (theUser.totitem < 5) {
-                    const itemAmount = theUser.totitem;
+            //***THIS DOES NOT WORK NEED TO FIX IT ASAP***
+            if (userItems.length <= 5) {
+                const itemAmount = userItems.length;
 
-                    var listedInOrder = [];
-                    var i = 0;
-                    //var pos = 1;
-                    var tempItemRef = [];
-                    var itemStringValue = ` `;
-                    let list = [];
+                let listedDefaults;
+                let grabbedName;
+                let fieldValueObj;
+                let finalFields;
 
-                    const mainHand = await items.filter(item => item.slot === 'Mainhand');
-                    console.log(`mainHand contents: ${mainHand}`);
-
-                    const offHand = await items.filter(item => item.slot === 'Offhand');
-                    console.log(`offHand contents: ${offHand}`);
-
-                    const headSlot = await items.filter(item => item.slot === 'Headslot');
-                    console.log(`headSlot contents: ${headSlot}`);
-
-                    const chestSlot = await items.filter(item => item.slot === 'Chestslot');
-                    console.log(`chestSlot contents: ${chestSlot}`);
-
-                    const legSlot = await items.filter(item => item.slot === 'Legslot');
-                    console.log(`legSlot contents: ${legSlot}`);
-
-                    listedInOrder = listedInOrder.concat(mainHand, offHand, headSlot, chestSlot, legSlot);
-                    console.log(listedInOrder);
-                    do {
-                        if (listedInOrder[i].slot === 'Mainhand') {
-                            //Item is weapon
-                            tempItemRef.push(listedInOrder[i]);
-                            console.log(tempItemRef);
-                            itemStringValue = (tempItemRef.map(wep =>
-                                `Name: **${wep.name}** \nValue: **${wep.value}c** \nRarity: **${wep.rarity}** \nAttack: **${wep.attack}** \nType: **${wep.type}**\nSlot: **${wep.slot}**\nHands: **${wep.hands}**\n\n`)
-                                .join('\n\n'));
-                            console.log(itemStringValue);
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Offhand') {
-                            //Item is offhand
-                            tempItemRef.push(listedInOrder[i]);
-                            console.log(tempItemRef);
-                            itemStringValue = (tempItemRef.map(off =>
-                                `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\n\n`)
-                                .join('\n\n'));
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Headslot') {
-                            //Item is helm
-                            tempItemRef.push(listedInOrder[i]);
-                            console.log(tempItemRef);
-                            itemStringValue = (tempItemRef.map(gear =>
-                                `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`)
-                                .join('\n\n'));
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Chestslot') {
-                            //Item is chestplate
-                            tempItemRef.push(listedInOrder[i]);
-                            console.log(tempItemRef);
-                            itemStringValue = (tempItemRef.map(gear =>
-                                `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`)
-                                .join('\n\n'));
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
-                        } else if (listedInOrder[i].slot === 'Legslot') {
-                            //Item is leggings
-                            tempItemRef.push(listedInOrder[i]);
-                            console.log(tempItemRef);
-                            itemStringValue = (tempItemRef.map(gear =>
-                                `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\n\n`)
-                                .join('\n\n'));
-                            list.push(itemStringValue);
-                            tempItemRef = [];
-                            i++;
+                let gearSlice;
+                let i = 0;
+                do {
+                    gearSlice = userItems[i];
+                    if (gearSlice) {
+                        //name, value, rarity, amount
+                        if (gearSlice.slot === 'Mainhand') {
+                            listedDefaults =
+                                `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nHands: **${gearSlice.hands}**\nAmount: ${gearSlice.amount}\n`;
+                        } else if (gearSlice.slot === 'Offhand') {
+                            listedDefaults =
+                                `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
+                        } else {
+                            listedDefaults =
+                                `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nDefence: **${gearSlice.defence}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
                         }
-                    } while (i < itemAmount)
+                        grabbedName = `${gearSlice.name}`;
 
-                    console.log('ITEMS IN list: \n', list.toString());
+                        fieldValueObj = { name: grabbedName, value: listedDefaults, };
 
-                    list = list.toString();
+                        finalFields.push(fieldValueObj);
+                    } else console.log(errorForm('gearSlice ERROR NOT FOUND!'));
+                    i++;
+                } while (i < itemAmount)
 
-                    const openInv = new EmbedBuilder()
-                        .setTitle("~INVENTORY~")
-                        .setColor(0000)
-                        .setDescription("These are the items currently in your inventory!")
-                        .addFields(
-                            {
-                                name: ("<< ITEMS STORED >>"),
-                                value: list
-                            }
-                        )
+                const invEmbed = {
+                    title: '~OWNED GEAR~',
+                    description: 'Page 1/1',
+                    color: 0000,
+                    fields: finalFields,
+                };
 
-                    await interaction.followUp({ embeds: [openInv] });
-                } else if (theUser.totitem >= 5) {
-                    //user has more then 5 items, need to separate onto different pages
-                    //do this by making a button for going forward a page and going back a page
-                    //allow buttons to loop from page 1 to last page and vice-versa
-                    console.log('TOO MANY ITEMS!');
+                await interaction.followUp({ embeds: [invEmbed] }).then(async iEmbed => setTimeout(() => {
+                    iEmbed.delete();
+                }, 120000)).catch(console.error);
+            } else if (userItems.length > 5) {
+                //user has more then 5 items, need to separate onto different pages
+                //do this by making a button for going forward a page and going back a page
+                //allow buttons to loop from page 1 to last page and vice-versa
+                console.log('TOO MANY ITEMS!');
 
-                    const backButton = new ButtonBuilder()
-                        .setLabel("Back")
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('◀️')
-                        .setCustomId('back-page');
+                var embedPages = [];
+                const totalItems = userItems.length;
+                let lastPage = Math.floor(totalItems / 5);
+                const remainder = Math.floor(totalItems % 5);
+                if (remainder > 0) lastPage += 1;
 
-                    const cancelButton = new ButtonBuilder()
-                        .setLabel("Cancel")
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('*️⃣')
-                        .setCustomId('delete-page');
+                let items = userItems;
 
-                    const forwardButton = new ButtonBuilder()
-                        .setLabel("Forward")
-                        .setStyle(ButtonStyle.Secondary)
-                        .setEmoji('▶️')
-                        .setCustomId('next-page')
+                items.sort((highest, item) => {
+                    if (highest['rar_id'] > item['rar_id']) return -1;
+                    if (highest['rar_id'] < item['rar_id']) return 1;
+                    return 0;
+                });
 
-                    const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+                let sliceFive = [];
 
-                    //define the maximum page limit per items assigned to user in question
-                    const totalItems = theUser.totitem;
-                    console.log('Total Items / 5:', (totalItems / 5));
-                    //THIS BREAKS!!
-                    //ADD CHECK FOR ADDITIONAL PAGES FOR LEFTOVER ITEMS
-                    //var maxEmbedPages = Math.round((totalItems / 5));
-                    var maxEmbedPages = 0;
-                    console.log(`REMAINDER LOOT ITEMS: ${(totalItems % 5)}`);
-                    //if ((totalItems % 5) > 0 && (totalItems % 5) < 3) {
-                    //    //Remainder exists, add extra page to the list
-                    //    maxEmbedPages += 1;
-                    //} else {
-                    //    //do nothing
-                    //} 
-                    console.log(`maxEmbedPages: ${maxEmbedPages}`);
-                    //total number of full loot pages found, figure out how to catch if there is remaining
-                    var embedPages = [];
-                    var iLeft = totalItems;
-                    var curPos = 0;
+                let curRun = 0;
+                let curPos = 0;
+                do {
+                    if ((curPos + 5) > totalItems) {
+                        sliceFive = items.slice(curPos, curPos + (Math.abs(curPos - totalItems)));
+                    } else {
+                        sliceFive = items.slice(curPos, curPos + 5);
+                    }
 
-                    //this for loop will loop for x given maxEmbedPages 
-                    //ex. if user has 20 items this will run 4 times and create 4 embeds
+                    //console.log(specialInfoForm(`Current contents of sliceFive: ${sliceFive}`));
 
-                    var i = 0;
-                    let list = [];
+                    let finalFields = [];
+                    if (sliceFive.length === 5) {
+                        let gearSlice;
+                        let listedDefaults;
+                        let grabbedName;
+                        let fieldValueObj;
+                        let i = 0;
+                        do {
+                            gearSlice = sliceFive[i];
+                            //console.log(specialInfoForm(`Current name of gearSlice: ${gearSlice.name}`));
+                            if (gearSlice) {
+                                //name, value, rarity, amount
+                                if (gearSlice.slot === 'Mainhand') {
+                                    listedDefaults =
+                                        `\nValue: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nHands: **${gearSlice.hands}**\nAmount: ${gearSlice.amount}\n`;
+                                } else if (gearSlice.slot === 'Offhand') {
+                                    listedDefaults =
+                                        `\nValue: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
+                                } else {
+                                    listedDefaults =
+                                        `\nValue: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nDefence: **${gearSlice.defence}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
+                                }
+                                grabbedName = `${gearSlice.name}`;
 
-                    const mainHand = await items.filter(item => item.slot === 'Mainhand');
-                    console.log(`mainHand contents: ${mainHand}`);
+                                fieldValueObj = { name: grabbedName, value: listedDefaults, };
 
-                    var weaponsLeft = mainHand.length;
-                    console.log(`WeaponsLeft: ${weaponsLeft}`);
-                    for (var x = 0; x < mainHand.length;) {
-                        if (weaponsLeft > 5) {
-                            for (var n = 0; n < 5; n++) {
-                                list = (mainHand.slice(curPos, (curPos + 5)).map(item =>
-                                    `Name: ** ${item.name} **\nValue: ** ${item.value}c **\nRarity: ** ${item.rarity} **\nAttack: ** ${item.attack} **\nType: ** ${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount: ** ${item.amount} **`)
-                                    .join('\n\n'));
-                            }
-                            curPos += 5;
-                            maxEmbedPages++;
-                            //create discord embed using list mapped in previous for loop
-                            const embed = new EmbedBuilder()
-                                .setTitle("~INVENTORY~")
-                                .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: ("<< ITEMS STORED >>"),
-                                        value: list
-                                    }
-                                );
-
-                            await embedPages.push(embed);//add new embed to embed pages
+                                finalFields.push(fieldValueObj);
+                            } else console.log(errorForm('gearSlice ERROR NOT FOUND!'));
                             i++;
-                            x += 5;
-                            iLeft -= 5;
-                            weaponsLeft -= 5;
-                            console.log(`WeaponsLeft: ${weaponsLeft}`);
-                        } else if (weaponsLeft <= 5) {
-                            for (var n = 0; n < weaponsLeft; n++) {
-                                list = (mainHand.slice(curPos, (curPos + weaponsLeft)).map(item =>
-                                    `Name: ** ${item.name} **\nValue: ** ${item.value}c **\nRarity: ** ${item.rarity} **\nAttack: ** ${item.attack} **\nType: ** ${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount: ** ${item.amount} **`)
-                                    .join('\n\n'));
-                            }
-                            maxEmbedPages++;
-                            //create discord embed using list mapped in previous for loop
-                            const embed = new EmbedBuilder()
-                                .setTitle("~INVENTORY~")
-                                .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: ("<< ITEMS STORED >>"),
-                                        value: list
-                                    }
-                                );
-                            await embedPages.push(embed);//add new embed to embed pages  
+                        } while (i < 5)
+
+                        const embed = {
+                            title: '~OWNED GEAR~',
+                            description: `Page ${(curRun + 1)}/${lastPage}`,
+                            color: 0000,
+                            fields: finalFields
+                        };
+                        embedPages.push(embed);
+                        curPos += 5;
+                    } else if (sliceFive.length < 5) {
+                        //LAST RUN
+                        let gearSlice;
+                        let listedDefaults;
+                        let grabbedName;
+                        let fieldValueObj;
+                        let i = 0;
+                        do {
+                            gearSlice = sliceFive[i];
+
+                            if (gearSlice) {
+                                //name, value, rarity, amount
+                                if (gearSlice.slot === 'Mainhand') {
+                                    listedDefaults =
+                                        `\nValue: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nHands: **${gearSlice.hands}**\nAmount: ${gearSlice.amount}\n`;
+                                } else if (gearSlice.slot === 'Offhand') {
+                                    listedDefaults =
+                                        `\nValue: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
+                                } else {
+                                    listedDefaults =
+                                        `\nValue: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nDefence: **${gearSlice.defence}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
+                                }
+                                grabbedName = `${gearSlice.name}`;
+
+                                fieldValueObj = { name: grabbedName, value: listedDefaults, };
+
+                                finalFields.push(fieldValueObj);
+                            } else console.log(errorForm('gearSlice ERROR NOT FOUND!'));
                             i++;
-                            iLeft -= weaponsLeft;
-                            weaponsLeft = 0;
-                            console.log(`WeaponsLeft: ${weaponsLeft}`);
-                            x = mainHand.length;
+                        } while (i < (Math.abs(curPos - totalItems)))
+
+                        const embed = {
+                            title: '~OWNED GEAR~',
+                            description: `Page ${(curRun + 1)}/${lastPage}`,
+                            color: 0000,
+                            fields: finalFields
+                        };
+                        embedPages.push(embed);
+                        //curPos += 5;
+                    }
+                    curRun++;
+                } while (curRun < lastPage)
+
+                const backButton = new ButtonBuilder()
+                    .setLabel("Back")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('◀️')
+                    .setCustomId('back-page');
+
+                const cancelButton = new ButtonBuilder()
+                    .setLabel("Cancel")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('*️⃣')
+                    .setCustomId('delete-page');
+
+                const forwardButton = new ButtonBuilder()
+                    .setLabel("Forward")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('▶️')
+                    .setCustomId('next-page');
+
+                const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+                const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+                const filter = (i) => i.user.id === interaction.user.id;
+
+                const collector = embedMsg.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 1200000,
+                });
+
+                var currentPage = 0;
+
+                collector.on('collect', async (collInteract) => {
+                    if (collInteract.customId === 'next-page') {
+                        //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+                        await collInteract.deferUpdate();
+                        //if statment to check if currently on the last page
+                        if (currentPage === embedPages.length - 1) {
+                            currentPage = 0;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            //await wait(1000);
+                        } else {
+                            currentPage += 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            //await wait(1000);
                         }
                     }
-                    curPos = 0;
-                    const offHand = await items.filter(item => item.slot === 'Offhand');
-                    console.log(`offHand contents: ${offHand}`);
-
-                    var offHandsLeft = offHand.length;
-                    console.log(`OffhandLeft: ${offHandsLeft}`);
-
-                    for (var y = 0; y < offHand.length;) {
-                        if (offHandsLeft > 5) {
-                            for (var n = 0; n < 5; n++) {
-                                list = (offHand.slice(curPos, (curPos + 5)).map(off =>
-                                    `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\nAmount Owned: ${off.amount}`)
-                                    .join('\n\n'));
-                            }
-                            curPos += 5;
-                            maxEmbedPages++;
-                            //create discord embed using list mapped in previous for loop
-                            const embed = new EmbedBuilder()
-                                .setTitle("~INVENTORY~")
-                                .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: ("<< ITEMS STORED >>"),
-                                        value: list
-                                    }
-                                );
-
-                            await embedPages.push(embed);//add new embed to embed pages
-                            i++;
-                            y += 5;
-                            iLeft -= 5;
-                            offHandsLeft -= 5;
-                        } else if (offHandsLeft <= 5) {
-                            for (var n = 0; n < offHandsLeft; n++) {
-                                list = (offHand.slice(curPos, (curPos + offHandsLeft)).map(off =>
-                                    `Name: **${off.name}** \nValue: **${off.value}c** \nRarity: **${off.rarity}** \nAttack: **${off.attack}** \nType: **${off.type}**\nSlot: **${off.slot}**\nAmount Owned: ${off.amount}`)
-                                    .join('\n\n'));
-                            }
-                            maxEmbedPages++;
-                            //create discord embed using list mapped in previous for loop
-                            const embed = new EmbedBuilder()
-                                .setTitle("~INVENTORY~")
-                                .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: ("<< ITEMS STORED >>"),
-                                        value: list
-                                    }
-                                );
-                            await embedPages.push(embed);//add new embed to embed pages 
-                            i++;
-                            y += offHandsLeft;
-                            iLeft -= offHandsLeft;
-                            offHandsLeft = 0;
+                    if (collInteract.customId === 'back-page') {
+                        //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+                        await collInteract.deferUpdate();
+                        if (currentPage === 0) {
+                            currentPage = embedPages.length - 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            //await wait(1000);
+                        } else {
+                            currentPage -= 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                            //await wait(1000);
                         }
                     }
-                    curPos = 0;
-                    var armorSlot = [];
-                    const headSlot = await items.filter(item => item.slot === 'Headslot');
-                    console.log(`headSlot contents: ${headSlot}`);
-
-                    const chestSlot = await items.filter(item => item.slot === 'Chestslot');
-                    console.log(`chestSlot contents: ${chestSlot}`);
-
-                    const legSlot = await items.filter(item => item.slot === 'Legslot');
-                    console.log(`legSlot contents: ${legSlot}`);
-
-                    armorSlot = armorSlot.concat(headSlot, chestSlot, legSlot);
-                    console.log(`armorSlot contents: ${armorSlot}`);
-
-                    var armorLeft = armorSlot.length;
-                    console.log(`ArmorLeft: ${armorLeft}`);
-
-                    for (var z = 0; z < armorSlot.length;) {
-                        if (armorLeft > 5) {
-                            for (var n = 0; n < 5; n++) {
-                                list = (armorSlot.slice(curPos, (curPos + 5)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\nAmount Owned: ${gear.amount}`)
-                                    .join('\n\n'));
-                            }
-                            curPos += 5;
-                            maxEmbedPages++;
-                            //create discord embed using list mapped in previous for loop
-                            const embed = new EmbedBuilder()
-                                .setTitle("~INVENTORY~")
-                                .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: ("<< ITEMS STORED >>"),
-                                        value: list
-                                    }
-                                );
-
-                            await embedPages.push(embed);//add new embed to embed pages
-                            i++;
-                            z += 5;
-                            iLeft -= 5;
-                            armorLeft -= 5;
-                        } else if (armorLeft <= 5) {
-                            for (var n = 0; n < armorLeft; n++) {
-                                list = (armorSlot.slice(curPos, (curPos + armorLeft)).map(gear => `Name: **${gear.name}** \nValue: **${gear.value}c** \nRarity: **${gear.rarity}** \nDefence: **${gear.defence}** \nType: **${gear.type}**\nSlot: **${gear.slot}**\nAmount Owned: ${gear.amount}`)
-                                    .join('\n\n'));
-                            }
-                            maxEmbedPages++;
-                            //create discord embed using list mapped in previous for loop
-                            const embed = new EmbedBuilder()
-                                .setTitle("~INVENTORY~")
-                                .setDescription(`Page ${i + 1}/${maxEmbedPages}`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: ("<< ITEMS STORED >>"),
-                                        value: list
-                                    }
-                                );
-                            await embedPages.push(embed);//add new embed to embed pages 
-                            i++;
-                            z += armorLeft;
-                            iLeft -= armorLeft;
-                            armorLeft = 0;
-                        }
+                    if (collInteract.customId === 'delete-page') {
+                        await collInteract.deferUpdate();
+                        wait(5000).then(async () => {
+                            await collector.stop();
+                        });
                     }
-                    console.log(`iLeft should be 0 by this point: ${iLeft}`);
+                });
 
-                    const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
-
-                    const filter = (i) => i.user.id === interaction.user.id;
-
-                    const collector = embedMsg.createMessageComponentCollector({
-                        componentType: ComponentType.Button,
-                        filter,
-                        time: 1200000,
-                    });
-
-                    var currentPage = 0;
-
-                    collector.on('collect', async (collInteract) => {
-                        if (collInteract.customId === 'next-page') {
-                            console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-                            await collInteract.deferUpdate();
-                            //if statment to check if currently on the last page
-                            if (currentPage === embedPages.length - 1) {
-                                currentPage = 0;
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                await wait(1000);
-                            } else {
-                                currentPage += 1;
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                await wait(1000);
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete().catch(error => {
+                            if (error.code !== 10008) {
+                                console.error('Failed to delete the message:', error);
                             }
-                        }
-                        if (collInteract.customId === 'back-page') {
-                            console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-                            await collInteract.deferUpdate();
-                            if (currentPage === 0) {
-                                currentPage = embedPages.length - 1;
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                await wait(1000);
-                            } else {
-                                currentPage -= 1;
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                await wait(1000);
-                            }
-                        }
-                        if (collInteract.customId === 'delete-page') {
-                            await collInteract.deferUpdate();
-                            wait(5000).then(async () => {
-                                await collector.stop();
-                            });
-                        }
-                    });
-
-                    collector.on('end', () => {
-                        if (embedMsg) {
-                            embedMsg.delete();
-                        } else if (!embedMsg) {
-                            //do nothing
-                        }
-                    });
-                }
+                        });
+                    } else if (!embedMsg) {
+                        //do nothing
+                    }
+                });
             }
+            
         }
 
         if (interaction.options.getSubcommand() === 'materials') {
@@ -546,7 +400,11 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
@@ -655,7 +513,258 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
+                }
+            });
+        }
+
+        if (interaction.options.getSubcommand() === 'tools') {
+            await interaction.deferReply();
+            const toolCheck = await OwnedTools.findOne({ where: { spec_id: interaction.user.id } });
+            if (!toolCheck) return interaction.followUp('You have no tools! Use ``/blueprint view`` to make some!');
+
+            const allToolsOwned = await OwnedTools.findAll({ where: { spec_id: interaction.user.id } });
+
+            var embedPages = [];
+
+            let listedDefaults;
+            let grabbedName;
+            let grabbedColour;
+
+            let toolSlice;
+            let i = 0;
+            do {
+                toolSlice = allToolsOwned[i];
+
+                if (toolSlice) {
+                    //name, value, rarity, amount
+                    listedDefaults =
+                        `Used for: ${toolSlice.activecategory} \nGive slot: ${toolSlice.activesubcategory} \nRarity: ${toolSlice.rarity} \nAmount: ${toolSlice.amount}`;
+
+                    grabbedName = `${toolSlice.name}`;
+
+                    grabbedColour = await grabColour(toolSlice.rar_id, false);
+
+                    const embed = {
+                        title: `~OWNED TOOLS~`,
+                        color: grabbedColour,
+                        fields: [
+                            {
+                                name: `${grabbedName}`, value: `${listedDefaults}`,
+                            }
+                        ],
+                    };
+
+                    embedPages.push(embed);
+                } else console.log(errorForm('toolSlice ERROR NOT FOUND!'));
+                i++;
+            } while (i < allToolsOwned.length)
+
+            if (embedPages.length <= 0) return console.log(errorForm('NO EMBED PAGES EXIST ERROR'));
+
+            const backButton = new ButtonBuilder()
+                .setLabel("Back")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('◀️')
+                .setCustomId('back-page');
+
+            const cancelButton = new ButtonBuilder()
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('*️⃣')
+                .setCustomId('delete-page');
+
+            const forwardButton = new ButtonBuilder()
+                .setLabel("Forward")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('▶️')
+                .setCustomId('next-page')
+
+            const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+            const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+            const filter = (ID) => ID.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 300000,
+            });
+
+            var currentPage = 0;
+
+            collector.on('collect', async (collInteract) => {
+                if (collInteract.customId === 'next-page') {
+                    await collInteract.deferUpdate();
+                    if (currentPage === embedPages.length - 1) {
+                        currentPage = 0;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    } else {
+                        currentPage += 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    }
+                }
+
+                if (collInteract.customId === 'back-page') {
+                    await collInteract.deferUpdate();
+                    if (currentPage === 0) {
+                        currentPage = embedPages.length - 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    } else {
+                        currentPage -= 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    }
+                }
+
+                if (collInteract.customId === 'delete-page') {
+                    await collInteract.deferUpdate();
+                    await collector.stop();
+                }
+            });
+
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
+                }
+            });
+        }
+
+        if (interaction.options.getSubcommand() === 'unique') {
+            await interaction.deferReply();
+            const uniqueCheck = await UniqueCrafted.findOne({ where: { spec_id: interaction.user.id } });
+            if (!uniqueCheck) return interaction.followUp('You have no Unique Gear! Use ``/blueprint view`` to make some!');
+
+            const allUniqueOwned = await UniqueCrafted.findAll({ where: { spec_id: interaction.user.id } });
+
+            var embedPages = [];
+
+            let listedDefaults;
+            let listedKillVal;
+            let grabbedName;
+            let grabbedColour;
+
+            let uniqueSlice;
+            let i = 0;
+            do {
+                uniqueSlice = allUniqueOwned[i];
+
+                if (uniqueSlice) {
+                    //name, value, rarity, amount
+                    if (uniqueSlice.slot === 'Mainhand') {
+                        listedDefaults =
+                            `Name: **${uniqueSlice.name}** \nValue: **${uniqueSlice.value}c** \nRarity: **${uniqueSlice.rarity}** \nAttack: **${uniqueSlice.Attack}** \nType: **${uniqueSlice.Type}**\nSlot: **${uniqueSlice.slot}**\nHands: **${uniqueSlice.hands}**\n\n`;
+                    } else if (uniqueSlice.slot === 'Offhand') {
+                        listedDefaults =
+                            `Name: **${uniqueSlice.name}** \nValue: **${uniqueSlice.value}c** \nRarity: **${uniqueSlice.rarity}** \nAttack: **${uniqueSlice.Attack}** \nType: **${uniqueSlice.Type}**\nSlot: **${uniqueSlice.slot}**\n\n`;
+                    } else {
+                        listedDefaults =
+                            `Name: **${uniqueSlice.name}** \nValue: **${uniqueSlice.value}c** \nRarity: **${uniqueSlice.rarity}** \nDefence: **${uniqueSlice.Defence}** \nType: **${uniqueSlice.Type}**\nSlot: **${uniqueSlice.slot}**\n\n`;
+                    }
+
+                    listedKillVal =
+                        `Total Kills: ${uniqueSlice.totalkills} \nKills this level: ${uniqueSlice.killsthislevel} \nCurrent Level: ${uniqueSlice.currentlevel}`;
+
+                    grabbedName = `${uniqueSlice.name}`;
+
+                    grabbedColour = await grabColour(uniqueSlice.rar_id, false);
+
+                    const embed = {
+                        title: `~OWNED UNIQUE GEAR~`,
+                        color: grabbedColour,
+                        fields: [
+                            {
+                                name: `${grabbedName}`, value: `${listedDefaults}`,
+                            },
+                            {
+                                name: 'Kill Stats: ', value: `${listedKillVal}`,
+                            }
+                        ],
+                    };
+
+                    embedPages.push(embed);
+                } else console.log(errorForm('uniqueSlice ERROR NOT FOUND!'));
+                i++;
+            } while (i < allUniqueOwned.length)
+
+            if (embedPages.length <= 0) return console.log(errorForm('NO EMBED PAGES EXIST ERROR'));
+
+            const backButton = new ButtonBuilder()
+                .setLabel("Back")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('◀️')
+                .setCustomId('back-page');
+
+            const cancelButton = new ButtonBuilder()
+                .setLabel("Cancel")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('*️⃣')
+                .setCustomId('delete-page');
+
+            const forwardButton = new ButtonBuilder()
+                .setLabel("Forward")
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('▶️')
+                .setCustomId('next-page')
+
+            const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+            const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+            const filter = (ID) => ID.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 300000,
+            });
+
+            var currentPage = 0;
+
+            collector.on('collect', async (collInteract) => {
+                if (collInteract.customId === 'next-page') {
+                    await collInteract.deferUpdate();
+                    if (currentPage === embedPages.length - 1) {
+                        currentPage = 0;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    } else {
+                        currentPage += 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    }
+                }
+
+                if (collInteract.customId === 'back-page') {
+                    await collInteract.deferUpdate();
+                    if (currentPage === 0) {
+                        currentPage = embedPages.length - 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    } else {
+                        currentPage -= 1;
+                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                    }
+                }
+
+                if (collInteract.customId === 'delete-page') {
+                    await collInteract.deferUpdate();
+                    await collector.stop();
+                }
+            });
+
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
