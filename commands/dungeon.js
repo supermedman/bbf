@@ -100,8 +100,13 @@ module.exports = {
 				loadingMessage.delete();
 			}, 1000)).catch(console.error);
 
-
-			await loadDungeon(activeDungeon.currentfloor, activeDungeon.dungeonid, interaction, interaction.user.id);
+			try {
+				await loadDungeon(activeDungeon.currentfloor, activeDungeon.dungeonid, interaction, interaction.user.id);
+			} catch (error) {
+				console.error(error);
+				console.log(errorForm(`AN ERROR OCCURED: ${error}`));
+				await interaction.followUp('An error occured while running the dungeon!');
+			}
 		} else {
 			//Second Check Milestones progress for dungeon access
 
@@ -240,7 +245,14 @@ module.exports = {
 							}, 1000)).catch(console.error);
 
 							await collector.stop();
-							await loadDungeon(dungeonCreated.currentfloor, dungeonCreated.dungeonid, collInteract, interaction.user.id);							
+							try {
+								await loadDungeon(dungeonCreated.currentfloor, dungeonCreated.dungeonid, collInteract, interaction.user.id);
+							} catch (error) {
+								console.error(error);
+								console.log(errorForm(`AN ERROR OCCURED: ${error}`));
+								await interaction.followUp('An error occured while running the dungeon!');
+                            }
+													
 						}
 
 					}
