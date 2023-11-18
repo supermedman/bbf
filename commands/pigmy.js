@@ -10,7 +10,8 @@ const {
 	successResult,
 	failureResult,
 	basicInfoForm,
-	specialInfoForm
+	specialInfoForm,
+    specialInfoForm2
 } = require('../chalkPresets.js');
 
 const { grabRar, grabColour } = require('./exported/grabRar');
@@ -313,7 +314,7 @@ module.exports = {
 				let maxClaimLength = 72;
 				if (userPigmy.level >= 25) {
 					//Every 5 pigmy levels allows for an additional 3 hours
-					maxClaimLength += Math.floor(3 * (userPigmy.level % 5));
+					maxClaimLength += Math.floor(3 * (userPigmy.level / 5) + 1);
 				}
 				console.log(specialInfoForm(`maxClaimLength: ${maxClaimLength}`));
 
@@ -540,9 +541,9 @@ module.exports = {
 					totXP -= Math.floor(pigDiffHappy * totXP);
 					totCoin -= Math.floor(pigDiffHappy * totCoin);
 					pigXp -= Math.floor(pigDiffHappy * pigXp);
-					newHappiness -= (10 + (hrs % 24));
+					newHappiness -= (10 + (hrs / 24));
 				} else {
-					newHappiness -= (10 + (hrs % 24));
+					newHappiness -= (10 + (hrs / 24));
 				}
 
 				const pigmyHappyStr = await updateHappiness(userPigmy, newHappiness);
@@ -896,9 +897,11 @@ module.exports = {
 			}
 
 			newHappy += happyInc;
+			console.log(specialInfoForm2(`newHappy is now ${newHappy}`));
 			if (newHappy > 100) newHappy = 100;
 
 			let moodChange = await updateHappiness(userPigmy, newHappy);
+			console.log(specialInfoForm2(`moodChange is now ${moodChange}`));
 			if (moodChange === 'NOMOOD') {
 				return interaction.followUp('Something went wrong while playing!');
 			} else {
