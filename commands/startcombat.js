@@ -248,7 +248,7 @@ module.exports = {
                         //Check both effects against currently equipped potions
                         if (activeEffects.cooldown > 0) {
                             potionOneDisabled = true;
-                            potionTxt = `CoolDown: ${userPotion.cooldown}`;
+                            potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                         } else {
                             potionOneDisabled = false;
                             potionTxt = `${userPotion.amount} ${userPotion.name}`;
@@ -296,7 +296,7 @@ module.exports = {
 
             var attachment;
 
-            if (hasPng) {
+            if (hasPng === true) {
                 attachment = await displayEWpic(interaction, enemy, true);
             } else {
                 attachment = await displayEWOpic(interaction, enemy, true);
@@ -361,7 +361,7 @@ module.exports = {
                         //Steal has either been a success, or an error has occured!
                         //Generate item with actionToTake                          
                         const usedRar = actionToTake;
-                        const itemRef = await makeItem(enemy, usedRar, pigmy);
+                        const itemRef = await makeItem(enemy, usedRar);
                         await showStolen(itemRef);
                         stealDisabled = true;
                         await collector.stop();
@@ -426,6 +426,7 @@ module.exports = {
                 if (collInteract.customId === 'onehit') {
                     //run once reprompt reaction
                     //const currentLoadout = await Loadout.findOne({ where: { spec_id: uData.userid } });
+                    console.log(specialInfoForm(`ONEHIT START =======================`));
                     let weapon;
                     let offHand;
                     let dmgDealt;
@@ -454,6 +455,7 @@ module.exports = {
                     await collInteract.deferUpdate();
 
                     await collector.stop();
+                    console.log(specialInfoForm(`BLOCK START =======================`));
                     await blockAttack(enemy);
                 }
 
@@ -748,10 +750,10 @@ module.exports = {
             let offDmgType;
             console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
 
-            if (!weapon) {
+            if (!weapon || weapon === 'NONE') {
                 mainDmgType = 'NONE';
             }
-            if (!offHand) {
+            if (!offHand || offHand === 'NONE') {
                 offDmgType = 'NONE';
             }
 
@@ -900,6 +902,7 @@ module.exports = {
                 //if statment to check if enemy dies after attack
                 if ((eHealth - dmgDealt) <= 0) {
                     console.log('ENEMY IS DEAD');
+                    console.log(specialInfoForm(`ONEHIT STOP =======================`));
                     dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
 
                     const attackDmgEmbed = new EmbedBuilder()
@@ -948,14 +951,16 @@ module.exports = {
             */
             if (isBlocked === true) {
                 user = await UserData.findOne({ where: { userid: userID } });
+                console.log(specialInfoForm(`BLOCK STOP =======================`));
                 return display();
             } else if (isBlocked === false) {
+                console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                 const eDamage = await enemyDamage(enemy);
                 console.log(basicInfoForm2(`Enemy damage before +-: ${eDamage}`));
 
                 const dead = await takeDamage(eDamage, enemy, false);
                 user = await UserData.findOne({ where: { userid: userID } });
-
+                console.log(specialInfoForm(`ONEHIT STOP =======================`));
                 if (dead === false) {
                     //console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
                     return display();
@@ -1039,7 +1044,8 @@ module.exports = {
                         await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
                             blockedEmbed.delete();
                         }, 15000)).catch(console.error);
-
+                        console.log(specialInfoForm(`BLOCK STOP =======================`));
+                        console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                         return takeDamage(eDamage, enemy, true);
                     } else {
                         //Player deals damage
@@ -1067,13 +1073,17 @@ module.exports = {
                         }, 15000)).catch(console.error);
 
                         let ghostWep, ghostOff;
-
+                        console.log(specialInfoForm(`ONEHIT START =======================`));
                         return hitOnce(counterDamage, ghostWep, ghostOff, enemy, true);
                     }
                 } else {
+                    console.log(specialInfoForm(`BLOCK STOP =======================`));
+                    console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                     return takeDamage(eDamage, enemy, true);
                 }
             } else if (!currentLoadout) {
+                console.log(specialInfoForm(`BLOCK STOP =======================`));
+                console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                 return takeDamage(eDamage, enemy, true);
             }
         }
@@ -1090,6 +1100,7 @@ module.exports = {
             }
 
             if (isBlocked === true) {
+                console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                 if ((currentHealth - eDamage) <= 0) {
                     //Player has died
                     console.log(failureResult('PLAYER IS DEAD :O'));
@@ -1114,6 +1125,8 @@ module.exports = {
                         attkEmbed.delete();
                     }, 15000)).catch(console.error);
 
+                    console.log(specialInfoForm(`BLOCK STOP =======================`));
+                    console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                     await hitP(currentHealth);
                     return display();
                 }
@@ -1179,6 +1192,7 @@ module.exports = {
                 if ((currentHealth - eDamage) <= 0) {
                     //Player has died
                     console.log(failureResult('PLAYER IS DEAD :O'));
+                    console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                     await hitP(0);
                     await playerDead(enemy);
                     return true;
@@ -1200,6 +1214,7 @@ module.exports = {
                     }, 15000)).catch(console.error);
 
                     await hitP(currentHealth);
+                    console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                     return false;
                 }
             }
@@ -1268,6 +1283,7 @@ module.exports = {
         //========================================
         //This method spawns a drop embed upon stealing an item successfully
         async function showStolen(itemRef) {
+            console.log(specialInfoForm2(`ITEM STOLEN: ${itemRef}`));
             const item = itemRef;
             let listedDefaults;
             if (item.slot === 'Mainhand') {
@@ -1282,7 +1298,9 @@ module.exports = {
                     `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
             }
 
-            let embedColour = await grabColour(item.loot_id, false);
+            console.log(item.rar_id);
+
+            let embedColour = await grabColour(item.rar_id, false);
 
             const itemDropEmbed = new EmbedBuilder()
                 .setTitle('~LOOT STOLEN~')
@@ -1315,7 +1333,9 @@ module.exports = {
 
                 if (inc) console.log('AMOUNT WAS UPDATED!');
 
-                return await lootStore.save();
+                await lootStore.save();
+
+                return lootStore;
             }
 
             //increase item total
@@ -1383,7 +1403,7 @@ module.exports = {
 
         //========================================
         //this method generates an item to be dropped upon an enemies death
-        async function makeItem(enemy, hasRar, pigmy) {
+        async function makeItem(enemy, hasRar) {
             let foundRar = 0;
             if (!hasRar) {
                 foundRar = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
@@ -1397,6 +1417,8 @@ module.exports = {
             if (user.pclass === 'Thief') {
                 chanceToBeat -= 0.05;
             }
+
+            const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
 
             if (pigmy) {
                 if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
@@ -1421,6 +1443,7 @@ module.exports = {
             }
 
             let iPool = lootList.filter(item => item.Rar_id === foundRar);
+            console.log(specialInfoForm(iPool.length));
             //list finished, select one item 
             let randPos;
             if (iPool.length <= 1) {
@@ -1442,7 +1465,9 @@ module.exports = {
 
                 if (inc) console.log('AMOUNT WAS UPDATED!');
 
-                return await lootStore.save();
+                await lootStore.save();
+
+                return lootStore;
             }
 
 
@@ -1453,8 +1478,9 @@ module.exports = {
 
             await user.save();
 
+            let addedItem;
             if (theItem.Slot === 'Mainhand') {
-                await LootStore.create({
+                addedItem = await LootStore.create({
                     name: theItem.Name,
                     value: theItem.Value,
                     loot_id: theItem.Loot_id,
@@ -1470,7 +1496,7 @@ module.exports = {
                 });
             }
             if (theItem.Slot === 'Offhand') {
-                await LootStore.create({
+                addedItem = await LootStore.create({
                     name: theItem.Name,
                     value: theItem.Value,
                     loot_id: theItem.Loot_id,
@@ -1486,7 +1512,7 @@ module.exports = {
                 });
             } else {
                 //IS ARMOR
-                await LootStore.create({
+                addedItem = await LootStore.create({
                     name: theItem.Name,
                     value: theItem.Value,
                     loot_id: theItem.Loot_id,
@@ -1502,11 +1528,13 @@ module.exports = {
                 });
             }
 
-            const itemAdded = await LootStore.findOne({
-                where: { spec_id: userID, loot_id: theItem.loot_id },
-            });
+            if (addedItem) {
+                const itemAdded = await LootStore.findOne({
+                    where: { spec_id: userID, loot_id: theItem.loot_id },
+                });
 
-            return itemAdded;
+                return itemAdded;
+            }
         }
 
 
