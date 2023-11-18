@@ -90,7 +90,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                     //Check both effects against currently equipped potions
                     if (activeEffects.cooldown > 0) {
                         potionOneDisabled = true;
-                        potionTxt = `CoolDown: ${userPotion.cooldown}`;
+                        potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                     } else {
                         potionOneDisabled = false;
                         potionTxt = `${userPotion.amount} ${userPotion.name}`;
@@ -138,7 +138,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
         var attachment;
 
-        if (hasPng) {
+        if (hasPng === true) {
             attachment = await displayEWpic(interaction, enemy, true);
         } else {
             attachment = await displayEWOpic(interaction, enemy, true);
@@ -268,6 +268,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             if (collInteract.customId === 'onehit') {
                 //run once reprompt reaction
                 //const currentLoadout = await Loadout.findOne({ where: { spec_id: uData.userid } });
+                console.log(specialInfoForm(`ONEHIT START =======================`));
                 let weapon;
                 let offHand;
                 let dmgDealt;
@@ -367,7 +368,9 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
             if (inc) console.log('AMOUNT WAS UPDATED!');
 
-            return await lootStore.save();
+            await lootStore.save();
+
+            return lootStore;
         }
 
         //increase item total
@@ -505,7 +508,9 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
             if (inc) console.log('AMOUNT WAS UPDATED!');
 
-            return await lootStore.save();
+            await lootStore.save();
+
+            return lootStore;
         }
 
 
@@ -516,8 +521,9 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
         await user.save();
 
+        let addedItem;
         if (theItem.Slot === 'Mainhand') {
-            await LootStore.create({
+            addedItem = await LootStore.create({
                 name: theItem.Name,
                 value: theItem.Value,
                 loot_id: theItem.Loot_id,
@@ -533,7 +539,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             });
         }
         if (theItem.Slot === 'Offhand') {
-            await LootStore.create({
+            addedItem = await LootStore.create({
                 name: theItem.Name,
                 value: theItem.Value,
                 loot_id: theItem.Loot_id,
@@ -549,7 +555,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             });
         } else {
             //IS ARMOR
-            await LootStore.create({
+            addedItem = await LootStore.create({
                 name: theItem.Name,
                 value: theItem.Value,
                 loot_id: theItem.Loot_id,
@@ -565,11 +571,13 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             });
         }
 
-        const itemAdded = await LootStore.findOne({
-            where: { spec_id: userID, loot_id: theItem.loot_id },
-        });
+        if (addedItem) {
+            const itemAdded = await LootStore.findOne({
+                where: { spec_id: userID, loot_id: theItem.loot_id },
+            });
 
-        return itemAdded;
+            return itemAdded;
+        }
     }
 
     //========================================
@@ -600,7 +608,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
         }
 
-        let embedColour = await grabColour(item.loot_id, false);
+        let embedColour = await grabColour(item.item.rar_id, false);
 
         const itemDropEmbed = new EmbedBuilder()
             .setTitle('~LOOT STOLEN~')
@@ -747,10 +755,10 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         let offDmgType;
         console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
 
-        if (!weapon) {
+        if (!weapon || weapon === 'NONE') {
             mainDmgType = 'NONE';
         }
-        if (!offHand) {
+        if (!offHand || offHand === 'NONE') {
             offDmgType = 'NONE';
         }
 
@@ -899,6 +907,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             //if statment to check if enemy dies after attack
             if ((eHealth - dmgDealt) <= 0) {
                 console.log('ENEMY IS DEAD');
+                console.log(specialInfoForm(`ONEHIT STOP =======================`));
                 dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
 
                 const attackDmgEmbed = new EmbedBuilder()
@@ -949,11 +958,14 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             user = await UserData.findOne({ where: { userid: userID } });
             return display();
         } else if (isBlocked === false) {
+            console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
             const eDamage = await enemyDamage(enemy);
             console.log(basicInfoForm2(`Enemy damage before +-: ${eDamage}`));
+            
 
             const dead = await takeDamage(eDamage, enemy, false);
             user = await UserData.findOne({ where: { userid: userID } });
+            console.log(specialInfoForm(`ONEHIT STOP =======================`));
 
             if (dead === false) {
                 //console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
@@ -1063,6 +1075,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             if ((currentHealth - eDamage) <= 0) {
                 //Player has died
                 console.log(failureResult('PLAYER IS DEAD :O'));
+                console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                 await hitP(0);
                 await playerDead(enemy);
                 return true;
@@ -1084,6 +1097,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 }, 15000)).catch(console.error);
 
                 await hitP(currentHealth);
+                console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                 return false;
             }
         }
