@@ -7,15 +7,20 @@ const {
     successResult,
     failureResult,
     basicInfoForm,
-    specialInfoForm
+    basicInfoForm2,
+    specialInfoForm,
+    specialInfoForm2,
+    updatedValueForm,
+    updatedValueForm2
 } = require('../../chalkPresets.js');
+
 const { ActiveDungeonEnemy, ActiveDungeon, UserData, LootStore, ActiveDungeonBoss, Pigmy, Loadout, ActiveStatus, OwnedPotions } = require('../../dbObjects.js');
 
 const { isLvlUp } = require('./levelup.js');
 const { grabRar } = require('./grabRar.js');
 const { createNewBlueprint } = require('./createBlueprint.js');
 
-const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotionOne } = require('./findLoadout.js');
+const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion } = require('./findLoadout.js');
 const { displayEWpic, displayEWOpic, displayBossPic } = require('./displayEnemy.js');
 const { hiding } = require('./handleHide.js');
 const { userDamageLoadout } = require('./dealDamage.js');
@@ -1038,7 +1043,7 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
                     //Check both effects against currently equipped potions
                     if (activeEffects.cooldown > 0) {
                         potionOneDisabled = true;
-                        potionTxt = `CoolDown: ${userPotion.cooldown}`;
+                        potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                     } else {
                         potionOneDisabled = false;
                         potionTxt = `${userPotion.amount} ${userPotion.name}`;
@@ -1079,7 +1084,7 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
 
         let attachment;
 
-        if (hasPng) {
+        if (hasPng === true) {
             attachment = await displayEWpic(interaction, enemy, true);
         } else {
             attachment = await displayEWOpic(interaction, enemy, true);
@@ -1153,7 +1158,11 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
                     dmgDealt = dmgDealt * 1.5;
                     isHidden = false;
                 } else {
-                    await collInteract.deferUpdate();
+                    await collInteract.deferUpdate().catch(error => {
+                        if (error.code !== 10062) {
+                            console.error('Failed to resolve interaction:', error);
+                        }
+                    });
                 }
                 await collector.stop();
                 await hitOnce(dmgDealt, weapon, offHand, user, enemy, false);
@@ -1169,7 +1178,7 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
             if (collInteract.customId === 'potone') {
                 //Potion One Used!
                 await collInteract.deferUpdate();
-                const hasPotOne = await findPotionOne(currentLoadout.potionone, userID);
+                const hasPotOne = await findPotion(userLoadout.potionone, userID);
                 await usePotOne(hasPotOne, user);
                 await collector.stop();
                 display();
@@ -1204,10 +1213,10 @@ async function startCombat(constKey, interaction, userSpecEEFilter) {
         let offDmgType;
         console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
 
-        if (!weapon) {
+        if (!weapon || weapon === 'NONE') {
             mainDmgType = 'NONE';
         }
-        if (!offHand) {
+        if (!offHand || offHand === 'NONE') {
             offDmgType = 'NONE';
         }
 
@@ -2069,7 +2078,7 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
             if (collInteract.customId === 'potone') {
                 //Potion One Used!
                 await collInteract.deferUpdate();
-                const hasPotOne = await findPotionOne(currentLoadout.potionone, userID);
+                const hasPotOne = await findPotion(userLoadout.potionone, userID);
                 await usePotOne(hasPotOne, user);
                 await collector.stop();
                 display();
@@ -2104,10 +2113,10 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         let offDmgType;
         console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
 
-        if (!weapon) {
+        if (!weapon || weapon === 'NONE') {
             mainDmgType = 'NONE';
         }
-        if (!offHand) {
+        if (!offHand || offHand === 'NONE') {
             offDmgType = 'NONE';
         }
 
