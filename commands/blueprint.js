@@ -31,16 +31,17 @@ module.exports = {
 						.setDescription('The amount to craft'))),
 
 	async execute(interaction) { 
-		await interaction.deferReply();
-
-		const userData = await UserData.findOne({ where: { userid: interaction.user.id } });
-		if (!userData) return interaction.followUp('Welcome new user! Please use ``/start`` to begin your adventure!');
-
-		const userHasBlueprint = await OwnedBlueprints.findOne({ where: { spec_id: interaction.user.id } });
-		if (!userHasBlueprint) return interaction.followUp('No blueprints found!');
+		
 
 		if (interaction.options.getSubcommand() === 'view') {
 			//View ALL owned blueprints
+			await interaction.deferReply();
+
+			const userData = await UserData.findOne({ where: { userid: interaction.user.id } });
+			if (!userData) return interaction.followUp('Welcome new user! Please use ``/start`` to begin your adventure!');
+
+			const userHasBlueprint = await OwnedBlueprints.findOne({ where: { spec_id: interaction.user.id } });
+			if (!userHasBlueprint) return interaction.followUp('No blueprints found!');
 
 			const allOwnedMats = await MaterialStore.findAll({ where: { spec_id: interaction.user.id } });
 			if (!allOwnedMats) console.log(warnedForm('NO MATERIALS FOUND!'));
@@ -591,45 +592,56 @@ module.exports = {
 
 			collector.on('collect', async (collInteract) => {
 				if (collInteract.customId === 'next-page') {
-					await collInteract.deferUpdate();
-					if (currentPage === embedPages.length - 1) {
-						currentPage = 0;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
-						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
-						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
-						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
-						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
-						await collInteract.editReply({ components: [interactiveButtons] });
-					} else {
-						currentPage += 1;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
-						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
-						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
-						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
-						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
-						await collInteract.editReply({ components: [interactiveButtons] });
-					}
+					await collInteract.deferUpdate().then(async () => {
+						if (currentPage === embedPages.length - 1) {
+							currentPage = 0;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+							cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+							cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+							cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+							cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+							await collInteract.editReply({ components: [interactiveButtons] });
+						} else {
+							currentPage += 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+							cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+							cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+							cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+							cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+							await collInteract.editReply({ components: [interactiveButtons] });
+						}
+					}).catch(error => {
+						if (error.code !== 10062) {
+							console.error('Failed to delete the message:', error);
+						}
+					});
 				}
 
 				if (collInteract.customId === 'back-page') {
-					await collInteract.deferUpdate();
-					if (currentPage === 0) {
-						currentPage = embedPages.length - 1;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
-						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
-						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
-						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
-						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
-						await collInteract.editReply({ components: [interactiveButtons] });
-					} else {
-						currentPage -= 1;
-						await embedMsg.edit({ embeds: [embedPages[currentPage]] });
-						cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
-						cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
-						cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
-						cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
-						await collInteract.editReply({ components: [interactiveButtons] });
-					}
+					await collInteract.deferUpdate().then(async () => {
+						if (currentPage === 0) {
+							currentPage = embedPages.length - 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+							cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+							cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+							cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+							cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+							await collInteract.editReply({ components: [interactiveButtons] });
+						} else {
+							currentPage -= 1;
+							await embedMsg.edit({ embeds: [embedPages[currentPage]] });
+							cancelCraftButton.setLabel(cancelCraftButtonPages[currentPage].label);
+							cancelCraftButton.setStyle(cancelCraftButtonPages[currentPage].style);
+							cancelCraftButton.setEmoji(cancelCraftButtonPages[currentPage].emoji);
+							cancelCraftButton.setCustomId(cancelCraftButtonPages[currentPage].customid);
+							await collInteract.editReply({ components: [interactiveButtons] });
+						}
+					}).catch(error => {
+						if (error.code !== 10062) {
+							console.error('Failed to delete the message:', error);
+						}
+					});
+					
 				}
 
 				if (collInteract.customId === 'delete-page') {
@@ -642,6 +654,10 @@ module.exports = {
 					await collector.stop();
 					console.log(specialInfoForm('availableCrafts[currentPage].Name DATA: ', availableCrafts[currentPage].Name));
 					await craftFromBlueprint(availableCrafts[currentPage], interaction, 1);
+				}
+
+				if (!collInteract) {
+					await collector.stop();
                 }
 			});
 
@@ -657,7 +673,8 @@ module.exports = {
 		}
 
 		if (interaction.options.getSubcommand() === 'available') {
-			if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction, please check back later!');
+			if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
+			await interaction.deferReply();
 			//View ONLY blueprints ready for crafting
 			const userBlueprints = await OwnedBlueprints.findAll({ where: { spec_id: interaction.user.id } });
 			const userMaterial = await MaterialStore.findOne({ where: { spec_id: interaction.user.id } });
