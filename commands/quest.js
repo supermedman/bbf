@@ -1497,12 +1497,14 @@ module.exports = {
                             //if statment to check if currently on the last page
                             if (currentPage === embedPages.length - 1) {
                                 currentPage = 0;
-                                await collInteract.deferUpdate();
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                await collInteract.deferUpdate().then(async () => {
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                });
                             } else {
                                 currentPage += 1;
-                                await collInteract.deferUpdate();
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                await collInteract.deferUpdate().then(async () => {
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                });
                             }
                         }
                         if (collInteract.customId === 'back-page') {
@@ -1510,12 +1512,14 @@ module.exports = {
 
                             if (currentPage === 0) {
                                 currentPage = embedPages.length - 1;
-                                await collInteract.deferUpdate();
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                await collInteract.deferUpdate().then(async () => {
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                });
                             } else {
                                 currentPage -= 1;
-                                await collInteract.deferUpdate();
-                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                await collInteract.deferUpdate().then(async () => {
+                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                });
                             }
                         }
                         if (collInteract.customId === 'delete-page') {

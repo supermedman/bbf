@@ -74,7 +74,7 @@ module.exports = {
 		if (focusedOption.name === 'type') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy"];
+			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky"];
 
 			if (focusedValue) {
 				console.log(choices);
@@ -91,7 +91,7 @@ module.exports = {
 		if (focusedOption.name === 'typeview') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "unique"];
+			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "unique"];
 
 			if (focusedValue) {
 				console.log(choices);
@@ -123,9 +123,10 @@ module.exports = {
 		}
     },
 	async execute(interaction) { 
-		await interaction.deferReply();
+		
 
 		if (interaction.options.getSubcommand() === 'combine') {
+			await interaction.deferReply();
 			//if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction! Sorry!');
 			//Material type
 			const matType = interaction.options.getString('type');
@@ -1279,6 +1280,7 @@ module.exports = {
         }
 
 		if (interaction.options.getSubcommand() === 'view') {
+			await interaction.deferReply();
 			const matType = interaction.options.getString('typeview');
 			const showAll = interaction.options.getBoolean('all');
 			const rarType = interaction.options.getString('rarity');
@@ -1481,6 +1483,7 @@ module.exports = {
 		}
 
 		if (interaction.options.getSubcommand() === 'dismantle') {
+			await interaction.deferReply();
 			const matType = interaction.options.getString('type');
 			const rarType = interaction.options.getString('rarity');
 

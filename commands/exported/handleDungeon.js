@@ -196,6 +196,10 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                         userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
                     }
                 } else {
+                    if (userSpecEEFilter.bKilledE !== 'NONE') {
+                        userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+                        console.log(specialInfoForm('REMOVING LISTENERS TAGGED WITH:', userSpecEEFilter.PKE_UPK));
+                    }
                     const deleteBoss = await removeBoss(constKey);
                     if (deleteBoss === 'Deleted') {
                         userSpecEEFilter.nextStageE.emit(`${userSpecEEFilter.NSE_UPK}`);
@@ -474,6 +478,10 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
             userSpecEEFilter.eKilledE.once(`${userSpecEEFilter.EKE_UPK}`, async () => {
                 //Enemy killed
                 console.log(basicInfoForm('Enemy killed...'));
+
+                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+                console.log(specialInfoForm('REMOVING LISTENERS TAGGED WITH:', userSpecEEFilter.PKE_UPK));
+
                 killedEnemies.push(enemyToAdd);
                 if ((curPos + 1) < floorFabList.length) {
                     console.log(basicInfoForm('Next enemy exists, prompting next enemy button input now...'));

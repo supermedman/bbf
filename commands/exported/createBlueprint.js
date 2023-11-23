@@ -159,14 +159,14 @@ async function checkUnlockedBluey(level, userID, interaction) {
         } else {
             const firstFilter = levelBPs.filter(bluey => (bluey.IsUnlocked === true) && (bluey.IsDropped === false));
             const secondFilter = firstFilter.filter(bluey => {
-                if (userBPs.some((BPID) => bluey.BlueprintID !== BPID.blueprintid)) {
+                if (userBPs.some((BPID) => bluey.BlueprintID === BPID.blueprintid)) {
                     return false;
                 } else return true;
                 //return userBPs.some((BPID) => bluey.BlueprintID !== BPID.blueprintid)
             });
-            console.log(basicInfoForm('secondFilter results: ', secondFilter));
+            console.log(basicInfoForm('secondFilter results: ', secondFilter.length));
 
-            if (!secondFilter) return console.log(errorForm('SOMETHING WENT WRONG WHILE FILTERING!!'));
+            if (secondFilter.length <= 0) return console.log(errorForm('SOMETHING WENT WRONG WHILE FILTERING!!'));
             await itterateMakeBluey(secondFilter, secondFilter.length, userID, interaction);
         }
     } else {
