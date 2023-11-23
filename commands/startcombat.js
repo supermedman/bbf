@@ -444,11 +444,18 @@ module.exports = {
                         //BACKSTAB
                         dmgDealt = dmgDealt * 1.5;
                         isHidden = false;
+                        await collector.stop();
+                        await hitOnce(dmgDealt, weapon, offHand, enemy, false);
                     } else {
-                        await collInteract.deferUpdate();
+                        await collInteract.deferUpdate().then(async () => {
+                            await collector.stop();
+                            await hitOnce(dmgDealt, weapon, offHand, enemy, false);
+                        }).catch(error => {
+                            if (error.code !== 10062) {
+                                console.error('Failed to deferUpdate:', error);
+                            }
+                        });
                     }
-                    await collector.stop();
-                    await hitOnce(dmgDealt, weapon, offHand, enemy, false);
                 }
 
                 if (collInteract.customId === 'block') {
@@ -517,6 +524,35 @@ module.exports = {
                 //Error occured ignore futher..
             } else {
                 console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
+            }
+
+            const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
+            if (!activeEffect) {
+                //No active effects to manage
+            } else if (activeEffect) {
+                console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+                const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
+                let runCount = 0;
+                let currEffect;
+                do {
+                    currEffect = activeEffects[runCount];
+                    var coolDownReduce = currEffect.cooldown - 1;
+                    var durationReduce = currEffect.duration - 1;
+
+                    if (durationReduce <= 0) {
+                        durationReduce = 0;
+                    }
+
+                    if (coolDownReduce <= 0) {
+                        //Cooldown Complete!
+                        console.log(basicInfoForm('COOLDOWN COMPLETE!'));
+                        await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
+                    } else {
+                        await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
+                        await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
+                    }
+                    runCount++;
+                } while (runCount < activeEffects.length)
             }
 
             await isUniqueLevelUp(interaction, user);
@@ -730,8 +766,12 @@ module.exports = {
         //========================================
         //This method finds a unique item attactched to the enemy that holds it
         async function getUniqueItem(enemy) {
-            const returnLoot = uniqueLootList.filter(item => item.Loot_id === (enemy.constkey + 1000));
-            if (returnLoot) return returnLoot;
+            let returnLoot;
+            const returnLootList = uniqueLootList.filter(item => item.Loot_id === (enemy.constkey + 1000));
+            if (returnLootList.length) {
+                returnLoot = returnLootList[0];
+                return returnLoot;
+            }
         }
 
         //========================================
@@ -832,34 +872,7 @@ module.exports = {
             }
             //======================
 
-            const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
-            if (!activeEffect) {
-                //No active effects to manage
-            } else if (activeEffect) {
-                console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
-                const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
-                let runCount = 0;
-                let currEffect;
-                do {
-                    currEffect = activeEffects[runCount];
-                    var coolDownReduce = currEffect.cooldown - 1;
-                    var durationReduce = currEffect.duration - 1;
-
-                    if (durationReduce <= 0) {
-                        durationReduce = 0;
-                    }
-
-                    if (coolDownReduce <= 0) {
-                        //Cooldown Complete!
-                        console.log(basicInfoForm('COOLDOWN COMPLETE!'));
-                        await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                    } else {
-                        await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                        await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                    }
-                    runCount++;
-                } while (runCount < activeEffects.length)
-            }
+            
 
             // Do {attack for n times} While (n < runCount)
             var i = 0;
@@ -1530,7 +1543,7 @@ module.exports = {
 
             if (addedItem) {
                 const itemAdded = await LootStore.findOne({
-                    where: { spec_id: userID, loot_id: theItem.loot_id },
+                    where: { spec_id: userID, loot_id: theItem.Loot_id },
                 });
 
                 return itemAdded;
