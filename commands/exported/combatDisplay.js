@@ -203,7 +203,12 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                     //Steal has either been a success, or an error has occured!
                     //Generate item with actionToTake                          
                     const usedRar = actionToTake;
-                    const itemRef = await makeItem(enemy, usedRar, pigmy);
+                    let itemRef;
+                    try {
+                        itemRef = await makeItem(enemy, usedRar, pigmy);
+                    } catch (err) {
+                        console.log(errorForm(error));
+                    }
                     await showStolen(itemRef);
                     stealDisabled = true;
                     await collector.stop();
@@ -347,8 +352,12 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     //========================================
     //This method finds a unique item attactched to the enemy that holds it
     async function getUniqueItem(enemy) {
-        const returnLoot = uniqueLootList.filter(item => item.Loot_id === (enemy.constkey + 1000));
-        if (returnLoot) return returnLoot;
+        let returnLoot;
+        const returnLootList = uniqueLootList.filter(item => item.Loot_id === (enemy.constkey + 1000));
+        if (returnLootList.length) {
+            returnLoot = returnLootList[0];
+            return returnLoot;
+        }
     }
 
     //========================================
@@ -430,7 +439,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         }
 
         const itemAdded = await LootStore.findOne({
-            where: { spec_id: userID, loot_id: theItem.loot_id },
+            where: { spec_id: userID, loot_id: theItem.Loot_id },
         });
 
         return itemAdded;
@@ -492,12 +501,12 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         if (iPool.length <= 1) {
             randPos = 0;
         } else {
-            randPos = Math.floor(Math.random() * (iPool.length - 1));
+            randPos = Math.floor(Math.random() * (iPool.length));
         }
         const theItem = iPool[randPos];
 
         const lootStore = await LootStore.findOne({
-            where: { spec_id: interaction.user.id, loot_id: theItem.Loot_id },
+            where: [{ spec_id: interaction.user.id }, {loot_id: theItem.Loot_id }]
         });
 
         //check if an item was found in the previous .findOne()
@@ -571,7 +580,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             });
         }
 
-        if (addedItem) {
+        if (addedItem.name) {
             const itemAdded = await LootStore.findOne({
                 where: { spec_id: userID, loot_id: theItem.loot_id },
             });
@@ -608,7 +617,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
         }
 
-        let embedColour = await grabColour(item.item.rar_id, false);
+        let embedColour = await grabColour(item.rar_id, false);
 
         const itemDropEmbed = new EmbedBuilder()
             .setTitle('~LOOT STOLEN~')
@@ -837,34 +846,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         }
         //======================
 
-        const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
-        if (!activeEffect) {
-            //No active effects to manage
-        } else if (activeEffect) {
-            console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
-            const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
-            let runCount = 0;
-            let currEffect;
-            do {
-                currEffect = activeEffects[runCount];
-                var coolDownReduce = currEffect.cooldown - 1;
-                var durationReduce = currEffect.duration - 1;
-
-                if (durationReduce <= 0) {
-                    durationReduce = 0;
-                }
-
-                if (coolDownReduce <= 0) {
-                    //Cooldown Complete!
-                    console.log(basicInfoForm('COOLDOWN COMPLETE!'));
-                    await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                } else {
-                    await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                    await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                }
-                runCount++;
-            } while (runCount < activeEffects.length)
-        }
+        
 
         // Do {attack for n times} While (n < runCount)
         var i = 0;
@@ -1259,6 +1241,35 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
         }
 
+        const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
+        if (!activeEffect) {
+            //No active effects to manage
+        } else if (activeEffect) {
+            console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+            const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
+            let runCount = 0;
+            let currEffect;
+            do {
+                currEffect = activeEffects[runCount];
+                var coolDownReduce = currEffect.cooldown - 1;
+                var durationReduce = currEffect.duration - 1;
+
+                if (durationReduce <= 0) {
+                    durationReduce = 0;
+                }
+
+                if (coolDownReduce <= 0) {
+                    //Cooldown Complete!
+                    console.log(basicInfoForm('COOLDOWN COMPLETE!'));
+                    await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
+                } else {
+                    await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
+                    await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
+                }
+                runCount++;
+            } while (runCount < activeEffects.length)
+        }
+
         await isUniqueLevelUp(interaction, user);
 
         const newtotalK = user.totalkills + 1;
@@ -1268,7 +1279,12 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         await UserData.update({ killsthislife: newCurK }, { where: { userid: userID } });
 
         if (enemy.hasitem) {
-            const item = await makeItem(enemy);
+            let item;
+            try {
+                item = await makeItem(enemy);
+            } catch (error) {
+                console.log(errorForm(error));
+            }
 
             let listedDefaults;
             if (item.slot === 'Mainhand') {
