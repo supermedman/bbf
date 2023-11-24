@@ -74,7 +74,7 @@ module.exports = {
 		if (focusedOption.name === 'type') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky"];
+			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "tooly"];
 
 			if (focusedValue) {
 				console.log(choices);
@@ -91,7 +91,7 @@ module.exports = {
 		if (focusedOption.name === 'typeview') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "unique"];
+			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "tooly", "unique"];
 
 			if (focusedValue) {
 				console.log(choices);
@@ -133,8 +133,8 @@ module.exports = {
 			//Desired rarity after combine
 			const rarType = interaction.options.getString('rarity');
 			//Amount of material at desired rarity 
-			let inputAmount = interaction.options.getInteger('amount');
-			if (!inputAmount) inputAmount = 1; //Default to 1 if none 
+			let inputAmount = interaction.options.getInteger('amount') ?? 1; //Default to 1 if none 
+			//if (!inputAmount) inputAmount = 1; 
 
 			//Convert rarity to int
 			var chosenRarID;
@@ -1274,7 +1274,11 @@ module.exports = {
 
 			collector.on('end', () => {
 				if (embedMsg) {
-					embedMsg.delete();
+					embedMsg.delete().catch(error => {
+						if (error.code !== 10008) {
+							console.error('Failed to delete the message:', error);
+						}
+					});
 				}
 			});
         }
@@ -1425,7 +1429,11 @@ module.exports = {
 
 				collector.on('end', () => {
 					if (embedMsg) {
-						embedMsg.delete();
+						embedMsg.delete().catch(error => {
+							if (error.code !== 10008) {
+								console.error('Failed to delete the message:', error);
+							}
+						});
 					}
 				});
 
@@ -1478,7 +1486,11 @@ module.exports = {
 
 				await interaction.followUp({ embeds: [displayEmbed] }).then(async embedMsg => setTimeout(() => {
 					embedMsg.delete();
-				}, 60000)).catch(console.error(errorForm('An error has occured while deleting message')));
+				}, 60000)).catch(error => {
+					if (error.code !== 10008) {
+						console.error('Failed to delete the message:', error);
+					}
+				});
             }
 		}
 
@@ -1594,7 +1606,11 @@ module.exports = {
 
 			collector.on('end', () => {
 				if (embedMsg) {
-					embedMsg.delete();
+					embedMsg.delete().catch(error => {
+						if (error.code !== 10008) {
+							console.error('Failed to delete the message:', error);
+						}
+					});
 				}
 			});
 		}

@@ -13,12 +13,36 @@ const { grabRar } = require('./exported/grabRar.js');
 const lootList = require('../events/Models/json_prefabs/lootList.json');
 
 module.exports = {
+    cooldown: 35,
 	data: new SlashCommandBuilder()
 		.setName('shop')
         .setDescription('Buy some new gear!'),
 
     async execute(interaction) {
-        await interaction.deferReply();
+        //if (interaction.user.id !== '501177494137995264') return interaction.reply('Nope!');
+
+        let itemsSold = 0;
+
+        let slotOneButtonSold = false;
+        let slotTwoButtonSold = false;
+        let slotThreeButtonSold = false;
+        let slotFourButtonSold = false;
+
+
+        var refreshCost = 0;
+
+        await interaction.deferReply().then(async () => {
+            const fUser = await grabU();
+            const initialCost = await checkShop(fUser, refreshCost, true);
+            if (fUser.coins > initialCost) {
+                let newCoins = fUser.coins - initialCost;
+                await payUp(newCoins, fUser).then(() => {
+                    startShop();
+                });
+            } else startShop();
+        }).catch((error) => {
+            console.error(error);
+        });
         //await wait(1000);
         //await interaction.deleteReply();
 
@@ -45,19 +69,9 @@ module.exports = {
          * 
          * */
 
-        let itemsSold = 0;
-
-        let slotOneButtonSold = false;
-        let slotTwoButtonSold = false;
-        let slotThreeButtonSold = false;
-        let slotFourButtonSold = false;
-
-
-        var refreshCost = 0;
-
-        startShop();
-
         async function startShop() {
+            var uData = await grabU();
+
             refreshCost = 0;
             itemsSold = 0;
             await loadShop();
@@ -75,7 +89,7 @@ module.exports = {
 
             console.log(basicInfoForm(`Items in shop as follows:\n${listedInOrder[0].name}\n${listedInOrder[1].name}\n${listedInOrder[2].name}\n${listedInOrder[3].name}`));
 
-            var uData = await grabU();
+            uData = await grabU();
 
             let finalFields = [];
 
@@ -434,7 +448,11 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
@@ -672,7 +690,7 @@ module.exports = {
 
         //This method checks all user values to asign and calculate the current refresh cost as well as checking day reset
         //Returns value to display for initial load of shop
-        async function checkShop(user, currentRefreshCost) {
+        async function checkShop(user, currentRefreshCost, firstLoad) {
             var valueToReturn = currentRefreshCost;
             //x is based on user level * current refreshes (resets daily) + total shop value  
             if (!user.shopresets) {
@@ -685,21 +703,25 @@ module.exports = {
 
             console.log(`firstCost: ${firstCost}`);
 
-            const newRefresh = (refreshesToday + 1);
-            await updateRefreshCount(user, newRefresh);
+            if (!firstLoad || firstLoad === false) {
+                const newRefresh = (refreshesToday + 1);
+                await updateRefreshCount(user, newRefresh);
 
-            valueToReturn += firstCost;
+                valueToReturn += firstCost;
 
-            const item1 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
-            const item2 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
-            const item3 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
-            const item4 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+                const item1 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+                const item2 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+                const item3 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+                const item4 = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
 
-            const totalShopCost = item1.value + item2.value + item3.value + item4.value;
-            console.log(`totalShopCost: ${totalShopCost}`);
+                const totalShopCost = item1.value + item2.value + item3.value + item4.value;
+                console.log(`totalShopCost: ${totalShopCost}`);
 
-            valueToReturn += totalShopCost;
-            refreshCost = valueToReturn;
+                valueToReturn += totalShopCost;
+                refreshCost = valueToReturn;
+            } else { valueToReturn += firstCost;}
+            
+
             return valueToReturn;
         }
 

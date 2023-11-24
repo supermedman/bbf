@@ -40,6 +40,7 @@
         "Value": 15,
 
         "Attack": 3,
+        "Defence": 2,
         "Type": "BLUNT",
 
         "Slot": "Offhand",
@@ -1763,6 +1764,43 @@
         "DismantleTypes": [ "gemy" ],
 
         "Loot_id": 20001,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Silver Spoon",
+        "Value": 1000000,
+
+        "Attack": 150,
+        "Type": "RAD",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "DismantleTypes": [ "metalic" ],
+
+        "Loot_id": 101,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bingle",
+        "Value": 1500000,
+        
+        "Attack": 45,
+        "Defence": 45,
+        "Type": "FIRE",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "DismantleTypes": [ "woody", "metalic" ],
+
+        "Loot_id": 102,
         "Spec_id": 0
     },
     {

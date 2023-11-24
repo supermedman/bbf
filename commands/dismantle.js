@@ -92,10 +92,10 @@ module.exports = {
         }
     },
 	async execute(interaction) { 
-        await interaction.deferReply();
         //if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction! Please try again later.');
 
         if (interaction.options.getSubcommand() === 'some') {
+            await interaction.deferReply();
             const itemName = interaction.options.getString('item');
             let theAmount = interaction.options.getInteger('amount');
             if (!theAmount) theAmount = 1;
@@ -236,12 +236,17 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
 
         if (interaction.options.getSubcommand() === 'all') {
+            await interaction.deferReply();
             const rarityUsed = interaction.options.getString('rarity');
 
             let chosenRarID;
@@ -270,7 +275,7 @@ module.exports = {
                 chosenRarID = 9;
             } else if (rarityUsed === 'forgotten') {
                 //Dont allow selling of these like this >:)
-                return interaction.followUp('Mmmm nope, no easy way out for selling these ones! Try ``/sell some`` Instead');
+                return interaction.followUp('Mmmm nope, no easy way out for selling these ones! Try ``/dismantle some`` Instead');
             } else {
                 return interaction.followUp('That was not a valid rarity, valid options are: **common**, **uncommon**, **rare**, **very rare**, **epic**, **mystic**, **?**, **??**, **???**, **????**');
             }
@@ -416,7 +421,11 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
@@ -1035,7 +1044,11 @@ module.exports = {
 
             collector.on('end', () => {
                 if (embedMsg) {
-                    embedMsg.delete();
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
                 }
             });
         }
