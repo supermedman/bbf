@@ -1,0 +1,93 @@
+[
+	{
+		"Name": "Beryl",
+		"Value": 100,
+
+		"Rarity": "Common",
+		"Rar_id": 0,
+
+		"Mat_id": 1,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Almandine",
+		"Value": 150,
+
+		"Rarity": "Uncommon",
+		"Rar_id": 1,
+
+		"Mat_id": 2,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Spodumene",
+		"Value": 250,
+
+		"Rarity": "Rare",
+		"Rar_id": 2,
+
+		"Mat_id": 3,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Zircon",
+		"Value": 450,
+
+		"Rarity": "Very Rare",
+		"Rar_id": 3,
+
+		"Mat_id": 4,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Titanite",
+		"Value": 750,
+
+		"Rarity": "Epic",
+		"Rar_id": 4,
+
+		"Mat_id": 5,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Scheelite",
+		"Value": 1000,
+
+		"Rarity": "Mystic",
+		"Rar_id": 5,
+
+		"Mat_id": 6,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Descloizite",
+		"Value": 2000,
+
+		"Rarity": "?",
+		"Rar_id": 6,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Carnotite",
+		"Value": 3000,
+
+		"Rarity": "??",
+		"Rar_id": 7,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Thorianite",
+		"Value": 80000,
+
+		"Rarity": "???",
+		"Rar_id": 8,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	}
+
+]
