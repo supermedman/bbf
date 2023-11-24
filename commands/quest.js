@@ -379,31 +379,27 @@ module.exports = {
 
                 collector.on('collect', async (collInteract) => {
                     if (collInteract.customId === 'next-page') {
-                        console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                        //if statment to check if currently on the last page
-                        if (currentPage === embedPages.length - 1) {
-                            currentPage = 0;
-                            await collInteract.deferUpdate();
+                        //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+                        await collInteract.deferUpdate().then(async () => {
+                            //if statment to check if currently on the last page
+                            if (currentPage === embedPages.length - 1) {
+                                currentPage = 0;
+                            } else currentPage += 1;
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        } else {
-                            currentPage += 1;
-                            await collInteract.deferUpdate();
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        }
+                        }).catch(error => {
+                            console.error(error);
+                        });
                     }
                     if (collInteract.customId === 'back-page') {
-                        console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-
-                        if (currentPage === 0) {
-                            currentPage = embedPages.length - 1;
-                            await collInteract.deferUpdate();
+                        //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+                        await collInteract.deferUpdate().then(async () => {
+                            if (currentPage === 0) {
+                                currentPage = embedPages.length - 1;
+                            } else currentPage -= 1;
                             await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        } else {
-                            currentPage -= 1;
-                            await collInteract.deferUpdate();
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        }
+                        }).catch(error => {
+                            console.error(error);
+                        });
                     }
                     if (collInteract.customId === 'select-quest') {
                         console.log('Quest Selected!');
