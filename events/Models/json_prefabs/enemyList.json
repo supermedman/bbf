@@ -23,53 +23,6 @@
         "SpecId": 0
     },
     {
-        "Name": "Slime",
-        "Description": "Its a slime :P",
-        "Level": 1,
-        "MinDmg": 4,
-        "MaxDmg": 6,
-        "Health": 10,
-        "Defence": 0,
-
-        "WeakTo": "Fire",
-        "Dead": false,
-        "XpMin": 20,
-        "XpMax": 25,
-
-        "DropTypes": [ "slimy" ],
-
-        "ConstKey": 13,
-
-        "PngRef": "./events/Models/json_prefabs/boss-list-png/Slime.png",
-        "Image": "attachment://Slime.png",
-
-        "SpecId": 0
-    },
-    {
-        "Name": "Rock",
-        "Description": "A rock??",
-        "Level": 1,
-        "MinDmg": 1,
-        "MaxDmg": 1,
-        "Health": 5,
-        "Defence": 5,
-
-        "WeakTo": "Blunt",
-        "Dead": false,
-        "XpMin": 30,
-        "XpMax": 35,
-
-        "DropTypes": [ "rocky" ],
-
-        "ConstKey": 14,
-        "HasUnique": true,
-
-        "PngRef": "./events/Models/json_prefabs/boss-list-png/Rock.png",
-        "Image": "attachment://Rock.png",
-
-        "SpecId": 0
-    },
-    {
         "Name": "Witch",
         "Description": "moley moley moley mole..",
 
@@ -89,24 +42,9 @@
         "ConstKey": 2,
         "HasUnique": true,
 
-        "SpecId": 0
-    },
-    {
-        "Name": "Mornbody",
-        "Description": "An entity embodying grief",
-        "Level": 2,
-        "MinDmg": 5,
-        "MaxDmg": 12,
-        "Health": 30,
-        "Defence": 3,
-        "WeakTo": "Fire",
-        "Dead": false,
-        "XpMin": 20,
-        "XpMax": 25,
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Witch.png",
+        "Image": "attachment://Witch.png",
 
-        "DropTypes": [ "fleshy", "silky" ],
-
-        "ConstKey": 17,
         "SpecId": 0
     },
     {
@@ -178,28 +116,6 @@
         "SpecId": 0
     },
     {
-        "Name": "Ghost",
-        "Description": "Woah! Spoopy..",
-        "Level": 4,
-        "MinDmg": 12,
-        "MaxDmg": 23,
-        "Health": 40,
-        "Defence": 2,
-        "WeakTo": "Fire",
-        "Dead": false,
-        "XpMin": 30,
-        "XpMax": 35,
-
-        "DropTypes": [ "magical" ],
-
-        "ConstKey": 15,
-
-        "PngRef": "./events/Models/json_prefabs/boss-list-png/Ghost.png",
-        "Image": "attachment://Ghost.png",
-
-        "SpecId": 0
-    },
-    {
         "Name": "Steamfreak",
         "Description": "One who can harrness the shroud.",
 
@@ -217,24 +133,6 @@
         "DropTypes": [ "magical" ],
 
         "ConstKey": 6,
-        "SpecId": 0
-    },
-    {
-        "Name": "The Calm Man",
-        "Description": "A strangly calm man stands before you..",
-        "Level": 5,
-        "MinDmg": 13,
-        "MaxDmg": 26,
-        "Health": 30,
-        "Defence": 6,
-        "WeakTo": "Fire",
-        "Dead": false,
-        "XpMin": 35,
-        "XpMax": 50,
-
-        "DropTypes": [ "fleshy", "silky" ],
-
-        "ConstKey": 17,
         "SpecId": 0
     },
     {
@@ -358,21 +256,73 @@
         "SpecId": 0
     },
     {
-        "Name": "The Fiery Bane Bee",
-        "Description": "Ayo what da bee doin?",
-        "Level": 8,
-        "MinDmg": 30,
-        "MaxDmg": 65,
-        "Health": 120,
-        "Defence": 2,
-        "WeakTo": "Frost",
+        "Name": "Slime",
+        "Description": "Its a slime :P",
+        "Level": 1,
+        "MinDmg": 4,
+        "MaxDmg": 6,
+        "Health": 10,
+        "Defence": 0,
+
+        "WeakTo": "Fire",
         "Dead": false,
-        "XpMin": 80,
-        "XpMax": 90,
+        "XpMin": 20,
+        "XpMax": 25,
 
-        "DropTypes": [ "fleshy", "magical" ],
+        "DropTypes": [ "slimy" ],
 
-        "ConstKey": 19,
+        "ConstKey": 13,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Slime.png",
+        "Image": "attachment://Slime.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Rock",
+        "Description": "A rock??",
+        "Level": 1,
+        "MinDmg": 1,
+        "MaxDmg": 1,
+        "Health": 5,
+        "Defence": 5,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 30,
+        "XpMax": 35,
+
+        "DropTypes": [ "rocky" ],
+        "UniqueType": "Blunt",
+
+        "ConstKey": 14,
+        "HasUnique": true,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Rock.png",
+        "Image": "attachment://Rock.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "Ghost",
+        "Description": "Woah! Spoopy..",
+        "Level": 4,
+        "MinDmg": 12,
+        "MaxDmg": 23,
+        "Health": 40,
+        "Defence": 2,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 30,
+        "XpMax": 35,
+
+        "DropTypes": [ "magical" ],
+
+        "ConstKey": 15,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Ghost.png",
+        "Image": "attachment://Ghost.png",
+
         "SpecId": 0
     },
     {
@@ -391,6 +341,66 @@
         "DropTypes": [ "fleshy", "silky" ],
 
         "ConstKey": 16,
+        "SpecId": 0
+    },
+    {
+        "Name": "Mornbody",
+        "Description": "An entity embodying grief",
+        "Level": 2,
+        "MinDmg": 5,
+        "MaxDmg": 12,
+        "Health": 30,
+        "Defence": 3,
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 20,
+        "XpMax": 25,
+
+        "DropTypes": [ "fleshy", "silky" ],
+
+        "ConstKey": 17,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Mornbody.png",
+        "Image": "attachment://Mornbody.png",
+
+        "SpecId": 0
+    },
+    {
+        "Name": "The Calm Man",
+        "Description": "A strangly calm man stands before you..",
+
+        "Level": 5,
+        "MinDmg": 13,
+        "MaxDmg": 26,
+        "Health": 30,
+        "Defence": 6,
+
+        "WeakTo": "Fire",
+        "Dead": false,
+        "XpMin": 35,
+        "XpMax": 50,
+
+        "DropTypes": [ "fleshy", "silky" ],
+
+        "ConstKey": 18,
+        "SpecId": 0
+    },
+    {
+        "Name": "The Fiery Bane Bee",
+        "Description": "Ayo what da bee doin?",
+        "Level": 8,
+        "MinDmg": 30,
+        "MaxDmg": 65,
+        "Health": 120,
+        "Defence": 2,
+        "WeakTo": "Frost",
+        "Dead": false,
+        "XpMin": 80,
+        "XpMax": 90,
+
+        "DropTypes": [ "fleshy", "magical" ],
+
+        "ConstKey": 19,
         "SpecId": 0
     },
     {
@@ -2953,10 +2963,822 @@
         "XpMin": 4500,
         "XpMax": 5500,
 
-        "DropTypes": [ "magical", "gemy" ],
+        "DropTypes": [ "fleshy", "skinny" ],
 
         "ConstKey": 142,
         "SpecId": 0
+    },
+    {
+        "Name": "Corpse Eater",
+        "Description": "Enslaved for the purpose of recylcing corpse monsters, in service of Ados",
+
+        "Level": 50,
+        "MinDmg": 140,
+        "MaxDmg": 180,
+        "Health": 8000,
+        "Defence": 40,
+
+        "WeakTo": "Spirit",
+        "Dead": false,
+        "XpMin": 5000,
+        "XpMax": 6400,
+
+        "DropTypes": [ "magical", "metalic" ],
+
+        "ConstKey": 143,
+        "SpecId": 0
+    },
+    {
+        "AvgDmg": 36.5,
+        "ConstKey": 144,
+        "Defence": 31,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 2158,
+        "Level": 20,
+        "Name": "Dark Night, Telomeres",
+        "NewSpawn": true,
+        "WeakTo": "Frost"
+    },
+    {
+        "AvgDmg": 36.5,
+        "ConstKey": 145,
+        "Defence": 34,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic", "gemy", "slimy" ],
+        "Health": 2158,
+        "Level": 20,
+        "Name": "The Apparition",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 36.5,
+        "ConstKey": 146,
+        "Defence": 35,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "woody" ],
+        "Health": 2158,
+        "Level": 20,
+        "Name": "Lone Specter",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 38.5,
+        "ConstKey": 147,
+        "Defence": 33,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "woody", "tooly", "herby" ],
+        "Health": 2391,
+        "Level": 21,
+        "Name": "Blackbirch",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 38.5,
+        "ConstKey": 148,
+        "Defence": 35,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "woody", "tooly", "herby" ],
+        "Health": 2391,
+        "Level": 21,
+        "Name": "Burnedoak",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 44,
+        "ConstKey": 149,
+        "Defence": 30,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "woody" ],
+        "Health": 3165,
+        "Level": 24,
+        "Name": "Ancient Redwood",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 40,
+        "ConstKey": 150,
+        "Defence": 31,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "rocky", "slimy" ],
+        "Health": 2637,
+        "Level": 22,
+        "Name": "Marrowblight",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 40,
+        "ConstKey": 151,
+        "Defence": 33,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky", "rocky" ],
+        "Health": 2637,
+        "Level": 22,
+        "Name": "Swolbinkia, The Grim Moon Snake",
+        "NewSpawn": true,
+        "WeakTo": "Slash"
+    },
+    {
+        "AvgDmg": 40,
+        "ConstKey": 152,
+        "Defence": 27,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "skinny" ],
+        "Health": 2637,
+        "Level": 22,
+        "Name": "The Lone Demon",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 82,
+        "ConstKey": 153,
+        "Defence": 97,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "fleshy" ],
+        "Health": 12098,
+        "Level": 45,
+        "Name": "Usinira, The Forsaken Body",
+        "NewSpawn": true,
+        "WeakTo": "Frost"
+    },
+    {
+        "Name": "Yutlid",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 60,
+        "MinDmg": 100,
+        "MaxDmg": 109,
+        "Health": 21236,
+        "Defence": 104,
+
+        "WeakTo": "Rad",
+        "Dead": false,
+        "XpMin": 21236,
+        "XpMax": 42472,
+
+        "DropTypes": [ "tooly", "gemy" ],
+
+        "ConstKey": 154,
+        "SpecId": 0
+    },
+    {
+        "AvgDmg": 56.5,
+        "ConstKey": 155,
+        "Defence": 50,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "gemy", "slimy" ],
+        "Health": 5711,
+        "Level": 31,
+        "Name": "Yutlid Dawnspawn",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 62,
+        "ConstKey": 156,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 6892,
+        "Level": 34,
+        "Name": "Yutlid Doomhound",
+        "NewSpawn": true,
+        "WeakTo": "Frost"
+    },
+    {
+        "AvgDmg": 73,
+        "ConstKey": 157,
+        "Defence": 102,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "skinny", "slimy" ],
+        "Health": 9565,
+        "Level": 40,
+        "Name": "Yutlid Deathtooth",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 136.5,
+        "ConstKey": 158,
+        "Defence": 105,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky", "skinny", "herby" ],
+        "Health": 32397,
+        "Level": 75,
+        "Name": "Yutlid Phase'elder",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 42,
+        "ConstKey": 159,
+        "Defence": 33,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 2895,
+        "Level": 23,
+        "Name": "Dawn-curse",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 47.5,
+        "ConstKey": 160,
+        "Defence": 61,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 3745,
+        "Level": 26,
+        "Name": "The Apparition",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 49,
+        "ConstKey": 161,
+        "Defence": 61,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "woody" ],
+        "Health": 4054,
+        "Level": 27,
+        "Name": "Umbrathing",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 51,
+        "ConstKey": 162,
+        "Defence": 57,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby" ],
+        "Health": 4376,
+        "Level": 28,
+        "Name": "Glowvine",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 51,
+        "ConstKey": 163,
+        "Defence": 62,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "gemy" ],
+        "Health": 4376,
+        "Level": 28,
+        "Name": "Putrid Wraith",
+        "NewSpawn": true,
+        "WeakTo": "NULL"
+    },
+    {
+        "AvgDmg": 53,
+        "ConstKey": 164,
+        "Defence": 58,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky", "gemy" ],
+        "Health": 4710,
+        "Level": 29,
+        "Name": "Agile Jester Rat",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 53,
+        "ConstKey": 165,
+        "Defence": 56,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy", "rocky" ],
+        "Health": 4710,
+        "Level": 29,
+        "Name": "Tanglebrute",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 53,
+        "ConstKey": 166,
+        "Defence": 60,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "rocky", "slimy" ],
+        "Health": 4710,
+        "Level": 29,
+        "Name": "Insidious Gnoll, Barebirch",
+        "NewSpawn": true,
+        "WeakTo": "Frost"
+    },
+    {
+        "AvgDmg": 54.5,
+        "ConstKey": 167,
+        "Defence": 54,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 5058,
+        "Level": 30,
+        "Name": "Fangrobber",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 54.5,
+        "ConstKey": 168,
+        "Defence": 56,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 5058,
+        "Level": 30,
+        "Name": "Riq, Goobone",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 54.5,
+        "ConstKey": 169,
+        "Defence": 59,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "gemy", "silky" ],
+        "Health": 5058,
+        "Level": 30,
+        "Name": "Ruq, Goobone",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 54.5,
+        "ConstKey": 170,
+        "Defence": 61,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical" ],
+        "Health": 5058,
+        "Level": 30,
+        "Name": "Ruz, Goobone",
+        "NewSpawn": true,
+        "WeakTo": "Spirit"
+    },
+    {
+        "AvgDmg": 56.5,
+        "ConstKey": 171,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "fleshy", "metalic" ],
+        "Health": 5711,
+        "Level": 31,
+        "Name": "Dolphipus",
+        "NewSpawn": true,
+        "WeakTo": "Fire"
+    },
+    {
+        "AvgDmg": 58.5,
+        "ConstKey": 172,
+        "Defence": 102,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "gemy", "metalic" ],
+        "Health": 6093,
+        "Level": 32,
+        "Name": "Nervous Daggerfish",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 58.5,
+        "ConstKey": 173,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "gemy" ],
+        "Health": 6093,
+        "Level": 32,
+        "Name": "Wesix",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 58.5,
+        "ConstKey": 174,
+        "Defence": 97,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky" ],
+        "Health": 6093,
+        "Level": 32,
+        "Name": "Voxon",
+        "NewSpawn": true,
+        "WeakTo": "Spirit"
+    },
+    {
+        "AvgDmg": 60,
+        "ConstKey": 175,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "woody" ],
+        "Health": 6487,
+        "Level": 33,
+        "Name": "Essence Expunger",
+        "NewSpawn": true,
+        "WeakTo": "Spirit"
+    },
+    {
+        "AvgDmg": 60,
+        "ConstKey": 176,
+        "Defence": 100,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic", "rocky" ],
+        "Health": 6487,
+        "Level": 33,
+        "Name": "Grazer of Souls",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 60,
+        "ConstKey": 177,
+        "Defence": 98,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky" ],
+        "Health": 6487,
+        "Level": 33,
+        "Name": "Grazer of History",
+        "NewSpawn": true,
+        "WeakTo": "Fire"
+    },
+    {
+        "AvgDmg": 62,
+        "ConstKey": 178,
+        "Defence": 103,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky", "skinny" ],
+        "Health": 6892,
+        "Level": 34,
+        "Name": "Common Humming Nightpest",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 62,
+        "ConstKey": 179,
+        "Defence": 106,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic", "rocky", "herby" ],
+        "Health": 6892,
+        "Level": 34,
+        "Name": "Butcher Spider",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 64,
+        "ConstKey": 180,
+        "Defence": 99,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy", "woody" ],
+        "Health": 7309,
+        "Level": 35,
+        "Name": "Birchblade, Nightcoat",
+        "NewSpawn": true,
+        "WeakTo": "Spirit"
+    },
+    {
+        "AvgDmg": 64,
+        "ConstKey": 181,
+        "Defence": 105,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy", "rocky", "tooly" ],
+        "Health": 7309,
+        "Level": 35,
+        "Name": "Birchblade, Flamecoat",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 64,
+        "ConstKey": 182,
+        "Defence": 103,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy", "gemy", "magical" ],
+        "Health": 7309,
+        "Level": 35,
+        "Name": "Ambirosi, Drainer of Perversion",
+        "NewSpawn": true,
+        "WeakTo": "Spirit"
+    },
+    {
+        "AvgDmg": 65.5,
+        "ConstKey": 183,
+        "Defence": 106,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "fleshy" ],
+        "Health": 7737,
+        "Level": 36,
+        "Name": "Flustered Banshee",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 65.5,
+        "ConstKey": 184,
+        "Defence": 104,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "rocky" ],
+        "Health": 7737,
+        "Level": 36,
+        "Name": "Stormcloud Disperser",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 65.5,
+        "ConstKey": 185,
+        "Defence": 102,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy", "fleshy", "metalic" ],
+        "Health": 7737,
+        "Level": 36,
+        "Name": "Titanic Issia",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 67.5,
+        "ConstKey": 186,
+        "Defence": 102,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "woody" ],
+        "Health": 8177,
+        "Level": 37,
+        "Name": "Evanescent Dawnchild",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 67.5,
+        "ConstKey": 187,
+        "Defence": 105,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly" ],
+        "Health": 8177,
+        "Level": 37,
+        "Name": "Rot Jackal",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 67.5,
+        "ConstKey": 188,
+        "Defence": 98,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "fleshy", "slimy" ],
+        "Health": 8177,
+        "Level": 37,
+        "Name": "Anemos",
+        "NewSpawn": true,
+        "WeakTo": "NULL"
+    },
+    {
+        "AvgDmg": 67.5,
+        "ConstKey": 189,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "gemy" ],
+        "Health": 8177,
+        "Level": 37,
+        "Name": "Cateli, The Grievous",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 69,
+        "ConstKey": 190,
+        "Defence": 99,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic" ],
+        "Health": 8628,
+        "Level": 38,
+        "Name": "Spitesword",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 69,
+        "ConstKey": 191,
+        "Defence": 98,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "fleshy", "silky" ],
+        "Health": 8628,
+        "Level": 38,
+        "Name": "Grotesque Guardian",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 71,
+        "ConstKey": 192,
+        "Defence": 104,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly", "gemy" ],
+        "Health": 9091,
+        "Level": 39,
+        "Name": "Shadowbeard, Yutlid",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 71,
+        "ConstKey": 193,
+        "Defence": 99,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "magical", "fleshy" ],
+        "Health": 9091,
+        "Level": 39,
+        "Name": "Frothclaw",
+        "NewSpawn": true,
+        "WeakTo": "Light"
+    },
+    {
+        "AvgDmg": 73,
+        "ConstKey": 194,
+        "Defence": 97,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "tooly" ],
+        "Health": 9565,
+        "Level": 40,
+        "Name": "Yutlid Bloodface",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "AvgDmg": 73,
+        "ConstKey": 195,
+        "Defence": 100,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy", "fleshy" ],
+        "Health": 9565,
+        "Level": 40,
+        "Name": "Crimson Razorback",
+        "NewSpawn": true,
+        "WeakTo": "Rad"
+    },
+    {
+        "AvgDmg": 73,
+        "ConstKey": 196,
+        "Defence": 100,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby" ],
+        "Health": 9565,
+        "Level": 40,
+        "Name": "Quiet Vine",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 154.5,
+        "ConstKey": 197,
+        "Defence": 98,
+        "Description": "A tree like formation of magically infused rocklike byproduct, caused by the Yutlid's",
+        "DropTypes": [ "magical", "rocky" ],
+        "Health": 40779,
+        "Level": 85,
+        "Name": "Slagtree",
+        "NewSpawn": true,
+        "WeakTo": "Magic"
+    },
+    {
+        "Name": "Yessilese",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 75,
+        "MinDmg": 125,
+        "MaxDmg": 145,
+        "Health": 32397,
+        "Defence": 104,
+
+        "WeakTo": "Blunt",
+        "Dead": false,
+        "XpMin": 32397,
+        "XpMax": 64794,
+
+        "DropTypes": [ "tooly", "fleshy" ],
+
+        "ConstKey": 198,
+        "SpecId": 0
+    },
+    {
+        "AvgDmg": 82,
+        "ConstKey": 199,
+        "Defence": 102,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky" ],
+        "Health": 12098,
+        "Level": 45,
+        "Name": "Yessilese Duskspawn",
+        "NewSpawn": true,
+        "WeakTo": "Spirit"
+    },
+    {
+        "AvgDmg": 136.5,
+        "ConstKey": 200,
+        "Defence": 100,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic", "gemy" ],
+        "Health": 32397,
+        "Level": 75,
+        "Name": "Yessilese Stormkeeper",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 136.5,
+        "ConstKey": 201,
+        "Defence": 99,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "herby", "rocky", "silky" ],
+        "Health": 32397,
+        "Level": 75,
+        "Name": "Ironash Yessilese",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "Name": "Bucoth, of the Yessilese",
+        "Description": "Not enough is yet known about this creature!",
+
+        "Level": 90,
+        "MinDmg": 350,
+        "MaxDmg": 360,
+        "Health": 45210,
+        "Defence": 98,
+
+        "WeakTo": "Light",
+        "Dead": false,
+        "XpMin": 45210,
+        "XpMax": 90420,
+
+        "DropTypes": [ "tooly" ],
+
+        "ConstKey": 202,
+        "SpecId": 0
+    },
+    {
+        "AvgDmg": 76.5,
+        "ConstKey": 203,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "metalic", "gemy", "magical" ],
+        "Health": 10546,
+        "Level": 42,
+        "Name": "The Answer",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 76.5,
+        "ConstKey": 204,
+        "Defence": 105,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "slimy" ],
+        "Health": 10546,
+        "Level": 42,
+        "Name": "Collector of Slime",
+        "NewSpawn": true,
+        "WeakTo": "Blunt"
+    },
+    {
+        "AvgDmg": 76.5,
+        "ConstKey": 205,
+        "Defence": 101,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "rocky" ],
+        "Health": 10546,
+        "Level": 42,
+        "Name": "Collector of Stone",
+        "NewSpawn": true,
+        "WeakTo": "NULL"
+    },
+    {
+        "AvgDmg": 76.5,
+        "ConstKey": 206,
+        "Defence": 98,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky", "fleshy", "slimy" ],
+        "Health": 10546,
+        "Level": 42,
+        "Name": "REALLY Big Meat Ball",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
+    },
+    {
+        "AvgDmg": 78.5,
+        "ConstKey": 207,
+        "Defence": 106,
+        "Description": "Not enough is yet known about this creature!",
+        "DropTypes": [ "silky", "woody", "herby" ],
+        "Health": 11052,
+        "Level": 43,
+        "Name": "Tortured Poplargrove",
+        "NewSpawn": true,
+        "WeakTo": "Dark"
     },
     {
         "Name": "COPY",
