@@ -17,6 +17,7 @@ const { UserData, ActiveEnemy, LootStore, Pigmy, Loadout, ActiveStatus, OwnedPot
 const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
 const { isLvlUp, isUniqueLevelUp } = require('./exported/levelup.js');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
+const { handleNewSpawn } = require('./exported/handleEnemySpawn.js');
 const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
 const { grabMat } = require('./exported/materialDropper.js');
@@ -84,18 +85,26 @@ module.exports = {
                 const rEP = Math.floor(Math.random() * (ePool.length - 1));
                 const cEnemy = ePool[rEP];
 
-                if (cEnemy.PngRef) {
-                    hasPng = true;
-                    pFile = cEnemy.Image;
-                    pRef = cEnemy.PngRef;
+                if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
+                    constKey = cEnemy.ConstKey;
+                    specCode = userID + cEnemy.ConstKey;
+                    stealDisabled = false;
+                    isHidden = false;
+                    await addEnemy(cEnemy, specCode);
+                    display();
+                } else {
+                    constKey = cEnemy.ConstKey;
+                    specCode = userID + cEnemy.ConstKey;
+                    stealDisabled = false;
+                    isHidden = false;
+                    try {
+                        await handleNewSpawn(cEnemy, user).then(() => {
+                            display();
+                        });
+                    } catch (error) {
+                        console.log(error);
+                    }
                 }
-
-                constKey = cEnemy.ConstKey;
-                specCode = userID + cEnemy.ConstKey;
-                stealDisabled = false;
-                isHidden = false;
-                await addEnemy(cEnemy, specCode);
-                display();
             }
         }
 
@@ -1373,8 +1382,7 @@ module.exports = {
                     hands: theItem.Hands,
                     amount: 1
                 });
-            }
-            if (theItem.Slot === 'Offhand') {
+            } else if (theItem.Slot === 'Offhand') {
                 await LootStore.create({
                     name: theItem.Name,
                     value: theItem.Value,
@@ -1406,6 +1414,7 @@ module.exports = {
                     amount: 1
                 });
             }
+            
 
             const itemAdded = await LootStore.findOne({
                 where: { spec_id: userID, loot_id: theItem.loot_id },
@@ -1507,8 +1516,7 @@ module.exports = {
                     hands: theItem.Hands,
                     amount: 1
                 });
-            }
-            if (theItem.Slot === 'Offhand') {
+            } else if (theItem.Slot === 'Offhand') {
                 addedItem = await LootStore.create({
                     name: theItem.Name,
                     value: theItem.Value,
@@ -1540,6 +1548,7 @@ module.exports = {
                     amount: 1
                 });
             }
+            
 
             if (addedItem) {
                 const itemAdded = await LootStore.findOne({
