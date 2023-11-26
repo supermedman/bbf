@@ -10,6 +10,7 @@ const {
 
 const { ActiveEnemy, Pigmy } = require('../../dbObjects.js');
 const { initialDisplay } = require('./combatDisplay.js');
+const { handleNewSpawn } = require('./handleEnemySpawn.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
 /**
@@ -36,8 +37,19 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
 
         const cEnemy = ePool[0];
 
-        const specCode = uData.userid + cEnemy.ConstKey;
-        const theEnemy = await addEnemy(cEnemy, specCode, user);
+        let specCode = uData.userid + cEnemy.ConstKey;
+        let theEnemy;
+        if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
+            theEnemy = await addEnemy(cEnemy, specCode, user);
+        } else {
+            try {
+                theEnemy = await handleNewSpawn(cEnemy, user);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        
         if (uData.userid === '501177494137995264') {
             await initialDisplay(uData, specCode, interaction, theEnemy);
         } else {
@@ -111,19 +123,21 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
             console.log('ENEMY GRABBED SHOWN WITH ConstKey: ', ePool[rEP].ConstKey);
 
             const cEnemy = ePool[rEP];
-            //let hasPng = false;
-            console.log(cEnemy);
 
-            if (cEnemy.PngRef) {
-                hasPng = true;
-                pFile = cEnemy.Image;
-                pRef = cEnemy.PngRef;
+            if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
+                const specCode = uData.userid + cEnemy.ConstKey;
+                await addEnemy(cEnemy, specCode, user).then((theEnemy) => {
+                    initialDisplay(uData, specCode, interaction, theEnemy);
+                });
+            } else {
+                try {
+                    await handleNewSpawn(cEnemy, user).then((theEnemy) => {
+                        initialDisplay(uData, specCode, interaction, theEnemy);
+                    });
+                } catch (error) {
+                    console.log(error);
+                }               
             }
-
-            //constKey = cEnemy.ConstKey;
-            const specCode = uData.userid + cEnemy.ConstKey;
-            const theEnemy = await addEnemy(cEnemy, specCode, user);
-            await initialDisplay(uData, specCode, interaction, theEnemy);
         }
     }
     
