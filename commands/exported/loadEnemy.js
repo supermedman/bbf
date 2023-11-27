@@ -43,7 +43,10 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
             theEnemy = await addEnemy(cEnemy, specCode, user);
         } else {
             try {
-                theEnemy = await handleNewSpawn(cEnemy, user);
+                if (uData.userid === '501177494137995264') {
+                    theEnemy = await handleNewSpawn(cEnemy, user);
+                    initialDisplay(uData, specCode, interaction, theEnemy);
+                }
             } catch (error) {
                 console.log(error);
             }
@@ -130,8 +133,10 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
                     initialDisplay(uData, specCode, interaction, theEnemy);
                 });
             } else {
+                const specCode = uData.userid + cEnemy.ConstKey;
                 try {
                     await handleNewSpawn(cEnemy, user).then((theEnemy) => {
+                        console.log(`theEnemy is:${theEnemy}`);
                         initialDisplay(uData, specCode, interaction, theEnemy);
                     });
                 } catch (error) {
