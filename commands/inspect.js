@@ -80,11 +80,11 @@ module.exports = {
                 let headName;
                 if (headUnique === true) {
                     killList = `Total Kills: **${headSlotItem.totalkills}** \nKills this level: **${headSlotItem.killsthislevel}**`;
-                    list = (`\nValue: **${headSlotItem.value}** \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}** \nLevel: **${headSlotItem.currentlevel}** \n${killList}`);
+                    list = (`\nValue: **${headSlotItem.value}**c \nRarity: **${headSlotItem.rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.slot}** \nLevel: **${headSlotItem.currentlevel}** \n${killList}`);
                     headSlotColour = await grabColour(headSlotItem.rar_id);
                     headName = `**${headSlotItem.name}**`;
                 } else {
-                    list = (`\nValue: **${headSlotItem.Value}** \nRarity: **${headSlotItem.Rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.Slot}**`);
+                    list = (`\nValue: **${headSlotItem.Value}**c \nRarity: **${headSlotItem.Rarity}** \nDefence: **${headSlotItem.Defence}** \nType: **${headSlotItem.Type}** \nSlot: **${headSlotItem.Slot}**`);
                     headSlotColour = await grabColour(headSlotItem.Rar_id);
                     headName = `**${headSlotItem.Name}**`;
                 }
@@ -113,11 +113,11 @@ module.exports = {
                 let chestName;
                 if (chestUnique === true) {
                     killList = `Total Kills: **${chestSlotItem.totalkills}** \nKills this level: **${chestSlotItem.killsthislevel}**`;
-                    list = (`\nValue: **${chestSlotItem.value}** \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}** \nLevel: **${chestSlotItem.currentlevel}** \n${killList}`);
+                    list = (`\nValue: **${chestSlotItem.value}**c \nRarity: **${chestSlotItem.rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.slot}** \nLevel: **${chestSlotItem.currentlevel}** \n${killList}`);
                     chestSlotColour = await grabColour(chestSlotItem.rar_id);
                     chestName = `**${chestSlotItem.name}**`;
                 } else {
-                    list = (`\nValue: **${chestSlotItem.Value}** \nRarity: **${chestSlotItem.Rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.Slot}**`);
+                    list = (`\nValue: **${chestSlotItem.Value}**c \nRarity: **${chestSlotItem.Rarity}** \nDefence: **${chestSlotItem.Defence}** \nType: **${chestSlotItem.Type}** \nSlot: **${chestSlotItem.Slot}**`);
                     chestSlotColour = await grabColour(chestSlotItem.Rar_id);
                     chestName = `**${chestSlotItem.Name}**`;
                 }
@@ -147,11 +147,11 @@ module.exports = {
                 let legsName;
                 if (legsUnique === true) {
                     killList = `Total Kills: **${legSlotItem.totalkills}** \nKills this level: **${legSlotItem.killsthislevel}**`;
-                    list = (`\nValue: **${legSlotItem.value}** \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}** \nLevel: **${legSlotItem.currentlevel}** \n${killList}`);
+                    list = (`\nValue: **${legSlotItem.value}**c \nRarity: **${legSlotItem.rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.slot}** \nLevel: **${legSlotItem.currentlevel}** \n${killList}`);
                     legSlotColour = await grabColour(legSlotItem.rar_id);
                     legsName = `**${legSlotItem.name}**`;
                 } else {
-                    list = (`\nValue: **${legSlotItem.Value}** \nRarity: **${legSlotItem.Rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.Slot}**`);
+                    list = (`\nValue: **${legSlotItem.Value}**c \nRarity: **${legSlotItem.Rarity}** \nDefence: **${legSlotItem.Defence}** \nType: **${legSlotItem.Type}** \nSlot: **${legSlotItem.Slot}**`);
                     legSlotColour = await grabColour(legSlotItem.Rar_id);
                     legsName = `**${legSlotItem.Name}**`;
                 }
