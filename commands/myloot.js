@@ -57,12 +57,15 @@ module.exports = {
                 let listedDefaults;
                 let grabbedName;
                 let fieldValueObj;
-                let finalFields;
+                let finalFields = [];
 
                 let gearSlice;
                 let i = 0;
                 do {
                     gearSlice = userItems[i];
+
+                    //console.log(gearSlice);
+
                     if (gearSlice) {
                         //name, value, rarity, amount
                         if (gearSlice.slot === 'Mainhand') {
@@ -70,7 +73,7 @@ module.exports = {
                                 `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nHands: **${gearSlice.hands}**\nAmount: ${gearSlice.amount}\n`;
                         } else if (gearSlice.slot === 'Offhand') {
                             listedDefaults =
-                                `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
+                                `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nAttack: **${gearSlice.attack}** \nDefence: **${gearSlice.defence}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
                         } else {
                             listedDefaults =
                                 `Value: **${gearSlice.value}c** \nRarity: **${gearSlice.rarity}** \nDefence: **${gearSlice.defence}** \nType: **${gearSlice.type}**\nSlot: **${gearSlice.slot}**\nAmount: ${gearSlice.amount}\n`;
@@ -244,30 +247,36 @@ module.exports = {
                 collector.on('collect', async (collInteract) => {
                     if (collInteract.customId === 'next-page') {
                         //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-                        await collInteract.deferUpdate();
+                        await collInteract.deferUpdate().then(async () => {
                         //if statment to check if currently on the last page
-                        if (currentPage === embedPages.length - 1) {
-                            currentPage = 0;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            //await wait(1000);
-                        } else {
-                            currentPage += 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            //await wait(1000);
-                        }
+                            if (currentPage === embedPages.length - 1) {
+                                currentPage = 0;
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                //await wait(1000);
+                            } else {
+                                currentPage += 1;
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                //await wait(1000);
+                                }
+                        }).catch(error => {
+                            console.log(errorForm(error));
+                        });
                     }
                     if (collInteract.customId === 'back-page') {
                         //console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
-                        await collInteract.deferUpdate();
-                        if (currentPage === 0) {
-                            currentPage = embedPages.length - 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            //await wait(1000);
-                        } else {
-                            currentPage -= 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                            //await wait(1000);
-                        }
+                        await collInteract.deferUpdate().then(async () => {
+                            if (currentPage === 0) {
+                                currentPage = embedPages.length - 1;
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                //await wait(1000);
+                            } else {
+                                currentPage -= 1;
+                                await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                //await wait(1000);
+                            }
+                        }).catch(error => {
+                            console.log(errorForm(error));
+                        });
                     }
                     if (collInteract.customId === 'delete-page') {
                         await collInteract.deferUpdate();
