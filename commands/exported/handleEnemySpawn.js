@@ -10,6 +10,7 @@ const {
 const { ActiveEnemy, Pigmy } = require('../../dbObjects.js');
 
 async function handleNewSpawn(cEnemy, user) {
+    const startTime = new Date().getTime();
     const specCode = user.userid + cEnemy.ConstKey;
     try {
         var copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: cEnemy.ConstKey }] });
@@ -42,7 +43,7 @@ async function handleNewSpawn(cEnemy, user) {
 
         if (lootChance >= chanceToBeat) HI = true;
 
-        const lvl = user.level;
+        const lvl = cEnemy.Level;
         let nxtLvl;
         if (lvl < 20) {
             nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
@@ -57,7 +58,7 @@ async function handleNewSpawn(cEnemy, user) {
         let XpMin = XpMax - Math.floor(XpMax / 5.2);
 
         const avgDmgRef = cEnemy.AvgDmg;
-        let DmgMax = Math.floor(avgDmgRef * 3.5);
+        let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02*Math.floor(lvl/6)));
         let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
 
         const calcValueObj = {
@@ -67,8 +68,9 @@ async function handleNewSpawn(cEnemy, user) {
             minXp: XpMin,
         };
 
+        let proccessFinished = false;
+        let newE;
         const createEEntry = async (eFab, calcObj, HI, hasUI, isDead, specCode) => {
-            let newE;
             await ActiveEnemy.create({
                 name: eFab.Name,
                 description: eFab.Description,
@@ -92,15 +94,23 @@ async function handleNewSpawn(cEnemy, user) {
                 dead: isDead,
             }).then(async () => {
                 newE = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: eFab.ConstKey }] });
-                if (newE) return newE;
+                console.log('newE has:', newE);
+                return;
             });
         }
 
         let isDead = false;
 
-        const enemy = await createEEntry(cEnemy, calcValueObj, HI, hasUI, isDead, specCode);
+        await createEEntry(cEnemy, calcValueObj, HI, hasUI, isDead, specCode).then(() => {
+            const endTime = new Date().getTime();
+            console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
+            console.log('enemy has:', newE);
+            proccessFinished = true;
+            return proccessFinished;
+        });
 
-        return enemy;
+        if (proccessFinished === true) return newE;
+        
     } catch (error) {
         console.error('Error in handleNewSpawn:', error);
     }

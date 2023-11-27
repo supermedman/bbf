@@ -110,7 +110,7 @@ module.exports = {
                     breakPoint++;
                 } else if (item.slot === 'Offhand') {
                     listedName = `Name: ${item.name}`;
-                    listedVal = `Value: **${item.value}c** \nRarity: **${item.rarity}** \nAttack: **${item.attack}** \nType: **${item.type}**\nSlot: **${item.slot}**\n\n`;
+                    listedVal = `Value: **${item.value}c** \nRarity: **${item.rarity}** \nDefence: **${item.defence}** \nAttack: **${item.attack}** \nType: **${item.type}**\nSlot: **${item.slot}**\n\n`;
 
                     fieldValueObj = { name: listedName.toString(), value: listedVal.toString(), };
 
@@ -376,59 +376,60 @@ module.exports = {
                     } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
                 }
                 if (collInteract.customId === 'slot-four') {
-                    await collInteract.deferUpdate();
-                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
-                    if (item) {
-                        console.log(successResult('ITEM FOUND! Slot-Four'));//item was found yaaaay
+                    await collInteract.deferUpdate().then(async () => {
+                        const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 4 }] });
+                        if (item) {
+                            console.log(successResult('ITEM FOUND! Slot-Four'));//item was found yaaaay
 
-                        if (item.value > uData.coins) {
-                            console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
-                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                        } else {
-                            const result = await addItem(item);
-                            if (result === 'Success') {
-                                var coinReduced = uData.coins - item.value;
+                            if (item.value > uData.coins) {
+                                console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
+                                return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                            } else {
+                                const result = await addItem(item);
+                                if (result === 'Success') {
+                                    var coinReduced = uData.coins - item.value;
 
-                                await payUp(coinReduced, uData);
+                                    await payUp(coinReduced, uData);
 
-                                var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                                slotFourButton.setDisabled(true);
-                                refreshCost -= item.value;
-                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
+                                    slotFourButton.setDisabled(true);
+                                    refreshCost -= item.value;
+                                    refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
-                                finalFields[3] = {
-                                    name: 'SLOT FOUR', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
-                                };
+                                    finalFields[3] = {
+                                        name: 'SLOT FOUR', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
+                                    };
 
-                                finalFields[4] = {
-                                    name: `Your Coins: `, value: `${uData.coins}c`,
-                                };
+                                    finalFields[4] = {
+                                        name: `Your Coins: `, value: `${uData.coins}c`,
+                                    };
 
-                                shopEmbed = {
-                                    title: "~Bloodstone Shoppe~",
-                                    color: 0x39acf3,
-                                    description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
-                                    fields: finalFields,
-                                };
+                                    shopEmbed = {
+                                        title: "~Bloodstone Shoppe~",
+                                        color: 0x39acf3,
+                                        description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
+                                        fields: finalFields,
+                                    };
 
-                                await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+                                    await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
 
-                                itemsSold++;
+                                    itemsSold++;
 
-                                if (itemsSold === 4) {
-                                    if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    await collector.stop();
-                                    startShop();
-                                } else {
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    if (itemsSold === 4) {
+                                        if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                        await collector.stop();
+                                        startShop();
+                                    } else {
+                                        if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    }
                                 }
                             }
-                        }
 
-                    } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                        } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                    });
                 }
                 if (collInteract.customId === 'refresh') {                   
                     if (uData.coins < refreshCost) {
@@ -436,12 +437,15 @@ module.exports = {
                         return interaction.channel.send("It wouldnt be worthwhile to show you more, you lack the coin.. this aint a charity!");
                     } else {
                         //subtract the refresh cost from user coins
-                        await collInteract.deferUpdate();
-                        var cost = uData.coins - refreshCost;
-                        payUp(cost, uData);
-                        await checkShop(uData, refreshCost);
-                        await collector.stop();
-                        startShop();//run the entire script over again
+                        await collInteract.deferUpdate().then(async () => {
+                            var cost = uData.coins - refreshCost;
+                            payUp(cost, uData);
+                            await checkShop(uData, refreshCost);
+                            await collector.stop();
+                            startShop();//run the entire script over again
+                        }).catch(error => {
+                            console.log(`Error in shop:`, error);
+                        });
                     }                
                 }
             });

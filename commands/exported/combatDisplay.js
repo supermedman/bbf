@@ -206,7 +206,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                     let itemRef;
                     try {
                         itemRef = await makeItem(enemy, usedRar, pigmy);
-                    } catch (err) {
+                    } catch (error) {
                         console.log(errorForm(error));
                     }
                     await showStolen(itemRef);
@@ -404,8 +404,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 hands: theItem.Hands,
                 amount: 1
             });
-        }
-        if (theItem.Slot === 'Offhand') {
+        } else if (theItem.Slot === 'Offhand') {
             await LootStore.create({
                 name: theItem.Name,
                 value: theItem.Value,
@@ -437,6 +436,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 amount: 1
             });
         }
+       
 
         const itemAdded = await LootStore.findOne({
             where: { spec_id: userID, loot_id: theItem.Loot_id },
@@ -501,7 +501,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         if (iPool.length <= 1) {
             randPos = 0;
         } else {
-            randPos = Math.floor(Math.random() * (iPool.length));
+            randPos = Math.floor(Math.random() * (iPool.length - 1));
         }
         const theItem = iPool[randPos];
 
@@ -546,8 +546,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 hands: theItem.Hands,
                 amount: 1
             });
-        }
-        if (theItem.Slot === 'Offhand') {
+        } else if (theItem.Slot === 'Offhand') {
             addedItem = await LootStore.create({
                 name: theItem.Name,
                 value: theItem.Value,
@@ -579,6 +578,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 amount: 1
             });
         }
+        
 
         if (addedItem.name) {
             const itemAdded = await LootStore.findOne({
@@ -1278,41 +1278,41 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         await UserData.update({ totalkills: newtotalK }, { where: { userid: userID } });
         await UserData.update({ killsthislife: newCurK }, { where: { userid: userID } });
 
-        if (enemy.hasitem) {
+        if (enemy.hasitem === true) {
             let item;
             try {
                 item = await makeItem(enemy);
+
+                let listedDefaults;
+                if (item.slot === 'Mainhand') {
+                    //Item is weapon
+                    listedDefaults =
+                        `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
+                } else if (item.slot === 'Offhand') {
+                    listedDefaults =
+                        `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
+                } else {
+                    listedDefaults =
+                        `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
+                }
+
+                const dropEmbedColour = await grabColour(item.rar_id);
+
+                const itemDropEmbed = new EmbedBuilder()
+                    .setTitle('~LOOT DROPPED~')
+                    .setColor(dropEmbedColour)
+                    .addFields({
+
+                        name: (`${item.name}\n`),
+                        value: listedDefaults
+                    });
+
+                await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
+                    dropEmbed.delete();
+                }, 20000)).catch(console.error);
             } catch (error) {
                 console.log(errorForm(error));
             }
-
-            let listedDefaults;
-            if (item.slot === 'Mainhand') {
-                //Item is weapon
-                listedDefaults =
-                    `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
-            } else if (item.slot === 'Offhand') {
-                listedDefaults =
-                    `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
-            } else {
-                listedDefaults =
-                    `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
-            }
-
-            const dropEmbedColour = await grabColour(item.rar_id);
-
-            const itemDropEmbed = new EmbedBuilder()
-                .setTitle('~LOOT DROPPED~')
-                .setColor(dropEmbedColour)
-                .addFields({
-
-                    name: (`${item.name}\n`),
-                    value: listedDefaults
-                });
-
-            await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
-                dropEmbed.delete();
-            }, 20000)).catch(console.error);
         }
 
         const killedEmbed = new EmbedBuilder()

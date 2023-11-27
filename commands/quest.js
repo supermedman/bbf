@@ -512,7 +512,7 @@ module.exports = {
                         var lChance = Math.random();//rng which will decide whether loot is dropped
                         var HI = false;//set hasitem to false
 
-                        const multChance = 0.850 - (0.020 * qFound.qlevel);//Loot drop rate = 15% +2% per Quest level
+                        const multChance = 0.850 - (0.050 * qFound.qlevel);//Loot drop rate = 15% +5% per Quest level
                         //console.log('LOOT DROP CHANCE: ', multChance);
 
                         if (lChance >= multChance) {
@@ -672,15 +672,37 @@ module.exports = {
                             }                     
                         }
 
+                        let xpGained = 0;
                         //calculate xp gained and add to overall total
-                        var xpGained = Math.floor(Math.random() * (eFab.XpMax - eFab.XpMin + 1) + eFab.XpMin);
+                        if (eFab.XpMax >= 0) {
+                            xpGained = Math.floor(Math.random() * (eFab.XpMax - eFab.XpMin + 1) + eFab.XpMin);
+                        } else {                           
+                            const lvl = eFab.Level;
+                            let nxtLvl;
+                            if (lvl < 20) {
+                                nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
+                            } else if (lvl === 20) {
+                                nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
+                            } else if (lvl > 20) {
+                                const lvlScale = 1.5 * (Math.floor(lvl / 5));
+                                nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
+                            }
+
+                            let XpMax = Math.floor((nxtLvl / 25) + (0.2 * (100 - lvl)));
+                            let XpMin = XpMax - Math.floor(XpMax / 5.2);
+
+                            xpGained = Math.floor(Math.random() * (XpMax - XpMin + 1) + XpMin);
+                        } 
                         //console.log(`Before calc:`, xpGained);
                         xpGained = xpGained * 1 + ((-1) * (1.5 * hrs) ** 0.4 + 3.7);// ** is the same as Math.pow()
                         //console.log(`After calc:`, xpGained);
+
+                        xpGained -= Math.floor(xpGained / 4);
+
                         totXP += xpGained;
 
                         //calculate coins gained and add to overall total
-                        var cGained = ((xpGained - 5) + 1);
+                        var cGained = (xpGained * 2);
                         totCoin += cGained;
 
                         count++;//increase count and run through again
