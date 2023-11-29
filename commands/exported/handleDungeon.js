@@ -666,37 +666,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
     async function createEnemy(enemyPrefab, constKey) {
         const fullClear = await clearEnemies();
         console.log(specialInfoForm(`clearEnemies Result: ${fullClear}`));
-        //const dupeCheck = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: constKey}] });
-        //if (dupeCheck) {
-            //Entry exists await deletion before continuing...
-            //const delResult = await removeEnemy(constKey);
-            //if (delResult === 'Deleted') {
-            //    await ActiveDungeonEnemy.create({
-            //        name: enemyPrefab.Name,
-            //        description: enemyPrefab.Description,
-            //        level: enemyPrefab.Level,
-            //        mindmg: enemyPrefab.MinDmg,
-            //        maxdmg: enemyPrefab.MaxDmg,
-            //        health: enemyPrefab.Health,
-            //        defence: enemyPrefab.Defence,
-            //        weakto: enemyPrefab.WeakTo,
-            //        dead: false,
-            //        xpmin: enemyPrefab.XpMin,
-            //        xpmax: enemyPrefab.XpMax,
-            //        constkey: constKey,
-            //        specid: userID,
-            //    });
-
-            //    const enemyAdded = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyPrefab.ConstKey }] });
-            //    if (enemyAdded) {
-            //        console.log(successResult('ENEMY CREATED AND FOUND!'));
-            //        return 'Success';
-            //    } else return 'ERROR-NO: 1.1';
-            //} else if (delResult === 'Failure') {
-            //    console.log(errorForm('ERROR: ENEMY NOT REMOVED BEFORE LOADING'));
-            //    return 'ERROR-NO: 0.1';
-            //}
-        //} else if (!dupeCheck) {
+        if (!enemyPrefab.NewSpawn || enemyPrefab.NewSpawn === false) {
             await ActiveDungeonEnemy.create({
                 name: enemyPrefab.Name,
                 description: enemyPrefab.Description,
@@ -718,7 +688,71 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 console.log(successResult('ENEMY CREATED AND FOUND!'));
                 return 'Success';
             } else return 'ERROR-NO: 1.2';
-        //}
+        } else {
+            const startTime = new Date().getTime();
+
+            const lvl = enemyPrefab.Level;
+            let nxtLvl;
+            if (lvl < 20) {
+                nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
+            } else if (lvl === 20) {
+                nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
+            } else if (lvl > 20) {
+                const lvlScale = 1.5 * (Math.floor(lvl / 5));
+                nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
+            }
+
+            let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
+            let XpMin = XpMax - Math.floor(XpMax / 5.2);
+
+            const avgDmgRef = enemyPrefab.AvgDmg;
+            let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02 * Math.floor(lvl / 6)));
+            let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
+
+            const calcValueObj = {
+                maxDmg: DmgMax,
+                minDmg: DmgMin,
+                maxXp: XpMax,
+                minXp: XpMin,
+            };
+
+            let proccessFinished = false;
+            let newE;
+            const createEEntry = async (eFab, calcObj, userID) => {
+                await ActiveDungeonEnemy.create({
+                    name: eFab.Name,
+                    description: eFab.Description,
+                    level: eFab.Level,
+                    health: eFab.Health,
+                    defence: eFab.Defence,
+                    weakto: eFab.WeakTo,
+
+                    constkey: eFab.ConstKey,
+                    specid: userID,
+
+                    mindmg: calcObj.minDmg,
+                    maxdmg: calcObj.maxDmg,
+
+                    xpmin: calcObj.minXp,
+                    xpmax: calcObj.maxXp,
+
+                    dead: false,
+                }).then(async () => {
+                    newE = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: eFab.ConstKey }] });
+                    console.log('newE has:', newE);
+                    return;
+                });
+            }
+
+            await createEEntry(enemyPrefab, calcValueObj, userID).then(() => {
+                const endTime = new Date().getTime();
+                console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
+                proccessFinished = true;
+                return proccessFinished;
+            });
+
+            if (proccessFinished === true) return 'Success';
+        }
     }
 
     async function removeEnemy(constKey) {
@@ -941,7 +975,28 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     }
                 }
             }
-            var xpGained = Math.floor(Math.random() * (enemyTempRef.XpMax - enemyTempRef.XpMin + 1) + enemyTempRef.XpMin);
+
+            let xpGained = 0;
+
+            if (enemyTempRef.XpMax >= 0) {
+                xpGained = Math.floor(Math.random() * (enemyTempRef.XpMax - enemyTempRef.XpMin + 1) + enemyTempRef.XpMin);
+            } else {
+                const lvl = enemyTempRef.Level;
+                let nxtLvl;
+                if (lvl < 20) {
+                    nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
+                } else if (lvl === 20) {
+                    nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
+                } else if (lvl > 20) {
+                    const lvlScale = 1.5 * (Math.floor(lvl / 5));
+                    nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
+                }
+
+                let XpMax = Math.floor((nxtLvl / 25) + (0.2 * (100 - lvl)));
+                let XpMin = XpMax - Math.floor(XpMax / 5.2);
+
+                xpGained = Math.floor(Math.random() * (XpMax - XpMin + 1) + XpMin);
+            }
             //console.log(`Before calc:`, xpGained);
             //xpGained = xpGained * 1 + ((-1) * (1.5 * hrs) ** 0.4 + 3.7); // ** is the same as Math.pow()
             //console.log(`After calc:`, xpGained);
