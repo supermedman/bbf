@@ -170,93 +170,38 @@ module.exports = {
                 if (userMilestone.currentquestline === 'Dark') {
                     const nextSQuest = userMilestone.nextstoryquest;
                     const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
                     if (nextSQuest === 12) {
-                        for (var i = 0; i < questList.length; i++) {
-                            //Filter out locked quests
-                            if (questList[i].IsLockedBy === 100) {
-                                //Filter out by max level
-                                if (questList[i].Level <= maxQLvl) {
-                                    qPool.push(questList[i]);
-                                    const questEmbed = new EmbedBuilder()
-                                        .setColor(0000)
-                                        .setTitle(`Quest: ${i}`)
-                                        .addFields(
-                                            {
-                                                name: `Name: ${questList[i].Name}`,
-                                                value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
-                                            }
-                                        );
-
-                                    embedPages.push(questEmbed);
-                                }
-                            }
-                        }
+                        lockedVal = 100;
                     }
                     if (lastSQuest === 12) {
-                        for (var i = 0; i < questList.length; i++) {
-                            //Filter out locked quests
-                            if (questList[i].IsLockedBy === 12) {
-                                //Filter out by max level
-                                if (questList[i].Level <= maxQLvl) {
-                                    qPool.push(questList[i]);
-                                    const questEmbed = new EmbedBuilder()
-                                        .setColor(0000)
-                                        .setTitle(`Quest: ${i}`)
-                                        .addFields(
-                                            {
-                                                name: `Name: ${questList[i].Name}`,
-                                                value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
-                                            }
-                                        );
-
-                                    embedPages.push(questEmbed);
-                                }
-                            }
-                        }
+                        lockedVal = 12;
                     }
                     if (lastSQuest === 13) {
-                        for (var i = 0; i < questList.length; i++) {
-                            //Filter out locked quests
-                            if (questList[i].IsLockedBy === 13) {
-                                //Filter out by max level
-                                if (questList[i].Level <= maxQLvl) {
-                                    qPool.push(questList[i]);
-                                    const questEmbed = new EmbedBuilder()
-                                        .setColor(0000)
-                                        .setTitle(`Quest: ${i}`)
-                                        .addFields(
-                                            {
-                                                name: `Name: ${questList[i].Name}`,
-                                                value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
-                                            }
-                                        );
-
-                                    embedPages.push(questEmbed);
-                                }
-                            }
-                        }
+                        lockedVal = 13;
                     }
                     if (lastSQuest === 14) {
-                        for (var i = 0; i < questList.length; i++) {
-                            //Filter out locked quests
-                            if (questList[i].IsLockedBy === 14) {
-                                //Filter out by max level
-                                if (questList[i].Level <= maxQLvl) {
-                                    qPool.push(questList[i]);
-                                    const questEmbed = new EmbedBuilder()
-                                        .setColor(0000)
-                                        .setTitle(`Quest: ${i}`)
-                                        .addFields(
-                                            {
-                                                name: `Name: ${questList[i].Name}`,
-                                                value: `Quest Level: ${questList[i].Level}\n Length: ${questList[i].Time}\n Enemy Level: ${questList[i].ELevel}\n`,
-                                            }
-                                        );
+                        lockedVal = 14;
+                    }
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
 
-                                    embedPages.push(questEmbed);
-                                }
+                                embedPages.push(questEmbed);
                             }
                         }
+                        i++;
                     }
                 }
 
@@ -347,7 +292,194 @@ module.exports = {
                     }
                 }
 
+                if (userMilestone.currentquestline === 'Law') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 27) {
+                        lockedVal = 103;
+                    }
+                    if (lastSQuest === 27) {
+                        lockedVal = 27;
+                    }
+                    if (lastSQuest === 28) {
+                        lockedVal = 28;
+                    }
+                    if (lastSQuest === 29) {
+                        lockedVal = 29;
+                    }
+                    if (lastSQuest === 30) {
+                        lockedVal = 30;
+                    }
+                    if (lastSQuest === 31) {
+                        lockedVal = 31;
+                    }
 
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
+
+                if (userMilestone.currentquestline === 'Hate') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 23) {
+                        lockedVal = 102;
+                    }
+                    if (lastSQuest === 23) {
+                        lockedVal = 23;
+                    }
+                    if (lastSQuest === 24) {
+                        lockedVal = 24;
+                    }
+
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
+
+                if (userMilestone.currentquestline === 'Myst') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 23) {
+                        lockedVal = 102;
+                    }
+                    if (lastSQuest === 23) {
+                        lockedVal = 23;
+                    }
+                    if (lastSQuest === 24) {
+                        lockedVal = 24;
+                    }
+
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
+
+                if (userMilestone.currentquestline === 'Secret') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 23) {
+                        lockedVal = 102;
+                    }
+                    if (lastSQuest === 23) {
+                        lockedVal = 23;
+                    }
+                    if (lastSQuest === 24) {
+                        lockedVal = 24;
+                    }
+
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
+
+                if (userMilestone.currentquestline === 'Dream') {
+                    const nextSQuest = userMilestone.nextstoryquest;
+                    const lastSQuest = userMilestone.laststoryquest;
+                    let lockedVal;
+                    if (nextSQuest === 23) {
+                        lockedVal = 102;
+                    }
+                    if (lastSQuest === 23) {
+                        lockedVal = 23;
+                    }
+                    if (lastSQuest === 24) {
+                        lockedVal = 24;
+                    }
+
+                    let i = 0;
+                    for (const quest of questList) {
+                        if (quest.IsLockedBy === lockedVal) {
+                            if (quest.Level <= maxQLvl) {
+                                qPool.push(quest);
+                                const questEmbed = new EmbedBuilder()
+                                    .setColor(0000)
+                                    .setTitle(`Quest: ${i}`)
+                                    .addFields(
+                                        {
+                                            name: `Name: ${quest.Name}`,
+                                            value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
+                                        }
+                                    );
+
+                                embedPages.push(questEmbed);
+                            }
+                        }
+                        i++;
+                    }
+                }
                 //for (var i = 0; i < questList.length; i++) {
                 //    if (questList[i].Level <= maxQLvl) {
                 //        qPool.push(questList[i]);
@@ -555,7 +687,7 @@ module.exports = {
                             for (const item of iGained) {
                                 if (item.Loot_id === tmpCopy[0].Loot_id) {
                                     itemNew = false;//Item is a dupe, change to false, bypassing new entry creation
-                                    console.log('DUPLICATE ITEM FOUND: ', iGained);
+                                    //console.log('DUPLICATE ITEM FOUND: ', iGained);
                                     item.Amount += 1;
                                     console.log('FILTERED RESULT', item.Name, '\n');
                                     break;
@@ -583,7 +715,7 @@ module.exports = {
                                 where: { spec_id: interaction.user.id, loot_id: theItem.Loot_id },
                             });
 
-                            console.log('UserItem: ', lootStore);
+                            //console.log('UserItem: ', lootStore);
 
                             //check if an item was found in the previous .findOne()
                             //this checks if there is an item stored in the UserItems and adds one to the amount as defined in the dbInit script
@@ -605,7 +737,8 @@ module.exports = {
 
                                 if (theItem.Slot === 'Mainhand') {
                                     //Item is a weapon store accordingly
-                                    const newItem = await LootStore.create({
+                                    //const newItem = 
+                                    await LootStore.create({
                                         name: theItem.Name,
                                         value: theItem.Value,
                                         loot_id: theItem.Loot_id,
@@ -620,14 +753,15 @@ module.exports = {
                                         amount: 1
                                     });
 
-                                    const itemAdded = await LootStore.findOne({
-                                        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
-                                    });
+                                    //const itemAdded = await LootStore.findOne({
+                                    //    where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                                    //});
 
-                                    console.log(itemAdded);
+                                    //console.log(itemAdded);
                                 } else if (theItem.Slot === 'Offhand') {
                                     //Item is an offhand
-                                    const newItem = await LootStore.create({
+                                    //const newItem = 
+                                    await LootStore.create({
                                         name: theItem.Name,
                                         value: theItem.Value,
                                         loot_id: theItem.Loot_id,
@@ -642,14 +776,15 @@ module.exports = {
                                         amount: 1
                                     });
 
-                                    const itemAdded = await LootStore.findOne({
-                                        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
-                                    });
+                                    //const itemAdded = await LootStore.findOne({
+                                    //    where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                                    //});
 
-                                    console.log(itemAdded);
+                                    //console.log(itemAdded);
                                 } else {
                                     //Item is armor
-                                    const newItem = await LootStore.create({
+                                    //const newItem = 
+                                    await LootStore.create({
                                         name: theItem.Name,
                                         value: theItem.Value,
                                         loot_id: theItem.Loot_id,
@@ -663,11 +798,11 @@ module.exports = {
                                         amount: 1
                                     });
 
-                                    const itemAdded = await LootStore.findOne({
-                                        where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
-                                    });
+                                    //const itemAdded = await LootStore.findOne({
+                                    //    where: { spec_id: interaction.user.id, loot_id: newItem.loot_id },
+                                    //});
 
-                                    console.log(itemAdded);
+                                    //console.log(itemAdded);
                                 }
                             }                     
                         }
@@ -901,11 +1036,11 @@ module.exports = {
                     // DARK     - lvl 45    - PARTS: 4
                     // TORTURE  - lvl 50    - PARTS: 7
                     // CHAOS    - lvl 55    - PARTS: 3
-                    // LAW      - lvl 65    - PARTS: ?
-                    // HATE     - lvl 75    - PARTS: ?
-                    // MYSTERY  - lvl 85    - PARTS: ?
-                    // SECRETS  - lvl 95    - PARTS: ?
-                    // DREAMS   - lvl 100   - PARTS: ?
+                    // LAW      - lvl 65    - PARTS: 6
+                    // HATE     - lvl 75    - PARTS: 6
+                    // MYST     - lvl 85    - PARTS: 5
+                    // SECRET   - lvl 95    - PARTS: 6
+                    // DREAM    - lvl 100   - PARTS: 5
 
                     if (userMilestone.currentquestline === 'Souls') {
                         if (!userDungeon) {
@@ -1489,6 +1624,782 @@ module.exports = {
                             }, { where: { userid: interaction.user.id } });
 
                             if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
+
+                    if (userMilestone.currentquestline === 'Law') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 5 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 27 || 28 || 29 || 30 || 31 || 32) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 5);
+                                let curLorePiece;
+                                if (qFound.qid === 27) {
+                                    await Milestones.update({ nextstoryquest: 28 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Word of your great deeds has reached far and wide!!
+                                    // It should be no surprise that the people youve saved wish to show grattitude,
+                                    // and yet it does...
+                                    // Puzzled and accepting you attend the parade setup for you, a three day long celebration!
+                                    // You stop to rest at the second town having made your way from the first, these three towns plagued by monsters in days of late
+                                    // No longer, due to you..
+                                    // So ends the first day..
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 28) {
+                                    await Milestones.update({ nextstoryquest: 29 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // *You dreamt of a saddened child, their face streaked with bloody tears,
+                                    // you known not why they cry, nor why they bleed.*
+                                    // So begins the second day, the procession leading you from the second town to the third.
+                                    // Cheers and cries of joy surround you along the way, these people adore your achievements!!
+                                    // A long day passes and you reach the third town.
+                                    // So ends the second day..
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 29) {
+                                    await Milestones.update({ nextstoryquest: 30 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // *You once again find yourself dreaming, that same child sits in a vast empty space,
+                                    // the tears have dried, they leave crusted blood upon their face*
+                                    // So begins the third day, continuing with the parade, bustling with positivity, a still foreign emotion..
+                                    // You have been troubled by these dreams of late and find it hard to keep a fake smile while deep in thought.
+                                    // You arrive at the fourth town, having completed your circuit of the lake these towns surround.
+                                    // You stop and reflect on the days gone by before laying to rest..
+                                    // So ends the third day.
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 30) {
+                                    await Milestones.update({ nextstoryquest: 31 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // *The child sits, looking at you, quizzical and demining. Opens their mouth...*
+                                    // ||***AND SCREAMS***||
+                                    // You wake, violently, surrounded by the sound of your door being beaten by a fist.
+                                    // You rush to the door, open it to be greeted by a man with a letter.
+                                    // You take it and he leaves without a word, you think little of him given your awakening..
+                                    // It is sealed with black wax, depicted is a set of scales.
+                                    // The left contains a skull, the right a feather, it is unbalanced, leaning rightwards..
+                                    // Opening the letter brings you a sense of dread and anticipation, on it is written;
+                                    // *Dear, Slayer of Many*
+                                    // *Your recent deeds and misdeeds, have not gone unnoticed. Please head this summons, and reply in person!*
+                                    // *Failure to comply would not be optimal, but can be managed and forced if needed..*
+                                    // *Thank you kindly, The Keeper. P.*
+                                    // You feel a sense of relief, knowing the festivities have just come to an end..
+                                    // So begins the fourth and final day.
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 31) {
+                                    await Milestones.update({ nextstoryquest: 32 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Youve heeded the summons, and trek to the castle.
+                                    // The castle, as called by the townsfolk, is to be avoided..
+                                    // The letter was lacking in location, prompting a few questions of the locals..
+                                    // Having made the destination clear, you setout, traveled, and now have arrived.
+                                    // Standing tall before you is a Bloodoak door reinforced with thin strips of Phasemetal,
+                                    // Evident by the erie glow produced..
+                                    // The door opens, the space left behind beckons you, and you cant help but listen..
+                                    // And so you enter..
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[4].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }                              
+                                if (qFound.qid === 32) {
+
+                                    // ========== STORY ==========
+
+                                    // You wander the castle grounds unsure where to go, unsure where to be.
+                                    // Monster-like beings are standing around, acting guards, gatekeepers perhaps..
+                                    // They offer no help in your search for your summoning, either way.
+                                    // You come across a large set of stone steps leading deep into the castle,
+                                    // Assuming this is the place you head upwards, and upon taking a single step..
+                                    // A thunderus voice!
+                                    // ***WELCOME SLAYER!!***
+                                    // ***WELCOME TO THE DOMAIN OF ``Phamnera``***
+
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[5].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                            }
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Hate',
+                                nextstoryquest: 33,
+                                questlinedungeon: 6,
+                            }, { where: { userid: interaction.user.id } });
+
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
+
+                    if (userMilestone.currentquestline === 'Hate') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 6 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 33 || 34 || 35 || 36 || 37 || 38 || 39) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 6);
+                                let curLorePiece;
+                                if (qFound.qid === 33) {
+                                    await Milestones.update({ nextstoryquest: 34 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 34) {
+                                    await Milestones.update({ nextstoryquest: 35 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 35) {
+                                    await Milestones.update({ nextstoryquest: 36 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 37) {
+                                    await Milestones.update({ nextstoryquest: 38 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 38) {
+                                    await Milestones.update({ nextstoryquest: 39 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[4].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 39) {
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[5].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }                                
+                            }
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Myst',
+                                nextstoryquest: 40,
+                                questlinedungeon: 7,
+                            }, { where: { userid: interaction.user.id } });
+
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
+
+                    if (userMilestone.currentquestline === 'Myst') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 7 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 40 || 41 || 42 || 43 || 44 || 45) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 7);
+                                let curLorePiece;
+                                if (qFound.qid === 40) {
+                                    await Milestones.update({ nextstoryquest: 41 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 41) {
+                                    await Milestones.update({ nextstoryquest: 42 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 42) {
+                                    await Milestones.update({ nextstoryquest: 43 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 43) {
+                                    await Milestones.update({ nextstoryquest: 44 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 44) {
+                                    await Milestones.update({ nextstoryquest: 45 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[4].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 45) {
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[5].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                            }
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Secret',
+                                nextstoryquest: 46,
+                                questlinedungeon: 8,
+                            }, { where: { userid: interaction.user.id } });
+
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
+
+                    if (userMilestone.currentquestline === 'Secret') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 8 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 46 || 47 || 48 || 49 || 50 || 51 || 52) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 8);
+                                let curLorePiece;
+                                if (qFound.qid === 46) {
+                                    await Milestones.update({ nextstoryquest: 47 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 47) {
+                                    await Milestones.update({ nextstoryquest: 48 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 48) {
+                                    await Milestones.update({ nextstoryquest: 49 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 49) {
+                                    await Milestones.update({ nextstoryquest: 50 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 50) {
+                                    await Milestones.update({ nextstoryquest: 51 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[4].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 51) {
+                                    await Milestones.update({ nextstoryquest: 52 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[5].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 52) {
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[6].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                            }
+                        } else if (userDungeon.completed === true) {
+                            const updateMilestone = await Milestones.update({
+                                currentquestline: 'Dream',
+                                nextstoryquest: 53,
+                                questlinedungeon: 9,
+                            }, { where: { userid: interaction.user.id } });
+
+                            if (updateMilestone > 0) userMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+                        }
+                    }
+
+                    if (userMilestone.currentquestline === 'Dream') {
+                        userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonid: 9 }, { dungeonspecid: interaction.user.id }] });
+                        if (!userDungeon || userDungeon.completed === false) {
+                            if (qFound.qid === 53 || 54 || 55 || 56 || 57) {
+                                await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
+                                const fullLoreList = await loreList.filter(lore => lore.StoryLine === 9);
+                                let curLorePiece;
+                                if (qFound.qid === 53) {
+                                    await Milestones.update({ nextstoryquest: 54 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[0].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 54) {
+                                    await Milestones.update({ nextstoryquest: 55 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[1].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 55) {
+                                    await Milestones.update({ nextstoryquest: 56 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[2].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 56) {
+                                    await Milestones.update({ nextstoryquest: 57 }, { where: { userid: interaction.user.id } });
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
+
+                                    curLorePiece = fullLoreList[3].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 57) {
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[4].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }                               
+                            }
                         }
                     }
 
