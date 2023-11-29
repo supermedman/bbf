@@ -7,7 +7,7 @@
         "BossFloor": 10,
         "SavePoints": 2,
 
-        "DungeonHint": "God of Souls",
+        "DungeonHint": "God of ``Souls``",
 
         "RequiredQuestID": 10,
 
@@ -37,7 +37,7 @@
         "BossFloor": 15,
         "SavePoints": 3,
 
-        "DungeonHint": "Goddess of the Dark",
+        "DungeonHint": "Goddess of the ``Dark``",
 
         "RequiredQuestID": 15,
 
@@ -74,7 +74,7 @@
         "BossFloor": 15,
         "SavePoints": 3,
 
-        "DungeonHint": "God of Torture",
+        "DungeonHint": "God of ``Torture``",
 
         "RequiredQuestID": 22,
 
@@ -111,7 +111,7 @@
         "BossFloor": 1,
         "SavePoints": 1,
 
-        "DungeonHint": "God of Chaos",
+        "DungeonHint": "God of ``Chaos``",
 
         "RequiredQuestID": 25,
 
@@ -121,6 +121,50 @@
         "Floor1": [ 0 ],
 
         "DungeonID": 4,
+        "DungeonSpecID": 0
+    },
+    {
+        "Name": "Dungeon of Law",
+        "Boss": "Phamnera",
+
+        "Floors": 20,
+        "BossFloor": 20,
+        "SavePoints": 4,
+
+        "DungeonHint": "Goddess of ``Law``",
+
+        "RequiredQuestID": 32,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 160, 145, 160, 145 ],
+        "Floor2": [ 215, 215, 215 ],
+        "Floor3": [ 112, 112, 112, 228 ],
+        "Floor4": [ 253, 253, 253, 253, 253 ],
+
+        "Floor5": [ 183, 183, 183, 183, 183, 183 ],
+
+        "Floor6": [ 266, 266 ],
+        "Floor7": [ 266, 112, 266 ],
+        "Floor8": [ 229, 267, 229 ],
+        "Floor9": [ 228, 229, 228, 229, 228 ],
+
+        "Floor10": [ 266, 266, 267, 267, 266, 266 ],
+
+        "Floor11": [ 121, 122, 121, 122, 228 ],
+        "Floor12": [ 253, 253, 253 ],
+        "Floor13": [ 228, 229, 228, 229, 228 ],
+        "Floor14": [ 183, 183, 183, 183, 183, 183 ],
+
+        "Floor15": [ 291 ],
+
+        "Floor16": [ 266, 266 ],
+        "Floor17": [ 266, 267, 267, 266 ],
+        "Floor18": [ 228, 229, 291, 228, 228 ],
+        "Floor19": [ 268 ],
+
+        "DungeonID": 5,
         "DungeonSpecID": 0
     }
 ]

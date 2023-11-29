@@ -129,7 +129,7 @@
         "StoryLine": 4,
         "StoryPart": 1,
 
-        "Lore": "You run for what feels like days, his presence still all around you, you mind filled with noise\n***IT NEVER ENDS***\nIt feels like nails through your eyes and ears, you swear you can even taste his words and intentions on the air.\nYou scream, you run, you trip, you fall, you roll, back to your feet you run!\n***YOU MUST HIDE***\nAnd so you shall try..",
+        "Lore": "You run for what feels like days, his presence still all around you, your mind filled with noise\n***IT NEVER ENDS***\nIt feels like nails through your eyes and ears, you swear you can even taste his words and intentions on the air.\nYou scream, you run, you trip, you fall, you roll, back to your feet you run!\n***YOU MUST HIDE***\nAnd so you shall try..",
 
         "QuestID": 23
 
@@ -150,6 +150,285 @@
         "Lore": "You dance, and dance..\nWith each spin you feel your fear grown lighter, the tears stop flowing, the burn in your throat subsides.\nFrom one spin to the next, you find yourself face to face with ``Zimmir`` dancing by his command at the foot of his throne steps..\nHere you pirouette, for the God of Chaos, within his Dungeon..",
 
         "QuestID": 25
+
+    },
+    {
+        "StoryLine": 5,
+        "StoryPart": 1,
+
+        "Lore": "Word of your great deeds has reached far and wide!!\nIt should be no surprise that the people youve saved wish to show grattitude,\nand yet it does...\nPuzzled and accepting you attend the parade setup for you, a three day long celebration!\nYou stop to rest at the second town having made your way from the first, these four towns plagued by monsters in days of late\nNo longer, due to you..\nSo ends the first day..",
+
+        "QuestID": 27
+
+    },
+    {
+        "StoryLine": 5,
+        "StoryPart": 2,
+
+        "Lore": "*You dreamt of a saddened child, their face streaked with bloody tears,*\n*you known not why they cry, nor why they bleed.*\nSo begins the second day, the procession leading you from the second town to the third.\nCheers and cries of joy surround you along the way, these people adore your achievements!!\nA long day passes and you reach the third town.\nSo ends the second day..",
+
+        "QuestID": 28
+
+    },
+    {
+        "StoryLine": 5,
+        "StoryPart": 3,
+
+        "Lore": "*You once again find yourself dreaming, that same child sits in a vast empty space,*\n*the tears have dried, they leave crusted blood upon their face*\nSo begins the third day, continuing with the parade, bustling with positivity, a still foreign emotion..\nYou have been troubled by these dreams of late and find it hard to keep a fake smile while deep in thought.\nYou arrive at the fourth town, having completed your circuit of the lake these towns surround.\nYou stop and reflect on the days gone by before laying to rest..\nSo ends the third day.\n",
+
+        "QuestID": 29
+
+    },
+    {
+        "StoryLine": 5,
+        "StoryPart": 4,
+
+        "Lore": "*The child sits, looking at you, quizzical and demining. Opens their mouth...*\n||***AND SCREAMS***||\nYou wake, violently, surrounded by the sound of your door being beaten by a fist.\nYou rush to the door, open it to be greeted by a man with a letter.\nYou take it and he leaves without a word, you think little of him given your awakening..\nIt is sealed with black wax, depicted is a set of scales.\nThe left contains a skull, the right a feather, it is unbalanced, leaning rightwards..\nOpening the letter brings you a sense of dread, on it is written;\n*Dear, Slayer of Many*\n*Your recent deeds and misdeeds, have not gone unnoticed. Please head this summons, and reply in person!*\n*Failure to comply would not be optimal, but can be managed and forced if needed..*\n*Thank you kindly, The Keeper. P.*\nYou feel a sense of relief, finding a fitting end for this letter..\nSo begins the fourth and final day.",
+
+        "QuestID": 30
+
+    },
+    {
+        "StoryLine": 5,
+        "StoryPart": 5,
+
+        "Lore": "Youve heeded the summons, and trek to the castle.\nThe castle, as called by the townsfolk, is to be avoided..\nThe letter was lacking in location, prompting a few questions of the locals..\nHaving made the destination clear, you setout, traveled, and now have arrived.\nStanding tall before you is a Bloodoak door reinforced with thin strips of Phasemetal,\nEvident by the erie glow produced..\nThe door opens, the space left behind beckons you, and you cant help but listen..\nAnd so you enter..",
+
+        "QuestID": 31
+
+    },
+    {
+        "StoryLine": 5,
+        "StoryPart": 6,
+
+        "Lore": "You wander the castle grounds unsure where to go, unsure where to be.\nMonster-like beings are standing around, acting guards, gatekeepers perhaps..\nThey offer no help in your search for your summoning, either way.\nYou come across a large set of stone steps leading deep into the castle,\nAssuming this is the place you head upwards, and upon taking a single step..\nA thunderus voice!\n***WELCOME SLAYER!!***\n***WELCOME TO THE DOMAIN OF ``Phamnera``***",
+
+        "QuestID": 32
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 1,
+
+        "Lore": "COPY",
+
+        "QuestID": 33
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 2,
+
+        "Lore": "COPY",
+
+        "QuestID": 34
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 3,
+
+        "Lore": "COPY",
+
+        "QuestID": 35
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 4,
+
+        "Lore": "COPY",
+
+        "QuestID": 36
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 5,
+
+        "Lore": "COPY",
+
+        "QuestID": 37
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 6,
+
+        "Lore": "COPY",
+
+        "QuestID": 38
+
+    },
+    {
+        "StoryLine": 6,
+        "StoryPart": 7,
+
+        "Lore": "COPY",
+
+        "QuestID": 39
+
+    },
+    {
+        "StoryLine": 7,
+        "StoryPart": 1,
+
+        "Lore": "COPY",
+
+        "QuestID": 40
+
+    },
+    {
+        "StoryLine": 7,
+        "StoryPart": 2,
+
+        "Lore": "COPY",
+
+        "QuestID": 41
+
+    },
+    {
+        "StoryLine": 7,
+        "StoryPart": 3,
+
+        "Lore": "COPY",
+
+        "QuestID": 42
+
+    },
+    {
+        "StoryLine": 7,
+        "StoryPart": 4,
+
+        "Lore": "COPY",
+
+        "QuestID": 43
+
+    },
+    {
+        "StoryLine": 7,
+        "StoryPart": 5,
+
+        "Lore": "COPY",
+
+        "QuestID": 44
+
+    },
+    {
+        "StoryLine": 7,
+        "StoryPart": 6,
+
+        "Lore": "COPY",
+
+        "QuestID": 45
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 1,
+
+        "Lore": "COPY",
+
+        "QuestID": 46
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 2,
+
+        "Lore": "COPY",
+
+        "QuestID": 47
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 3,
+
+        "Lore": "COPY",
+
+        "QuestID": 48
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 4,
+
+        "Lore": "COPY",
+
+        "QuestID": 49
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 5,
+
+        "Lore": "COPY",
+
+        "QuestID": 50
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 6,
+
+        "Lore": "COPY",
+
+        "QuestID": 51
+
+    },
+    {
+        "StoryLine": 8,
+        "StoryPart": 7,
+
+        "Lore": "COPY",
+
+        "QuestID": 52
+
+    },
+    {
+        "StoryLine": 9,
+        "StoryPart": 1,
+
+        "Lore": "COPY",
+
+        "QuestID": 53
+
+    },
+    {
+        "StoryLine": 9,
+        "StoryPart": 2,
+
+        "Lore": "COPY",
+
+        "QuestID": 54
+
+    },
+    {
+        "StoryLine": 9,
+        "StoryPart": 3,
+
+        "Lore": "COPY",
+
+        "QuestID": 55
+
+    },
+    {
+        "StoryLine": 9,
+        "StoryPart": 4,
+
+        "Lore": "COPY",
+
+        "QuestID": 56
+
+    },
+    {
+        "StoryLine": 9,
+        "StoryPart": 5,
+
+        "Lore": "COPY",
+
+        "QuestID": 57
 
     },
     {

@@ -48,14 +48,14 @@
         "PassiveCategory": "Potion",
 
         "Duration": 0,
-        "CoolDown": 5,
+        "CoolDown": 3,
 
         "IsDropped": false,
         "IsUnlocked": true,
         "OnlyOne": false,
 
         "UseLevel": 5,
-        "CoinCost": 100,
+        "CoinCost": 1000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Dandielion",
@@ -68,7 +68,7 @@
 
         "Material3": "Red Slime",
         "Rarity3": "Rare",
-        "Material3_Amount": 2,
+        "Material3_Amount": 1,
 
         "PotionID": 1,
         "BlueprintID": 2
@@ -80,15 +80,15 @@
         "ActiveCategory": "Reinforce",
         "PassiveCategory": "Potion",
 
-        "Duration": 1,
-        "CoolDown": 3,
+        "Duration": 5,
+        "CoolDown": 7,
 
         "IsDropped": false,
         "IsUnlocked": true,
         "OnlyOne": false,
 
         "UseLevel": 8,
-        "CoinCost": 175,
+        "CoinCost": 1750,
         "MaterialTypeAmount": 3,
 
         "Material1": "Slimy Eyeball",
@@ -121,7 +121,7 @@
         "OnlyOne": false,
 
         "UseLevel": 8,
-        "CoinCost": 200,
+        "CoinCost": 2000,
         "MaterialTypeAmount": 5,
 
         "Material1": "Purple Slime",
@@ -155,14 +155,14 @@
         "PassiveCategory": "Potion",
 
         "Duration": 0,
-        "CoolDown": 10,
+        "CoolDown": 5,
 
         "IsDropped": false,
         "IsUnlocked": true,
         "OnlyOne": false,
 
         "UseLevel": 13,
-        "CoinCost": 350,
+        "CoinCost": 3500,
         "MaterialTypeAmount": 4,
 
         "Material1": "Bloodroot",
@@ -171,11 +171,11 @@
 
         "Material2": "Red Slime",
         "Rarity2": "Rare",
-        "Material2_Amount": 15,
+        "Material2_Amount": 12,
 
         "Material3": "Pink Slime",
         "Rarity3": "Very Rare",
-        "Material3_Amount": 6,
+        "Material3_Amount": 1,
 
         "Material4": "Bloodied Heart",
         "Rarity4": "Rare",
@@ -191,15 +191,15 @@
         "ActiveCategory": "Reinforce",
         "PassiveCategory": "Potion",
 
-        "Duration": 3,
-        "CoolDown": 5,
+        "Duration": 15,
+        "CoolDown": 20,
 
         "IsDropped": false,
         "IsUnlocked": true,
         "OnlyOne": false,
 
         "UseLevel": 13,
-        "CoinCost": 365,
+        "CoinCost": 3650,
         "MaterialTypeAmount": 4,
 
         "Material1": "Raw Ore",
@@ -216,7 +216,7 @@
 
         "Material4": "Iron Ingot",
         "Rarity4": "Rare",
-        "Material4_Amount": 15,
+        "Material4_Amount": 7,
 
         "PotionID": 5,
         "BlueprintID": 6
@@ -236,16 +236,16 @@
         "OnlyOne": false,
 
         "UseLevel": 15,
-        "CoinCost": 500,
+        "CoinCost": 5000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Refined Essence",
         "Rarity1": "Epic",
-        "Material1_Amount": 25,
+        "Material1_Amount": 20,
 
         "Material2": "Rainbow Slime",
         "Rarity2": "Mystic",
-        "Material2_Amount": 5,
+        "Material2_Amount": 4,
 
         "Material3": "Infused Silverroot",
         "Rarity3": "Epic",
@@ -269,28 +269,28 @@
         "OnlyOne": false,
 
         "UseLevel": 15,
-        "CoinCost": 500,
+        "CoinCost": 5000,
         "MaterialTypeAmount": 5,
 
         "Material1": "Pink Slime",
         "Rarity1": "Very Rare",
-        "Material1_Amount": 10,
+        "Material1_Amount": 7,
 
         "Material2": "Steel Ingot",
         "Rarity2": "Very Rare",
-        "Material2_Amount": 10,
+        "Material2_Amount": 7,
 
         "Material3": "Magical Glands",
         "Rarity3": "Very Rare",
-        "Material3_Amount": 10,
+        "Material3_Amount": 7,
 
         "Material4": "Silverroot",
         "Rarity4": "Very Rare",
-        "Material4_Amount": 10,
+        "Material4_Amount": 7,
 
-        "Material5": "Pure NULL",
+        "Material5": "Pure MAGIC",
         "Rarity5": "Unique",
-        "Material5_Amount": 1,
+        "Material5_Amount": 4,
 
         "PotionID": 7,
         "BlueprintID": 8
@@ -310,20 +310,20 @@
         "OnlyOne": false,
 
         "UseLevel": 18,
-        "CoinCost": 750,
+        "CoinCost": 7500,
         "MaterialTypeAmount": 4,
 
         "Material1": "Refined Essence",
         "Rarity1": "Epic",
-        "Material1_Amount": 50,
+        "Material1_Amount": 25,
 
         "Material2": "Rainbow Slime",
         "Rarity2": "Mystic",
-        "Material2_Amount": 10,
+        "Material2_Amount": 7,
 
         "Material3": "Infused Silverroot",
         "Rarity3": "Epic",
-        "Material3_Amount": 20,
+        "Material3_Amount": 15,
 
         "Material4": "Phaseroot",
         "Rarity4": "Mystic",
@@ -387,28 +387,28 @@
         "OnlyOne": false,
 
         "UseLevel": 20,
-        "CoinCost": 1000,
+        "CoinCost": 10000,
         "MaterialTypeAmount": 6,
 
         "Material1": "Rainbow Slime",
         "Rarity1": "Mystic",
-        "Material1_Amount": 10,
+        "Material1_Amount": 4,
 
         "Material2": "Phasemetal Scrap",
         "Rarity2": "Mystic",
-        "Material2_Amount": 10,
+        "Material2_Amount": 4,
 
         "Material3": "Imperfect Phasesoup",
         "Rarity3": "Mystic",
-        "Material3_Amount": 10,
+        "Material3_Amount": 4,
 
         "Material4": "Phaseroot",
         "Rarity4": "Mystic",
-        "Material4_Amount": 10,
+        "Material4_Amount": 4,
 
-        "Material5": "Soul",
+        "Material5": "Pure MAGIC",
         "Rarity5": "Unique",
-        "Material5_Amount": 3,
+        "Material5_Amount": 15,
 
         "Material6": "Dandielion",
         "Rarity6": "Common",
@@ -425,31 +425,31 @@
         "PassiveCategory": "Potion",
 
         "Duration": 0,
-        "CoolDown": 15,
+        "CoolDown": 8,
 
         "IsDropped": true,
         "IsUnlocked": true,
         "OnlyOne": false,
 
         "UseLevel": 20,
-        "CoinCost": 1250,
+        "CoinCost": 12500,
         "MaterialTypeAmount": 5,
 
-        "Material1": "Silverroot",
-        "Rarity1": "Very Rare",
-        "Material1_Amount": 25,
+        "Material1": "Bloodroot",
+        "Rarity1": "Rare",
+        "Material1_Amount": 30,
 
         "Material2": "Red Slime",
         "Rarity2": "Rare",
         "Material2_Amount": 15,
 
-        "Material3": "Bloodroot",
-        "Rarity3": "Rare",
-        "Material3_Amount": 30,
+        "Material3": "Silverroot",
+        "Rarity3": "Very Rare",
+        "Material3_Amount": 10,
 
         "Material4": "Sparkly Slime",
         "Rarity4": "Epic",
-        "Material4_Amount": 5,
+        "Material4_Amount": 3,
 
         "Material5": "Pure MAGIC",
         "Rarity5": "Unique",
@@ -465,20 +465,20 @@
         "ActiveCategory": "Reinforce",
         "PassiveCategory": "Potion",
 
-        "Duration": 10,
-        "CoolDown": 11,
+        "Duration": 15,
+        "CoolDown": 18,
 
         "IsDropped": true,
         "IsUnlocked": true,
         "OnlyOne": false,
 
         "UseLevel": 25,
-        "CoinCost": 1400,
+        "CoinCost": 14000,
         "MaterialTypeAmount": 4,
 
         "Material1": "Raw Phasemetal",
         "Rarity1": "Epic",
-        "Material1_Amount": 30,
+        "Material1_Amount": 24,
 
         "Material2": "Refined Essence",
         "Rarity2": "Epic",
@@ -486,11 +486,11 @@
 
         "Material3": "Pure BLUNT",
         "Rarity3": "Unique",
-        "Material3_Amount": 5,
+        "Material3_Amount": 10,
 
         "Material4": "Phasemetal Scrap",
         "Rarity4": "Mystic",
-        "Material4_Amount": 10,
+        "Material4_Amount": 4,
 
         "PotionID": 11,
         "BlueprintID": 13
@@ -510,16 +510,16 @@
         "OnlyOne": false,
 
         "UseLevel": 25,
-        "CoinCost": 1750,
+        "CoinCost": 17500,
         "MaterialTypeAmount": 5,
 
         "Material1": "Refined Essence",
         "Rarity1": "Epic",
-        "Material1_Amount": 100,
+        "Material1_Amount": 55,
 
         "Material2": "Rainbow Slime",
         "Rarity2": "Mystic",
-        "Material2_Amount": 15,
+        "Material2_Amount": 10,
 
         "Material3": "Infused Silverroot",
         "Rarity3": "Epic",
@@ -549,7 +549,7 @@
         "OnlyOne": true,
 
         "UseLevel": 10,
-        "CoinCost": 100,
+        "CoinCost": 1000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Purple Slime",
@@ -583,7 +583,7 @@
         "OnlyOne": true,
 
         "UseLevel": 10,
-        "CoinCost": 100,
+        "CoinCost": 1000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Leather Scraps",
@@ -617,7 +617,7 @@
         "OnlyOne": true,
 
         "UseLevel": 15,
-        "CoinCost": 250,
+        "CoinCost": 2500,
         "MaterialTypeAmount": 4,
 
         "Material1": "Fairy Dust",
@@ -751,7 +751,7 @@
         "OnlyOne": true,
 
         "UseLevel": 35,
-        "CoinCost": 2000,
+        "CoinCost": 20000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Soul",
@@ -785,7 +785,7 @@
         "OnlyOne": true,
 
         "UseLevel": 45,
-        "CoinCost": 4000,
+        "CoinCost": 40000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Soul",
@@ -804,7 +804,7 @@
         "Rar_id": 12,
 
         "ToolID": 5,
-        "BlueprintID": 22
+        "BlueprintID": 21
     },
     {
         "Name": "Ados Plushie",
@@ -819,7 +819,7 @@
         "OnlyOne": true,
 
         "UseLevel": 50,
-        "CoinCost": 8000,
+        "CoinCost": 80000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Soul",
@@ -853,7 +853,7 @@
         "OnlyOne": true,
 
         "UseLevel": 55,
-        "CoinCost": 16000,
+        "CoinCost": 160000,
         "MaterialTypeAmount": 3,
 
         "Material1": "Soul",
@@ -921,7 +921,7 @@
         "OnlyOne": true,
 
         "UseLevel": 15,
-        "CoinCost": 300,
+        "CoinCost": 3000,
         "MaterialTypeAmount": 2,
 
         "Material1": "Smelly Entrails",
@@ -937,6 +937,81 @@
 
         "ToolID": 9,
         "BlueprintID": 25
+    },
+    {
+        "Name": "Phamnera Plushie",
+        "Description": "Increases pigmy *happiness* when playing by *28*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 55,
+        "CoinCost": 160000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 35,
+
+        "Material2": "Well-Woven Phase-Cloth",
+        "Rarity2": "??",
+        "Material2_Amount": 25,
+
+        "Material3": "Phasemetal Alloy",
+        "Rarity3": "??",
+        "Material3_Amount": 25,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 10,
+        "BlueprintID": 26
+    },
+    {
+        "Name": "Balance Bane, Law Keepers Gavel",
+        "Description": "Anything hit by this, both will know it, and never walk again.",
+
+        "PassiveCategory": "Equip",
+        "OnlyOne": true,
+
+        "LevelOnCreate": 1,
+        "UseLevel": 65,
+
+        "Attack": 800,
+        "Type": "BLUNT",
+
+        "CoinCost": 8000000,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 25,
+
+        "Material2": "Phasemetal Alloy",
+        "Rarity2": "??",
+        "Material2_Amount": 50,
+
+        "Material3": "Phaseflower Wood",
+        "Rarity3": "???",
+        "Material3_Amount": 25,
+
+        "Material4": "Worked Phase-Leather",
+        "Rarity4": "???",
+        "Material4_Amount": 25,
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "Loot_id": 30004,
+        "BlueprintID": 27
     },
     {
         "Name": "Tool TEMP",

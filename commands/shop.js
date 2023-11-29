@@ -429,6 +429,8 @@ module.exports = {
                             }
 
                         } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                    }).catch(error => {
+                        console.log(errorForm(error));
                     });
                 }
                 if (collInteract.customId === 'refresh') {                   

@@ -438,5 +438,115 @@
 		"Image_Closeup": "attachment://Zimmir-god-of-chaos-closeup.png",
 
 		"SpecId": 0
+	},
+	{
+		"Name": "Phamnera, Goddess of Law",
+		"NameRef": "Phamnera",
+
+		"Intro": "Glad to finally meet you face to face, *Slayer*..",
+		"IntroC": "DarkGreen",
+
+		"Line_One": "*We* have been watching closely, keeping track of your actions.",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "Now come, be judged before the **LAW**",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 65,
+		"MinDmg": 260,
+		"MaxDmg": 350,
+		"Health": 35000,
+		"StageHealth": 10000,
+		"Defence": 75,
+
+		"WeakTo": "Rad",
+
+		"ConstKey": 1013,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law.png",
+		"Image": "attachment://Phamnera-goddess-of-law.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law-closeup.png",
+		"Image_Closeup": "attachment://Phamnera-goddess-of-law-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Executioner, Phamnera",
+		"NameRef": "Phamnera",
+
+		"Intro": "***I AM JUDGE***",
+		"IntroC": "Blue",
+
+		"Line_One": "***I AM JURY***",
+		"Line_OneC": "Blue",
+
+		"Line_Two": "***MEET THE EXECUTIONER***",
+		"Line_TwoC": "Red",
+
+		"Level": 65,
+		"MinDmg": 325,
+		"MaxDmg": 425,
+		"Health": 10000,
+		"StageHealth": 1,
+		"Defence": 25,
+
+		"WeakTo": "None",
+
+		"ConstKey": 1014,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law.png",
+		"Image": "attachment://Phamnera-goddess-of-law.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law-closeup.png",
+		"Image_Closeup": "attachment://Phamnera-goddess-of-law-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Phamnera",
+		"NameRef": "Phamnera",
+
+		"Intro": "You have been tried...",
+		"IntroC": "DarkGold",
+
+		"Line_One": "Tested...",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "May ``Fayrn`` find you guilty!",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 65,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+		"Health": 1,
+		"StageHealth": 0,
+		"Defence": 0,
+
+		"WeakTo": "Blunt",
+
+		"Dead": false,
+		"XpMin": 85000,
+		"XpMax": 100000,
+
+		"Blueprint": "Balance Bane, Law Keepers Gavel",
+		"BlueprintID": 27,
+
+		"SecretBPID": 26,
+
+		"AchievementGet": "PHAMNERA",
+
+		"ConstKey": 1015,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law.png",
+		"Image": "attachment://Phamnera-goddess-of-law.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law-closeup.png",
+		"Image_Closeup": "attachment://Phamnera-goddess-of-law-closeup.png",
+
+		"SpecId": 0
 	}
 ]

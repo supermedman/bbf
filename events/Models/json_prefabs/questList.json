@@ -231,5 +231,67 @@
         "ELevel": "50-55",
         "IsLockedBy": 24,
         "ID": 25
+    },
+    {
+        "Name": "Hotspot Raid",
+        "Length": 43200000,
+        "Time": "12hr",
+        "Level": 11,
+        "ELevel": "50-55",
+        "ID": 26
+    },
+    {
+        "Name": "Attend Parade Day 1",
+        "Length": 50400000,
+        "Time": "14hr",
+        "Level": 12,
+        "ELevel": "55-60",
+        "IsLockedBy": 103,
+        "ID": 27
+    },
+    {
+        "Name": "Attend Parade Day 2",
+        "Length": 50400000,
+        "Time": "14hr",
+        "Level": 12,
+        "ELevel": "55-60",
+        "IsLockedBy": 27,
+        "ID": 28
+    },
+    {
+        "Name": "Attend Parade Day 3",
+        "Length": 50400000,
+        "Time": "14hr",
+        "Level": 12,
+        "ELevel": "55-60",
+        "IsLockedBy": 28,
+        "ID": 29
+    },
+    {
+        "Name": "Attend Parade Day 4",
+        "Length": 50400000,
+        "Time": "14hr",
+        "Level": 12,
+        "ELevel": "55-60",
+        "IsLockedBy": 29,
+        "ID": 30
+    },
+    {
+        "Name": "Heed Summoning Letter",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 13,
+        "ELevel": "60-65",
+        "IsLockedBy": 30,
+        "ID": 31
+    },
+    {
+        "Name": "Wander The Castle",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 13,
+        "ELevel": "60-65",
+        "IsLockedBy": 31,
+        "ID": 32
     }
 ]
