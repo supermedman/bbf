@@ -34,7 +34,7 @@ module.exports = {
 		if (focusedOption.name === 'line') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["Souls", "Dark", "Torture", "Chaos"];
+			choices = ["Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
 
 			if (focusedValue) {
 				console.log(choices);
@@ -63,7 +63,17 @@ module.exports = {
 				chosenStory = 3;
 			} else if (storyStr === 'Chaos') {
 				chosenStory = 4;
-			} else return interaction.followUp('That was not a valid option!');
+			} else if (storyStr === 'Law') {
+				chosenStory = 5;
+			} else if (storyStr === 'Hate') {
+				chosenStory = 6;
+			} else if (storyStr === 'Myst') {
+				chosenStory = 7;
+			} else if (storyStr === 'Secret') {
+				chosenStory = 8;
+			} else if (storyStr === 'Dream') {
+				chosenStory = 9;
+			}else return interaction.followUp('That was not a valid option!');
 
 			const userMilestones = await Milestones.findOne({ where: { userid: interaction.user.id } });
 			if (!userMilestones) return interaction.followUp('You have not completed or started any quests yet! Use the command ``/quest start`` to start and ``/quest claim`` to check/finish a quest!');
@@ -195,6 +205,203 @@ module.exports = {
 				} else if (furthestLore === 22) {
 					if (userMilestones.currentquestline === 'Torture') {
 						return interaction.followUp('You have not yet defeated ``Ados``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = fullLoreList[currRun];
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('~Tales Retold~')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+			if (chosenStory === 5) {
+				if (furthestLore >= 32) {
+					furthestLore = 6;
+				} else if (furthestLore === 31) {
+					furthestLore = 5;
+				} else if (furthestLore === 30) {
+					furthestLore = 4;
+				} else if (furthestLore === 29) {
+					furthestLore = 3;
+				} else if (furthestLore === 28) {
+					furthestLore = 2;
+				} else if (furthestLore === 26) {
+					furthestLore = 1;
+				} else if (furthestLore === 24) {
+					if (userMilestones.currentquestline === 'Chaos') {
+						return interaction.followUp('You have not yet defeated ``Zimmir``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = fullLoreList[currRun];
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('~Tales Retold~')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+			if (chosenStory === 6) {
+				if (furthestLore >= 39) {
+					furthestLore = 7;
+				} else if (furthestLore === 38) {
+					furthestLore = 6;
+				} else if (furthestLore === 37) {
+					furthestLore = 5;
+				} else if (furthestLore === 36) {
+					furthestLore = 4;
+				} else if (furthestLore === 35) {
+					furthestLore = 3;
+				} else if (furthestLore === 34) {
+					furthestLore = 2;
+				} else if (furthestLore === 33) {
+					furthestLore = 1;
+				} else if (furthestLore === 32) {
+					if (userMilestones.currentquestline === 'Law') {
+						return interaction.followUp('You have not yet defeated ``Phamnera``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = fullLoreList[currRun];
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('~Tales Retold~')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+			if (chosenStory === 7) {
+				if (furthestLore >= 45) {
+					furthestLore = 6;
+				} else if (furthestLore === 44) {
+					furthestLore = 5;
+				} else if (furthestLore === 43) {
+					furthestLore = 4;
+				} else if (furthestLore === 42) {
+					furthestLore = 3;
+				} else if (furthestLore === 41) {
+					furthestLore = 2;
+				} else if (furthestLore === 40) {
+					furthestLore = 1;
+				}else if (furthestLore === 39) {
+					if (userMilestones.currentquestline === 'Hate') {
+						return interaction.followUp('You have not yet defeated ``Xogdia``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = fullLoreList[currRun];
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('~Tales Retold~')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+			if (chosenStory === 8) {
+				if (furthestLore >= 52) {
+					furthestLore = 7;
+				} else if (furthestLore === 51) {
+					furthestLore = 6;
+				} else if (furthestLore === 50) {
+					furthestLore = 5;
+				} else if (furthestLore === 49) {
+					furthestLore = 4;
+				} else if (furthestLore === 48) {
+					furthestLore = 3;
+				} else if (furthestLore === 47) {
+					furthestLore = 2;
+				} else if (furthestLore === 46) {
+					furthestLore = 1;
+				}else if (furthestLore === 45) {
+					if (userMilestones.currentquestline === 'Myst') {
+						return interaction.followUp('You have not yet defeated ``Mien``! Use the command ``/dungeon`` to enter the dungeon!');
+					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
+				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
+
+				const fullLoreList = loreList.filter(lore => lore.StoryLine === chosenStory);
+				let currLorePiece;
+				let currRun = 0;
+				do {
+					currLorePiece = fullLoreList[currRun];
+
+					var theAdventure = `${currLorePiece.Lore}`;
+
+					const questStoryEmbed = new EmbedBuilder()
+						.setTitle('~Tales Retold~')
+						.setDescription(`Page: ${(currRun + 1)}/${furthestLore}`)
+						.setColor('DarkAqua')
+						.addFields({
+							name: 'Adventure', value: theAdventure
+						});
+					embedPages.push(questStoryEmbed);
+					currRun++;
+				} while (currRun < furthestLore)
+			}
+
+			if (chosenStory === 9) {
+				if (furthestLore >= 57) {
+					furthestLore = 5;
+				} else if (furthestLore === 56) {
+					furthestLore = 4;
+				} else if (furthestLore === 55) {
+					furthestLore = 3;
+				} else if (furthestLore === 54) {
+					furthestLore = 2;
+				} else if (furthestLore === 53) {
+					furthestLore = 1;
+				} else if (furthestLore === 52) {
+					if (userMilestones.currentquestline === 'Secret') {
+						return interaction.followUp('You have not yet defeated ``Nizdea``! Use the command ``/dungeon`` to enter the dungeon!');
 					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');
 				} else return console.log(errorForm('Something went wrong while assigning furthestLore!!'));
 

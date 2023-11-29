@@ -76,6 +76,55 @@ module.exports = {
 				dungeonMatch.push(dungeonList[1]);
 			}
 
+			if (userMilesCheck.currentquestline === 'Torture') {
+				if (userMilesCheck.laststoryquest < 22) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[2]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Chaos') {
+				if (userMilesCheck.laststoryquest < 25) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[3]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Law') {
+				if (userMilesCheck.laststoryquest < 32) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[4]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Hate') {
+				if (userMilesCheck.laststoryquest < 39) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[5]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Myst') {
+				if (userMilesCheck.laststoryquest < 45) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[6]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Secret') {
+				if (userMilesCheck.laststoryquest < 52) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[7]);
+			}
+
+			if (userMilesCheck.currentquestline === 'Dream') {
+				if (userMilesCheck.laststoryquest < 57) {
+					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+				}
+				dungeonMatch.push(dungeonList[8]);
+			}
+
 			const noMatchEmbed = new EmbedBuilder()
 				.setTitle('Dungeon Not Found!')
 				.setDescription(dungeonName)
@@ -140,6 +189,46 @@ module.exports = {
 			if (givenDungeon === 'zimmir') {
 				if (userMilestone.currentquestline === 'Chaos') {
 					if (userMilestone.laststoryquest < 25) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'phamnera') {
+				if (userMilestone.currentquestline === 'Law') {
+					if (userMilestone.laststoryquest < 32) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'xogdia') {
+				if (userMilestone.currentquestline === 'Hate') {
+					if (userMilestone.laststoryquest < 39) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'mien') {
+				if (userMilestone.currentquestline === 'Myst') {
+					if (userMilestone.laststoryquest < 45) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'nizdea') {
+				if (userMilestone.currentquestline === 'Secret') {
+					if (userMilestone.laststoryquest < 52) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+				}
+			}
+
+			if (givenDungeon === 'fayrn') {
+				if (userMilestone.currentquestline === 'Dream') {
+					if (userMilestone.laststoryquest < 57) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
 				}
