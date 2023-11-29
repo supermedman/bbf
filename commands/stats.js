@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, Butt
 const { UserData, ActiveStatus } = require('../dbObjects.js');
 const { displayEWOpic, displayEWpic } = require('./exported/displayEnemy.js');
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
+const { errorForm } = require('../chalkPresets.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stats')
@@ -71,37 +72,18 @@ module.exports = {
         } 
     },
     async execute(interaction) {
-        await interaction.deferReply();
+        if (!interaction) return;
+        
         if (interaction.options.getSubcommand() === 'user') {
-            const user = interaction.options.getUser('player');
+            await interaction.deferReply().then(async () => {
+                const user = interaction.options.getUser('player');
 
-            if (user) {
-                const uData = await UserData.findOne({ where: { username: user.username } });
-                if (uData) {
-                    const nxtLvl = calcNextLevel(uData);
-                    const list = makeListStr(uData, nxtLvl);
-                         
-
-                    const userDisplayEmbed = new EmbedBuilder()
-                        .setTitle(`Requested Stats for:`)
-                        .setColor(0000)
-                        .addFields(
-                            {
-                                name: (`${uData.username}`),
-                                value: list
-
-                            }
-                        )
-                    interaction.followUp({ embeds: [userDisplayEmbed] });
-                }
-            } else {
-                const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
-                if (uData) {
-                    const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
-
-                    if (activeUserStatus.length <= 0) {
+                if (user) {
+                    const uData = await UserData.findOne({ where: { username: user.username } });
+                    if (uData) {
                         const nxtLvl = calcNextLevel(uData);
-                        const list = makeListStr(uData, nxtLvl);                      
+                        const list = makeListStr(uData, nxtLvl);
+
 
                         const userDisplayEmbed = new EmbedBuilder()
                             .setTitle(`Requested Stats for:`)
@@ -114,134 +96,160 @@ module.exports = {
                                 }
                             )
                         interaction.followUp({ embeds: [userDisplayEmbed] });
-                    } else {
-                        const nxtLvl = calcNextLevel(uData);
-                        const list = makeListStr(uData, nxtLvl);
+                    }
+                } else {
+                    const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+                    if (uData) {
+                        const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
 
-                        let embedPages = [];
+                        if (activeUserStatus.length <= 0) {
+                            const nxtLvl = calcNextLevel(uData);
+                            const list = makeListStr(uData, nxtLvl);
 
-                        const userDisplayEmbed = {
-                            title: `Requested Stats for: `,
-                            color: 0000,
-                            fields: [{
-                                name: `${uData.username}`,
-                                value: list,
-                            }],
-                        };
-                        embedPages.push(userDisplayEmbed);
+                            const userDisplayEmbed = new EmbedBuilder()
+                                .setTitle(`Requested Stats for:`)
+                                .setColor(0000)
+                                .addFields(
+                                    {
+                                        name: (`${uData.username}`),
+                                        value: list
 
-                        let curRun = 0;
-                        do {
-
-                            let finalFields = [];
-                            let breakPoint = 0;
-                            for (const status of activeUserStatus) {
-                                let embedFieldsName = ``;
-                                let embedFieldsValue = ``;
-                                let embedFieldsObj;
-
-                                embedFieldsName = `Active effect: ${status.name}`;
-                                if (status.duration <= 0) {
-                                    if (status.curreffect === 0) {
-                                        embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
-                                    } else {
-                                        embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
                                     }
-                                } else {
-                                    if (status.curreffect === 0) {
-                                        embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
-                                    } else {
-                                        embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
-                                    }
-                                }
+                                )
+                            interaction.followUp({ embeds: [userDisplayEmbed] });
+                        } else {
+                            const nxtLvl = calcNextLevel(uData);
+                            const list = makeListStr(uData, nxtLvl);
 
-                                embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
-                                finalFields.push(embedFieldsObj);
+                            let embedPages = [];
 
-                                breakPoint++;
-                                if (breakPoint === 5) break;
-                            }
-
-                            const embed = {
-                                title: `Active Status Effects: Page ${(curRun + 1)}`,
+                            const userDisplayEmbed = {
+                                title: `Requested Stats for: `,
                                 color: 0000,
-                                fields: finalFields,
+                                fields: [{
+                                    name: `${uData.username}`,
+                                    value: list,
+                                }],
                             };
+                            embedPages.push(userDisplayEmbed);
 
-                            embedPages.push(embed);
-                            curRun++;
-                        } while (curRun < (activeUserStatus.length / 5))
+                            let curRun = 0;
+                            do {
 
-                        const backButton = new ButtonBuilder()
-                            .setLabel("Back")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('◀️')
-                            .setCustomId('back-page');
+                                let finalFields = [];
+                                let breakPoint = 0;
+                                for (const status of activeUserStatus) {
+                                    let embedFieldsName = ``;
+                                    let embedFieldsValue = ``;
+                                    let embedFieldsObj;
 
-                        const cancelButton = new ButtonBuilder()
-				            .setLabel("Cancel")
-				            .setStyle(ButtonStyle.Secondary)
-				            .setEmoji('*️⃣')
-				            .setCustomId('delete-page');
+                                    embedFieldsName = `Active effect: ${status.name}`;
+                                    if (status.duration <= 0) {
+                                        if (status.curreffect === 0) {
+                                            embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
+                                        } else {
+                                            embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
+                                        }
+                                    } else {
+                                        if (status.curreffect === 0) {
+                                            embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
+                                        } else {
+                                            embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
+                                        }
+                                    }
 
-                        const forwardButton = new ButtonBuilder()
-                            .setLabel("Forward")
-                            .setStyle(ButtonStyle.Secondary)
-                            .setEmoji('▶️')
-                            .setCustomId('next-page');
+                                    embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
+                                    finalFields.push(embedFieldsObj);
 
-                        const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
-
-                        const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
-
-                        const filter = (ID) => ID.user.id === interaction.user.id;
-
-                        const collector = embedMsg.createMessageComponentCollector({
-                            componentType: ComponentType.Button,
-                            filter,
-                            time: 300000,
-                        });
-
-                        var currentPage = 0;
-
-                        collector.on('collect', async (collInteract) => {
-                            if (collInteract.customId === 'next-page') {
-                                await collInteract.deferUpdate();
-                                if (currentPage === embedPages.length - 1) {
-                                    currentPage = 0;
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                } else {
-                                    currentPage += 1;
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                    breakPoint++;
+                                    if (breakPoint === 5) break;
                                 }
-                            }
-                            if (collInteract.customId === 'back-page') {
-                                await collInteract.deferUpdate();
-                                if (currentPage === 0) {
-                                    currentPage = embedPages.length - 1;
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                } else {
-                                    currentPage -= 1;
-                                    await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                }
-                            }
-                            if (collInteract.customId === 'delete-page') {
-                                await collInteract.deferUpdate();
-                                await collector.stop();
-                            }
-                        });
 
-                        collector.on('end', () => {
-                            if (embedMsg) {
-                                embedMsg.delete();
-                            }
-                        });
+                                const embed = {
+                                    title: `Active Status Effects: Page ${(curRun + 1)}`,
+                                    color: 0000,
+                                    fields: finalFields,
+                                };
+
+                                embedPages.push(embed);
+                                curRun++;
+                            } while (curRun < (activeUserStatus.length / 5))
+
+                            const backButton = new ButtonBuilder()
+                                .setLabel("Back")
+                                .setStyle(ButtonStyle.Secondary)
+                                .setEmoji('◀️')
+                                .setCustomId('back-page');
+
+                            const cancelButton = new ButtonBuilder()
+                                .setLabel("Cancel")
+                                .setStyle(ButtonStyle.Secondary)
+                                .setEmoji('*️⃣')
+                                .setCustomId('delete-page');
+
+                            const forwardButton = new ButtonBuilder()
+                                .setLabel("Forward")
+                                .setStyle(ButtonStyle.Secondary)
+                                .setEmoji('▶️')
+                                .setCustomId('next-page');
+
+                            const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+                            const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+                            const filter = (ID) => ID.user.id === interaction.user.id;
+
+                            const collector = embedMsg.createMessageComponentCollector({
+                                componentType: ComponentType.Button,
+                                filter,
+                                time: 300000,
+                            });
+
+                            var currentPage = 0;
+
+                            collector.on('collect', async (collInteract) => {
+                                if (collInteract.customId === 'next-page') {
+                                    await collInteract.deferUpdate();
+                                    if (currentPage === embedPages.length - 1) {
+                                        currentPage = 0;
+                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                    } else {
+                                        currentPage += 1;
+                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                    }
+                                }
+                                if (collInteract.customId === 'back-page') {
+                                    await collInteract.deferUpdate();
+                                    if (currentPage === 0) {
+                                        currentPage = embedPages.length - 1;
+                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                    } else {
+                                        currentPage -= 1;
+                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                                    }
+                                }
+                                if (collInteract.customId === 'delete-page') {
+                                    await collInteract.deferUpdate();
+                                    await collector.stop();
+                                }
+                            });
+
+                            collector.on('end', () => {
+                                if (embedMsg) {
+                                    embedMsg.delete();
+                                }
+                            });
+                        }
                     }
                 }
-            }
+            }).catch(error => {
+                console.log(errorForm(error));
+            });
+            
         }
         if (interaction.options.getSubcommand() === 'enemy') {
             //handle enemies here
+            await interaction.deferReply();
             const eTmp = interaction.options.getString('name');
             var enemy;
 
@@ -263,6 +271,7 @@ module.exports = {
             }
         }
         if (interaction.options.getSubcommand() === 'info') {
+            await interaction.deferReply();
             const skill = interaction.options.getString('stat');
             //'speed', 'strength', 'dexterity', 'intelligence'
             if (skill) {
