@@ -65,6 +65,9 @@ module.exports = {
 
             var potionEmbed;
 
+            let totalDefence = 0;
+            var defenceEmbed;
+
             var damageEmbed;
 
             if (headSlotItem === 'NONE') {
@@ -98,6 +101,7 @@ module.exports = {
                             value: list,
 
                         });
+                totalDefence += headSlotItem.Defence;
             }
 
             if (chestSlotItem === 'NONE') {
@@ -132,6 +136,7 @@ module.exports = {
                             value: list,
 
                         });
+                totalDefence += chestSlotItem.Defence;
             }
 
             if (legSlotItem === 'NONE') {
@@ -167,6 +172,7 @@ module.exports = {
                             value: list,
 
                         });
+                totalDefence += legSlotItem.Defence;
             }
 
             if (offHandItem === 'NONE') {
@@ -177,7 +183,12 @@ module.exports = {
             } else {
                 if (currentLoadout.mainhand === currentLoadout.offhand) {
                     //TWO HANDED WEAPON EQUIPPED!
-                    var list = `${mainHandItem.name} is taking this spot!`;
+                    var list;
+                    if (mainHandUnique === true) {
+                        list = `${mainHandItem.name} is taking this spot!`;
+                    } else {
+                        list = `${mainHandItem.Name} is taking this spot!`;
+                    }
                     offHandEmbed = new EmbedBuilder()
                         .setTitle('MAINHAND TAKES TWO HANDS')
                         .addFields({ name: 'Offhand full', value: list, });
@@ -205,8 +216,51 @@ module.exports = {
                                 value: list,
 
                             });
+                    totalDefence += offHandItem.Defence;
                 }
             }
+
+            if (totalDefence === 0) {
+                var list = `No armor, no defence`;
+                defenceEmbed = new EmbedBuilder()
+                    .setTitle('NOTHING EQUIPPED')
+                    .addFields({ name: 'Nothing equipped', value: list, });
+            } else {
+                var list = `${totalDefence}`;
+                defenceEmbed = new EmbedBuilder()
+                    .setTitle('ARMOR EQUIPPED')
+                    .addFields({ name: 'Total Defence from Armor:', value: list, });
+            }
+
+            if (equippedPotion === 'NONE' || 'HASNONE') {
+                var list;
+                var name;
+                if (equippedPotion === 'NONE') {
+                    list = `Nothing to see here`;
+                    name = 'No potion equipped';
+                } else {
+                    list = `Nothing to see here`;
+                    name = 'No potions remaining';
+                }
+                potionEmbed = new EmbedBuilder()
+                    .setTitle('NOTHING EQUIPPED')
+                    .addFields({ name: name, value: list, });
+            } else {
+                var list = `Value: ${equippedPotion.value}\nType: ${equippedPotion.activecategory}\nDuration: ${equippedPotion.duration}\nCooldown: ${equippedPotion.cooldown}\nCurrent Amount: ${equippedPotion.amount}`;
+                var potName = `Name: ${equippedPotion.name}`;
+
+                potionEmbed = new EmbedBuilder()
+                    .setTitle('CURRENTLY EQUIPPED')
+                    .setColor(0000)
+                    .addFields(
+                        {
+                            name: (`${potName}`),
+                            value: list,
+
+                        });
+            }
+
+            await interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, offHandEmbed, potionEmbed] });
 
             if (mainHandItem === 'NONE') {
                 //No item equipped
@@ -267,7 +321,7 @@ module.exports = {
                         });
             }
 
-            interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, offHandEmbed, mainHandEmbed, damageEmbed] });
+            await interaction.followUp({ embeds: [mainHandEmbed, damageEmbed] });
 
         } else {
             //No items equipped
