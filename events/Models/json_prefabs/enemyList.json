@@ -3909,7 +3909,7 @@
         "DropTypes": [ "tooly" ],
         "Health": 12637,
         "Level": 46,
-        "Name": "Phasebent Moaner ",
+        "Name": "Phasebent Moaner",
         "NewSpawn": true,
         "WeakTo": "Frost"
     },
@@ -4917,7 +4917,7 @@
 
         "DropTypes": [ " " ],
 
-        "ConstKey": 0,
+        "ConstKey": 100000000,
         "SpecId": 0
     },
     {
