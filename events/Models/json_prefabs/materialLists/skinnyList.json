@@ -78,6 +78,16 @@
 
 		"Mat_id": 8,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Worked Phase-Leather",
+		"Value": 1000,
+
+		"Rarity": "???",
+		"Rar_id": 8,
+
+		"Mat_id": 9,
+		"Spec_id": 0
 	}
 
 ]
