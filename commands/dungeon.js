@@ -167,7 +167,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 10) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 10) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'dyvulla') {
@@ -175,7 +179,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 15) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 15) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'ados') {
@@ -183,7 +191,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 22) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 22) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'zimmir') {
@@ -191,7 +203,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 25) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 25) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'phamnera') {
@@ -199,7 +215,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 32) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 32) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'xogdia') {
@@ -207,7 +227,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 39) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 39) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'mien') {
@@ -215,7 +239,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 45) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 45) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'nizdea') {
@@ -223,7 +251,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 52) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 52) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 
 			if (givenDungeon === 'fayrn') {
@@ -231,7 +263,11 @@ module.exports = {
 					if (userMilestone.laststoryquest < 57) {
 						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 					}
-				}
+				} else {
+					if (userMilestone.laststoryquest < 57) {
+						return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
+					}
+                }
 			}
 			//if (userMilestone.laststoryquest !== 10) return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
 
