@@ -11,7 +11,7 @@ const {
     specialInfoForm
 } = require('../chalkPresets.js');
 
-const { checkHintLootSell, checkHintLootDismantle, checkHintMaterialCombine } = require('./exported/handleHints.js');
+const { checkHintLootSell, checkHintLootDismantle, checkHintMaterialCombine, checkHintLootEquip, checkHintPotionEquip, checkHintPigmyGive, checkHintUniqueEquip } = require('./exported/handleHints.js');
 
 const { UserData, LootStore, MaterialStore, OwnedPotions, OwnedTools, UniqueCrafted } = require('../dbObjects.js');
 
@@ -49,6 +49,10 @@ module.exports = {
             if (!loFound) return interaction.followUp('Sorry but you dont have any items yet! Use the command ``/shop`` to open the shop and make your first purchase.');
 
             const userItems = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
+
+            const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+
+            await checkHintLootEquip(user, interaction);
 
             //***THIS DOES NOT WORK NEED TO FIX IT ASAP***
             if (userItems.length <= 5) {
@@ -103,8 +107,7 @@ module.exports = {
                 //allow buttons to loop from page 1 to last page and vice-versa
                 console.log('TOO MANY ITEMS!');
 
-                const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
-
+                
                 await checkHintLootSell(user, interaction);
                 await checkHintLootDismantle(user, interaction);
 
@@ -428,6 +431,9 @@ module.exports = {
 
             const allPotsOwned = await OwnedPotions.findAll({ where: { spec_id: interaction.user.id } });
 
+            const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+            await checkHintPotionEquip(user, interaction);
+
             var embedPages = [];
 
             let listedDefaults;
@@ -540,6 +546,9 @@ module.exports = {
             if (!toolCheck) return interaction.followUp('You have no tools! Use ``/blueprint view`` to make some!');
 
             const allToolsOwned = await OwnedTools.findAll({ where: { spec_id: interaction.user.id } });
+
+            const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+            await checkHintPigmyGive(user, interaction);
 
             var embedPages = [];
 
@@ -656,6 +665,9 @@ module.exports = {
             if (!uniqueCheck) return interaction.followUp('You have no Unique Gear! Use ``/blueprint view`` to make some!');
 
             const allUniqueOwned = await UniqueCrafted.findAll({ where: { spec_id: interaction.user.id } });
+
+            const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+            await checkHintUniqueEquip(user, interaction);
 
             var embedPages = [];
 

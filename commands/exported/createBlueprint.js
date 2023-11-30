@@ -11,7 +11,9 @@ const {
 
 const blueprintList = require('../../events/Models/json_prefabs/blueprintList.json');
 
-const { OwnedBlueprints } = require('../../dbObjects.js');
+const { OwnedBlueprints, UserData } = require('../../dbObjects.js');
+
+const { checkHintPotionBluey, checkHintToolBluey, checkHintUniqueBluey, checkHintViewBluey } = require('./handleHints.js');
 
 async function createNewBlueprint(BPID, userID) {
     const foundBP = await OwnedBlueprints.findOne({ where: [{ spec_id: userID }, { blueprintid: BPID }] });
@@ -96,9 +98,12 @@ async function dropRandomBlueprint(level, userID, interaction) {
             if (!blueprintFound) return console.log(errorForm('BLUEPRINT NOT FOUND'));
             console.log(successResult('BLUEPRINT FOUND'));
 
+            const user = await UserData.findOne({ where: { userid: userID } });
+
             let thisIsBool = false;
             if (blueprintFound.Rarity === 'Unique') {
                 thisIsBool = true;
+                await checkHintUniqueBluey(user, interaction);
             }
             if (blueprintFound.OnlyOne === true) {
                 thisIsBool = true;
@@ -127,6 +132,13 @@ async function dropRandomBlueprint(level, userID, interaction) {
 
             } catch (err) {
                 return console.log(errorForm('AN ERROR HAS OCCURED: ', err));
+            }
+
+            if (newBP.passivecategory === 'Potion') {
+                await checkHintPotionBluey(user, interaction);
+            }
+            if (newBP.passivecategory === 'Tool') {
+                await checkHintToolBluey(user, interaction);
             }
 
             const list = `Blueprint Type: ${newBP.passivecategory} \nBlueprint Level: ${blueprintFound.UseLevel}`
@@ -176,6 +188,8 @@ async function checkUnlockedBluey(level, userID, interaction) {
 }
 
 async function itterateMakeBluey(unlockedList, runCount, userID, interaction) {
+    const user = await UserData.findOne({ where: { userid: userID } });
+    await checkHintViewBluey(user, interaction);
     let curRun = 0;
     do {
         try {
@@ -189,6 +203,7 @@ async function itterateMakeBluey(unlockedList, runCount, userID, interaction) {
                 let thisIsBool = false;
                 if (unlockedList[curRun].Rarity === 'Unique') {
                     thisIsBool = true;
+                    await checkHintUniqueBluey(user, interaction);
                 }
                 if (unlockedList[curRun].OnlyOne === true) {
                     thisIsBool = true;
@@ -212,6 +227,13 @@ async function itterateMakeBluey(unlockedList, runCount, userID, interaction) {
                     console.log(specialInfoForm('theBlueprint: ', theBlueprint));
 
                     const list = `Blueprint Type: ${unlockedList[curRun].PassiveCategory} \nBlueprint Level: ${unlockedList[curRun].UseLevel}`
+
+                    if (unlockedList[curRun].passivecategory === 'Potion') {
+                        await checkHintPotionBluey(user, interaction);
+                    }
+                    if (unlockedList[curRun].passivecategory === 'Tool') {
+                        await checkHintToolBluey(user, interaction);
+                    }
 
                     const blueyEmbed = new EmbedBuilder()
                         .setTitle('~BLUEPRINT UNLOCKED~')

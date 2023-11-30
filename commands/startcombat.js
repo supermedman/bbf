@@ -22,6 +22,8 @@ const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
 const { grabMat } = require('./exported/materialDropper.js');
 
+const { checkHintLootView, checkHintStats } = require('./exported/handleHints.js');
+
 const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
 
 const { userDamageLoadout, enemyDamage } = require('./exported/dealDamage.js');
@@ -324,58 +326,60 @@ module.exports = {
             collector.on('collect', async (collInteract) => {
 
                 if (collInteract.customId === 'steal') {
-                    await collInteract.deferUpdate();
+                    await collInteract.deferUpdate().then(async () => {
+                        const actionToTake = await stealing(enemy, user, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
+                        if (actionToTake === 'NO ITEM') {
+                            //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
+                            stealDisabled = true;
+                            stealButton.setDisabled(true);
+                            await collInteract.editReply({ components: [row] });
 
-                    const actionToTake = await stealing(enemy, user, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
-                    if (actionToTake === 'NO ITEM') {
-                        //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
-                        stealDisabled = true;
-                        stealButton.setDisabled(true);
-                        await collInteract.editReply({ components: [row] });
+                            const emptyPockets = new EmbedBuilder()
+                                .setTitle('Nothing to steal')
+                                .setColor('NotQuiteBlack')
+                                .addFields(
+                                    { name: 'No really..', value: 'There isnt anything here!', inline: true },
+                                );
 
-                        const emptyPockets = new EmbedBuilder()
-                            .setTitle('Nothing to steal')
-                            .setColor('NotQuiteBlack')
-                            .addFields(
-                                { name: 'No really..', value: 'There isnt anything here!', inline: true },
-                            );
+                            await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
+                                emptyPockets.delete();
+                            }, 15000)).catch(console.error);
 
-                        await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
-                            emptyPockets.delete();
-                        }, 15000)).catch(console.error);
+                        } else if (actionToTake === 'FAILED') {
+                            //Steal has failed! Punish player
+                            const stealFailed = new EmbedBuilder()
+                                .setTitle('Failed!')
+                                .setColor('DarkRed')
+                                .addFields(
+                                    { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
+                                );
 
-                    } else if (actionToTake === 'FAILED') {
-                        //Steal has failed! Punish player
-                        const stealFailed = new EmbedBuilder()
-                            .setTitle('Failed!')
-                            .setColor('DarkRed')
-                            .addFields(
-                                { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
-                            );
+                            await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
+                                stealFailed.delete();
+                            }, 15000)).catch(console.error);
 
-                        await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
-                            stealFailed.delete();
-                        }, 15000)).catch(console.error);
-
-                        await collector.stop();
-                        await stealPunish(enemy);
-                    } else if (actionToTake === 'UNIQUE ITEM') {
-                        //Unique item detected! Find item here
-                        const itemToMake = await getUniqueItem(enemy);
-                        const uItemRef = await makeUniqueItem(itemToMake);
-                        await showStolen(uItemRef);
-                        await collector.stop();
-                        await resetHasUniqueItem(enemy);
-                    } else {
-                        //Steal has either been a success, or an error has occured!
-                        //Generate item with actionToTake                          
-                        const usedRar = actionToTake;
-                        const itemRef = await makeItem(enemy, usedRar);
-                        await showStolen(itemRef);
-                        stealDisabled = true;
-                        await collector.stop();
-                        await resetHasItem(enemy); //Upon completion reload enemy
-                    }
+                            await collector.stop();
+                            await stealPunish(enemy);
+                        } else if (actionToTake === 'UNIQUE ITEM') {
+                            //Unique item detected! Find item here
+                            const itemToMake = await getUniqueItem(enemy);
+                            const uItemRef = await makeUniqueItem(itemToMake);
+                            await showStolen(uItemRef);
+                            await collector.stop();
+                            await resetHasUniqueItem(enemy);
+                        } else {
+                            //Steal has either been a success, or an error has occured!
+                            //Generate item with actionToTake                          
+                            const usedRar = actionToTake;
+                            const itemRef = await makeItem(enemy, usedRar);
+                            await showStolen(itemRef);
+                            stealDisabled = true;
+                            await collector.stop();
+                            await resetHasItem(enemy); //Upon completion reload enemy
+                        }
+                    }).catch(error => {
+                        console.log(errorForm(error));
+                    });
                 }
 
                 if (collInteract.customId === 'hide') {
@@ -568,6 +572,10 @@ module.exports = {
 
             const newtotalK = user.totalkills + 1;
             const newCurK = user.killsthislife + 1;
+
+            if (newtotalK > 10) {
+                await checkHintStats(user, interaction);
+            }
 
             await UserData.update({ totalkills: newtotalK }, { where: { userid: userID } });
             await UserData.update({ killsthislife: newCurK }, { where: { userid: userID } });
@@ -1417,7 +1425,7 @@ module.exports = {
             
 
             const itemAdded = await LootStore.findOne({
-                where: { spec_id: userID, loot_id: theItem.loot_id },
+                where: { spec_id: userID, loot_id: theItem.Loot_id },
             });
 
             return itemAdded;
@@ -1499,6 +1507,8 @@ module.exports = {
             user.totitem += 1;
 
             await user.save();
+
+            await checkHintLootView(user, interaction);
 
             let addedItem;
             if (theItem.Slot === 'Mainhand') {
@@ -1587,7 +1597,7 @@ module.exports = {
                         }
                         console.log(specialInfoForm('newHealth after checks: ', newHealth));
 
-                        const editRow = UserData.update({ health: newHealth }, { where: { userid: userID } });
+                        const editRow = await UserData.update({ health: newHealth }, { where: { userid: userID } });
                         if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
 
                         await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);

@@ -14,6 +14,8 @@ const { OwnedBlueprints, MaterialStore, UniqueCrafted, OwnedPotions, UserData, O
 const blueprintList = require('../events/Models/json_prefabs/blueprintList.json');
 const { grabColour } = require('./exported/grabRar.js');
 
+const { checkHintPotionEquip, checkHintUniqueEquip, checkHintPigmyGive } = require('./exported/handleHints.js');
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('blueprint')
@@ -1269,9 +1271,9 @@ module.exports = {
 		}
 
 		async function makePotion(potion, interaction, grabbedMTA, inputAmount) {	
-
+			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
 			try {
-
+				await checkHintPotionEquip(user, interaction);
 				const hasPot = await OwnedPotions.findOne({
 					where: [{ spec_id: interaction.user.id }, { potion_id: potion.PotionID }]
 				});
@@ -1358,6 +1360,7 @@ module.exports = {
 		}
 
 		async function makeEquip(equip, interaction, grabbedMTA) {
+			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
 			let newEquip;
 			if (equip.Slot === 'Mainhand') {
 				newEquip = await UniqueCrafted.create({
@@ -1399,6 +1402,7 @@ module.exports = {
 			
 
 			if (newEquip) {
+				await checkHintUniqueEquip(user, interaction);
 				const theEquip = await UniqueCrafted.findOne({
 					where: [{ spec_id: interaction.user.id }, { blueprintid: equip.BlueprintID }, { loot_id: equip.Loot_id,}]
 				});
@@ -1427,6 +1431,7 @@ module.exports = {
 		}
 
 		async function makeTool(tool, interaction, grabbedMTA) {
+			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
 			let theTool;
 			theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });
 			if (theTool) {
@@ -1459,6 +1464,7 @@ module.exports = {
 			}
 
 			if (theTool !== undefined) {
+				await checkHintPigmyGive(user, interaction);
 				await payupMats(grabbedMTA, interaction, tool);
 				
 				const list = `Value: ${tool.CoinCost} \nSlot: ${theTool.activesubcategory} \nRarity: ${theTool.rarity} \nAmount Owned: ${theTool.amount}`;
