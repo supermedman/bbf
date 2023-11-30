@@ -12,6 +12,8 @@ const {
 const { checkUnlockedBluey } = require('./createBlueprint.js');
 const { UserData, Pighouse, Pigmy, UniqueCrafted, Loadout } = require('../../dbObjects.js');
 
+const { checkHintLevelFive, checkHintLevelThirty, checkHintLevelOneHundred } = require('./handleHints.js');
+
 //========================================
 //basic user data refrence method
 async function grabU(interaction) {
@@ -63,6 +65,16 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 			newlvl = curlvl + i;
 			addPoints(uData);
 			console.log('Current level after xp added ', newlvl);
+
+			if (newlvl >= 100) {
+				await checkHintLevelOneHundred(uData, interaction);		
+			} else if (newlvl >= 30) {
+				await checkHintLevelThirty(uData, interaction);
+			} else if (newlvl >= 5) {
+				await checkHintLevelFive(uData, interaction);
+            }
+			
+			
 
 			if (newlvl === 20) {
 				//Adding level scale to further restrict leveling		
