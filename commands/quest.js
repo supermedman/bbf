@@ -10,6 +10,8 @@ const questList = require('../events/Models/json_prefabs/questList.json');
 const activeCategoryEffects = require('../events/Models/json_prefabs/activeCategoryEffects.json');
 const loreList = require('../events/Models/json_prefabs/loreList.json');
 
+const { checkHintQuest, checkHintStoryQuest, checkHintLore, checkHintDungeon, checkHintPigmy } = require('./exported/handleHints.js');
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('quest')
@@ -566,6 +568,8 @@ module.exports = {
                 //user found quest already active/not claimed
                 //prompt user to deal with ongoing quest
                 console.log('Quest found in progress or complete!');
+                const user = await grabU();
+                await checkHintQuest(user, interaction);
                 return interaction.followUp('You already have a quest in progress.. Use ``/quest claim`` for more info!');
             }
 		} else if (interaction.options.getSubcommand() === 'claim') {
@@ -1042,9 +1046,12 @@ module.exports = {
                     // SECRET   - lvl 95    - PARTS: 6
                     // DREAM    - lvl 100   - PARTS: 5
 
+                    const user = await grabU();
+
                     if (userMilestone.currentquestline === 'Souls') {
                         if (!userDungeon) {
                             if (qFound.qid === 5 || qFound.qid === 8 || qFound.qid === 10) {
+                                await checkHintStoryQuest(user, interaction);
                                 //Quest is part of story line!
                                 const fullLoreList = await loreList.filter(lore => lore.StoryLine === 1);
                                 await Milestones.update({ laststoryquest: qFound.qid }, { where: { userid: interaction.user.id } });
@@ -1079,7 +1086,7 @@ module.exports = {
 
                                 } else if (qFound.qid === 8) {
                                     await Milestones.update({ nextstoryquest: 10 }, { where: { userid: interaction.user.id } });
-
+                                    await checkHintLore(user, interaction);
                                     // ========== STORY ==========
                                     // Upon arriving at the marked location you are met with a large run-down castle town scattered are pillars and engravings of souls.
                                     // This must be the dungeon of souls!!
@@ -1108,7 +1115,7 @@ module.exports = {
 
                                 } else if (qFound.qid === 10) {
                                     //Final story quest completed, Souls Dungeon now unlocked!
-
+                                    await checkHintDungeon(user, interaction);
                                     // ========== STORY ==========
                                     // After hours of gruling battles and slaying you secure the surroundings. 
                                     // You are now ready to enter the dungeon of souls, ruled by ``Wadon``!
@@ -2565,8 +2572,9 @@ module.exports = {
         }
 
         //========================================
-        //this method is used to update the users xp based on the xp calculated in the display function
+        //this method is used to update the users qts based on the qts calculated in the display function
         async function editPData(uData, totalQT) {
+            if (totalQT >= 10) await checkHintPigmy(uData, interaction);
             const addQT = await UserData.update({ qt: totalQT }, { where: { userid: interaction.user.id } });
             if (addQT > 0) {
                 return;
