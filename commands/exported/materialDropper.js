@@ -12,6 +12,8 @@ const {
 const { grabRar, grabColour } = require('./grabRar.js');
 const { MaterialStore } = require('../../dbObjects.js');
 
+const { checkHintMaterialView, checkHintMaterialUnique } = require('./handleHints.js');
+
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 
 /**
@@ -80,6 +82,8 @@ async function grabMat(enemy, user, interaction) {
 
         var theUnique = await handleMaterialAdding(uniqueMatDrop, 1, user, hasUniqueType);
 
+        await checkHintMaterialUnique(user, interaction);
+
         const updatedMat = await MaterialStore.findOne({ where: [{ name: theUnique.name }, { spec_id: interaction.user.id }] });
 
         if (updatedMat) theUnique = updatedMat;
@@ -142,6 +146,8 @@ async function grabMat(enemy, user, interaction) {
         console.log(basicInfoForm('MaterialAmountDropped: ', droppedNum));
 
         const result = await handleMaterialAdding(finalMaterial, droppedNum, user, passType);
+
+        await checkHintMaterialView(user, interaction);
 
         var matListedDisplay = `Value: ${finalMaterial.Value}\nMaterial Type: **${passType}**\nRarity: ${finalMaterial.Rarity}\nAmount: ${droppedNum}`;
 

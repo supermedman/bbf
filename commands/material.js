@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { MaterialStore } = require('../dbObjects');
+const { MaterialStore, UserData } = require('../dbObjects');
 
 const {
 	warnedForm,
@@ -10,6 +10,7 @@ const {
 	specialInfoForm
 } = require('../chalkPresets.js');
 const { grabColour } = require('./exported/grabRar');
+const { checkHintMaterialDismantle } = require('./exported/handleHints.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -1261,9 +1262,14 @@ module.exports = {
 
 				collector.on('collect', async (collInteract) => {
 					if (collInteract.customId === 'accept') {
-						await collInteract.deferUpdate();
-						await handleMultiCombine(remainingMatsList, destroyMatsList, matType, chosenRarID, addedRarMats, highestPossibleCombine);
-						await collector.stop();
+						await collInteract.deferUpdate().then(async () => {
+							const user = await UserData.findOne({ where: { userid: interaction.user.id } });
+							await checkHintMaterialDismantle(user, interaction);
+							await handleMultiCombine(remainingMatsList, destroyMatsList, matType, chosenRarID, addedRarMats, highestPossibleCombine);
+							await collector.stop();
+						}).catch(error => {
+							console.log(errorForm(error));
+						});
 					}
 
 					if (collInteract.customId === 'cancel') {

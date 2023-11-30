@@ -28,6 +28,7 @@ const OwnedPotions = require('./events/Models/OwnedPotions')(sequelize, Sequeliz
 const UniqueCrafted = require('./events/Models/UniqueCrafted')(sequelize, Sequelize.DataTypes);
 const ActiveStatus = require('./events/Models/ActiveStatus')(sequelize, Sequelize.DataTypes);
 const OwnedTools = require('./events/Models/OwnedTools')(sequelize, Sequelize.DataTypes);
+const UserHints = require('./events/Models/UserHints')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	Equipped,
@@ -50,5 +51,6 @@ module.exports = {
 	OwnedPotions,
 	UniqueCrafted,
 	ActiveStatus,
-	OwnedTools
+	OwnedTools,
+	UserHints
 };

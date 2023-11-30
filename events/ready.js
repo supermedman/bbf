@@ -20,7 +20,8 @@ const {
     OwnedPotions,
     UniqueCrafted,
     ActiveStatus,
-    OwnedTools
+    OwnedTools,
+    UserHints
 } = require('../dbObjects.js');
 
 //const { } = require('../dbObjects.js');
@@ -45,6 +46,7 @@ module.exports = {
         Pighouse.sync();
 
         Milestones.sync();
+        UserHints.sync();
         Questing.sync();
 
         UserData.sync();
