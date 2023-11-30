@@ -3,6 +3,8 @@ const { UserData, ActiveStatus } = require('../dbObjects.js');
 const { displayEWOpic, displayEWpic } = require('./exported/displayEnemy.js');
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../chalkPresets.js');
+
+const { checkHintLootBuy } = require('./exported/handleHints.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stats')
@@ -105,6 +107,9 @@ module.exports = {
                         if (activeUserStatus.length <= 0) {
                             const nxtLvl = calcNextLevel(uData);
                             const list = makeListStr(uData, nxtLvl);
+                            if (uData.coins > 150) {
+                                await checkHintLootBuy(uData, interaction);
+                            }
 
                             const userDisplayEmbed = new EmbedBuilder()
                                 .setTitle(`Requested Stats for:`)
