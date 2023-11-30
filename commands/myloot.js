@@ -11,6 +11,8 @@ const {
     specialInfoForm
 } = require('../chalkPresets.js');
 
+const { checkHintLootSell, checkHintLootDismantle, checkHintMaterialCombine } = require('./exported/handleHints.js');
+
 const { UserData, LootStore, MaterialStore, OwnedPotions, OwnedTools, UniqueCrafted } = require('../dbObjects.js');
 
 module.exports = {
@@ -47,8 +49,6 @@ module.exports = {
             if (!loFound) return interaction.followUp('Sorry but you dont have any items yet! Use the command ``/shop`` to open the shop and make your first purchase.');
 
             const userItems = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
-
-            //const theUser = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
 
             //***THIS DOES NOT WORK NEED TO FIX IT ASAP***
             if (userItems.length <= 5) {
@@ -102,6 +102,11 @@ module.exports = {
                 //do this by making a button for going forward a page and going back a page
                 //allow buttons to loop from page 1 to last page and vice-versa
                 console.log('TOO MANY ITEMS!');
+
+                const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+
+                await checkHintLootSell(user, interaction);
+                await checkHintLootDismantle(user, interaction);
 
                 var embedPages = [];
                 const totalItems = userItems.length;
@@ -252,11 +257,9 @@ module.exports = {
                             if (currentPage === embedPages.length - 1) {
                                 currentPage = 0;
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                //await wait(1000);
                             } else {
                                 currentPage += 1;
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                //await wait(1000);
                                 }
                         }).catch(error => {
                             console.log(errorForm(error));
@@ -268,11 +271,9 @@ module.exports = {
                             if (currentPage === 0) {
                                 currentPage = embedPages.length - 1;
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                //await wait(1000);
                             } else {
                                 currentPage -= 1;
                                 await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                //await wait(1000);
                             }
                         }).catch(error => {
                             console.log(errorForm(error));
@@ -304,6 +305,11 @@ module.exports = {
             if (!matStore) return interaction.followUp('You do not have any materials yet!');
 
             const allMatsOwned = await MaterialStore.findAll({ where: { spec_id: interaction.user.id } });
+
+            if (allMatsOwned.length < 10) {
+                const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
+                await checkHintMaterialCombine(user, interaction);
+            }
 
             //console.log(specialInfoForm('allMatsOwned at pos 0: ', allMatsOwned[0].name));
             var embedPages = [];
