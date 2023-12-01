@@ -88,6 +88,16 @@
 
 		"Mat_id": 9,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Reinforced Phase-Leather",
+		"Value": 2000,
+
+		"Rarity": "????",
+		"Rar_id": 9,
+
+		"Mat_id": 10,
+		"Spec_id": 0
 	}
 
 ]
