@@ -1,7 +1,7 @@
 [
 	{
 		"Name": "Rose Quartz",
-		"Value": 300,
+		"Value": 500,
 
 		"Rarity": "???",
 		"Rar_id": 8,
@@ -71,7 +71,7 @@
 	},
 	{
 		"Name": "Sapphire",
-		"Value": 100,
+		"Value": 200,
 
 		"Rarity": "?",
 		"Rar_id": 6,
@@ -81,12 +81,22 @@
 	},
 	{
 		"Name": "Blood Opal",
-		"Value": 200,
+		"Value": 300,
 
 		"Rarity": "??",
 		"Rar_id": 7,
 
 		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Diamond",
+		"Value": 1500,
+
+		"Rarity": "????",
+		"Rar_id": 9,
+
+		"Mat_id": 10,
 		"Spec_id": 0
 	}
 

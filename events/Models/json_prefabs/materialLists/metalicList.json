@@ -78,6 +78,26 @@
 
 		"Mat_id": 8,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Impure Phasemetal",
+		"Value": 600,
+
+		"Rarity": "???",
+		"Rar_id": 8,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Pure Phasemetal",
+		"Value": 12000,
+
+		"Rarity": "????",
+		"Rar_id": 9,
+
+		"Mat_id": 10,
+		"Spec_id": 0
 	}
 
 ]

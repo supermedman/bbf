@@ -58,6 +58,46 @@
 
 		"Mat_id": 6,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Phaseroot Shavings",
+		"Value": 200,
+
+		"Rarity": "?",
+		"Rar_id": 5,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Ground Phaseroot",
+		"Value": 400,
+
+		"Rarity": "??",
+		"Rar_id": 5,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Phaseroot Potpourri",
+		"Value": 800,
+
+		"Rarity": "???",
+		"Rar_id": 5,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Phaseroot Extract",
+		"Value": 1600,
+
+		"Rarity": "????",
+		"Rar_id": 5,
+
+		"Mat_id": 10,
+		"Spec_id": 0
 	}
 
 ]
