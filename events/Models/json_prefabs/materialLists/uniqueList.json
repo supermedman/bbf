@@ -1,7 +1,7 @@
 [
 	{
 		"Name": "Soul",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -12,7 +12,7 @@
 	},
 	{
 		"Name": "Pure NULL",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -23,7 +23,7 @@
 	},
 	{
 		"Name": "Pure DARK",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -34,7 +34,7 @@
 	},
 	{
 		"Name": "Pure LIGHT",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -45,7 +45,7 @@
 	},
 	{
 		"Name": "Pure SLASH",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -56,7 +56,7 @@
 	},
 	{
 		"Name": "Pure FIRE",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -67,7 +67,7 @@
 	},
 	{
 		"Name": "Pure FROST",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -78,7 +78,7 @@
 	},
 	{
 		"Name": "Pure MAGIC",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -89,7 +89,7 @@
 	},
 	{
 		"Name": "Pure BLUNT",
-		"Value": 300,
+		"Value": 3000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
@@ -100,7 +100,7 @@
 	},
 	{
 		"Name": "Pure NESSY",
-		"Value": 500,
+		"Value": 5000,
 
 		"Rarity": "Unique",
 		"Rar_id": 12,
