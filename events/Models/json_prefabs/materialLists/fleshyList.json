@@ -58,6 +58,46 @@
 
 		"Mat_id": 6,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Twisted Horn",
+		"Value": 200,
+
+		"Rarity": "?",
+		"Rar_id": 6,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Corse Tongue",
+		"Value": 400,
+
+		"Rarity": "??",
+		"Rar_id": 7,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Yutlid Bonemarrow",
+		"Value": 800,
+
+		"Rarity": "???",
+		"Rar_id": 8,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Yessilese Bonemarrow",
+		"Value": 1600,
+
+		"Rarity": "????",
+		"Rar_id": 9,
+
+		"Mat_id": 10,
+		"Spec_id": 0
 	}
 
 ]
