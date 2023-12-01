@@ -58,6 +58,46 @@
 
 		"Mat_id": 6,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Blue Slime",
+		"Value": 200,
+
+		"Rarity": "?",
+		"Rar_id": 6,
+
+		"Mat_id": 7,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Cyan Slime",
+		"Value": 400,
+
+		"Rarity": "??",
+		"Rar_id": 7,
+
+		"Mat_id": 8,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Reflective Slime",
+		"Value": 800,
+
+		"Rarity": "???",
+		"Rar_id": 8,
+
+		"Mat_id": 9,
+		"Spec_id": 0
+	},
+	{
+		"Name": "Phase Slime",
+		"Value": 1600,
+
+		"Rarity": "????",
+		"Rar_id": 9,
+
+		"Mat_id": 10,
+		"Spec_id": 0
 	}
 
 ]
