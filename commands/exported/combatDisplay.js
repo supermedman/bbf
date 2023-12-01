@@ -960,6 +960,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
     // This method calculates damage dealt to user 
     async function takeDamage(eDamage, enemy, isBlocked) {
         const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
+        const maxHealth = 100 + (user.strength * 10);
         let currentHealth = user.health;
         if (extraStats) {
             if (extraStats.duration > 0) {
@@ -978,6 +979,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 currentHealth -= eDamage;
                 currentHealth = Number.parseFloat(currentHealth).toFixed(1);
                 console.log(successResult(`Current player health: ${currentHealth}`));
+                if (currentHealth > maxHealth) currentHealth = maxHealth;
                 //console.log('CURRENT PLAYER HEALTH: ', currentHealth);
 
                 const attackDmgEmbed = new EmbedBuilder()
@@ -1065,6 +1067,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                 currentHealth -= eDamage;
                 currentHealth = Number.parseFloat(currentHealth).toFixed(1);
                 console.log(successResult(`Current player health: ${currentHealth}`));
+                if (currentHealth > maxHealth) currentHealth = maxHealth;
 
                 const attackDmgEmbed = new EmbedBuilder()
                     .setTitle("Damage Taken")
@@ -1378,7 +1381,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                     }
                     console.log(specialInfoForm('newHealth after checks: ', newHealth));
 
-                    const editRow = UserData.update({ health: newHealth }, { where: { userid: userID } });
+                    const editRow = await UserData.update({ health: newHealth }, { where: { userid: userID } });
                     if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
 
                     await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);

@@ -39,12 +39,18 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 	const curlvl = uData.level;
 	console.log('Current level before xp added: ', curlvl);
 
+	totCoin = Math.round(totCoin);
+
 	var nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
 
 	//Adding temp xp needed change at level 20 to slow proggress for now
 	if (uData.level === 20) {
 		//Adding level scale to further restrict leveling		
 		nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+	} else if (uData.level >= 100) {
+		//Adding level scale to further restrict leveling
+		const lvlScale = 10 * (Math.floor(uData.level / 3));
+		nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
 	} else if (uData.level > 20) {
 		//Adding level scale to further restrict leveling
 		const lvlScale = 1.5 * (Math.floor(uData.level / 5));
@@ -193,14 +199,16 @@ async function isUniqueLevelUp(interaction, userRef) {
 //========================================
 //this method is used to update the users points based on whether they have leveled up or not
 async function addPoints(uData) {
-	await UserData.increment('points', { where: { username: uData.username } });
+	await UserData.increment('points', { where: { userid: uData.userid } });
 	return;
 }
 
 //========================================
 //this method is used to update the users xp based on the xp calculated in the display function
 async function editPData(totalXp, newlvl, cGained, uData) {
-	const editC = await UserData.increment({ coins: cGained }, { where: { userid: uData.userid } });
+	let totalC = cGained + uData.coins;
+	totalC = Math.round(totalC);
+	const editC = await UserData.update({ coins: totalC }, { where: { userid: uData.userid } });
 	const editLvl = await UserData.update({ level: newlvl }, { where: { userid: uData.userid } });
 	const addXp = await UserData.update({ xp: totalXp }, { where: { userid: uData.userid } });
 

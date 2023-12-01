@@ -84,7 +84,7 @@ module.exports = {
                 console.log(errorForm(ePool.length));
             } else {
                 //this will grab a random number to be used to grab an enemy from the array ePool
-                const rEP = Math.floor(Math.random() * (ePool.length - 1));
+                const rEP = Math.round(Math.random() * (ePool.length - 1));
                 const cEnemy = ePool[rEP];
 
                 if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
@@ -1122,6 +1122,7 @@ module.exports = {
         // This method calculates damage dealt to user 
         async function takeDamage(eDamage, enemy, isBlocked) {
             const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
+            const maxHealth = 100 + (user.strength * 10);
             let currentHealth = user.health;
             if (extraStats) {
                 if (extraStats.duration > 0) {
@@ -1141,6 +1142,7 @@ module.exports = {
                     currentHealth -= eDamage;
                     currentHealth = Number.parseFloat(currentHealth).toFixed(1);
                     console.log(successResult(`Current player health: ${currentHealth}`));
+                    if (currentHealth > maxHealth) currentHealth = maxHealth;
                     //console.log('CURRENT PLAYER HEALTH: ', currentHealth);
 
                     const attackDmgEmbed = new EmbedBuilder()
@@ -1230,6 +1232,7 @@ module.exports = {
                     currentHealth -= eDamage;
                     currentHealth = Number.parseFloat(currentHealth).toFixed(1);
                     console.log(successResult(`Current player health: ${currentHealth}`));
+                    if (currentHealth > maxHealth) currentHealth = maxHealth;
 
                     const attackDmgEmbed = new EmbedBuilder()
                         .setTitle("Damage Taken")
@@ -1479,7 +1482,7 @@ module.exports = {
             if (iPool.length <= 1) {
                 randPos = 0;
             } else {
-                randPos = Math.floor(Math.random() * (iPool.length - 1));
+                randPos = Math.round(Math.random() * (iPool.length - 1));
             }
             const theItem = iPool[randPos];
 
