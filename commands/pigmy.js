@@ -188,7 +188,7 @@ module.exports = {
 			let isOverwrite = true;
 			if (userPigmy[`${toolType}`] === 'NONE') {
 				isOverwrite = false;
-			} else if (userPigmy[`${toolType}`] === theToolName) return interaction.followUp(`${userPigmy.name} already has ${theToolName} as its toy!`);
+			} else if (userPigmy[`${toolType}`] === theToolName) return interaction.followUp(`${userPigmy.name} already has ${theToolName} as its ${toolType}!`);
 			console.log(specialInfoForm(`isOverwrite status: ${isOverwrite}`));
 
 			const acceptButton = new ButtonBuilder()
