@@ -47,7 +47,7 @@ async function grabMat(enemy, user, interaction) {
     let listStr;
     if (matTypes.length > 1) {
         //Enemy has more than one drop type...
-        const randDropType = Math.floor(Math.random() * (matTypes.length));
+        const randDropType = Math.round(Math.random() * (matTypes.length));
         listStr = `${matTypes[randDropType]}List.json`;
         passType = `${matTypes[randDropType]}`;
     } else {
