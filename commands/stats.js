@@ -336,6 +336,10 @@ Enemies Killed Since: ${uData.killsthislife}`;
             if (uData.level === 20) {
                 //Adding level scale to further restrict leveling		
                 nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+            } else if (uData.level >= 100) {
+                //Adding level scale to further restrict leveling
+                const lvlScale = 10 * (Math.floor(uData.level / 3));
+                nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
             } else if (uData.level > 20) {
                 //Adding level scale to further restrict leveling
                 const lvlScale = 1.5 * (Math.floor(uData.level / 5));
