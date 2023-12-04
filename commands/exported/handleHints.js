@@ -80,7 +80,7 @@ async function checkHintLootEquip(user, interaction) {
 
     if (userHints.equip_hint === true) return;
 
-    await interaction.channel.send('Want to put some new gear on? First check which slot it goes in, then use ``/equip [Gear-Slot] <Gear-Name>`` **Dont forget to use captial letters when trying to equip!!**');
+    await interaction.channel.send('Want to put some new gear on? First check which slot it goes in, then use ``/equip [Gear-Slot] <Gear-Name>`` If no options show up for ``<Gear-Name>`` remember this => **Dont forget to use captial letters when trying to equip!!**');
     await UserHints.update({ equip_hint: true }, { where: { spec_id: user.userid } });
     return;
 }

@@ -36,6 +36,8 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 	var totalXp = uData.xp + totXP;
 	console.log('Current totalXp: ', totalXp);
 
+	totalXp = Math.round(totalXp);
+
 	const curlvl = uData.level;
 	console.log('Current level before xp added: ', curlvl);
 
@@ -56,6 +58,8 @@ async function isLvlUp(totXP, totCoin, interaction, user) {
 		const lvlScale = 1.5 * (Math.floor(uData.level / 5));
 		nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
 	} else { nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);}
+
+	nxtLvl = Math.floor(nxtLvl);
 
 	console.log('Current xp needed to level: ', nxtLvl);
 	console.log('xp to next level: ', (nxtLvl - totalXp));

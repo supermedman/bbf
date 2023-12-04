@@ -3018,6 +3018,7 @@
         "Defence": 35,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "woody" ],
+        "UniqueType": "Soul",
         "Health": 2158,
         "Level": 20,
         "Name": "Lone Specter",
@@ -3090,6 +3091,7 @@
         "Defence": 27,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "skinny" ],
+        "UniqueType": "Soul",
         "Health": 2637,
         "Level": 22,
         "Name": "The Lone Demon",
@@ -3099,7 +3101,7 @@
     {
         "AvgDmg": 82,
         "ConstKey": 153,
-        "Defence": 97,
+        "Defence": 62,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "fleshy" ],
         "Health": 12098,
@@ -3143,7 +3145,7 @@
     {
         "AvgDmg": 62,
         "ConstKey": 156,
-        "Defence": 101,
+        "Defence": 34,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic" ],
         "Health": 6892,
@@ -3167,7 +3169,7 @@
     {
         "AvgDmg": 136.5,
         "ConstKey": 158,
-        "Defence": 105,
+        "Defence": 125,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "skinny", "herby" ],
         "Health": 32397,
@@ -3203,9 +3205,10 @@
     {
         "AvgDmg": 49,
         "ConstKey": 161,
-        "Defence": 61,
+        "Defence": 45,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "woody" ],
+        "UniqueType": "Soul",
         "Health": 4054,
         "Level": 27,
         "Name": "Umbrathing",
@@ -3323,7 +3326,7 @@
     {
         "AvgDmg": 56.5,
         "ConstKey": 171,
-        "Defence": 101,
+        "Defence": 38,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "fleshy", "metalic" ],
         "Health": 5711,
@@ -3335,7 +3338,7 @@
     {
         "AvgDmg": 58.5,
         "ConstKey": 172,
-        "Defence": 102,
+        "Defence": 40,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "gemy", "metalic" ],
         "Health": 6093,
@@ -3347,7 +3350,7 @@
     {
         "AvgDmg": 58.5,
         "ConstKey": 173,
-        "Defence": 101,
+        "Defence": 45,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "gemy" ],
         "Health": 6093,
@@ -3359,7 +3362,7 @@
     {
         "AvgDmg": 58.5,
         "ConstKey": 174,
-        "Defence": 97,
+        "Defence": 58,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "Health": 6093,
@@ -3371,7 +3374,7 @@
     {
         "AvgDmg": 60,
         "ConstKey": 175,
-        "Defence": 101,
+        "Defence": 70,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "woody" ],
         "Health": 6487,
@@ -3383,9 +3386,10 @@
     {
         "AvgDmg": 60,
         "ConstKey": 176,
-        "Defence": 100,
+        "Defence": 68,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "rocky" ],
+        "UniqueType": "Soul",
         "Health": 6487,
         "Level": 33,
         "Name": "Grazer of Souls",
@@ -3407,7 +3411,7 @@
     {
         "AvgDmg": 62,
         "ConstKey": 178,
-        "Defence": 103,
+        "Defence": 26,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "skinny" ],
         "Health": 6892,
@@ -3419,7 +3423,7 @@
     {
         "AvgDmg": 62,
         "ConstKey": 179,
-        "Defence": 106,
+        "Defence": 37,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "rocky", "herby" ],
         "Health": 6892,
@@ -3431,7 +3435,7 @@
     {
         "AvgDmg": 64,
         "ConstKey": 180,
-        "Defence": 99,
+        "Defence": 70,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "woody" ],
         "Health": 7309,
@@ -3443,7 +3447,7 @@
     {
         "AvgDmg": 64,
         "ConstKey": 181,
-        "Defence": 105,
+        "Defence": 70,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "rocky", "tooly" ],
         "Health": 7309,
@@ -3467,7 +3471,7 @@
     {
         "AvgDmg": 65.5,
         "ConstKey": 183,
-        "Defence": 106,
+        "Defence": 58,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "fleshy" ],
         "Health": 7737,
@@ -3479,9 +3483,10 @@
     {
         "AvgDmg": 65.5,
         "ConstKey": 184,
-        "Defence": 104,
+        "Defence": 73,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "rocky" ],
+        "UniqueType": "Soul",
         "Health": 7737,
         "Level": 36,
         "Name": "Stormcloud Disperser",
@@ -3492,7 +3497,7 @@
         "AvgDmg": 65.5,
         "ConstKey": 185,
         "Defence": 102,
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "This creature measures 10 meters long!! It may swallow you whole..",
         "DropTypes": [ "slimy", "fleshy", "metalic" ],
         "Health": 7737,
         "Level": 36,
@@ -3503,7 +3508,7 @@
     {
         "AvgDmg": 67.5,
         "ConstKey": 186,
-        "Defence": 102,
+        "Defence": 55,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "woody" ],
         "Health": 8177,
@@ -3515,7 +3520,7 @@
     {
         "AvgDmg": 67.5,
         "ConstKey": 187,
-        "Defence": 105,
+        "Defence": 20,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly" ],
         "Health": 8177,
@@ -3527,7 +3532,7 @@
     {
         "AvgDmg": 67.5,
         "ConstKey": 188,
-        "Defence": 98,
+        "Defence": 38,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "fleshy", "slimy" ],
         "Health": 8177,
@@ -3588,7 +3593,7 @@
     {
         "AvgDmg": 71,
         "ConstKey": 193,
-        "Defence": 99,
+        "Defence": 85,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "fleshy" ],
         "Health": 9091,
@@ -3612,7 +3617,7 @@
     {
         "AvgDmg": 73,
         "ConstKey": 195,
-        "Defence": 100,
+        "Defence": 75,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "fleshy" ],
         "Health": 9565,
@@ -3624,8 +3629,8 @@
     {
         "AvgDmg": 73,
         "ConstKey": 196,
-        "Defence": 100,
-        "Description": "Not enough is yet known about this creature!",
+        "Defence": 18,
+        "Description": "Most vines tend to be quiet, this one happens to be extra quiet!",
         "DropTypes": [ "herby" ],
         "Health": 9565,
         "Level": 40,
@@ -3636,7 +3641,7 @@
     {
         "AvgDmg": 154.5,
         "ConstKey": 197,
-        "Defence": 98,
+        "Defence": 127,
         "Description": "A tree like formation of magically infused rocklike byproduct, caused by the Yutlid's",
         "DropTypes": [ "magical", "rocky" ],
         "Health": 40779,
@@ -3668,7 +3673,7 @@
     {
         "AvgDmg": 82,
         "ConstKey": 199,
-        "Defence": 102,
+        "Defence": 34,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "Health": 12098,
@@ -3692,7 +3697,7 @@
     {
         "AvgDmg": 136.5,
         "ConstKey": 201,
-        "Defence": 99,
+        "Defence": 175,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "rocky", "silky" ],
         "Health": 32397,
@@ -3709,7 +3714,7 @@
         "MinDmg": 350,
         "MaxDmg": 360,
         "Health": 45210,
-        "Defence": 98,
+        "Defence": 200,
 
         "WeakTo": "Light",
         "Dead": false,
@@ -3724,7 +3729,7 @@
     {
         "AvgDmg": 76.5,
         "ConstKey": 203,
-        "Defence": 101,
+        "Defence": 42,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "gemy", "magical" ],
         "Health": 10546,
@@ -3736,7 +3741,7 @@
     {
         "AvgDmg": 76.5,
         "ConstKey": 204,
-        "Defence": 105,
+        "Defence": 59,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy" ],
         "Health": 10546,
@@ -3748,7 +3753,7 @@
     {
         "AvgDmg": 76.5,
         "ConstKey": 205,
-        "Defence": 101,
+        "Defence": 67,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "rocky" ],
         "Health": 10546,
@@ -3760,7 +3765,7 @@
     {
         "AvgDmg": 76.5,
         "ConstKey": 206,
-        "Defence": 98,
+        "Defence": 38,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "fleshy", "slimy" ],
         "Health": 10546,
@@ -3772,7 +3777,7 @@
     {
         "AvgDmg": 78.5,
         "ConstKey": 207,
-        "Defence": 106,
+        "Defence": 69,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "woody", "herby" ],
         "Health": 11052,
@@ -3784,7 +3789,7 @@
     {
         "AvgDmg": 78.5,
         "ConstKey": 208,
-        "Defence": 97,
+        "Defence": 49,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "gemy" ],
         "Health": 11052,
@@ -3796,7 +3801,7 @@
     {
         "AvgDmg": 78.5,
         "ConstKey": 209,
-        "Defence": 100,
+        "Defence": 60,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "woody", "slimy" ],
         "Health": 11052,
@@ -3808,7 +3813,7 @@
     {
         "AvgDmg": 85.5,
         "ConstKey": 210,
-        "Defence": 98,
+        "Defence": 74,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "gemy", "metalic" ],
         "Health": 13187,
@@ -3820,7 +3825,7 @@
     {
         "AvgDmg": 78.5,
         "ConstKey": 211,
-        "Defence": 98,
+        "Defence": 43,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy" ],
         "Health": 11052,
@@ -3832,8 +3837,8 @@
     {
         "AvgDmg": 80,
         "ConstKey": 212,
-        "Defence": 101,
-        "Description": "Not enough is yet known about this creature!",
+        "Defence": 48,
+        "Description": "This horrendous slithering creature moves with electical impulse, forcing its collection of limbs to spasm",
         "DropTypes": [ "slimy", "skinny" ],
         "Health": 11570,
         "Level": 44,
@@ -3844,7 +3849,7 @@
     {
         "AvgDmg": 80,
         "ConstKey": 213,
-        "Defence": 99,
+        "Defence": 65,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "fleshy", "tooly" ],
         "Health": 11570,
@@ -3856,7 +3861,7 @@
     {
         "AvgDmg": 80,
         "ConstKey": 214,
-        "Defence": 104,
+        "Defence": 75,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "Health": 11570,
@@ -3868,7 +3873,7 @@
     {
         "AvgDmg": 80,
         "ConstKey": 215,
-        "Defence": 104,
+        "Defence": 15,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy" ],
         "Health": 11570,
@@ -3892,7 +3897,7 @@
     {
         "AvgDmg": 83.5,
         "ConstKey": 217,
-        "Defence": 101,
+        "Defence": 79,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy" ],
         "Health": 12637,
@@ -3904,7 +3909,7 @@
     {
         "AvgDmg": 83.5,
         "ConstKey": 218,
-        "Defence": 104,
+        "Defence": 99,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly" ],
         "Health": 12637,
@@ -3916,7 +3921,7 @@
     {
         "AvgDmg": 83.5,
         "ConstKey": 219,
-        "Defence": 98,
+        "Defence": 58,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "woody", "metalic" ],
         "UniqueType": "Magic",
@@ -3930,7 +3935,7 @@
         "AvgDmg": 83.5,
         "ConstKey": 220,
         "Defence": 98,
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "A curious creature, with a bad habit of putting things it finds fascinating into its mouth.. Similar to a child",
         "DropTypes": [ "herby", "rocky" ],
         "Health": 12637,
         "Level": 46,
@@ -3941,7 +3946,7 @@
     {
         "AvgDmg": 85.5,
         "ConstKey": 221,
-        "Defence": 98,
+        "Defence": 49,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly" ],
         "Health": 13187,
@@ -3953,7 +3958,7 @@
     {
         "AvgDmg": 85.5,
         "ConstKey": 222,
-        "Defence": 103,
+        "Defence": 65,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "rocky" ],
         "UniqueType": "Magic",
@@ -3966,7 +3971,7 @@
     {
         "AvgDmg": 85.5,
         "ConstKey": 223,
-        "Defence": 102,
+        "Defence": 83,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "fleshy", "silky" ],
         "Health": 13187,
@@ -3978,7 +3983,7 @@
     {
         "AvgDmg": 87.5,
         "ConstKey": 224,
-        "Defence": 105,
+        "Defence": 80,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "fleshy" ],
         "Health": 13746,
@@ -3990,7 +3995,7 @@
     {
         "AvgDmg": 154.5,
         "ConstKey": 225,
-        "Defence": 103,
+        "Defence": 250,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "gemy" ],
         "Health": 40779,
@@ -4002,7 +4007,7 @@
     {
         "AvgDmg": 87.5,
         "ConstKey": 226,
-        "Defence": 100,
+        "Defence": 114,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "woody", "metalic" ],
         "Health": 13746,
@@ -4014,7 +4019,7 @@
     {
         "AvgDmg": 87.5,
         "ConstKey": 227,
-        "Defence": 100,
+        "Defence": 78,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "UniqueType": "Magic",
@@ -4027,7 +4032,7 @@
     {
         "AvgDmg": 87.5,
         "ConstKey": 228,
-        "Defence": 101,
+        "Defence": 123,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic" ],
         "Health": 13746,
@@ -4039,9 +4044,10 @@
     {
         "AvgDmg": 89,
         "ConstKey": 229,
-        "Defence": 98,
+        "Defence": 79,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby" ],
+        "UniqueType": "Soul",
         "Health": 14316,
         "Level": 49,
         "Name": "Oppressor of Souls",
@@ -4051,7 +4057,7 @@
     {
         "AvgDmg": 89,
         "ConstKey": 230,
-        "Defence": 102,
+        "Defence": 35,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "skinny" ],
         "Health": 14316,
@@ -4063,7 +4069,7 @@
     {
         "AvgDmg": 89,
         "ConstKey": 231,
-        "Defence": 103,
+        "Defence": 48,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "Health": 14316,
@@ -4076,7 +4082,7 @@
         "AvgDmg": 89,
         "ConstKey": 232,
         "Defence": 97,
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "A twisted Satyr belonging to one of many roaming bands of blood drinkers",
         "DropTypes": [ "slimy", "woody" ],
         "Health": 14316,
         "Level": 49,
@@ -4088,7 +4094,7 @@
         "AvgDmg": 91,
         "ConstKey": 233,
         "Defence": 106,
-        "Description": "Not enough is yet known about this creature!",
+        "Description": "The western Hellhound is descended from the Northern Hellhound, it developed a sense of destructive impulse during its migration, tending to travel alone and fight others of its kind on sight",
         "DropTypes": [ "metalic" ],
         "Health": 14897,
         "Level": 50,
@@ -4099,8 +4105,8 @@
     {
         "AvgDmg": 91,
         "ConstKey": 234,
-        "Defence": 98,
-        "Description": "Not enough is yet known about this creature!",
+        "Defence": 27,
+        "Description": "The Northern Hellhound is somewhat small, travelling in packs, it exibits social hierarchy behavior",
         "DropTypes": [ "tooly", "gemy", "magical" ],
         "Health": 14897,
         "Level": 50,
@@ -4111,7 +4117,7 @@
     {
         "AvgDmg": 91,
         "ConstKey": 235,
-        "Defence": 104,
+        "Defence": 75,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "gemy", "herby" ],
         "Health": 14897,
@@ -4123,7 +4129,7 @@
     {
         "AvgDmg": 93,
         "ConstKey": 236,
-        "Defence": 104,
+        "Defence": 150,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "fleshy" ],
         "Health": 15487,
@@ -4135,9 +4141,10 @@
     {
         "AvgDmg": 93,
         "ConstKey": 237,
-        "Defence": 99,
+        "Defence": 43,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "fleshy", "slimy" ],
+        "UniqueType": "Soul",
         "Health": 15487,
         "Level": 51,
         "Name": "Disfigured Corpse Blob",
@@ -4147,7 +4154,7 @@
     {
         "AvgDmg": 120,
         "ConstKey": 238,
-        "Defence": 103,
+        "Defence": 60,
         "Description": "Thus lay entranced before you, one of those caught in the dreaming..",
         "DropTypes": [ "metalic" ],
         "Health": 25479,
@@ -4159,7 +4166,7 @@
     {
         "AvgDmg": 93,
         "ConstKey": 239,
-        "Defence": 98,
+        "Defence": 118,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "gemy", "magical" ],
         "Health": 15487,
@@ -4171,7 +4178,7 @@
     {
         "AvgDmg": 102,
         "ConstKey": 240,
-        "Defence": 99,
+        "Defence": 49,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "skinny" ],
         "Health": 18586,
@@ -4183,7 +4190,7 @@
     {
         "AvgDmg": 93,
         "ConstKey": 241,
-        "Defence": 104,
+        "Defence": 59,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "Health": 15487,
@@ -4195,7 +4202,7 @@
     {
         "AvgDmg": 94.5,
         "ConstKey": 242,
-        "Defence": 106,
+        "Defence": 140,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "gemy" ],
         "Health": 16087,
@@ -4207,7 +4214,7 @@
     {
         "AvgDmg": 94.5,
         "ConstKey": 243,
-        "Defence": 99,
+        "Defence": 130,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky" ],
         "Health": 16087,
@@ -4219,7 +4226,7 @@
     {
         "AvgDmg": 94.5,
         "ConstKey": 244,
-        "Defence": 99,
+        "Defence": 67,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "woody", "magical" ],
         "Health": 16087,
@@ -4231,7 +4238,7 @@
     {
         "AvgDmg": 94.5,
         "ConstKey": 245,
-        "Defence": 97,
+        "Defence": 240,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic" ],
         "Health": 16087,
@@ -4255,7 +4262,7 @@
     {
         "AvgDmg": 178,
         "ConstKey": 247,
-        "Defence": 105,
+        "Defence": 315,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "gemy" ],
         "Health": 52592,
@@ -4267,7 +4274,7 @@
     {
         "AvgDmg": 96.5,
         "ConstKey": 248,
-        "Defence": 103,
+        "Defence": 96,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "skinny" ],
         "Health": 16698,
@@ -4279,7 +4286,7 @@
     {
         "AvgDmg": 96.5,
         "ConstKey": 249,
-        "Defence": 102,
+        "Defence": 75,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "rocky" ],
         "Health": 16698,
@@ -4303,7 +4310,7 @@
     {
         "AvgDmg": 98,
         "ConstKey": 251,
-        "Defence": 99,
+        "Defence": 37,
         "Description": "You probably shouldnt think too long on the name..",
         "DropTypes": [ "slimy" ],
         "Health": 17318,
@@ -4315,7 +4322,7 @@
     {
         "AvgDmg": 98,
         "ConstKey": 252,
-        "Defence": 100,
+        "Defence": 64,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "woody" ],
         "Health": 17318,
@@ -4327,9 +4334,10 @@
     {
         "AvgDmg": 98,
         "ConstKey": 253,
-        "Defence": 104,
+        "Defence": 58,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "gemy" ],
+        "UniqueType": "Soul",
         "Health": 17318,
         "Level": 54,
         "Name": "Ancient Rat",
@@ -4339,7 +4347,7 @@
     {
         "AvgDmg": 98,
         "ConstKey": 254,
-        "Defence": 99,
+        "Defence": 74,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "woody" ],
         "Health": 17318,
@@ -4351,9 +4359,10 @@
     {
         "AvgDmg": 100,
         "ConstKey": 255,
-        "Defence": 102,
+        "Defence": 48,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "skinny" ],
+        "UniqueType": "Soul",
         "Health": 17947,
         "Level": 55,
         "Name": "Daywalker",
@@ -4363,7 +4372,7 @@
     {
         "AvgDmg": 100,
         "ConstKey": 256,
-        "Defence": 102,
+        "Defence": 93,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly" ],
         "Health": 17947,
@@ -4375,7 +4384,7 @@
     {
         "AvgDmg": 100,
         "ConstKey": 257,
-        "Defence": 104,
+        "Defence": 103,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "gemy" ],
         "Health": 17947,
@@ -4387,7 +4396,7 @@
     {
         "AvgDmg": 100,
         "ConstKey": 258,
-        "Defence": 102,
+        "Defence": 56,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy" ],
         "Health": 17947,
@@ -4399,7 +4408,7 @@
     {
         "AvgDmg": 102,
         "ConstKey": 259,
-        "Defence": 98,
+        "Defence": 61,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "skinny", "metalic" ],
         "Health": 18586,
@@ -4411,7 +4420,7 @@
     {
         "AvgDmg": 102,
         "ConstKey": 260,
-        "Defence": 101,
+        "Defence": 82,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "skinny" ],
         "Health": 18586,
@@ -4423,7 +4432,7 @@
     {
         "AvgDmg": 102,
         "ConstKey": 261,
-        "Defence": 100,
+        "Defence": 50,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "fleshy", "metalic" ],
         "Health": 18586,
@@ -4435,7 +4444,7 @@
     {
         "AvgDmg": 103.5,
         "ConstKey": 262,
-        "Defence": 105,
+        "Defence": 91,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "skinny" ],
         "Health": 19235,
@@ -4447,9 +4456,10 @@
     {
         "AvgDmg": 103.5,
         "ConstKey": 263,
-        "Defence": 102,
+        "Defence": 85,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "gemy", "silky" ],
+        "UniqueType": "Soul",
         "Health": 19235,
         "Level": 57,
         "Name": "Scarred Phantom",
@@ -4459,7 +4469,7 @@
     {
         "AvgDmg": 103.5,
         "ConstKey": 264,
-        "Defence": 104,
+        "Defence": 41,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "woody" ],
         "Health": 19235,
@@ -4471,7 +4481,7 @@
     {
         "AvgDmg": 103.5,
         "ConstKey": 265,
-        "Defence": 106,
+        "Defence": 69,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "skinny", "slimy" ],
         "Health": 19235,
@@ -4483,7 +4493,7 @@
     {
         "AvgDmg": 105.5,
         "ConstKey": 266,
-        "Defence": 105,
+        "Defence": 115,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "gemy" ],
         "Health": 19893,
@@ -4507,7 +4517,7 @@
     {
         "AvgDmg": 113,
         "ConstKey": 268,
-        "Defence": 104,
+        "Defence": 115,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "fleshy", "magical" ],
         "Health": 22616,
@@ -4519,7 +4529,7 @@
     {
         "AvgDmg": 105.5,
         "ConstKey": 269,
-        "Defence": 101,
+        "Defence": 86,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "skinny", "metalic" ],
         "Health": 19893,
@@ -4531,7 +4541,7 @@
     {
         "AvgDmg": 105.5,
         "ConstKey": 270,
-        "Defence": 101,
+        "Defence": 90,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical" ],
         "Health": 19893,
@@ -4543,7 +4553,7 @@
     {
         "AvgDmg": 107.5,
         "ConstKey": 271,
-        "Defence": 98,
+        "Defence": 135,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "gemy" ],
         "Health": 20560,
@@ -4555,7 +4565,7 @@
     {
         "AvgDmg": 107.5,
         "ConstKey": 272,
-        "Defence": 99,
+        "Defence": 65,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "gemy" ],
         "Health": 20560,
@@ -4567,9 +4577,10 @@
     {
         "AvgDmg": 107.5,
         "ConstKey": 273,
-        "Defence": 103,
+        "Defence": 83,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "rocky" ],
+        "UniqueType": "Dark",
         "Health": 20560,
         "Level": 59,
         "Name": "Shadowtendril",
@@ -4579,7 +4590,7 @@
     {
         "AvgDmg": 107.5,
         "ConstKey": 274,
-        "Defence": 102,
+        "Defence": 60,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "fleshy" ],
         "Health": 20560,
@@ -4591,7 +4602,7 @@
     {
         "AvgDmg": 109,
         "ConstKey": 275,
-        "Defence": 98,
+        "Defence": 100,
         "Description": "You could have let them lie..",
         "DropTypes": [ "tooly", "fleshy" ],
         "Health": 21236,
@@ -4603,7 +4614,7 @@
     {
         "AvgDmg": 127.5,
         "ConstKey": 276,
-        "Defence": 102,
+        "Defence": 120,
         "Description": "You had to make them die..",
         "DropTypes": [ "magical", "woody", "metalic" ],
         "Health": 28475,
@@ -4615,7 +4626,7 @@
     {
         "AvgDmg": 145.5,
         "ConstKey": 277,
-        "Defence": 105,
+        "Defence": 150,
         "Description": "Will this silence the warnings?!",
         "DropTypes": [ "silky" ],
         "Health": 36503,
@@ -4627,7 +4638,7 @@
     {
         "AvgDmg": 163.5,
         "ConstKey": 278,
-        "Defence": 98,
+        "Defence": 200,
         "Description": "Will this stifle their cries??",
         "DropTypes": [ "tooly", "skinny", "metalic" ],
         "Health": 45210,
@@ -4639,7 +4650,7 @@
     {
         "AvgDmg": 250,
         "ConstKey": 279,
-        "Defence": 180,
+        "Defence": 285,
         "Description": "You sought, and fought.. Now crumble and cry..",
         "DropTypes": [ "tooly", "fleshy", "herby" ],
         "Health": 54488,
@@ -4651,9 +4662,10 @@
     {
         "AvgDmg": 109,
         "ConstKey": 280,
-        "Defence": 106,
+        "Defence": 70,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "fleshy" ],
+        "UniqueType": "Soul",
         "Health": 21236,
         "Level": 60,
         "Name": "Forsaken Soul",
@@ -4663,7 +4675,7 @@
     {
         "AvgDmg": 109,
         "ConstKey": 281,
-        "Defence": 98,
+        "Defence": 39,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "fleshy" ],
         "Health": 21236,
@@ -4675,7 +4687,7 @@
     {
         "AvgDmg": 111,
         "ConstKey": 282,
-        "Defence": 105,
+        "Defence": 64,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "rocky", "metalic" ],
         "Health": 21921,
@@ -4699,7 +4711,7 @@
     {
         "AvgDmg": 111,
         "ConstKey": 284,
-        "Defence": 100,
+        "Defence": 104,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "woody" ],
         "Health": 21921,
@@ -4711,7 +4723,7 @@
     {
         "AvgDmg": 111,
         "ConstKey": 285,
-        "Defence": 103,
+        "Defence": 82,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "woody", "metalic" ],
         "Health": 21921,
@@ -4723,7 +4735,7 @@
     {
         "AvgDmg": 113,
         "ConstKey": 286,
-        "Defence": 103,
+        "Defence": 52,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "fleshy", "magical" ],
         "Health": 22616,
@@ -4735,7 +4747,7 @@
     {
         "AvgDmg": 113,
         "ConstKey": 287,
-        "Defence": 98,
+        "Defence": 60,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "magical", "rocky" ],
         "Health": 22616,
@@ -4759,9 +4771,10 @@
     {
         "AvgDmg": 114.5,
         "ConstKey": 289,
-        "Defence": 97,
+        "Defence": 75,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "slimy", "gemy" ],
+        "UniqueType": "Soul",
         "Health": 23318,
         "Level": 63,
         "Name": "Tomb Bull",
@@ -4771,7 +4784,7 @@
     {
         "AvgDmg": 114.5,
         "ConstKey": 290,
-        "Defence": 97,
+        "Defence": 48,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "gemy", "magical" ],
         "Health": 23318,
@@ -4783,7 +4796,7 @@
     {
         "AvgDmg": 114.5,
         "ConstKey": 291,
-        "Defence": 106,
+        "Defence": 89,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby", "woody", "magical" ],
         "Health": 23318,
@@ -4795,7 +4808,7 @@
     {
         "AvgDmg": 114.5,
         "ConstKey": 292,
-        "Defence": 98,
+        "Defence": 100,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic", "fleshy", "slimy" ],
         "Health": 23318,
@@ -4819,7 +4832,7 @@
     {
         "AvgDmg": 116.5,
         "ConstKey": 294,
-        "Defence": 99,
+        "Defence": 69,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "tooly", "gemy", "slimy" ],
         "Health": 24030,
@@ -4831,9 +4844,10 @@
     {
         "AvgDmg": 116.5,
         "ConstKey": 295,
-        "Defence": 97,
+        "Defence": 58,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "silky", "skinny", "herby" ],
+        "UniqueType": "Soul",
         "Health": 24030,
         "Level": 64,
         "Name": "Hungry Bowelsoul",
@@ -4867,7 +4881,7 @@
     {
         "AvgDmg": 118,
         "ConstKey": 298,
-        "Defence": 106,
+        "Defence": 82,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "metalic" ],
         "Health": 24750,
@@ -4879,7 +4893,7 @@
     {
         "AvgDmg": 118,
         "ConstKey": 299,
-        "Defence": 103,
+        "Defence": 84,
         "Description": "Not enough is yet known about this creature!",
         "DropTypes": [ "herby" ],
         "Health": 24750,
