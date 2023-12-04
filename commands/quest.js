@@ -2435,11 +2435,15 @@ module.exports = {
                                 currentPage = 0;
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                }).catch(error => {
+                                    console.log(error);
                                 });
                             } else {
                                 currentPage += 1;
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                }).catch(error => {
+                                    console.log(error);
                                 });
                             }
                         }
@@ -2450,11 +2454,15 @@ module.exports = {
                                 currentPage = embedPages.length - 1;
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                }).catch(error => {
+                                    console.log(error);
                                 });
                             } else {
                                 currentPage -= 1;
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
+                                }).catch(error => {
+                                    console.log(error);
                                 });
                             }
                         }

@@ -260,7 +260,7 @@ module.exports = {
                         });
             }
 
-            await interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, offHandEmbed, potionEmbed] });
+            await interaction.followUp({ embeds: [headSlotEmbed, chestSlotEmbed, legSlotEmbed, offHandEmbed, defenceEmbed, potionEmbed] });
 
             if (mainHandItem === 'NONE') {
                 //No item equipped
@@ -306,7 +306,9 @@ module.exports = {
 
                 const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
 
-                const weapondmgmod = await userDamageLoadout(uData, mainHandItem);
+                let offHandComp;
+                if (offHandItem !== 'NONE') offHandComp = offHandItem;
+                const weapondmgmod = await userDamageLoadout(uData, mainHandItem, offHandComp);
                 console.log(weapondmgmod);
 
                 list = (`Total damage dealt before defence calculations: \n${weapondmgmod}`);

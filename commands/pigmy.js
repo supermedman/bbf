@@ -182,7 +182,10 @@ module.exports = {
 			const userPigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
 			if (!userPigmy) return interaction.followUp('You have no equipped pigmy, please use ``/pigmy equip <pigmy-name>`` first!');
 
-			const theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { name: theToolName }] });
+			const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1) };
+			const tempType = makeCapital(toolType);
+
+			const theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { name: theToolName }, { activesubcategory: tempType}] });
 			if (theTool === 'NONE') return interaction.followUp('You do not have that tool! Check your tools with ``/myloot tools`` or create one using ``/blueprint view``');
 
 			let isOverwrite = true;

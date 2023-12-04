@@ -203,12 +203,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
                     //Steal has either been a success, or an error has occured!
                     //Generate item with actionToTake                          
                     const usedRar = actionToTake;
-                    let itemRef;
-                    try {
-                        itemRef = await makeItem(enemy, usedRar, pigmy);
-                    } catch (error) {
-                        console.log(errorForm(error));
-                    }
+                    const itemRef = await makeItem(enemy, usedRar, pigmy);
                     await showStolen(itemRef);
                     stealDisabled = true;
                     await collector.stop();
@@ -505,6 +500,8 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         }
         const theItem = iPool[randPos];
 
+        console.log(specialInfoForm(`theItem.Loot_id: ${theItem.Loot_id}`));
+
         const lootStore = await LootStore.findOne({
             where: [{ spec_id: interaction.user.id }, {loot_id: theItem.Loot_id }]
         });
@@ -582,7 +579,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
         if (addedItem.name) {
             const itemAdded = await LootStore.findOne({
-                where: { spec_id: userID, loot_id: theItem.loot_id },
+                where: { spec_id: userID, loot_id: theItem.Loot_id },
             });
 
             return itemAdded;

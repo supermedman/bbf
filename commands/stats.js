@@ -81,7 +81,7 @@ module.exports = {
                 const user = interaction.options.getUser('player');
 
                 if (user) {
-                    const uData = await UserData.findOne({ where: { username: user.username } });
+                    const uData = await UserData.findOne({ where: { userid: user.id } });
                     if (uData) {
                         const nxtLvl = calcNextLevel(uData);
                         const list = makeListStr(uData, nxtLvl);
