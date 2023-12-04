@@ -1786,10 +1786,10 @@
     },
     {
         "Name": "Bingle",
-        "Value": 1500000,
-        
-        "Attack": 45,
-        "Defence": 45,
+        "Value": 15000000,
+
+        "Attack": 300,
+        "Defence": 300,
         "Type": "FIRE",
 
         "Slot": "Offhand",
@@ -1801,6 +1801,919 @@
         "DismantleTypes": [ "woody", "metalic" ],
 
         "Loot_id": 102,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Void, Favor of Mountains",
+        "Value": 1348039,
+
+        "Attack": 671,
+        "Type": "FROST",
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "DismantleTypes": [ "slimy", "gemy" ],
+
+        "Loot_id": 103,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Infused Phasesteel Impaler",
+        "Value": 68800,
+
+        "Attack": 86,
+        "Type": "BLUNT",
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "DismantleTypes": [ "magical", "metalic" ],
+
+        "Loot_id": 104,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghost-Forged Razors",
+        "Value": 34200,
+
+        "Attack": 57,
+        "Type": "LIGHT",
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic", "gemy" ],
+
+        "Loot_id": 105,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodquench, Voice of the Corrupted",
+        "Value": 614448,
+
+        "Attack": 306,
+        "Type": "FIRE",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "DismantleTypes": [ "slimy", "fleshy" ],
+
+        "Loot_id": 106,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Tome o Blackfire",
+        "Value": 734928,
+
+        "Attack": 366,
+        "Type": "MAGIC",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "DismantleTypes": [ "slimy", "skinny", "magical" ],
+
+        "Loot_id": 107,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bandit's Baton",
+        "Value": 302906,
+
+        "Attack": 151,
+        "Type": "DARK",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "DismantleTypes": [ "metalic", "rocky", "silky" ],
+
+        "Loot_id": 108,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Skullforge Sabre",
+        "Value": 35400,
+
+        "Attack": 59,
+        "Type": "FIRE",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "DismantleTypes": [ "woody", "magical", "silky" ],
+
+        "Loot_id": 109,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Wrathful Ranseur",
+        "Value": 5000,
+
+        "Attack": 25,
+        "Type": "SLASH",
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "DismantleTypes": [ "skinny", "metalic" ],
+
+        "Loot_id": 110,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Pure Glass Greathammer",
+        "Value": 465624,
+
+        "Attack": 232,
+        "Type": "SLASH",
+
+        "Slot": "Mainhand",
+        "Hands": "Two",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "DismantleTypes": [ "gemy" ],
+
+        "Loot_id": 111,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Blockade",
+        "Value": 1200,
+
+        "Attack": 6,
+        "Defence": 6,
+        "Type": "BLUNT",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
+
+        "Loot_id": 112,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Battleworn Ashwood Shield Wall",
+        "Value": 10400,
+
+        "Attack": 13,
+        "Defence": 13,
+        "Type": "BLUNT",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "DismantleTypes": [ "woody", "fleshy" ],
+
+        "Loot_id": 113,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Cursed Titanium Carapace",
+        "Value": 12000,
+
+        "Attack": 15,
+        "Defence": 15,
+        "Type": "SLASH",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic", "rocky" ],
+
+        "Loot_id": 114,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Black Hole, Barricade of Timeless Battles",
+        "Value": 11305650,
+
+        "Attack": 126,
+        "Defence": 245,
+        "Type": "SPIRIT",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "DismantleTypes": [ "woody", "rocky", "silky" ],
+
+        "Loot_id": 115,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Champion Oak Barrier",
+        "Value": 31200,
+
+        "Attack": 19,
+        "Defence": 19,
+        "Type": "DARK",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "DismantleTypes": [ "metalic", "magical", "woody" ],
+
+        "Loot_id": 116,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Peacekeeper Barrier",
+        "Value": 82000,
+
+        "Attack": 25,
+        "Defence": 43,
+        "Type": "BLUNT",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "DismantleTypes": [ "slimy", "gemy", "magical" ],
+
+        "Loot_id": 117,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Voice of Pride",
+        "Value": 292876,
+
+        "Attack": 49,
+        "Defence": 70,
+        "Type": "BLUNT",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "DismantleTypes": [ "metalic", "rocky" ],
+
+        "Loot_id": 118,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Firesoul Warpwood Guardian",
+        "Value": 455589,
+
+        "Attack": 145,
+        "Defence": 78,
+        "Type": "LIGHT",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "DismantleTypes": [ "metalic", "woody" ],
+
+        "Loot_id": 119,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Sentinel",
+        "Value": 574288,
+
+        "Attack": 85,
+        "Defence": 143,
+        "Type": "RAD",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "DismantleTypes": [ "herby", "rocky" ],
+
+        "Loot_id": 120,
+        "Spec_id": 0
+    },
+    {
+        "Name": "The Shadow, Shield of Silence",
+        "Value": 851816,
+
+        "Attack": 100,
+        "Defence": 185,
+        "Type": "FROST",
+
+        "Slot": "Offhand",
+        "Hands": "One",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "DismantleTypes": [ "woody", "skinny", "magical" ],
+
+        "Loot_id": 121,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Liar's Linen Skirt",
+        "Value": 600,
+
+        "Defence": 3,
+        "Type": "SLASH",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "DismantleTypes": [ "metalic", "magical", "silky" ],
+
+        "Loot_id": 122,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Chainmail Stompers",
+        "Value": 1600,
+
+        "Defence": 8,
+        "Type": "BLUNT",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "DismantleTypes": [ "metalic", "skinny", "silky" ],
+
+        "Loot_id": 123,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Hollow Embroided Walkers",
+        "Value": 4000,
+
+        "Defence": 10,
+        "Type": "FIRE",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "DismantleTypes": [ "silky", "skinny" ],
+
+        "Loot_id": 124,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ruby Infused Skeletal Warboots",
+        "Value": 9000,
+
+        "Defence": 15,
+        "Type": "DARK",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "DismantleTypes": [ "gemy", "fleshy", "magical" ],
+
+        "Loot_id": 125,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Sentinel Steel Greaves",
+        "Value": 25600,
+
+        "Defence": 24,
+        "Type": "SLASH",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "DismantleTypes": [ "skinny", "gemy", "metalic" ],
+
+        "Loot_id": 126,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Demon Platelegs of Infernal Fires",
+        "Value": 26000,
+
+        "Defence": 31,
+        "Type": "DARK",
+
+        "Slot": "Legslot",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "DismantleTypes": [ "metalic", "magical" ],
+
+        "Loot_id": 127,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Corrupted Skirt of Duels",
+        "Value": 90270,
+
+        "Defence": 42,
+        "Type": "FROST",
+
+        "Slot": "Legslot",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "DismantleTypes": [ "slimy", "gemy", "magical" ],
+
+        "Loot_id": 128,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Greaves of Lost Warlords",
+        "Value": 128448,
+
+        "Defence": 58,
+        "Type": "SLASH",
+
+        "Slot": "Legslot",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
+
+        "Loot_id": 129,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Dragon Skirt of the Prince",
+        "Value": 140560,
+
+        "Defence": 70,
+        "Type": "LIGHT",
+
+        "Slot": "Legslot",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "DismantleTypes": [ "fleshy", "metalic" ],
+
+        "Loot_id": 130,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Skirt of Ominous Punishment",
+        "Value": 206927,
+
+        "Defence": 84,
+        "Type": "DARK",
+
+        "Slot": "Legslot",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "DismantleTypes": [ "metalic", "gemy", "silky" ],
+
+        "Loot_id": 131,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Edge of the Insane",
+        "Value": 28801440,
+
+        "Defence": 115,
+        "Type": "SPIRIT",
+
+        "Slot": "Legslot",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "DismantleTypes": [ "metalic" ],
+
+        "Loot_id": 132,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Hide Bandana",
+        "Value": 1000,
+
+        "Defence": 5,
+        "Type": "SLASH",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "DismantleTypes": [ "herby", "skinny", "fleshy" ],
+
+        "Loot_id": 133,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Honed Leather Coif",
+        "Value": 1600,
+
+        "Defence": 8,
+        "Type": "BLUNT",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "DismantleTypes": [ "slimy", "skinny" ],
+
+        "Loot_id": 134,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Mask of the Summoner",
+        "Value": 172774,
+
+        "Defence": 82,
+        "Type": "FROST",
+
+        "Slot": "Headslot",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "DismantleTypes": [ "silky", "gemy" ],
+
+        "Loot_id": 135,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Shadow Linen Cowl",
+        "Value": 4000,
+
+        "Defence": 10,
+        "Type": "BLUNT",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "DismantleTypes": [ "silky" ],
+
+        "Loot_id": 136,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Iron Greathelm",
+        "Value": 10800,
+
+        "Defence": 18,
+        "Type": "BLUNT",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
+
+        "Loot_id": 137,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Worn Phasemetal Helmet",
+        "Value": 21600,
+
+        "Defence": 23,
+        "Type": "FIRE",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "DismantleTypes": [ "herby", "magical" ],
+
+        "Loot_id": 138,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ruby Infused Obsidian Greathelm",
+        "Value": 37000,
+
+        "Defence": 35,
+        "Type": "FROST",
+
+        "Slot": "Headslot",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "DismantleTypes": [ "metalic", "magical", "gemy" ],
+
+        "Loot_id": 139,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Warped Phasemetal Jaws",
+        "Value": 80240,
+
+        "Defence": 40,
+        "Type": "DARK",
+
+        "Slot": "Headslot",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "DismantleTypes": [ "magical", "skinny", "metalic" ],
+
+        "Loot_id": 140,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Glory of the Nightstalker",
+        "Value": 120420,
+
+        "Defence": 52,
+        "Type": "MAGIC",
+
+        "Slot": "Headslot",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "DismantleTypes": [ "fleshy", "metalic" ],
+
+        "Loot_id": 141,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Cold-Forged Helm of the Scourge",
+        "Value": 152608,
+
+        "Defence": 63,
+        "Type": "BLUNT",
+
+        "Slot": "Headslot",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
+
+        "Loot_id": 142,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Frost Jaws of the Oracle",
+        "Value": 25001250,
+
+        "Defence": 125,
+        "Type": "NULL",
+
+        "Slot": "Headslot",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "DismantleTypes": [ "woody", "fleshy", "magical" ],
+
+        "Loot_id": 143,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Heavy Hide Vest",
+        "Value": 600,
+
+        "Defence": 8,
+        "Type": "SLASH",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Common",
+        "Rar_id": 0,
+
+        "DismantleTypes": [ "skinny" ],
+
+        "Loot_id": 144,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Vest of the Bear",
+        "Value": 134469,
+
+        "Defence": 88,
+        "Type": "MAGIC",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
+
+        "Loot_id": 145,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Frozen Wool Vest",
+        "Value": 2000,
+
+        "Defence": 10,
+        "Type": "BLUNT",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Uncommon",
+        "Rar_id": 1,
+
+        "DismantleTypes": [ "slimy", "magical", "silky" ],
+
+        "Loot_id": 146,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Chainmail Chestpiece",
+        "Value": 4800,
+
+        "Defence": 24,
+        "Type": "SLASH",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Rare",
+        "Rar_id": 2,
+
+        "DismantleTypes": [ "metalic" ],
+
+        "Loot_id": 147,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Twilight Mail Cuirass",
+        "Value": 12000,
+
+        "Defence": 40,
+        "Type": "DARK",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Very Rare",
+        "Rar_id": 3,
+
+        "DismantleTypes": [ "metalic", "rocky" ],
+
+        "Loot_id": 148,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Ghost-Forged Chain Chestguard",
+        "Value": 17600,
+
+        "Defence": 49,
+        "Type": "SLASH",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "DismantleTypes": [ "metalic", "magical", "silky" ],
+
+        "Loot_id": 149,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Crying Greatplate of Agony",
+        "Value": 36000,
+
+        "Defence": 67,
+        "Type": "LIGHT",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "DismantleTypes": [ "gemy", "metalic" ],
+
+        "Loot_id": 150,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Infused Vest of Smite",
+        "Value": 88264,
+
+        "Defence": 72,
+        "Type": "SLASH",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "?",
+        "Rar_id": 6,
+
+        "DismantleTypes": [ "slimy", "gemy", "silky" ],
+
+        "Loot_id": 151,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Tunic of Tears",
+        "Value": 140560,
+
+        "Defence": 120,
+        "Type": "DARK",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "???",
+        "Rar_id": 8,
+
+        "DismantleTypes": [ "slimy", "magical", "silky" ],
+
+        "Loot_id": 152,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Bloodcursed Phasemetal Chestpiece",
+        "Value": 184738,
+
+        "Defence": 145,
+        "Type": "RAD",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "????",
+        "Rar_id": 9,
+
+        "DismantleTypes": [ "metalic", "fleshy" ],
+
+        "Loot_id": 153,
+        "Spec_id": 0
+    },
+    {
+        "Name": "Zelrath, End of the Beast",
+        "Value": 25801290,
+
+        "Defence": 258,
+        "Type": "RAD",
+
+        "Slot": "Chestslot",
+
+        "Rarity": "FORGOTTEN",
+        "Rar_id": 10,
+
+        "DismantleTypes": [ "metalic", "gemy" ],
+
+        "Loot_id": 154,
         "Spec_id": 0
     },
     {
@@ -1842,6 +2755,7 @@
         "Value": 10,
 
         "Attack": 1,
+        "Defence": 1,
         "Type": " ",
 
         "Slot": "Offhand",
