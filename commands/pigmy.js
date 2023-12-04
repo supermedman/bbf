@@ -672,25 +672,31 @@ module.exports = {
 
 				collector.on('collect', async (collInteract) => {
 					if (collInteract.customId === 'next-page') {
-						await collInteract.deferUpdate();
-						if (currentPage === embedPages.length - 1) {
-							currentPage = 0;
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-						} else {
-							currentPage += 1;
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-						}
+						await collInteract.deferUpdate().then(async () => {
+							if (currentPage === embedPages.length - 1) {
+								currentPage = 0;
+								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+							} else {
+								currentPage += 1;
+								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+							}
+						}).catch(error => {
+							console.log(errorForm(error));
+						});
 					}
 
 					if (collInteract.customId === 'back-page') {
-						await collInteract.deferUpdate();
-						if (currentPage === 0) {
-							currentPage = embedPages.length - 1;
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-						} else {
-							currentPage -= 1;
-							await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-						}
+						await collInteract.deferUpdate().then(async () => {
+							if (currentPage === 0) {
+								currentPage = embedPages.length - 1;
+								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+							} else {
+								currentPage -= 1;
+								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+							}
+						}).catch(error => {
+							console.log(errorForm(error));
+						});
 					}
 
 					if (collInteract.customId === 'delete-page') {
