@@ -211,169 +211,184 @@ module.exports = {
 
             collector.on('collect', async (collInteract) => {               
                 if (collInteract.customId === 'slot-one') {
-                    await collInteract.deferUpdate();
-                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
-                    if (item) {
-                        console.log(successResult('ITEM FOUND! Slot-One'));//item was found yaaaay
+                    await collInteract.deferUpdate().then(async () => {
+                        const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 1 }] });
+                        if (item) {
+                            console.log(successResult('ITEM FOUND! Slot-One'));//item was found yaaaay
 
-                        if (item.value > uData.coins) {
-                            console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
-                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                        } else {
-                            const result = await addItem(item);
-                            if (result === 'Success') {
-                                var coinReduced = uData.coins - item.value;
+                            if (item.value > uData.coins) {
+                                console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
+                                return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                            } else {
+                                const result = await addItem(item);
+                                if (result === 'Success') {
+                                    var coinReduced = uData.coins - item.value;
 
-                                await payUp(coinReduced, uData);
+                                    await payUp(coinReduced, uData);
 
-                                var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    uData = await grabU();
 
-                                slotOneButton.setDisabled(true);
-                                refreshCost -= item.value;
-                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
+                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                                finalFields[0] = {
-                                    name: 'SLOT ONE', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
-                                };
+                                    slotOneButton.setDisabled(true);
+                                    refreshCost -= item.value;
+                                    refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
-                                finalFields[4] = {
-                                    name: `Your Coins: `, value: `${uData.coins}c`,
-                                };
+                                    finalFields[0] = {
+                                        name: 'SLOT ONE', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
+                                    };
 
-                                shopEmbed = {
-                                    title: "~Bloodstone Shoppe~",
-                                    color: 0x39acf3,
-                                    description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
-                                    fields: finalFields,
-                                };
+                                    finalFields[4] = {
+                                        name: `Your Coins: `, value: `${uData.coins}c`,
+                                    };
 
-                                await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+                                    shopEmbed = {
+                                        title: "~Bloodstone Shoppe~",
+                                        color: 0x39acf3,
+                                        description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
+                                        fields: finalFields,
+                                    };
 
-                                itemsSold++;
-                                if (itemsSold === 4) {
-                                    if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    await collector.stop();
-                                    startShop();
-                                } else {
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+
+                                    itemsSold++;
+                                    if (itemsSold === 4) {
+                                        if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                        await collector.stop();
+                                        startShop();
+                                    } else {
+                                        if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    }
                                 }
+
+                                //wipe db after this
                             }
-                            
-                            //wipe db after this
-                        }
-                    } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :( 
+                        } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :( 
+                    }).catch(error => {
+                        console.log(errorForm(error));
+                    });
                 }
                 if (collInteract.customId === 'slot-two') {
-                    await collInteract.deferUpdate();
-                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
-                    if (item) {
-                        console.log(successResult('ITEM FOUND! Slot-Two'));//item was found yaaaay
+                    await collInteract.deferUpdate().then(async () => {
+                        const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 2 }] });
+                        if (item) {
+                            console.log(successResult('ITEM FOUND! Slot-Two'));//item was found yaaaay
 
-                        if (item.value > uData.coins) {
-                            console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
-                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                        } else {
-                            const result = await addItem(item);
-                            if (result === 'Success') {
-                                var coinReduced = uData.coins - item.value;
+                            if (item.value > uData.coins) {
+                                console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
+                                return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                            } else {
+                                const result = await addItem(item);
+                                if (result === 'Success') {
+                                    var coinReduced = uData.coins - item.value;
 
-                                await payUp(coinReduced, uData);
+                                    await payUp(coinReduced, uData);
 
-                                var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    uData = await grabU();
 
-                                slotTwoButton.setDisabled(true);
-                                refreshCost -= item.value;
-                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
+                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                                finalFields[1] = {
-                                    name: 'SLOT TWO', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
-                                };
+                                    slotTwoButton.setDisabled(true);
+                                    refreshCost -= item.value;
+                                    refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
-                                finalFields[4] = {
-                                    name: `Your Coins: `, value: `${uData.coins}c`,
-                                };
+                                    finalFields[1] = {
+                                        name: 'SLOT TWO', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
+                                    };
 
-                                shopEmbed = {
-                                    title: "~Bloodstone Shoppe~",
-                                    color: 0x39acf3,
-                                    description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
-                                    fields: finalFields,
-                                };
+                                    finalFields[4] = {
+                                        name: `Your Coins: `, value: `${uData.coins}c`,
+                                    };
 
-                                await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+                                    shopEmbed = {
+                                        title: "~Bloodstone Shoppe~",
+                                        color: 0x39acf3,
+                                        description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
+                                        fields: finalFields,
+                                    };
 
-                                itemsSold++;
-                                if (itemsSold === 4) {
-                                    if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    await collector.stop();
-                                    startShop();
-                                } else {
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+
+                                    itemsSold++;
+                                    if (itemsSold === 4) {
+                                        if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                        await collector.stop();
+                                        startShop();
+                                    } else {
+                                        if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    }
                                 }
+
+                                //wipe db after this
                             }
 
-                            //wipe db after this
-                        }
-
-                    } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                        } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                    }).catch(error => {
+                        console.log(errorForm(error));
+                    });
                 }
                 if (collInteract.customId === 'slot-three') {
-                    await collInteract.deferUpdate();
-                    const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
-                    if (item) {
-                        console.log(successResult('ITEM FOUND! Slot-Three'));//item was found yaaaay
+                    await collInteract.deferUpdate().then(async () => {
+                        const item = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: 3 }] });
+                        if (item) {
+                            console.log(successResult('ITEM FOUND! Slot-Three'));//item was found yaaaay
 
-                        if (item.value > uData.coins) {
-                            console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
-                            return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
-                        } else {
-                            const result = await addItem(item);
-                            if (result === 'Success') {
-                                var coinReduced = uData.coins - item.value;
+                            if (item.value > uData.coins) {
+                                console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
+                                return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
+                            } else {
+                                const result = await addItem(item);
+                                if (result === 'Success') {
+                                    var coinReduced = uData.coins - item.value;
 
-                                await payUp(coinReduced, uData);
+                                    await payUp(coinReduced, uData);
 
-                                var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    uData = await grabU();
 
-                                slotThreeButton.setDisabled(true);
-                                refreshCost -= item.value;
-                                refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
+                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
-                                finalFields[2] = {
-                                    name: 'SLOT THREE', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
-                                };
+                                    slotThreeButton.setDisabled(true);
+                                    refreshCost -= item.value;
+                                    refreshButton.setLabel(`Reroll Shop, Cost ${refreshCost}`);
 
-                                finalFields[4] = {
-                                    name: `Your Coins: `, value: `${uData.coins}c`,
-                                };
+                                    finalFields[2] = {
+                                        name: 'SLOT THREE', value: '**I\nT\nE\nM\n\nS\nO\nL\nD**',
+                                    };
 
-                                shopEmbed = {
-                                    title: "~Bloodstone Shoppe~",
-                                    color: 0x39acf3,
-                                    description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
-                                    fields: finalFields,
-                                };
+                                    finalFields[4] = {
+                                        name: `Your Coins: `, value: `${uData.coins}c`,
+                                    };
 
-                                await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+                                    shopEmbed = {
+                                        title: "~Bloodstone Shoppe~",
+                                        color: 0x39acf3,
+                                        description: "Welcome to the shop! Take a look at the wares.. be quick they wont last forever.",
+                                        fields: finalFields,
+                                    };
 
-                                itemsSold++;
-                                if (itemsSold === 4) {
-                                    if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
-                                    await collector.stop();
-                                    startShop();
-                                } else {
-                                    if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
-                                    return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    await embedMsg.edit({ embeds: [shopEmbed], components: [buttonRow] });
+
+                                    itemsSold++;
+                                    if (itemsSold === 4) {
+                                        if (data) interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                        await collector.stop();
+                                        startShop();
+                                    } else {
+                                        if (data) return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE ${data.amount} ${item.name}`);
+                                        return interaction.channel.send(`TRANSACTION COMPLETE! YOU NOW HAVE 1 ${item.name}`);
+                                    }
                                 }
                             }
-                        }
 
-                    } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                        } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
+                    }).catch(error => {
+                        console.log(errorForm(error));
+                    });
                 }
                 if (collInteract.customId === 'slot-four') {
                     await collInteract.deferUpdate().then(async () => {
@@ -390,6 +405,8 @@ module.exports = {
                                     var coinReduced = uData.coins - item.value;
 
                                     await payUp(coinReduced, uData);
+
+                                    uData = await grabU();
 
                                     var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
@@ -441,7 +458,7 @@ module.exports = {
                         //subtract the refresh cost from user coins
                         await collInteract.deferUpdate().then(async () => {
                             var cost = uData.coins - refreshCost;
-                            payUp(cost, uData);
+                            await payUp(cost, uData);
                             await checkShop(uData, refreshCost);
                             await collector.stop();
                             startShop();//run the entire script over again
@@ -511,7 +528,7 @@ module.exports = {
                 if (tmpLootPool.length === 1) {
                     tmpItemSlice = tmpLootPool[lootPos];
                 } else {
-                    lootPos = Math.floor(Math.random() * (tmpLootPool.length));
+                    lootPos = Math.round(Math.random() * (tmpLootPool.length - 1));
                     tmpItemSlice = tmpLootPool[lootPos];
                 }
 
