@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 
 const {
     warnedForm,
@@ -47,7 +47,7 @@ async function grabMat(enemy, user, interaction) {
     let listStr;
     if (matTypes.length > 1) {
         //Enemy has more than one drop type...
-        const randDropType = Math.round(Math.random() * (matTypes.length));
+        const randDropType = Math.round(Math.random() * (matTypes.length - 1));
         listStr = `${matTypes[randDropType]}List.json`;
         passType = `${matTypes[randDropType]}`;
     } else {
@@ -153,17 +153,23 @@ async function grabMat(enemy, user, interaction) {
 
         const matColour = await grabColour(foundRar);
 
+        const matTypeFile = new AttachmentBuilder(`./events/Models/json_prefabs/materialLists/mat-png/${passType}.png`);
+        const matTypePng = `attachment://${passType}.png`;
+
         const theMaterialEmbed = new EmbedBuilder()
             .setTitle('~Material Dropped~')
+            .setThumbnail(matTypePng)
             .setColor(matColour)
             .addFields({
                 name: `${finalMaterial.Name}\n`,
                 value: matListedDisplay
             });
 
-        await interaction.channel.send({ embeds: [theMaterialEmbed] }).then(async theMatEmbed => setTimeout(() => {
+        await interaction.channel.send({ embeds: [theMaterialEmbed], files: [matTypeFile] }).then(async theMatEmbed => setTimeout(() => {
             theMatEmbed.delete();
-        }, 20000)).catch(console.error);
+        }, 20000)).catch(error => {
+            console.error(error);
+        });
 
         //await interaction.channel.send(`${droppedNum} ${finalMaterial.Name} have dropped!`);
 
