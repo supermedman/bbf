@@ -261,8 +261,12 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     }
                 });
             });
-
-            startBossCombat(constKey, boss, interaction, userSpecEEFilter);
+            try {
+                startBossCombat(constKey, boss, interaction, userSpecEEFilter);
+            } catch (error) {
+                console.log(errorForm(error));
+            }
+            
         } else return console.log(errorForm(`AN ERROR OCCURED: ${result}`));
     }
 
@@ -657,8 +661,11 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                     }
                 });
             });
-
-            startCombat(constKey, interaction, userSpecEEFilter);
+            try {
+                startCombat(constKey, interaction, userSpecEEFilter);
+            } catch (error) {
+                console.log(errorForm(error));
+            }
         } else return console.log(errorForm(`AN ERROR OCCURED: ${result}`));
     }
 
