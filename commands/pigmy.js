@@ -308,7 +308,8 @@ module.exports = {
 			const timeLeft = Math.round(7200000 - timeDiff);
 			if (timeLeft > 0) {
 				let timeRemaining = timeLeft;
-				return await interaction.followUp(`${userPigmy.name} needs <t:${timeRemaining}:R> before claiming!`);
+				const totalTime = now + timeRemaining;
+				return await interaction.followUp(`${userPigmy.name} needs <t:${totalTime}:R> before claiming!`);
 			} else if (timeLeft <= 0) {
 				let hrs = Math.abs(Math.floor(timeLeft / (1000 * 60 * 60)));
 				console.log(specialInfoForm(`Hours since last claim: ${hrs}`));
