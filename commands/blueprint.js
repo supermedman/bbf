@@ -57,7 +57,7 @@ module.exports = {
 				var cancelCraftButtonPages = [];
 
 				const equipList = await userBlueprints.filter(bluey => bluey.passivecategory === 'Equip');
-				console.log(specialInfoForm('equipList: ', equipList));
+				//console.log(specialInfoForm('equipList: ', equipList));
 				if (equipList.length <= 0) {
 					console.log(warnedForm('NO EQUIP BLUEPRINTS FOUND'));
 				} else {
@@ -89,7 +89,7 @@ module.exports = {
 							//finalFields.push(fieldValueObj);
 
 							grabbedMTA = bpSlice.map(bluey => bluey.MaterialTypeAmount);
-							console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTA));
+							//console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTA));
 							grabbedName = bpSlice.map(bluey => bluey.Name);
 							grabbedDescription = bpSlice.map(bluey => bluey.Description);
 
@@ -101,7 +101,7 @@ module.exports = {
 							let totCheckSuccess = 0;
 							let filteredResult = false;
 							for (var matPos = 0; matPos < grabbedMTA; matPos++) {
-								console.log(basicInfoForm('matPos on current itteration: ', matPos));
+								//console.log(basicInfoForm('matPos on current itteration: ', matPos));
 
 								var addingOne = (matPos + 1);
 
@@ -124,17 +124,17 @@ module.exports = {
 								curCheckMat = await MaterialStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
 								if (!curCheckMat) {
 									//Material not found Blueprint is unavailable to craft
-									console.log(failureResult('Material Type not found blueprint discarded'));
+									//console.log(failureResult('Material Type not found blueprint discarded'));
 									filteredResult = false;
 									//finalFields = [];
 								} else {
 									if (compNumTemp <= curCheckMat.amount) {
 										//Player has more material than needed, check success!
-										console.log(successResult('Material Type found, Material Amount suficient!'));
+										//console.log(successResult('Material Type found, Material Amount suficient!'));
 										filteredResult = true;
 										totCheckSuccess++;
 									} else {
-										console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
+										//console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
 										filteredResult = true;
 										//finalFields = [];
 									}
@@ -156,7 +156,7 @@ module.exports = {
 
 									finalFields.push(fieldValueObj);
 								} else {
-									console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
+									//console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
 									//Embed: fields: {name: this}
 									listedMatsName = bpSlice.map(mats =>
 										`${matStrType}: ${mats[`${matStrType}`]}`);
@@ -174,13 +174,13 @@ module.exports = {
 								}
 							}
 
-							console.log(basicInfoForm('grabbedMTA value Second: ', grabbedMTA));
-							console.log(basicInfoForm('finalFields.length: ', finalFields.length));
+							//console.log(basicInfoForm('grabbedMTA value Second: ', grabbedMTA));
+							//console.log(basicInfoForm('finalFields.length: ', finalFields.length));
 
 							var strLength = finalFields.length.toString();
 
 							if (strLength === grabbedMTA.toString()) {
-								console.log(successResult('finalFields Values: ', finalFields));
+								//console.log(successResult('finalFields Values: ', finalFields));
 
 								let embedColour = 0000;
 								if (bpSlice[0].Rar_id) {
@@ -227,7 +227,7 @@ module.exports = {
 				}
 				//RUN THROUGH POTION BLUEPRINTS SECOND
 				const potionList = await userBlueprints.filter(bluey => bluey.passivecategory === 'Potion');
-				console.log(specialInfoForm('potionList: ', potionList));
+				//console.log(specialInfoForm('potionList: ', potionList));
 				if (potionList.length <= 0) {
 					console.log(warnedForm('NO POTION BLUEPRINTS FOUND'));
 				} else {
@@ -250,7 +250,7 @@ module.exports = {
 								`Coin Cost: ${bluey.CoinCost} \nRequired Level: ${bluey.UseLevel} \nDuration: ${bluey.Duration} \nCoolDown: ${bluey.CoolDown} \nMaterial Types Needed: ${bluey.MaterialTypeAmount}`);
 
 							grabbedMTAP = bpSliceP.map(bluey => bluey.MaterialTypeAmount);
-							console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTAP));
+							//console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTAP));
 							grabbedNameP = bpSliceP.map(bluey => bluey.Name);
 							grabbedDescriptionP = bpSliceP.map(bluey => bluey.Description);
 
@@ -261,7 +261,7 @@ module.exports = {
 							let totCheckSuccessP = 0;
 							let filteredResult = false;
 							for (var matPos = 0; matPos < grabbedMTAP; matPos++) {
-								console.log(basicInfoForm('matPos on current itteration: ', matPos));
+								//console.log(basicInfoForm('matPos on current itteration: ', matPos));
 
 								var addingOne = (matPos + 1);
 
@@ -284,18 +284,18 @@ module.exports = {
 								curCheckMat = await MaterialStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
 								if (!curCheckMat) {
 									//Material not found Blueprint is unavailable to craft
-									console.log(failureResult('Material Type not found blueprint discarded'));
+									//console.log(failureResult('Material Type not found blueprint discarded'));
 									filteredResult = false;
 									//finalFieldsP = [];
 									//matPos = grabbedMTAP;
 								} else {
 									if (compNumTemp <= curCheckMat.amount) {
 										//Player has more material than needed, check success!
-										console.log(successResult('Material Type found, Material Amount suficient!'));
+										//console.log(successResult('Material Type found, Material Amount suficient!'));
 										filteredResult = true;
 										totCheckSuccessP++;
 									} else {
-										console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
+										//console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
 										filteredResult = true;
 										//finalFieldsP = [];
 										//matPos = grabbedMTAP;
@@ -319,7 +319,7 @@ module.exports = {
 									finalFieldsP.push(fieldValueObjP);
 
 								} else {
-									console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
+									//console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
 
 									//Embed: fields: {name: this}
 									listedMatsNameP = bpSliceP.map(mats =>
@@ -342,7 +342,7 @@ module.exports = {
 							var strLength = finalFieldsP.length.toString();
 
 							if (strLength === grabbedMTAP.toString()) {
-								console.log(successResult('finalFields Values: ', finalFieldsP));
+								//console.log(successResult('finalFields Values: ', finalFieldsP));
 
 								let embedColour = 0000;
 								if (bpSliceP[0].Rar_id) {
@@ -415,7 +415,7 @@ module.exports = {
 							//finalFields.push(fieldValueObj);
 
 							grabbedMTA = bpSlice.map(bluey => bluey.MaterialTypeAmount);
-							console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTA));
+							//console.log(basicInfoForm('grabbedMTA value First: ', grabbedMTA));
 							grabbedName = bpSlice.map(bluey => bluey.Name);
 							grabbedDescription = bpSlice.map(bluey => bluey.Description);
 
@@ -427,7 +427,7 @@ module.exports = {
 							let totCheckSuccess = 0;
 							let filteredResult = false;
 							for (var matPos = 0; matPos < grabbedMTA; matPos++) {
-								console.log(basicInfoForm('matPos on current itteration: ', matPos));
+								//console.log(basicInfoForm('matPos on current itteration: ', matPos));
 
 								var addingOne = (matPos + 1);
 
@@ -450,17 +450,17 @@ module.exports = {
 								curCheckMat = await MaterialStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: compValTemp }] });
 								if (!curCheckMat) {
 									//Material not found Blueprint is unavailable to craft
-									console.log(failureResult('Material Type not found blueprint discarded'));
+									//console.log(failureResult('Material Type not found blueprint discarded'));
 									filteredResult = false;
 									//finalFields = [];
 								} else {
 									if (compNumTemp <= curCheckMat.amount) {
 										//Player has more material than needed, check success!
-										console.log(successResult('Material Type found, Material Amount suficient!'));
+										//console.log(successResult('Material Type found, Material Amount suficient!'));
 										filteredResult = true;
 										totCheckSuccess++;
 									} else {
-										console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
+										//console.log(failureResult('Material Amount not sufficient, blueprint discarded'));
 										filteredResult = true;
 										//finalFields = [];
 									}
@@ -482,7 +482,7 @@ module.exports = {
 
 									finalFields.push(fieldValueObj);
 								} else {
-									console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
+									//console.log(failureResult('FilteredResult failure DURING itteration, discarding embed!'));
 									//Embed: fields: {name: this}
 									listedMatsName = bpSlice.map(mats =>
 										`${matStrType}: ${mats[`${matStrType}`]}`);
@@ -500,13 +500,13 @@ module.exports = {
 								}
 							}
 
-							console.log(basicInfoForm('grabbedMTA value Second: ', grabbedMTA));
-							console.log(basicInfoForm('finalFields.length: ', finalFields.length));
+							//console.log(basicInfoForm('grabbedMTA value Second: ', grabbedMTA));
+							//console.log(basicInfoForm('finalFields.length: ', finalFields.length));
 
 							var strLength = finalFields.length.toString();
 
 							if (strLength === grabbedMTA.toString()) {
-								console.log(successResult('finalFields Values: ', finalFields));
+								//console.log(successResult('finalFields Values: ', finalFields));
 
 								let embedColour = 0000;
 								if (bpSlice[0].Rar_id) {
@@ -672,7 +672,7 @@ module.exports = {
 					}
 				});
 			}).catch(error => {
-				console.log(errorForm(error));
+				console.error(errorForm(error));
 			});
 		}
 
@@ -1175,7 +1175,7 @@ module.exports = {
 				let matStrAmount = '';
 				let fieldValueObj;
 				for (var matPos = 0; matPos < grabbedMTA; matPos++) {
-					console.log(basicInfoForm('matPos on current itteration: ', matPos));
+					//console.log(basicInfoForm('matPos on current itteration: ', matPos));
 
 					var addingOne = (matPos + 1);
 
@@ -1184,7 +1184,7 @@ module.exports = {
 
 					//Embed: fields: {name: this}
 					listedMatsName = `${matStrType}: ${theBlueprint[`${matStrType}`]}`;
-					console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
+					//console.log(basicInfoForm('listedMatsName on current itteration ' + matPos + ': ', listedMatsName));
 
 					//Embed: fields: {value: this}
 					if (inputAmount > 1) {
@@ -1192,10 +1192,10 @@ module.exports = {
 					} else if ((inputAmount === 1) || (!inputAmount)) {
 						listedMatsValue = `Amount: ${theBlueprint[`${matStrAmount}`]}`;
                     }
-					console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
+					//console.log(basicInfoForm('listedMatsValue on current itteration ' + matPos + ': ', listedMatsValue));
 
 					fieldValueObj = { name: listedMatsName.toString(), value: listedMatsValue.toString(), };
-					console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
+					//console.log(basicInfoForm('fieldValueObj on current itteration ' + matPos + ': ', fieldValueObj));
 
 					finalFields.push(fieldValueObj);
 				}
@@ -1355,7 +1355,7 @@ module.exports = {
 					return thePotion;
 				}
 			} catch (error) {
-				console.log(errorForm(`AN ERROR HAS OCCURED: ${error}`));
+				console.error(errorForm(`AN ERROR HAS OCCURED: ${error}`));
             }
 		}
 
@@ -1459,7 +1459,7 @@ module.exports = {
 
 					theTool = await OwnedTools.findOne({ where: [{ spec_id: interaction.user.id }, { tool_id: tool.ToolID }] });
 				} catch (err) {
-					return console.log(errorForm('AN ERROR OCCURED: ', err));
+					return console.error(errorForm('AN ERROR OCCURED: ', err));
 				}
 			}
 
