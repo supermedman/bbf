@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const { errorForm, specialInfoForm, basicInfoForm, specialInfoForm2, successResult } = require('../chalkPresets.js');
 
 const { Loadout, UserData, LootStore, MaterialStore } = require('../dbObjects.js');
@@ -297,7 +297,7 @@ module.exports = {
 									await embedMsgFrom.edit(embedMsgToEmbed);
 									await cI.editReply(embedMsgToComponents);
 								}).catch(error => {
-									console.log(errorForm(error));
+									console.error(errorForm(error));
 								});
 							}
 							//Cancel
@@ -323,10 +323,10 @@ module.exports = {
 										} 
 										return interaction.followUp('Something went wrong!!', result);
 									}).catch(error => {
-										console.log(errorForm(error));
+										console.error(errorForm(error));
 									});
 								}).catch(error => {
-									console.log(errorForm(error));
+									console.error(errorForm(error));
 								});
 							}
 							//Cancel
@@ -464,7 +464,7 @@ module.exports = {
 					await user.save();
 
 					let addedItem;
-					if (theItem.Slot === 'Mainhand') {
+					if (item.Slot === 'Mainhand') {
 						addedItem = await LootStore.create({
 							name: item.name,
 							value: item.value,
@@ -479,7 +479,7 @@ module.exports = {
 							hands: item.hands,
 							amount: amount
 						});
-					} else if (theItem.Slot === 'Offhand') {
+					} else if (item.Slot === 'Offhand') {
 						addedItem = await LootStore.create({
 							name: item.name,
 							value: item.value,
@@ -610,7 +610,7 @@ module.exports = {
 
 				
 			}).catch(error => {
-				console.log(errorForm('Interaction error @ Trade with:', error));
+				console.error(errorForm('Interaction error @ Trade with:', error));
 			});
 		}
 
@@ -649,7 +649,7 @@ module.exports = {
 				const endTime = new Date().getTime();
 				console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
 			}).catch(error => {
-				console.log(errorForm('Interaction error @ Trade local:', error));
+				console.error(errorForm('Interaction error @ Trade local:', error));
 			});
 		}
 
@@ -661,7 +661,7 @@ module.exports = {
 				const endTime = new Date().getTime();
 				console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
 			}).catch(error => {
-				console.log(errorForm('Interaction error @ Trade global:', error));
+				console.error(errorForm('Interaction error @ Trade global:', error));
 			});
 		}
 
