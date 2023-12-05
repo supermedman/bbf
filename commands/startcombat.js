@@ -21,6 +21,7 @@ const { handleNewSpawn } = require('./exported/handleEnemySpawn.js');
 const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
 const { grabMat } = require('./exported/materialDropper.js');
+const { pigmyTypeStats } = require('./exported/handlePigmyDamage.js');
 
 const { checkHintLootView, checkHintStats } = require('./exported/handleHints.js');
 
@@ -61,12 +62,13 @@ module.exports = {
         let user;
 
         await interaction.deferReply().then(() => startCombat()).catch((err) => {
-            return console.log(errorForm('AN ERROR OCCURED!: ', err));
+            return console.error(errorForm('AN ERROR OCCURED!: ', err));
         });
 
         async function startCombat() {
             //Tally messages to remove when this is called...
             //Figure out how to know how many and then grab them correctly 
+            console.log('Start combat called!');
             await loadEnemy();
         }
 
@@ -104,7 +106,7 @@ module.exports = {
                             display();
                         });
                     } catch (error) {
-                        console.log(error);
+                        console.error(error);
                     }
                 }
             }
@@ -116,8 +118,8 @@ module.exports = {
             try {
                 let copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
 
-                console.log('Status of finding enemy: ', copyCheck);
-                console.log('Values being checked for: ', '\nspecCode: ', specCode, '\nconstKey: ', constKey);
+                //console.log('Status of finding enemy: ', copyCheck);
+                //console.log('Values being checked for: ', '\nspecCode: ', specCode, '\nconstKey: ', constKey);
 
                 if (copyCheck) {
                     //enemy already exists return                  
@@ -167,7 +169,7 @@ module.exports = {
                         chanceToBeat -= 0.10;
                     }
 
-                    console.log(basicInfoForm('Chance to beat after ThiefCheck: ', chanceToBeat));
+                    //console.log(basicInfoForm('Chance to beat after ThiefCheck: ', chanceToBeat));
 
                     if (uCheck.level >= 31) {
                         //User above level 31 increase drop chance
@@ -178,7 +180,7 @@ module.exports = {
                         }
                     }
 
-                    console.log(basicInfoForm('Chance to beat after LevelCheck: ', chanceToBeat));
+                    //console.log(basicInfoForm('Chance to beat after LevelCheck: ', chanceToBeat));
 
                     if (pigmy) {
                         if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
@@ -188,9 +190,9 @@ module.exports = {
                         }
                     }
 
-                    console.log(basicInfoForm('Chance to beat after PigmyCheck: ', chanceToBeat));
+                    //console.log(basicInfoForm('Chance to beat after PigmyCheck: ', chanceToBeat));
 
-                    console.log(specialInfoForm('Rolled Loot Chance:\n' + lootChance + '\nChance to beat:\n', chanceToBeat));
+                    //console.log(specialInfoForm('Rolled Loot Chance:\n' + lootChance + '\nChance to beat:\n', chanceToBeat));
 
                     if (lootChance >= chanceToBeat) {
                         //hasitem:true
@@ -219,11 +221,11 @@ module.exports = {
                     const enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
 
                     if (enemy) {
-                        console.log(`Enemy data being added to database: \nNAME: ${enemy.name} \nLEVEL: ${enemy.level} \nHEALTH: ${enemy.health} \nDEFENCE: ${enemy.defence}`);
+                        //console.log(`Enemy data being added to database: \nNAME: ${enemy.name} \nLEVEL: ${enemy.level} \nHEALTH: ${enemy.health} \nDEFENCE: ${enemy.defence}`);
                         console.log('Enemy data added successfully!');
                         return enemy;
                     } else {
-                        console.log('Something went wrong while adding an enemy!');
+                        console.error('Something went wrong while adding an enemy!');
                         return;
                     }
 
@@ -238,32 +240,22 @@ module.exports = {
         async function display() {
             const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
             if (userLoadout) foundLoadout = true;
-            if (foundLoadout === false) {
-                //No loadout keep potions disabled
-            } else {
+            if (foundLoadout === true) {
                 const userPotion = await findPotion(userLoadout.potionone, userID);
-                if (userPotion === 'NONE') {
+                if (userPotion === 'NONE' || userPotion === 'HASNONE') {
                     //Both potion slots are empty keep buttons disabled
                     potionOneDisabled = true;
-                    potionTxt = 'No Potion';
-                } else if (userPotion === 'HASNONE') {
-                    potionOneDisabled = true;
-                    potionTxt = '0 Remaining';
+                    if (userPotion === 'NONE') potionTxt = 'No Potion';
+                    if (userPotion === 'HASNONE') potionTxt = '0 Remaining';
                 } else {
                     const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
-                    if (!activeEffects) {
+                    if (!activeEffects || activeEffects.cooldown <= 0) {
                         //user has no active effects
                         potionOneDisabled = false;
                         potionTxt = `${userPotion.amount} ${userPotion.name}`;
                     } else {
-                        //Check both effects against currently equipped potions
-                        if (activeEffects.cooldown > 0) {
-                            potionOneDisabled = true;
-                            potionTxt = `CoolDown: ${activeEffects.cooldown}`;
-                        } else {
-                            potionOneDisabled = false;
-                            potionTxt = `${userPotion.amount} ${userPotion.name}`;
-                        }
+                        potionOneDisabled = true;
+                        potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                     }
                 }
             }
@@ -271,7 +263,7 @@ module.exports = {
             const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
 
             const enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
-            if (!enemy) console.log(errorForm('ENEMY NOT FOUND!?'));
+            if (!enemy) console.error(errorForm('ENEMY NOT FOUND!?'));
 
             const hasPng = await pngCheck(enemy);
 
@@ -378,7 +370,7 @@ module.exports = {
                             await resetHasItem(enemy); //Upon completion reload enemy
                         }
                     }).catch(error => {
-                        console.log(errorForm(error));
+                        console.error(errorForm(error));
                     });
                 }
 
@@ -439,7 +431,7 @@ module.exports = {
                 if (collInteract.customId === 'onehit') {
                     //run once reprompt reaction
                     //const currentLoadout = await Loadout.findOne({ where: { spec_id: uData.userid } });
-                    console.log(specialInfoForm(`ONEHIT START =======================`));
+                    //console.log(specialInfoForm(`ONEHIT START =======================`));
                     let weapon;
                     let offHand;
                     let dmgDealt;
@@ -447,7 +439,7 @@ module.exports = {
                         weapon = await findMainHand(userLoadout.mainhand, userID);
                         if (userLoadout.mainhand !== userLoadout.offhand) {
                             offHand = await findOffHand(userLoadout.offhand, userID);
-                            console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
+                            //console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
                         }
                     }
 
@@ -475,7 +467,7 @@ module.exports = {
                     await collInteract.deferUpdate();
 
                     await collector.stop();
-                    console.log(specialInfoForm(`BLOCK START =======================`));
+                    //console.log(specialInfoForm(`BLOCK START =======================`));
                     await blockAttack(enemy);
                 }
 
@@ -536,14 +528,14 @@ module.exports = {
             } else if (!foundMaterial) {
                 //Error occured ignore futher..
             } else {
-                console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
+                //console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
             }
 
             const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
             if (!activeEffect) {
                 //No active effects to manage
             } else if (activeEffect) {
-                console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+                //console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
                 const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
                 let runCount = 0;
                 let currEffect;
@@ -558,7 +550,7 @@ module.exports = {
 
                     if (coolDownReduce <= 0) {
                         //Cooldown Complete!
-                        console.log(basicInfoForm('COOLDOWN COMPLETE!'));
+                        //console.log(basicInfoForm('COOLDOWN COMPLETE!'));
                         await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
                     } else {
                         await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
@@ -805,7 +797,7 @@ module.exports = {
 
             let mainDmgType;
             let offDmgType;
-            console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
+            //console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
 
             if (!weapon || weapon === 'NONE') {
                 mainDmgType = 'NONE';
@@ -815,28 +807,28 @@ module.exports = {
             }
 
             const Etype = enemy.weakto.toLowerCase();
-            console.log('Enemy Weakto: ', Etype);
+            //console.log('Enemy Weakto: ', Etype);
 
             if (mainDmgType === 'NONE' && offDmgType === 'NONE') {
                 //Do nothing no type match
             } else {
                 if (mainDmgType !== 'NONE') {
                     mainDmgType = weapon.Type.toLowerCase();
-                    console.log('Weapon Type: ', mainDmgType);
+                    //console.log('Weapon Type: ', mainDmgType);
                 }
                 if (offDmgType !== 'NONE') {
                     offDmgType = offHand.Type.toLowerCase();
-                    console.log('Offhand Type: ', offDmgType);
+                    //console.log('Offhand Type: ', offDmgType);
                 }
             }
 
             if (mainDmgType === Etype) {
                 dmgDealt += (dmgDealt * 0.5);
-                console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
+                //console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
             }
             if (offDmgType === Etype) {
                 dmgDealt += (dmgDealt * 0.5);
-                console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
+                //console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
             }
 
             let embedColour = 'NotQuiteBlack';
@@ -845,16 +837,17 @@ module.exports = {
             var spdUP = 0;
             var dexUP = 0;
 
-            if (pigmy) {
-                //pigmy found check for happiness and type                                                     
-                if (pigmy.type === 'Fire') {
-                    //Fire pigmy equipped apply + 0.10 dex
-                    dexUP = 0.10;
-                } else if (pigmy.type === 'Frost') {
-                    //Frost pigmy equipped apply + 0.10 spd
-                    spdUP = 0.10;
-                }
-            }
+            let pigmyStats = {
+                pigmyDmg: 0,
+                int: 0,
+                dex: 0,
+                str: 0,
+                spd: 0
+            };
+            if (pigmy) pigmyStats = pigmyTypeStats(pigmy);
+
+            spdUP += Math.floor(pigmyStats.spd / 50);
+            dexUP += Math.floor(pigmyStats.dex / 50);
 
             const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
             if (extraStats) {
@@ -871,10 +864,10 @@ module.exports = {
                 dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
             } else { dhChance = ((user.speed * 0.02) + spdUP); }
             //console.log('Current 2 hit chance: ', dhChance);
-            console.log(specialInfoForm(`Current double hit chance: ${dhChance}`));
+            //console.log(specialInfoForm(`Current double hit chance: ${dhChance}`));
 
             const procCall1 = Math.random();
-            console.log(basicInfoForm(`RNG for double hit: ${procCall1}\n`));
+            //console.log(basicInfoForm(`RNG for double hit: ${procCall1}\n`));
             //console.log('RNG rolled for double hit: ', procCall1, '\n');
 
             //======================
@@ -901,10 +894,10 @@ module.exports = {
                 if (user.pclass === 'Thief') {
                     critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
                 } else { critChance = ((user.dexterity * 0.02) + dexUP); }
-                console.log(specialInfoForm('Current crit chance: ', critChance));
+                //console.log(specialInfoForm('Current crit chance: ', critChance));
 
                 const procCall2 = Math.random();
-                console.log(basicInfoForm('RNG rolled for crit chance: ', procCall2, '\n'));
+                //console.log(basicInfoForm('RNG rolled for crit chance: ', procCall2, '\n'));
 
                 //======================
                 // Second proc call if statment to check for crit
@@ -932,7 +925,7 @@ module.exports = {
                 //if statment to check if enemy dies after attack
                 if ((eHealth - dmgDealt) <= 0) {
                     console.log('ENEMY IS DEAD');
-                    console.log(specialInfoForm(`ONEHIT STOP =======================`));
+                    //console.log(specialInfoForm(`ONEHIT STOP =======================`));
                     dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
 
                     const attackDmgEmbed = new EmbedBuilder()
@@ -981,16 +974,16 @@ module.exports = {
             */
             if (isBlocked === true) {
                 user = await UserData.findOne({ where: { userid: userID } });
-                console.log(specialInfoForm(`BLOCK STOP =======================`));
+                //console.log(specialInfoForm(`BLOCK STOP =======================`));
                 return display();
             } else if (isBlocked === false) {
-                console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
+                //console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                 const eDamage = await enemyDamage(enemy);
-                console.log(basicInfoForm2(`Enemy damage before +-: ${eDamage}`));
+                //console.log(basicInfoForm2(`Enemy damage before +-: ${eDamage}`));
 
                 const dead = await takeDamage(eDamage, enemy, false);
                 user = await UserData.findOne({ where: { userid: userID } });
-                console.log(specialInfoForm(`ONEHIT STOP =======================`));
+                //console.log(specialInfoForm(`ONEHIT STOP =======================`));
                 if (dead === false) {
                     //console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
                     return display();
@@ -1044,12 +1037,12 @@ module.exports = {
                 if (legSlotItem !== 'NONE') {
                     defence += legSlotItem.Defence;
                 }
-                console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
+                //console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
 
                 if (offHandItem !== 'NONE') {
                     defence += offHandItem.Defence;
                 }
-                console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
+                //console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
 
                 const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
 
@@ -1074,8 +1067,8 @@ module.exports = {
                         await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
                             blockedEmbed.delete();
                         }, 15000)).catch(console.error);
-                        console.log(specialInfoForm(`BLOCK STOP =======================`));
-                        console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
+                        //console.log(specialInfoForm(`BLOCK STOP =======================`));
+                        //console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                         return takeDamage(eDamage, enemy, true);
                     } else {
                         //Player deals damage
@@ -1091,7 +1084,7 @@ module.exports = {
                         }, 15000)).catch(console.error);
 
                         let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
-                        console.log(`counterDamage: ${counterDamage}`);
+                        //console.log(`counterDamage: ${counterDamage}`);
 
                         const counterEmbed = new EmbedBuilder()
                             .setTitle("Counter Attack!")
@@ -1103,17 +1096,17 @@ module.exports = {
                         }, 15000)).catch(console.error);
 
                         let ghostWep, ghostOff;
-                        console.log(specialInfoForm(`ONEHIT START =======================`));
+                        //console.log(specialInfoForm(`ONEHIT START =======================`));
                         return hitOnce(counterDamage, ghostWep, ghostOff, enemy, true);
                     }
                 } else {
-                    console.log(specialInfoForm(`BLOCK STOP =======================`));
-                    console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
+                    //console.log(specialInfoForm(`BLOCK STOP =======================`));
+                    //console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                     return takeDamage(eDamage, enemy, true);
                 }
             } else if (!currentLoadout) {
-                console.log(specialInfoForm(`BLOCK STOP =======================`));
-                console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
+                //console.log(specialInfoForm(`BLOCK STOP =======================`));
+                //console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                 return takeDamage(eDamage, enemy, true);
             }
         }
@@ -1131,7 +1124,7 @@ module.exports = {
             }
 
             if (isBlocked === true) {
-                console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
+                //console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
                 if ((currentHealth - eDamage) <= 0) {
                     //Player has died
                     console.log(failureResult('PLAYER IS DEAD :O'));
@@ -1157,8 +1150,8 @@ module.exports = {
                         attkEmbed.delete();
                     }, 15000)).catch(console.error);
 
-                    console.log(specialInfoForm(`BLOCK STOP =======================`));
-                    console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
+                    //console.log(specialInfoForm(`BLOCK STOP =======================`));
+                    //console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                     await hitP(currentHealth);
                     return display();
                 }
@@ -1196,12 +1189,12 @@ module.exports = {
                     if (legSlotItem !== 'NONE') {
                         defence += legSlotItem.Defence;
                     }
-                    console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
+                    //console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
 
                     if (offHandItem !== 'NONE') {
                         defence += offHandItem.Defence;
                     }
-                    console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
+                    //console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
 
                     const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
 
@@ -1224,7 +1217,7 @@ module.exports = {
                 if ((currentHealth - eDamage) <= 0) {
                     //Player has died
                     console.log(failureResult('PLAYER IS DEAD :O'));
-                    console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
+                    //console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                     await hitP(0);
                     await playerDead(enemy);
                     return true;
@@ -1247,7 +1240,7 @@ module.exports = {
                     }, 15000)).catch(console.error);
 
                     await hitP(currentHealth);
-                    console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
+                    //console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
                     return false;
                 }
             }
@@ -1266,7 +1259,7 @@ module.exports = {
         async function hitE(eHealth, enemy) {
             const dealDmg = await ActiveEnemy.update({ health: eHealth }, { where: [{ specid: specCode }, { constkey: enemy.constkey }] });
             if (dealDmg) {
-                console.log('Enemy Health has been updated');
+                //console.log('Enemy Health has been updated');
                 return;
             }
         }
@@ -1276,7 +1269,7 @@ module.exports = {
         async function hitP(currentHealth) {
             const dealDmg = await UserData.update({ health: currentHealth }, { where: { userid: userID } });
             if (dealDmg) {
-                console.log(updatedValueForm('Player Health has been updated'));
+                //console.log(updatedValueForm('Player Health has been updated'));
                 return;
             }
         }
@@ -1316,7 +1309,7 @@ module.exports = {
         //========================================
         //This method spawns a drop embed upon stealing an item successfully
         async function showStolen(itemRef) {
-            console.log(specialInfoForm2(`ITEM STOLEN: ${itemRef}`));
+            //console.log(specialInfoForm2(`ITEM STOLEN: ${itemRef}`));
             const item = itemRef;
             let listedDefaults;
             if (item.slot === 'Mainhand') {
@@ -1331,7 +1324,7 @@ module.exports = {
                     `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
             }
 
-            console.log(item.rar_id);
+            //console.log(item.rar_id);
 
             let embedColour = await grabColour(item.rar_id, false);
 
@@ -1443,7 +1436,7 @@ module.exports = {
             } else {
                 foundRar = hasRar;
             }
-            console.log('Rarity Grabbed: ', foundRar);
+            //console.log('Rarity Grabbed: ', foundRar);
 
             let chanceToBeat = 1;
             let upgradeChance = Math.random();
@@ -1476,7 +1469,7 @@ module.exports = {
             }
 
             let iPool = lootList.filter(item => item.Rar_id === foundRar);
-            console.log(specialInfoForm(iPool.length));
+            //console.log(specialInfoForm(iPool.length));
             //list finished, select one item 
             let randPos;
             if (iPool.length <= 1) {
@@ -1581,11 +1574,11 @@ module.exports = {
             if (potion.activecategory === 'Healing') {
 
                 const filterHeal = activeCategoryEffects.filter(effect => effect.Name === 'Healing');
-                console.log(basicInfoForm('filterHeal @ potion: ', filterHeal[0][`${potion.name}`]));
+                //console.log(basicInfoForm('filterHeal @ potion: ', filterHeal[0][`${potion.name}`]));
                 const healAmount = filterHeal[0][`${potion.name}`];
                 let newHealth;
                 if (healAmount > 0) {
-                    console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
+                    //console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
                     appliedCurrEffect = 0;
                     const totalHealth = 100 + (user.strength * 10);
                     if (user.health === totalHealth) {
@@ -1593,12 +1586,12 @@ module.exports = {
                     } else {
                         if ((user.health + healAmount) > totalHealth) {
                             newHealth = totalHealth;
-                            console.log(specialInfoForm('newHealth if max health reached: ', newHealth));
+                            //console.log(specialInfoForm('newHealth if max health reached: ', newHealth));
                         } else {
                             newHealth = user.health + healAmount;
-                            console.log(specialInfoForm('newHealth if no constraint reached: ', newHealth));
+                            //console.log(specialInfoForm('newHealth if no constraint reached: ', newHealth));
                         }
-                        console.log(specialInfoForm('newHealth after checks: ', newHealth));
+                        //console.log(specialInfoForm('newHealth after checks: ', newHealth));
 
                         const editRow = await UserData.update({ health: newHealth }, { where: { userid: userID } });
                         if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
@@ -1611,7 +1604,7 @@ module.exports = {
                 const filterDefence = activeCategoryEffects.filter(effect => effect.Name === 'Reinforce');
                 const defenceAmount = filterDefence[0][`${potion.name}`];
                 if (defenceAmount > 0) {
-                    console.log(successResult('FOUND DEFENCE BOOST'));
+                    //console.log(successResult('FOUND DEFENCE BOOST'));
                     appliedCurrEffect = defenceAmount;
                     await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
                 }
@@ -1620,7 +1613,7 @@ module.exports = {
                 const filterStats = activeCategoryEffects.filter(effect => effect.Name === 'Tons');
                 const statBoost = filterStats[0][`${potion.name}`];
                 if (statBoost > 0) {
-                    console.log(successResult('FOUND STAT BOOST'));
+                    //console.log(successResult('FOUND STAT BOOST'));
                     appliedCurrEffect = statBoost;
                     await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
                 }
@@ -1629,7 +1622,7 @@ module.exports = {
                 const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
                 const expBoost = filterEXP[0][`${potion.name}`];
                 if (expBoost > 0) {
-                    console.log(successResult('FOUND EXP BOOST'));
+                    //console.log(successResult('FOUND EXP BOOST'));
                     appliedCurrEffect = expBoost;
                     await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
                 }
@@ -1653,7 +1646,7 @@ module.exports = {
                     const refindPot = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
 
                     if (refindPot) {
-                        console.log(successResult('Potion One entry created SUCCESSFULLY!'));
+                        //console.log(successResult('Potion One entry created SUCCESSFULLY!'));
 
                         const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
 
@@ -1663,13 +1656,13 @@ module.exports = {
                             //Destroy potion entry
                             const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
                             if (destroyed > 0) {
-                                console.log(successResult('POTION ENTRY DESTROYED!'));
+                                //console.log(successResult('POTION ENTRY DESTROYED!'));
                             } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
                         } else {
                             const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
 
                             if (removedPot > 0) {
-                                console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
+                                //console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
                             } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
                         }
                     } else console.log(warnedForm('SOMETHING WENT WRONG CREATING NEW STATUS ENTRY'));
@@ -1686,7 +1679,7 @@ module.exports = {
                     });
 
                     if (updatedEntry > 0) {
-                        console.log(successResult('Potion One entry update SUCCESSFULLY!'));
+                        //console.log(successResult('Potion One entry update SUCCESSFULLY!'));
                         const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
 
                         const minusOne = thePotToReduce.amount - 1;
@@ -1695,19 +1688,19 @@ module.exports = {
                             //Destroy potion entry
                             const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
                             if (destroyed > 0) {
-                                console.log(successResult('POTION ENTRY DESTROYED!'));
+                                //console.log(successResult('POTION ENTRY DESTROYED!'));
                             } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
                         } else {
                             const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
 
                             if (removedPot > 0) {
-                                console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
+                                //console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
                             } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
                         }
                     } else console.log(warnedForm('SOMETHING WENT WRONG UPDATING STATUS ENTRY'));
                 }
             } catch (err) {
-                console.log(errorForm('AN ERROR HAS OCCURED! ', err));
+                console.error(errorForm('AN ERROR HAS OCCURED! ', err));
             }
         }
 

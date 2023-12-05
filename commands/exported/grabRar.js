@@ -28,13 +28,6 @@ async function grabRar(level) {
 
     console.log('OUTCOME OF randR IN grabRar(): ', randR);
 
-    //if level between 1 & 5 rar_id can be 3 or lower
-    //if level between 6 & 10 rar_id can be 5 or lower
-    //if level between 11 & 15 rar_id can be 8 or lower
-    //if level between 16 & 20 rar_id can be 9 or lower
-    //if level above 20 rar_id can be 10 or lower
-
-
     //if level 1-7 rar_id can be 0-3
     //if level 8-12 rar_id can be 0-4
     //if level 13-18 rar_id can be 0-6
@@ -42,6 +35,122 @@ async function grabRar(level) {
     //if level 25-30 rar_id can be 0-9
     //if level 30+ rar_id can be 0-10
 
+    /**
+        let chanceToBeat = 1;
+        let upgradeChance = Math.random();
+        if (user.pclass === 'Thief') {
+            chanceToBeat -= 0.05;
+        }
+
+        // Max = 0.05 || 0
+        //      Thief || NOT
+
+        if (pigmy) {
+            if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
+                chanceToBeat -= 0.05;
+            } else {
+                chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
+            }
+        }
+
+        // Max =    0.05 || 0
+        //     PigLVL 25 || NONE
+
+        if (user.level >= 31) {
+            if ((Math.floor(user.level / 5) * 0.01) > 0.10) {
+                chanceToBeat -= 0.10;
+            } else {
+                chanceToBeat -= (Math.floor(user.level / 5) * 0.01);
+            }
+        }
+
+        // Max =    0.10 || 0.06         || 0
+        //  PlayerLVL 50 || PlayerLVL 31 || PlayerLVL < 31
+
+        // Chance to beat =
+        //              0.80 || 0.84                             || 0.85   || 1
+        // Total Max =  0.20 || 0.16                             || 0.15   || 0
+        //  IS Thief + AllMAX|| Is Thief + PigMAX + PlayerLVL 31 || AllMAX || NONE
+
+        if (foundRar < 10) {
+            if (upgradeChance >= chanceToBeat) {
+                foundRar++;
+            }
+        }
+     */
+    let rarUP = [0.20, 0.16, 0.15, 0];
+
+    /**
+     * 
+     *      // Chance to beat =
+     *      //              0.80 || 0.84                             || 0.85   || 1
+     *      // Total Max  = 0.20 || 0.16                             || 0.15   || 0
+     *      // IS Thief + AllMAX || Is Thief + PigMAX + PlayerLVL 31 || AllMAX || NONE
+     * 
+     * */
+    let beatThisUP = [0.80, 0.84, 0.85, 1];
+
+    /**
+     *              var lootChance = Math.random();
+     *              var chanceToBeat = 0.850;
+     *              var HI = false;
+     *
+     *              const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+     *              const uCheck = await grabU();
+     *
+     *              if (uCheck.pclass === 'Thief') {
+     *                  chanceToBeat -= 0.10;
+     *              }
+     *              
+     *              // Max = 0.10 || 0
+     *              //   Is Thief || NOT
+     *              
+     *              if (uCheck.level >= 31) {
+     *                  //User above level 31 increase drop chance
+     *                  if ((Math.floor(uCheck.level / 4) * 0.01) > 0.25) {
+     *                      chanceToBeat -= 0.25;
+     *                  } else {
+     *                      chanceToBeat -= (Math.floor(uCheck.level / 4) * 0.01);
+     *                  }
+     *              }
+     *              
+     *              // Max =     0.25 || 0.06         || 0
+     *              //  PlayerLVL 100 || PlayerLVL 31 || PlayerLVL < 31
+     *              
+     *              
+     *              if (pigmy) {
+     *                  if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
+     *                      chanceToBeat -= 0.25;
+     *                  } else {
+     *                      chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02); //Pigmy level increases drop rate by 2% per 3 levels
+     *                  }
+     *              }
+     *              
+     *              // Max =  0.25 || 0
+     *              // PigLVL > 41 || NONE
+     *
+     *              if (lootChance >= chanceToBeat) {
+     *                  //hasitem:true
+     *                  HI = true;
+     *              }
+     *              
+     *              // Chance to beat =
+     *              //              0.25 || 0.35   || 0.44                             || 0.54                  || 0.85
+     *              // Total Max =  0.60 || 0.50   || 0.41                             || 0.31                  || 0.15
+     *              // Is Thief + AllMAX || AllMAX || Is Thief + PigMAX + PlayerLVL 31 || PigMAX + PlayerLVL 31 || NONE
+     *              
+     * 
+     * */
+    let dropANY = [0.60, 0.50, 0.41, 0.31, 0];
+
+    /**
+     *      // Chance to beat =
+     *      //              0.25 || 0.35   || 0.44                             || 0.54                  || 0.85
+     *      // Total Max =  0.60 || 0.50   || 0.41                             || 0.31                  || 0
+     *      // Is Thief + AllMAX || AllMAX || Is Thief + PigMAX + PlayerLVL 31 || PigMAX + PlayerLVL 31 || NONE
+     * 
+     * */
+    let beatThisDROP = [0.25, 0.35, 0.44, 0.54, 0.85];
     
         if (level <= 7) {
             if (randR >= 0.2920) {
@@ -317,6 +426,7 @@ async function grabRar(level) {
 async function grabColour(rarid, needStr) {
     let catchStr = false;
     if (needStr === true) catchStr = true;
+    if (needStr === false) catchStr = false;
     if (rarid === 0) {
         if (catchStr === true) return '#dddddd';
         return 0xdddddd;
@@ -362,12 +472,12 @@ async function grabColour(rarid, needStr) {
         return 0xff06ff;
     }
     if (rarid === 11) {
-        if (catchStr === true) return '#0000ff';
-        return 0x0000ff;
+        if (catchStr === true) return '#ffffff';
+        return 0xffffff;
     }
     if (rarid === 12) {
-        if (catchStr === true) return '#b45f06';
-        return 0xb45f06;
+        if (catchStr === true) return '#0000ff';
+        return 0x0000ff;
     }
 }
 

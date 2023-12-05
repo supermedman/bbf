@@ -233,12 +233,12 @@ async function findPotion(potionOneID, userID) {
 
         potionOne = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionOneID }] });
 
-        if (potionOne) {
-            return potionOne;
-        } else {
-            console.log(errorForm('PotionOne NOT FOUND ERROR HAS OCCURED!'));
+        if (!potionOne) {
+            console.log(warnedForm('PotionOne NOT FOUND AMOUNT LIKELY 0!'));
             return 'HASNONE';
-        } 
+        }
+
+        if (potionOne.amount > 0) return potionOne;
     }
 }
 

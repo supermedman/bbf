@@ -50,7 +50,7 @@
         "Cost": 4000,
 
         "DPL": 20,
-        "Buff": "WORK IN PROGRESS",
+        "Buff": "All Base Stats +20",
 
         "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Phase-Pigmy.png",
         "Image": "attachment://Phase-Pigmy.png",
@@ -58,5 +58,65 @@
         "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Phase-Background.jpg",
 
         "ID": 3
+    },
+    {
+        "Name": "Light Pigmy",
+        "Type": "Light",
+        "Cost": 150,
+
+        "DPL": 3,
+        "Buff": "Speed +10, Dexterity +10",
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
+        "Image": "attachment://Missing-Image.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Light-Background.jpg",
+
+        "ID": 4
+    },
+    {
+        "Name": "Dark Pigmy",
+        "Type": "Dark",
+        "Cost": 150,
+
+        "DPL": 3,
+        "Buff": "Intelligence +10, Strength +10",
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
+        "Image": "attachment://Missing-Image.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Dark-Background.jpg",
+
+        "ID": 5
+    },
+    {
+        "Name": "Magic Pigmy",
+        "Type": "Magic",
+        "Cost": 500,
+
+        "DPL": 5,
+        "Buff": "Intelligence +20",
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
+        "Image": "attachment://Missing-Image.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Magic-Background.jpg",
+
+        "ID": 6
+    },
+    {
+        "Name": "Elder Pigmy",
+        "Type": "Elder",
+        "Cost": 1000,
+
+        "DPL": 10,
+        "Buff": "All Base Stats +10",
+
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
+        "Image": "attachment://Missing-Image.png",
+
+        "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Elder-Background.jpg",
+
+        "ID": 7
     }
 ]
