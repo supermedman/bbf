@@ -1,4 +1,5 @@
 const { grabRar } = require('./grabRar.js');
+const { pigmyTypeStats } = require('./handlePigmyDamage.js');
 
 //User attempts to steal an item from the enemy 
 //Chance increases based on dex && speed
@@ -22,16 +23,17 @@ async function stealing(enemy, uData, pigmy) {
     var spdUP = 0;
     var dexUP = 0;
 
-    if (pigmy) {
-        //pigmy found check for happiness and type                                                     
-        if (pigmy.type === 'Fire') {
-            //Fire pigmy equipped apply + 0.10 dex
-            dexUP = 0.10;
-        } else if (pigmy.type === 'Frost') {
-            //Frost pigmy equipped apply + 0.10 spd
-            spdUP = 0.10;
-        }
-    }
+    let pigmyStats = {
+        pigmyDmg: 0,
+        int: 0,
+        dex: 0,
+        str: 0,
+        spd: 0
+    };
+    if (pigmy) pigmyStats = pigmyTypeStats(pigmy);
+
+    spdUP += Math.floor(pigmyStats.spd / 50);
+    dexUP += Math.floor(pigmyStats.dex / 50);
 
     const spd = uData.speed;
     const dex = uData.dexterity;
