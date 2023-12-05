@@ -24,29 +24,19 @@ module.exports = {
             var equippedPotion = await findPotion(currentLoadout.potionone, interaction.user.id);
 
             let headUnique = true;
-            if (headSlotItem.Value) {
-                //Item is crafted Unique
-                headUnique = false;
-            }
+            if (headSlotItem.Value) headUnique = false;
+
             let chestUnique = true;
-            if (chestSlotItem.Value) {
-                //Item is crafted Unique
-                chestUnique = false;
-            }
+            if (chestSlotItem.Value) chestUnique = false;
+
             let legsUnique = true;
-            if (legSlotItem.Value) {
-                //Item is crafted Unique
-                legsUnique = false;
-            }
+            if (legSlotItem.Value) legsUnique = false;
+
             let mainHandUnique = true;
-            if (mainHandItem.Value) {
-                //Item is crafted Unique
-                mainHandUnique = false;
-            }
+            if (mainHandItem.Value) mainHandUnique = false;
+
             let offHandUnique = true;
-            if (offHandItem.Value) {
-                offHandUnique = false;
-            }
+            if (offHandItem.Value) offHandUnique = false;
 
             var headSlotEmbed;
             var headSlotColour;
@@ -232,16 +222,11 @@ module.exports = {
                     .addFields({ name: 'Total Defence from Armor:', value: list, });
             }
 
-            if (equippedPotion === 'NONE' || 'HASNONE') {
-                var list;
+            if (equippedPotion === 'NONE' || equippedPotion === 'HASNONE') {
+                var list = `Nothing to see here`;
                 var name;
-                if (equippedPotion === 'NONE') {
-                    list = `Nothing to see here`;
-                    name = 'No potion equipped';
-                } else {
-                    list = `Nothing to see here`;
-                    name = 'No potions remaining';
-                }
+                if (equippedPotion === 'NONE') name = 'No potion equipped';
+                if (equippedPotion === 'HASNONE') name = 'No potions remaining';
                 potionEmbed = new EmbedBuilder()
                     .setTitle('NOTHING EQUIPPED')
                     .addFields({ name: name, value: list, });
