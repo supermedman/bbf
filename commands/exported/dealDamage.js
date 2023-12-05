@@ -1,5 +1,6 @@
 
 const { UserData, Pigmy, ActiveStatus } = require('../../dbObjects.js');
+const { pigmyTypeStats } = require('./handlePigmyDamage.js');
 
 /**
  *  Main damage calculating functions for both user and enemies
@@ -249,44 +250,22 @@ async function userDamageLoadout(user, item, offHand) {
     var strUP = 0;
     var intUP = 0;
 
-    if (pigmy) {
-        //pigmy found check for happiness and type
-        totDamageBuff = pigmy.level * 0.02;
-        if (pigmy.happiness >= 50) {
-            //Pigmy is still happy apply damage buff
-            if (pigmy.type === 'NONE') {
-                //Normal pigmy equipped apply additional damage
-                totDamageBuff += (pigmy.level * 1);
-            } else if (pigmy.type === 'Fire') {
-                //Fire pigmy equipped apply 1.5x damage
-                totDamageBuff += (pigmy.level * 1.5);
-                //str + 5
-                strUP = 5;
-            } else if (pigmy.type === 'Frost') {
-                //Frost pigmy equipped apply 2x damage
-                totDamageBuff += (pigmy.level * 2);
-                //int + 5
-                intUP = 5;
-            } else if (pigmy.type === 'NULL') {
-                //Phase pigmy equipped apply 20x damage
-                totDamageBuff += (pigmy.level * 20);
-                //int + 5
-                //intUP = 5;
-            }
-        } else if (pigmy.happiness < 50) {
-            if (pigmy.type === 'Fire') {
-                strUP = 5;
-            } else if (pigmy.type === 'Frost') {
-                intUP = 5;
-            }
-        }
-    }
+    let pigmyStats = {
+        pigmyDmg: 0,
+        int: 0,
+        dex: 0,
+        str: 0,
+        spd: 0
+    };
+    if (pigmy) pigmyStats = pigmyTypeStats(pigmy);
 
-    if (extraStats) {
-        if (extraStats.duration > 0) {
-            strUP += extraStats.curreffect;
-            intUP += extraStats.curreffect;
-        }     
+    totDamageBuff += pigmyStats.pigmyDmg;
+    strUP += pigmyStats.str;
+    intUP += pigmyStats.int;
+
+    if (extraStats && extraStats.duration > 0) {
+        strUP += extraStats.curreffect;
+        intUP += extraStats.curreffect;  
     }
 
     console.log(`Pigmy Damage Buff: ${totDamageBuff}`);
@@ -335,7 +314,7 @@ async function userDamageLoadout(user, item, offHand) {
         }
     }
 
-    console.log('Damage Dealt to Enemy ' + dmgDealt);
+    //console.log('Damage Dealt to Enemy ' + dmgDealt);
     return dmgDealt;
 }
 
