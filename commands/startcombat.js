@@ -21,6 +21,7 @@ const { handleNewSpawn } = require('./exported/handleEnemySpawn.js');
 const { stealing } = require('./exported/handleSteal.js');
 const { hiding } = require('./exported/handleHide.js');
 const { grabMat } = require('./exported/materialDropper.js');
+const { pigmyTypeStats } = require('./exported/handlePigmyDamage.js');
 
 const { checkHintLootView, checkHintStats } = require('./exported/handleHints.js');
 
@@ -239,32 +240,22 @@ module.exports = {
         async function display() {
             const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
             if (userLoadout) foundLoadout = true;
-            if (foundLoadout === false) {
-                //No loadout keep potions disabled
-            } else {
+            if (foundLoadout === true) {
                 const userPotion = await findPotion(userLoadout.potionone, userID);
-                if (userPotion === 'NONE') {
+                if (userPotion === 'NONE' || userPotion === 'HASNONE') {
                     //Both potion slots are empty keep buttons disabled
                     potionOneDisabled = true;
-                    potionTxt = 'No Potion';
-                } else if (userPotion === 'HASNONE') {
-                    potionOneDisabled = true;
-                    potionTxt = '0 Remaining';
+                    if (userPotion === 'NONE') potionTxt = 'No Potion';
+                    if (userPotion === 'HASNONE') potionTxt = '0 Remaining';
                 } else {
                     const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
-                    if (!activeEffects) {
+                    if (!activeEffects || activeEffects.cooldown <= 0) {
                         //user has no active effects
                         potionOneDisabled = false;
                         potionTxt = `${userPotion.amount} ${userPotion.name}`;
                     } else {
-                        //Check both effects against currently equipped potions
-                        if (activeEffects.cooldown > 0) {
-                            potionOneDisabled = true;
-                            potionTxt = `CoolDown: ${activeEffects.cooldown}`;
-                        } else {
-                            potionOneDisabled = false;
-                            potionTxt = `${userPotion.amount} ${userPotion.name}`;
-                        }
+                        potionOneDisabled = true;
+                        potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                     }
                 }
             }
@@ -846,16 +837,17 @@ module.exports = {
             var spdUP = 0;
             var dexUP = 0;
 
-            if (pigmy) {
-                //pigmy found check for happiness and type                                                     
-                if (pigmy.type === 'Fire') {
-                    //Fire pigmy equipped apply + 0.10 dex
-                    dexUP = 0.10;
-                } else if (pigmy.type === 'Frost') {
-                    //Frost pigmy equipped apply + 0.10 spd
-                    spdUP = 0.10;
-                }
-            }
+            let pigmyStats = {
+                pigmyDmg: 0,
+                int: 0,
+                dex: 0,
+                str: 0,
+                spd: 0
+            };
+            if (pigmy) pigmyStats = pigmyTypeStats(pigmy);
+
+            spdUP += Math.floor(pigmyStats.spd / 50);
+            dexUP += Math.floor(pigmyStats.dex / 50);
 
             const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
             if (extraStats) {
