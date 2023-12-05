@@ -46,7 +46,7 @@ client.commands = new Collection();
 
 client.cooldowns = new Collection();
 
-client.gcooldowns = new Collection();
+//client.gcooldowns = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');//access commands folder as directory
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));//searches for any file within this dir ending with .js (being a javascript file)
@@ -61,6 +61,14 @@ for (const file of commandFiles) {
 		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 	}
 }
+
+//client.on('unhandledRejection', error => {
+//	console.error('Unhandled promise rejection:', error);
+//});
+
+//client.on(`${RESTJSONErrorCodes.UnknownMessage}`, error => {
+//	console.error('Unknown Message Error:', error);
+//});
 
 // Log in to Discord with your client's token
 client.login(token);
