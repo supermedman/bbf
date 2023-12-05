@@ -100,7 +100,7 @@ module.exports = {
 					//check what page is currently active
 					//add 1 to embed array 
 					//show results and increase currentPage + 1
-					console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+					//console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
 					//if statment to check if currently on the last page
 					if (currentPage === embedPages.length - 1) {
@@ -150,7 +150,7 @@ module.exports = {
 					//check what page is currently active
 					//add 1 to embed array 
 					//show results and decrease currentPage - 1
-					console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
+					//console.log('CURRENT PAGE: ', currentPage, embedPages[currentPage]);
 
 					if (currentPage === 0) {
 						currentPage = embedPages.length - 1;
