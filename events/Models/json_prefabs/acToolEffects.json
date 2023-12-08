@@ -9,7 +9,9 @@
                 "Wadon Plushie": 10,
                 "Dyvulla Plushie": 15,
                 "Ados Plushie": 20,
-                "Zimmir Plushie": 24
+                "Zimmir Plushie": 24,
+                "Phamnera Plushie": 28,
+                "Xogida Plushie":  35
             },
             {
                 "Name": "Hat",
@@ -51,7 +53,7 @@
                 "Name": "Claim"
             },
             {
-                "Name": "TBH"
+                "Name": "TBD"
             }
         ]
     },
@@ -59,7 +61,7 @@
         "Name": "Band",
         "SubCategory": [           
             {
-                "Name": "TBH"
+                "Name": "TBD"
             }
         ]
     },
@@ -73,7 +75,7 @@
                 "Name": "Style"
             },
             {
-                "Name": "TBH"
+                "Name": "TBD"
             }
         ]
     }
