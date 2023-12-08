@@ -3,7 +3,7 @@
         "Name": " ",
         "Length": 3600000,
         "Time": "1hr",
-        "Level": 20,
+        "Level": 50,
         "ELevel": "1-5",
         "ID": 100
     },
@@ -293,5 +293,68 @@
         "ELevel": "60-65",
         "IsLockedBy": 31,
         "ID": 32
+    },
+    {
+        "Name": "Prepare for War",
+        "Length": 72000000,
+        "Time": "20hr",
+        "Level": 13,
+        "ELevel": "60-65",
+        "IsLockedBy": 104,
+        "ID": 33
+    },
+    {
+        "Name": "Battle at the Main Gates",
+        "Length": 36000000,
+        "Time": "10hr",
+        "Level": 14,
+        "ELevel": "65-70",
+        "IsLockedBy": 33,
+        "ID": 34
+    },
+    {
+        "Name": "Storm Tower 1",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 14,
+        "ELevel": "65-70",
+        "IsLockedBy": 34,
+        "ID": 35
+    },
+    {
+        "Name": "Storm Tower 2",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 14,
+        "ELevel": "65-70",
+        "IsLockedBy": 35,
+        "ID": 36
+    },
+    {
+        "Name": "Storm Tower 3",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 14,
+        "ELevel": "65-70",
+        "IsLockedBy": 36,
+        "ID": 37
+    },
+    {
+        "Name": "Return to the Main Gates",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 15,
+        "ELevel": "70-75",
+        "IsLockedBy": 37,
+        "ID": 38
+    },
+    {
+        "Name": "Pillage The Castle of Hate",
+        "Length": 3600000,
+        "Time": "1hr",
+        "Level": 15,
+        "ELevel": "70-75",
+        "IsLockedBy": 38,
+        "ID": 39
     }
 ]
