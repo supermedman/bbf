@@ -339,18 +339,31 @@ module.exports = {
                     }
                 }
 
+                //33 || 34 || 35 || 36 || 37 || 38 || 39
                 if (userMilestone.currentquestline === 'Hate') {
                     const nextSQuest = userMilestone.nextstoryquest;
                     const lastSQuest = userMilestone.laststoryquest;
                     let lockedVal;
-                    if (nextSQuest === 23) {
-                        lockedVal = 102;
+                    if (nextSQuest === 33) {
+                        lockedVal = 104;
                     }
-                    if (lastSQuest === 23) {
-                        lockedVal = 23;
+                    if (lastSQuest === 33) {
+                        lockedVal = 33;
                     }
-                    if (lastSQuest === 24) {
-                        lockedVal = 24;
+                    if (lastSQuest === 34) {
+                        lockedVal = 34;
+                    }
+                    if (lastSQuest === 35) {
+                        lockedVal = 35;
+                    }
+                    if (lastSQuest === 36) {
+                        lockedVal = 36;
+                    }
+                    if (lastSQuest === 37) {
+                        lockedVal = 37;
+                    }
+                    if (lastSQuest === 38) {
+                        lockedVal = 38;
                     }
 
                     let i = 0;
@@ -536,7 +549,7 @@ module.exports = {
                         });
                     }
                     if (collInteract.customId === 'select-quest') {
-                        console.log('Quest Selected!');
+                        //console.log('Quest Selected!');
                        // await collInteract.deferUpdate();
                         const quest = qPool[currentPage];
 
@@ -567,7 +580,7 @@ module.exports = {
             } else {
                 //user found quest already active/not claimed
                 //prompt user to deal with ongoing quest
-                console.log('Quest found in progress or complete!');
+                //console.log('Quest found in progress or complete!');
                 const user = await grabU();
                 await checkHintQuest(user, interaction);
                 return interaction.followUp('You already have a quest in progress.. Use ``/quest claim`` for more info!');
@@ -631,7 +644,7 @@ module.exports = {
                     }
 
                     //list of enemies has been grabbed!!
-                    console.log('Length of ePool: ', ePool.length);
+                    //console.log('Length of ePool: ', ePool.length);
 
                     var count = 0;                  
                     var iGained = [];
@@ -643,7 +656,7 @@ module.exports = {
                         var rEP = Math.round(Math.random() * (ePool.length - 1));//rng for picking position from ePool
 
                         var eFab = ePool[rEP];//enemy is grabbed from ePool and assigned
-                        console.log(`ENEMY GRABBED ${eFab.Name} @ COUNT #${count}`);
+                        //console.log(`ENEMY GRABBED ${eFab.Name} @ COUNT #${count}`);
 
                         var lChance = Math.random();//rng which will decide whether loot is dropped
                         var HI = false;//set hasitem to false
@@ -693,14 +706,14 @@ module.exports = {
                                     itemNew = false;//Item is a dupe, change to false, bypassing new entry creation
                                     //console.log('DUPLICATE ITEM FOUND: ', iGained);
                                     item.Amount += 1;
-                                    console.log('FILTERED RESULT', item.Name, '\n');
+                                    //console.log('FILTERED RESULT', item.Name, '\n');
                                     break;
                                 }
                             }
 
                             //Item is new: create new entry and attach amount value, push to array and continue
                             if (itemNew) {
-                                console.log('BEFORE MAPPED NEW ITEM: ', tmpCopy[0].Name);
+                                //console.log('BEFORE MAPPED NEW ITEM: ', tmpCopy[0].Name);
 
                                 //const filtered = await tmpCopy.filter(item => item.Loot_id === tmpCopy[0].Loot_id);
                                 //console.log('FILTERED RESULT', filtered.Name);
@@ -773,7 +786,7 @@ module.exports = {
                                         rarity: theItem.Rarity,
                                         rar_id: theItem.Rar_id,
                                         attack: theItem.Attack,
-                                        defence: 0,
+                                        defence: theItem.Defence,
                                         type: theItem.Type,
                                         slot: theItem.Slot,
                                         hands: theItem.Hands,
@@ -858,14 +871,14 @@ module.exports = {
                     }
 
                     //display current results in console log                                                                    
-                    console.log(`Listing of totals after all calculations have been done: \n${totCoin}c \n${totXP}xp \n${totQT}qt \n${totItem}items \n${maxE}killed`);
+                    //console.log(`Listing of totals after all calculations have been done: \n${totCoin}c \n${totXP}xp \n${totQT}qt \n${totItem}items \n${maxE}killed`);
 
                     await isLvlUp(totXP, totCoin, interaction);
 
                     const uData = await grabU();
 
                     var totalQT = uData.qt + totQT;
-                    console.log('Current totalQT: ', totalQT);
+                    //console.log('Current totalQT: ', totalQT);
 
                     await editPData(uData, totalQT);
 
@@ -940,7 +953,7 @@ module.exports = {
                     pos = 1;
                     var offHand = iGained.filter(item => item.Slot === 'Offhand');
                     for (var y = 0; y < offHand.length;) {
-                        list = (offHand.slice((pos - 1), pos).map(off => `Name: **${off.Name}** \nValue: **${off.Value}c** \nRarity: **${off.Rarity}** \nAttack: **${off.Attack}** \nType: **${off.Type}**\nSlot: **${off.Slot}**\nAmount: ** ${off.Amount} ** `)
+                        list = (offHand.slice((pos - 1), pos).map(off => `Name: **${off.Name}** \nValue: **${off.Value}c** \nRarity: **${off.Rarity}** \nAttack: **${off.Attack}**\nDefence: **${off.Defence}** \nType: **${off.Type}**\nSlot: **${off.Slot}**\nAmount: ** ${off.Amount} ** `)
                             .join('\n\n'));
 
                         embedColour = await grabColour(offHand[(pos - 1)].Rar_id);
@@ -1856,6 +1869,16 @@ module.exports = {
                                 if (qFound.qid === 33) {
                                     await Milestones.update({ nextstoryquest: 34 }, { where: { userid: interaction.user.id } });
 
+                                    // ========== STORY ==========
+
+                                    // You come to your senses, the past weeks a blur of meetings and travel.
+                                    // Your name has travelled further than your own two feet, the fame brings fortune..
+                                    // It also brings war..
+                                    // So you see, sitting with the warlords arguing over maps, you give a smile, you are a face, just another person in the room..
+                                    // You wonder to yourself if this is truly where you wanted to be, gathering fame for war?
+                                    // Yet, you sit, knowing the armies camped outside are to be commanded, by ***your*** beckon call!
+                                    // You begin to nod off, the debates surrounding your ears give a feeling of ease as you drift..
+
                                     var QSDescription = 'NEW Quest Unlocked!';
 
                                     curLorePiece = fullLoreList[0].Lore;
@@ -1876,6 +1899,17 @@ module.exports = {
                                 }
                                 if (qFound.qid === 34) {
                                     await Milestones.update({ nextstoryquest: 35 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // You stand at the forefront of the ranks, armored and ready.
+                                    // Standing behind you in formation, nearly thirty thousand soldiers armed to the teeth, ready with their lives.
+                                    // Heartbeat to heartbeat keeps you focused, you survey the surroundings, miles of flat open plains of flowing amber-grass.
+                                    // Mountains enclose these fields, opposing you sits a wall spanning the length of the horizon, rows and rows of spikes spread in mass..
+                                    // The war machines echo their calls, the horns sound, shouts and cries break forth..
+                                    // ||***CHARRRGGGEEEEE**|| 
+                                    // *The beasts of the hateful one break forth*
+                                    // Amidst this midway ambush, you see her, ||and then your mind is gone...||
 
                                     var QSDescription = 'NEW Quest Unlocked!';
 
@@ -1898,6 +1932,16 @@ module.exports = {
                                 if (qFound.qid === 35) {
                                     await Milestones.update({ nextstoryquest: 36 }, { where: { userid: interaction.user.id } });
 
+                                    // ========== STORY ==========
+
+                                    // The fury subsides, how long it takes is unknown to you, the countless corpses laying around you give tell to many hours.
+                                    // The battle looks to be swinging into your favour as the enemies dwindle..
+                                    // Your ears open, sound flooding in, those sounds are high ranking officers requesting guidance.
+                                    // *The main gate is barred with some kind of barrier!! We cannot break through!! Our spys have located the source, they need strength!!*
+                                    // A simple directional gesture from one of the officers, requiring no further information you setout alone towards the barriers source!
+                                    // A long curving hallway, walls made from an impossibly smooth stone, unlike anything youve ever seen before.
+                                    // You reach what must be the barriers source, a loud whirring, mixed with a strange language. The whirring turns to a hum that causes you to go ||Insane||..
+
                                     var QSDescription = 'NEW Quest Unlocked!';
 
                                     curLorePiece = fullLoreList[2].Lore;
@@ -1916,8 +1960,17 @@ module.exports = {
                                         storyEmbed.delete();
                                     }, 300000)).catch(console.error);
                                 }
-                                if (qFound.qid === 37) {
-                                    await Milestones.update({ nextstoryquest: 38 }, { where: { userid: interaction.user.id } });
+                                if (qFound.qid === 36) {
+                                    await Milestones.update({ nextstoryquest: 37 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // The first barrier source had been destroyed, naturally you go further, and further from where you entered.
+                                    // Along your path you find one of the spys, slumped against the wall, you attempt to rouse him.
+                                    // To your surprise he wakes, mumbling something in the same foriegn language from before..
+                                    // You shake him, wishing his senses return, which they do, long enough to warn you, inform you, and promptly die..
+                                    // Unfortunate, his death is strangly peaceful, you honor his passing and continue on your way.
+                                    // Reaching the second barrier, the same whirring returns, surrounded by the same strange language, followed by your loss of consciousness..
 
                                     var QSDescription = 'NEW Quest Unlocked!';
 
@@ -1937,8 +1990,20 @@ module.exports = {
                                         storyEmbed.delete();
                                     }, 300000)).catch(console.error);
                                 }
-                                if (qFound.qid === 38) {
-                                    await Milestones.update({ nextstoryquest: 39 }, { where: { userid: interaction.user.id } });
+                                if (qFound.qid === 37) {
+                                    await Milestones.update({ nextstoryquest: 38 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Your trek through the smooth grey hall continues without particular disterbance..
+                                    // Approching the third and final barrier, the whirring, the voices...
+                                    // You retain consciousness, mentally you are aware, physically out of control.
+                                    // You see her standing amist the mages, smiling, blushing even.. 
+                                    // ||* You cannot help but return a shy smile *||
+                                    // ||***Blood spewing over your face staining that smile***||
+                                    // She watches your slaughter, uneffected, yet, in control...
+                                    // ||***FEAR***|| 
+                                    // Her face contorts to a grievous smile, you go blank..
 
                                     var QSDescription = 'NEW Quest Unlocked!';
 
@@ -1958,10 +2023,50 @@ module.exports = {
                                         storyEmbed.delete();
                                     }, 300000)).catch(console.error);
                                 }
-                                if (qFound.qid === 39) {
-                                    var QSDescription = 'NEW Dungeon Unlocked!';
+                                if (qFound.qid === 38) {
+                                    await Milestones.update({ nextstoryquest: 39 }, { where: { userid: interaction.user.id } });
+
+                                    // ========== STORY ==========
+
+                                    // Having woken up, face down pressed against the cold stone floor, still within the strange smooth grey hall, you remember only that something is very very wrong..
+                                    // You have no time to regain your composure before the horns are sounded, signaling a charge!!
+                                    // You rush to your feet and down the hall towards the echoing blare of the horns, the barriers successfully destroyed!
+                                    // The exit, the warm air, cool breeze, blood soaked, corpse strewn..
+                                    // The remaining ranks of soldiers stand ready in formation again, close to the main gates, you return to them, preparing for this final assault against such a hateful palace..
+
+                                    var QSDescription = 'NEW Quest Unlocked!';
 
                                     curLorePiece = fullLoreList[5].Lore;
+
+                                    const theAdventure = curLorePiece;
+
+                                    const questStoryEmbed = new EmbedBuilder()
+                                        .setTitle('Quest Progress')
+                                        .setDescription(QSDescription)
+                                        .setColor('DarkAqua')
+                                        .addFields({
+                                            name: 'Adventure', value: theAdventure
+                                        });
+
+                                    await interaction.followUp({ embeds: [questStoryEmbed] }).then(storyEmbed => setTimeout(() => {
+                                        storyEmbed.delete();
+                                    }, 300000)).catch(console.error);
+                                }
+                                if (qFound.qid === 39) {
+
+                                    // ========== STORY ==========
+
+                                    // **'THE CASTLE GATES HAVE BEEN FELLED, BURN THEIR FORTRESSES, DESTROY THEIR IDOLS OF HATE!!'**
+                                    // You lead the charge into, through, and then beyond the main gate.
+                                    // Pushing through hordes of creatures hellbent on causing death and oozing malace.
+                                    // Having a well trained, armored allies, is still a foreign experience, you make note not to cause any collateral along the way..
+                                    // The remaining forces push outwards surrounding the center fortress, clearing out the straglers, capturing anything capable of communication and surrender..
+                                    // There before you; with a few thousand steps, dozens of enemies, sits between you and your next trophy!!
+                                    // You are ready to enter The Dungeon of ``Hate``, ruled by ``Xogdia``
+
+                                    var QSDescription = 'NEW Dungeon Unlocked!';
+
+                                    curLorePiece = fullLoreList[6].Lore;
 
                                     const theAdventure = curLorePiece;
 
@@ -2436,14 +2541,14 @@ module.exports = {
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
                                 }).catch(error => {
-                                    console.log(error);
+                                    console.error(error);
                                 });
                             } else {
                                 currentPage += 1;
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
                                 }).catch(error => {
-                                    console.log(error);
+                                    console.error(error);
                                 });
                             }
                         }
@@ -2455,14 +2560,14 @@ module.exports = {
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
                                 }).catch(error => {
-                                    console.log(error);
+                                    console.error(error);
                                 });
                             } else {
                                 currentPage -= 1;
                                 await collInteract.deferUpdate().then(async () => {
                                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] })
                                 }).catch(error => {
-                                    console.log(error);
+                                    console.error(error);
                                 });
                             }
                         }
@@ -2485,26 +2590,24 @@ module.exports = {
                     //quest not complete return how long till completion
                     var timeCon = timeLeft;
 
-                    var hrs = await Math.floor(timeCon / (1000 * 60 * 60));
+                    var hrs = Math.floor(timeCon / (1000 * 60 * 60));
                     timeCon -= (hrs * 60 * 60 * 1000);
-                    console.log('Time left after removing hours', timeCon);
+                    //console.log('Time left after removing hours', timeCon);
 
-                    var min = await Math.floor(timeCon / (1000 * 60));
+                    var min = Math.floor(timeCon / (1000 * 60));
                     timeCon -= (min * 60 * 1000);
-                    console.log('Time left after removing minutes', timeCon);
+                    //console.log('Time left after removing minutes', timeCon);
 
-                    var sec = await Math.round(timeCon / (1000));
+                    var sec = Math.round(timeCon / (1000));
 
-                    console.log(`Time left = ${hrs}:${min}:${sec}`);
+                    //console.log(`Time left = ${hrs}:${min}:${sec}`);
 
-                    interaction.followUp(`Your quest is still in progress!\nTime left: ${hrs}hrs ${min}min ${sec}s`);
+                    return await interaction.followUp(`Your quest is still in progress!\nTime left: ${hrs}hrs ${min}min ${sec}s`);
                 }
-
-
             } else {
                 //no quest found!
                 //prompt user to start new quest
-                console.log('No active quests found!');
+                //console.log('No active quests found!');
                 return interaction.followUp('You have no quests in progress.. Use ``/quest start`` to start one now!');
             }
         }
@@ -2513,7 +2616,7 @@ module.exports = {
         //this method is used to remove completed quests
         async function destroyQuest() {
             await Questing.destroy({ where: { user_id: interaction.user.id } });
-            console.log('Quest removed!');
+            //console.log('Quest removed!');
         }
 
         //========================================
