@@ -1014,6 +1014,66 @@
         "BlueprintID": 27
     },
     {
+        "Name": "Xogida Plushie",
+        "Description": "Increases pigmy *happiness* when playing by *35*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Toy",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 75,
+        "CoinCost": 250000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Soul",
+        "Rarity1": "Unique",
+        "Material1_Amount": 23,
+
+        "Material2": "Worked Phase-Leather",
+        "Rarity2": "???",
+        "Material2_Amount": 35,
+
+        "Material3": "Phaseroot Potpourri",
+        "Rarity3": "???",
+        "Material3_Amount": 5,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 11,
+        "BlueprintID": 28
+    },
+    {
+        "Name": "Machine Schematics",
+        "Description": "Unkown uses, Unknown Crafting, Written in an unknown language",
+
+        "ActiveCategory": "Town",
+        "ActiveSubCategory": "Build",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": false,
+        "IsUnlocked": false,
+        "OnlyOne": true,
+
+        "UseLevel": 75,
+        "CoinCost": 25,
+        "MaterialTypeAmount": 1,
+
+        "Material1": "Phasereader",
+        "Rarity1": "Unique",
+        "Material1_Amount": 1,
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "ToolID": 12,
+        "BlueprintID": 29
+    },
+    {
         "Name": "Tool TEMP",
         "Description": "Description here",
 

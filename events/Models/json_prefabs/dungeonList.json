@@ -166,5 +166,35 @@
 
         "DungeonID": 5,
         "DungeonSpecID": 0
+    },
+    {
+        "Name": "Dungeon of Hate",
+        "Boss": "Xogdia",
+
+        "Floors": 10,
+        "BossFloor": 10,
+        "SavePoints": 2,
+
+        "DungeonHint": "Goddess of ``Hate``",
+
+        "RequiredQuestID": 39,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 308 ],
+        "Floor2": [ 310, 310, 310 ],
+        "Floor3": [ 311, 311 ],
+        "Floor4": [ 302, 122, 122, 302 ],
+
+        "Floor5": [ 309 ],
+
+        "Floor6": [ 308, 309, 308 ],
+        "Floor7": [ 262, 308, 309, 311 ],
+        "Floor8": [ 266, 266 ],
+        "Floor9": [ 276 ],
+
+        "DungeonID": 6,
+        "DungeonSpecID": 0
     }
 ]

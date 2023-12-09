@@ -113,7 +113,7 @@
 		"Name": "Dyvulla, Goddess Of The Dark",
 		"NameRef": "Dyvulla",
 
-		"Intro": "Ive heard rumors that YOU are the one who bested that over-zealous *Wadon*",
+		"Intro": "I've heard rumors that YOU are the one who bested that over-zealous *Wadon*",
 		"IntroC": "Navy",
 
 		"Line_One": "If you ask me, he always was a bit of a pushover!",
@@ -149,7 +149,7 @@
 		"Intro": "Maybe I underestimated you, it would appear that taking down wadon was no stroke of luck!",
 		"IntroC": "Navy",
 
-		"Line_One": "Id not hold my breath on making it out of here alive, if i were you..",
+		"Line_One": "I'd not hold my breath on making it out of here alive, if i were you..",
 		"Line_OneC": "Navy",
 
 		"Line_Two": "DO HURRY UP AND BECOME ONE WITH DARKNESS FOR ME!!",
@@ -399,7 +399,7 @@
 		"Name": "Zimmir",
 		"NameRef": "Zimmir",
 
-		"Intro": "Im sorry.. Ados",
+		"Intro": "I'm sorry.. Ados",
 		"IntroC": "DarkGold",
 
 		"Line_One": "I- **FAILED** all the same.",
@@ -546,6 +546,116 @@
 
 		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Phamnera-goddess-of-law-closeup.png",
 		"Image_Closeup": "attachment://Phamnera-goddess-of-law-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Xogdia, Goddess of Hate",
+		"NameRef": "Xogdia",
+
+		"Intro": "Bold of you to rally such a large force, for one such as myself!",
+		"IntroC": "DarkGreen",
+
+		"Line_One": "You would think that after the third barrier fell you'd get the idea..",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "This is a prison, not a fortress...",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 75,
+		"MinDmg": 350,
+		"MaxDmg": 500,
+		"Health": 35000,
+		"StageHealth": 10000,
+		"Defence": 75,
+
+		"WeakTo": "Magic",
+
+		"ConstKey": 1016,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Xogdia-goddess-of-hate.png",
+		"Image": "attachment://Xogdia-goddess-of-hate.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Xogdia-goddess-of-hate-closeup.png",
+		"Image_Closeup": "attachment://Xogdia-goddess-of-hate-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Hateful, Xogdia",
+		"NameRef": "Xogdia",
+
+		"Intro": "***SO***",
+		"IntroC": "Blue",
+
+		"Line_One": "You break in, defeat all the guards, give me a taste of freedom??",
+		"Line_OneC": "Blue",
+
+		"Line_Two": "AND ASSUME I'LL FALL OVER DEAD FOR YOU?!?!",
+		"Line_TwoC": "Red",
+
+		"Level": 75,
+		"MinDmg": 550,
+		"MaxDmg": 643,
+		"Health": 10000,
+		"StageHealth": 1,
+		"Defence": 45,
+
+		"WeakTo": "Slash",
+
+		"ConstKey": 1017,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Xogdia-goddess-of-hate.png",
+		"Image": "attachment://Xogdia-goddess-of-hate.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Xogdia-goddess-of-hate-closeup.png",
+		"Image_Closeup": "attachment://Xogdia-goddess-of-hate-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Xogdia",
+		"NameRef": "Xogdia",
+
+		"Intro": "You've done them a favour",
+		"IntroC": "DarkGold",
+
+		"Line_One": "I always was the trouble maker",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "I am truly glad, you continue to run forth blindly...",
+		"Line_TwoC": "DarkButNotBlack",
+
+		"Level": 75,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+		"Health": 1,
+		"StageHealth": 0,
+		"Defence": 0,
+
+		"WeakTo": "Magic",
+
+		"Dead": false,
+		"XpMin": 150000,
+		"XpMax": 250000,
+
+		"Blueprint": "Machine Schematics",
+		"BlueprintID": 29,
+
+		"SecretBPID": 28,
+
+		"AchievementGet": "XOGDIA",
+
+		"ConstKey": 1018,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Xogdia-goddess-of-hate.png",
+		"Image": "attachment://Xogdia-goddess-of-hate.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Xogdia-goddess-of-hate-closeup.png",
+		"Image_Closeup": "attachment://Xogdia-goddess-of-hate-closeup.png",
 
 		"SpecId": 0
 	}

@@ -28,7 +28,7 @@ async function createNewBlueprint(BPID, userID) {
     }
 
     if (!blueprintFound) return console.log(errorForm('BLUEPRINT NOT FOUND'));
-    console.log(successResult('BLUEPRINT FOUND'));
+    //console.log(successResult('BLUEPRINT FOUND'));
 
     let thisIsBool = false;
     if (blueprintFound.Rarity === 'Unique') {
@@ -49,16 +49,17 @@ async function createNewBlueprint(BPID, userID) {
 
         if (newBP) {
             //Blueprint added successfully!
-            console.log(successResult('NEW BLUEPRINT ADDED!'));
-            const theBlueprint = await OwnedBlueprints.findOne({
-                where: [{ blueprintid: BPID }, { spec_id: userID }]
-            });
+            //console.log(successResult('NEW BLUEPRINT ADDED!'));
+            //const theBlueprint = await OwnedBlueprints.findOne({
+            //    where: [{ blueprintid: BPID }, { spec_id: userID }]
+            //});
 
-            console.log(specialInfoForm('theBlueprint: ', theBlueprint));
+            //console.log(specialInfoForm('theBlueprint: ', theBlueprint));
+            return;
         }
 
     } catch (err) {
-        return console.log(errorForm('AN ERROR HAS OCCURED: ', err));
+        return console.error('AN ERROR HAS OCCURED: ', err);
     }
 }
 
@@ -81,7 +82,7 @@ async function dropRandomBlueprint(level, userID, interaction) {
                     return false;
                 } else return true;                      
             });
-            console.log(basicInfoForm('notOwnedFilter length: ', notOwnedFilter.length));
+            //console.log(basicInfoForm('notOwnedFilter length: ', notOwnedFilter.length));
             if (notOwnedFilter.length <= 0) return console.log(warnedForm('No unowned blueprints found!'));
 
             const randChoice = Math.floor(Math.random() * notOwnedFilter.length);
@@ -96,7 +97,7 @@ async function dropRandomBlueprint(level, userID, interaction) {
             }
 
             if (!blueprintFound) return console.log(errorForm('BLUEPRINT NOT FOUND'));
-            console.log(successResult('BLUEPRINT FOUND'));
+            //console.log(successResult('BLUEPRINT FOUND'));
 
             const user = await UserData.findOne({ where: { userid: userID } });
 
@@ -125,8 +126,8 @@ async function dropRandomBlueprint(level, userID, interaction) {
 
                 if (theBlueprint) {
                     //Blueprint added successfully!
-                    console.log(successResult('NEW BLUEPRINT ADDED!'));
-                    console.log(specialInfoForm('theBlueprint: ', theBlueprint));
+                    //console.log(successResult('NEW BLUEPRINT ADDED!'));
+                    //console.log(specialInfoForm('theBlueprint: ', theBlueprint));
                     newBP = theBlueprint;
                 }
 
@@ -149,7 +150,7 @@ async function dropRandomBlueprint(level, userID, interaction) {
                     name: `${newBP.name}`, value: list,
                 });
 
-            await interaction.channel.send({ embeds: [blueyEmbed] }).then(async embedMsg => setTimeout(() => {
+            return await interaction.channel.send({ embeds: [blueyEmbed] }).then(async embedMsg => setTimeout(() => {
                 embedMsg.delete();
             }, 90000));
         }
