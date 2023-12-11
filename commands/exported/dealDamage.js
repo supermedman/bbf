@@ -547,46 +547,6 @@ async function generatePlayerClass(user) {
     return curPlayer;
 }
 
-
-
-async function checkClassBuffs(user) {
-    if (pclass === 'Warrior') {
-        dmgMod += (dmgMod * 0.05);
-    } else if (pclass === 'Mage') {
-        dmgMod += (dmgMod * 0.15);
-    }
-
-    if (user.pclass === 'Warrior') {
-        //5% damage reduction
-        eDamage -= (eDamage * 0.05);
-    } else if (user.pclass === 'Paladin') {
-        //15% damage reduction
-        eDamage -= (eDamage * 0.15);
-    } 
-}
-
-
-async function checkClassDebuffs(user) {
-    if (pclass === 'Paladin') {
-        dmgMod -= (dmgMod * 0.05);
-    }
-
-    if (user.pclass === 'Mage') {
-        //5% damage increase
-        eDamage += (eDamage * 0.05);
-    }
-}
-
-// This function will calculate full armor defence values to use in other calculations
-async function checkArmor() {
-
-}
-
-// This function will calculate block force when blocking an attack
-async function checkBlockForce() {
-
-}
-
 //========================================
 // This method calculates damage dealt by an enemy and returns that value
 function enemyDamage(enemy) {
