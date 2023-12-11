@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('database', 'username', 'password', {
+const { sqlUser, sqlPass } = require('./config.json');
+
+const sequelize = new Sequelize('database', sqlUser, sqlPass, {
 	host: 'localhost',
 	dialect: 'sqlite',
 	logging: false,
