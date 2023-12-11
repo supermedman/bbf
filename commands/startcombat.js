@@ -27,7 +27,7 @@ const { checkHintLootView, checkHintStats } = require('./exported/handleHints.js
 
 const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
 
-const { userDamageLoadout, enemyDamage } = require('./exported/dealDamage.js');
+const { userDamageLoadout, enemyDamage, generatePlayerClass } = require('./exported/dealDamage.js');
 const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion } = require('./exported/findLoadout.js');
 
 //Prefab grabbing 
@@ -36,6 +36,46 @@ const lootList = require('../events/Models/json_prefabs/lootList.json');
 const deathMsgList = require('../events/Models/json_prefabs/deathMsgList.json');
 const uniqueLootList = require('../events/Models/json_prefabs/uniqueLootList.json');
 const activeCategoryEffects = require('../events/Models/json_prefabs/activeCategoryEffects.json');
+
+const grabDefenceGear = async (userID, ...gear) => {
+    let totalDs = [];
+    for (const id of gear) {
+        let pushVal = 0;
+        let itemRef;
+        if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Defence;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Defence;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Defence;
+        }
+        totalDs.push(pushVal);
+    }
+    return totalDs;
+};
+
+const grabDamageGear = async (userID, ...gear) => {
+    let totalAs = [];
+    for (const id of gear) {
+        let pushVal = 0;
+        let itemRef;
+        if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Attack;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Attack;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Attack;
+        }
+        totalAs.push(pushVal);
+    }
+    return totalAs;
+};
 
 
 module.exports = {
@@ -61,6 +101,8 @@ module.exports = {
         const userID = interaction.user.id;
         let user;
 
+        const { enemies } = interaction.client;
+
         await interaction.deferReply().then(() => startCombat()).catch((err) => {
             return console.error(errorForm('AN ERROR OCCURED!: ', err));
         });
@@ -79,37 +121,97 @@ module.exports = {
             if (!user) return interaction.followUp('No User Data.. Please use the ``/start`` command to select a class and begin your adventure!!');
             if (user.health <= 0) return playerDead(user, 'Fayrn');
 
-            let ePool = enemyList.filter(enemy => enemy.Level <= user.level);
+            let newPlayer;
+            try {
+                newPlayer = await generatePlayerClass(user);
+                console.log('Player Created:', newPlayer);
 
-            if (ePool.length <= 0) {
-                //SOMETHING WENT WRONG DEAL WITH IT HERE
-                console.log(errorForm(ePool.length));
-            } else {
-                //this will grab a random number to be used to grab an enemy from the array ePool
-                const rEP = Math.round(Math.random() * (ePool.length - 1));
-                const cEnemy = ePool[rEP];
+                const loadoutChecking = await Loadout.findOne({ where: { spec_id: userID } });
+                if (!loadoutChecking) { } else {
+                    newPlayer.loadLoadout(loadoutChecking);
+                    console.log('Loadout Added:', newPlayer);
 
-                if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
-                    constKey = cEnemy.ConstKey;
-                    specCode = userID + cEnemy.ConstKey;
-                    stealDisabled = false;
-                    isHidden = false;
-                    await addEnemy(cEnemy, specCode);
-                    display();
-                } else {
-                    constKey = cEnemy.ConstKey;
-                    specCode = userID + cEnemy.ConstKey;
-                    stealDisabled = false;
-                    isHidden = false;
-                    try {
-                        await handleNewSpawn(cEnemy, user).then(() => {
-                            display();
-                        });
-                    } catch (error) {
-                        console.error(error);
-                    }
+                    const defGear = newPlayer.loadout.slice(0, 3);
+                    const atkGear = newPlayer.loadout.slice(3, 4);
+
+                    const defVals = await grabDefenceGear(userID, defGear);
+                    const atkVals = await grabDamageGear(userID, atkGear);
+
+                    newPlayer.checkTotalDefence(defVals);
+                    newPlayer.checkTotalDamage(atkVals);
+                }
+            } catch (error) {
+                console.error('Player Class Error:\n', error);
+            }
+
+            let choices = [];
+
+            for (const [key, value] of enemies) {
+                if (value <= user.level) choices.push(key);
+            }
+
+            if (choices.length <= 0) {
+                console.error('NO ENEMIES FOUND FOR LEVEL RANGE!');
+                return await interaction.followUp('Something went wrong while spawning an enemy!');
+            }
+
+            const picked = choices[(Math.floor(Math.random() * choices.length))];
+
+            const filteredE = enemyList.filter(fab => fab.ConstKey === picked);
+
+            const cEnemy = filteredE[0];
+
+            constKey = cEnemy.ConstKey;
+            specCode = userID + cEnemy.ConstKey;
+            stealDisabled = false;
+            isHidden = false;
+
+            if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
+                await addEnemy(cEnemy, specCode);
+                display();
+            } else if (cEnemy.NewSpawn === true) {
+                try {
+                    await handleNewSpawn(cEnemy, user).then(() => {
+                        display();
+                    });
+                } catch (error) {
+                    console.error(error);
                 }
             }
+
+            //let ePool = enemyList.filter(enemy => enemy.Level <= user.level);
+
+            //if (ePool.length <= 0) {
+            //    //SOMETHING WENT WRONG DEAL WITH IT HERE
+            //    console.log(errorForm(ePool.length));
+            //} else {
+            //    //this will grab a random number to be used to grab an enemy from the array ePool
+            //    const rEP = Math.round(Math.random() * (ePool.length - 1));
+            //    const cEnemy = ePool[rEP];
+
+            //    if (enemies.has(cEnemy.ConstKey)) console.log(`Enemies contains enemy with ConstKey ${enemies.get(cEnemy.ConstKey)}`);
+
+            //    if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
+            //        constKey = cEnemy.ConstKey;
+            //        specCode = userID + cEnemy.ConstKey;
+            //        stealDisabled = false;
+            //        isHidden = false;
+            //        await addEnemy(cEnemy, specCode);
+            //        display();
+            //    } else {
+            //        constKey = cEnemy.ConstKey;
+            //        specCode = userID + cEnemy.ConstKey;
+            //        stealDisabled = false;
+            //        isHidden = false;
+            //        try {
+            //            await handleNewSpawn(cEnemy, user).then(() => {
+            //                display();
+            //            });
+            //        } catch (error) {
+            //            console.error(error);
+            //        }
+            //    }
+            //}
         }
 
         //========================================
@@ -121,115 +223,101 @@ module.exports = {
                 //console.log('Status of finding enemy: ', copyCheck);
                 //console.log('Values being checked for: ', '\nspecCode: ', specCode, '\nconstKey: ', constKey);
 
-                if (copyCheck) {
-                    //enemy already exists return                  
-                    return copyCheck;
-                } else if (!copyCheck) {
-                    let hasUI = false;
+                if (copyCheck) return;              
+                let hasUI = false;
 
-                    if (cEnemy.HasUnique) {
-                        //enemy has unique item
-                        //Assign as true
-                        hasUI = true;
-                    }
-                    //IMPLEMENT LOOT HERE
-                    //first calculate whether enemy will have an item
-                    //then assign hasitem: true or false
-                    //15% chance to have item to start
-
-                    /**
-                     *   Outside influences to item drop chance
-                     *      - Player stats?      
-                     *      - Pigmy currently equiped?
-                     *      - Weapon currently equiped?
-                     *      - Thief class?
-                     *      
-                     *   How does it change the outcome?
-                     *      - Max 10% extra drop chance
-                     *      - Max 20% extra drop chance
-                     *      - Max 10% extra drop chance
-                     *      - Base 10% extra drop chance
-                     *      
-                     *   How does it effect the rarity?
-                     *      - @ Max stat: 10% chance +1 to rarID
-                     *      - @ Max stat: 10% chance +1 to rarID
-                     *      - Max 5% chance +1 to rarID
-                     *      - Base 5% chance +1 to rarID
-                     * 
-                     * */
-
-                    var lootChance = Math.random();
-                    var chanceToBeat = 0.850;
-                    var HI = false;
-
-                    const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-                    const uCheck = await grabU();
-
-                    if (uCheck.pclass === 'Thief') {
-                        chanceToBeat -= 0.10;
-                    }
-
-                    //console.log(basicInfoForm('Chance to beat after ThiefCheck: ', chanceToBeat));
-
-                    if (uCheck.level >= 31) {
-                        //User above level 31 increase drop chance
-                        if ((Math.floor(uCheck.level / 4) * 0.01) > 0.25) {
-                            chanceToBeat -= 0.25;
-                        } else {
-                            chanceToBeat -= (Math.floor(uCheck.level / 4) * 0.01);
-                        }
-                    }
-
-                    //console.log(basicInfoForm('Chance to beat after LevelCheck: ', chanceToBeat));
-
-                    if (pigmy) {
-                        if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
-                            chanceToBeat -= 0.25;
-                        } else {
-                            chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02); //Pigmy level increases drop rate by 2% per level
-                        }
-                    }
-
-                    //console.log(basicInfoForm('Chance to beat after PigmyCheck: ', chanceToBeat));
-
-                    //console.log(specialInfoForm('Rolled Loot Chance:\n' + lootChance + '\nChance to beat:\n', chanceToBeat));
-
-                    if (lootChance >= chanceToBeat) {
-                        //hasitem:true
-                        HI = true;
-                    }
-
-                    await ActiveEnemy.create({
-                        name: cEnemy.Name,
-                        description: cEnemy.Description,
-                        level: cEnemy.Level,
-                        mindmg: cEnemy.MinDmg,
-                        maxdmg: cEnemy.MaxDmg,
-                        health: cEnemy.Health,
-                        defence: cEnemy.Defence,
-                        weakto: cEnemy.WeakTo,
-                        dead: cEnemy.Dead,
-                        hasitem: HI,
-                        xpmin: cEnemy.XpMin,
-                        xpmax: cEnemy.XpMax,
-                        constkey: cEnemy.ConstKey,
-                        hasunique: hasUI,
-                        specid: specCode,
-
-                    });
-
-                    const enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
-
-                    if (enemy) {
-                        //console.log(`Enemy data being added to database: \nNAME: ${enemy.name} \nLEVEL: ${enemy.level} \nHEALTH: ${enemy.health} \nDEFENCE: ${enemy.defence}`);
-                        console.log('Enemy data added successfully!');
-                        return enemy;
-                    } else {
-                        console.error('Something went wrong while adding an enemy!');
-                        return;
-                    }
-
+                if (cEnemy.HasUnique) {
+                    //enemy has unique item
+                    //Assign as true
+                    hasUI = true;
                 }
+                //IMPLEMENT LOOT HERE
+                //first calculate whether enemy will have an item
+                //then assign hasitem: true or false
+                //15% chance to have item to start
+
+                /**
+                    *   Outside influences to item drop chance
+                    *      - Player stats?      
+                    *      - Pigmy currently equiped?
+                    *      - Weapon currently equiped?
+                    *      - Thief class?
+                    *      
+                    *   How does it change the outcome?
+                    *      - Max 10% extra drop chance
+                    *      - Max 20% extra drop chance
+                    *      - Max 10% extra drop chance
+                    *      - Base 10% extra drop chance
+                    *      
+                    *   How does it effect the rarity?
+                    *      - @ Max stat: 10% chance +1 to rarID
+                    *      - @ Max stat: 10% chance +1 to rarID
+                    *      - Max 5% chance +1 to rarID
+                    *      - Base 5% chance +1 to rarID
+                    * 
+                    * */
+
+                var lootChance = Math.random();
+                var chanceToBeat = 0.850;
+                var HI = false;
+
+                const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+                const uCheck = await grabU();
+
+                if (uCheck.pclass === 'Thief') {
+                    chanceToBeat -= 0.10;
+                }
+
+                //console.log(basicInfoForm('Chance to beat after ThiefCheck: ', chanceToBeat));
+
+                if (uCheck.level >= 31) {
+                    //User above level 31 increase drop chance
+                    if ((Math.floor(uCheck.level / 4) * 0.01) > 0.25) {
+                        chanceToBeat -= 0.25;
+                    } else {
+                        chanceToBeat -= (Math.floor(uCheck.level / 4) * 0.01);
+                    }
+                }
+
+                //console.log(basicInfoForm('Chance to beat after LevelCheck: ', chanceToBeat));
+
+                if (pigmy) {
+                    if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
+                        chanceToBeat -= 0.25;
+                    } else {
+                        chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02); //Pigmy level increases drop rate by 2% per level
+                    }
+                }
+
+                //console.log(basicInfoForm('Chance to beat after PigmyCheck: ', chanceToBeat));
+
+                //console.log(specialInfoForm('Rolled Loot Chance:\n' + lootChance + '\nChance to beat:\n', chanceToBeat));
+
+                if (lootChance >= chanceToBeat) {
+                    //hasitem:true
+                    HI = true;
+                }
+
+                await ActiveEnemy.create({
+                    name: cEnemy.Name,
+                    description: cEnemy.Description,
+                    level: cEnemy.Level,
+                    mindmg: cEnemy.MinDmg,
+                    maxdmg: cEnemy.MaxDmg,
+                    health: cEnemy.Health,
+                    defence: cEnemy.Defence,
+                    weakto: cEnemy.WeakTo,
+                    dead: cEnemy.Dead,
+                    hasitem: HI,
+                    xpmin: cEnemy.XpMin,
+                    xpmax: cEnemy.XpMax,
+                    constkey: cEnemy.ConstKey,
+                    hasunique: hasUI,
+                    specid: specCode,
+
+                });
+
+                return;
             } catch (err) {
                 console.error('An error has occured', err);
             }
