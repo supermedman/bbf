@@ -36,12 +36,12 @@ async function findHelmSlot(headSlotID, userID) {
         } else if (headSlotID >= 20000) {
             headSlotItem = lootList.filter(item => item.Loot_id === headSlotID);
             headSlotItem = headSlotItem[0];
-        } else if (headSlotID < 1000) {
+        } else if (headSlotID > 1000) {
             headSlotItem = uniqueLootList.filter(item => item.Loot_id === headSlotID);
             headSlotItem = headSlotItem[0];
         }
 
-        if (headSlotID === 1000) {
+        if (headSlotID === 10000) {
             //Temp ITEM
         }
 
@@ -77,12 +77,12 @@ async function findChestSlot(chestSlotID, userID) {
         } else if (chestSlotID >= 20000) {
             chestSlotItem = lootList.filter(item => item.Loot_id === chestSlotID);
             chestSlotItem = chestSlotItem[0];
-        } else if (chestSlotID < 1000) {
+        } else if (chestSlotID > 1000) {
             chestSlotItem = uniqueLootList.filter(item => item.Loot_id === chestSlotID);
             chestSlotItem = chestSlotItem[0];
         }
 
-        if (chestSlotID === 1000) {
+        if (chestSlotID === 10000) {
             //Temp ITEM
         }
 
@@ -119,12 +119,12 @@ async function findLegSlot(legSlotID, userID) {
         } else if (legSlotID >= 20000) {
             legSlotItem = lootList.filter(item => item.Loot_id === legSlotID);
             legSlotItem = legSlotItem[0];
-        } else if (legSlotID < 1000) {
+        } else if (legSlotID > 1000) {
             legSlotItem = uniqueLootList.filter(item => item.Loot_id === legSlotID);
             legSlotItem = legSlotItem[0];
         }
 
-        if (legSlotID === 1000) {
+        if (legSlotID === 10000) {
             //Temp ITEM
         }
 
@@ -160,7 +160,7 @@ async function findMainHand(mainHandID, userID) {
         } else if (mainHandID >= 20000) {
             mainHandItem = lootList.filter(item => item.Loot_id === mainHandID);
             mainHandItem = mainHandItem[0];
-        } else if (mainHandID < 1000) {
+        } else if (mainHandID > 1000) {
             mainHandItem = uniqueLootList.filter(item => item.Loot_id === mainHandID);
             mainHandItem = mainHandItem[0];
         }
@@ -200,7 +200,7 @@ async function findOffHand(offHandID, userID) {
         } else if (offHandID >= 20000) {
             offHandItem = lootList.filter(item => item.Loot_id === offHandID);
             offHandItem = offHandItem[0];
-        } else if (offHandID < 1000) {
+        } else if (offHandID > 1000) {
             offHandItem = uniqueLootList.filter(item => item.Loot_id === offHandID);
             offHandItem = offHandItem[0];
         }
