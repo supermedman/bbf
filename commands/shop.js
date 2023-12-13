@@ -29,14 +29,13 @@ module.exports = {
         let slotFourButtonSold = false;
 
 
-        var refreshCost = 0;
+        let refreshCost = 0;
 
         await interaction.deferReply().then(async () => {
             const fUser = await grabU();
             const initialCost = await checkShop(fUser, refreshCost, true);
             if (fUser.coins > initialCost) {
-                let newCoins = fUser.coins - initialCost;
-                await payUp(newCoins, fUser).then(() => {
+                await userPays(initialCost, fUser).then(() => {
                     startShop();
                 });
             } else startShop();
@@ -70,7 +69,7 @@ module.exports = {
          * */
 
         async function startShop() {
-            var uData = await grabU();
+            let uData = await grabU();
 
             refreshCost = 0;
             itemsSold = 0;
@@ -89,13 +88,11 @@ module.exports = {
 
             console.log(basicInfoForm(`Items in shop as follows:\n${listedInOrder[0].name}\n${listedInOrder[1].name}\n${listedInOrder[2].name}\n${listedInOrder[3].name}`));
 
-            uData = await grabU();
-
             let finalFields = [];
 
             let breakPoint = 0;
             for (const item of listedInOrder) {
-                console.log(specialInfoForm('Running through items, currently on item #: ', breakPoint));
+                //console.log(specialInfoForm('Running through items, currently on item #: ', breakPoint));
                 let listedName = ``;
                 let listedVal = ``;
 
@@ -222,13 +219,15 @@ module.exports = {
                             } else {
                                 const result = await addItem(item);
                                 if (result === 'Success') {
-                                    var coinReduced = uData.coins - item.value;
+                                    //const coinReduced = uData.coins - item.value;
 
-                                    await payUp(coinReduced, uData);
+                                    //await payUp(coinReduced, uData);
+
+                                    await userPays(item.value, uData);
 
                                     uData = await grabU();
 
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    let data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
                                     slotOneButton.setDisabled(true);
                                     refreshCost -= item.value;
@@ -267,7 +266,7 @@ module.exports = {
                             }
                         } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :( 
                     }).catch(error => {
-                        console.log(errorForm(error));
+                        console.error(errorForm(error));
                     });
                 }
                 if (collInteract.customId === 'slot-two') {
@@ -282,13 +281,15 @@ module.exports = {
                             } else {
                                 const result = await addItem(item);
                                 if (result === 'Success') {
-                                    var coinReduced = uData.coins - item.value;
+                                    //const coinReduced = uData.coins - item.value;
 
-                                    await payUp(coinReduced, uData);
+                                    //await payUp(coinReduced, uData);
+
+                                    await userPays(item.value, uData);
 
                                     uData = await grabU();
 
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    let data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
                                     slotTwoButton.setDisabled(true);
                                     refreshCost -= item.value;
@@ -328,7 +329,7 @@ module.exports = {
 
                         } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
                     }).catch(error => {
-                        console.log(errorForm(error));
+                        console.error(errorForm(error));
                     });
                 }
                 if (collInteract.customId === 'slot-three') {
@@ -343,13 +344,15 @@ module.exports = {
                             } else {
                                 const result = await addItem(item);
                                 if (result === 'Success') {
-                                    var coinReduced = uData.coins - item.value;
+                                    //const coinReduced = uData.coins - item.value;
 
-                                    await payUp(coinReduced, uData);
+                                    //await payUp(coinReduced, uData);
+
+                                    await userPays(item.value, uData);
 
                                     uData = await grabU();
 
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    let data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
                                     slotThreeButton.setDisabled(true);
                                     refreshCost -= item.value;
@@ -387,7 +390,7 @@ module.exports = {
 
                         } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
                     }).catch(error => {
-                        console.log(errorForm(error));
+                        console.error(errorForm(error));
                     });
                 }
                 if (collInteract.customId === 'slot-four') {
@@ -402,13 +405,15 @@ module.exports = {
                             } else {
                                 const result = await addItem(item);
                                 if (result === 'Success') {
-                                    var coinReduced = uData.coins - item.value;
+                                    //const coinReduced = uData.coins - item.value;
 
-                                    await payUp(coinReduced, uData);
+                                    //await payUp(coinReduced, uData);
+
+                                    await userPays(item.value, uData);
 
                                     uData = await grabU();
 
-                                    var data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
+                                    let data = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { loot_id: item.loot_id }] });
 
                                     slotFourButton.setDisabled(true);
                                     refreshCost -= item.value;
@@ -447,7 +452,7 @@ module.exports = {
 
                         } else console.log(errorForm('ITEM NOT FOUND!'));//item not found :(
                     }).catch(error => {
-                        console.log(errorForm(error));
+                        console.error(errorForm(error));
                     });
                 }
                 if (collInteract.customId === 'refresh') {                   
@@ -457,13 +462,14 @@ module.exports = {
                     } else {
                         //subtract the refresh cost from user coins
                         await collInteract.deferUpdate().then(async () => {
-                            var cost = uData.coins - refreshCost;
-                            await payUp(cost, uData);
+                            //const cost = uData.coins - refreshCost;
+                            //await payUp(cost, uData);
+                            await userPays(refreshCost, uData);
                             await checkShop(uData, refreshCost);
                             await collector.stop();
                             startShop();//run the entire script over again
                         }).catch(error => {
-                            console.log(`Error in shop:`, error);
+                            console.error(`Error in shop:`, error);
                         });
                     }                
                 }
@@ -561,7 +567,7 @@ module.exports = {
                                 rarity: tmpItemSlice.Rarity,
                                 rar_id: tmpItemSlice.Rar_id,
                                 attack: tmpItemSlice.Attack,
-                                defence: 0,
+                                defence: tmpItemSlice.Defence,
                                 type: tmpItemSlice.Type,
                                 slot: tmpItemSlice.Slot,
                                 hands: tmpItemSlice.Hands,
@@ -625,7 +631,7 @@ module.exports = {
                                 rarity: tmpItemSlice.Rarity,
                                 rar_id: tmpItemSlice.Rar_id,
                                 attack: tmpItemSlice.Attack,
-                                defence: 0,
+                                defence: tmpItemSlice.Defence,
                                 type: tmpItemSlice.Type,
                                 slot: tmpItemSlice.Slot,
                                 hands: tmpItemSlice.Hands,
@@ -714,7 +720,7 @@ module.exports = {
         //This method checks all user values to asign and calculate the current refresh cost as well as checking day reset
         //Returns value to display for initial load of shop
         async function checkShop(user, currentRefreshCost, firstLoad) {
-            var valueToReturn = currentRefreshCost;
+            let valueToReturn = currentRefreshCost;
             //x is based on user level * current refreshes (resets daily) + total shop value  
             if (!user.shopresets) {
                 console.log('IN checkShop()\nSHOP RESETS VALUE NOT FOUND!');
@@ -742,8 +748,9 @@ module.exports = {
 
                 valueToReturn += totalShopCost;
                 refreshCost = valueToReturn;
-            } else { valueToReturn += firstCost;}
-            
+            } else {
+                valueToReturn += firstCost;
+            } 
 
             return valueToReturn;
         }
@@ -863,7 +870,7 @@ module.exports = {
                     rarity: theItem.rarity,
                     rar_id: theItem.rar_id,
                     attack: theItem.attack,
-                    defence: 0,
+                    defence: theItem.defence,
                     type: theItem.type,
                     slot: theItem.slot,
                     hands: theItem.hands,
@@ -905,12 +912,18 @@ module.exports = {
         }
 
         async function payUp(cost, uData) {
-            const editC = await UserData.update({ coins: cost }, { where: { username: uData.username } });
+            const editC = await UserData.update({ coins: cost }, { where: { userid: uData.userid } });
 
-            if (editC) {
+            if (editC > 0) {
                 //coins were changed with success!
-                console.log('USER COINS HAVE BEEN UPDATED!');
+                return console.log('USER COINS HAVE BEEN UPDATED!');
             }
+        }
+
+        async function userPays(cost, user) {
+            const inc = await user.decrement('coins', { by: cost });
+            if (inc) return await user.save();
+            return;
         }
 	},
 };
