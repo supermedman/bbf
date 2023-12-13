@@ -80,6 +80,9 @@ module.exports = {
             await interaction.deferReply().then(async () => {
                 const user = interaction.options.getUser('player');
 
+                const hasDataCheck = await UserData.findOne({ where: { userid: interaction.user.id } });
+                if (!hasDataCheck) return await interaction.followUp('You do not have a game profile yet! Please use ``/start`` to begin!!');
+
                 if (user) {
                     const uData = await UserData.findOne({ where: { userid: user.id } });
                     if (uData) {
