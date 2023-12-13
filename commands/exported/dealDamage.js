@@ -239,6 +239,213 @@ async function userDamageAlt(user, item) {
     return dmgDealt;
 }
 
+
+/**
+ *  Main Player Class
+ *  
+ *  user = db UserData instance
+ *      new Player(user);
+ * 
+ *  Contains:
+ *  .setHealth(dbHealth);
+ *  
+ *  .checkDealtBuffs();
+ *  .checkTakenBuffs();
+ *  
+ *  .checkPigmyUps(pigmy);
+ *  
+ *  .checkBaseDamage();
+ *  .checkCritChance();
+ *  .checkDHChance();
+ *  
+ *  .checkLootDrop(pigmy);
+ *  .checkLootUP(pigmy);
+ *  
+ *  .loadLoadout();
+ *  .checkTotalDefence(...def);
+ *  .checkTotalDamage(...atk);
+ * */
+class Player {
+    constructor(user) {
+        this.level = user.level;
+        this.pClass = user.pclass;
+        this.stats = [user.speed, user.strength, user.dexterity, user.intelligence];
+
+        this.spd = this.stats[0];
+        this.spdUP = 0;
+
+        this.str = this.stats[1];
+        this.strUP = 0;
+
+        this.dex = this.stats[2];
+        this.dexUP = 0;
+
+        this.int = this.stats[3];
+        this.intUP = 0;
+
+        this.health = 100;
+
+        this.baseDmg = 0;
+
+        // Mods will contain buff data for damage; dealt[0], taken[1], critChance[2], dhChance[3], lootDrop[4], lootUP[5]
+        this.mods = [];
+
+        // Loadout will contain item ids positioned in place for each loadout slot, either 0 or validID
+        this.loadout = [0, 0, 0, 0, 0, 0];
+
+        this.totalDefence = 0;
+        this.totalDamage = 0;
+    }
+
+    /** This method will set player health to 100 + this.str * 10 || dbHealth
+     * 
+     * @param {number} dbHealth
+     */
+    setHealth(dbHealth) {
+        if (dbHealth !== (this.health + this.str * 10)) {
+            this.health = dbHealth;
+        } else this.health += this.str * 10;
+    }
+
+    /** This method checks and sets damage dealt to this.mods[0]*/
+    checkDealtBuffs() {
+        // Set damage Dealt Mod
+        if (this.pClass === 'Warrior') {
+            this.mods[0] = 0.05;
+        } else if (this.pClass === 'Mage') {
+            this.mods[0] = 0.15;
+        } else if (this.pClass === 'Paladin') {
+            this.mods[0] = -0.05;
+        } else this.mods[0] = 0;
+    }
+
+    /** This method checks and sets damage taken to this.mods[1]*/
+    checkTakenBuffs() {
+        // Set damage taken Mod
+        if (this.pClass === 'Warrior') {
+            this.mods[1] = -0.05;
+        } else if (this.pClass === 'Paladin') {
+            this.mods[1] = -0.15;
+        } else if (this.pClass === 'Mage') {
+            this.mods[1] = 0.05;
+        } else this.mods[1] = 0;
+    }
+
+    /** This method takes a pigmy, and sets all this.statsUP values to the corrisponding values 
+     *  found from the given pigmy
+     * 
+     * @param {any} pigmy pigmy db instance
+     */
+    checkPigmyUps(pigmy) {
+        if (!pigmy) return;
+        let pigmyStats;
+        pigmyStats = pigmyTypeStats(pigmy);
+        this.spdUP = pigmyStats.spd;
+        this.strUP = pigmyStats.str;
+        this.dexUP = pigmyStats.dex;
+        this.intUP = pigmyStats.int;
+    }
+
+    checkBaseDamage() {
+        this.baseDmg = (((this.int + this.intUP) * 8) + ((this.str + this.strUP) * 2));
+        this.baseDmg += this.baseDmg * this.mods[0];
+    }
+
+    /** This method checks and sets the crit chance to this.mods[2]*/
+    checkCritChance() {
+        let critChance = 0;
+        if (this.pClass === 'Thief') {
+            critChance = (((this.dex * 0.02) + 0.10) + this.dexUP);
+        } else critChance = ((this.dex * 0.02) + this.dexUP);
+        this.mods[2] = critChance;
+    }
+
+    /** This method checks and sets the dh chance to this.mods[3]*/
+    checkDHChance() {
+        let dhChance = 0;
+        if (this.pClass === 'Thief') {
+            dhChance = (((this.spd * 0.02) + 0.10) + this.spdUP);
+        } else dhChance = ((this.spd * 0.02) + this.spdUP);
+        this.mods[3] = dhChance;
+    }
+
+    /** This method checks and sets the loot drop chance to this.mods[4]
+     * 
+     * @param {any} pigmy pigmy db instance
+     */
+    checkLootDrop(pigmy) {
+        let chanceToBeat = 0.850;
+        if (this.pClass === 'Thief') chanceToBeat -= 0.10;
+        if (this.level >= 31) {
+            if ((Math.floor(this.level / 4) * 0.01) > 0.25) {
+                chanceToBeat -= 0.25;
+            } else chanceToBeat -= (Math.floor(this.level / 4) * 0.01);
+        }
+        if (pigmy) {
+            if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
+                chanceToBeat -= 0.25;
+            } else chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02);
+        }
+        this.mods[4] = chanceToBeat;
+    }
+
+    /** This method checks and sets the loot upgrade chance to this.mods[5]
+     * 
+     * @param {any} pigmy pigmy db instance
+     */
+    checkLootUP(pigmy) {
+        let chanceToBeat = 1;
+        if (this.pClass === 'Thief') chanceToBeat -= 0.05;
+        if (this.level >= 31) {
+            if ((Math.floor(this.level / 5) * 0.01) > 0.10) {
+                chanceToBeat -= 0.10;
+            } else chanceToBeat -= (Math.floor(this.level / 5) * 0.01);
+        }
+        if (pigmy) {
+            if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
+                chanceToBeat -= 0.05;
+            } else chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
+        }
+        this.mods[5] = chanceToBeat;
+    }
+
+    /** This method retrives loadout data and sets this.loadout[slot] to the values found 
+     * 
+     * @param {any} userLoadout loadout db instance
+     */
+    loadLoadout(userLoadout) {
+        // Armor
+        this.loadout[0] = userLoadout.headslot;
+        this.loadout[1] = userLoadout.chestslot;
+        this.loadout[2] = userLoadout.legslot;
+        // Mainhand & Offhand
+        this.loadout[3] = userLoadout.offhand;
+        this.loadout[4] = userLoadout.mainhand;
+        // Potion
+        this.loadout[5] = userLoadout.potionone;
+    }
+
+    /** This method sets the this.totalDefence value
+     * 
+     * @param {any[]} def array of defence values from armor and offhand
+     */
+    checkTotalDefence(...def) {
+        for (let i = 0; i < def.length; i++) {
+            this.totalDefence += def[i];
+        }
+    }
+
+    /** This method sets the this.totalDamage value
+     * 
+     * @param {any[]} atk array of attack values from mainhand and offhand
+     */
+    checkTotalDamage(...atk) {
+        for (let i = 0; i < atk.length; i++) {
+            this.totalDamage += atk[i];
+        }
+    }
+}
+
 //========================================
 // This method calculates damage dealt by the user and returns that value
 async function userDamageLoadout(user, item, offHand) {
@@ -318,6 +525,28 @@ async function userDamageLoadout(user, item, offHand) {
     return dmgDealt;
 }
 
+
+async function generatePlayerClass(user) {
+    const pigmy = await Pigmy.findOne({ where: { spec_id: user.userid } });
+    const curPlayer = new Player(user);
+
+    curPlayer.setHealth(user.health);
+    curPlayer.checkDealtBuffs();
+    curPlayer.checkTakenBuffs();
+
+    curPlayer.checkPigmyUps(pigmy);
+
+    curPlayer.checkCritChance();
+    curPlayer.checkDHChance();
+
+    curPlayer.checkLootDrop(pigmy);
+    curPlayer.checkLootUP(pigmy);
+
+    curPlayer.checkBaseDamage();
+
+    return curPlayer;
+}
+
 //========================================
 // This method calculates damage dealt by an enemy and returns that value
 function enemyDamage(enemy) {
@@ -329,4 +558,4 @@ function enemyDamage(enemy) {
     return dmgDealt;
 }
 
-module.exports = { userDamage, userDamageAlt, userDamageLoadout, enemyDamage };
+module.exports = { userDamage, userDamageAlt, userDamageLoadout, enemyDamage, generatePlayerClass };

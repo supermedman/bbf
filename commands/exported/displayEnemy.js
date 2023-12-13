@@ -69,9 +69,12 @@ async function displayEWpic(interaction, enemy, combat) {
 
 
     if (combat === true) {
-        var picked;
+        let picked;
+        let constkey;
+        if (enemy.constKey) constkey = enemy.constKey;
+        if (enemy.constkey) constkey = enemy.constkey;
         for (var i = 0; i < enemyList.length; i++) {
-            if (enemyList[i].Name === enemy.name) {
+            if (enemyList[i].ConstKey === constkey) {
                 //enemy found!
                 picked = enemyList[i];
             } else {/** not found keep looking*/ }
@@ -81,7 +84,7 @@ async function displayEWpic(interaction, enemy, combat) {
         // Displays Enemy name
         context.font = '25px sans-serif';
         context.fillStyle = 'white';
-        context.fillText(`Name: ${enemy.name}`, 25, 95);
+        context.fillText(`Name: ${picked.Name}`, 25, 95);
 
         // Displays Description text, actual description gets formatted and displayed below this
         context.font = '20px sans-serif';
@@ -89,7 +92,7 @@ async function displayEWpic(interaction, enemy, combat) {
         context.fillText(`Description: `, 25, 120);
 
         // Displays Description value
-        const lines = await getLines(canvas, enemy.description);
+        const lines = await getLines(canvas, picked.Description);
         console.log(lines);
         if (lines.length > 4) {
             //console.log('More than 4 lines\n');
@@ -110,9 +113,9 @@ async function displayEWpic(interaction, enemy, combat) {
             }
             console.log('text added');//announce text success
         } else {
-            context.font = await applyText(canvas, enemy.description);
+            context.font = await applyText(canvas, picked.Description);
             context.fillStyle = 'white';
-            context.fillText(enemy.description, 25, 150);
+            context.fillText(picked.Description, 25, 150);
             console.log('text added');//announce text success
         }
 
@@ -124,7 +127,7 @@ async function displayEWpic(interaction, enemy, combat) {
         // Displays Enemy Weakness
         context.font = '20px sans-serif';
         context.fillStyle = 'white';
-        context.fillText(`Weak To: ${enemy.weakto}`, 25, 275);
+        context.fillText(`Weak To: ${picked.WeakTo}`, 25, 275);
 
         // Displays Enemy Level
         context.font = '25px sans-serif';
@@ -266,10 +269,20 @@ async function displayEWOpic(interaction, enemy, combat) {
 
 
     if (combat === true) {
+        let picked;
+        let constkey;
+        if (enemy.constKey) constkey = enemy.constKey;
+        if (enemy.constkey) constkey = enemy.constkey;
+        for (var i = 0; i < enemyList.length; i++) {
+            if (enemyList[i].ConstKey === constkey) {
+                //enemy found!
+                picked = enemyList[i];
+            } else {/** not found keep looking*/ }
+        }
         // Displays Enemy name
         context.font = '25px sans-serif';
         context.fillStyle = 'white';
-        context.fillText(`Name: ${enemy.name}`, 25, 95);
+        context.fillText(`Name: ${picked.Name}`, 25, 95);
 
         // Displays Description text, actual description gets formatted and displayed below this
         context.font = '20px sans-serif';
@@ -277,7 +290,7 @@ async function displayEWOpic(interaction, enemy, combat) {
         context.fillText(`Description: `, 25, 120);
 
         // Displays Description value
-        const lines = await getLines(canvas, enemy.description);
+        const lines = await getLines(canvas, picked.Description);
         console.log(lines);
         if (lines.length > 4) {
             //console.log('More than 4 lines\n');
@@ -298,9 +311,9 @@ async function displayEWOpic(interaction, enemy, combat) {
             }
             console.log('text added');//announce text success
         } else {
-            context.font = await applyText(canvas, enemy.description);
+            context.font = await applyText(canvas, picked.Description);
             context.fillStyle = 'white';
-            context.fillText(enemy.description, 25, 150);
+            context.fillText(picked.Description, 25, 150);
             console.log('text added');//announce text success
         }
 
@@ -312,7 +325,7 @@ async function displayEWOpic(interaction, enemy, combat) {
         // Displays Enemy Weakness
         context.font = '20px sans-serif';
         context.fillStyle = 'white';
-        context.fillText(`Weak To: ${enemy.weakto}`, 25, 275);
+        context.fillText(`Weak To: ${picked.WeakTo}`, 25, 275);
 
         // Displays Enemy Level
         context.font = '25px sans-serif';
