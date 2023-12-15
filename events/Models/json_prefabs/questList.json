@@ -1,6 +1,7 @@
 [
     {
         "Name": " ",
+        "Story": false,
         "Length": 3600000,
         "Time": "1hr",
         "Level": 50,
@@ -9,6 +10,7 @@
     },
     {
         "Name": "Deep Dark Woods",
+        "Story": false,
         "Length": 14400000,
         "Time": "4hr",
         "Level": 1,
@@ -18,6 +20,7 @@
     },
     {
         "Name": "Road to Grangrans",
+        "Story": false,
         "Length": 14400000,
         "Time": "4hr",
         "Level": 1,
@@ -27,6 +30,7 @@
     },
     {
         "Name": "Forgotten Battlefield",
+        "Story": false,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 2,
@@ -36,6 +40,7 @@
     },
     {
         "Name": "Basment Cleaning",
+        "Story": false,
         "Length": 14400000,
         "Time": "4hr",
         "Level": 2,
@@ -45,6 +50,7 @@
     },
     {
         "Name": "War-torn Mountain Pass",
+        "Story": false,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 3,
@@ -54,6 +60,7 @@
     },
     {
         "Name": "Perilous Ruins",
+        "Story": false,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 4,
@@ -63,6 +70,7 @@
     },
     {
         "Name": "Krelya's Cultist Hideaway",
+        "Story": true,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 5,
@@ -72,6 +80,7 @@
     },
     {
         "Name": "Raid Smuggler Camp",
+        "Story": false,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 5,
@@ -81,6 +90,7 @@
     },
     {
         "Name": "Locate Alleged Dungeon Site From Marked Map",
+        "Story": true,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 6,
@@ -90,6 +100,7 @@
     },
     {
         "Name": "Clear Soul Dungeon Site of Enemies",
+        "Story": true,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 6,
@@ -99,6 +110,7 @@
     },
     {
         "Name": "Big Game Hunting",
+        "Story": false,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 7,
@@ -108,6 +120,7 @@
     },
     {
         "Name": "Sellsword for developing town",
+        "Story": true,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 6,
@@ -117,6 +130,7 @@
     },
     {
         "Name": "Investigate Lightless Town",
+        "Story": true,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 7,
@@ -126,6 +140,7 @@
     },
     {
         "Name": "Captured and Question Dark Servant",
+        "Story": true,
         "Length": 14400000,
         "Time": "4hr",
         "Level": 8,
@@ -135,6 +150,7 @@
     },
     {
         "Name": "Clear Entrance to Dungeon of the Dark",
+        "Story": true,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 8,
@@ -144,6 +160,7 @@
     },
     {
         "Name": "Enjoy Picnic at a Nearby Park",
+        "Story": true,
         "Length": 7200000,
         "Time": "2hr",
         "Level": 1,
@@ -153,6 +170,7 @@
     },
     {
         "Name": "Investigate Howling from the Woods",
+        "Story": true,
         "Length": 10800000,
         "Time": "3hr",
         "Level": 8,
@@ -162,6 +180,7 @@
     },
     {
         "Name": "Follow Bodypart Trail",
+        "Story": true,
         "Length": 18000000,
         "Time": "5hr",
         "Level": 9,
@@ -171,6 +190,7 @@
     },
     {
         "Name": "Pinpoint Corpse Sightings",
+        "Story": true,
         "Length": 14400000,
         "Time": "4hr",
         "Level": 9,
@@ -180,6 +200,7 @@
     },
     {
         "Name": "Raid Potential Origin Points",
+        "Story": true,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 9,
@@ -189,6 +210,7 @@
     },
     {
         "Name": "Rescue Living Victims",
+        "Story": true,
         "Length": 28800000,
         "Time": "8hr",
         "Level": 10,
@@ -198,6 +220,7 @@
     },
     {
         "Name": "Clear Entrance to Torture Dungeon",
+        "Story": true,
         "Length": 21600000,
         "Time": "6hr",
         "Level": 10,
@@ -207,6 +230,7 @@
     },
     {
         "Name": "RUN",
+        "Story": true,
         "Length": 7200000,
         "Time": "2hr",
         "Level": 10,
@@ -216,6 +240,7 @@
     },
     {
         "Name": "HIDE",
+        "Story": true,
         "Length": 7200000,
         "Time": "2hr",
         "Level": 11,
@@ -225,6 +250,7 @@
     },
     {
         "Name": "PIROUETTE",
+        "Story": true,
         "Length": 7200000,
         "Time": "2hr",
         "Level": 11,
@@ -234,14 +260,16 @@
     },
     {
         "Name": "Hotspot Raid",
+        "Story": false,
         "Length": 43200000,
         "Time": "12hr",
         "Level": 11,
         "ELevel": "50-55",
-        "ID": 26
+        "ID": 60
     },
     {
         "Name": "Attend Parade Day 1",
+        "Story": true,
         "Length": 50400000,
         "Time": "14hr",
         "Level": 12,
@@ -251,6 +279,7 @@
     },
     {
         "Name": "Attend Parade Day 2",
+        "Story": true,
         "Length": 50400000,
         "Time": "14hr",
         "Level": 12,
@@ -260,6 +289,7 @@
     },
     {
         "Name": "Attend Parade Day 3",
+        "Story": true,
         "Length": 50400000,
         "Time": "14hr",
         "Level": 12,
@@ -269,6 +299,7 @@
     },
     {
         "Name": "Attend Parade Day 4",
+        "Story": true,
         "Length": 50400000,
         "Time": "14hr",
         "Level": 12,
@@ -278,6 +309,7 @@
     },
     {
         "Name": "Heed Summoning Letter",
+        "Story": true,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 13,
@@ -287,6 +319,7 @@
     },
     {
         "Name": "Wander The Castle",
+        "Story": true,
         "Length": 21600000,
         "Time": "6hr",
         "Level": 13,
@@ -296,6 +329,7 @@
     },
     {
         "Name": "Prepare for War",
+        "Story": true,
         "Length": 72000000,
         "Time": "20hr",
         "Level": 13,
@@ -305,6 +339,7 @@
     },
     {
         "Name": "Battle at the Main Gates",
+        "Story": true,
         "Length": 36000000,
         "Time": "10hr",
         "Level": 14,
@@ -314,6 +349,7 @@
     },
     {
         "Name": "Storm Tower 1",
+        "Story": true,
         "Length": 21600000,
         "Time": "6hr",
         "Level": 14,
@@ -323,6 +359,7 @@
     },
     {
         "Name": "Storm Tower 2",
+        "Story": true,
         "Length": 21600000,
         "Time": "6hr",
         "Level": 14,
@@ -332,6 +369,7 @@
     },
     {
         "Name": "Storm Tower 3",
+        "Story": true,
         "Length": 21600000,
         "Time": "6hr",
         "Level": 14,
@@ -341,6 +379,7 @@
     },
     {
         "Name": "Return to the Main Gates",
+        "Story": true,
         "Length": 21600000,
         "Time": "6hr",
         "Level": 15,
@@ -350,8 +389,9 @@
     },
     {
         "Name": "Pillage The Castle of Hate",
-        "Length": 3600000,
-        "Time": "1hr",
+        "Story": true,
+        "Length": 21600000,
+        "Time": "6hr",
         "Level": 15,
         "ELevel": "70-75",
         "IsLockedBy": 38,

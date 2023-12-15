@@ -89,6 +89,10 @@
         "DropTypes": [ "magical" ],
 
         "ConstKey": 4,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Terrorling.png",
+        "Image": "attachment://Terrorling.png",
+
         "SpecId": 0
     },
     {
@@ -631,6 +635,10 @@
         "DropTypes": [ "magical", "silky" ],
 
         "ConstKey": 29,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Smogwoman.png",
+        "Image": "attachment://Smogwoman.png",
+
         "SpecId": 0
     },
     {
@@ -675,6 +683,10 @@
         "DropTypes": [ "woody", "herby" ],
 
         "ConstKey": 31,
+
+        "PngRef": "./events/Models/json_prefabs/boss-list-png/Flailplant.png",
+        "Image": "attachment://Flailplant.png",
+
         "SpecId": 0
     },
     {
