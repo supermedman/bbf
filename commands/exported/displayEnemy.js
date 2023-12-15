@@ -67,19 +67,20 @@ async function displayEWpic(interaction, enemy, combat) {
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
     console.log('Background Added!');
 
+    let picked;
+    let constkey;
+    if (enemy.constKey) constkey = enemy.constKey;
+    if (enemy.constkey) constkey = enemy.constkey;
+    for (var i = 0; i < enemyList.length; i++) {
+        if (enemyList[i].ConstKey === constkey) {
+            //enemy found!
+            picked = enemyList[i];
+        } else {/** not found keep looking*/ }
+    }
+    const enemyPic = await Canvas.loadImage(picked.PngRef);
 
     if (combat === true) {
-        let picked;
-        let constkey;
-        if (enemy.constKey) constkey = enemy.constKey;
-        if (enemy.constkey) constkey = enemy.constkey;
-        for (var i = 0; i < enemyList.length; i++) {
-            if (enemyList[i].ConstKey === constkey) {
-                //enemy found!
-                picked = enemyList[i];
-            } else {/** not found keep looking*/ }
-        }
-        const enemyPic = await Canvas.loadImage(picked.PngRef);
+        
 
         // Displays Enemy name
         context.font = '25px sans-serif';
@@ -146,7 +147,7 @@ async function displayEWpic(interaction, enemy, combat) {
 
         return attachment;
     } else {
-        const enemyPic = await Canvas.loadImage(enemy.PngRef);
+        //const enemyPic = await Canvas.loadImage(enemy.PngRef);
 
         // Displays Enemy name
         context.font = '25px sans-serif';
@@ -273,6 +274,7 @@ async function displayEWOpic(interaction, enemy, combat) {
         let constkey;
         if (enemy.constKey) constkey = enemy.constKey;
         if (enemy.constkey) constkey = enemy.constkey;
+        if (enemy.constkey === 0) constkey = 0;
         for (var i = 0; i < enemyList.length; i++) {
             if (enemyList[i].ConstKey === constkey) {
                 //enemy found!
