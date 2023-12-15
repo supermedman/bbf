@@ -1074,6 +1074,112 @@
         "BlueprintID": 29
     },
     {
+        "Name": "The Overbearing",
+        "Description": "Increases *pigmy xp* when claiming by *5%*, Decreases *Player xp* by *3%*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Title",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
+
+        "UseLevel": 25,
+        "CoinCost": 30000,
+        "MaterialTypeAmount": 4,
+
+        "Material1": "Raw Phasemetal",
+        "Rarity1": "Epic",
+        "Material1_Amount": 17,
+
+        "Material2": "Imperfect Phasesoup",
+        "Rarity2": "Epic",
+        "Material2_Amount": 8,
+
+        "Material3": "Bloodied Heart",
+        "Rarity3": "Rare",
+        "Material3_Amount": 10,
+
+        "Material4": "Pure BLUNT",
+        "Rarity4": "Unique",
+        "Material4_Amount": 5,
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "ToolID": 13,
+        "BlueprintID": 30
+    },
+    {
+        "Name": "The Demanding",
+        "Description": "Increases *pigmy xp* when claiming by *7%*, Decreases *Player xp* by *7%*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Title",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
+
+        "UseLevel": 30,
+        "CoinCost": 50000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Blood Opal",
+        "Rarity1": "??",
+        "Material1_Amount": 5,
+
+        "Material2": "Phasemetal Alloy",
+        "Rarity2": "??",
+        "Material2_Amount": 5,
+
+        "Material3": "Volatile Essence",
+        "Rarity3": "??",
+        "Material3_Amount": 5,
+
+        "Rarity": "??",
+        "Rar_id": 7,
+
+        "ToolID": 14,
+        "BlueprintID": 31
+    },
+    {
+        "Name": "The Ugly",
+        "Description": "Decreases *pigmy xp* when claiming by *7%*, Increases *Player xp* by *10%*",
+
+        "ActiveCategory": "Pigmy",
+        "ActiveSubCategory": "Title",
+        "PassiveCategory": "Tool",
+
+        "IsDropped": true,
+        "IsUnlocked": true,
+        "OnlyOne": true,
+
+        "UseLevel": 40,
+        "CoinCost": 10000,
+        "MaterialTypeAmount": 3,
+
+        "Material1": "Slimy Eyeball",
+        "Rarity1": "Common",
+        "Material1_Amount": 150,
+
+        "Material2": "Smelly Entrails",
+        "Rarity2": "Uncommon",
+        "Material2_Amount": 75,
+
+        "Material3": "Blue Slime",
+        "Rarity3": "?",
+        "Material3_Amount": 100,
+
+        "Rarity": "Mystic",
+        "Rar_id": 5,
+
+        "ToolID": 15,
+        "BlueprintID": 32
+    },
+    {
         "Name": "Tool TEMP",
         "Description": "Description here",
 
