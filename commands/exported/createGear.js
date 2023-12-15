@@ -1,22 +1,23 @@
 const { LootStore } = require('../../dbObjects.js');
 
 
-async function checkOwned(user, item) {
+async function checkOwned(user, item, amount) {
+    let newAmount = amount ?? 1;
     const lootStore = await LootStore.findOne({
         where: { spec_id: user.userid, loot_id: item.Loot_id },
     });
 
     let tableUpdated = '';
     if (lootStore) {
-        tableUpdated = await increaseItem(lootStore);
-    } else tableUpdated = await makeItem(user, item);
+        tableUpdated = await increaseItem(lootStore, newAmount);
+    } else tableUpdated = await makeItem(user, item, newAmount);
 
     if (tableUpdated !== 'Success') return `Error: ${tableUpdated}`;
     return 'Finished';
 }
 
-async function increaseItem(tableRef) {
-    const inc = await tableRef.increment('amount');
+async function increaseItem(tableRef, amount) {
+    const inc = await tableRef.increment('amount', {by: amount});
 
     if (inc) {
         await tableRef.save();
@@ -24,7 +25,7 @@ async function increaseItem(tableRef) {
     } else return 'Item Count Increase Failure: CODE 1';
 }
 
-async function makeItem(user, item) {
+async function makeItem(user, item, amount) {
     // Increase total item count by 1 and save
     user.totitem += 1;
     await user.save();
@@ -63,7 +64,7 @@ async function makeItem(user, item) {
         type: item.Type,
         slot: item.Slot,
         hands: dynHands,
-        amount: 1
+        amount: amount
     });
 
     if (isDone) {
