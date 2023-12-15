@@ -307,9 +307,9 @@ module.exports = {
 			const timeDiff = Math.abs(now - then);
 			const timeLeft = Math.round(7200000 - timeDiff);
 			if (timeLeft > 0) {
-				let timeRemaining = timeLeft;
-				const totalTime = now + timeRemaining;
-				return await interaction.followUp(`${userPigmy.name} needs <t:${totalTime}:R> before claiming!`);
+				let shownTime = now + timeLeft;
+				shownTime = Math.round(shownTime / 1000);
+				return await interaction.followUp(`${userPigmy.name} can claim again <t:${shownTime}:R>!`);
 			} else if (timeLeft <= 0) {
 				let hrs = Math.abs(Math.floor(timeLeft / (1000 * 60 * 60)));
 				console.log(specialInfoForm(`Hours since last claim: ${hrs}`));
@@ -430,7 +430,7 @@ module.exports = {
 							for (const item of matsToAdd) {
 								if (item.Name === tmpMat[0].Name) {
 									matNew = false;
-									console.log(basicInfoForm('DupeMat'));
+									//console.log(basicInfoForm('DupeMat'));
 									item.Amount += droppedNum;
 									break;
 								}
@@ -454,14 +454,15 @@ module.exports = {
 
 							if (matStore) {
 								droppedNum += matStore.amount;
-								const inc = await MaterialStore.update({ amount: droppedNum },
+								await MaterialStore.update({ amount: droppedNum },
 									{
 										where: [{ spec_id: interaction.user.id }, { mat_id: theMaterial.Mat_id }, { mattype: passType }]
 									});
 
-								if (inc) console.log(successResult('Amount was UPDATED!'));
+								//const inc = 
+								//if (inc) console.log(successResult('Amount was UPDATED!'));
 							} else {
-								const createdMat = await MaterialStore.create({
+								await MaterialStore.create({
 									name: theMaterial.Name,
 									value: theMaterial.Value,
 									mattype: passType,
@@ -472,7 +473,8 @@ module.exports = {
 									spec_id: interaction.user.id
 								});
 
-								if (createdMat) console.log(successResult('New Material Added!'));
+								//const createdMat =
+								//if (createdMat) console.log(successResult('New Material Added!'));
 							}
 						}
 					}
