@@ -1,42 +1,159 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, AttachmentBuilder } = require('discord.js');
 const EventEmitter = require('events');
 
-const {
-    warnedForm,
-    errorForm,
-    successResult,
-    failureResult,
-    basicInfoForm,
-    basicInfoForm2,
-    specialInfoForm,
-    specialInfoForm2,
-    updatedValueForm,
-    updatedValueForm2
-} = require('../../chalkPresets.js');
+const { UserData, ActiveDungeonEnemy, ActiveDungeon, ActiveDungeonBoss, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../../dbObjects.js');
 
-const { ActiveDungeonEnemy, ActiveDungeon, UserData, LootStore, ActiveDungeonBoss, Pigmy, Loadout, ActiveStatus, OwnedPotions } = require('../../dbObjects.js');
-
-const { isLvlUp } = require('./levelup.js');
+const { createEnemyDisplay, displayBossPic } = require('./displayEnemy.js');
 const { grabRar } = require('./grabRar.js');
+const { isLvlUp } = require('./levelup.js');
 const { createNewBlueprint } = require('./createBlueprint.js');
-
-const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion } = require('./findLoadout.js');
-const { displayEWpic, displayEWOpic, displayBossPic } = require('./displayEnemy.js');
-const { hiding } = require('./handleHide.js');
-const { userDamageLoadout } = require('./dealDamage.js');
+const { checkOwned } = require('./createGear.js');
 
 const dungeonList = require('../../events/Models/json_prefabs/dungeonList.json');
-const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const bossList = require('../../events/Models/json_prefabs/bossList.json');
+const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
-const activeCategoryEffects = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
+const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
+const aCATE = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
+
+const { Player } = require('./MadeClasses/Player.js');
+const { Enemy } = require('./MadeClasses/Enemy.js');
+
+
+/** This method retrives Defence values from all given gear ids
+ * 
+ * @param {string} userID user id snowflake
+ * @param {any[]} gear list of all gear containing defence values
+ */
+const grabDefenceGear = async (userID, gear) => {
+    let totalDs = [];
+    for (const id of gear) {
+        let pushVal = 0;
+        let itemRef;
+        if (id === 0) {
+
+        } else if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Defence;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Defence;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Defence;
+        }
+        totalDs.push(pushVal);
+    }
+    return totalDs;
+};
+
+/** This method retrives Damage values from all given gear ids
+ * 
+ * @param {string} userID user id snowflake
+ * @param {any[]} gear list of all gear containing attack values
+ */
+const grabDamageGear = async (userID, gear) => {
+    let totalAs = [];
+    for (const id of gear) {
+        let pushVal = 0;
+        let itemRef;
+        if (id === 0) {
+
+        } else if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Attack;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Attack;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Attack;
+        }
+        totalAs.push(pushVal);
+    }
+    return totalAs;
+};
+
+/** This method retrives Damage values from all given gear ids
+ * 
+ * @param {string} userID user id snowflake
+ * @param {any[]} gear list of all gear containing type values
+ */
+const grabGearTypes = async (userID, gear) => {
+    let totalTypes = [];
+    for (const id of gear) {
+        let pushVal = 'NONE';
+        let itemRef;
+        if (id === 0) {
+
+        } else if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Type;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Type;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Type;
+        }
+        totalTypes.push(pushVal);
+    }
+    return totalTypes;
+};
+
+const findPotion = async (potionOneID, userID) => {
+    let potionOne;
+    console.log(potionOneID);
+    if (potionOneID === 0) {
+        //Nothing equipped
+        return 'NONE';
+    } else {
+        potionOne = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionOneID }] });
+        if (!potionOne) {
+            //console.log(warnedForm('PotionOne NOT FOUND AMOUNT LIKELY 0!'));
+            return 'HASNONE';
+        }
+        if (potionOne.amount > 0) return potionOne;
+    }
+};
+
+const enemyExtraGen = (eFab) => {
+    const lvl = eFab.Level;
+    let nxtLvl;
+    if (lvl < 20) {
+        nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
+    } else if (lvl === 20) {
+        nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
+    } else if (lvl > 20) {
+        const lvlScale = 1.5 * (Math.floor(lvl / 5));
+        nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
+    }
+
+    let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
+    let XpMin = XpMax - Math.floor(XpMax / 5.2);
+
+    const avgDmgRef = eFab.AvgDmg;
+    let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02 * Math.floor(lvl / 6)));
+    let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
+
+    const calcValueObj = {
+        maxDmg: DmgMax,
+        minDmg: DmgMin,
+        maxXp: XpMax,
+        minXp: XpMin,
+    };
+
+    return calcValueObj;
+};
+
+const randArrPos = (arr) => {
+    let returnIndex = 0;
+    if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
+    return arr[returnIndex];
+};
+
 
 async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
-    //const lastFloor = 0;
-    //const dungeonId = 1;
-    //const interaction = '/dungeon Wadon';
-    //const userID = '501177494137995264';
-
     /**
      *      userSpecEEFilter:
      *          - Reference object 
@@ -84,43 +201,91 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         PKE_UPK: `Player-Kill-${userID}`,
     };
 
-    await setFullHealth();
-    const bClear = await clearBoss();
-    const eClear = await clearEnemies();
-    console.log(specialInfoForm(`Status of bClear: ${bClear}\nStatus of eClear: ${eClear}`));
+    const user = await UserData.findOne({ where: { userid: userID } });
+    const thePlayer = await generatePlayerClass();
+    const theDungeon = findDungeon(dungeonId);
+    const bossFloor = theDungeon.BossFloor;
 
-    var fullKilledList = [];
-    var killedEnemies = [];
+    let fullKilledList = [];
+    let killedEnemies = [];
+
+    await setFullHealth();
+    await clearBoss();
+    await clearEnemies();
 
     let activeFloor;
     if (lastFloor === 0) {
         //Start at floor 1
         activeFloor = 1;
     } else activeFloor = lastFloor;
-    console.log(specialInfoForm('activeFloor value to pass: ', activeFloor));
-
-    const theDungeon = await findDungeon(dungeonId);
-    console.log(successResult(`Dungeon found: ${theDungeon.Name}`));
-
-    const bossFloor = theDungeon.BossFloor;
 
     let cs = 0;
     let cf = activeFloor;
-    console.log(specialInfoForm(`cf: ${cf}`));
-    if (cf < bossFloor) {
-        console.log(basicInfoForm(`LOADING NORMAL FLOOR`));
-        startNormHandle();
-    } else if (cf === bossFloor) {
-        console.log(specialInfoForm(`LOADING BOSS FLOOR`));
-        startBossHandle();
-        //loadBossFloor(theDungeon.Boss, interaction, userID, theB);
-    } else if (cf > bossFloor) {
-        return console.log(errorForm('AN ERROR HAS OCCURED!'));
+    if (cf === bossFloor) {
+        try {
+            startBossHandle();
+        } catch (error) {
+            console.error('Error @ handleDungeon/startBossHandle:', error);
+        }
+    } else if (cf < bossFloor) {
+        try {
+            startNormHandle();
+        } catch (error) {
+            console.error('Error @ handleDungeon/startNormHandle:', error);
+        }
+    } else return console.error('AN ERROR OCCURED LOADING IN THE DUNGEON');
+
+    async function generatePlayerClass() {
+        const curPlayer = new Player(user, interaction);
+
+        curPlayer.setHealth(user.health);
+        curPlayer.checkDealtBuffs();
+        curPlayer.checkTakenBuffs();
+        curPlayer.checkStrongUsing();
+
+        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+        curPlayer.checkPigmyUps(pigmy);
+
+        curPlayer.checkCritChance();
+        curPlayer.checkDHChance();
+
+        curPlayer.checkLootDrop(pigmy);
+        curPlayer.checkLootUP(pigmy);
+
+        curPlayer.checkBaseDamage();
+
+        const loadoutChecking = await Loadout.findOne({ where: { spec_id: userID } });
+        if (!loadoutChecking) { } else {
+            curPlayer.loadLoadout(loadoutChecking);
+
+            const allGear = curPlayer.loadout.slice(0, 5);
+            const typeVals = await grabGearTypes(userID, allGear);
+            curPlayer.setLoadoutTypes(typeVals);
+
+            const defGear = curPlayer.loadout.slice(0, 4);
+            const atkGear = curPlayer.loadout.slice(3, 5);
+
+            const defVals = await grabDefenceGear(userID, defGear);
+            const atkVals = await grabDamageGear(userID, atkGear);
+
+            curPlayer.checkTotalDefence(defVals);
+            curPlayer.checkTotalDamage(atkVals);
+            curPlayer.checkAgainstLoadoutTypes();
+        }
+
+        const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
+        if (!activeEffect) { } else {
+            const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
+            if (reinEffects > 0) player.updateDefence(reinEffects);
+            const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
+            if (tonEffects > 0) player.updateUPs(tonEffects);
+        }
+
+        return curPlayer;
     }
 
-    //This method retrieves dungeon reference for all further interactions
-    async function findDungeon(dungeonId) {
-        const dungeonMatch = await dungeonList.filter(dung => dung.DungeonID === dungeonId);
+    function findDungeon(dungeonId) {
+        const dungeonMatch = dungeonList.filter(dung => dung.DungeonID === dungeonId);
         if (dungeonMatch.length === 0) {
             //Match not found, something went wrong!
         } else {
@@ -129,27 +294,20 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
     }
 
     // This function handles boss stage emitter creation and removal as well as incrementing current stage
-    async function startBossHandle() {
+    function startBossHandle() {
         const bossStages = bossList.filter(boss => boss.NameRef === theDungeon.Boss);
 
         let curStage = bossStages[cs];
-        if (userSpecEEFilter.nextStageE === 'NONE') {
-            const nextStageEmitter = new EventEmitter();
-
-            userSpecEEFilter.nextStageE = nextStageEmitter;
-        } else {
+        if (userSpecEEFilter.nextStageE !== 'NONE') {
             userSpecEEFilter.nextStageE.removeAllListeners(`${userSpecEEFilter.NSE_UPK}`);
-            //if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
             if (userSpecEEFilter.bKilledE !== 'NONE') {
-                //userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
                 userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
                 userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
             }
-
-            const nextStageEmitter = new EventEmitter();
-
-            userSpecEEFilter.nextStageE = nextStageEmitter;
         }
+
+        const nextStageEmitter = new EventEmitter();
+        userSpecEEFilter.nextStageE = nextStageEmitter;
 
         userSpecEEFilter.nextStageE.on(`${userSpecEEFilter.NSE_UPK}`, () => {
             //Load next stage
@@ -167,137 +325,103 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         let boss = curStage;
 
         const result = await createBoss(boss, constKey);
-        if (result === 'Success') {
-            //Boss created successfully!
-            if (userSpecEEFilter.bKilledE === 'NONE') {
-                const bKillEmitter = new EventEmitter();
+        if (result !== 'Success') return console.error(errorForm(`AN ERROR OCCURED: ${result}`));
+        //Boss created successfully!
 
-                userSpecEEFilter.bKilledE = bKillEmitter;
+        if (userSpecEEFilter.bKilledE === 'NONE') {
+            const bKillEmitter = new EventEmitter();
+            userSpecEEFilter.bKilledE = bKillEmitter;
+        }
+
+        userSpecEEFilter.bKilledE.once(`${userSpecEEFilter.BKE_UPK}`, async () => {
+            //Boss stage beaten
+            if ((cs + 1) !== 3) {
+                if (userSpecEEFilter.bKilledE !== 'NONE') userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+                return userSpecEEFilter.nextStageE.emit(`${userSpecEEFilter.NSE_UPK}`);
             }
 
-            userSpecEEFilter.bKilledE.once(`${userSpecEEFilter.BKE_UPK}`, async () => {
-                //Boss stage beaten
-                if ((cs + 1) === 3) {
-                    //Boss is dead!
-                    await dungeonISCOMPLETE(true);
-                    giveBossDrops(boss);
-                    //userSpecEEFilter.nextStageE.removeAllListeners(`${userSpecEEFilter.NSE_UPK}`);
-                    if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
-                    if (userSpecEEFilter.eKilledE !== 'NONE') {
-                        userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
-                        userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
-                        userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
-                    }
-                    userSpecEEFilter.nextStageE.removeAllListeners(`${userSpecEEFilter.NSE_UPK}`);
-                    //if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
-                    if (userSpecEEFilter.bKilledE !== 'NONE') {
-                        //userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
-                        userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
-                        userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
-                    }
-                } else {
-                    if (userSpecEEFilter.bKilledE !== 'NONE') {
-                        userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
-                        console.log(specialInfoForm('REMOVING LISTENERS TAGGED WITH:', userSpecEEFilter.PKE_UPK));
-                    }
-                    const deleteBoss = await removeBoss(constKey);
-                    if (deleteBoss === 'Deleted') {
-                        userSpecEEFilter.nextStageE.emit(`${userSpecEEFilter.NSE_UPK}`);
-                    } else if (deleteBoss === 'Failure') {
-                        console.log(errorForm('ERROR: BOSS NOT REMOVED BEFORE LOADING'));
-                        return 'ERROR-NO: 0';
-                    }
+            //Boss is dead!
+            giveBossDrops(boss);
+
+            if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
+            if (userSpecEEFilter.eKilledE !== 'NONE') {
+                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
+                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
+                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+            }
+            userSpecEEFilter.nextStageE.removeAllListeners(`${userSpecEEFilter.NSE_UPK}`);
+            if (userSpecEEFilter.bKilledE !== 'NONE') {
+                userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
+                userSpecEEFilter.bKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+            }
+        });
+
+        userSpecEEFilter.bKilledE.once(`${userSpecEEFilter.PKE_UPK}`, async () => {
+            //Player killed
+            const reviveButton = new ButtonBuilder()
+                .setCustomId('primary')
+                .setLabel('Revive')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('💀');
+
+            const grief = new ActionRowBuilder().addComponents(reviveButton);
+
+            const activeDung = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+
+            var list = `Fighting fearlessly till the end, you nonetheless succumbed to the darkness..`;
+
+            var lastCheckpoint = `Floor ${activeDung.lastsave}`;
+
+            const playerDeadEmbed = new EmbedBuilder()
+                .setTitle('You have fallen..')
+                .setColor('DarkGold')
+                .addFields(
+
+                    { name: `Obituary`, value: list, inline: true },
+                    { name: `Last checkpoint:`, value: lastCheckpoint, inline: true }
+                );
+
+            const embedMsg = await interaction.channel.send({ embeds: [playerDeadEmbed], components: [grief] });
+
+            const filter = (i) => i.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 40000,
+            });
+
+            collector.on('collect', (collInteract) => {
+                if (collInteract.customId === 'primary') {
+                    collector.stop();
                 }
             });
 
-            userSpecEEFilter.bKilledE.once(`${userSpecEEFilter.PKE_UPK}`, async () => {
-                //Player killed
-                const reviveButton = new ButtonBuilder()
-                    .setCustomId('primary')
-                    .setLabel('Revive')
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji('💀');
-
-                const grief = new ActionRowBuilder().addComponents(reviveButton);
-
-                const activeDung = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-
-                var list = `Fighting fearlessly till the end, you nonetheless succumbed to the darkness..`;
-
-                var lastCheckpoint = `Floor ${activeDung.lastsave}`;
-
-                const playerDeadEmbed = new EmbedBuilder()
-                    .setTitle('You have fallen..')
-                    .setColor('DarkGold')
-                    .addFields(
-
-                        { name: `Obituary`, value: list, inline: true },
-                        { name: `Last checkpoint:`, value: lastCheckpoint, inline: true }
-                    );
-
-                const embedMsg = await interaction.channel.send({ embeds: [playerDeadEmbed], components: [grief] });
-
-                const filter = (i) => i.user.id === interaction.user.id;
-
-                const collector = embedMsg.createMessageComponentCollector({
-                    componentType: ComponentType.Button,
-                    filter,
-                    time: 40000,
-                });
-
-                collector.on('collect', async (collInteract) => {
-                    if (collInteract.customId === 'primary') {
-                        await collector.stop();
-                    }
-                });
-
-                collector.on('end', () => {
-                    if (embedMsg) {
-                        embedMsg.delete().catch(error => {
-                            if (error.code !== 10008) {
-                                console.error('Failed to delete the message:', error);
-                            }
-                        });
-                    }
-                });
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
+                }
             });
-            try {
-                startBossCombat(constKey, boss, interaction, userSpecEEFilter);
-            } catch (error) {
-                console.log(errorForm(error));
-            }
-            
-        } else return console.log(errorForm(`AN ERROR OCCURED: ${result}`));
+        });
+
+        try {
+            startBossCombat(constKey, boss, interaction, userSpecEEFilter, thePlayer);
+        } catch (error) {
+            console.error(error);
+        }
+
     }
 
     // This function handles db boss creation and deletion where needed
     async function createBoss(boss, constKey) {
-        const dupeCheck = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
-        if (dupeCheck) {
-            const delResult = await removeBoss(constKey);
-            if (delResult === 'Deleted') {
-                await ActiveDungeonBoss.create({
-                    name: boss.Name,
-                    level: boss.Level,
-                    mindmg: boss.MinDmg,
-                    maxdmg: boss.MaxDmg,
-                    health: boss.Health,
-                    defence: boss.Defence,
-                    weakto: boss.WeakTo,
-                    constkey: constKey,
-                    specid: userID,
-                });
+        const result = await clearBoss();
+        if (!result) return;
 
-                const bossAdded = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
-                if (bossAdded) {
-                    console.log(successResult('BOSS CREATED AND FOUND!'));
-                    return 'Success';
-                } else return 'ERROR-NO: 1';
-            } else if (delResult === 'Failure') {
-                console.log(errorForm('ERROR: BOSS NOT REMOVED BEFORE LOADING'));
-                return 'ERROR-NO: 0';
-            }
-        } else if (!dupeCheck) {
+        try {
             await ActiveDungeonBoss.create({
                 name: boss.Name,
                 level: boss.Level,
@@ -309,33 +433,19 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 constkey: constKey,
                 specid: userID,
             });
-
-            const bossAdded = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
-            if (bossAdded) {
-                console.log(successResult('BOSS CREATED AND FOUND!'));
-                return 'Success';
-            } else return 'ERROR-NO: 1';
+        } catch (error) {
+            console.error('Error Loading Boss:', error);
         }
-    }
 
-    // This function removes a specified boss
-    async function removeBoss(constKey) {
-        const tableUpdate = await ActiveDungeonBoss.destroy({ where: [{ specid: userID }, { constkey: constKey }] });
-        if (tableUpdate > 0) {
-            return 'Deleted';
-        } else return 'Failure';
-    }
-
-    // This function sets the completed flag in active dungeon to true
-    async function dungeonISCOMPLETE(status) {
-        const completeStatus = await ActiveDungeon.update({ completed: status }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        if (completeStatus > 0) {
-            return console.log('DUNGEON IS COMPLETE!');
-        }
+        const bossAdded = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
+        if (bossAdded) return 'Success';
+        return 'Failure';
     }
 
     // This function handles giving boss rewards when defeated
     async function giveBossDrops(boss) {
+        await ActiveDungeon.update({ completed: true }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+
         const bossForRewards = boss;
 
         var xpGained = Math.floor(Math.random() * (bossForRewards.XpMax - bossForRewards.XpMin + 1) + bossForRewards.XpMin);
@@ -345,7 +455,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 xpGained += xpGained * extraEXP.curreffect;
             }
         }
-        const cGained = Math.round((xpGained - 5) * 1.5);
+        const cGained = xpGained + Math.floor(Math.random() * (10 - 1) + 1);
 
         const blueprint = bossForRewards.Blueprint;
         const bpID = bossForRewards.BlueprintID;
@@ -367,30 +477,17 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 { name: 'BLUEPRINT UNLOCKED: ', value: ` ${blueprint}` },
                 { name: 'ACHIEVEMENT: ', value: ` ${newAchievement}` });
 
-        await interaction.channel.send({ embeds: [bossDefeatedEmbed] }).then(async bossDefeatEmbed => setTimeout(() => {
+        await interaction.channel.send({ embeds: [bossDefeatedEmbed] }).then(bossDefeatEmbed => setTimeout(() => {
             bossDefeatEmbed.delete();
         }, 120000)).catch(console.error);
 
         await isLvlUp(xpGained, cGained, interaction);
     }
 
-    //console.log(specialInfoForm())
-    //console.log(basicInfoForm())
-
-    // This function handles regular floor combat loading each new floor as called
-    async function startNormHandle() {
-        //Create EEs To be used for combat end call backs
+    function startNormHandle() {
         let floorStr = `Floor${cf}`;
 
-        if (userSpecEEFilter.nextFloorE === 'NONE') {
-            console.log(specialInfoForm('nextFloorEmitter: NONE'));
-
-            const nextFloorEmitter = new EventEmitter();
-
-            userSpecEEFilter.nextFloorE = nextFloorEmitter;
-        } else {
-            console.log(specialInfoForm(`nextFloorEmitter found, removing all listeners now!`));
-
+        if (userSpecEEFilter.nextFloorE !== 'NONE') {
             userSpecEEFilter.nextFloorE.removeAllListeners(`${userSpecEEFilter.NFE_UPK}`);
             if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
             if (userSpecEEFilter.eKilledE !== 'NONE') {
@@ -398,69 +495,51 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
                 userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
             }
-
-            const nextFloorEmitter = new EventEmitter();
-
-            userSpecEEFilter.nextFloorE = nextFloorEmitter;
         }
+
+        const nextFloorEmitter = new EventEmitter();
+        userSpecEEFilter.nextFloorE = nextFloorEmitter;
 
         userSpecEEFilter.nextFloorE.on(`${userSpecEEFilter.NFE_UPK}`, () => {
             //Load next floor
-            console.log(basicInfoForm('Loading next floor...'));
             cf++;
             floorStr = `Floor${cf}`;
-            console.log(specialInfoForm(`Floor being loaded: ${floorStr}`));
             loadFloor(floorStr, theDungeon);
         });
 
         loadFloor(floorStr, theDungeon);
     }
 
-
     // This function retrieves the full floor array of enemy constKeys to be used for loading each enemy
     function loadFloor(floor, dungeon) {
         const floorEnemyCKList = dungeon[`${floor}`];
-        console.log(`floorEnemyCK Length: ${floorEnemyCKList.length}`);
 
         let floorEnemyObjectList = [];
         for (const constKey of floorEnemyCKList) {
             const enemyFab = enemyList.filter(enemy => enemy.ConstKey === constKey);
             floorEnemyObjectList.push(enemyFab[0]);
         }
-        if (floorEnemyCKList.length !== floorEnemyObjectList.length) return console.log(errorForm('AN ERROR OCCURED WHILE LOADING ENEMIES!'));
+        if (floorEnemyCKList.length !== floorEnemyObjectList.length) return console.error(errorForm('AN ERROR OCCURED WHILE LOADING ENEMIES!'));
 
         //EE HANDLING
-        if (userSpecEEFilter.nextEnemyE === 'NONE') {
-            console.log(specialInfoForm('nextEnemyEmitter: NONE'));
-            const nextEnemyEmitter = new EventEmitter();
-
-            userSpecEEFilter.nextEnemyE = nextEnemyEmitter;
-        } else {
-            console.log(specialInfoForm('nextEnemyEmitter found, removing all listeners now!'));
+        if (userSpecEEFilter.nextEnemyE !== 'NONE') {
             if (userSpecEEFilter.nextEnemyE !== 'NONE') userSpecEEFilter.nextEnemyE.removeAllListeners(`${userSpecEEFilter.NEE_UPK}`);
             if (userSpecEEFilter.eKilledE !== 'NONE') {
                 userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.EKE_UPK}`);
-                //userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.BKE_UPK}`);
                 userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
             }
-
-            const nextEnemyEmitter = new EventEmitter();
-
-            userSpecEEFilter.nextEnemyE = nextEnemyEmitter;
         }
+
+        const nextEnemyEmitter = new EventEmitter();
+        userSpecEEFilter.nextEnemyE = nextEnemyEmitter;
 
         let curPos = 0;
         userSpecEEFilter.nextEnemyE.on(`${userSpecEEFilter.NEE_UPK}`, () => {
             //Load next enemy
-            console.log(basicInfoForm('Loading next enemy...'));
             curPos++;
-            console.log(specialInfoForm(`floorEnemyCKList @ ${curPos} ${floorEnemyCKList[curPos]}`));
-            console.log(specialInfoForm(`floorEnemyObjectList @ ${curPos} ${floorEnemyObjectList[curPos]}`));
             handleEnemy(floorEnemyCKList, floorEnemyObjectList, curPos);
         });
 
-        console.log(specialInfoForm(`floorEnemyCKList @ ${curPos} ${floorEnemyCKList[curPos]}`));
-        console.log(specialInfoForm(`floorEnemyObjectList @ ${curPos} ${floorEnemyObjectList[curPos]}`));
         handleEnemy(floorEnemyCKList, floorEnemyObjectList, curPos);
     }
 
@@ -469,304 +548,250 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         let constKey = floorCKList[curPos];
         let enemyToAdd = floorFabList[curPos];
 
-
         const result = await createEnemy(enemyToAdd, constKey);
-        if (result === 'Success') {
-            //Enemy created successfully!
-            if (userSpecEEFilter.eKilledE === 'NONE') {
-                const eKillEmitter = new EventEmitter();
+        if (result !== 'Success') return console.error(errorForm(`AN ERROR OCCURED: ${result}`));
+        //Enemy created successfully!
 
-                userSpecEEFilter.eKilledE = eKillEmitter;
-            }
+        if (userSpecEEFilter.eKilledE === 'NONE') {
+            const eKillEmitter = new EventEmitter();
+            userSpecEEFilter.eKilledE = eKillEmitter;
+        }
 
-            userSpecEEFilter.eKilledE.once(`${userSpecEEFilter.EKE_UPK}`, async () => {
-                //Enemy killed
-                console.log(basicInfoForm('Enemy killed...'));
+        userSpecEEFilter.eKilledE.once(`${userSpecEEFilter.EKE_UPK}`, async () => {
+            //Enemy killed
+            userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
+            killedEnemies.push(enemyToAdd);
 
-                userSpecEEFilter.eKilledE.removeAllListeners(`${userSpecEEFilter.PKE_UPK}`);
-                console.log(specialInfoForm('REMOVING LISTENERS TAGGED WITH:', userSpecEEFilter.PKE_UPK));
+            let embed;
 
-                killedEnemies.push(enemyToAdd);
-                if ((curPos + 1) < floorFabList.length) {
-                    console.log(basicInfoForm('Next enemy exists, prompting next enemy button input now...'));
-                    const nextButton = new ButtonBuilder()
-                        .setLabel('NEXT ENEMY')
-                        .setCustomId('next-enemy')
+            let embedTitle = '';
+            let embedColour = 'Black';
+            let fieldName = 'Press BUTTON';
+            let fieldValue = 'To continue..';
+            let fieldObj = [];
+
+            let actionRow;
+
+            if ((curPos + 1) < floorFabList.length) {
+                const nextButton = new ButtonBuilder()
+                    .setLabel('NEXT ENEMY')
+                    .setCustomId('next-enemy')
+                    .setStyle(ButtonStyle.Success)
+
+                actionRow = new ActionRowBuilder().addComponents(nextButton);
+
+                embedTitle = 'Enemy Killed!';
+            } else {
+                fullKilledList = fullKilledList.concat(killedEnemies);
+                killedEnemies = [];
+
+                if (((cf + 1) % 5) === 0) await checkPoint();
+
+                if ((cf + 1) < bossFloor) {
+                    const nextFloorButton = new ButtonBuilder()
+                        .setLabel('NEXT FLOOR')
+                        .setCustomId('next-floor')
                         .setStyle(ButtonStyle.Success)
 
-                    const actionRow = new ActionRowBuilder().addComponents(nextButton);
+                    actionRow = new ActionRowBuilder().addComponents(nextFloorButton);
 
-                    const nextEnemyEmbed = new EmbedBuilder()
-                        .setTitle('Enemy Killed')
-                        .setColor(0000)
-                        .addFields({
-                            name: 'Press BUTTON', value: 'To continue..',
-                        });
+                    embedTitle = `Floor ${cf} Cleared!`;
+                    embedColour = 'White';
+                }
 
-                    const embedMsg = await interaction.followUp({ embeds: [nextEnemyEmbed], components: [actionRow] });
+                if ((cf + 1) === bossFloor) {
+                    //Boss floor time
+                }
+            }
 
-                    const filter = (i) => i.user.id === interaction.user.id;
+            if (embedTitle !== '') {
+                fieldObj.push({ name: fieldName, value: fieldValue });
 
-                    const collector = embedMsg.createMessageComponentCollector({
-                        componentType: ComponentType.Button,
-                        filter,
-                        time: 60000,
-                    });
+                embed = new EmbedBuilder()
+                    .setTitle(embedTitle)
+                    .setColor(embedColour)
+                    .addFields(fieldObj);
+            }
 
-                    collector.on('collect', async (collInteract) => {
-                        if (collInteract.customId === 'next-enemy') {
-                            await collInteract.deferUpdate();
-                            await collector.stop();
-                            const deleteEnemy = await removeEnemy(constKey);
-                            if (deleteEnemy === 'Deleted') {
-                                userSpecEEFilter.nextEnemyE.emit(`${userSpecEEFilter.NEE_UPK}`);
-                            } else if (deleteEnemy === 'Failure') {
-                                console.log(errorForm('ERROR: ENEMY NOT REMOVED BEFORE LOADING'));
-                                return 'ERROR-NO: 0';
-                            }
-                        }
-                    });
+            const embedMsg = await interaction.followUp({ embeds: [embed], components: [actionRow] });
 
-                    collector.on('end', () => {
-                        if (embedMsg) {
-                            embedMsg.delete().catch(error => {
-                                if (error.code !== 10008) {
-                                    console.error('Failed to delete the message:', error);
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    await tempFloorSave(killedEnemies);
-                    killedEnemies = [];
-                    if (((cf + 1) % 5) === 0) {
-                        //Save floor
-                        console.log(specialInfoForm('Save floor reached, saving user data now...'));
-                        await saveFloor((cf + 1));
-                        await giveFloorProgress();
-                        const eClear = await clearEnemies();
-                        console.log(specialInfoForm(`eClear status: ${eClear}`));
-                        var addingCF = cf + 1;
-                        var saveFloorValList = ` ${addingCF}`
+            const filter = (i) => i.user.id === interaction.user.id;
 
-                        const checkpointEmbed = new EmbedBuilder()
-                            .setTitle('Progress saved!')
-                            .setColor('DarkVividPink')
-                            .addFields({
-                                name: 'Floor: ', value: ` ${saveFloorValList}`, inline: true
-                            });
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 60000,
+            });
 
-                        await interaction.channel.send({ embeds: [checkpointEmbed] }).then(async checkpointEmbed => setTimeout(() => {
-                            checkpointEmbed.delete();
-                        }, 30000)).catch(console.error);
-                    }
-                    if ((cf + 1) < bossFloor) {
-                        console.log(basicInfoForm('No next enemy, prompting next floor button input now...'));
-                        const nextFloorButton = new ButtonBuilder()
-                            .setLabel('NEXT FLOOR')
-                            .setCustomId('next-floor')
-                            .setStyle(ButtonStyle.Success)
+            collector.on('collect', async (collInteract) => {
+                if (collInteract.customId === 'next-floor') {
+                    await collInteract.deferUpdate();
+                    collector.stop();
+                    return userSpecEEFilter.nextFloorE.emit(`${userSpecEEFilter.NFE_UPK}`);
+                }
 
-                        const actionRow = new ActionRowBuilder().addComponents(nextFloorButton);
-
-                        const nextFloorEmbed = new EmbedBuilder()
-                            .setTitle(`Floor ${cf} Cleared!`)
-                            .setColor('White')
-                            .addFields({
-                                name: 'Press BUTTON', value: 'To continue..',
-                            });
-
-                        const embedMsg = await interaction.followUp({ embeds: [nextFloorEmbed], components: [actionRow] });
-
-                        const filter = (i) => i.user.id === interaction.user.id;
-
-                        const collector = embedMsg.createMessageComponentCollector({
-                            componentType: ComponentType.Button,
-                            filter,
-                            time: 60000,
-                        });
-
-                        collector.on('collect', async (collInteract) => {
-                            if (collInteract.customId === 'next-floor') {
-                                await collInteract.deferUpdate();
-                                await collector.stop();
-                                userSpecEEFilter.nextFloorE.emit(`${userSpecEEFilter.NFE_UPK}`);
-                            }
-                        });
-
-                        collector.on('end', () => {
-                            if (embedMsg) {
-                                embedMsg.delete().catch(error => {
-                                    if (error.code !== 10008) {
-                                        console.error('Failed to delete the message:', error);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                    if ((cf + 1) === bossFloor) {
-                        //Boss floor time
-                    }
+                if (collInteract.customId === 'next-enemy') {
+                    await collInteract.deferUpdate();
+                    collector.stop();
+                    return userSpecEEFilter.nextEnemyE.emit(`${userSpecEEFilter.NEE_UPK}`);
                 }
             });
 
-            userSpecEEFilter.eKilledE.once(`${userSpecEEFilter.PKE_UPK}`, async () => {
-                //Player killed
-                const reviveButton = new ButtonBuilder()
-                    .setCustomId('primary')
-                    .setLabel('Revive')
-                    .setStyle(ButtonStyle.Danger)
-                    .setEmoji('💀');
-
-                const grief = new ActionRowBuilder().addComponents(reviveButton);
-
-                const activeDung = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-
-                var list = `Fighting fearlessly till the end, you nonetheless succumbed to the darkness..`;
-
-                var lastCheckpoint = `Floor ${activeDung.lastsave}`;
-
-                const playerDeadEmbed = new EmbedBuilder()
-                    .setTitle('You have fallen..')
-                    .setColor('DarkGold')
-                    .addFields(
-
-                        { name: `Obituary`, value: list, inline: true },
-                        { name: `Last checkpoint:`, value: lastCheckpoint, inline: true }
-                    );
-
-                const embedMsg = await interaction.channel.send({ embeds: [playerDeadEmbed], components: [grief] });
-
-                const filter = (i) => i.user.id === interaction.user.id;
-
-                const collector = embedMsg.createMessageComponentCollector({
-                    componentType: ComponentType.Button,
-                    filter,
-                    time: 40000,
-                });
-
-                collector.on('collect', async (collInteract) => {
-                    if (collInteract.customId === 'primary') {
-                        await collector.stop();
-                    }
-                });
-
-                collector.on('end', () => {
-                    if (embedMsg) {
-                        embedMsg.delete().catch(error => {
-                            if (error.code !== 10008) {
-                                console.error('Failed to delete the message:', error);
-                            }
-                        });
-                    }
-                });
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
+                }
             });
-            try {
-                startCombat(constKey, interaction, userSpecEEFilter);
-            } catch (error) {
-                console.log(errorForm(error));
-            }
-        } else return console.log(errorForm(`AN ERROR OCCURED: ${result}`));
-    }
+        });
 
+        userSpecEEFilter.eKilledE.once(`${userSpecEEFilter.PKE_UPK}`, async () => {
+            //Player killed
+            const reviveButton = new ButtonBuilder()
+                .setCustomId('primary')
+                .setLabel('Revive')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('💀');
 
-    async function createEnemy(enemyPrefab, constKey) {
-        const fullClear = await clearEnemies();
-        console.log(specialInfoForm(`clearEnemies Result: ${fullClear}`));
-        if (!enemyPrefab.NewSpawn || enemyPrefab.NewSpawn === false) {
-            await ActiveDungeonEnemy.create({
-                name: enemyPrefab.Name,
-                description: enemyPrefab.Description,
-                level: enemyPrefab.Level,
-                mindmg: enemyPrefab.MinDmg,
-                maxdmg: enemyPrefab.MaxDmg,
-                health: enemyPrefab.Health,
-                defence: enemyPrefab.Defence,
-                weakto: enemyPrefab.WeakTo,
-                dead: false,
-                xpmin: enemyPrefab.XpMin,
-                xpmax: enemyPrefab.XpMax,
-                constkey: constKey,
-                specid: userID,
+            const grief = new ActionRowBuilder().addComponents(reviveButton);
+
+            const activeDung = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+
+            let list = `Fighting fearlessly till the end, you nonetheless succumbed to the darkness..`;
+
+            let lastCheckpoint = `Floor ${activeDung.lastsave}`;
+
+            const playerDeadEmbed = new EmbedBuilder()
+                .setTitle('You have fallen..')
+                .setColor('DarkGold')
+                .addFields(
+
+                    { name: `Obituary`, value: list, inline: true },
+                    { name: `Last checkpoint:`, value: lastCheckpoint, inline: true }
+                );
+
+            const embedMsg = await interaction.channel.send({ embeds: [playerDeadEmbed], components: [grief] });
+
+            const filter = (i) => i.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 40000,
             });
 
-            const enemyAdded = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyPrefab.ConstKey }] });
-            if (enemyAdded) {
-                console.log(successResult('ENEMY CREATED AND FOUND!'));
-                return 'Success';
-            } else return 'ERROR-NO: 1.2';
-        } else {
-            const startTime = new Date().getTime();
-
-            const lvl = enemyPrefab.Level;
-            let nxtLvl;
-            if (lvl < 20) {
-                nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
-            } else if (lvl === 20) {
-                nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
-            } else if (lvl > 20) {
-                const lvlScale = 1.5 * (Math.floor(lvl / 5));
-                nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
-            }
-
-            let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
-            let XpMin = XpMax - Math.floor(XpMax / 5.2);
-
-            const avgDmgRef = enemyPrefab.AvgDmg;
-            let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02 * Math.floor(lvl / 6)));
-            let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
-
-            const calcValueObj = {
-                maxDmg: DmgMax,
-                minDmg: DmgMin,
-                maxXp: XpMax,
-                minXp: XpMin,
-            };
-
-            let proccessFinished = false;
-            let newE;
-            const createEEntry = async (eFab, calcObj, userID) => {
-                await ActiveDungeonEnemy.create({
-                    name: eFab.Name,
-                    description: eFab.Description,
-                    level: eFab.Level,
-                    health: eFab.Health,
-                    defence: eFab.Defence,
-                    weakto: eFab.WeakTo,
-
-                    constkey: eFab.ConstKey,
-                    specid: userID,
-
-                    mindmg: calcObj.minDmg,
-                    maxdmg: calcObj.maxDmg,
-
-                    xpmin: calcObj.minXp,
-                    xpmax: calcObj.maxXp,
-
-                    dead: false,
-                }).then(async () => {
-                    newE = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: eFab.ConstKey }] });
-                    console.log('newE has:', newE);
-                    return;
-                });
-            }
-
-            await createEEntry(enemyPrefab, calcValueObj, userID).then(() => {
-                const endTime = new Date().getTime();
-                console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
-                proccessFinished = true;
-                return proccessFinished;
+            collector.on('collect', async (collInteract) => {
+                if (collInteract.customId === 'primary') {
+                    collector.stop();
+                }
             });
 
-            if (proccessFinished === true) return 'Success';
+            collector.on('end', () => {
+                if (embedMsg) {
+                    embedMsg.delete().catch(error => {
+                        if (error.code !== 10008) {
+                            console.error('Failed to delete the message:', error);
+                        }
+                    });
+                }
+            });
+        });
+
+        try {
+            startCombat(constKey, interaction, userSpecEEFilter, thePlayer);
+        } catch (error) {
+            console.error(error);
         }
     }
 
-    async function removeEnemy(constKey) {
-        const tableUpdate = await ActiveDungeonEnemy.destroy({ where: [{ specid: userID }, { constkey: constKey }] });
-        if (tableUpdate > 0) {
-            return 'Deleted';
-        } else return 'Failure';
+    async function createEnemy(enemyPrefab, constKey) {
+        const result = await clearEnemies();
+        if (!result) return;
+
+        if (!enemyPrefab.NewSpawn || enemyPrefab.NewSpawn === false) {
+            try {
+                await ActiveDungeonEnemy.create({
+                    name: enemyPrefab.Name,
+                    description: enemyPrefab.Description,
+                    level: enemyPrefab.Level,
+                    mindmg: enemyPrefab.MinDmg,
+                    maxdmg: enemyPrefab.MaxDmg,
+                    health: enemyPrefab.Health,
+                    defence: enemyPrefab.Defence,
+                    weakto: enemyPrefab.WeakTo,
+                    dead: false,
+                    xpmin: enemyPrefab.XpMin,
+                    xpmax: enemyPrefab.XpMax,
+                    constkey: constKey,
+                    specid: userID,
+                });
+            } catch (error) {
+                console.error('Error @ handleDungeon/createEnemy/OldSpawn:', error);
+            }
+        } else {
+            try {
+                const extraVals = enemyExtraGen(enemyPrefab);
+                await ActiveDungeonEnemy.create({
+                    name: enemyPrefab.Name,
+                    description: enemyPrefab.Description,
+                    level: enemyPrefab.Level,
+                    health: enemyPrefab.Health,
+                    defence: enemyPrefab.Defence,
+                    weakto: enemyPrefab.WeakTo,
+                    constkey: constKey,
+                    specid: userID,
+                    mindmg: extraVals.minDmg,
+                    maxdmg: extraVals.maxDmg,
+                    xpmin: extraVals.minXp,
+                    xpmax: extraVals.maxXp,
+                    dead: false,
+                });
+            } catch (error) {
+                console.error('Error @ handleDungeon/createEnemy/NewSpawn:', error);
+            }
+        }
+
+        const enemyAdded = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: enemyPrefab.ConstKey }] });
+        if (enemyAdded) return 'Success';
+        return 'Failure';
+    }
+
+    async function checkPoint() {
+        await saveFloor((cf + 1));
+        await giveFloorProgress();
+        await clearEnemies();
+
+        let addingCF = cf + 1;
+        let saveFloorValList = ` ${addingCF}`
+
+        const checkpointEmbed = new EmbedBuilder()
+            .setTitle('Progress saved!')
+            .setColor('DarkVividPink')
+            .addFields({
+                name: 'Floor: ', value: ` ${saveFloorValList}`, inline: true
+            });
+
+        return await interaction.channel.send({ embeds: [checkpointEmbed] }).then(checkpointEmbed => setTimeout(() => {
+            checkpointEmbed.delete();
+        }, 30000)).catch(error => console.error(error));
+    }
+
+    //This method saves floor progress at intervals of 5
+    async function saveFloor(floor) {
+        const totalHealth = 100 + (user.strength * 10);
+        thePlayer.setHealth(totalHealth);
+
+        const currentFloorEdit = await ActiveDungeon.update({ currentfloor: floor }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+        const lastSaveEdit = await ActiveDungeon.update({ lastsave: floor }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+        const currentHealthEdit = await ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+
+        if (currentFloorEdit > 0 && lastSaveEdit > 0 && currentHealthEdit > 0) {
+            //Success on all saves!
+            return;
+        }
     }
 
     async function clearEnemies() {
@@ -783,31 +808,8 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         } else return 'Failure';
     }
 
-    //This method saves floor progress at intervals of 5
-    function tempFloorSave(killedEnemies) {
-        console.log('Floor saved temp!');
-        fullKilledList = fullKilledList.concat(killedEnemies);
-        return;
-    }
-
-    //This method saves floor progress at intervals of 5
-    async function saveFloor(floor) {
-        const user = await UserData.findOne({ where: { userid: userID } });
-        const totalHealth = 100 + (user.strength * 10);
-
-        const currentFloorEdit = await ActiveDungeon.update({ currentfloor: floor }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const lastSaveEdit = await ActiveDungeon.update({ lastsave: floor }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const currentHealthEdit = await ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-
-        if (currentFloorEdit > 0 && lastSaveEdit > 0 && currentHealthEdit > 0) {
-            //Success on all saves!
-            return;
-        }
-    }
-
     //This method resets player health to full upon calling the dungeon, this prevents incorrect health values persisting upon boss kill
     async function setFullHealth() {
-        const user = await UserData.findOne({ where: { userid: userID } });
         const totalHealth = 100 + (user.strength * 10);
         const currentHealthEdit = await ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
         if (currentHealthEdit > 0) {
@@ -818,177 +820,25 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
     //This method handles loot reward generation and updating userdata values accordingly
     async function giveFloorProgress() {
-        let totXP = 0;
-        let totCoin = 0;
-        let count = 0;
-        let totItem = 0;
-        let iGained = [];
-        while (count < fullKilledList.length) {
-            let enemyTempRef = fullKilledList[count];
-            //console.log(enemyTempRef);
-            let HI = false;
 
-            const multChance = 0.850;
-            let lChance = Math.random();//rng which will decide whether loot is dropped
-            console.log(basicInfoForm('Success chance of having loot:', lChance));
-            if (lChance >= multChance) {
-                //hasitem:true
-                console.log(successResult('HAS ITEM!'));
-                HI = true;
-            }
+        const { gearDrops } = interaction.client;
 
-            let tmpCopy = [];
-            if (HI === true) {
-                //has item add to list 
-                totItem += 1;
-                tmpCopy = [];//Clear tmp array for each item 
+        let totalXP = 0;
+        let totalCoins = 0;
+        const lootChance = thePlayer.mods[4];
 
-                let randR = await grabRar(enemyTempRef.Level);
+        let itemCount = 0;
+        let curRun = 0;
+        do {
+            let thisE = fullKilledList[curRun];
 
-                let rarFilterList = await lootList.filter(loot => loot.Rar_id === randR);
+            let rolledChance = Math.random();
+            if (rolledChance >= lootChance) itemCount++;
 
-                console.log(specialInfoForm(`rarFilterList.length ${rarFilterList.length}`));
-                //  Available items added to array, rng grab one  
-                let randItemPos;
-                if (rarFilterList.length === 1) {
-                    tmpCopy.push(rarFilterList[0]);
-                } else if (rarFilterList.length > 1) {
-                    randItemPos = Math.round(Math.random() * (rarFilterList.length - 1));
-                } else console.log(errorForm('rarFilterList is EMPTY!!'));
-                
-                console.log(specialInfoForm(`rarFilterList @ ${randItemPos} ${rarFilterList[randItemPos]}`));
-
-                tmpCopy.push(rarFilterList[randItemPos]);//ADD ITEM SELECTED TO TEMP ARRAY FOR COMPARING
-
-                console.log(specialInfoForm(`tmpCopy contains: ${tmpCopy[0]}`));
-                //Assume the item added is new until proven otherwise
-                let itemNew = true;
-                for (const item of iGained) {
-                    if (item.Loot_id === tmpCopy[0].Loot_id) {
-                        itemNew = false;//Item is a dupe, change to false, bypassing new entry creation
-                        console.log('DUPLICATE ITEM FOUND: ', iGained);
-                        item.Amount += 1;
-                        console.log('FILTERED RESULT', item.Name, '\n');
-                        break;
-                    }
-                }
-
-                //Item is new: create new entry and attach amount value, push to array and continue
-                if (itemNew === true) {
-                    console.log('BEFORE MAPPED NEW ITEM: ', tmpCopy[0].Name);
-
-                    //const filtered = await tmpCopy.filter(item => item.Loot_id === tmpCopy[0].Loot_id);
-                    //console.log('FILTERED RESULT', filtered.Name);
-
-                    const mappedItem = tmpCopy.map(item => ({ ...item, Amount: 1 }),);
-                    //console.log('AFTER MAPPED NEW ITEM: ', mappedItem);
-
-                    //totPages += 1;
-
-                    iGained.push(...mappedItem);
-                }
-
-                var theItem = rarFilterList[randItemPos];
-
-                const lootStore = await LootStore.findOne({
-                    where: { spec_id: userID, loot_id: theItem.Loot_id },
-                });
-
-                console.log('UserItem: ', lootStore);
-
-                //check if an item was found in the previous .findOne()
-                //this checks if there is an item stored in the UserItems and adds one to the amount as defined in the dbInit script
-                //then return as a save call on the userItem data
-                if (lootStore) {
-                    const inc = await lootStore.increment('amount');
-
-                    if (inc) console.log('AMOUNT WAS UPDATED!');
-
-                    await lootStore.save();
-                } else {
-                    //increase item total
-                    //grab reference to user
-                    const uData = await UserData.findOne({ where: { userid: userID } });
-                    //increase item total
-                    uData.totitem += 1;
-
-                    await uData.save();
-
-                    if (theItem.Slot === 'Mainhand') {
-                        //Item is a weapon store accordingly
-                        const newItem = await LootStore.create({
-                            name: theItem.Name,
-                            value: theItem.Value,
-                            loot_id: theItem.Loot_id,
-                            spec_id: userID,
-                            rarity: theItem.Rarity,
-                            rar_id: theItem.Rar_id,
-                            attack: theItem.Attack,
-                            defence: 0,
-                            type: theItem.Type,
-                            slot: theItem.Slot,
-                            hands: theItem.Hands,
-                            amount: 1
-                        });
-
-                        const itemAdded = await LootStore.findOne({
-                            where: { spec_id: userID, loot_id: newItem.loot_id },
-                        });
-
-                        console.log(itemAdded);
-                    } else if (theItem.Slot === 'Offhand') {
-                        //Item is an offhand
-                        const newItem = await LootStore.create({
-                            name: theItem.Name,
-                            value: theItem.Value,
-                            loot_id: theItem.Loot_id,
-                            spec_id: userID,
-                            rarity: theItem.Rarity,
-                            rar_id: theItem.Rar_id,
-                            attack: theItem.Attack,
-                            defence: 0,
-                            type: theItem.Type,
-                            slot: theItem.Slot,
-                            hands: theItem.Hands,
-                            amount: 1
-                        });
-
-                        const itemAdded = await LootStore.findOne({
-                            where: { spec_id: userID, loot_id: newItem.loot_id },
-                        });
-
-                        console.log(itemAdded);
-                    } else {
-                        //Item is armor
-                        const newItem = await LootStore.create({
-                            name: theItem.Name,
-                            value: theItem.Value,
-                            loot_id: theItem.Loot_id,
-                            spec_id: userID,
-                            rarity: theItem.Rarity,
-                            rar_id: theItem.Rar_id,
-                            attack: 0,
-                            defence: theItem.Defence,
-                            type: theItem.Type,
-                            slot: theItem.Slot,
-                            amount: 1
-                        });
-
-                        const itemAdded = await LootStore.findOne({
-                            where: { spec_id: userID, loot_id: newItem.loot_id },
-                        });
-
-                        console.log(itemAdded);
-                    }
-                }
-            }
-
-            let xpGained = 0;
-
-            if (enemyTempRef.XpMax >= 0) {
-                xpGained = Math.floor(Math.random() * (enemyTempRef.XpMax - enemyTempRef.XpMin + 1) + enemyTempRef.XpMin);
+            if (thisE.XpMax >= 0) {
+                totalXP += Math.floor(Math.floor(Math.random() * (thisE.XpMax - thisE.XpMin + 1) + thisE.XpMin) / 2);
             } else {
-                const lvl = enemyTempRef.Level;
+                const lvl = thisE.Level;
                 let nxtLvl;
                 if (lvl < 20) {
                     nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
@@ -1002,33 +852,65 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 let XpMax = Math.floor((nxtLvl / 25) + (0.2 * (100 - lvl)));
                 let XpMin = XpMax - Math.floor(XpMax / 5.2);
 
-                xpGained = Math.floor(Math.random() * (XpMax - XpMin + 1) + XpMin);
+                totalXP += Math.floor(Math.floor(Math.random() * (XpMax - XpMin + 1) + XpMin) / 2);
             }
-            //console.log(`Before calc:`, xpGained);
-            //xpGained = xpGained * 1 + ((-1) * (1.5 * hrs) ** 0.4 + 3.7); // ** is the same as Math.pow()
-            //console.log(`After calc:`, xpGained);
-            totXP += xpGained;
+            curRun++;
+        } while (curRun < fullKilledList.length)
 
-            //calculate coins gained and add to overall total
-            var cGained = ((xpGained - 5) + 1);
-            totCoin += cGained;
-
-            count++;//increase count and run through again 
-        }
-
-        totXP = Math.round(totXP);
-        totCoin = Math.round(totCoin);
-
-        const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'EXP' }] });
+        const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
         if (extraEXP) {
             if (extraEXP.duration > 0) {
-                totXP += totXP * extraEXP.curreffect;               
+                totalXP += totalXP * extraEXP.curreffect;
             }
         }
 
-        var xpGainList = `Xp Gained: ${totXP}`;
-        var coinGainList = `Coins Gained: ${totCoin}`;
-        var totalItemsList = `Total items Gained: ${totItem}`;
+        totalCoins = totalXP * 1.5;
+
+        const upgradeChance = thePlayer.mods[5];
+
+        const totalItems = [];
+        curRun = 0;
+        do {
+            let foundRar = await grabRar(31);
+            let rolledUpgrade = Math.random();
+            if (foundRar < 10 && rolledUpgrade >= upgradeChance) foundRar++;
+
+            let choices = [];
+            for (const [key, value] of gearDrops) {
+                if (value === foundRar) choices.push(key);
+            }
+
+            let picked = randArrPos(choices);
+            let thisI = lootList.filter(item => item.Loot_id === picked);
+
+            let newItem = true;
+            for (const item of totalItems) {
+                if (item.Loot_id === thisI[0].Loot_id) {
+                    newItem = false;
+                    item.Amount += 1;
+                    break;
+                }
+            }
+
+            if (newItem) {
+                const mappedItem = thisI.map(item => ({ ...item, Amount: 1 }),);
+                totalPages++;
+                totalItems.push(...mappedItem);
+            }
+
+            curRun++;
+        } while (curRun < itemCount)
+
+        await isLvlUp(totalXP, totalCoins, interaction);
+
+        for (const item of totalItems) {
+            let result = await checkOwned(user, item, item.Amount);
+            if (result !== 'Finished') console.log('Item Adding Failure');
+        }
+
+        const xpGainList = `Xp Gained: ${totalXP}`;
+        const coinGainList = `Coins Gained: ${totalCoins}`;
+        const totalItemsList = `Total items Gained: ${totalItems.length}`;
 
         const floorRewardsEmbed = new EmbedBuilder()
             .setTitle('Rewards!')
@@ -1039,877 +921,26 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
                 { name: `COINS:`, value: ` ${coinGainList}`, inline: true },
                 { name: `ITEMS:`, value: ` ${totalItemsList}`, inline: true });
 
-        await interaction.channel.send({ embeds: [floorRewardsEmbed] }).then(async floorDropEmbed => setTimeout(() => {
+        return await interaction.channel.send({ embeds: [floorRewardsEmbed] }).then(floorDropEmbed => setTimeout(() => {
             floorDropEmbed.delete();
         }, 30000)).catch(console.error);
-
-        await isLvlUp(totXP, totCoin, interaction);
-    }
-
-    //This method clears dungeon progress upon player death
-    async function clearProgress(battle) {
-        const activeDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const lastSaveReset = await ActiveDungeon.update({ currentfloor: activeDungeon.lastsave }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        if (lastSaveReset > 0) {
-            fullKilledList = [];
-
-            const user = await UserData.findOne({ where: { userid: userID } });
-            const totalHealth = 100 + (user.strength * 10);
-
-            const currentHealthEdit = await ActiveDungeon.update({ currenthealth: totalHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-            if (currentHealthEdit > 0) {
-                if (battle === 'Enemy') {
-                    return await destroyEnemy(userID);
-                } else if (battle === 'Boss') {
-                    return await destroyBoss(userID);
-                }
-            }
-        }
     }
 }
 
-async function startCombat(constKey, interaction, userSpecEEFilter) {
-    let isHidden = false;
-
-    let potionOneDisabled = true;
-    let potionTxt = 'No Potion';
-
-    let foundLoadout = false;
-
+async function startCombat(constKey, interaction, userSpecEEFilter, player) {
     let userID = userSpecEEFilter.userid;
-    let dungeonId = userSpecEEFilter.dungeonid;
-    display();
 
-    async function display() {
-        const enemy = await ActiveDungeonEnemy.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
-        if (!enemy) {
-            //Bruh wtf
-            console.log(errorForm('An error has occured, ENEMY NOT FOUND'));
-        }
-        const hasPng = await pngCheck(enemy);
+    const foundE = await ActiveDungeonEnemy.findOne({ where: [{ constkey: constKey }, { specid: userID }] });
+    const enemy = new Enemy(foundE);
 
-        const user = await UserData.findOne({ where: { userid: userID } });
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-        const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (userLoadout) foundLoadout = true;
-        if (foundLoadout === false) {
-            //No loadout keep potions disabled
-        } else {
-            const userPotion = await findPotion(userLoadout.potionone, userID);
-            if (userPotion === 'NONE') {
-                //Both potion slots are empty keep buttons disabled
-                potionOneDisabled = true;
-                potionTxt = 'No Potion';
-            } else if (userPotion === 'HASNONE') {
-                potionOneDisabled = true;
-                potionTxt = '0 Remaining';
-            } else {
-                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
-                if (!activeEffects) {
-                    //user has no active effects
-                    potionOneDisabled = false;
-                    potionTxt = `${userPotion.amount} ${userPotion.name}`;
-                } else {
-                    //Check both effects against currently equipped potions
-                    if (activeEffects.cooldown > 0) {
-                        potionOneDisabled = true;
-                        potionTxt = `CoolDown: ${activeEffects.cooldown}`;
-                    } else {
-                        potionOneDisabled = false;
-                        potionTxt = `${userPotion.amount} ${userPotion.name}`;
-                    }
-                }
-            }
-        }
-
-        const hideButton = new ButtonBuilder()
-            .setCustomId('hide')
-            .setLabel('Try to hide')
-            .setDisabled(false)
-            .setStyle(ButtonStyle.Secondary);
-
-        const attackButton = new ButtonBuilder()
-            .setCustomId('onehit')
-            .setLabel('Strike')
-            .setStyle(ButtonStyle.Primary);
-
-        const stealButton = new ButtonBuilder()
-            .setCustomId('steal')
-            .setLabel('Steal Item')
-            .setDisabled(true)
-            .setStyle(ButtonStyle.Secondary);
-
-        const blockButton = new ButtonBuilder()
-            .setCustomId('block')
-            .setLabel('Block Attack')
-            .setStyle(ButtonStyle.Secondary);
-
-        const potionOneButton = new ButtonBuilder()
-            .setCustomId('potone')
-            .setLabel(potionTxt)
-            .setDisabled(potionOneDisabled)
-            .setStyle(ButtonStyle.Secondary);
-
-        const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton, potionOneButton);
-
-        let attachment;
-
-        if (hasPng === true) {
-            attachment = await displayEWpic(interaction, enemy, true);
-        } else {
-            attachment = await displayEWOpic(interaction, enemy, true);
-        }
-
-        const message = await interaction.followUp({ components: [row], files: [attachment] });
-
-        const filter = (i) => i.user.id === interaction.user.id;
-
-        const collector = message.createMessageComponentCollector({
-            componentType: ComponentType.Button,
-            filter,
-            time: 60000,
-        });
-
-        collector.on('collect', async (collInteract) => {
-            if (collInteract.customId === 'hide') {
-                if (isHidden === false) {
-                    await collInteract.deferUpdate();
-                    const actionToTake = await hiding(enemy, user, pigmy);
-                    if (actionToTake === 'FAILED') {
-                        const hideFailed = new EmbedBuilder()
-                            .setTitle('Failed!')
-                            .setColor('DarkRed')
-                            .addFields(
-                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
-                            hideFailed.delete();
-                        }, 15000)).catch(console.error);
-
-                        await collector.stop();
-                        stealPunish(enemy, user);
-                    } else if (actionToTake === 'SUCCESS') {
-                        const hideSuccess = new EmbedBuilder()
-                            .setTitle('Success!')
-                            .setColor('LuminousVividPink')
-                            .addFields(
-                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
-                            hideSuccess.delete();
-                        }, 15000)).catch(console.error);
-
-                        hideButton.setDisabled(true);
-                        attackButton.setLabel('BackStab!');
-                        await collInteract.editReply({ components: [row] });
-                        isHidden = true;
-                    }
-                }
-            }
-
-            if (collInteract.customId === 'onehit') {
-                let weapon;
-                let offHand;
-                let dmgDealt;
-                if (foundLoadout === true) {
-                    weapon = await findMainHand(userLoadout.mainhand, userID);
-                    if (userLoadout.mainhand !== userLoadout.offhand) {
-                        offHand = await findOffHand(userLoadout.offhand, userID);
-                        console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
-                    }
-                }
-
-                dmgDealt = await userDamageLoadout(user, weapon, offHand);
-
-                if (isHidden === true) {
-                    //BACKSTAB
-                    dmgDealt = dmgDealt * 1.5;
-                    isHidden = false;
-                } else {
-                    await collInteract.deferUpdate().catch(error => {
-                        if (error.code !== 10062) {
-                            console.error('Failed to resolve interaction:', error);
-                        }
-                    });
-                }
-                await collector.stop();
-                await hitOnce(dmgDealt, weapon, offHand, user, enemy, false);
-            }
-
-            if (collInteract.customId === 'block') {
-                await collInteract.deferUpdate();
-
-                await collector.stop();
-                blockAttack(enemy, user);
-            }
-
-            if (collInteract.customId === 'potone') {
-                //Potion One Used!
-                await collInteract.deferUpdate();
-                const hasPotOne = await findPotion(userLoadout.potionone, userID);
-                await usePotOne(hasPotOne, user);
-                await collector.stop();
-                display();
-            }
-        });
-
-        collector.on('end', () => {
-            if (message) {
-                message.delete().catch(error => {
-                    if (error.code !== 10008) {
-                        console.error('Failed to delete the message:', error);
-                    }
-                });
-            }
-        });
-    }
-
-    //This method is used when a user fails to steal from an enemy resulting in being attacked
-    async function stealPunish(enemy, user) {
-        const eDamage = await enemyDamage(enemy);
-        console.log(`Enemy damge: ${eDamage}`);
-        takeDamage(eDamage, user, false);
-    }
-
-    async function hitOnce(dmgDealt, weapon, offHand, user, enemy, isBlocked) {
-        let eHealth = enemy.health;
-        const eDefence = enemy.defence;
-
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-
-        let mainDmgType;
-        let offDmgType;
-        console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
-
-        if (!weapon || weapon === 'NONE') {
-            mainDmgType = 'NONE';
-        }
-        if (!offHand || offHand === 'NONE') {
-            offDmgType = 'NONE';
-        }
-
-        const Etype = enemy.weakto.toLowerCase();
-        console.log('Enemy Weakto: ', Etype);
-
-        if (mainDmgType === 'NONE' && offDmgType === 'NONE') {
-            //Do nothing no type match
-        } else {
-            if (mainDmgType !== 'NONE') {
-                mainDmgType = weapon.Type.toLowerCase();
-                console.log('Weapon Type: ', mainDmgType);
-            }
-            if (offDmgType !== 'NONE') {
-                offDmgType = offHand.Type.toLowerCase();
-                console.log('Offhand Type: ', offDmgType);
-            }
-        }
-
-        if (mainDmgType === Etype) {
-            dmgDealt += (dmgDealt * 0.5);
-            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
-        }
-        if (offDmgType === Etype) {
-            dmgDealt += (dmgDealt * 0.5);
-            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
-        }
-
-        let spdUP = 0;
-        let dexUP = 0;
-        if (pigmy) {
-            //pigmy found check for happiness and type                                                     
-            if (pigmy.type === 'Fire') {
-                //Fire pigmy equipped apply + 0.10 dex
-                dexUP = 0.10;
-            } else if (pigmy.type === 'Frost') {
-                //Frost pigmy equipped apply + 0.10 spd
-                spdUP = 0.10;
-            }
-        }
-
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                spdUP += (extraStats.curreffect / 50);
-                dexUP += (extraStats.curreffect / 50);
-            }
-        }
-
-        let dhChance;
-        let isDH = false;
-        let runCount = 1;
-        if (user.pclass === 'Thief') {
-            dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
-        } else { dhChance = ((user.speed * 0.02) + spdUP); }
-        console.log(specialInfoForm('Current 2 hit chance: ', dhChance));
-
-        const procCall1 = Math.random();
-        console.log(specialInfoForm('RNG rolled for double hit: ', procCall1, '\n'));
-        //specialInfoForm()
-        //successResult()
-        //======================
-        // First proc call if statment to check for double
-        if (procCall1 <= dhChance) {
-            //double attack has triggered
-            runCount = 2;
-            console.log(successResult('Double hit!\n'));
-            isDH = true;
-            embedColour = 'Aqua';
-            embedTitle = 'Double Hit!';
-        }
-        //======================
-
-        const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
-        if (!activeEffect) {
-            //No active effects to manage
-        } else if (activeEffect) {
-            console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
-            const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
-            let runCount = 0;
-            let currEffect;
-            do {
-                currEffect = activeEffects[runCount];
-                var coolDownReduce = currEffect.cooldown - 1;
-                var durationReduce = currEffect.duration - 1;
-
-                if (durationReduce <= 0) {
-                    durationReduce = 0;
-                }
-
-                if (coolDownReduce <= 0) {
-                    //Cooldown Complete!
-                    console.log(basicInfoForm('COOLDOWN COMPLETE!'));
-                    await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                } else {
-                    await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                    await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                }
-                runCount++;
-            } while (runCount < activeEffects.length)
-        }
-
-        // Do {attack for n times} While (n < runCount)
-        var i = 0;
-        const staticDmg = dmgDealt;
-        do {
-            //  Implement Critical here
-            dmgDealt = staticDmg;
-            var critChance;
-            if (user.pclass === 'Thief') {
-                critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
-            } else { critChance = ((user.dexterity * 0.02) + dexUP); }
-            console.log(specialInfoForm('Current crit chance: ', critChance));
-
-            const procCall2 = Math.random();
-            console.log(specialInfoForm('RNG rolled for crit chance: ', procCall2, '\n'));
-
-            //======================
-            // Second proc call if statment to check for crit
-            if (procCall2 <= critChance) {
-                //attack is now a critical hit
-                dmgDealt *= 2;
-                console.log(successResult('Critical hit!\nNew damage before defence: ', dmgDealt, '\n'));
-                embedColour = 'LuminousVividPink';
-                embedTitle = 'Critical Hit!';
-            } else if (isDH) {
-                embedColour = 'Aqua';
-                embedTitle = 'Double Hit!';
-            } else {
-                embedColour = 'NotQuiteBlack';
-                embedTitle = 'Damage Dealt';
-            }
-            //======================
-            if (isBlocked === true) {
-                //Defence is ignored when a counter attack is made!
-            } else if (isBlocked === false) {
-                dmgDealt -= (eDefence * 2);
-            }
-
-            //if statment to check if enemy dies after attack
-            if ((eHealth - dmgDealt) <= 0) {
-                console.log(specialInfoForm('ENEMY IS DEAD'));
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.EKE_UPK}`);
-                return;
-            } else {
-                eHealth -= dmgDealt;
-                eHealth = Number.parseFloat(eHealth).toFixed(1);
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-                console.log('CURRENT ENEMY HEALTH: ', eHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                //NEW METHOD TO DEAL DAMAGE  
-                await hitE(eHealth);
-            }
-            i++;
-        } while (i < runCount)
-
-        if (isBlocked === true) {
-            return display();
-        } else if (isBlocked === false) {
-            const eDamage = await enemyDamage(enemy);
-            console.log(`Enemy damge, not blocking: ${eDamage}`);
-            return takeDamage(eDamage, user, false);
-        }
-    }
-
-    //This method takes user defence and calculates reflect damage if defence is stronger than enemies attack
-    async function blockAttack(enemy, user) {
-        let eDamage = await enemyDamage(enemy);
-        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        var currentHealth = dungeonUser.currenthealth;
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                currentHealth += (extraStats.curreffect * 10);
-            }
-        }
-
-        if (user.pclass === 'Warrior') {
-            //5% damage reduction
-            eDamage -= (eDamage * 0.05);
-        } else if (user.pclass === 'Paladin') {
-            //15% damage reduction
-            eDamage -= (eDamage * 0.15);
-        } else if (user.pclass === 'Mage') {
-            //5% damage increase
-            eDamage += (eDamage * 0.05);
-        }
-
-        let defence = 0;
-        const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (currentLoadout) {
-            let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-            let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-            let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-            let offHandItem;
-            if (currentLoadout.offhand === currentLoadout.mainhand) {
-                offHandItem = 'NONE';
-            } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
-
-            if (headSlotItem !== 'NONE') {
-                defence += headSlotItem.Defence;
-            }
-
-            if (chestSlotItem !== 'NONE') {
-                defence += chestSlotItem.Defence;
-            }
-
-            if (legSlotItem !== 'NONE') {
-                defence += legSlotItem.Defence;
-            }
-            console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
-
-            if (offHandItem !== 'NONE') {
-                defence += offHandItem.Defence;
-            }
-            console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
-
-            const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
-
-            if (extraDefence) {
-                if (extraDefence.duration > 0) {
-                    defence += extraDefence.curreffect;
-                }
-            }
-
-            let blockStrength;
-            if (defence > 0) {
-                defence *= 1.5;
-                blockStrength = defence;
-                //blockStrength -= eDamage;
-                if ((blockStrength - eDamage) <= 0) {
-                    //Player takes damage
-                    eDamage -= blockStrength;
-                    const dmgBlockedEmbed = new EmbedBuilder()
-                        .setTitle("Damage Blocked")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'DAMAGE TAKEN REDUCED BY: ', value: ' ' + blockStrength + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
-                        blockedEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    return takeDamage(eDamage, user, true);
-                } else {
-                    //Player deals damage
-                    blockStrength -= eDamage;
-
-                    const dmgBlockedEmbed = new EmbedBuilder()
-                        .setTitle("Damage Blocked")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'BLOCK STRENGTH REMAINING: ', value: ' ' + blockStrength + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
-                        blockedEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
-                    console.log(`counterDamage: ${counterDamage}`);
-
-                    const counterEmbed = new EmbedBuilder()
-                        .setTitle("Counter Attack!")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'DAMAGE: ', value: ' ' + counterDamage + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [counterEmbed] }).then(async cntrEmbed => setTimeout(() => {
-                        cntrEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    let ghostWep, ghostOff;
-
-                    return hitOnce(counterDamage, ghostWep, ghostOff, user, enemy, true);
-                }
-            } else {
-                return takeDamage(eDamage, user, true);
-            }
-        } else if (!currentLoadout) {
-            return takeDamage(eDamage, user, true);
-        }
-    }
-
-    //========================================
-    // This method calculates damage dealt to user 
-    async function takeDamage(theEnemyDamage, user, isBlocked) {
-        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        let currentHealth = dungeonUser.currenthealth;
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                currentHealth += (extraStats.curreffect * 10);
-            }
-        }
-        let eDamage = theEnemyDamage;
-
-        if (isBlocked === true) {
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died =========================================================== HANDLE THIS DIFFERENTLY!!!!!!
-                console.log(failureResult('PLAYER IS DEAD :O'));
-                await hitP(0);
-                userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
-                return;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log('CURRENT PLAYER HEALTH: ', currentHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                await hitP(currentHealth);
-                return display();
-            }
-        } else if (isBlocked === false) {
-            console.log(`EnemyDamage before class mod: ${eDamage}`);
-            if (user.pclass === 'Warrior') {
-                //5% damage reduction
-                eDamage -= (eDamage * 0.05);
-            } else if (user.pclass === 'Paladin') {
-                //15% damage reduction
-                eDamage -= (eDamage * 0.15);
-            } else if (user.pclass === 'Mage') {
-                //5% damage increase
-                eDamage += (eDamage * 0.05);
-            }
-            console.log(`EnemyDamage after class mod: ${eDamage}`);
-
-            let defence = 0;
-            const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-            if (currentLoadout) {
-                let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-                let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-                let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-                let offHandItem;
-                if (currentLoadout.offhand === currentLoadout.mainhand) {
-                    offHandItem = 'NONE';
-                } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
-
-                if (headSlotItem !== 'NONE') {
-                    defence += headSlotItem.Defence;
-                }
-
-                if (chestSlotItem !== 'NONE') {
-                    defence += chestSlotItem.Defence;
-                }
-
-                if (legSlotItem !== 'NONE') {
-                    defence += legSlotItem.Defence;
-                }
-                console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
-
-                if (offHandItem !== 'NONE') {
-                    defence += offHandItem.Defence;
-                }
-                console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
-
-                const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
-
-                if (extraDefence) {
-                    if (extraDefence.duration > 0) {
-                        defence += extraDefence.curreffect;
-                    }
-                }
-
-                if (defence > 0) {
-                    //Player has defence use accordingly
-                    eDamage -= defence;
-                }
-            }
-
-            if (eDamage < 0) {
-                eDamage = 0;
-            }
-
-
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died =========================================================== HANDLE THIS DIFFERENTLY!!!!!!
-                console.log(failureResult('PLAYER IS DEAD :O'));
-                await hitP(0);
-                userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
-                return;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log('CURRENT PLAYER HEALTH: ', currentHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                await hitP(currentHealth);
-                return display();
-            }
-        }
-    }
-
-    //========================================
-    //this method updates the enemies health after being attacked and returns
-    async function hitP(currentHealth) {
-        const dealDmg = await ActiveDungeon.update({ currenthealth: currentHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        if (dealDmg > 0) {
-            console.log('Player Health has been updated');
-            return;
-        }
-    }
-
-    //========================================
-    //this method updates the enemies health after being attacked and returns
-    async function hitE(eHealth) {
-        const dealDmg = await ActiveDungeonEnemy.update({ health: eHealth }, { where: [{ specid: userID }, { constkey: constKey }] });
-        if (dealDmg > 0) {
-            console.log('Enemy Health has been updated');
-            return;
-        }
-    }
-
-    //========================================
-    // This method calculates damage dealt by an enemy and returns that value
-    function enemyDamage(enemy) {
-        // First: grab enemy damage min and max
-        // Second: rng between those inclusively 
-        // Third: Return the value for further use 
-
-        const dmgDealt = Math.floor(Math.random() * (enemy.maxdmg - enemy.mindmg + 1) + enemy.mindmg);
-        return dmgDealt;
-    }
-
-    async function usePotOne(potion, user) {
-        //User used potion in slot one!
-        let appliedCurrEffect;
-        if (potion.activecategory === 'Healing') {
-
-            const filterHeal = activeCategoryEffects.filter(effect => effect.Name === 'Healing');
-            console.log(basicInfoForm('filterHeal @ potion: ', filterHeal[0][`${potion.name}`]));
-            const healAmount = filterHeal[0][`${potion.name}`];
-            let newHealth;
-            if (healAmount > 0) {
-                console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
-                appliedCurrEffect = 0;
-                const totalHealth = 100 + (user.strength * 10);
-                const dungUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-                if (dungUser.currenthealth === totalHealth) {
-                    return await interaction.followUp('You are already at maximum health!!');
-                } else {
-                    if ((dungUser.currenthealth + healAmount) > totalHealth) {
-                        newHealth = totalHealth;
-                        console.log(specialInfoForm('newHealth if max health reached: ', newHealth));
-                    } else {
-                        newHealth = dungUser.currenthealth + healAmount;
-                        console.log(specialInfoForm('newHealth if no constraint reached: ', newHealth));
-                    }
-                    console.log(specialInfoForm('newHealth after checks: ', newHealth));
-
-                    const editRow = await ActiveDungeon.update({ currenthealth: newHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-                    if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
-
-                    await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
-                }
-            }
-        }
-        if (potion.activecategory === 'Reinforce') {
-            const filterDefence = activeCategoryEffects.filter(effect => effect.Name === 'Reinforce');
-            const defenceAmount = filterDefence[0][`${potion.name}`];
-            if (defenceAmount > 0) {
-                console.log(successResult('FOUND DEFENCE BOOST'));
-                appliedCurrEffect = defenceAmount;
-                await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
-            }
-        }
-        if (potion.activecategory === 'Tons') {
-            const filterStats = activeCategoryEffects.filter(effect => effect.Name === 'Tons');
-            const statBoost = filterStats[0][`${potion.name}`];
-            if (statBoost > 0) {
-                console.log(successResult('FOUND STAT BOOST'));
-                appliedCurrEffect = statBoost;
-                await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
-            }
-        }
-        if (potion.activecategory === 'EXP') {
-            const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
-            const expBoost = filterEXP[0][`${potion.name}`];
-            if (expBoost > 0) {
-                console.log(successResult('FOUND EXP BOOST'));
-                appliedCurrEffect = expBoost;
-                await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
-            }
-        }
-
-        const hasActiveStatus = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
-        try {
-            if (!hasActiveStatus) {
-                //Need to create new entry
-                await ActiveStatus.create({
-                    name: potion.name,
-                    curreffect: appliedCurrEffect,
-                    activec: potion.activecategory,
-                    cooldown: potion.cooldown,
-                    duration: potion.duration,
-                    potionid: potion.potion_id,
-
-                    spec_id: userID,
-                });
-
-                const refindPot = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
-
-                if (refindPot) {
-                    console.log(successResult('Potion One entry created SUCCESSFULLY!'));
-
-                    const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-
-                    const minusOne = thePotToReduce.amount - 1;
-
-                    if (minusOne <= 0) {
-                        //Destroy potion entry
-                        const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-                        if (destroyed > 0) {
-                            console.log(successResult('POTION ENTRY DESTROYED!'));
-                        } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
-                    } else {
-                        const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
-
-                        if (removedPot > 0) {
-                            console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
-                        } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
-                    }
-                } else console.log(warnedForm('SOMETHING WENT WRONG CREATING NEW STATUS ENTRY'));
-            } else {
-                //Need to update existing entry
-                const updatedEntry = await ActiveStatus.update({
-                    name: potion.name,
-                    curreffect: appliedCurrEffect,
-                    activec: potion.activecategory,
-                    cooldown: potion.cooldown,
-                    duration: potion.duration,
-                }, {
-                    where: [{ potionid: potion.potion_id }, { spec_id: userID }]
-                });
-
-                if (updatedEntry > 0) {
-                    console.log(successResult('Potion One entry update SUCCESSFULLY!'));
-                    const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-
-                    const minusOne = thePotToReduce.amount - 1;
-
-                    if (minusOne <= 0) {
-                        //Destroy potion entry
-                        const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-                        if (destroyed > 0) {
-                            console.log(successResult('POTION ENTRY DESTROYED!'));
-                        } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
-                    } else {
-                        const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
-
-                        if (removedPot > 0) {
-                            console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
-                        } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
-                    }
-                } else console.log(warnedForm('SOMETHING WENT WRONG UPDATING STATUS ENTRY'));
-            }
-        } catch (err) {
-            console.log(errorForm('AN ERROR HAS OCCURED! ', err));
-        }
-    }
-
-    //========================================
-    //This method checks for enemy png
-    function pngCheck(enemy) {
-        const enemyRef = enemyList.filter(eFab => eFab.ConstKey === enemy.constkey);
-        if (enemyRef[0].PngRef) return true;
-        return false;
-    }
+    handleCombat(player, enemy, interaction, userSpecEEFilter, false);
 }
 
-async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
-    console.log(`Loading boss dialog now...`);
-    let isHidden = false;
-
-    let potionOneDisabled = true;
-    let potionTxt = 'No Potion';
-
-    let foundLoadout = false;
-
+async function startBossCombat(constKey, boss, interaction, userSpecEEFilter, player) {
     let userID = userSpecEEFilter.userid;
-    let dungeonId = userSpecEEFilter.dungeonid;
+    const foundBoss = await ActiveDungeonBoss.findOne({ where: [{ constkey: constKey }, { specid: userID }] });
+    const enemy = new Enemy(foundBoss);
+    enemy.stageHealth(boss);
 
     const nextButton = new ButtonBuilder()
         .setCustomId('next')
@@ -1930,7 +961,7 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         .setFields({
             name: '\u200b', value: ` ${boss.Intro}`,
         });
-    await embedPages.push(introEmbed);
+    embedPages.push(introEmbed);
 
     const lineOneEmbed = new EmbedBuilder()
         .setTitle(boss.Name)
@@ -1939,7 +970,7 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         .setFields({
             name: '\u200b', value: ` ${boss.Line_One}`,
         });
-    await embedPages.push(lineOneEmbed);
+    embedPages.push(lineOneEmbed);
 
     const lineTwoEmbed = new EmbedBuilder()
         .setTitle(boss.Name)
@@ -1948,9 +979,7 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         .setFields({
             name: '\u200b', value: ` ${boss.Line_Two}`,
         });
-    await embedPages.push(lineTwoEmbed);
-
-    console.log(`embedPages: ${embedPages}`);
+    embedPages.push(lineTwoEmbed);
 
     const dialogEmbed = await interaction.channel.send({ components: [interactiveButtons], embeds: [embedPages[0]], files: [closeUpFile] });
 
@@ -1962,17 +991,14 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
         time: 120000,
     });
 
-    var currentPage = 0;
-
+    let currentPage = 0;
     collector.on('collect', async (collInteract) => {
         if (collInteract.customId === 'next') {
             await collInteract.deferUpdate();
-            console.log(currentPage);
             if ((currentPage + 1) === 3) {
                 //Boss fight starts!
                 await collector.stop();
-
-                display();
+                return handleCombat(player, enemy, interaction, userSpecEEFilter, true);
             } else if ((currentPage + 1) !== 3) {
                 //Show next embed!
                 currentPage += 1;
@@ -1990,44 +1016,37 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
             });
         }
     });
+}
 
-    async function display() {
-        const enemy = await ActiveDungeonBoss.findOne({ where: [{ specid: userID }, { constkey: constKey }] });
-        if (!enemy) {
-            //Bruh wtf
-            console.log(errorForm('An error has occured while finding the active boss!'));
+async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCombat) {
+    let userID = userSpecEEFilter.userid;
+    display(player, enemy);
+
+    async function display(player, enemy) {
+        if (bossCombat) {
+            if (player.dead === true || player.health <= 0) return userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
+            if (enemy.health <= enemy.stagehealth) return userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.BKE_UPK}`);
+        } else {
+            if (player.dead === true || player.health <= 0) return userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
+            if (enemy.dead === true || enemy.health <= 0) return userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.EKE_UPK}`);
         }
 
-        const user = await UserData.findOne({ where: { userid: userID } });
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-        const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (userLoadout) foundLoadout = true;
-        if (foundLoadout === false) {
-            //No loadout keep potions disabled
-        } else {
-            const userPotion = await findPotion(userLoadout.potionone, userID);
-            if (userPotion === 'NONE') {
+        if (player.hasLoadout) {
+            const potionCheck = await findPotion(player.loadout[5], userID);
+            if (potionCheck === 'NONE' || potionCheck === 'HASNONE') {
                 //Both potion slots are empty keep buttons disabled
-                potionOneDisabled = true;
-                potionTxt = 'No Potion';
-            } else if (userPotion === 'HASNONE') {
-                potionOneDisabled = true;
-                potionTxt = '0 Remaining';
+                player.potionDisabled = true;
+                if (potionCheck === 'NONE') player.potionTxt = 'No Potion';
+                if (potionCheck === 'HASNONE') player.potionTxt = '0 Remaining';
             } else {
-                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
-                if (!activeEffects) {
+                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: potionCheck.name }] });
+                if (!activeEffects || activeEffects.cooldown <= 0) {
                     //user has no active effects
-                    potionOneDisabled = false;
-                    potionTxt = `${userPotion.amount} ${userPotion.name}`;
+                    player.potionDisabled = false;
+                    player.potionTxt = `${potionCheck.amount} ${potionCheck.name}`;
                 } else {
-                    //Check both effects against currently equipped potions
-                    if (activeEffects.cooldown > 0) {
-                        potionOneDisabled = true;
-                        potionTxt = `CoolDown: ${userPotion.cooldown}`;
-                    } else {
-                        potionOneDisabled = false;
-                        potionTxt = `${userPotion.amount} ${userPotion.name}`;
-                    }
+                    player.potionDisabled = true;
+                    player.potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                 }
             }
         }
@@ -2056,737 +1075,340 @@ async function startBossCombat(constKey, boss, interaction, userSpecEEFilter) {
 
         const potionOneButton = new ButtonBuilder()
             .setCustomId('potone')
-            .setLabel(potionTxt)
-            .setDisabled(potionOneDisabled)
+            .setLabel(player.potionTxt)
+            .setDisabled(player.potionDisabled)
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton, potionOneButton);
 
-        const attachment = await displayBossPic(boss, enemy, true);
+        let attachment;
+        if (bossCombat) {
+            attachment = await displayBossPic(enemy);
+        } else attachment = await createEnemyDisplay(enemy);
 
-        const message = await interaction.followUp({ components: [row], files: [attachment] });
+        const combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
 
-        const filter = (i) => i.user.id === interaction.user.id;
+        const filter = (i) => i.user.id === userID;
 
-        const collector = message.createMessageComponentCollector({
+        const collector = combatEmbed.createMessageComponentCollector({
             componentType: ComponentType.Button,
             filter,
-            time: 60000,
+            time: 40000,
         });
 
-        collector.on('collect', async (collInteract) => {
-            if (collInteract.customId === 'hide') {
-                if (isHidden === false) {
-                    await collInteract.deferUpdate();
-                    const actionToTake = await hiding(enemy, user, pigmy);
-                    if (actionToTake === 'FAILED') {
-                        const hideFailed = new EmbedBuilder()
-                            .setTitle('Failed!')
-                            .setColor('DarkRed')
-                            .addFields(
-                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
-                            );
+        collector.on('collect', async (COI) => {
+            // Hiding!!
+            if (COI.customId === 'hide') {
+                let embedTitle = '';
+                let embedColour = 'Black';
+                let fieldName = '';
+                let fieldValue = '';
+                let fieldObj = [];
 
-                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
-                            hideFailed.delete();
-                        }, 15000)).catch(console.error);
+                let failHide = false;
+                const dmgTaken = enemy.randDamage();
 
-                        await collector.stop();
-                        stealPunish(enemy, user);
-                    } else if (actionToTake === 'SUCCESS') {
-                        const hideSuccess = new EmbedBuilder()
-                            .setTitle('Success!')
-                            .setColor('LuminousVividPink')
-                            .addFields(
-                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
-                            );
+                const result = player.hide(enemy);
+                if (result === 'FAILURE') {
+                    embedTitle = 'Failed!';
+                    embedColour = 'DarkRed';
+                    fieldName = 'Oh NO!';
+                    fieldValue = 'You failed to hide!';
+                    failHide = true;
+                } else if (result === 'SUCCESS') {
+                    embedTitle = 'Success!';
+                    embedColour = 'LuminousVividPink';
+                    fieldName = 'Well Done!';
+                    fieldValue = 'You managed to hide!';
 
-                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
-                            hideSuccess.delete();
-                        }, 15000)).catch(console.error);
+                    hideButton.setDisabled(true);
+                    attackButton.setLabel('Backstab!');
+                    await COI.update({ components: [row] });
+                }
 
-                        hideButton.setDisabled(true);
-                        attackButton.setLabel('BackStab!');
-                        await collInteract.editReply({ components: [row] });
-                        isHidden = true;
+                if (embedTitle !== '') {
+                    fieldObj.push({ name: fieldName, value: fieldValue, });
+
+                    const embed = new EmbedBuilder()
+                        .setTitle(embedTitle)
+                        .setColor(embedColour)
+                        .addFields(fieldObj);
+
+                    await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
+                        embedmsg.delete();
+                    }, 20000)).catch(error => console.error(error));
+                    if (failHide === true) {
+                        player.takeDamge(dmgTaken);
+                        await showDamageTaken(player, dmgTaken);
+                    }
+                    if (!player.isHidden) {
+                        collector.stop();
+                        return display(player, enemy);
                     }
                 }
             }
+            // Striking!!
+            if (COI.customId === 'onehit') {
+                collector.stop();
+                await runCombatTurn(player, enemy);
+                return;
+            }
+            // Blocking!
+            if (COI.customId === 'block') {
+                collector.stop();
+                let dmgTaken = enemy.randDamage();
 
-            if (collInteract.customId === 'onehit') {
-                let weapon;
-                let offHand;
-                let dmgDealt;
-                if (foundLoadout === true) {
-                    weapon = await findMainHand(userLoadout.mainhand, userID);
-                    if (userLoadout.mainhand !== userLoadout.offhand) {
-                        offHand = await findOffHand(userLoadout.offhand, userID);
-                        console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
-                    }
-                }
-
-                dmgDealt = await userDamageLoadout(user, weapon, offHand);
-
-                if (isHidden === true) {
-                    //BACKSTAB
-                    dmgDealt = dmgDealt * 1.5;
-                    isHidden = false;
+                let blockStrength;
+                if (player.totalDefence <= 0) {
+                    dmgTaken = player.takeDamge(dmgTaken);
                 } else {
-                    await collInteract.deferUpdate();
+                    blockStrength = player.totalDefence * 1.5;
+                    if ((blockStrength - dmgTaken) <= 0) {
+                        dmgTaken -= blockStrength;
+                        dmgTaken = player.takeDamge(dmgTaken);
+                    } else {
+                        blockStrength -= dmgTaken;
+                        let counterDamage = (blockStrength * 0.25) + ((player.health * 0.02) * (player.str * 0.4));
+                        await runCombatTurn(player, enemy, counterDamage);
+                    }
                 }
-                await collector.stop();
-                await hitOnce(dmgDealt, weapon, offHand, user, enemy, false);
+                await showDamageTaken(player, dmgTaken, true);
+                return display(player, enemy);
             }
-
-            if (collInteract.customId === 'block') {
-                await collInteract.deferUpdate();
-
-                await collector.stop();
-                blockAttack(enemy, user);
-            }
-
-            if (collInteract.customId === 'potone') {
-                //Potion One Used!
-                await collInteract.deferUpdate();
-                const hasPotOne = await findPotion(userLoadout.potionone, userID);
-                await usePotOne(hasPotOne, user);
-                await collector.stop();
-                display();
+            // DRINK POTION!
+            if (COI.customId === 'potone') {
+                const potionUsed = await findPotion(player.loadout[5], userID);
+                const result = await handleUsePotion(potionUsed, player);
+                const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
+                if (reinEffects > 0) player.updateDefence(reinEffects);
+                const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
+                if (tonEffects > 0) player.updateUPs(tonEffects);
+                if (result === 'Success') {
+                    collector.stop();
+                    return display(player, enemy);
+                }
             }
         });
 
         collector.on('end', () => {
-            if (message) {
-                message.delete().catch(error => {
-                    if (error.code !== 10008) {
-                        console.error('Failed to delete the message:', error);
-                    }
-                });
-            }
+            combatEmbed.delete().catch(error => {
+                if (error.code !== 10008) {
+                    console.error('Failed to delete the message:', error);
+                }
+            });
         });
     }
 
-    //This method is used when a user fails to steal from an enemy resulting in being attacked
-    async function stealPunish(enemy, user) {
-        const eDamage = await enemyDamage(enemy);
-        console.log(`Enemy damge: ${eDamage}`);
-        takeDamage(eDamage, user, false);
+    async function showDamageTaken(player, dmg, blocked) {
+        let embedTitle = 'Damage Taken';
+        dmg = Number.parseFloat(dmg).toFixed(1);
+        player.health = Number.parseFloat(player.health).toFixed(1);
+        if (blocked) embedTitle = 'Damage Blocked';
+
+        const attackDmgEmbed = new EmbedBuilder()
+            .setTitle(embedTitle)
+            .setColor('DarkRed')
+            .addFields(
+                { name: 'DAMAGE: ', value: `${dmg}`, inline: true },
+                { name: 'HEALTH REMAINING: ', value: `${player.health}`, inline: true },
+            );
+
+        await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(attkEmbed => setTimeout(() => {
+            attkEmbed.delete();
+        }, 15000)).catch(error => console.error(error));
+        return;
     }
 
-    async function hitOnce(dmgDealt, weapon, offHand, user, enemy, isBlocked) {
-        let eHealth = enemy.health;
-        const eDefence = enemy.defence;
+    async function runCombatTurn(player, enemy, blocking) {
+        let embedTitle = 'Damage Dealt';
+        let embedColour = 'NotQuiteBlack';
+        let fieldName = '';
+        let fieldValue = '';
+        let fieldObj = {};
+        let finalFields = [];
 
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+        let initialDamage;
+        if (!blocking) initialDamage = player.curDamage;
+        if (blocking) initialDamage = blocking;
 
-        let mainDmgType;
-        let offDmgType;
-        console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
-
-        if (!weapon || weapon === 'NONE') {
-            mainDmgType = 'NONE';
+        if (player.isHidden) {
+            initialDamage += initialDamage * 0.5;
+            player.isHidden = false;
         }
-        if (!offHand || offHand === 'NONE') {
-            offDmgType = 'NONE';
-        }
 
-        const Etype = enemy.weakto.toLowerCase();
-        console.log('Enemy Weakto: ', Etype);
-
-        if (mainDmgType === 'NONE' && offDmgType === 'NONE') {
-            //Do nothing no type match
-        } else {
-            if (mainDmgType !== 'NONE') {
-                mainDmgType = weapon.Type.toLowerCase();
-                console.log('Weapon Type: ', mainDmgType);
-            }
-            if (offDmgType !== 'NONE') {
-                offDmgType = offHand.Type.toLowerCase();
-                console.log('Offhand Type: ', offDmgType);
+        const critChance = player.mods[2];
+        const dhChance = player.mods[3];
+        const gearTypes = player.loadoutTypes.slice(3, 5);
+        for (const type of gearTypes) {
+            if (type.toLowerCase === enemy.weakTo.toLowerCase()) {
+                initialDamage += initialDamage * 0.5;
             }
         }
 
-        if (mainDmgType === Etype) {
-            dmgDealt += (dmgDealt * 0.5);
-            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
-        }
-        if (offDmgType === Etype) {
-            dmgDealt += (dmgDealt * 0.5);
-            console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
-        }
+        const staticDamage = initialDamage;
+        const turns = [];
+        let turnDamageOne = {
+            type: 'Normal',
+            dmg: staticDamage,
+        };
 
-        let spdUP = 0;
-        let dexUP = 0;
-        if (pigmy) {
-            //pigmy found check for happiness and type                                                     
-            if (pigmy.type === 'Fire') {
-                //Fire pigmy equipped apply + 0.10 dex
-                dexUP = 0.10;
-            } else if (pigmy.type === 'Frost') {
-                //Frost pigmy equipped apply + 0.10 spd
-                spdUP = 0.10;
-            }
-        }
+        let turnDamageTwo = {
+            type: 'Normal',
+            dmg: staticDamage,
+        };
 
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                spdUP += (extraStats.curreffect / 50);
-                dexUP += (extraStats.curreffect / 50);
-            }
-        }
-
-        let dhChance;
-        let isDH = false;
-        let runCount = 1;
-        if (user.pclass === 'Thief') {
-            dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
-        } else { dhChance = ((user.speed * 0.02) + spdUP); }
-        console.log(specialInfoForm('Current 2 hit chance: ', dhChance));
-
-        const procCall1 = Math.random();
-        console.log(specialInfoForm('RNG rolled for double hit: ', procCall1, '\n'));
-        //specialInfoForm()
-        //successResult()
-        //======================
-        // First proc call if statment to check for double
-        if (procCall1 <= dhChance) {
-            //double attack has triggered
-            runCount = 2;
-            console.log(successResult('Double hit!\n'));
-            isDH = true;
+        const rolledDH = Math.random();
+        let runFor = 1;
+        if (rolledDH <= dhChance) {
+            runFor = 2;
+            turnDamageOne.type = 'Double Hit';
+            turnDamageTwo.type = 'Double Hit';
             embedColour = 'Aqua';
-            embedTitle = 'Double Hit!';
-        }
-        //======================
-
-        const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
-        if (!activeEffect) {
-            //No active effects to manage
-        } else if (activeEffect) {
-            console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
-            const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
-            let runCount = 0;
-            let currEffect;
-            do {
-                currEffect = activeEffects[runCount];
-                var coolDownReduce = currEffect.cooldown - 1;
-                var durationReduce = currEffect.duration - 1;
-
-                if (durationReduce <= 0) {
-                    durationReduce = 0;
-                }
-
-                if (coolDownReduce <= 0) {
-                    //Cooldown Complete!
-                    console.log(basicInfoForm('COOLDOWN COMPLETE!'));
-                    await ActiveStatus.destroy({ where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                } else {
-                    await ActiveStatus.update({ cooldown: coolDownReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                    await ActiveStatus.update({ duration: durationReduce }, { where: [{ spec_id: userID }, { potionid: currEffect.potionid }] });
-                }
-                runCount++;
-            } while (runCount < activeEffects.length)
         }
 
-        // Do {attack for n times} While (n < runCount)
-        var i = 0;
-        const staticDmg = dmgDealt;
+        let i = 0;
+        let thisTurn;
         do {
-            //  Implement Critical here
-            dmgDealt = staticDmg;
-            var critChance;
-            if (user.pclass === 'Thief') {
-                critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
-            } else { critChance = ((user.dexterity * 0.02) + dexUP); }
-            console.log(specialInfoForm('Current crit chance: ', critChance));
+            if (i === 0) thisTurn = turnDamageOne;
+            if (i === 1) thisTurn = turnDamageTwo;
+            initialDamage = staticDamage;
 
-            const procCall2 = Math.random();
-            console.log(specialInfoForm('RNG rolled for crit chance: ', procCall2, '\n'));
-
-            //======================
-            // Second proc call if statment to check for crit
-            if (procCall2 <= critChance) {
-                //attack is now a critical hit
-                dmgDealt *= 2;
-                console.log(successResult('Critical hit!\nNew damage before defence: ', dmgDealt, '\n'));
+            let rolledCrit = Math.random();
+            if (rolledCrit <= critChance) {
                 embedColour = 'LuminousVividPink';
-                embedTitle = 'Critical Hit!';
-            } else if (isDH) {
-                embedColour = 'Aqua';
-                embedTitle = 'Double Hit!';
+                initialDamage *= 2;
+                thisTurn.type = 'Critical Hit';
+                thisTurn.dmg = initialDamage;
             } else {
-                embedColour = 'NotQuiteBlack';
-                embedTitle = 'Damage Dealt';
+                thisTurn.type = 'Normal';
+                thisTurn.dmg = initialDamage;
             }
-            //======================
-            if (isBlocked === true) {
-                //Defence is ignored when a counter attack is made!
-            } else if (isBlocked === false) {
-                dmgDealt -= (eDefence * 2);
-            }
-
-            //if statment to check if enemy dies after attack
-            if ((eHealth - dmgDealt) <= boss.StageHealth) {
-                console.log(specialInfoForm('ENEMY IS DEAD'));
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.BKE_UPK}`);
-                return;
-            } else {
-                eHealth -= dmgDealt;
-                eHealth = Number.parseFloat(eHealth).toFixed(1);
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-                console.log('CURRENT ENEMY HEALTH: ', eHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                //NEW METHOD TO DEAL DAMAGE  
-                await hitE(eHealth);
-            }
+            turns.push(thisTurn);
             i++;
-        } while (i < runCount)
+        } while (i < runFor)
 
-        if (isBlocked === true) {
-            return display();
-        } else if (isBlocked === false) {
-            const eDamage = await enemyDamage(enemy);
-            console.log(`Enemy damge, not blocking: ${eDamage}`);
-            return takeDamage(eDamage, user, false);
-        }
-    }
+        for (let i = 0; i < turns.length; i++) {
+            fieldName = turns[i].type;
 
-    //This method takes user defence and calculates reflect damage if defence is stronger than enemies attack
-    async function blockAttack(enemy, user) {
-        let eDamage = await enemyDamage(enemy);
-        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        var currentHealth = dungeonUser.currenthealth;
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                currentHealth += (extraStats.curreffect * 10);
+            let newDmg;
+            if (!blocking) {
+                newDmg = turns[i].dmg - (enemy.defence * 2);
+                enemy.curHealth(turns[i].dmg);
+            } else {
+                newDmg = turns[i].dmg + (enemy.defence * 2); // Reseting Defence during enemy taking damage
+                enemy.curHealth(newDmg);
             }
+            newDmg = Number.parseFloat(newDmg).toFixed(1);
+            fieldValue = newDmg;
+
+            fieldObj = { name: fieldName, value: `${fieldValue}`, inline: true };
+            finalFields.push(fieldObj);
         }
 
-        if (user.pclass === 'Warrior') {
-            //5% damage reduction
-            eDamage -= (eDamage * 0.05);
-        } else if (user.pclass === 'Paladin') {
-            //15% damage reduction
-            eDamage -= (eDamage * 0.15);
-        } else if (user.pclass === 'Mage') {
-            //5% damage increase
-            eDamage += (eDamage * 0.05);
-        }
+        if (finalFields.length > 0) {
+            const embed = new EmbedBuilder()
+                .setTitle(embedTitle)
+                .setColor(embedColour)
+                .addFields(finalFields);
 
-        let defence = 0;
-        const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (currentLoadout) {
-            let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-            let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-            let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-            let offHandItem;
-            if (currentLoadout.offhand === currentLoadout.mainhand) {
-                offHandItem = 'NONE';
-            } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
-
-            if (headSlotItem !== 'NONE') {
-                defence += headSlotItem.Defence;
-            }
-
-            if (chestSlotItem !== 'NONE') {
-                defence += chestSlotItem.Defence;
-            }
-
-            if (legSlotItem !== 'NONE') {
-                defence += legSlotItem.Defence;
-            }
-            console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
-
-            if (offHandItem !== 'NONE') {
-                defence += offHandItem.Defence;
-            }
-            console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
-
-            const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
-
-            if (extraDefence) {
-                if (extraDefence.duration > 0) {
-                    defence += extraDefence.curreffect;
+            await interaction.channel.send({ embeds: [embed] }).then(embedMsg => setTimeout(() => {
+                embedMsg.delete();
+            }, 20000)).catch(error => console.error(error));
+            if (!enemy.isDead) {
+                if (!blocking) {
+                    let dmgTaken = enemy.randDamage();
+                    dmgTaken = player.takeDamge(dmgTaken);
+                    await showDamageTaken(player, dmgTaken);
                 }
-            }
-
-            let blockStrength;
-            if (defence > 0) {
-                defence *= 1.5;
-                blockStrength = defence;
-                //blockStrength -= eDamage;
-                if ((blockStrength - eDamage) <= 0) {
-                    //Player takes damage
-                    eDamage -= blockStrength;
-                    const dmgBlockedEmbed = new EmbedBuilder()
-                        .setTitle("Damage Blocked")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'DAMAGE TAKEN REDUCED BY: ', value: ' ' + blockStrength + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
-                        blockedEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    return takeDamage(eDamage, user, true);
+            } else {
+                if (bossCombat) {
+                    return userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.BKE_UPK}`);
                 } else {
-                    //Player deals damage
-                    blockStrength -= eDamage;
-
-                    const dmgBlockedEmbed = new EmbedBuilder()
-                        .setTitle("Damage Blocked")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'BLOCK STRENGTH REMAINING: ', value: ' ' + blockStrength + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
-                        blockedEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
-                    console.log(`counterDamage: ${counterDamage}`);
-
-                    const counterEmbed = new EmbedBuilder()
-                        .setTitle("Counter Attack!")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'DAMAGE: ', value: ' ' + counterDamage + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [counterEmbed] }).then(async cntrEmbed => setTimeout(() => {
-                        cntrEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    let ghostWep, ghostOff;
-
-                    return hitOnce(counterDamage, ghostWep, ghostOff, user, enemy, true);
-                }
-            } else {
-                return takeDamage(eDamage, user, true);
-            }
-        } else if (!currentLoadout) {
-            return takeDamage(eDamage, user, true);
-        }
-    }
-
-    //========================================
-    // This method calculates damage dealt to user 
-    async function takeDamage(theEnemyDamage, user, isBlocked) {
-        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        let currentHealth = dungeonUser.currenthealth;
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                currentHealth += (extraStats.curreffect * 10);
-            }
-        }
-        let eDamage = theEnemyDamage;
-
-        if (isBlocked === true) {
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died =========================================================== HANDLE THIS DIFFERENTLY!!!!!!
-                console.log(failureResult('PLAYER IS DEAD :O'));
-                await hitP(0);
-                userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
-                return;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log('CURRENT PLAYER HEALTH: ', currentHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                await hitP(currentHealth);
-                return display();
-            }
-        } else if (isBlocked === false) {
-            console.log(`EnemyDamage before class mod: ${eDamage}`);
-            if (user.pclass === 'Warrior') {
-                //5% damage reduction
-                eDamage -= (eDamage * 0.05);
-            } else if (user.pclass === 'Paladin') {
-                //15% damage reduction
-                eDamage -= (eDamage * 0.15);
-            } else if (user.pclass === 'Mage') {
-                //5% damage increase
-                eDamage += (eDamage * 0.05);
-            }
-            console.log(`EnemyDamage after class mod: ${eDamage}`);
-
-            let defence = 0;
-            const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-            if (currentLoadout) {
-                let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-                let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-                let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-                let offHandItem;
-                if (currentLoadout.offhand === currentLoadout.mainhand) {
-                    offHandItem = 'NONE';
-                } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
-
-                if (headSlotItem !== 'NONE') {
-                    defence += headSlotItem.Defence;
-                }
-
-                if (chestSlotItem !== 'NONE') {
-                    defence += chestSlotItem.Defence;
-                }
-
-                if (legSlotItem !== 'NONE') {
-                    defence += legSlotItem.Defence;
-                }
-                console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
-
-                if (offHandItem !== 'NONE') {
-                    defence += offHandItem.Defence;
-                }
-                console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
-
-                const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
-
-                if (extraDefence) {
-                    if (extraDefence.duration > 0) {
-                        defence += extraDefence.curreffect;
-                    }
-                }
-
-                if (defence > 0) {
-                    //Player has defence use accordingly
-                    eDamage -= defence;
+                    return userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.EKE_UPK}`);
                 }
             }
-
-            if (eDamage < 0) {
-                eDamage = 0;
+            if (player.isDead) {
+                if (bossCombat) {
+                    return userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
+                } else return userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
             }
-
-
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died =========================================================== HANDLE THIS DIFFERENTLY!!!!!!
-                console.log(failureResult('PLAYER IS DEAD :O'));
-                await hitP(0);
-                userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
-                return;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log('CURRENT PLAYER HEALTH: ', currentHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                await hitP(currentHealth);
-                return display();
-            }
-        }
-    }
-
-    //========================================
-    //this method updates the enemies health after being attacked and returns
-    async function hitP(currentHealth) {
-        const dealDmg = await ActiveDungeon.update({ currenthealth: currentHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-        if (dealDmg > 0) {
-            console.log('Player Health has been updated');
+            if (!blocking) return display(player, enemy);
             return;
         }
     }
 
-    //========================================
-    //this method updates the enemies health after being attacked and returns
-    async function hitE(eHealth) {
-        const dealDmg = await ActiveDungeonBoss.update({ health: eHealth }, { where: [{ specid: userID }, { constkey: constKey }] });
-        if (dealDmg > 0) {
-            console.log('Enemy Health has been updated');
-            return;
-        }
-    }
-
-    //========================================
-    // This method calculates damage dealt by an enemy and returns that value
-    function enemyDamage(enemy) {
-        // First: grab enemy damage min and max
-        // Second: rng between those inclusively 
-        // Third: Return the value for further use 
-
-        const dmgDealt = Math.floor(Math.random() * (enemy.maxdmg - enemy.mindmg + 1) + enemy.mindmg);
-        return dmgDealt;
-    }
-
-    async function usePotOne(potion, user) {
-        //User used potion in slot one!
-        let appliedCurrEffect;
+    async function handleUsePotion(potion, player) {
+        let appliedEffect;
         if (potion.activecategory === 'Healing') {
-
-            const filterHeal = activeCategoryEffects.filter(effect => effect.Name === 'Healing');
-            console.log(basicInfoForm('filterHeal @ potion: ', filterHeal[0][`${potion.name}`]));
+            const filterHeal = aCATE.filter(effect => effect.Name === 'Healing');
             const healAmount = filterHeal[0][`${potion.name}`];
             let newHealth;
-            if (healAmount > 0) {
-                console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
-                appliedCurrEffect = 0;
-                const totalHealth = 100 + (user.strength * 10);
-                const dungUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-                if (dungUser.currenthealth === totalHealth) {
-                    return await interaction.followUp('You are already at maximum health!!');
-                } else {
-                    if ((dungUser.currenthealth + healAmount) > totalHealth) {
-                        newHealth = totalHealth;
-                        console.log(specialInfoForm('newHealth if max health reached: ', newHealth));
-                    } else {
-                        newHealth = dungUser.currenthealth + healAmount;
-                        console.log(specialInfoForm('newHealth if no constraint reached: ', newHealth));
-                    }
-                    console.log(specialInfoForm('newHealth after checks: ', newHealth));
-
-                    const editRow = await ActiveDungeon.update({ currenthealth: newHealth }, { where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
-                    if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
-
-                    await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
-                }
-            }
+            if (healAmount <= 0) return;
+            appliedEffect = 0;
+            const totalHealth = 100 + (player.str * 10);
+            if (player.health === totalHealth) return await interaction.followUp('You are already at maximum health!!');
+            if ((player.health + healAmount) > totalHealth) {
+                newHealth = totalHealth;
+            } else newHealth = player.health + healAmount;
+            player.health = newHealth;
+            await interaction.followUp(`Healing potion used. Healed for: ${healAmount}\nCurrent Health: ${player.health}`);
         }
         if (potion.activecategory === 'Reinforce') {
-            const filterDefence = activeCategoryEffects.filter(effect => effect.Name === 'Reinforce');
+            const filterDefence = aCATE.filter(effect => effect.Name === 'Reinforce');
             const defenceAmount = filterDefence[0][`${potion.name}`];
             if (defenceAmount > 0) {
-                console.log(successResult('FOUND DEFENCE BOOST'));
-                appliedCurrEffect = defenceAmount;
+                //console.log(successResult('FOUND DEFENCE BOOST'));
+                appliedEffect = defenceAmount;
                 await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
             }
         }
         if (potion.activecategory === 'Tons') {
-            const filterStats = activeCategoryEffects.filter(effect => effect.Name === 'Tons');
+            const filterStats = aCATE.filter(effect => effect.Name === 'Tons');
             const statBoost = filterStats[0][`${potion.name}`];
             if (statBoost > 0) {
-                console.log(successResult('FOUND STAT BOOST'));
-                appliedCurrEffect = statBoost;
+                //console.log(successResult('FOUND STAT BOOST'));
+                appliedEffect = statBoost;
                 await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
             }
         }
         if (potion.activecategory === 'EXP') {
-            const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
+            const filterEXP = aCATE.filter(effect => effect.Name === 'EXP');
             const expBoost = filterEXP[0][`${potion.name}`];
             if (expBoost > 0) {
-                console.log(successResult('FOUND EXP BOOST'));
-                appliedCurrEffect = expBoost;
+                //console.log(successResult('FOUND EXP BOOST'));
+                appliedEffect = expBoost;
                 await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
             }
         }
+        const result = await applyStatus(appliedEffect, potion);
+        if (result !== 'Success') return 'Failure';
+        return 'Success';
+    }
 
-        const hasActiveStatus = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
-        try {
-            if (!hasActiveStatus) {
-                //Need to create new entry
-                await ActiveStatus.create({
-                    name: potion.name,
-                    curreffect: appliedCurrEffect,
-                    activec: potion.activecategory,
-                    cooldown: potion.cooldown,
-                    duration: potion.duration,
-                    potionid: potion.potion_id,
+    async function applyStatus(appliedEffect, potion) {
+        const activeDC = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
+        if (activeDC) {
+            const tableUpdate = await activeDC.update({ cooldown: potion.cooldown, duration: potion.duration });
+            if (tableUpdate <= 0) return 'Failure';
+        } else {
+            await ActiveStatus.create({
+                name: potion.name,
+                curreffect: appliedEffect,
+                activec: potion.activecategory,
+                cooldown: potion.cooldown,
+                duration: potion.duration,
+                potionid: potion.potion_id,
+                spec_id: userID,
+            });
+        }
 
-                    spec_id: userID,
-                });
-
-                const refindPot = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
-
-                if (refindPot) {
-                    console.log(successResult('Potion One entry created SUCCESSFULLY!'));
-
-                    const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-
-                    const minusOne = thePotToReduce.amount - 1;
-
-                    if (minusOne <= 0) {
-                        //Destroy potion entry
-                        const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-                        if (destroyed > 0) {
-                            console.log(successResult('POTION ENTRY DESTROYED!'));
-                        } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
-                    } else {
-                        const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
-
-                        if (removedPot > 0) {
-                            console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
-                        } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
-                    }
-                } else console.log(warnedForm('SOMETHING WENT WRONG CREATING NEW STATUS ENTRY'));
-            } else {
-                //Need to update existing entry
-                const updatedEntry = await ActiveStatus.update({
-                    name: potion.name,
-                    curreffect: appliedCurrEffect,
-                    activec: potion.activecategory,
-                    cooldown: potion.cooldown,
-                    duration: potion.duration,
-                }, {
-                    where: [{ potionid: potion.potion_id }, { spec_id: userID }]
-                });
-
-                if (updatedEntry > 0) {
-                    console.log(successResult('Potion One entry update SUCCESSFULLY!'));
-                    const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-
-                    const minusOne = thePotToReduce.amount - 1;
-
-                    if (minusOne <= 0) {
-                        //Destroy potion entry
-                        const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-                        if (destroyed > 0) {
-                            console.log(successResult('POTION ENTRY DESTROYED!'));
-                        } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
-                    } else {
-                        const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
-
-                        if (removedPot > 0) {
-                            console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
-                        } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
-                    }
-                } else console.log(warnedForm('SOMETHING WENT WRONG UPDATING STATUS ENTRY'));
-            }
-        } catch (err) {
-            console.log(errorForm('AN ERROR HAS OCCURED! ', err));
+        if ((potion.amount - 1) <= 0) {
+            const potionUpdate = await OwnedPotions.destroy({ where: [{ potion_id: potion.potion_id }, { spec_id: userID }] });
+            if (potionUpdate > 0) return 'Success';
+        } else {
+            await potion.decrement('amount');
+            await potion.save();
+            return 'Success';
         }
     }
 }
