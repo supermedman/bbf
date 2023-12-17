@@ -201,6 +201,8 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         PKE_UPK: `Player-Kill-${userID}`,
     };
 
+    await setFullHealth();
+
     const user = await UserData.findOne({ where: { userid: userID } });
     const thePlayer = await generatePlayerClass();
     const theDungeon = findDungeon(dungeonId);
@@ -209,7 +211,6 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
     let fullKilledList = [];
     let killedEnemies = [];
 
-    await setFullHealth();
     await clearBoss();
     await clearEnemies();
 
@@ -238,7 +239,9 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
     async function generatePlayerClass() {
         const curPlayer = new Player(user, interaction);
 
-        curPlayer.setHealth(user.health);
+        const dungeonUser = await ActiveDungeon.findOne({ where: [{ dungeonspecid: userID }, { dungeonid: dungeonId }] });
+
+        curPlayer.setHealth(dungeonUser.currenthealth);
         curPlayer.checkDealtBuffs();
         curPlayer.checkTakenBuffs();
         curPlayer.checkStrongUsing();
