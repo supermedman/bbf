@@ -467,21 +467,17 @@ module.exports = {
 				// Obtain current quest reference from active quest
 				const thisQuest = questLine.filter(lore => lore.QuestID === activeQuest.qid);
 				// Obtain next quest in questline
-				const nextQuest = questLine.filter(lore => lore.StoryPart === thisQuest.StoryPart + 1);
-
-				console.log(...questLine);
-				console.log(thisQuest);
-				console.log(nextQuest);
+				const nextQuest = questLine.filter(lore => lore.StoryPart === thisQuest[0].StoryPart + 1);
 
 				let embedDesc = 'NEW Quest Unlocked!';
 				// Quest found is final quest in story line
-				if (!nextQuest) {
+				if (nextQuest.length <= 0) {
 					embedDesc = 'NEW Dungeon Unlocked!';
 					const tableUpdate = await userMilestone.update({ laststoryquest: activeQuest.qid });
 					if (tableUpdate) await userMilestone.save();
 					await checkHintDungeon(user, interaction);
 				} else {
-					const tableUpdate = await userMilestone.update({ laststoryquest: activeQuest.qid, nextstoryquest: nextQuest.QuestID });
+					const tableUpdate = await userMilestone.update({ laststoryquest: activeQuest.qid, nextstoryquest: nextQuest[0].QuestID });
 					if (tableUpdate) await userMilestone.save();
 					await checkHintLore(user, interaction);
 				}

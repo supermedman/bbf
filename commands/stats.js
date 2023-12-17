@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { UserData, ActiveStatus } = require('../dbObjects.js');
-const { displayEWOpic, displayEWpic } = require('./exported/displayEnemy.js');
+const { createEnemyDisplay } = require('./exported/displayEnemy.js');
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../chalkPresets.js');
 
@@ -75,7 +75,7 @@ module.exports = {
     },
     async execute(interaction) {
         if (!interaction) return;
-        
+
         if (interaction.options.getSubcommand() === 'user') {
             await interaction.deferReply().then(async () => {
                 const user = interaction.options.getUser('player');
@@ -258,25 +258,13 @@ module.exports = {
         if (interaction.options.getSubcommand() === 'enemy') {
             //handle enemies here
             await interaction.deferReply();
-            const eTmp = interaction.options.getString('name');
-            var enemy;
+            const nameStr = interaction.options.getString('name');
 
-            for (var i = 0; i < enemyList.length; i++) {
-                if (enemyList[i].Name === eTmp) {
-                    //enemy found!
-                    enemy = enemyList[i];
-                } else {/** not found keep looking*/ }
-            }
+            const theEnemy = enemyList.filter(enemy => enemy.Name === nameStr);
+            if (theEnemy.length <= 0) return await interaction.followUp(`${nameStr} could not be found! Please try again with the first letter capitilized and selecting one of the provided options!`);
+            const enemyRef = theEnemy[0];
 
-            if (!enemy) {
-                interaction.followUp('Enemy not found, please try searching again using the options provided. \nIf no options were provided please start the name with a capital letter!');
-            } else {
-                if (enemy.PngRef) {
-                    await displayEWpic(interaction, enemy, false);
-                } else {
-                    await displayEWOpic(interaction, enemy, false);
-                }
-            }
+            return await createEnemyDisplay(enemyRef, interaction);
         }
         if (interaction.options.getSubcommand() === 'info') {
             await interaction.deferReply();
