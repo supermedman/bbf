@@ -1,7 +1,8 @@
-const { Collection, ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+
+const { Op } = require('sequelize');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
-const { displayEWpic, displayEWOpic } = require('./exported/displayEnemy.js');
-const { pigmyTypeStats } = require('./exported/handlePigmyDamage.js');
+const { createEnemyDisplay } = require('./exported/displayEnemy.js');
 const { checkOwned } = require('./exported/createGear.js');
 const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../dbObjects.js');
 
@@ -16,6 +17,9 @@ const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
 const { grabMat } = require('./exported/materialDropper.js');
 const { checkHintStats } = require('./exported/handleHints.js');
 
+const { Player } = require('./exported/MadeClasses/Player.js');
+const { Enemy } = require('./exported/MadeClasses/Enemy.js');
+
 /** This method retrives Defence values from all given gear ids
  * 
  * @param {string} userID user id snowflake
@@ -26,7 +30,9 @@ const grabDefenceGear = async (userID, gear) => {
     for (const id of gear) {
         let pushVal = 0;
         let itemRef;
-        if (id >= 30000) {
+        if (id === 0) {
+
+        } else if (id >= 30000) {
             itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
             pushVal = itemRef.Defence;
         } else if (id < 1000 || id >= 20000) {
@@ -51,7 +57,9 @@ const grabDamageGear = async (userID, gear) => {
     for (const id of gear) {
         let pushVal = 0;
         let itemRef;
-        if (id >= 30000) {
+        if (id === 0) {
+
+        } else if (id >= 30000) {
             itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
             pushVal = itemRef.Attack;
         } else if (id < 1000 || id >= 20000) {
@@ -76,7 +84,9 @@ const grabGearTypes = async (userID, gear) => {
     for (const id of gear) {
         let pushVal = 'NONE';
         let itemRef;
-        if (id >= 30000) {
+        if (id === 0) {
+
+        } else if (id >= 30000) {
             itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
             pushVal = itemRef.Type;
         } else if (id < 1000 || id >= 20000) {
@@ -104,362 +114,6 @@ const findPotion = async (potionOneID, userID) => {
             return 'HASNONE';
         }
         if (potionOne.amount > 0) return potionOne;
-    }
-}
-
-/**
- *  Main Player Class
- *  
- *  user = db UserData instance
- *      new Player(user);
- * 
- *  Contains:
- *  .setHealth(dbHealth);
- *  
- *  .checkDealtBuffs();
- *  .checkTakenBuffs();
- *  
- *  .checkPigmyUps(pigmy);
- *  
- *  .checkBaseDamage();
- *  .checkCritChance();
- *  .checkDHChance();
- *  
- *  .checkLootDrop(pigmy);
- *  .checkLootUP(pigmy);
- *  
- *  .loadLoadout();
- *  .checkTotalDefence(...def);
- *  .checkTotalDamage(...atk);
- * */
-class Player {
-    interactionToken;
-    constructor(user, interaction) {
-        this.interactionToken = interaction.id;
-
-        this.stealDisabled = false;
-        this.isHidden = false;
-
-        this.potionDisabled = true;
-        this.potionTxt = 'No Potion';
-
-        this.level = user.level;
-        this.pClass = user.pclass;
-        this.stats = [user.speed, user.strength, user.dexterity, user.intelligence];
-
-        this.spd = this.stats[0];
-        this.spdUP = 0;
-
-        this.str = this.stats[1];
-        this.strUP = 0;
-
-        this.dex = this.stats[2];
-        this.dexUP = 0;
-
-        this.int = this.stats[3];
-        this.intUP = 0;
-
-        this.health = 100;
-        this.dead = false;
-
-        this.baseDmg = 0;
-
-        // Mods will contain buff data for damage; 
-        // dealt[0], 
-        // taken[1], 
-        // critChance[2], 
-        // dhChance[3], 
-        // lootDrop[4], 
-        // lootUP[5]
-        this.mods = [];
-
-        // Loadout will contain item ids positioned in place for each loadout slot, either 0 or validID
-        this.loadout = [0, 0, 0, 0, 0, 0];
-        this.loadoutTypes = new Array(5).fill('NONE');
-        this.hasLoadout = false;
-
-        this.totalDefence = 0;
-        this.totalDamage = 0;
-    }
-
-    /** This method will set player health to 100 + this.str * 10 || dbHealth
-     * 
-     * @param {number} dbHealth
-     */
-    setHealth(dbHealth) {
-        if (dbHealth !== (this.health + this.str * 10)) {
-            this.health = dbHealth;
-        } else this.health += this.str * 10;
-    }
-
-    /** This method checks and sets damage dealt to this.mods[0]*/
-    checkDealtBuffs() {
-        // Set damage Dealt Mod
-        if (this.pClass === 'Warrior') {
-            this.mods[0] = 0.05;
-        } else if (this.pClass === 'Mage') {
-            this.mods[0] = 0.15;
-        } else if (this.pClass === 'Paladin') {
-            this.mods[0] = -0.05;
-        } else this.mods[0] = 0;
-    }
-
-    /** This method checks and sets damage taken to this.mods[1]*/
-    checkTakenBuffs() {
-        // Set damage taken Mod
-        if (this.pClass === 'Warrior') {
-            this.mods[1] = -0.05;
-        } else if (this.pClass === 'Paladin') {
-            this.mods[1] = -0.15;
-        } else if (this.pClass === 'Mage') {
-            this.mods[1] = 0.05;
-        } else this.mods[1] = 0;
-    }
-
-    /** This method takes a pigmy, and sets all this.statsUP values to the corrisponding values 
-     *  found from the given pigmy
-     * 
-     * @param {any} pigmy pigmy db instance
-     */
-    checkPigmyUps(pigmy) {
-        if (!pigmy) return;
-        const pigmyStats = pigmyTypeStats(pigmy)
-        this.spdUP = pigmyStats.spd;
-        this.strUP = pigmyStats.str;
-        this.dexUP = pigmyStats.dex;
-        this.intUP = pigmyStats.int;
-    }
-
-    checkBaseDamage() {
-        this.baseDmg = (((this.int + this.intUP) * 8) + ((this.str + this.strUP) * 2));
-        this.baseDmg += this.baseDmg * this.mods[0];
-    }
-
-    /** This method checks and sets the crit chance to this.mods[2]*/
-    checkCritChance() {
-        let critChance = 0;
-        if (this.pClass === 'Thief') {
-            critChance = (((this.dex * 0.02) + 0.10) + this.dexUP);
-        } else critChance = ((this.dex * 0.02) + this.dexUP);
-        this.mods[2] = critChance;
-    }
-
-    /** This method checks and sets the dh chance to this.mods[3]*/
-    checkDHChance() {
-        let dhChance = 0;
-        if (this.pClass === 'Thief') {
-            dhChance = (((this.spd * 0.02) + 0.10) + this.spdUP);
-        } else dhChance = ((this.spd * 0.02) + this.spdUP);
-        this.mods[3] = dhChance;
-    }
-
-    /** This method checks and sets the loot drop chance to this.mods[4]
-     * 
-     * @param {any} pigmy pigmy db instance
-     */
-    checkLootDrop(pigmy) {
-        let chanceToBeat = 0.850;
-        if (this.pClass === 'Thief') chanceToBeat -= 0.10;
-        if (this.level >= 31) {
-            if ((Math.floor(this.level / 4) * 0.01) > 0.25) {
-                chanceToBeat -= 0.25;
-            } else chanceToBeat -= (Math.floor(this.level / 4) * 0.01);
-        }
-        if (pigmy) {
-            if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
-                chanceToBeat -= 0.25;
-            } else chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02);
-        }
-        this.mods[4] = chanceToBeat;
-    }
-
-    /** This method checks and sets the loot upgrade chance to this.mods[5]
-     * 
-     * @param {any} pigmy pigmy db instance
-     */
-    checkLootUP(pigmy) {
-        let chanceToBeat = 1;
-        if (this.pClass === 'Thief') chanceToBeat -= 0.05;
-        if (this.level >= 31) {
-            if ((Math.floor(this.level / 5) * 0.01) > 0.10) {
-                chanceToBeat -= 0.10;
-            } else chanceToBeat -= (Math.floor(this.level / 5) * 0.01);
-        }
-        if (pigmy) {
-            if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
-                chanceToBeat -= 0.05;
-            } else chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
-        }
-        this.mods[5] = chanceToBeat;
-    }
-
-    /** This method retrives loadout data and sets this.loadout[slot] to the values found 
-     * 
-     * @param {any} userLoadout loadout db instance
-     */
-    loadLoadout(userLoadout) {
-        this.hasLoadout = true;
-        // Armor
-        this.loadout[0] = userLoadout.headslot;
-        this.loadout[1] = userLoadout.chestslot;
-        this.loadout[2] = userLoadout.legslot;
-        // Mainhand & Offhand
-        this.loadout[3] = userLoadout.offhand;
-        this.loadout[4] = userLoadout.mainhand;
-        // Potion
-        this.loadout[5] = userLoadout.potionone;
-    }
-
-    /** This method sets the this.totalDefence value
-     * 
-     * @param {any[]} def array of defence values from armor and offhand
-     */
-    checkTotalDefence(def) {
-        for (let i = 0; i < def.length; i++) {
-            this.totalDefence += def[i];
-        }
-    }
-
-    /** This method sets the this.totalDamage value
-     * 
-     * @param {any[]} atk array of attack values from mainhand and offhand
-     */
-    checkTotalDamage(atk) {
-        for (let i = 0; i < atk.length; i++) {
-            this.totalDamage += atk[i];
-        }
-    }
-
-    /** This method sets loadoutTypes to gear types given
-     * 
-     * @param {any[]} gear array of gear types
-     */
-    setLoadoutTypes(gear) {
-        this.loadoutTypes = gear;
-    }
-
-    get curDefence() {
-        return this.totalDefence;
-    }
-
-    get curDamage() {
-        return this.totalDamage + this.baseDmg;
-    }
-
-    get curHealth() {
-        return this.health;
-    }
-
-    get isDead() {
-        return this.dead;
-    }
-
-    takeDamge(dmg) {
-        dmg -= dmg * this.mods[1];
-        dmg -= this.totalDefence;
-        if (dmg < 0) dmg = 0;
-        this.health -= dmg;
-        if (this.health <= 0) this.dead = true;
-        return dmg;
-    }
-
-    set healHealth(heal) {
-        this.health += heal;
-    }
-
-    hide(enemy) {
-        let totalChance;
-        const baseChance = (((this.spd * 0.02) + this.spdUP) + ((this.dex * 0.02) + this.dexUP));
-        const difficultyChange = enemy.level * 0.01;
-        if ((baseChance - difficultyChange) <= 0) return 'FAILURE';
-        totalChance = baseChance - difficultyChange;
-
-        const rolledChance = Math.random();
-        if (rolledChance < totalChance) {
-            this.isHidden = true;
-            return 'SUCCESS';
-        }
-        return 'FAILURE';
-    }
-
-    updateUPs(statusEffects) {
-        if (statusEffects.length <= 0) return '0';
-        let totalInc;
-        if (statusEffects.length > 1) {
-            for (const effect of statusEffects) {
-                totalInc += effect.curreffect;
-            }
-        } else totalInc = statusEffects[0].curreffect;
-        this.spdUP += totalInc;
-        this.strUP += totalInc;
-        this.dexUP += totalInc;
-        this.intUP += totalInc;
-        this.checkBaseDamage();
-        this.checkCritChance();
-        this.checkDHChance();
-        return '1';
-    }
-
-    updateDefence(statusEffects) {
-        if (statusEffects.length <= 0) return '0';
-        let totalInc;
-        if (statusEffects.length > 1) {
-            for (const effect of statusEffects) {
-                totalInc += effect.curreffect;
-            }
-        } else totalInc = statusEffects[0].curreffect;
-        this.totalDefence += totalInc;
-        return '1';
-    }
-}
-
-class Enemy {
-    constructor(enemy) {
-        this.level = enemy.level;
-        this.health = enemy.health;
-        this.defence = enemy.defence;
-        this.weakTo = enemy.weakto;
-        this.minDmg = enemy.mindmg;
-        this.maxDmg = enemy.maxdmg;
-        this.constkey = enemy.constkey;
-        this.hasItem = enemy.hasitem;
-        this.hasUnique = enemy.hasunique;
-        this.dead = false;
-    }
-
-    curHealth(dmg) {
-        dmg -= this.defence;
-        if (dmg < 0) dmg = 0;
-        this.health -= dmg;
-        if (this.health <= 0) this.dead = true;
-    }
-
-    randDamage() {
-        const dmgDealt = Math.floor(Math.random() * (this.maxDmg - this.minDmg + 1) + this.minDmg);
-        return dmgDealt;
-    }
-
-    async stealing(player) {
-        if (this.hasUnique) {
-            this.hasUnique = false;
-            return 'UNIQUE';
-        }
-        if (!this.hasItem) return 'NO ITEM';
-        let totalChance;
-        const baseChance = (((player.spd * 0.02) + player.spdUP) + ((player.dex * 0.02) + player.dexUP));
-        const itemRar = await grabRar(this.level);
-        if (itemRar !== 0) {
-            const difficultyChange = itemRar * 0.02;
-            if ((baseChance - difficultyChange) <= 0) return 'FAILURE';
-            totalChance = baseChance - difficultyChange;
-        } else totalChance = baseChance;
-
-        const rolledChance = Math.random();
-        if (rolledChance < totalChance) {
-            this.hasItem = false;
-            return itemRar;
-        }
-        return 'FAILURE';
     }
 }
 
@@ -506,7 +160,7 @@ module.exports = {
 
     async execute(interaction) {
         //if (interaction.user.id !== '501177494137995264') return await interaction.reply('Sorry, this command is being tested and is unavailable.');
-        const { enemies, gearDrops, activeCombats } = interaction.client;
+        const { enemies, gearDrops, newEnemy, activeCombats } = interaction.client;
 
         const userID = interaction.user.id;
 
@@ -532,7 +186,7 @@ module.exports = {
 
         async function generatePlayerClass() {
             const user = await grabU();
-            if (user === 'NO USER') return await interaction.reply('No user found! Create a user profile by using ``/start``!');
+            if (user === 'NO USER') return await interaction.followUp('No user found! Create a user profile by using ``/start``!');
             //if (!activeCombats.has(interaction.user.id)) {
             //    activeCombats.set(interaction.user.id, new Collection());
             //}
@@ -546,6 +200,7 @@ module.exports = {
             curPlayer.setHealth(user.health);
             curPlayer.checkDealtBuffs();
             curPlayer.checkTakenBuffs();
+            curPlayer.checkStrongUsing();
 
             const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
             curPlayer.checkPigmyUps(pigmy);
@@ -575,6 +230,15 @@ module.exports = {
 
                 curPlayer.checkTotalDefence(defVals);
                 curPlayer.checkTotalDamage(atkVals);
+                curPlayer.checkAgainstLoadoutTypes();
+            }
+
+            const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
+            if (!activeEffect) { } else {
+                const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
+                if (reinEffects > 0) player.updateDefence(reinEffects);
+                const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
+                if (tonEffects > 0) player.updateUPs(tonEffects);
             }
 
             //userCombat.set(interaction.user.id, curPlayer);
@@ -699,8 +363,6 @@ module.exports = {
                 }
             }
 
-            const hasPng = pngCheck(enemy);
-
             const hideButton = new ButtonBuilder()
                 .setCustomId('hide')
                 .setLabel('Try to hide')
@@ -731,12 +393,7 @@ module.exports = {
 
             const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton, potionOneButton);
 
-            let attachment;
-            if (hasPng === true) {
-                attachment = await displayEWpic(interaction, enemy, true);
-            } else {
-                attachment = await displayEWOpic(interaction, enemy, true);
-            }
+            const attachment = await createEnemyDisplay(enemy);
 
             const combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
 
@@ -758,14 +415,15 @@ module.exports = {
                     let fieldValue = '';
                     let fieldObj = [];
 
+                    let failSteal = false;
+                    const dmgTaken = enemy.randDamage();
+
                     if (result === 'FAILURE') {
                         embedTitle = 'Failed!';
                         embedColour = 'DarkRed';
                         fieldName = 'Oh NO!';
                         fieldValue = 'You got caught redhanded!';
-                        const dmgTaken = enemy.randDamage();
-                        player.takeDamge(dmgTaken);
-                        await showDamageTaken(player, dmgTaken);
+                        failSteal = true;
                     } else if (result === 'NO ITEM') {
                         embedTitle = 'Nothing to steal';
                         embedColour = 'NotQuiteBlack';
@@ -808,6 +466,10 @@ module.exports = {
                         await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
                             embedmsg.delete();
                         }, 20000)).catch(error => console.error(error));
+                        if (failSteal === true) {
+                            player.takeDamge(dmgTaken);
+                            await showDamageTaken(player, dmgTaken);
+                        }
                         return display(player, enemy);
                     }
                 }
@@ -820,6 +482,9 @@ module.exports = {
                     let fieldObj = [];
                     let escaped = false;
 
+                    let failHide = false;
+                    const dmgTaken = enemy.randDamage();
+
                     if (!player.isHidden) {
                         const result = player.hide(enemy);
                         if (result === 'FAILURE') {
@@ -827,10 +492,7 @@ module.exports = {
                             embedColour = 'DarkRed';
                             fieldName = 'Oh NO!';
                             fieldValue = 'You failed to hide!';
-
-                            const dmgTaken = enemy.randDamage();
-                            player.takeDamge(dmgTaken);
-                            await showDamageTaken(player, dmgTaken);
+                            failHide = true;
                         } else if (result === 'SUCCESS') {
                             embedTitle = 'Success!';
                             embedColour = 'LuminousVividPink';
@@ -864,6 +526,10 @@ module.exports = {
                         await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
                             embedmsg.delete();
                         }, 20000)).catch(error => console.error(error));
+                        if (failHide === true) {
+                            player.takeDamge(dmgTaken);
+                            await showDamageTaken(player, dmgTaken);
+                        }
                         if (!player.isHidden) {
                             collector.stop();
                             return display(player, enemy);
@@ -895,13 +561,17 @@ module.exports = {
                             await runCombatTurn(player, enemy, counterDamage);
                         }
                     }
-                    await showDamageTaken(player, dmgTaken);
+                    await showDamageTaken(player, dmgTaken, true);
                     return display(player, enemy);
                 }
                 // Potion Break!
                 if (COI.customId === 'potone') {
                     const potionUsed = await findPotion(player.loadout[5], userID);
                     const result = await handleUsePotion(potionUsed, player);
+                    const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: {[Op.gt]: 0}}] });
+                    if (reinEffects > 0) player.updateDefence(reinEffects);
+                    const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
+                    if (tonEffects > 0) player.updateUPs(tonEffects);
                     if (result === 'Success') {
                         collector.stop();
                         return display(player, enemy);
@@ -916,12 +586,6 @@ module.exports = {
                     }
                 });
             });
-        }
-
-        function pngCheck(enemy) {
-            const enemyRef = enemyList.filter(eFab => eFab.ConstKey === enemy.constkey);
-            if (enemyRef[0].PngRef) return true;
-            return false;
         }
 
         async function findItem(player, enemy, stealRar) {
@@ -954,21 +618,25 @@ module.exports = {
 
             if (item.Slot === 'Mainhand') {
                 itemText =
-                    `Value: ${item.Value}\nRarity: ${item.Rarity}\nAttack: ${item.Attack}\nType: ${item.Type}\nHands: ${item.Hands}\nSlot: ${item.Slot}`;
+                    `Value: ${item.Value}c\nRarity: ${item.Rarity}\nAttack: ${item.Attack}\nType: ${item.Type}\nHands: ${item.Hands}\nSlot: ${item.Slot}`;
             } else if (item.Slot === 'Offhand') {
                 itemText =
-                    `Value: ${item.Value}\nRarity: ${item.Rarity}\nAttack: ${item.Attack}\nDefence: ${item.Defence}\nType: ${item.Type}\nHands: ${item.Hands}\nSlot: ${item.Slot}`;
+                    `Value: ${item.Value}c\nRarity: ${item.Rarity}\nAttack: ${item.Attack}\nDefence: ${item.Defence}\nType: ${item.Type}\nHands: ${item.Hands}\nSlot: ${item.Slot}`;
             } else {
                 itemText =
-                    `Value: ${item.Value}\nRarity: ${item.Rarity}\nDefence: ${item.Defence}\nType: ${item.Type}\nSlot: ${item.Slot}`;
+                    `Value: ${item.Value}c\nRarity: ${item.Rarity}\nDefence: ${item.Defence}\nType: ${item.Type}\nSlot: ${item.Slot}`;
             }
 
             return itemText;
         }
 
-        async function showDamageTaken(player, dmg) {
+        async function showDamageTaken(player, dmg, blocked) {
+            let embedTitle = 'Damage Taken';
+            dmg = Number.parseFloat(dmg).toFixed(1);
+            player.health = Number.parseFloat(player.health).toFixed(1);
+            if (blocked) embedTitle = 'Damage Blocked';
             const attackDmgEmbed = new EmbedBuilder()
-                .setTitle("Damage Taken")
+                .setTitle(embedTitle)
                 .setColor('DarkRed')
                 .addFields(
                     { name: 'DAMAGE: ', value: `${dmg}`, inline: true },
@@ -1056,7 +724,9 @@ module.exports = {
         async function enemyDead(player, enemy) {
             const enemyRef = await ActiveEnemy.findOne({ where: { constkey: enemy.constkey } });
             const userRef = await grabU();
-            if (player.health !== userRef.health) await updateValues(player, userRef);
+            console.log(player.health);
+            console.log(userRef.health);
+            if (player.health < userRef.health) await updateValues(player, userRef);
 
             let xpGained = Math.floor(Math.random() * (enemyRef.xpmax - enemyRef.xpmin + 1) + enemyRef.xpmin);
 
@@ -1150,7 +820,7 @@ module.exports = {
 
             await ActiveEnemy.destroy({ where: [{ specid: specCode }, { constkey: enemyRef.constkey }] });
 
-            if (userID !== '501177494137995264') {
+            if (!newEnemy.has(userID)) {
                 await interaction.channel.send({ embeds: [killedEmbed] }).then(embedMsg => setTimeout(() => {
                     embedMsg.delete();
                 }, 25000)).catch(error => console.error(error));
@@ -1207,6 +877,11 @@ module.exports = {
             if (!blocking) initialDamage = player.curDamage;
             if (blocking) initialDamage = blocking;
 
+            if (player.isHidden) {
+                initialDamage += initialDamage * 0.5;
+                player.isHidden = false;
+            } 
+
             const critChance = player.mods[2];
             const dhChance = player.mods[3];
             const gearTypes = player.loadoutTypes.slice(3, 5);
@@ -1218,7 +893,12 @@ module.exports = {
 
             const staticDamage = initialDamage;
             const turns = [];
-            let turnDamage = {
+            let turnDamageOne = {
+                type: 'Normal',
+                dmg: staticDamage,
+            };
+
+            let turnDamageTwo = {
                 type: 'Normal',
                 dmg: staticDamage,
             };
@@ -1227,26 +907,29 @@ module.exports = {
             let runFor = 1;
             if (rolledDH <= dhChance) {
                 runFor = 2;
-                turnDamage.type = 'Double Hit';
+                turnDamageOne.type = 'Double Hit';
+                turnDamageTwo.type = 'Double Hit';
                 embedColour = 'Aqua';
             }
 
             let i = 0;
+            let thisTurn;
             do {
-                turnDamage.type = 'Normal';
-                if (runFor === 2) turnDamage.type = 'Double Hit';
+                if (i === 0) thisTurn = turnDamageOne;
+                if (i === 1) thisTurn = turnDamageTwo;
                 initialDamage = staticDamage;
-                const rolledCrit = Math.random();
+
+                let rolledCrit = Math.random();
                 if (rolledCrit <= critChance) {
                     embedColour = 'LuminousVividPink';
-                    initialDamage *= 2;
-                    turnDamage.type = 'Critical Hit';
-                    turnDamage.dmg = initialDamage;
-                    turns.push(turnDamage);
+                    initialDamage *= 2;                  
+                    thisTurn.type = 'Critical Hit';
+                    thisTurn.dmg = initialDamage;
                 } else {
-                    turnDamage.dmg = initialDamage;
-                    turns.push(turnDamage);
+                    thisTurn.type = 'Normal';
+                    thisTurn.dmg = initialDamage;
                 }
+                turns.push(thisTurn);
                 i++;
             } while (i < runFor)
 
@@ -1261,20 +944,11 @@ module.exports = {
                     newDmg = turns[i].dmg + (enemy.defence * 2); // Reseting Defence during enemy taking damage
                     enemy.curHealth(newDmg);
                 }
+                newDmg = Number.parseFloat(newDmg).toFixed(1);
                 fieldValue = newDmg;
 
                 fieldObj = { name: fieldName, value: `${fieldValue}`, inline: true };
                 finalFields.push(fieldObj);
-            }
-
-            if (!enemy.isDead) {
-                if (!blocking) {
-                    let dmgTaken = enemy.randDamage();
-                    dmgTaken = player.takeDamge(dmgTaken);
-                    await showDamageTaken(player, dmgTaken);
-                }
-            } else {
-                return enemyDead(player, enemy);
             }
 
             if (finalFields.length > 0) {
@@ -1286,6 +960,15 @@ module.exports = {
                 await interaction.channel.send({ embeds: [embed] }).then(embedMsg => setTimeout(() => {
                     embedMsg.delete();
                 }, 20000)).catch(error => console.error(error));
+                if (!enemy.isDead) {
+                    if (!blocking) {
+                        let dmgTaken = enemy.randDamage();
+                        dmgTaken = player.takeDamge(dmgTaken);
+                        await showDamageTaken(player, dmgTaken);
+                    }
+                } else {
+                    return enemyDead(player, enemy);
+                }
                 if (player.isDead) return playerDead(enemy);
                 if (!blocking) return display(player, enemy);
                 return;
