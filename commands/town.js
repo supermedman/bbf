@@ -618,7 +618,7 @@ module.exports = {
 				.setColor(0000)
 				.addFields({ name: `Appoint ${targetUser.username}?`, value: 'Select a button below.' });
 
-			const embedMsg = await interaction.followUp({ embeds: [embed], components: [buttonRow] });
+			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
 
 			const filter = (i) => i.user.id === interaction.user.id;
 
@@ -633,10 +633,10 @@ module.exports = {
 					currentEditList.push(targetUser.id);
 
 					const canEditStr = currentEditList.toString();
-
+					collector.stop();
 					const townUpdate = await theTown.update({ can_edit: canEditStr });
 					if (townUpdate) await theTown.save();
-					return await interaction.reply(`${targetUser.username} has been appointed!`);
+					return await interaction.followUp(`${targetUser.username} has been appointed!`);
 				}
 				if (COI.customId === 'cancel') {
 					collector.stop();
@@ -691,7 +691,7 @@ module.exports = {
 				.setColor(0000)
 				.addFields({ name: `Demote ${targetUser.username}?`, value: 'Select a button below.' });
 
-			const embedMsg = await interaction.followUp({ embeds: [embed], components: [buttonRow] });
+			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
 
 			const filter = (i) => i.user.id === interaction.user.id;
 
@@ -705,10 +705,10 @@ module.exports = {
 				if (COI.customId === 'confirm') {
 					const newEditList = currentEditList.filter(id => id !== targetUser.id);
 					const canEditStr = newEditList.toString();
-
+					collector.stop();
 					const townUpdate = await theTown.update({ can_edit: canEditStr });
 					if (townUpdate) await theTown.save();
-					return await interaction.reply(`${targetUser.username} has been demoted.`);
+					return await interaction.followUp(`${targetUser.username} has been demoted.`);
 				}
 				if (COI.customId === 'cancel') {
 					collector.stop();
@@ -754,7 +754,7 @@ module.exports = {
 				.setDescription('This process **CANNOT BE UNDONE!!!**')
 				.addFields({ name: 'Are you sure you want to transfer ownership?', value: `${targetUser.username} will become the new mayor!` });
 
-			const embedMsg = await interaction.followUp({ embeds: [embed], components: [buttonRow] });
+			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
 
 			const filter = (i) => i.user.id === interaction.user.id;
 
@@ -766,9 +766,10 @@ module.exports = {
 
 			collector.on('collect', async (COI) => {
 				if (COI.customId === 'confirm') {
+					collector.stop();
 					const townUpdate = await theTown.update({ mayorid: targetUser.id });
 					if (townUpdate) await theTown.save();
-					return await interaction.reply(`${targetUser.username} is the new mayor!!`);
+					return await interaction.followUp(`${targetUser.username} is the new mayor!!`);
 				}
 				if (COI.customId === 'cancel') {
 					collector.stop();
