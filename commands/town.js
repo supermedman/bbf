@@ -1,8 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const { Town, MediumTile, GuildData, UserData, MaterialStore, TownMaterial, TownPlots, PlayerBuilding } = require('../dbObjects.js');
+const { Town, MediumTile, GuildData, UserData, MaterialStore, TownMaterial, TownPlots, PlayerBuilding, CoreBuilding } = require('../dbObjects.js');
 
 const { loadBuilding } = require('./exported/displayBuilding.js');
+
+const coreReq = require('../events/Models/json_prefabs/coreBuildings.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -81,6 +83,38 @@ module.exports = {
 				.addStringOption(option =>
 					option.setName('townplots')
 						.setDescription('Which plot would you like to view?')
+						.setRequired(true)
+						.setAutocomplete(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('buildcore')
+				.setDescription('Begin construction of a core town building!')
+				.addStringOption(option =>
+					option.setName('coretype')
+						.setDescription('Which core town building would you like to build?')
+						.setRequired(true)
+						.setAutocomplete(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('upgradecore')
+				.setDescription('Begin upgrade for a core town building!')
+				.addStringOption(option =>
+					option.setName('coretype')
+						.setDescription('Which core town building would you like to upgrade?')
+						.setRequired(true)
+						.setAutocomplete(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('viewcore')
+				.setDescription('View an existing core town building!')
+				.addStringOption(option =>
+					option.setName('thetown')
+						.setDescription('Which town would you like to view?')
+						.setRequired(true)
+						.setAutocomplete(true))
+				.addStringOption(option =>
+					option.setName('coretype')
+						.setDescription('Which core town building would you like to view?')
 						.setRequired(true)
 						.setAutocomplete(true)))
 		.addSubcommand(subcommand =>
@@ -256,6 +290,41 @@ module.exports = {
 					choices.push(plotStr);
                 }
 			} else choices = ['None'];
+
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
+		}
+
+		// Locate exisiting core town buildings, using provided 'thetown' option if none, use users townid as reference  
+		if (focusedOption.name === 'coretype') {
+			const focusedValue = interaction.options.getFocused(false);
+			const townPicked = interaction.options.getString('thetown') ?? 'NONE';
+			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
+
+			let theTown;
+			if (interaction.options.getSubcommand() === 'viewcore') {
+				if (townPicked !== 'NONE' && townPicked !== 'None') {
+					theTown = await Town.findOne({ where: { name: townPicked } });
+				}
+			} else if (user && user.townid !== '0') theTown = await Town.findOne({ where: { townid: user.townid } });
+
+			if (theTown) {
+				if (interaction.options.getSubcommand() === 'buildcore') {
+					if (theTown.grandhall_status === 'None') choices.push('Grand Hall');
+					if (theTown.bank_status === 'None') choices.push('Bank');
+					if (theTown.market_status === 'None') choices.push('Market');
+					if (theTown.tavern_status === 'None') choices.push('Tavern');
+					if (theTown.clergy_status === 'None') choices.push('Clergy');
+				} else {
+					if (theTown.grandhall_status !== 'None') choices.push('Grand Hall');
+					if (theTown.bank_status !== 'None') choices.push('Bank');
+					if (theTown.market_status !== 'None') choices.push('Market');
+					if (theTown.tavern_status !== 'None') choices.push('Tavern');
+					if (theTown.clergy_status !== 'None') choices.push('Clergy');
+                }
+			} else choices.push('None');
 
 			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
@@ -527,6 +596,10 @@ module.exports = {
 				fieldName = '';
 				fieldValue = '';
 
+				fieldName = 'GRAND HALL';
+
+				const grandHall = await CoreBuilding.findOne({ where: [{ townid: townRef.townid }, {build_type: 'grandhall'}] });
+				fieldValue = `Level: ${grandHall.level}\nConstruction Status: ${grandHall.build_status}\nTown Status: ${townRef.grandhall_status}`;
 
 				fieldObj = { name: fieldName, value: fieldValue, };
 				finalFields.push(fieldObj);
@@ -536,6 +609,10 @@ module.exports = {
 				fieldName = '';
 				fieldValue = '';
 
+				fieldName = 'BANK';
+
+				const bank = await CoreBuilding.findOne({ where: [{ townid: townRef.townid }, { build_type: 'bank' }] });
+				fieldValue = `Level: ${bank.level}\nConstruction Status: ${bank.build_status}\nTown Status: ${townRef.bank_status}`;
 
 				fieldObj = { name: fieldName, value: fieldValue, };
 				finalFields.push(fieldObj);
@@ -545,6 +622,10 @@ module.exports = {
 				fieldName = '';
 				fieldValue = '';
 
+				fieldName = 'MARKET';
+
+				const market = await CoreBuilding.findOne({ where: [{ townid: townRef.townid }, { build_type: 'market' }] });
+				fieldValue = `Level: ${market.level}\nConstruction Status: ${market.build_status}\nTown Status: ${townRef.market_status}`;
 
 				fieldObj = { name: fieldName, value: fieldValue, };
 				finalFields.push(fieldObj);
@@ -554,6 +635,10 @@ module.exports = {
 				fieldName = '';
 				fieldValue = '';
 
+				fieldName = 'TAVERN';
+
+				const tavern = await CoreBuilding.findOne({ where: [{ townid: townRef.townid }, { build_type: 'tavern' }] });
+				fieldValue = `Level: ${tavern.level}\nConstruction Status: ${tavern.build_status}\nTown Status: ${townRef.tavern_status}`;
 
 				fieldObj = { name: fieldName, value: fieldValue, };
 				finalFields.push(fieldObj);
@@ -563,6 +648,10 @@ module.exports = {
 				fieldName = '';
 				fieldValue = '';
 
+				fieldName = 'CLERGY';
+
+				const clergy = await CoreBuilding.findOne({ where: [{ townid: townRef.townid }, { build_type: 'clergy' }] });
+				fieldValue = `Level: ${clergy.level}\nConstruction Status: ${clergy.build_status}\nTown Status: ${townRef.clergy_status}`;
 
 				fieldObj = { name: fieldName, value: fieldValue, };
 				finalFields.push(fieldObj);
@@ -1043,7 +1132,7 @@ module.exports = {
 			if (!user) return await noUser();
 
 			const playerPlots = await TownPlots.findAll({ where: [{ townid: user.townid }, { ownerid: user.userid }, { empty: true }] });
-			if (!playerPlots) return await interaction.reply('Something went wrong while locating your plots!');
+			if (playerPlots.length <= 0) return await interaction.reply('No owned plots found!');
 
 			const thePlot = playerPlots[plotIndex];
 
@@ -1104,7 +1193,7 @@ module.exports = {
 			if (!townRef) return await interaction.reply('Something went wrong while locating that town!');
 
 			const townPlots = await TownPlots.findAll({ where: [{ townid: townRef.townid }, { empty: false }] });
-			if (!townPlots) return await interaction.reply('Something went wrong while locating town plots!');
+			if (townPlots <= 0) return await interaction.reply('No built on town plots found!');
 
 			const thePlot = townPlots[plotIndex];
 			const theBuilding = await PlayerBuilding.findOne({ where: { plotid: thePlot.plotid } });
@@ -1144,6 +1233,98 @@ module.exports = {
 			return await interaction.followUp({embeds: [embed], files: [attachment] });
 		}
 
+		if (interaction.options.getSubcommand() === 'buildcore') {
+			const coreType = extractCoreType(interaction.options.getString('coretype'));
+			if (coreType === 'None') return await interaction.reply('That was not a valid core town building!!');
+
+			const user = await grabU();
+			if (!user) return await noUser();
+
+			const theTown = await Town.findOne({ where: { townid: user.townid } });
+			if (!theTown) return await interaction.reply('Something went wrong while locating your town!');
+
+			const currentEditList = theTown.can_edit.split(',');
+			let exists = false;
+			for (const id of currentEditList) {
+				if (user.userid === id) {
+					exists = true;
+					break;
+				}
+			}
+			if (!exists) return await interaction.reply('You do not have permission to use this command for this town!');
+
+			const coreRef = coreReq.filter(core => core.Name === coreType);
+
+			// Handle scaling material requirements here
+
+			// Handle town material storage checking here
+
+			// Handle confirm embed here
+
+			// Handle building creation/display here
+		}
+
+		if (interaction.options.getSubcommand() === 'upgradecore') {
+			const coreType = extractCoreType(interaction.options.getString('coretype'));
+			if (coreType === 'None') return await interaction.reply('That was not a valid core town building!!');
+
+			const user = await grabU();
+			if (!user) return await noUser();
+
+			const theTown = await Town.findOne({ where: { townid: user.townid } });
+			if (!theTown) return await interaction.reply('Something went wrong while locating your town!');
+
+			const currentEditList = theTown.can_edit.split(',');
+			let exists = false;
+			for (const id of currentEditList) {
+				if (user.userid === id) {
+					exists = true;
+					break;
+				}
+			}
+			if (!exists) return await interaction.reply('You do not have permission to use this command for this town!');
+
+			// Handle aquiring core building db reference here
+
+			const coreRef = coreReq.filter(core => core.Name === coreType);
+
+			// Handle scaling material requirements here
+
+			// Handle town material storage checking here
+
+			// Handle confirm embed here
+
+			// Handle building upgrading/display here
+		}
+
+		if (interaction.options.getSubcommand() === 'viewcore') {
+			const townName = interaction.options.getString('thetown') ?? 'NONE';
+			if (townName === 'None' || townName === 'NONE') return await interaction.reply('The requested town could not be found, please select from the provided options!');
+
+			const coreType = extractCoreType(interaction.options.getString('coretype'));
+			if (coreType === 'None') return await interaction.reply('That was not a valid core town building!!');
+
+			const user = await grabU();
+			if (!user) return await noUser();
+
+			const townRef = await Town.findOne({ where: { name: townName } });
+			if (!townRef) return await interaction.reply('Something went wrong while locating that town!');
+
+			// Handle aquiring core building db reference here
+
+			// Handle building display here
+		}
+
+		function extractCoreType(coreType) {
+			let type;
+			if (coreType === 'Grand Hall') type = 'grandhall';
+			if (coreType === 'Bank') type = 'bank';
+			if (coreType === 'Market') type = 'market';
+			if (coreType === 'Tavern') type = 'tavern';
+			if (coreType === 'Clergy') type = 'clergy';
+			if (!type) return 'None';
+			return type;
+        }
 
 		function createIndexFromStr(str) {
 			const pieces = str.split(': ');

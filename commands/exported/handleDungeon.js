@@ -1,5 +1,6 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, AttachmentBuilder } = require('discord.js');
 const EventEmitter = require('events');
+const { Op } = require('sequelize');
 
 const { UserData, ActiveDungeonEnemy, ActiveDungeon, ActiveDungeonBoss, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../../dbObjects.js');
 
@@ -200,10 +201,9 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
         BKE_UPK: `Boss-Kill-${userID}`,
         PKE_UPK: `Player-Kill-${userID}`,
     };
-
+    const user = await UserData.findOne({ where: { userid: userID } });
     await setFullHealth();
 
-    const user = await UserData.findOne({ where: { userid: userID } });
     const thePlayer = await generatePlayerClass();
     const theDungeon = findDungeon(dungeonId);
     const bossFloor = theDungeon.BossFloor;
@@ -568,7 +568,7 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
             let embed;
 
             let embedTitle = '';
-            let embedColour = 'Black';
+            let embedColour = 'DarkButNotBlack';
             let fieldName = 'Press BUTTON';
             let fieldValue = 'To continue..';
             let fieldObj = [];
@@ -897,7 +897,6 @@ async function loadDungeon(lastFloor, dungeonId, interaction, userID) {
 
             if (newItem) {
                 const mappedItem = thisI.map(item => ({ ...item, Amount: 1 }),);
-                totalPages++;
                 totalItems.push(...mappedItem);
             }
 
@@ -1035,6 +1034,8 @@ async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCo
         }
 
         if (player.hasLoadout) {
+            const thePotion = await Loadout.findOne({ where: { spec_id: userID } });
+            player.checkCurrentPotion(thePotion.potionone);
             const potionCheck = await findPotion(player.loadout[5], userID);
             if (potionCheck === 'NONE' || potionCheck === 'HASNONE') {
                 //Both potion slots are empty keep buttons disabled
@@ -1353,7 +1354,7 @@ async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCo
             if ((player.health + healAmount) > totalHealth) {
                 newHealth = totalHealth;
             } else newHealth = player.health + healAmount;
-            player.health = newHealth;
+            player.healthHealth(newHealth);
             await interaction.followUp(`Healing potion used. Healed for: ${healAmount}\nCurrent Health: ${player.health}`);
         }
         if (potion.activecategory === 'Reinforce') {

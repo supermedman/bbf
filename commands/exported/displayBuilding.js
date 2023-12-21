@@ -64,6 +64,8 @@ const backgroundStyles =
         './events/Models/json_prefabs/Building-Textures/background-evil-two.png',
         './events/Models/json_prefabs/Building-Textures/background-dusty.png',
         './events/Models/json_prefabs/Building-Textures/background-forest-one.png',
+        './events/Models/json_prefabs/Building-Textures/background-hilly-one.png',
+        './events/Models/json_prefabs/Building-Textures/background-forest-one.png',
         './events/Models/json_prefabs/Building-Textures/background-hilly-one.png'
     ];
 
@@ -138,6 +140,7 @@ async function loadBuilding(buildingRef) {
 
     let returnPng;
     if (buildType === 'house') returnPng = await createPlayerHouse(buildingRef);
+    if (buildType === 'grandhall') returnPng = await drawGrandhall(buildingRef);
 
 
     if (!returnPng) return 'Failure';
@@ -552,6 +555,110 @@ async function drawHouseStyleThree(buildingRef) {
     ctx.drawImage(roofTex, 35, 65, 730, 400);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'phouse.png' });
+    return attachment;
+}
+
+async function drawGrandhall(buildingRef) {
+    const canvas = Canvas.createCanvas(1000, 800);
+    const ctx = canvas.getContext('2d');
+
+    const wallTex = await Canvas.loadImage(allWallTiles[buildingRef.wall_tex - 1]);
+    const roofTex = await Canvas.loadImage(roofTiles[buildingRef.roof_tex - 1]);
+    const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
+    const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
+
+    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
+
+    //const woodStructTex = await preLoadImages(woodStructures);
+    const largeWoodStructTex = await preLoadImages(largeWoodStructures);
+    //const bushTex = await preLoadImages(bushObjects);
+
+    ctx.drawImage(backgroundTex, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(foregroundTex, 0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'red';
+    ctx.fillRect(75, 495, canvas.width - 150, 250);
+
+    ctx.fillStyle = 'red';
+    ctx.fillRect(165, 245, canvas.width - 330, 250);
+
+    const tileWall = (tex) => {
+        for (let i = 1; i < 6; i++) {
+            for (let j = 1; j < 15; j++) {
+                ctx.drawImage(tex, j * 65, i * 150, 65, 150);
+            }
+        }
+    };
+    // WALLS
+    ctx.beginPath();
+    ctx.moveTo(75, 745);
+    ctx.lineTo(canvas.width - 75, 745);
+    ctx.lineTo(canvas.width - 75, 495);
+    ctx.lineTo(canvas.width - 165, 245);
+    ctx.lineTo(canvas.width / 2, 150);
+    ctx.lineTo(165, 245);
+    ctx.lineTo(75, 495);
+    ctx.clip();
+
+    tileWall(wallTex);
+    // WALLS\
+
+    // STRUCTURES
+    //ctx.fillRect(75, 600, 300, 150);
+    ctx.drawImage(largeWoodStructTex[1], 70, 490, 278, 140);
+    ctx.drawImage(largeWoodStructTex[0], 70, 600, 300, 150);
+
+    ctx.drawImage(largeWoodStructTex[1], 645, 490, 302, 140);
+    ctx.drawImage(largeWoodStructTex[0], 620, 600, 300, 150);
+
+
+    ctx.drawImage(largeWoodStructTex[1], 75, 415, 302, 85);
+    ctx.drawImage(largeWoodStructTex[1], 370, 415, 302, 85);
+    ctx.drawImage(largeWoodStructTex[1], 655, 415, 302, 85);
+
+    // STRUCTURES\ 
+
+    // DOOR
+    //ctx.fillRect((canvas.width / 2) - 75, 600, 150, 150);
+    ctx.drawImage(doorStyle, (canvas.width / 2) - 75, 600, 150, 150);
+    // DOOR\
+
+    // WINDOWS
+    for (let i = 1; i < 5; i++) {
+        //ctx.fillRect(i * 180, 265, 100, 150);
+        ctx.drawImage(windowStyle, i * 180, 265, 100, 150);
+    }
+
+    let startPos = 150;
+    for (let i = 1; i < 3; i++) {
+        for (let j = 1; j < 3; j++) {
+            if (j === 1) ctx.drawImage(windowStyle, startPos, 585, 100, 150);
+            if (j === 2) ctx.drawImage(windowStyle, startPos + 150, 585, 100, 150);
+        }
+        startPos = 600;
+    }
+    // WINDOWS\
+
+    // ROOF
+    ctx.beginPath();
+    ctx.moveTo(75, 495);
+    ctx.lineTo(165, 495);
+    ctx.lineTo(165, 245);
+    ctx.lineTo(canvas.width - 165, 245);
+    ctx.lineTo(canvas.width - 165, 495);
+    ctx.lineTo(canvas.width - 75, 495);
+    ctx.lineTo(canvas.width - 165, 245);
+    ctx.lineTo(canvas.width / 2, 150);
+    ctx.lineTo(165, 245);
+    ctx.moveTo(75, 495);
+    ctx.clip();
+
+    ctx.drawImage(roofTex, 0, 0, 950, 600);
+    // ROOF\
+
+
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'grandhall.png' });
     return attachment;
 }
 

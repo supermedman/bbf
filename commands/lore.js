@@ -34,18 +34,23 @@ module.exports = {
 		if (focusedOption.name === 'line') {
 			const focusedValue = interaction.options.getFocused(false);
 
-			choices = ["Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
+			const storyLines = ["Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
 
-			if (focusedValue) {
-				console.log(choices);
-				console.log(focusedValue);
+			const foundMilestone = await Milestones.findOne({ where: { userid: interaction.user.id } });
+			if (foundMilestone) {
+				for (let i = 0; i < storyLines.length; i++) {
+					if (storyLines[i] === foundMilestone.currentquestline) {
+						choices.push(storyLines[i]);
+						break;
+					} else choices.push(storyLines[i]);
+				}
+            }
 
-				//Mapping the complete list of options for discord to handle and present to the user
-				const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-				await interaction.respond(
-					filtered.map(choice => ({ name: choice, value: choice })),
-				);
-			}
+			//Mapping the complete list of options for discord to handle and present to the user
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
         }
     },
 	async execute(interaction) { 
@@ -239,9 +244,9 @@ module.exports = {
 					furthestLore = 3;
 				} else if (furthestLore === 28) {
 					furthestLore = 2;
-				} else if (furthestLore === 26) {
+				} else if (furthestLore === 27) {
 					furthestLore = 1;
-				} else if (furthestLore === 24) {
+				} else if (furthestLore === 25) {
 					if (userMilestones.currentquestline === 'Chaos') {
 						return interaction.followUp('You have not yet defeated ``Zimmir``! Use the command ``/dungeon`` to enter the dungeon!');
 					} else return interaction.followUp('You have yet to begin this story line, take a look at the available quests!');

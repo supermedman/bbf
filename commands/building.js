@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 const { PlayerBuilding, UserData } = require('../dbObjects.js');
 
@@ -148,7 +148,7 @@ module.exports = {
 			if (!targetCheck) return await interaction.reply('That user doesnt have a game profile or belongs to another town!!');
 
 			const ownedBuilds = await PlayerBuilding.findAll({ where: [{ townid: user.townid }, { ownerid: user.userid }] });
-			if (!ownedBuilds) return await interaction.reply('You do not own any buildings!');
+			if (ownedBuilds.length <= 0) return await interaction.reply('You do not own any buildings!');
 
 			const theBuild = ownedBuilds[buildIndex];
 
@@ -229,7 +229,7 @@ module.exports = {
 			if (!targetCheck) return await interaction.reply('That user doesnt have a game profile or belongs to another town!!');
 
 			const ownedBuilds = await PlayerBuilding.findAll({ where: [{ townid: user.townid }, { ownerid: user.userid }] });
-			if (!ownedBuilds) return await interaction.reply('You do not own any buildings!');
+			if (ownedBuilds.length <= 0) return await interaction.reply('You do not own any buildings!');
 
 			const theBuild = ownedBuilds[buildIndex];
 
@@ -300,7 +300,7 @@ module.exports = {
 			if (!user) return await noUser();
 
 			const ownedBuilds = await PlayerBuilding.findAll({ where: [{ townid: user.townid }, { ownerid: user.userid }] });
-			if (!ownedBuilds) return await interaction.reply('You do not own any buildings!');
+			if (ownedBuilds.length <= 0) return await interaction.reply('You do not own any buildings!');
 
 			await interaction.deferReply();
 
@@ -394,13 +394,13 @@ module.exports = {
 
 			const ownedBuilds = await PlayerBuilding.findAll({ where: [{ townid: user.townid }, { ownerid: user.userid }] });
 			const townBuildings = await PlayerBuilding.findAll({ where: { townid: user.townid } });
-			if (!townBuildings && !ownedBuilds) return await interaction.reply('You do not own any buildings, nor were any buildings found in the town you belong to!');
+			if (townBuildings.length <= 0 && ownedBuilds.length <= 0) return await interaction.reply('You do not own any buildings, nor were any buildings found in the town you belong to!');
 
-			if (townBuildings) {
+			if (townBuildings.length > 0) {
 				for (const building of townBuildings) {
 					let currentEditList = building.can_edit.split(',');
-					for (const id of currentEditList && building.ownerid !== user.userid) {
-						if (user.userid === id) {
+					for (const id of currentEditList) {
+						if (user.userid === id && building.ownerid !== user.userid) {
 							ownedBuilds.push(building);
 							break;
 						}
