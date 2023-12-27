@@ -1,0 +1,117 @@
+[
+    {
+        "Name": "grandhall",
+
+        "Stone": 20000,
+        "Stone_Level": 1,
+        "Stone_Rar": 0,
+
+        "Wood": 20000,
+        "Wood_Level": 1,
+        "Wood_Rar": 0,
+
+        "Metal": 5000,
+        "Metal_Level": 4,
+        "Metal_Rar": 2,
+
+        "Hide": 1500,
+        "Hide_Level": 2,
+        "Hide_Rar": 2,
+
+        "Slime": 200,
+        "Slime_Level": 3,
+        "Slime_Rar": 0
+    },
+    {
+        "Name": "bank",
+
+        "Stone": 20000,
+        "Stone_Level": 1,
+        "Stone_Rar": 0,
+
+        "Wood": 12000,
+        "Wood_Level": 3,
+        "Wood_Rar": 1,
+
+        "Metal": 15000,
+        "Metal_Level": 1,
+        "Metal_Rar": 0,
+
+        "Hide": 450,
+        "Hide_Level": 5,
+        "Hide_Rar": 4,
+
+        "Slime": 450,
+        "Slime_Level": 5,
+        "Slime_Rar": 4
+    },
+    {
+        "Name": "market",
+
+        "Stone": 2000,
+        "Stone_Level": 4,
+        "Stone_Rar": 3,
+
+        "Wood": 20000,
+        "Wood_Level": 1,
+        "Wood_Rar": 0,
+
+        "Metal": 1100,
+        "Metal_Level": 6,
+        "Metal_Rar": 6,
+
+        "Hide": 15000,
+        "Hide_Level": 1,
+        "Hide_Rar": 0,
+
+        "Slime": 4560,
+        "Slime_Level": 1,
+        "Slime_Rar": 0
+    },
+    {
+        "Name": "tavern",
+
+        "Stone": 25000,
+        "Stone_Level": 1,
+        "Stone_Rar": 0,
+
+        "Wood": 10000,
+        "Wood_Level": 1,
+        "Wood_Rar": 0,
+
+        "Metal": 3500,
+        "Metal_Level": 2,
+        "Metal_Rar": 2,
+
+        "Hide": 5000,
+        "Hide_Level": 3,
+        "Hide_Rar": 2,
+
+        "Slime": 300,
+        "Slime_Level": 5,
+        "Slime_Rar": 4
+    },
+    {
+        "Name": "clergy",
+
+        "Stone": 5000,
+        "Stone_Level": 1,
+        "Stone_Rar": 0,
+
+        "Wood": 5000,
+        "Wood_Level": 1,
+        "Wood_Rar": 0,
+
+        "Metal": 5000,
+        "Metal_Level": 1,
+        "Metal_Rar": 0,
+
+        "Hide": 5000,
+        "Hide_Level": 1,
+        "Hide_Rar": 0,
+
+        "Slime": 5000,
+        "Slime_Level": 1,
+        "Slime_Rar": 0
+    }
+]
