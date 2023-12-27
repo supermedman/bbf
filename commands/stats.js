@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveStatus } = require('../dbObjects.js');
+const { UserData, ActiveStatus, Town } = require('../dbObjects.js');
 const { createEnemyDisplay } = require('./exported/displayEnemy.js');
 const enemyList = require('../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../chalkPresets.js');
@@ -62,8 +62,6 @@ module.exports = {
                         //Enemy name does not match keep looking
                     }
                 }
-                console.log(choices);
-                console.log(focusedValue);
 
                 //Mapping the complete list of options for discord to handle and present to the user
                 const filtered = choices.filter(choice => choice.startsWith(focusedValue));
@@ -85,176 +83,165 @@ module.exports = {
 
                 if (user) {
                     const uData = await UserData.findOne({ where: { userid: user.id } });
-                    if (uData) {
-                        const nxtLvl = calcNextLevel(uData);
-                        const list = makeListStr(uData, nxtLvl);
+                    if (!uData) return await interaction.followUp('No game profile found!');
+
+                    let userTown = 'None';
+                    if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
+   
+                    const nxtLvl = calcNextLevel(uData);
+                    const list = makeListStr(uData, nxtLvl, userTown);
 
 
-                        const userDisplayEmbed = new EmbedBuilder()
-                            .setTitle(`Requested Stats for:`)
-                            .setColor(0000)
-                            .addFields(
-                                {
-                                    name: (`${uData.username}`),
-                                    value: list
+                    const userDisplayEmbed = new EmbedBuilder()
+                        .setTitle(`Requested Stats for:`)
+                        .setColor(0000)
+                        .addFields(
+                            {
+                                name: (`${uData.username}`),
+                                value: list
 
-                                }
-                            )
-                        interaction.followUp({ embeds: [userDisplayEmbed] });
-                    }
-                } else {
-                    const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
-                    if (uData) {
-                        const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
-
-                        if (activeUserStatus.length <= 0) {
-                            const nxtLvl = calcNextLevel(uData);
-                            const list = makeListStr(uData, nxtLvl);
-                            if (uData.coins > 150) {
-                                await checkHintLootBuy(uData, interaction);
                             }
+                        )
+                    return await interaction.followUp({ embeds: [userDisplayEmbed] });
+                }
 
-                            const userDisplayEmbed = new EmbedBuilder()
-                                .setTitle(`Requested Stats for:`)
-                                .setColor(0000)
-                                .addFields(
-                                    {
-                                        name: (`${uData.username}`),
-                                        value: list
+                const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+                if (!uData) return await interaction.followUp('No user data found!');
 
-                                    }
-                                )
-                            interaction.followUp({ embeds: [userDisplayEmbed] });
+                const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
+
+                if (uData.coins > 100) await checkHintLootBuy(uData, interaction);
+
+                let userTown = 'None';
+                if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
+
+                const nxtLvl = calcNextLevel(uData);
+                const list = makeListStr(uData, nxtLvl, userTown);
+
+                let embedPages = [];
+
+                const userDisplayEmbed = {
+                    title: `Requested Stats for: `,
+                    color: 0000,
+                    fields: [{
+                        name: `${uData.username}`,
+                        value: list,
+                    }],
+                };
+                if (activeUserStatus.length <= 0) return await interaction.followUp({ embeds: [userDisplayEmbed] });
+                embedPages.push(userDisplayEmbed);
+
+                let curRun = 0;
+                do {
+                    let finalFields = [];
+                    let breakPoint = 0;
+                    for (const status of activeUserStatus) {
+                        let embedFieldsName = ``;
+                        let embedFieldsValue = ``;
+                        let embedFieldsObj;
+
+                        embedFieldsName = `Active effect: ${status.name}`;
+                        if (status.duration <= 0) {
+                            if (status.curreffect === 0) {
+                                embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
+                            } else {
+                                embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
+                            }
                         } else {
-                            const nxtLvl = calcNextLevel(uData);
-                            const list = makeListStr(uData, nxtLvl);
+                            if (status.curreffect === 0) {
+                                embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
+                            } else {
+                                embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
+                            }
+                        }
 
-                            let embedPages = [];
+                        embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
+                        finalFields.push(embedFieldsObj);
 
-                            const userDisplayEmbed = {
-                                title: `Requested Stats for: `,
-                                color: 0000,
-                                fields: [{
-                                    name: `${uData.username}`,
-                                    value: list,
-                                }],
-                            };
-                            embedPages.push(userDisplayEmbed);
+                        breakPoint++;
+                        if (breakPoint === 5) break;
+                    }
 
-                            let curRun = 0;
-                            do {
+                    const embed = {
+                        title: `Active Status Effects: Page ${(curRun + 1)}`,
+                        color: 0000,
+                        fields: finalFields,
+                    };
 
-                                let finalFields = [];
-                                let breakPoint = 0;
-                                for (const status of activeUserStatus) {
-                                    let embedFieldsName = ``;
-                                    let embedFieldsValue = ``;
-                                    let embedFieldsObj;
+                    embedPages.push(embed);
+                    curRun++;
+                } while (curRun < (activeUserStatus.length / 5))
 
-                                    embedFieldsName = `Active effect: ${status.name}`;
-                                    if (status.duration <= 0) {
-                                        if (status.curreffect === 0) {
-                                            embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
-                                        } else {
-                                            embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
-                                        }
-                                    } else {
-                                        if (status.curreffect === 0) {
-                                            embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
-                                        } else {
-                                            embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
-                                        }
-                                    }
+                const backButton = new ButtonBuilder()
+                    .setLabel("Back")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('◀️')
+                    .setCustomId('back-page');
 
-                                    embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
-                                    finalFields.push(embedFieldsObj);
+                const cancelButton = new ButtonBuilder()
+                    .setLabel("Cancel")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('*️⃣')
+                    .setCustomId('delete-page');
 
-                                    breakPoint++;
-                                    if (breakPoint === 5) break;
-                                }
+                const forwardButton = new ButtonBuilder()
+                    .setLabel("Forward")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('▶️')
+                    .setCustomId('next-page');
 
-                                const embed = {
-                                    title: `Active Status Effects: Page ${(curRun + 1)}`,
-                                    color: 0000,
-                                    fields: finalFields,
-                                };
+                const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
 
-                                embedPages.push(embed);
-                                curRun++;
-                            } while (curRun < (activeUserStatus.length / 5))
+                const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 
-                            const backButton = new ButtonBuilder()
-                                .setLabel("Back")
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('◀️')
-                                .setCustomId('back-page');
+                const filter = (ID) => ID.user.id === interaction.user.id;
 
-                            const cancelButton = new ButtonBuilder()
-                                .setLabel("Cancel")
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('*️⃣')
-                                .setCustomId('delete-page');
+                const collector = embedMsg.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 300000,
+                });
 
-                            const forwardButton = new ButtonBuilder()
-                                .setLabel("Forward")
-                                .setStyle(ButtonStyle.Secondary)
-                                .setEmoji('▶️')
-                                .setCustomId('next-page');
+                let currentPage = 0;
 
-                            const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
-
-                            const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
-
-                            const filter = (ID) => ID.user.id === interaction.user.id;
-
-                            const collector = embedMsg.createMessageComponentCollector({
-                                componentType: ComponentType.Button,
-                                filter,
-                                time: 300000,
-                            });
-
-                            var currentPage = 0;
-
-                            collector.on('collect', async (collInteract) => {
-                                if (collInteract.customId === 'next-page') {
-                                    await collInteract.deferUpdate();
-                                    if (currentPage === embedPages.length - 1) {
-                                        currentPage = 0;
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    } else {
-                                        currentPage += 1;
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    }
-                                }
-                                if (collInteract.customId === 'back-page') {
-                                    await collInteract.deferUpdate();
-                                    if (currentPage === 0) {
-                                        currentPage = embedPages.length - 1;
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    } else {
-                                        currentPage -= 1;
-                                        await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                                    }
-                                }
-                                if (collInteract.customId === 'delete-page') {
-                                    await collInteract.deferUpdate();
-                                    await collector.stop();
-                                }
-                            });
-
-                            collector.on('end', () => {
-                                if (embedMsg) {
-                                    embedMsg.delete();
-                                }
-                            });
+                collector.on('collect', async (collInteract) => {
+                    if (collInteract.customId === 'next-page') {
+                        await collInteract.deferUpdate();
+                        if (currentPage === embedPages.length - 1) {
+                            currentPage = 0;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        } else {
+                            currentPage += 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
                         }
                     }
-                }
+                    if (collInteract.customId === 'back-page') {
+                        await collInteract.deferUpdate();
+                        if (currentPage === 0) {
+                            currentPage = embedPages.length - 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        } else {
+                            currentPage -= 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        }
+                    }
+                    if (collInteract.customId === 'delete-page') {
+                        await collInteract.deferUpdate();
+                        await collector.stop();
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete();
+                    }
+                });
+                    
             }).catch(error => {
                 console.log(errorForm(error));
             });
-            
         }
+
         if (interaction.options.getSubcommand() === 'enemy') {
             //handle enemies here
             await interaction.deferReply();
@@ -266,6 +253,7 @@ module.exports = {
 
             return await createEnemyDisplay(enemyRef, interaction);
         }
+
         if (interaction.options.getSubcommand() === 'info') {
             await interaction.deferReply();
             const skill = interaction.options.getString('stat');
@@ -302,7 +290,7 @@ module.exports = {
         }
 
 
-        function makeListStr(uData, nxtLvl) {
+        function makeListStr(uData, nxtLvl, userTown) {
              const list = `Class: ${uData.pclass}\n
 Speed: ${uData.speed}
 Strength: ${uData.strength}
@@ -313,7 +301,8 @@ Perk Points: ${uData.points}
 \nLevel: ${uData.level}
 \nXP to next level: ${uData.xp}/${nxtLvl}
 \nCoins: ${uData.coins}\n
-Quest Tokens (Qts): ${uData.qt}
+Quest Tokens (Qts): ${uData.qt}\n
+Current Town: ${userTown.name ?? userTown}\n
 \nTotal Enemies Killed: ${uData.totalkills}
 Most Kills In One Life: ${uData.highestkills}
 \nLast Death: ${uData.lastdeath}
