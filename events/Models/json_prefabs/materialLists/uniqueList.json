@@ -108,5 +108,16 @@
 
 		"Mat_id": 10,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Phasereader",
+		"Value": 300000000,
+
+		"Rarity": "Unique",
+		"Rar_id": 12,
+		"UniqueMatch": "Phasereader",
+
+		"Mat_id": 11,
+		"Spec_id": 0
 	}
 ]

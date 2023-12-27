@@ -1,9 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const { PlayerBuilding, UserData } = require('../dbObjects.js');
+const { PlayerBuilding, UserData, OwnedTools } = require('../dbObjects.js');
 
 const { loadBuilding } = require('./exported/displayBuilding.js');
 
+const acToolE = require('../events/Models/json_prefabs/acToolEffects.json');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -33,6 +34,20 @@ module.exports = {
 			subcommand
 				.setName('belong')
 				.setDescription('View all buildings that belong to you!'))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('install')
+				.setDescription('Install something on a building you own.')
+				.addStringOption(option =>
+					option.setName('thebuild')
+						.setDescription('The building to be used.')
+						.setRequired(true)
+						.setAutocomplete(true))
+				.addStringOption(option =>
+					option.setName('thetool')
+						.setDescription('Tools available for installing.')
+						.setRequired(true)
+						.setAutocomplete(true)))
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('change')
@@ -126,13 +141,69 @@ module.exports = {
 			await interaction.respond(
 				filtered.map(choice => ({ name: choice, value: choice })),
 			);
+		}
+
+		if (focusedOption.name === 'thetool') {
+			const focusedValue = interaction.options.getFocused(false);
+			const buildStr = interaction.options.getString('thebuild') ?? 'NONE';
+
+			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
+
+			function createIndexFromStr(str) {
+				const pieces = str.split(': ');
+				let indexVal = pieces[1] - 1;
+				return indexVal;
+			}
+
+			let ownedBuilds;
+			if (user && user.townid !== '0') {
+				ownedBuilds = await PlayerBuilding.findAll({
+					where:
+						[{ townid: user.townid },
+						{ ownerid: user.userid }]
+				});
+
+				let theBuild;
+				if (buildStr !== 'NONE' && buildStr !== 'None') {
+					if (ownedBuilds) {
+						const buildIndex = createIndexFromStr(buildStr);
+						theBuild = ownedBuilds[buildIndex];
+					} else choices = ['None'];
+				} else choices = ['None'];
+
+				let buildTools = await OwnedTools.findAll({ where: [{ spec_id: user.userid }, { activecategory: 'Town' }, { activesubcategory: 'Build' }] });
+
+				if (theBuild && buildTools.length > 0) {
+					const catMatch = acToolE.filter(cat => cat.Name === 'Town');
+					const subCat = catMatch[0]['SubCategory'];
+					const subMatch = subCat.filter(sub => sub.Name === 'Build');
+
+					const subCatObj = subMatch[0];
+
+					let typeMatch = [];
+					for (const tool of buildTools) {
+						if (subCatObj[`${tool.name}`]['BuildType'] === theBuild.build_type) {
+							typeMatch.push(tool.name);
+                        }						
+					}
+
+					if (typeMatch.length > 0) {
+						choices = typeMatch;
+					} else choices = ['None'];
+				}
+			} else choices = ['None'];
+
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
         }
 	},
 	async execute(interaction) {
 
 		const { betaTester } = interaction.client;
 
-		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!!');
+		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
 
 		if (interaction.options.getSubcommand() === 'appoint') {
 			const buildStr = interaction.options.getString('thebuild') ?? 'NONE';
@@ -368,7 +439,7 @@ module.exports = {
 				if (COI.customId === 'cancel') {
 					collector.stop();
 				}
-			})
+			});
 
 			collector.on('end', () => {
 				if (embedMsg) {
@@ -424,6 +495,24 @@ module.exports = {
 
 			return await interaction.reply({ content: msgContent, files: [attachment]});
 		}
+
+		if (interaction.options.getSubcommand() === 'install') {
+			const buildStr = interaction.options.getString('thebuild') ?? 'NONE';
+			if (buildStr === 'NONE' || buildStr === 'None') return await interaction.reply('That is not a vaild building!');
+
+			const toolName = interaction.options.getString('thetool') ?? 'NONE';
+			if (toolName === 'NONE' || toolName === 'None') return await interaction.reply('That is not a vaild tool!');
+
+			const buildIndex = createIndexFromStr(buildStr);
+
+			const user = await grabU();
+			if (!user) return await noUser();
+
+			const ownedBuilds = await PlayerBuilding.findAll({ where: [{ townid: user.townid }, { ownerid: user.userid }] });
+			if (ownedBuilds.length <= 0) return await interaction.reply('You do not own any buildings!');
+
+			const theBuild = ownedBuilds[buildIndex];
+        }
 
 		function createIndexFromStr(str) {
 			const pieces = str.split(': ');
