@@ -1,4 +1,4 @@
-const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, AttachmentBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const wait = require('node:timers/promises').setTimeout;
 const { grabColour } = require('./exported/grabRar.js');
 
@@ -304,53 +304,40 @@ module.exports = {
 
         if (interaction.options.getSubcommand() === 'materials') {
             await interaction.deferReply();
+
             const matStore = await MaterialStore.findOne({ where: { spec_id: interaction.user.id } });
             if (!matStore) return interaction.followUp('You do not have any materials yet!');
 
-            const allMatsOwned = await MaterialStore.findAll({ where: { spec_id: interaction.user.id } });
+            const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
 
+            const allMatsOwned = await MaterialStore.findAll({ where: { spec_id: interaction.user.id } });
             if (allMatsOwned.length < 10) {
-                const user = await UserData.findOne({ where: [{ userid: interaction.user.id }] });
                 await checkHintMaterialCombine(user, interaction);
             }
 
-            //console.log(specialInfoForm('allMatsOwned at pos 0: ', allMatsOwned[0].name));
-            var embedPages = [];
+            const { materialFiles } = interaction.client;
 
-            let listedDefaults;
-            let grabbedName;
+            let embedTitle = '';
+            let finalFields = [];
 
-            let grabbedColour;
+            let embedPages = [];
+            for (const [key, value] of materialFiles) {
+                let passType = key;
+                embedTitle = `== ${passType} Type Materials ==`;
+                finalFields = [];
+                let matList = require(value);
+                for (let i = 0; i < matList.length; i++) {
+                    let fieldObj = await buildMatEmbedField(user, passType, matList, i);
+                    finalFields.push(fieldObj);
+                }
 
-            let matSlice;
-            let i = 0;
-            do {
-                matSlice = allMatsOwned[i];
-                 
-                if (matSlice) {
-                    //name, value, rarity, amount
-                    listedDefaults = 
-                        `Value: ${matSlice.value} \nType: ${matSlice.mattype} \nRarity: ${matSlice.rarity} \nAmount Owned: ${matSlice.amount}`;
-
-                    grabbedName = `${matSlice.name}`;
-                    grabbedColour = await grabColour(matSlice.rar_id);
-
-                    const embed = {
-                        title: `~OWNED MATERIALS~`,
-                        color: grabbedColour,
-                        fields: [
-                            {
-                                name: `${grabbedName}`, value: `${listedDefaults}`,
-                            }
-                        ],
-                    };
-
-                    embedPages.push(embed);
-                } else console.log(errorForm('matSlice ERROR NOT FOUND!'));
-                i++;
-            } while (i < allMatsOwned.length)
-
-            if (embedPages.length <= 0) return console.log(errorForm('NO EMBED PAGES EXIST ERROR'));
+                let embed = {
+                    title: embedTitle,
+                    color: 0000,
+                    fields: finalFields
+                };
+                embedPages.push(embed);
+            }
 
             const backButton = new ButtonBuilder()
                 .setLabel("Back")
@@ -791,6 +778,65 @@ module.exports = {
                     });
                 }
             });
+        }
+
+        /**
+         * 
+         * @param {any} user
+         * @param {any} matType
+         * @param {any} matFile
+         * @param {any} rarID
+         */
+        async function buildMatEmbedField(user, matType, matFile, rarID) {
+            let fieldName = '';
+            let fieldValue = '';
+            let fieldObj = {};
+
+            let uniID;
+            if (matType === 'unique') uniID = 0 + rarID, rarID = 12;
+
+            const filteredMat = matFile.filter(mat => mat.Rar_id === rarID);
+            if (uniID) {
+                const matRef = filteredMat[uniID];
+
+                let theMat = await MaterialStore.findOne({
+                    where: [{ spec_id: user.userid },
+                    { mat_id: matRef.Mat_id },
+                    { rarity: 'Unique' }]
+                });
+
+                if (!theMat) {
+                    fieldName = `Unknown material of ${matRef.Rarity} Rarity:`;
+                    fieldValue = '0';
+                } else {
+                    fieldName = `${theMat.name}:`;
+                    fieldValue = `${theMat.amount}`;
+                }
+
+                fieldObj = { name: fieldName, value: fieldValue };
+                return fieldObj;
+            }
+
+            const matRef = filteredMat[0];
+
+            const theMat = await MaterialStore.findOne({
+                where:
+                    [{ spec_id: user.userid },
+                    { mat_id: matRef.Mat_id },
+                    { rar_id: matRef.Rar_id },
+                    { mattype: matType }]
+            });
+
+            if (!theMat) {
+                fieldName = `Unknown material of ${matRef.Rarity} Rarity:`;
+                fieldValue = '0';
+            } else {
+                fieldName = `${theMat.name}:`;
+                fieldValue = `${theMat.amount}`;
+            }
+
+            fieldObj = { name: fieldName, value: fieldValue };
+            return fieldObj;
         }
 	},
 
