@@ -22,7 +22,8 @@ module.exports = {
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('belong')
-				.setDescription('View the town you belong too.'))
+				.setDescription('View the town you belong too, or the town of someone else.')
+				.addUserOption(option => option.setName('target').setDescription('The user')))
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('establish')
@@ -167,7 +168,11 @@ module.exports = {
 						.setAutocomplete(true))
 				.addIntegerOption(option =>
 					option.setName('amount')
-						.setDescription('How much will you be transfering?'))),
+						.setDescription('How much will you be transfering?')))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('storage')
+				.setDescription('View material storage for your town.')),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -334,10 +339,11 @@ module.exports = {
     },
 	async execute(interaction) {
 
-		const { betaTester } = interaction.client;
+		const { betaTester, materialFiles } = interaction.client;
 
-		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!!');
+		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
 
+		// Establish Town
 		if (interaction.options.getSubcommand() === 'establish') {
 			const user = await grabU();
 			if (!user) return await noUser();
@@ -474,6 +480,7 @@ module.exports = {
 			return await interaction.reply('New Town created!!');
 		}
 
+		// Join Town
 		if (interaction.options.getSubcommand() === 'join') {
 
 			const townName = interaction.options.getString('thetown') ?? 'NONE';
@@ -523,6 +530,20 @@ module.exports = {
 					const townInc = await theTown.increment('population');
 					if (townInc) await theTown.save();
 
+					let popInc;
+					if ((theTown.population + theTown.npc_population) >= theTown.level * 5) popInc = await theTown.increment('level');
+					if (popInc) {
+						await theTown.save();
+
+						let plotsNeeded = 5;
+						for (let i = 0; i < plotsNeeded; i++) {
+							let newPlot = await TownPlots.create({
+								townid: theTown.townid,
+							});
+							if (newPlot) await newPlot.save();
+						}
+					} 
+
 					collector.stop();
 
 					const userUpdate = await user.update({ townid: theTown.townid });
@@ -542,11 +563,17 @@ module.exports = {
 			});
 		}
 
+		// Same as Town Inspect
 		if (interaction.options.getSubcommand() === 'belong') {
+			const targetUser = interaction.options.getUser('target') ?? 'NONE';
+			let user;
+			if (targetUser !== 'NONE') {
+				user = await UserData.findOne({ where: { userid: targetUser.id } });
+			} else user = await grabU();
 
-			const user = await grabU();
 			if (!user) return await noUser();
-			if (user.townid === '0') return await interaction.reply('You do not belong to a town yet! Use ``/town join`` to join a town!');
+			if (user.townid === '0' && targetUser === 'NONE') return await interaction.reply('You do not belong to a town yet! Use ``/town join`` to join a town!');
+			if (user.townid === '0' && targetUser !== 'NONE') return await interaction.reply('That user does not belong to a town yet!');
 
 			const townRef = await Town.findOne({ where: { townid: user.townid } });
 			if (!townRef) return await interaction.reply('Something went wrong while locating your town!');
@@ -668,6 +695,7 @@ module.exports = {
 			}, 120000)).catch(error => console.error(error));
 		}
 
+		// Appoint user to edit permissions
 		if (interaction.options.getSubcommand() === 'appoint') {
 			const user = await grabU();
 			if (!user) return await noUser();
@@ -741,6 +769,7 @@ module.exports = {
 			});
 		}
 
+		// Demote user from edit permissions
 		if (interaction.options.getSubcommand() === 'demote') {
 			const user = await grabU();
 			if (!user) return await noUser();
@@ -813,6 +842,7 @@ module.exports = {
 			});
 		}
 
+		// Transfer town ownership
 		if (interaction.options.getSubcommand() === 'transfer') {
 			const user = await grabU();
 			if (!user) return await noUser();
@@ -874,6 +904,7 @@ module.exports = {
 			});
 		}
 
+		// Deposit coins or materials to guild storage
 		if (interaction.options.getSubcommand() === 'deposit') {
 			const transType = interaction.options.getString('type');
 			const theItem = interaction.options.getString('item') ?? 'NONE';
@@ -899,8 +930,8 @@ module.exports = {
 
 			let item;
 			if (transType === 'mat') {
-				item = await MaterialStore.findOne({ where: { name: theItem } });
-				if (item.amount < amount || !item) return await interaction.reply(`You do not have that many ${theItem}!`);
+				item = await MaterialStore.findOne({ where: [{spec_id: user.userid}, { name: theItem }] });
+				if (!item || item.amount < amount) return await interaction.reply(`You do not have that many ${theItem}!`);
 			} else {
 				if (user.coins < amount) return await interaction.reply('You do not have that many coins!!');
             }
@@ -912,6 +943,7 @@ module.exports = {
 			if (result === 'Success') return await interaction.reply('Deposit Successful!!');
 		}
 
+		// Withdraw coins or materials from guild storage
 		if (interaction.options.getSubcommand() === 'withdraw') {
 			const transType = interaction.options.getString('type');
 			const theItem = interaction.options.getString('item') ?? 'NONE';
@@ -950,6 +982,7 @@ module.exports = {
 			if (result === 'Success') return await interaction.reply('Withdraw Successful!!');
 		}
 
+		// Open unowned, closed, town plots
 		if (interaction.options.getSubcommand() === 'openplot') {
 			const amount = interaction.options.getInteger('amount') ?? 1;
 
@@ -1008,6 +1041,7 @@ module.exports = {
 			return await interaction.reply('Town Plots Updated!!');
 		}
 
+		// Close unowned, opened, town plots
 		if (interaction.options.getSubcommand() === 'closeplot') {
 			const amount = interaction.options.getInteger('amount') ?? 1;
 
@@ -1065,6 +1099,7 @@ module.exports = {
 			return await interaction.reply('Town Plots Updated!!');
 		}
 
+		// Claim open/closed town plot
 		if (interaction.options.getSubcommand() === 'claimplot') {
 			const user = await grabU();
 			if (!user) return await noUser();
@@ -1121,6 +1156,7 @@ module.exports = {
 			return await interaction.reply('You are now the owner of a Town Plot!!');
 		}
 
+		// Build on owned town plot
 		if (interaction.options.getSubcommand() === 'buildplot') {
 			const buildingType = interaction.options.getString('buildtype');
 			const plotStr = interaction.options.getString('theplot') ?? 'NONE';
@@ -1178,6 +1214,7 @@ module.exports = {
 			return await interaction.followUp({ content: messageStr, files: [attachment]});
 		}
 
+		// View built on town plots
 		if (interaction.options.getSubcommand() === 'viewplot') {
 			const townName = interaction.options.getString('thetown') ?? 'NONE';
 			if (townName === 'None' || townName === 'NONE') return await interaction.reply('The requested town could not be found, please select from the provided options!');
@@ -1233,6 +1270,7 @@ module.exports = {
 			return await interaction.followUp({embeds: [embed], files: [attachment] });
 		}
 
+		// Begin core building construction
 		if (interaction.options.getSubcommand() === 'buildcore') {
 			const coreType = extractCoreType(interaction.options.getString('coretype'));
 			if (coreType === 'None') return await interaction.reply('That was not a valid core town building!!');
@@ -1253,17 +1291,152 @@ module.exports = {
 			}
 			if (!exists) return await interaction.reply('You do not have permission to use this command for this town!');
 
-			const coreRef = coreReq.filter(core => core.Name === coreType);
+			const biomeBackgrounds = {
+				"Forest": 1,
+				"Mountain": 2,
+				"Desert": 3,
+				"Plains": 4,
+				"Swamp": 5,
+				"Grassland": 6
+			};
 
-			// Handle scaling material requirements here
+			const biomeList = theTown.local_biome.split('-');
+			const buildBackground = biomeBackgrounds[`${biomeList[0]}`];
 
+			const coreLevel = 1;
+			const filteredCore = coreReq.filter(core => core.Name === coreType);
+			const coreRef = filteredCore[0];
+
+			const reqListing = ['Stone', 'Wood', 'Metal', 'Hide', 'Slime'];
+			const matEqui = ['rocky', 'woody', 'metalic', 'skinny', 'slimy'];
+
+			const baseMatReq = {
+				"Stone": coreRef.Stone,
+				"Stone_Level": coreRef.Stone_Level,
+				"Stone_Rar": coreRef.Stone_Rar,
+				"Wood": coreRef.Wood,
+				"Wood_Level": coreRef.Wood_Level,
+				"Wood_Rar": coreRef.Wood_Rar,
+				"Metal": coreRef.Metal,
+				"Metal_Level": coreRef.Metal_Level,
+				"Metal_Rar": coreRef.Metal_Rar,
+				"Hide": coreRef.Hide,
+				"Hide_Level": coreRef.Hide_Level,
+				"Hide_Rar": coreRef.Hide_Rar,
+				"Slime": coreRef.Slime,
+				"Slime_Level": coreRef.Slime_Level,
+				"Slime_Rar": coreRef.Slime_Rar,
+			};
+
+			for (let i = 0; i < reqListing.length; i++) {
+				let levelStr = `${reqListing[i]}_Level`;
+				baseMatReq[`${reqListing[i]}`] = checkLevel(baseMatReq[`${reqListing[i]}`], coreLevel, baseMatReq[`${levelStr}`]);
+			}
+			
+			function checkLevel(amount, curLevel, levelNeeded) {
+				if (curLevel >= levelNeeded) return amount;
+				return 0;
+			}
 			// Handle town material storage checking here
+			let matObjList = [];
+			for (let i = 0; i < reqListing.length; i++) {
+				let checkingFor = matEqui[i];
+				let matFile = materialFiles.get(checkingFor);
+				let matList = require(matFile);
 
+				let amountNeeded = baseMatReq[`${reqListing[i]}`];
+				let rarID = baseMatReq[`${reqListing[i]}_Rar`];
+
+				let foundMat = await checkMatStorage(amountNeeded, theTown, checkingFor, matList, rarID);
+				matObjList.push(...foundMat);
+			}
+
+			let canBuild = true;
+			let matRemovalList = [];
+			let embedTitle = '';
+			let finalFields = [];
+			for (const material of matObjList) {
+				let fieldName = '';
+				let fieldValue = '';
+				let fieldObj = {};
+
+				if (material.amountNeeded === 0) { } else {
+					if (material.buildStatus === false) canBuild = false;
+					if (material.isRef) {
+						fieldName = `Material: ${material.Name}\nRarity: ${material.Rarity}`;
+						fieldValue = `Amount Stored: ${material.amount}\nAmount Needed: ${material.amountNeeded}`;
+					} else {
+						fieldName = `Material: ${material.name}\nRarity: ${material.rarity}`;
+						fieldValue = `Amount Stored: ${material.amount}\nAmount Needed: ${material.amountNeeded}`;
+						matRemovalList.push(material);
+					}
+					fieldObj = { name: fieldName, value: fieldValue };
+					finalFields.push(fieldObj);
+                }
+            }
+
+			if (canBuild) embedTitle = `BEGIN ${interaction.options.getString('coretype')} CONSTRUCTION?`;
+			if (!canBuild) embedTitle = `Resources insufficient to build ${interaction.options.getString('coretype')}`;
 			// Handle confirm embed here
+			const embed = {
+				title: embedTitle,
+				color: 0000,
+				fields: finalFields,
+			};
+
+			if (!canBuild) return await interaction.reply({embeds: [embed]});
+
+			
+			const confirmButton = new ButtonBuilder()
+				.setLabel('Confirm!')
+				.setStyle(ButtonStyle.Danger)
+				.setCustomId('confirm');
+
+			const cancelButton = new ButtonBuilder()
+				.setLabel('Cancel!')
+				.setStyle(ButtonStyle.Primary)
+				.setCustomId('cancel');
+
+			const buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
+
+			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
+
+			const filter = (i) => i.user.id === interaction.user.id;
+
+			const collector = embedMsg.createMessageComponentCollector({
+				ComponentType: ComponentType.Button,
+				filter,
+				time: 10000,
+			});
 
 			// Handle building creation/display here
+			collector.on('collect', async (COI) => {
+				if (COI.customId === 'confirm') {
+					await COI.deferUpdate().then(async () => {
+						collector.stop();
+						for (const material of matRemovalList) {
+							let result = await removeMaterial(theTown, material, material.amountNeeded, 'town');
+							if (result !== 'Removed') break;
+						}
+						const attachment = await handleCoreBuilding(theTown, coreType, buildBackground, 1);
+						return await interaction.followUp({ files: [attachment] });
+					}).catch(e => console.error(e));
+				}
+				if (COI.customId === 'cancel') {
+					collector.stop();
+				}
+			});
+
+			collector.on('end', () => {
+				embedMsg.delete().catch(error => {
+					if (error.code !== 10008) {
+						console.error('Failed to delete the message:', error);
+					}
+				});
+			});
 		}
 
+		// Begin core building upgrade
 		if (interaction.options.getSubcommand() === 'upgradecore') {
 			const coreType = extractCoreType(interaction.options.getString('coretype'));
 			if (coreType === 'None') return await interaction.reply('That was not a valid core town building!!');
@@ -1285,18 +1458,169 @@ module.exports = {
 			if (!exists) return await interaction.reply('You do not have permission to use this command for this town!');
 
 			// Handle aquiring core building db reference here
+			const theCore = await CoreBuilding.findOne({ where: [{ townid: theTown.townid }, { build_type: coreType }] });
+			if (!theCore) return await interaction.reply('Something went wrong while locating that core building!');
 
-			const coreRef = coreReq.filter(core => core.Name === coreType);
+
+			const coreLevel = theCore.level + 1;
+			if (coreLevel > theTown.level) return await interaction.reply('This building cannot be upgraded to a level higher than the town it is apart of!!');
+
+			const filteredCore = coreReq.filter(core => core.Name === coreType);
+			const coreRef = filteredCore[0];
+
+			const reqListing = ['Stone', 'Wood', 'Metal', 'Hide', 'Slime'];
+			const matEqui = ['rocky', 'woody', 'metalic', 'skinny', 'slimy'];
+
+			const baseMatReq = {
+				"Stone": coreRef.Stone,
+				"Stone_Level": coreRef.Stone_Level,
+				"Stone_Rar": coreRef.Stone_Rar,
+				"Wood": coreRef.Wood,
+				"Wood_Level": coreRef.Wood_Level,
+				"Wood_Rar": coreRef.Wood_Rar,
+				"Metal": coreRef.Metal,
+				"Metal_Level": coreRef.Metal_Level,
+				"Metal_Rar": coreRef.Metal_Rar,
+				"Hide": coreRef.Hide,
+				"Hide_Level": coreRef.Hide_Level,
+				"Hide_Rar": coreRef.Hide_Rar,
+				"Slime": coreRef.Slime,
+				"Slime_Level": coreRef.Slime_Level,
+				"Slime_Rar": coreRef.Slime_Rar,
+			};
+
+			for (let i = 0; i < reqListing.length; i++) {
+				let levelStr = `${reqListing[i]}_Level`;
+				let rarStr = `${reqListing[i]}_Rar`;
+				baseMatReq[`${reqListing[i]}`] = checkLevel(baseMatReq[`${reqListing[i]}`], coreLevel, baseMatReq[`${levelStr}`]);
+
+				baseMatReq[`${reqListing[i]}`] = checkMultiply(baseMatReq[`${reqListing[i]}`], coreLevel, baseMatReq[`${levelStr}`]);
+
+				baseMatReq[`${rarStr}`] = checkRarUp(baseMatReq[`${reqListing[i]}`], coreLevel, baseMatReq[`${rarStr}`]);
+			}
+
+			// Check if material is needed for buildings next level
+			function checkLevel(amount, curLevel, levelNeeded) {
+				if (curLevel >= levelNeeded) return amount;
+				return 0;
+			}
 
 			// Handle scaling material requirements here
 
+			// Check how much more material is needed based on level
+			function checkMultiply(amount, level, matLevel) {
+				return amount * (level - (matLevel - 1));
+			}
+
+			// Check if material rarity increases based on buildings next level
+			function checkRarUp(amount, curLevel, baseRar) {
+				if (amount === 0) return baseRar;
+				if (((curLevel / 2) % 1) === 0) return baseRar++;
+				return baseRar;
+			}
+
 			// Handle town material storage checking here
+			let matObjList = [];
+			for (let i = 0; i < reqListing.length; i++) {
+				let checkingFor = matEqui[i];
+				let matFile = materialFiles.get(checkingFor);
+				let matList = require(matFile);
+
+				let amountNeeded = baseMatReq[`${reqListing[i]}`];
+				let rarID = baseMatReq[`${reqListing[i]}_Rar`];
+
+				let foundMat = await checkMatStorage(amountNeeded, theTown, checkingFor, matList, rarID);
+				matObjList.push(...foundMat);
+			}
+
+			let canBuild = true;
+			let matRemovalList = [];
+			let embedTitle = '';
+			let finalFields = [];
+			for (const material of matObjList) {
+				let fieldName = '';
+				let fieldValue = '';
+				let fieldObj = {};
+
+				if (material.amountNeeded === 0) { } else {
+					if (material.buildStatus === false) canBuild = false;
+					if (material.isRef) {
+						fieldName = `Material: ${material.Name}\nRarity: ${material.Rarity}`;
+						fieldValue = `Amount Stored: ${material.amount}\nAmount Needed: ${material.amountNeeded}`;
+					} else {
+						fieldName = `Material: ${material.name}\nRarity: ${material.rarity}`;
+						fieldValue = `Amount Stored: ${material.amount}\nAmount Needed: ${material.amountNeeded}`;
+						matRemovalList.push(material);
+					}
+					fieldObj = { name: fieldName, value: fieldValue };
+					finalFields.push(fieldObj);
+				}
+			}
+
+			if (canBuild) embedTitle = `BEGIN ${interaction.options.getString('coretype')} CONSTRUCTION?`;
+			if (!canBuild) embedTitle = `Resources insufficient to build ${interaction.options.getString('coretype')}`;
 
 			// Handle confirm embed here
+			const embed = {
+				title: embedTitle,
+				color: 0000,
+				fields: finalFields,
+			};
+
+			if (!canBuild) return await interaction.reply({ embeds: [embed] });
+
+			const confirmButton = new ButtonBuilder()
+				.setLabel('Confirm!')
+				.setStyle(ButtonStyle.Danger)
+				.setCustomId('confirm');
+
+			const cancelButton = new ButtonBuilder()
+				.setLabel('Cancel!')
+				.setStyle(ButtonStyle.Primary)
+				.setCustomId('cancel');
+
+			const buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
+
+			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
+
+			const filter = (i) => i.user.id === interaction.user.id;
+
+			const collector = embedMsg.createMessageComponentCollector({
+				ComponentType: ComponentType.Button,
+				filter,
+				time: 10000,
+			});
+
+			// Handle building creation/display here
+			collector.on('collect', async (COI) => {
+				if (COI.customId === 'confirm') {
+					await COI.deferUpdate().then(async () => {
+						collector.stop();
+						for (const material of matRemovalList) {
+							let result = await removeMaterial(theTown, material, material.amountNeeded, 'town');
+							if (result !== 'Removed') break;
+						}
+						const attachment = await handleCoreBuilding(theTown, coreType, buildBackground, newLevel);
+						return await interaction.followUp({ files: [attachment] });
+					}).catch(e => console.error(e));
+				}
+				if (COI.customId === 'cancel') {
+					collector.stop();
+				}
+			});
+
+			collector.on('end', () => {
+				embedMsg.delete().catch(error => {
+					if (error.code !== 10008) {
+						console.error('Failed to delete the message:', error);
+					}
+				});
+			});
 
 			// Handle building upgrading/display here
 		}
 
+		// View existing core buildings
 		if (interaction.options.getSubcommand() === 'viewcore') {
 			const townName = interaction.options.getString('thetown') ?? 'NONE';
 			if (townName === 'None' || townName === 'NONE') return await interaction.reply('The requested town could not be found, please select from the provided options!');
@@ -1311,9 +1635,259 @@ module.exports = {
 			if (!townRef) return await interaction.reply('Something went wrong while locating that town!');
 
 			// Handle aquiring core building db reference here
+			const coreRef = await CoreBuilding.findOne({ where: [{ townid: townRef.townid }, { build_type: coreType }] });
+			if (!coreRef) return await interaction.reply('Something went wrong while locating that core buildings!');
 
 			// Handle building display here
+			const attachment = await loadBuilding(coreRef);
+			await interaction.reply({ files: [attachment] });
+
+			if (coreRef.build_type === 'clergy') return await handleClergyMystQuest(user);
+			return;
 		}
+
+		// View entire listing of town owned materials
+		if (interaction.options.getSubcommand() === 'storage') {
+			const user = await grabU();
+			if (!user) return await noUser();
+
+			const theTown = await Town.findOne({ where: { townid: user.townid } });
+			if (!theTown) return await interaction.reply('You do not belong to any towns!');
+
+			await interaction.deferReply();
+
+			let embedTitle = '';
+			let finalFields = [];
+
+			let embedPages = [];
+			for (const [key, value] of materialFiles) {
+				let passType = key;
+				embedTitle = `== ${passType} Type Materials ==`;
+				finalFields = [];
+				let matList = require(value);
+				for (let i = 0; i < matList.length; i++) {
+					let fieldObj = await buildMatEmbedField(theTown, passType, matList, i);
+					finalFields.push(fieldObj);
+				}
+
+				let embed = {
+					title: embedTitle,
+					color: 0000,
+					fields: finalFields
+				};
+				embedPages.push(embed);
+			}
+
+			const backButton = new ButtonBuilder()
+				.setLabel("Back")
+				.setStyle(ButtonStyle.Secondary)
+				.setEmoji('◀️')
+				.setCustomId('back-page');
+
+			const cancelButton = new ButtonBuilder()
+				.setLabel("Cancel")
+				.setStyle(ButtonStyle.Secondary)
+				.setEmoji('*️⃣')
+				.setCustomId('cancel');
+
+			const forwardButton = new ButtonBuilder()
+				.setLabel("Forward")
+				.setStyle(ButtonStyle.Secondary)
+				.setEmoji('▶️')
+				.setCustomId('next-page');
+
+			const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+			const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+			const filter = (i) => i.user.id === interaction.user.id;
+
+			const collector = embedMsg.createMessageComponentCollector({
+				componentType: ComponentType.Button,
+				filter,
+				time: 120000,
+			});
+
+			let currentPage = 0;
+
+			collector.on('collect', async (COI) => {
+				if (COI.customId === 'next-page') {
+					await COI.deferUpdate().then(async () => {
+						if (currentPage === embedPages.length - 1) {
+							currentPage = 0;
+						} else currentPage += 1;
+						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+					}).catch(error => {
+						console.error(error);
+					});
+				}
+
+				if (COI.customId === 'back-page') {
+					await COI.deferUpdate().then(async () => {
+						if (currentPage === 0) {
+							currentPage = embedPages.length - 1;
+						} else currentPage -= 1;
+						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+					}).catch(error => {
+						console.error(error);
+					});
+				}
+
+				if (COI.customId === 'cancel') {
+					collector.stop();
+				}
+			});
+
+			collector.on('end', () => {
+				if (embedMsg) {
+					embedMsg.delete().catch(error => {
+						if (error.code !== 10008) {
+							console.error('Failed to delete the message:', error);
+						}
+					});
+				}
+			});
+		}
+
+
+		/**
+		 * 
+		 * @param {any} town
+		 * @param {any} coreType
+		 * @param {any} background
+		 * @param {number} level 
+		 */
+		async function handleCoreBuilding(town, coreType, background, level) {
+			let newCore;
+			if (level === 1) {
+				newCore = await CoreBuilding.create({
+					townid: town.townid,
+					build_type: coreType,
+					build_status: `Level ${level}`,
+					background_tex: background,
+				});
+			} else {
+				newCore = await CoreBuilding.findOne({ where: [{ townid: town.townid }, { build_type: coreType }] });
+
+				const inc = await newCore.increment('level');
+				if (inc) await newCore.save();
+            }
+			
+
+			if (newCore) {
+				const buildStatStr = `Built: Level ${level}`;
+				let townUpdate; 
+				if (coreType === 'grandhall') townUpdate = await town.update({ grandhall_status: buildStatStr });
+				if (coreType === 'bank') townUpdate = await town.update({ bank_status: buildStatStr });
+				if (coreType === 'market') townUpdate = await town.update({ market_status: buildStatStr });
+				if (coreType === 'tavern') townUpdate = await town.update({ tavern_status: buildStatStr });
+				if (coreType === 'clergy') townUpdate = await town.update({ clergy_status: buildStatStr });
+				if (townUpdate) await town.save();
+			}
+
+			let attachment;
+			if (newCore) attachment = await loadBuilding(newCore);
+			if (attachment) return attachment;
+        }
+
+		/**
+		 * 
+		 * @param {any} town
+		 * @param {any} matType
+		 * @param {any} matFile
+		 * @param {any} rarID
+		 */
+		async function buildMatEmbedField(town, matType, matFile, rarID) {
+			let fieldName = '';
+			let fieldValue = '';
+			let fieldObj = {};
+
+			let uniID;
+			if (matType === 'unique') uniID = 0 + rarID, rarID = 12;
+
+			const filteredMat = matFile.filter(mat => mat.Rar_id === rarID);
+			if (uniID) {
+				const matRef = filteredMat[uniID];
+				
+				let theMat = await TownMaterial.findOne({
+					where: [{ townid: town.townid },
+					{ mat_id: matRef.Mat_id },
+					{ rarity: 'Unique' }]
+				});
+
+				if (!theMat) {
+					fieldName = `${matRef.Name}:`;
+					fieldValue = '0';
+				} else {
+					fieldName = `${theMat.name}:`;
+					fieldValue = `${theMat.amount}`;
+				}
+
+				fieldObj = { name: fieldName, value: fieldValue };
+				return fieldObj;
+            }
+
+			const matRef = filteredMat[0];
+
+			const theMat = await TownMaterial.findOne({
+				where:
+					[{ townid: town.townid },
+					{ mat_id: matRef.Mat_id },
+					{ rar_id: matRef.Rar_id },
+					{ mattype: matType }]
+			});
+
+			if (!theMat) {
+				fieldName = `${matRef.Name}:`;
+				fieldValue = '0';
+			} else {
+				fieldName = `${theMat.name}:`;
+				fieldValue = `${theMat.amount}`;
+            }
+
+			fieldObj = { name: fieldName, value: fieldValue };
+			return fieldObj;
+        }
+
+		/**
+		 * 
+		 * @param {number} amountNeeded Int
+		 * @param {object} town DB instance
+		 * @param {string} matType Material Type
+		 * @param {string} matList required file
+		 * @param {number} rarID Rar_id Ref
+		 */
+		async function checkMatStorage(amountNeeded, town, matType, matList, rarID) {
+			const filteredMat = matList.filter(mat => mat.Rar_id === rarID);
+			const matRef = filteredMat[0];
+
+			let theMat = await TownMaterial.findOne({
+				where:
+					[{ townid: town.townid },
+					{ mat_id: matRef.Mat_id },
+					{ rar_id: matRef.Rar_id },
+					{ mattype: matType }]
+			});
+
+			let canBuild = true;
+			let matfound = true;
+			if (!theMat && amountNeeded > 0) matfound = false, canBuild = false;
+			if (!theMat) { matfound = false; } else {
+				if (theMat.amount < amountNeeded) canBuild = false;
+            }
+			
+
+			let toMap = [];
+			if (matfound) {
+				toMap.push(theMat.dataValues);
+				theMat = toMap.map(mat => ({ ...mat, amountNeeded: amountNeeded, buildStatus: canBuild }),);
+			} else {
+				toMap.push(matRef);
+				theMat = toMap.map(mat => ({ ...mat, amount: 0, amountNeeded: amountNeeded, buildStatus: canBuild, isRef: true }),);
+			}
+			
+			return theMat;
+        }
 
 		function extractCoreType(coreType) {
 			let type;
@@ -1481,6 +2055,135 @@ module.exports = {
 
 		async function noUser() {
 			await interaction.reply('No player found, Please use ``/start`` to begin your adventure!');
-        }
+		}
+
+
+		// This function is temporary
+		/** This function handles checking if a user is eligable for recieving a phasereader needed to craft a personal forge,
+		 *		this will only work once. The contained dialog is to aid in UX for the user, and will better direct the user
+		 *		towards the needed locations and commands to finish the blueprint. Upon completetion Miens storyline will become
+		 *		much clearer and straightforward!
+		 * 
+		 * @param {any} user db instance
+		 * 
+		 */
+		async function handleClergyMystQuest(user) {
+			const { Milestones, ActiveDungeon, OwnedTools } = require('../dbObjects.js');
+			const { handleMaterialAdding } = require('./exported/materialDropper.js');
+			const { grabColour } = require('./exported/grabRar.js');
+
+			const uniqueMatList = require('../events/Models/json_prefabs/materialLists/uniqueList.json');
+			const pr = uniqueMatList.filter(mat => mat.Name === 'Phasereader');
+			const phasereader = pr[0];
+
+			const userMilestone = await Milestones.findOne({ where: { userid: user.userid } });
+			if (!userMilestone) return;
+			if (userMilestone.currentquestline !== 'Myst') return;
+
+			const userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: user.userid }, { dungeonid: 6 }] });
+			if (!userDungeon || !userDungeon.completed) return;
+
+			const schemaCheck = await OwnedTools.findOne({ where: [{ spec_id: user.userid }, { name: 'Machine Schematics' }] });
+			if (schemaCheck) return;
+
+			const prCheck = await MaterialStore.findOne({ where: [{ spec_id: user.userid }, { name: 'Phasereader' }] });
+			if (prCheck) return;
+
+			const embedDescList = [];
+			const buttonLabelList = [];
+
+			embedDescList[0] = 'Hello there, what brings you here today?';
+			buttonLabelList[0] = 'Hello';
+
+			embedDescList[1] = 'It has been some time since last we saw you! Whats that in your hand?';
+			buttonLabelList[1] = 'What, this old thing?';
+
+			embedDescList[2] = 'Yes! Give it here!';
+			buttonLabelList[2] = 'Give Machine Schematics to clergyman';
+
+			embedDescList[3] = 'Oh my! What a truly fascinating contraption! Where did you get this?!';
+			buttonLabelList[3] = 'I-i found it. What does it say?';
+
+			embedDescList[4] = 'Hmmm so be it.. I cannot read it without the proper tools, I do believe a *Phasereader* is required!';
+			buttonLabelList[4] = 'Where might one find one of those?';
+
+			embedDescList[5] = 'Allow me to check our inventory, we may very well still have one!';
+			buttonLabelList[5] = 'Wait for Clergyman';
+
+			embedDescList[6] = '...';
+			buttonLabelList[6] = 'Wait for Clergyman';
+
+			embedDescList[7] = '...';
+			buttonLabelList[7] = 'Wait for Clergyman';
+
+			embedDescList[8] = 'You are in luck! We do have one. Here, its all yours free of charge. Now go build that machine!!';
+			buttonLabelList[8] = 'Thank you kindly!';
+
+			const nextButton = new ButtonBuilder()
+				.setCustomId('next-dialog')
+				.setLabel(buttonLabelList[0])
+				.setStyle(ButtonStyle.Primary);
+
+			const buttonRow = new ActionRowBuilder().addComponents(nextButton);
+
+			const clergyDialogEmbed = new EmbedBuilder()
+				.setTitle('Clergyman')
+				.setDescription(embedDescList[0])
+				.setColor('DarkAqua');
+
+			const dialogMsg = await interaction.followUp({ embeds: [clergyDialogEmbed], components: [buttonRow] });
+
+			const filter = (i) => i.user.id === interaction.user.id;
+
+			const collector = dialogMsg.createMessageComponentCollector({
+				componentType: ComponentType.Button,
+				filter,
+				time: 120000,
+			});
+
+			let currentPage = 0;
+			collector.on('collect', async (COI) => {
+				if (COI.customId === 'next-dialog') {
+					await COI.deferUpdate().then(async () => {
+						if ((currentPage + 1) === embedDescList.length) {
+							const material = await handleMaterialAdding(phasereader, 1, user, 'Phasereader');
+
+							let fieldName = `${material.name}`;
+							let fieldValue = `Value: ${material.value}\nRarity: ${material.rarity}\nAmount: 1\nUses: ***Crafting Machine Schematics***`;
+							let fieldObj = { name: fieldName, value: fieldValue };
+							let finalFields = [fieldObj];
+
+							const embedColour = await grabColour(12);
+
+							const matEmbed = new EmbedBuilder()
+								.setTitle('~==~**Material Obtained!**~==~')
+								.setColor(embedColour)
+								.addFields(finalFields);
+
+							collector.stop();
+
+							return await interaction.channel.send({ embeds: [matEmbed] }).then(embedMsg => setTimeout(() => {
+								embedMsg.delete();
+							}, 120000)).catch(e => console.error(e));
+						} else {
+							currentPage++;
+							nextButton.setLabel(buttonLabelList[currentPage]);
+							clergyDialogEmbed.setDescription(embedDescList[currentPage]);
+							await dialogMsg.edit({ embeds: [clergyDialogEmbed], components: [buttonRow] });
+						}
+					}).catch(e => console.error(e));
+                }
+			});
+
+			collector.on('end', () => {
+				dialogMsg.delete().catch(error => {
+					if (error.code !== 10008) {
+						console.error('Failed to delete the message:', error);
+					}
+				});
+			});
+
+			return;
+		}
 	},
 };
