@@ -44,7 +44,13 @@
         "Name": "Town",
         "SubCategory": [
             {
-                "Name": "Build"
+                "Name": "Build",
+                "Machine Schematics": {
+                    "Once": true,
+                    "BuildType": "house",
+                    "Unlocks": "Basic Craft",
+                    "Slot": "Forge"
+                }
             },
             {
                 "Name": "Paint"
