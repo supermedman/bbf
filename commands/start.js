@@ -1,5 +1,6 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData } = require('../dbObjects.js');
+const { UserData, ActiveEnemy } = require('../dbObjects.js');
+const { initialDisplay } = require('./exported/combatDisplay.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -49,182 +50,153 @@ module.exports = {
 
 		const channel = interaction.channel;
 
-		collector.on('collect', async (collInteract) => {
-			if (collInteract.customId === 'slot1') {
+		collector.on('collect', async (COI) => {
+			if (COI.customId === 'slot1') {
 				const classP = 'Warrior';
-				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-				console.log('username: ', collInteract.user.username);
-				console.log('userid: ', collInteract.user.id);
-				try {
-					console.log('TRY WAS CALLED');
-					const userData = await UserData.create({
-						userid: collInteract.user.id,
-						username: collInteract.user.username,
-						health: 110,
-						speed: 1,
-						strength: 2,
-						dexterity: 1,
-						intelligence: 1,
-						level: 1,
-						xp: 1,
-						points: 3,
-						pclass: classP,
-						lastdeath: 'None',
-					});
-					console.log('DATA WAS ADDED');
-
-					var uData = await UserData.findAll({ attributes: ['username'] });
-					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-					console.log(`List of users: ${dataString}`);
-
-					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
-					if (uData) {
-						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-					}
-					return channel.send(`Data for ${userData.username} added.`);
-				}
-				catch (error) {
-					if (error.name === 'SequelizeUniqueConstraintError') {
-						return channel.send('That Data already exists.');
-					}
-					console.log(`DB CONTENTS ${UserData.length}`);
-					console.error('Error occured', error);
-					return channel.send('Something went wrong with adding the data.');
-				}
+				await generateNewPlayer(classP);
+				const enemy = await generateNewEnemy();
+				collector.stop();
+				return initialDisplay(enemy.specid, interaction, enemy);
 			}
-			if (collInteract.customId === 'slot2') {
+
+			if (COI.customId === 'slot2') {
 				const classP = 'Mage';
-				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-				console.log('username: ', collInteract.user.username);
-				console.log('userid: ', collInteract.user.id);
-				try {
-					console.log('TRY WAS CALLED');
-					const userData = await UserData.create({
-						userid: collInteract.user.id,
-						username: collInteract.user.username,
-						speed: 1,
-						strength: 1,
-						dexterity: 1,
-						intelligence: 4,
-						level: 1,
-						xp: 1,
-						points: 1,
-						pclass: classP,
-						lastdeath: 'None',
-					});
-					console.log('DATA WAS ADDED');
-
-					var uData = await UserData.findAll({ attributes: ['username'] });
-					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-					console.log(`List of users: ${dataString}`);
-
-					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
-					if (uData) {
-						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-					}
-					return channel.send(`Data for ${userData.username} added.`);
-				}
-				catch (error) {
-					if (error.name === 'SequelizeUniqueConstraintError') {
-						return channel.send('That Data already exists.');
-					}
-					console.log(`DB CONTENTS ${UserData.length}`);
-					console.error('Error occured', error);
-					return channel.send('Something went wrong with adding the data.');
-				}
+				await generateNewPlayer(classP);
+				const enemy = await generateNewEnemy();
+				collector.stop();
+				return initialDisplay(enemy.specid, interaction, enemy);
 			}
-			if (collInteract.customId === 'slot3') {
+
+			if (COI.customId === 'slot3') {
 				const classP = 'Thief';
-				//msg.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
-				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-				console.log('username: ', collInteract.user.username);
-				console.log('userid: ', collInteract.user.id);
-				try {
-					console.log('TRY WAS CALLED');
-					// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-					const userData = await UserData.create({
-						userid: collInteract.user.id,
-						username: collInteract.user.username,
-						speed: 2,
-						strength: 1,
-						dexterity: 2,
-						intelligence: 2,
-						level: 1,
-						xp: 1,
-						points: 1,
-						pclass: classP,
-						lastdeath: 'None',
-					});
-					console.log('DATA WAS ADDED');
-
-					var uData = await UserData.findAll({ attributes: ['username'] });
-					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-					console.log(`List of users: ${dataString}`);
-
-					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
-					if (uData) {
-						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-					}
-					return channel.send(`Data for ${userData.username} added.`);
-				}
-				catch (error) {
-					if (error.name === 'SequelizeUniqueConstraintError') {
-						return channel.send('That Data already exists.');
-					}
-					console.log(`DB CONTENTS ${UserData.length}`);
-					console.error('Error occured', error);
-					return channel.send('Something went wrong with adding the data.');
-				}
+				await generateNewPlayer(classP);
+				const enemy = await generateNewEnemy();
+				collector.stop();
+				return initialDisplay(enemy.specid, interaction, enemy);
 			}
-			if (collInteract.customId === 'slot4') {
+
+			if (COI.customId === 'slot4') {
 				const classP = 'Paladin';
-				//msg.channel.send(`Your adventure begins now!\nGENERATING ${msg.author.username}'s PROFILE`);
-				//INPUT DATABASE TABLE FOR USERDATA HERE AND RUN THE CODE WHEN DONE
-				console.log('username: ', collInteract.user.username);
-				console.log('userid: ', collInteract.user.id);
-				try {
-					console.log('TRY WAS CALLED');
-					// equivalent to: INSERT INTO tags (name, description, username) values (?, ?, ?);
-					const userData = await UserData.create({
-						userid: collInteract.user.id,
-						username: collInteract.user.username,
-						health: 140,
-						speed: 1,
-						strength: 4,
-						dexterity: 1,
-						intelligence: 1,
-						level: 1,
-						xp: 1,
-						points: 1,
-						pclass: classP,
-						lastdeath: 'None',
-					});
-					console.log('DATA WAS ADDED');
-
-					var uData = await UserData.findAll({ attributes: ['username'] });
-					const dataString = uData.map(t => t.username).join(', ') || 'No tags set.';
-
-					console.log(`List of users: ${dataString}`);
-
-					uData = await UserData.findOne({ where: { userid: collInteract.user.id } });
-					if (uData) {
-						return channel.send(`Logging ${uData.username}'s data sheet.. \nSpeed: ${uData.speed} \nStrength: ${uData.strength} \nDexterity: ${uData.dexterity} \nIntelligence: ${uData.intelligence} \nLevel: ${uData.level} \nXP: ${uData.xp} \nPerk Points: ${uData.points} \nClass: ${uData.pclass}`);
-					}
-					return channel.send(`Data for ${userData.username} added.`);
-				}
-				catch (error) {
-					if (error.name === 'SequelizeUniqueConstraintError') {
-						return channel.send('That Data already exists.');
-					}
-					console.log(`DB CONTENTS ${UserData.length}`);
-					console.error('Error occured', error);
-					return channel.send('Something went wrong with adding the data.');
-				}
+				await generateNewPlayer(classP);
+				const enemy = await generateNewEnemy();
+				collector.stop();
+				return initialDisplay(enemy.specid, interaction, enemy);
 			}
 		});
+
+		collector.on('end', () => {
+			embedMsg.delete().catch(e => console.error(e));
+		});
+
+
+		async function generateNewPlayer(pClass) {
+			let newUser;
+			try {
+				newUser = await UserData.create({
+					userid: interaction.user.id,
+					username: interaction.user.username,
+					health: 100,
+					level: 1,
+					xp: 0,
+					pclass: pClass,
+					lastdeath: 'None',
+				});
+			} catch (error) {
+				if (error.name === 'SequelizeUniqueConstraintError') return channel.send('That Data already exists. Use ``/startcombat``!');
+				console.error(error);
+				return channel.send('Something went wrong while adding that data!');
+			}
+
+			if (!newUser) return await channel.send('Something went wrong while creating your profile!');
+
+			const statObj = loadPlayerStats(pClass);
+
+			const tableUpdate = await newUser.update({
+				health: statObj.health,
+				speed: statObj.speed,
+				strength: statObj.strength,
+				intelligence: statObj.intelligence,
+				dexterity: statObj.dexterity,
+			});
+
+			if (tableUpdate) await newUser.save();
+
+			return newUser;
+		}
+
+		async function generateNewEnemy() {
+			const enemyList = require('../events/Models/json_prefabs/enemyList.json');
+			const enemyFab = enemyList[0];
+
+			const specCode = interaction.user.id + enemyFab.ConstKey;
+
+			let hasUI = false;
+			if (enemyFab.HasUnique) hasUI = true;
+
+			let theEnemy;
+			try {
+				theEnemy = await ActiveEnemy.create({
+					name: enemyFab.Name,
+					description: enemyFab.Description,
+					level: enemyFab.Level,
+					mindmg: enemyFab.MinDmg,
+					maxdmg: enemyFab.MaxDmg,
+					health: enemyFab.Health,
+					defence: enemyFab.Defence,
+					weakto: enemyFab.WeakTo,
+					dead: enemyFab.Dead,
+					hasitem: false,
+					xpmin: enemyFab.XpMin,
+					xpmax: enemyFab.XpMax,
+					constkey: enemyFab.ConstKey,
+					hasunique: hasUI,
+					specid: specCode,
+				});
+			} catch (error) {
+				console.error(error);
+			}
+
+			if (theEnemy) return theEnemy;
+		}
+
+		function loadPlayerStats(pClass) {
+			let statObj = {
+				health: 100,
+				speed: 1,
+				strength: 1,
+				intelligence: 1,
+				dexterity: 1,
+				points: 4,
+			};
+
+			if (pClass === 'Warrior') {
+				statObj.health = 120;
+				statObj.strength++;
+				statObj.points--;
+			}
+
+			if (pClass === 'Mage') {
+				statObj.health = 110;
+				statObj.intelligence += 3;
+				statObj.points -= 3;
+			}
+
+			if (pClass === 'Thief') {
+				statObj.health = 110;
+				statObj.speed++;
+				statObj.dexterity++;
+				statObj.points -= 2;
+			}
+
+			if (pClass === 'Paladin') {
+				statObj.health = 140;
+				statObj.strength += 3;
+				statObj.points -= 3;
+			}
+
+			return statObj;
+        }
+
 	},
 
 };
