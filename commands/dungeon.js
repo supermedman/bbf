@@ -61,7 +61,7 @@ module.exports = {
 
 		if (dungeonMatch.length === 0) {
 			const userMilesCheck = await Milestones.findOne({ where: { userid: interaction.user.id } });
-
+			if (!userMilesCheck) return await interaction.followUp('You do not yet have access to dungeons! Keep questing!');
 			if (userMilesCheck.currentquestline === 'Souls') {
 				if (userMilesCheck.laststoryquest < 10) {
 					return interaction.followUp('You dont even know there is a dungeon to find, keep questing!');
