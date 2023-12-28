@@ -1,202 +1,333 @@
-const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveEnemy } = require('../dbObjects.js');
-const { initialDisplay } = require('./exported/combatDisplay.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { UserData, ActiveStatus, Town } = require('../dbObjects.js');
+const { createEnemyDisplay } = require('./exported/displayEnemy.js');
+const enemyList = require('../events/Models/json_prefabs/enemyList.json');
+const { errorForm } = require('../chalkPresets.js');
 
+const { checkHintLootBuy } = require('./exported/handleHints.js');
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('start')
-        .setDescription('Start your grand adventure!'),
-	async execute(interaction) {
+		.setName('stats')
+        .setDescription('Inspect a player or an enemies stats')
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('user')
+                .setDescription('Info about a user')
+                .addUserOption(option => option.setName('player').setDescription('The user')))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('info')
+                .setDescription('Info about how a stat work')
+                .addStringOption(option =>
+                    option.setName('stat')
+                        .setDescription('The stat')
+                        .setAutocomplete(true)
+                        .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('enemy')
+                .setDescription('Case sensitive! Try the first letter followed by a space')
+                .addStringOption(option =>
+                    option.setName('name')
+                        .setDescription('The enemy')
+                        .setAutocomplete(true)
+                        .setRequired(true))),
+    async autocomplete(interaction) {
+        const focusedOption = interaction.options.getFocused(true);
+        let choices = [];
 
-		const warriorButton = new ButtonBuilder()
-			.setCustomId('slot1')
-			.setLabel('Warrior')
-			.setStyle(ButtonStyle.Primary);
+        if (focusedOption.name === 'stat') {
+            const focusedValue = interaction.options.getFocused(false);
 
-		const mageButton = new ButtonBuilder()
-			.setCustomId('slot2')
-			.setLabel('Mage')
-			.setStyle(ButtonStyle.Primary);
+            choices = ['speed', 'strength', 'dexterity', 'intelligence'];
 
-		const thiefButton = new ButtonBuilder()
-			.setCustomId('slot3')
-			.setLabel('Thief')
-			.setStyle(ButtonStyle.Primary);
-
-		const paladinButton = new ButtonBuilder()
-			.setCustomId('slot4')
-			.setLabel('Paladin')
-			.setStyle(ButtonStyle.Primary);
-
-		const row = new ActionRowBuilder().addComponents(warriorButton, mageButton, thiefButton, paladinButton);
-
-		const embed = new EmbedBuilder()
-			.setTitle("~Welcome to Black Blade~")
-			.setColor(0x39acf3)
-			.setDescription("This is the start of the journey.. Select one of the options to continue!")
-			.addFields(
-				{ name: 'Warrior 🪓', value: 'Allrounder: \n5% reduction on damage taken \n5% increase on damage dealt', inline: true },
-				{ name: 'Mage 🪄', value: 'GlassCannon: \n5% increase on damage taken \n15% increase on damage dealt', inline: true },
-				{ name: 'Thief 🗡️', value: 'Striker: \n10% base chance of double hit \n10% base chance of crit', inline: true },
-				{ name: 'Paladin 🛡️', value: 'Unshakeable: \n15% reduction on damage taken \n5% reduction on damage dealt', inline: true },
-			);
-
-		const embedMsg = await interaction.reply({ content: 'Make your choice below.', ephemeral: true, embeds: [embed], components: [row] });
-
-		const collector = embedMsg.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 120000,
-		});
-
-		const channel = interaction.channel;
-
-		collector.on('collect', async (COI) => {
-			if (COI.customId === 'slot1') {
-				const classP = 'Warrior';
-				await generateNewPlayer(classP);
-				const enemy = await generateNewEnemy();
-				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
-			}
-
-			if (COI.customId === 'slot2') {
-				const classP = 'Mage';
-				await generateNewPlayer(classP);
-				const enemy = await generateNewEnemy();
-				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
-			}
-
-			if (COI.customId === 'slot3') {
-				const classP = 'Thief';
-				await generateNewPlayer(classP);
-				const enemy = await generateNewEnemy();
-				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
-			}
-
-			if (COI.customId === 'slot4') {
-				const classP = 'Paladin';
-				await generateNewPlayer(classP);
-				const enemy = await generateNewEnemy();
-				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
-			}
-		});
-
-		collector.on('end', () => {
-			embedMsg.delete().catch(e => console.error(e));
-		});
-
-
-		async function generateNewPlayer(pClass) {
-			let newUser;
-			try {
-				newUser = await UserData.create({
-					userid: interaction.user.id,
-					username: interaction.user.username,
-					health: 100,
-					level: 1,
-					xp: 0,
-					pclass: pClass,
-					lastdeath: 'None',
-				});
-			} catch (error) {
-				if (error.name === 'SequelizeUniqueConstraintError') return channel.send('That Data already exists. Use ``/startcombat``!');
-				console.error(error);
-				return channel.send('Something went wrong while adding that data!');
-			}
-
-			if (!newUser) return await channel.send('Something went wrong while creating your profile!');
-
-			const statObj = loadPlayerStats(pClass);
-
-			const tableUpdate = await newUser.update({
-				health: statObj.health,
-				speed: statObj.speed,
-				strength: statObj.strength,
-				intelligence: statObj.intelligence,
-				dexterity: statObj.dexterity,
-			});
-
-			if (tableUpdate) await newUser.save();
-
-			return newUser;
-		}
-
-		async function generateNewEnemy() {
-			const enemyList = require('../events/Models/json_prefabs/enemyList.json');
-			const enemyFab = enemyList[0];
-
-			const specCode = interaction.user.id + enemyFab.ConstKey;
-
-			let hasUI = false;
-			if (enemyFab.HasUnique) hasUI = true;
-
-			let theEnemy;
-			try {
-				theEnemy = await ActiveEnemy.create({
-					name: enemyFab.Name,
-					description: enemyFab.Description,
-					level: enemyFab.Level,
-					mindmg: enemyFab.MinDmg,
-					maxdmg: enemyFab.MaxDmg,
-					health: enemyFab.Health,
-					defence: enemyFab.Defence,
-					weakto: enemyFab.WeakTo,
-					dead: enemyFab.Dead,
-					hasitem: false,
-					xpmin: enemyFab.XpMin,
-					xpmax: enemyFab.XpMax,
-					constkey: enemyFab.ConstKey,
-					hasunique: hasUI,
-					specid: specCode,
-				});
-			} catch (error) {
-				console.error(error);
-			}
-
-			if (theEnemy) return theEnemy;
-		}
-
-		function loadPlayerStats(pClass) {
-			let statObj = {
-				health: 100,
-				speed: 1,
-				strength: 1,
-				intelligence: 1,
-				dexterity: 1,
-				points: 4,
-			};
-
-			if (pClass === 'Warrior') {
-				statObj.health = 120;
-				statObj.strength++;
-				statObj.points--;
-			}
-
-			if (pClass === 'Mage') {
-				statObj.health = 110;
-				statObj.intelligence += 3;
-				statObj.points -= 3;
-			}
-
-			if (pClass === 'Thief') {
-				statObj.health = 110;
-				statObj.speed++;
-				statObj.dexterity++;
-				statObj.points -= 2;
-			}
-
-			if (pClass === 'Paladin') {
-				statObj.health = 140;
-				statObj.strength += 3;
-				statObj.points -= 3;
-			}
-
-			return statObj;
+            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+            await interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            );
         }
 
+        if (focusedOption.name === 'name') {
+            const focusedValue = interaction.options.getFocused(false);
+
+            if (focusedValue) {
+                let first = focusedValue.charAt();
+                console.log(first);
+                for (var n = 0; n < enemyList.length; n++) {
+                    if (enemyList[n].Name.charAt() === first) {//Check for enemy starting with the letter provided
+                        var picked = enemyList[n].Name;//assign picked to item name at postion n in the items list found
+                        //prevent any type errors			
+                        choices.push(picked.toString());//push each name one by one into the choices array
+                    } else {
+                        //Enemy name does not match keep looking
+                    }
+                }
+
+                //Mapping the complete list of options for discord to handle and present to the user
+                const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+                await interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice })),
+                );
+            }
+        } 
+    },
+    async execute(interaction) {
+        if (!interaction) return;
+
+        if (interaction.options.getSubcommand() === 'user') {
+            await interaction.deferReply().then(async () => {
+                const user = interaction.options.getUser('player');
+
+                const hasDataCheck = await UserData.findOne({ where: { userid: interaction.user.id } });
+                if (!hasDataCheck) return await interaction.followUp('You do not have a game profile yet! Please use ``/start`` to begin!!');
+
+                if (user) {
+                    const uData = await UserData.findOne({ where: { userid: user.id } });
+                    if (!uData) return await interaction.followUp('No game profile found!');
+
+                    let userTown = 'None';
+                    if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
+   
+                    const nxtLvl = calcNextLevel(uData);
+                    const list = makeListStr(uData, nxtLvl, userTown);
+
+
+                    const userDisplayEmbed = new EmbedBuilder()
+                        .setTitle(`Requested Stats for:`)
+                        .setColor(0000)
+                        .addFields(
+                            {
+                                name: (`${uData.username}`),
+                                value: list
+
+                            }
+                        )
+                    return await interaction.followUp({ embeds: [userDisplayEmbed] });
+                }
+
+                const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+                if (!uData) return await interaction.followUp('No user data found!');
+
+                const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
+
+                if (uData.coins > 100) await checkHintLootBuy(uData, interaction);
+
+                let userTown = 'None';
+                if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
+
+                const nxtLvl = calcNextLevel(uData);
+                const list = makeListStr(uData, nxtLvl, userTown);
+
+                let embedPages = [];
+
+                const userDisplayEmbed = {
+                    title: `Requested Stats for: `,
+                    color: 0000,
+                    fields: [{
+                        name: `${uData.username}`,
+                        value: list,
+                    }],
+                };
+                if (activeUserStatus.length <= 0) return await interaction.followUp({ embeds: [userDisplayEmbed] });
+                embedPages.push(userDisplayEmbed);
+
+                let curRun = 0;
+                do {
+                    let finalFields = [];
+                    let breakPoint = 0;
+                    for (const status of activeUserStatus) {
+                        let embedFieldsName = ``;
+                        let embedFieldsValue = ``;
+                        let embedFieldsObj;
+
+                        embedFieldsName = `Active effect: ${status.name}`;
+                        if (status.duration <= 0) {
+                            if (status.curreffect === 0) {
+                                embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
+                            } else {
+                                embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
+                            }
+                        } else {
+                            if (status.curreffect === 0) {
+                                embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
+                            } else {
+                                embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
+                            }
+                        }
+
+                        embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
+                        finalFields.push(embedFieldsObj);
+
+                        breakPoint++;
+                        if (breakPoint === 5) break;
+                    }
+
+                    const embed = {
+                        title: `Active Status Effects: Page ${(curRun + 1)}`,
+                        color: 0000,
+                        fields: finalFields,
+                    };
+
+                    embedPages.push(embed);
+                    curRun++;
+                } while (curRun < (activeUserStatus.length / 5))
+
+                const backButton = new ButtonBuilder()
+                    .setLabel("Back")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('◀️')
+                    .setCustomId('back-page');
+
+                const cancelButton = new ButtonBuilder()
+                    .setLabel("Cancel")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('*️⃣')
+                    .setCustomId('delete-page');
+
+                const forwardButton = new ButtonBuilder()
+                    .setLabel("Forward")
+                    .setStyle(ButtonStyle.Secondary)
+                    .setEmoji('▶️')
+                    .setCustomId('next-page');
+
+                const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+                const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+                const filter = (ID) => ID.user.id === interaction.user.id;
+
+                const collector = embedMsg.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    filter,
+                    time: 300000,
+                });
+
+                let currentPage = 0;
+
+                collector.on('collect', async (collInteract) => {
+                    if (collInteract.customId === 'next-page') {
+                        await collInteract.deferUpdate();
+                        if (currentPage === embedPages.length - 1) {
+                            currentPage = 0;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        } else {
+                            currentPage += 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        }
+                    }
+                    if (collInteract.customId === 'back-page') {
+                        await collInteract.deferUpdate();
+                        if (currentPage === 0) {
+                            currentPage = embedPages.length - 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        } else {
+                            currentPage -= 1;
+                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+                        }
+                    }
+                    if (collInteract.customId === 'delete-page') {
+                        await collInteract.deferUpdate();
+                        await collector.stop();
+                    }
+                });
+
+                collector.on('end', () => {
+                    if (embedMsg) {
+                        embedMsg.delete();
+                    }
+                });
+                    
+            }).catch(error => {
+                console.log(errorForm(error));
+            });
+        }
+
+        if (interaction.options.getSubcommand() === 'enemy') {
+            //handle enemies here
+            await interaction.deferReply();
+            const nameStr = interaction.options.getString('name');
+
+            const theEnemy = enemyList.filter(enemy => enemy.Name === nameStr);
+            if (theEnemy.length <= 0) return await interaction.followUp(`${nameStr} could not be found! Please try again with the first letter capitilized and selecting one of the provided options!`);
+            const enemyRef = theEnemy[0];
+
+            return await createEnemyDisplay(enemyRef, interaction);
+        }
+
+        if (interaction.options.getSubcommand() === 'info') {
+            await interaction.deferReply();
+            const skill = interaction.options.getString('stat');
+            //'speed', 'strength', 'dexterity', 'intelligence'
+            if (skill) {
+                let list;
+
+                if (skill === 'speed') {
+                    list = ('2% Increased chance per skillpoint to land 2 hits before enemy attacks');
+                } else if (skill === 'strength') {
+                    list = ('Increases base health by 10 & base attack by 2');
+                } else if (skill === 'dexterity') {
+                    list = ('2% Increased chance per skillpoint to land a critical hit');
+                } else if (skill === 'intelligence') {
+                    list = ('Increases base attack by 8');
+                }
+                const skillDisplayEmbed = new EmbedBuilder()
+                    .setTitle(`Specific stat info`)
+                    .setColor(0000)
+                    .addFields(
+                        {
+                            name: (`=== ${skill} ===`),
+                            value: list
+
+                        }
+                    )
+                interaction.followUp({ embeds: [skillDisplayEmbed] }).then(async skillEmbed => setTimeout(() => {
+                    skillEmbed.delete();
+                }, 40000)).catch(console.error);
+
+            } else {
+                interaction.followUp('You have not selected a valid option, please try again using one of the options provided.');
+            }
+        }
+
+
+        function makeListStr(uData, nxtLvl, userTown) {
+             const list = `Class: ${uData.pclass}\n
+Speed: ${uData.speed}
+Strength: ${uData.strength}
+Dexterity: ${uData.dexterity}
+Intelligence: ${uData.intelligence}
+Current Health: ${uData.health}\n
+Perk Points: ${uData.points}
+\nLevel: ${uData.level}
+\nXP to next level: ${uData.xp}/${nxtLvl}
+\nCoins: ${uData.coins}\n
+Quest Tokens (Qts): ${uData.qt}\n
+Current Town: ${userTown.name ?? userTown}\n
+\nTotal Enemies Killed: ${uData.totalkills}
+Most Kills In One Life: ${uData.highestkills}
+\nLast Death: ${uData.lastdeath}
+Enemies Killed Since: ${uData.killsthislife}`;
+            return list;
+        }
+
+        function calcNextLevel(uData) {
+            let nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
+            //Adding temp xp needed change at level 20 to slow proggress for now
+            if (uData.level === 20) {
+                //Adding level scale to further restrict leveling		
+                nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+            } else if (uData.level >= 100) {
+                //Adding level scale to further restrict leveling
+                const lvlScale = 10 * (Math.floor(uData.level / 3));
+                nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+            } else if (uData.level > 20) {
+                //Adding level scale to further restrict leveling
+                const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+                nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+            } else {/*DO NOTHING*/ }
+
+            return nxtLvl;
+        }
 	},
 
 };
