@@ -538,141 +538,17 @@ module.exports = {
                     tmpItemSlice = tmpLootPool[lootPos];
                 }
 
+                let result = 'Pending';
                 if (edit) {
-                    //User has shop entry, update existing table
-                    if (tmpItemSlice.Slot === 'Mainhand') {
-                        const shopSlot = await LootShop.update(
-                            {
-                                name: tmpItemSlice.Name,
-                                value: tmpItemSlice.Value,
-                                rarity: tmpItemSlice.Rarity,
-                                rar_id: tmpItemSlice.Rar_id,
-                                attack: tmpItemSlice.Attack,
-                                defence: 0,
-                                type: tmpItemSlice.Type,
-                                slot: tmpItemSlice.Slot,
-                                hands: tmpItemSlice.Hands,
-                                loot_id: tmpItemSlice.Loot_id,
-                            },
-                            { where: [{ spec_id: interaction.user.id }, { shop_slot: curRun }] });
+                    result = await makeShopItem(user, tmpItemSlice, curRun, true);
+                } else result = await makeShopItem(user, tmpItemSlice, curRun, false);
 
-                        if (shopSlot > 0) {
-                            console.log(successResult(`Shop Slot ${curRun} updated to item ${tmpItemSlice.Name}`));
-                        }
-                    } else if (tmpItemSlice.Slot === 'Offhand') {
-                        const shopSlot = await LootShop.update(
-                            {
-                                name: tmpItemSlice.Name,
-                                value: tmpItemSlice.Value,
-                                rarity: tmpItemSlice.Rarity,
-                                rar_id: tmpItemSlice.Rar_id,
-                                attack: tmpItemSlice.Attack,
-                                defence: tmpItemSlice.Defence,
-                                type: tmpItemSlice.Type,
-                                slot: tmpItemSlice.Slot,
-                                hands: tmpItemSlice.Hands,
-                                loot_id: tmpItemSlice.Loot_id,
-                            },
-                            { where: [{ spec_id: interaction.user.id }, { shop_slot: curRun }] });
-
-                        if (shopSlot > 0) {
-                            console.log(successResult(`Shop Slot ${curRun} updated to item ${tmpItemSlice.Name}`));
-                        }
-                    } else {
-                        const shopSlot = await LootShop.update(
-                            {
-                                name: tmpItemSlice.Name,
-                                value: tmpItemSlice.Value,
-                                rarity: tmpItemSlice.Rarity,
-                                rar_id: tmpItemSlice.Rar_id,
-                                attack: 0,
-                                defence: tmpItemSlice.Defence,
-                                type: tmpItemSlice.Type,
-                                slot: tmpItemSlice.Slot,
-                                hands: tmpItemSlice.Hands,
-                                loot_id: tmpItemSlice.Loot_id,
-                            },
-                            { where: [{ spec_id: interaction.user.id }, { shop_slot: curRun }] });
-
-                        if (shopSlot > 0) {
-                            console.log(successResult(`Shop Slot ${curRun} updated to item ${tmpItemSlice.Name}`));
-                        }
-                    }
-                    
-                } else if (!edit) {
-                    //User has no shop entry, create new table
-                    if (tmpItemSlice.Slot === 'Mainhand') {
-                        await LootShop.create(
-                            {
-                                name: tmpItemSlice.Name,
-                                value: tmpItemSlice.Value,
-                                rarity: tmpItemSlice.Rarity,
-                                rar_id: tmpItemSlice.Rar_id,
-                                attack: tmpItemSlice.Attack,
-                                defence: 0,
-                                type: tmpItemSlice.Type,
-                                slot: tmpItemSlice.Slot,
-                                hands: tmpItemSlice.Hands,
-                                loot_id: tmpItemSlice.Loot_id,
-                                spec_id: interaction.user.id,
-                                shop_slot: curRun,
-                            });
-
-                        const shopSlot = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: curRun }] });
-
-                        if (shopSlot) {
-                            console.log(successResult(`Shop Slot ${curRun} created with item ${tmpItemSlice.Name}`));
-                        }
-                    } else if (tmpItemSlice.Slot === 'Offhand') {
-                        await LootShop.create(
-                            {
-                                name: tmpItemSlice.Name,
-                                value: tmpItemSlice.Value,
-                                rarity: tmpItemSlice.Rarity,
-                                rar_id: tmpItemSlice.Rar_id,
-                                attack: tmpItemSlice.Attack,
-                                defence: tmpItemSlice.Defence,
-                                type: tmpItemSlice.Type,
-                                slot: tmpItemSlice.Slot,
-                                hands: tmpItemSlice.Hands,
-                                loot_id: tmpItemSlice.Loot_id,
-                                spec_id: interaction.user.id,
-                                shop_slot: curRun,
-                            });
-
-                        const shopSlot = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: curRun }] });
-
-                        if (shopSlot) {
-                            console.log(successResult(`Shop Slot ${curRun} created with item ${tmpItemSlice.Name}`));
-                        }
-                    } else {
-                        await LootShop.create(
-                            {
-                                name: tmpItemSlice.Name,
-                                value: tmpItemSlice.Value,
-                                rarity: tmpItemSlice.Rarity,
-                                rar_id: tmpItemSlice.Rar_id,
-                                attack: 0,
-                                defence: tmpItemSlice.Defence,
-                                type: tmpItemSlice.Type,
-                                slot: tmpItemSlice.Slot,
-                                hands: tmpItemSlice.Hands,
-                                loot_id: tmpItemSlice.Loot_id,
-                                spec_id: interaction.user.id,
-                                shop_slot: curRun,
-                            });
-
-                        const shopSlot = await LootShop.findOne({ where: [{ spec_id: interaction.user.id }, { shop_slot: curRun }] });
-
-                        if (shopSlot) {
-                            console.log(successResult(`Shop Slot ${curRun} created with item ${tmpItemSlice.Name}`));
-                        }
-                    }
+                if (result !== 'Success' && result !== 'Pending') {
+                    await interaction.channel.send('Something went wrong while loading the shop! Please try again, if the issue continues leave a bug report using ``/reportbug``');
+                    break;
                 }
-
                 curRun++;
             } while (curRun < 5)
-
 
             function isUpgraded(user, pigmy, chanceToBeat, upgradeChance, curRar) {
                 if (user.pclass === 'Thief') {
@@ -711,6 +587,69 @@ module.exports = {
                 }
             }
         }      
+
+        async function makeShopItem(user, item, shopSlot, isUpdate) {
+            // Check item slot for assignments
+            let slotCheck = item.Slot;
+
+            // Dynamic value placeholders
+            let dynHands = 'NONE';
+            let dynAtk = 0;
+            let dynDef = 0;
+            if (slotCheck === 'Mainhand') {
+                // If item is mainhand only hands and attack are needed
+                dynHands = item.Hands;
+                dynAtk = item.Attack;
+            } else if (slotCheck === 'Offhand') {
+                // If item is offhand hands is One, both attack and defence are needed
+                dynHands = 'One';
+                dynAtk = item.Attack;
+                dynDef = item.Defence;
+            } else {
+                // Else item is armor and only defence is needed
+                dynDef = item.Defence;
+            }
+
+            // Add new item with values filtered through 
+            let isDone;
+            if (isUpdate) {
+                isDone = await LootShop.update({
+                    name: item.Name,
+                    value: item.Value,
+                    loot_id: item.Loot_id,
+                    rarity: item.Rarity,
+                    rar_id: item.Rar_id,
+                    attack: dynAtk,
+                    defence: dynDef,
+                    type: item.Type,
+                    slot: item.Slot,
+                    hands: dynHands
+                }, { where: [{ spec_id: user.userid }, { shop_slot: shopSlot }] });
+            } else {
+                isDone = await LootShop.create({
+                    name: item.Name,
+                    value: item.Value,
+                    loot_id: item.Loot_id,
+                    spec_id: user.userid,
+                    rarity: item.Rarity,
+                    rar_id: item.Rar_id,
+                    attack: dynAtk,
+                    defence: dynDef,
+                    type: item.Type,
+                    slot: item.Slot,
+                    hands: dynHands,
+                    shop_slot: shopSlot
+                });
+            }
+
+            if (!isUpdate && isDone) return 'Success';
+            if (isUpdate && isDone > 0) {
+                //await isDone.save();
+                return 'Success';
+            } 
+
+            return 'Item Create Failure: CODE 2';
+        }
 
         async function grabU() {
             uData = await UserData.findOne({ where: { userid: interaction.user.id } });
