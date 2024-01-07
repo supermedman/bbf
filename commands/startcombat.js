@@ -160,7 +160,7 @@ module.exports = {
 
     async execute(interaction) {
         //if (interaction.user.id !== '501177494137995264') return await interaction.reply('Sorry, this command is being tested and is unavailable.');
-        const { enemies, gearDrops, newEnemy, activeCombats } = interaction.client;
+        const { enemies, gearDrops, newEnemy } = interaction.client;
 
         const userID = interaction.user.id;
 
@@ -463,7 +463,7 @@ module.exports = {
                             .addFields(fieldObj);
 
                         collector.stop();
-                        await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
+                        await COI.channel.send({ embeds: [embed], ephemeral: true }).then(embedmsg => setTimeout(() => {
                             embedmsg.delete();
                         }, 20000)).catch(error => console.error(error));
                         if (failSteal === true) {
@@ -523,7 +523,7 @@ module.exports = {
                         if (escaped) {
                             collector.stop();
                         }
-                        await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
+                        await COI.channel.send({ embeds: [embed], ephemeral: true }).then(embedmsg => setTimeout(() => {
                             embedmsg.delete();
                         }, 20000)).catch(error => console.error(error));
                         if (failHide === true) {
@@ -572,10 +572,9 @@ module.exports = {
                     if (reinEffects > 0) player.updateDefence(reinEffects);
                     const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
                     if (tonEffects > 0) player.updateUPs(tonEffects);
-                    if (result === 'Success') {
-                        collector.stop();
-                        return display(player, enemy);
-                    }
+                    if (result !== 'Success') console.log('Potion effect not applied!');
+                    collector.stop();
+                    return display(player, enemy);
                 }
             });
 
@@ -643,7 +642,7 @@ module.exports = {
                     { name: 'HEALTH REMAINING: ', value: `${player.health}`, inline: true },
                 );
 
-            await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(attkEmbed => setTimeout(() => {
+            await interaction.channel.send({ embeds: [attackDmgEmbed], ephemeral: true }).then(attkEmbed => setTimeout(() => {
                 attkEmbed.delete();
             }, 15000)).catch(error => console.error(error));
             return;
@@ -678,7 +677,7 @@ module.exports = {
                 .addFields(
                     { name: `Obituary`, value: deathMsg, inline: true });
 
-            const embedMsg = await interaction.channel.send({ embeds: [deadEmbed], components: [grief] });
+            const embedMsg = await interaction.channel.send({ embeds: [deadEmbed], components: [grief], ephemeral: true });
 
             const filter = (i) => i.user.id === userID;
 
@@ -724,9 +723,7 @@ module.exports = {
         async function enemyDead(player, enemy) {
             const enemyRef = await ActiveEnemy.findOne({ where: { constkey: enemy.constkey } });
             const userRef = await grabU();
-            console.log(player.health);
-            console.log(userRef.health);
-            if (player.health < userRef.health) await updateValues(player, userRef);
+            await updateValues(player, userRef);
 
             let xpGained = Math.floor(Math.random() * (enemyRef.xpmax - enemyRef.xpmin + 1) + enemyRef.xpmin);
 
@@ -793,7 +790,7 @@ module.exports = {
                     .addFields(
                         { name: fieldName, value: fieldValue });
 
-                await interaction.channel.send({ embeds: [itemDropEmbed] }).then(embedMsg => setTimeout(() => {
+                await interaction.channel.send({ embeds: [itemDropEmbed], ephemeral: true }).then(embedMsg => setTimeout(() => {
                     embedMsg.delete();
                 }, 25000)).catch(error => console.error(error));
             }
@@ -821,11 +818,11 @@ module.exports = {
             await ActiveEnemy.destroy({ where: [{ specid: specCode }, { constkey: enemyRef.constkey }] });
 
             if (!newEnemy.has(userID)) {
-                await interaction.channel.send({ embeds: [killedEmbed] }).then(embedMsg => setTimeout(() => {
+                await interaction.channel.send({ embeds: [killedEmbed], ephemeral: true }).then(embedMsg => setTimeout(() => {
                     embedMsg.delete();
                 }, 25000)).catch(error => console.error(error));
             } else {
-                const embedMsg = await interaction.channel.send({ embeds: [killedEmbed], components: [row] });
+                const embedMsg = await interaction.channel.send({ embeds: [killedEmbed], components: [row], ephemeral: true });
 
                 const filter = (i) => i.user.id === userID;
 
@@ -860,9 +857,10 @@ module.exports = {
         }
 
         async function updateValues(player, user) {
-            await user.update({
+            const tableUpdate = await user.update({
                 health: player.health
             });
+            if (tableUpdate > 0) return await user.save();
         }
 
         async function runCombatTurn(player, enemy, blocking) {
@@ -957,20 +955,17 @@ module.exports = {
                     .setColor(embedColour)
                     .addFields(finalFields);
 
-                await interaction.channel.send({ embeds: [embed] }).then(embedMsg => setTimeout(() => {
+                await interaction.channel.send({ embeds: [embed], ephemeral: true }).then(embedMsg => setTimeout(() => {
                     embedMsg.delete();
                 }, 20000)).catch(error => console.error(error));
-                if (!enemy.isDead) {
-                    if (!blocking) {
-                        let dmgTaken = enemy.randDamage();
-                        dmgTaken = player.takeDamge(dmgTaken);
-                        await showDamageTaken(player, dmgTaken);
-                    }
-                } else {
-                    return enemyDead(player, enemy);
-                }
-                if (player.isDead) return playerDead(enemy);
-                if (!blocking) return display(player, enemy);
+                if (enemy.dead) return enemyDead(player, enemy);
+                if (player.dead) return playerDead(enemy);
+                if (!blocking) {
+                    let dmgTaken = enemy.randDamage();
+                    dmgTaken = player.takeDamge(dmgTaken);
+                    await showDamageTaken(player, dmgTaken);
+                    return display(player, enemy);
+                } 
                 return;
             }
         }
