@@ -1,102 +1,266 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const {
-    warnedForm,
-    errorForm,
-    successResult,
-    failureResult,
-    basicInfoForm,
-    basicInfoForm2,
-    specialInfoForm,
-    specialInfoForm2,
-    updatedValueForm,
-    updatedValueForm2
-} = require('../../chalkPresets.js');
-
-const { ActiveEnemy, LootStore, UserData, Pigmy, Loadout, ActiveStatus, OwnedPotions } = require('../../dbObjects.js');
-const { displayEWpic, displayEWOpic } = require('./displayEnemy.js');
-const { userDamageLoadout } = require('./dealDamage.js');
-const { isLvlUp, isUniqueLevelUp } = require('./levelup.js');
+const { Op } = require('sequelize');
 const { grabRar, grabColour } = require('./grabRar.js');
-const { stealing } = require('./handleSteal.js');
-const { hiding } = require('./handleHide.js');
-const { grabMat } = require('./materialDropper.js');
-const { pigmyTypeStats } = require('./handlePigmyDamage.js');
+const { createEnemyDisplay } = require('./displayEnemy.js');
+const { checkOwned } = require('./createGear.js');
+const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../../dbObjects.js');
 
-const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion } = require('./findLoadout.js');
-
-const { dropRandomBlueprint } = require('./createBlueprint.js');
-
-const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
-const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
-const activeCategoryEffects = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
+const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
+const aCATE = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
 
-//var constKey;
-//var specCode;
-//var stealDisabled = false;
-//var isHidden = false;
-//var potionOneDisabled = true;
+const { isLvlUp, isUniqueLevelUp } = require('./levelup.js');
+const { dropRandomBlueprint } = require('./createBlueprint.js');
+const { grabMat } = require('./materialDropper.js');
+const { checkHintStats } = require('./handleHints.js');
+
+const { Player } = require('./MadeClasses/Player.js');
+const { Enemy } = require('./MadeClasses/Enemy.js');
+
+/** This method retrives Defence values from all given gear ids
+ * 
+ * @param {string} userID user id snowflake
+ * @param {any[]} gear list of all gear containing defence values
+ */
+const grabDefenceGear = async (userID, gear) => {
+    let totalDs = [];
+    for (const id of gear) {
+        let pushVal = 0;
+        let itemRef;
+        if (id === 0) {
+
+        } else if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Defence;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Defence;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Defence;
+        }
+        totalDs.push(pushVal);
+    }
+    return totalDs;
+};
+
+/** This method retrives Damage values from all given gear ids
+ * 
+ * @param {string} userID user id snowflake
+ * @param {any[]} gear list of all gear containing attack values
+ */
+const grabDamageGear = async (userID, gear) => {
+    let totalAs = [];
+    for (const id of gear) {
+        let pushVal = 0;
+        let itemRef;
+        if (id === 0) {
+
+        } else if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Attack;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Attack;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Attack;
+        }
+        totalAs.push(pushVal);
+    }
+    return totalAs;
+};
+
+/** This method retrives Damage values from all given gear ids
+ * 
+ * @param {string} userID user id snowflake
+ * @param {any[]} gear list of all gear containing type values
+ */
+const grabGearTypes = async (userID, gear) => {
+    let totalTypes = [];
+    for (const id of gear) {
+        let pushVal = 'NONE';
+        let itemRef;
+        if (id === 0) {
+
+        } else if (id >= 30000) {
+            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+            pushVal = itemRef.Type;
+        } else if (id < 1000 || id >= 20000) {
+            itemRef = lootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Type;
+        } else if (id > 1000) {
+            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+            pushVal = itemRef[0].Type;
+        }
+        totalTypes.push(pushVal);
+    }
+    return totalTypes;
+};
+
+const findPotion = async (potionOneID, userID) => {
+    let potionOne;
+    console.log(potionOneID);
+    if (potionOneID === 0) {
+        //Nothing equipped
+        return 'NONE';
+    } else {
+        potionOne = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionOneID }] });
+        if (!potionOne) {
+            //console.log(warnedForm('PotionOne NOT FOUND AMOUNT LIKELY 0!'));
+            return 'HASNONE';
+        }
+        if (potionOne.amount > 0) return potionOne;
+    }
+}
+
+const randArrPos = (arr) => {
+    let returnIndex = 0;
+    if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
+    return arr[returnIndex];
+};
 
 /**
  * 
- * @param {any} uData OBJECT Static upon initial call
+ * 
  * @param {any} carriedCode ID STRING Static refrence to enemy specCode
  * @param {any} interaction STATIC INTERACTION OBJECT
  * @param {any} theEnemy Static upon initial call
  */
 //========================================
 // This method displays the enemy in its initial state
-async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
-    const specCode = carriedCode;
-    const constKey = theEnemy.constkey;
+async function initialDisplay(carriedCode, interaction, theEnemy) {
 
-    let stealDisabled = false;
-    let isHidden = false;
-
-    let potionOneDisabled = true;
-    let potionTxt = 'No Potion';
-
-    let foundLoadout = false;
+    const { gearDrops, newEnemy } = interaction.client;
 
     const userID = interaction.user.id;
-    let user = uData;
 
-    if (user.health <= 0) return playerDead('Fayrn');
-    display();
+    startCombat();
 
-    //========================================
-    //This method is used after the first time displaying an enemy for continued combat handles
-    async function display() {
-        const userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (userLoadout) foundLoadout = true;
-        if (foundLoadout === true) {
-            const userPotion = await findPotion(userLoadout.potionone, userID);
-            if (userPotion === 'NONE' || userPotion === 'HASNONE') {
+    async function startCombat() {
+        let thePlayer;
+        let theEnemy;
+        await generatePlayerClass()
+            .then(async player => {
+                thePlayer = player;
+                await loadEnemy(player)
+                    .then((enemy) => theEnemy = enemy)
+                    .catch(error => console.error('Error @ startCombat, loadEnemy:', error));
+            })
+            .catch(error => console.error('Error @ startCombat, generatePlayerClass:', error));
+        console.log('thePlayer:', thePlayer);
+        console.log('theEnemy:', theEnemy);
+
+        if (thePlayer === 'NO USER') return 'ERROR';
+        if (thePlayer !== 'NO USER') return display(thePlayer, theEnemy);
+    }
+
+    async function generatePlayerClass() {
+        const user = await grabU();
+        if (user === 'NO USER') return await interaction.followUp('No user found! Create a user profile by using ``/start``!');
+        //if (!activeCombats.has(interaction.user.id)) {
+        //    activeCombats.set(interaction.user.id, new Collection());
+        //}
+
+        //const userCombat = activeCombats.get(interaction.user.id);
+        //if (userCombat.has(interaction.id)) {
+
+        //}
+        const curPlayer = new Player(user, interaction);
+
+        curPlayer.setHealth(user.health);
+        curPlayer.checkDealtBuffs();
+        curPlayer.checkTakenBuffs();
+        curPlayer.checkStrongUsing();
+
+        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
+        curPlayer.checkPigmyUps(pigmy);
+
+        curPlayer.checkCritChance();
+        curPlayer.checkDHChance();
+
+        curPlayer.checkLootDrop(pigmy);
+        curPlayer.checkLootUP(pigmy);
+
+        curPlayer.checkBaseDamage();
+
+        const loadoutChecking = await Loadout.findOne({ where: { spec_id: userID } });
+        if (!loadoutChecking) { } else {
+            curPlayer.loadLoadout(loadoutChecking);
+
+            const allGear = curPlayer.loadout.slice(0, 5);
+            const typeVals = await grabGearTypes(userID, allGear);
+            curPlayer.setLoadoutTypes(typeVals);
+
+            const defGear = curPlayer.loadout.slice(0, 4);
+
+            const atkGear = curPlayer.loadout.slice(3, 5);
+
+            const defVals = await grabDefenceGear(userID, defGear);
+            const atkVals = await grabDamageGear(userID, atkGear);
+
+            curPlayer.checkTotalDefence(defVals);
+            curPlayer.checkTotalDamage(atkVals);
+            curPlayer.checkAgainstLoadoutTypes();
+        }
+
+        const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
+        if (!activeEffect) { } else {
+            const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
+            if (reinEffects > 0) player.updateDefence(reinEffects);
+            const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
+            if (tonEffects > 0) player.updateUPs(tonEffects);
+        }
+
+        //userCombat.set(interaction.user.id, curPlayer);
+        //setTimeout(() => userCombat.delete(interaction.user.id), 900000);
+
+        return curPlayer;
+    }
+
+    async function grabU() {
+        const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+        if (uData) return uData;
+        return 'NO USER';
+    }
+
+    async function loadEnemy(player) {
+        if (player === 'NO USER') return 'NO USER';
+
+        const specCode = carriedCode;
+        const constKey = theEnemy.constkey;
+
+        const copyCheck = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
+        if (copyCheck) {
+            const returnEnemy = new Enemy(copyCheck);
+            return returnEnemy;
+        }
+    }
+
+    async function display(player, enemy) {
+        if (player.dead === true || player.health <= 0) return playerDead(enemy);
+        if (enemy.dead === true || enemy.health <= 0) return enemyDead(player, enemy);
+        if (player.hasLoadout) {
+            const potionCheck = await findPotion(player.loadout[5], userID);
+            if (potionCheck === 'NONE' || potionCheck === 'HASNONE') {
                 //Both potion slots are empty keep buttons disabled
-                potionOneDisabled = true;
-                if (userPotion === 'NONE') potionTxt = 'No Potion';
-                if (userPotion === 'HASNONE') potionTxt = '0 Remaining';
+                player.potionDisabled = true;
+                if (potionCheck === 'NONE') player.potionTxt = 'No Potion';
+                if (potionCheck === 'HASNONE') player.potionTxt = '0 Remaining';
             } else {
-                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: userPotion.name }] });
+                const activeEffects = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { name: potionCheck.name }] });
                 if (!activeEffects || activeEffects.cooldown <= 0) {
                     //user has no active effects
-                    potionOneDisabled = false;
-                    potionTxt = `${userPotion.amount} ${userPotion.name}`;
+                    player.potionDisabled = false;
+                    player.potionTxt = `${potionCheck.amount} ${potionCheck.name}`;
                 } else {
-                    potionOneDisabled = true;
-                    potionTxt = `CoolDown: ${activeEffects.cooldown}`;
+                    player.potionDisabled = true;
+                    player.potionTxt = `CoolDown: ${activeEffects.cooldown}`;
                 }
             }
         }
-
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-
-        const enemy = await ActiveEnemy.findOne({ where: [{ specid: specCode }, { constkey: constKey }] });
-        if (!enemy) console.log(errorForm('ENEMY NOT FOUND!?'));
-
-        const hasPng = pngCheck(enemy);
 
         const hideButton = new ButtonBuilder()
             .setCustomId('hide')
@@ -112,7 +276,7 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         const stealButton = new ButtonBuilder()
             .setCustomId('steal')
             .setLabel('Steal Item')
-            .setDisabled(stealDisabled)
+            .setDisabled(player.stealDisabled)
             .setStyle(ButtonStyle.Secondary);
 
         const blockButton = new ButtonBuilder()
@@ -122,19 +286,13 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
         const potionOneButton = new ButtonBuilder()
             .setCustomId('potone')
-            .setLabel(potionTxt)
-            .setDisabled(potionOneDisabled)
+            .setLabel(player.potionTxt)
+            .setDisabled(player.potionDisabled)
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(hideButton, attackButton, stealButton, blockButton, potionOneButton);
 
-        var attachment;
-
-        if (hasPng === true) {
-            attachment = await displayEWpic(interaction, enemy, true);
-        } else {
-            attachment = await displayEWOpic(interaction, enemy, true);
-        }
+        const attachment = await createEnemyDisplay(enemy);
 
         const combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
 
@@ -146,964 +304,250 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             time: 40000,
         });
 
-        collector.on('collect', async (collInteract) => {
+        collector.on('collect', async (COI) => {
+            // Stealing!
+            if (COI.customId === 'steal') {
+                const result = await enemy.stealing(player);
+                let embedTitle = '';
+                let embedColour = 'Black';
+                let fieldName = '';
+                let fieldValue = '';
+                let fieldObj = [];
 
-            if (collInteract.customId === 'steal') {
-                await collInteract.deferUpdate();
+                let failSteal = false;
+                const dmgTaken = enemy.randDamage();
 
-                const actionToTake = await stealing(enemy, user, pigmy);//'NO ITEM'||'FAILED'||'UNIQUE ITEM'
-                if (actionToTake === 'NO ITEM') {
-                    //Enemy has no item to steal, Prevent further steal attempts & Set steal disabled globally
-                    stealDisabled = true;
-                    stealButton.setDisabled(true);
-                    await collInteract.editReply({ components: [row] });
+                if (result === 'FAILURE') {
+                    embedTitle = 'Failed!';
+                    embedColour = 'DarkRed';
+                    fieldName = 'Oh NO!';
+                    fieldValue = 'You got caught redhanded!';
+                    failSteal = true;
+                } else if (result === 'NO ITEM') {
+                    embedTitle = 'Nothing to steal';
+                    embedColour = 'NotQuiteBlack';
+                    fieldName = 'No really..';
+                    fieldValue = 'There isnt anything here!';
+                    player.stealDisabled = true;
+                } else if (result === 'UNIQUE') {
+                    const uniqueFilter = uniqueLootList.filter(item => item.Loot_id === (enemy.constkey + 1000));
+                    const uniqueItem = uniqueFilter[0];
+                    const checkUser = await grabU();
+                    const itemCreated = await checkOwned(checkUser, uniqueItem);
+                    if (itemCreated !== 'Finished') return await interaction.followUp(`Something went wrong while adding an item ${itemCreated}`);
 
-                    const emptyPockets = new EmbedBuilder()
-                        .setTitle('Nothing to steal')
-                        .setColor('NotQuiteBlack')
-                        .addFields(
-                            { name: 'No really..', value: 'There isnt anything here!', inline: true },
-                        );
-
-                    await collInteract.channel.send({ embeds: [emptyPockets] }).then(async emptyPockets => setTimeout(() => {
-                        emptyPockets.delete();
-                    }, 15000)).catch(console.error);
-
-                } else if (actionToTake === 'FAILED') {
-                    //Steal has failed! Punish player
-                    const stealFailed = new EmbedBuilder()
-                        .setTitle('Failed!')
-                        .setColor('DarkRed')
-                        .addFields(
-                            { name: 'Oh NO!', value: 'You got caught red handed!', inline: true },
-                        );
-
-                    await collInteract.channel.send({ embeds: [stealFailed] }).then(async stealFailed => setTimeout(() => {
-                        stealFailed.delete();
-                    }, 15000)).catch(console.error);
-
-                    await collector.stop();
-                    await stealPunish(enemy);
-                } else if (actionToTake === 'UNIQUE ITEM') {
-                    //Unique item detected! Find item here
-                    const itemToMake = await getUniqueItem(enemy);
-                    const uItemRef = await makeUniqueItem(itemToMake);
-                    await showStolen(uItemRef);
-                    await collector.stop();
-                    await resetHasUniqueItem(enemy);
+                    embedTitle = '~LOOT STOLEN~';
+                    embedColour = await grabColour(uniqueItem.Rar_id, false);
+                    fieldName = uniqueItem.Name;
+                    fieldValue = makeItemText(uniqueItem);
                 } else {
-                    //Steal has either been a success, or an error has occured!
-                    //Generate item with actionToTake                          
-                    const usedRar = actionToTake;
-                    const itemRef = await makeItem(enemy, usedRar, pigmy);
-                    await showStolen(itemRef);
-                    stealDisabled = true;
-                    await collector.stop();
-                    await resetHasItem(enemy); //Upon completion reload enemy
+                    const item = await findItem(player, enemy, result);
+                    if (item === 'FAILURE') return await interaction.followUp(`Something went wrong while finding an item!`);
+                    const checkUser = await grabU();
+                    const itemCheck = await checkOwned(checkUser, item);
+                    if (itemCheck !== 'Finished') return await interaction.followUp(`Something went wrong while adding an item ${item.Name}`);
+                    player.stealDisabled = true;
+                    embedTitle = '~LOOT STOLEN~';
+                    embedColour = await grabColour(item.Rar_id, false);
+                    fieldName = item.Name;
+                    fieldValue = makeItemText(item);
+                }
+
+                if (embedTitle !== '') {
+                    fieldObj.push({ name: fieldName, value: fieldValue, });
+
+                    const embed = new EmbedBuilder()
+                        .setTitle(embedTitle)
+                        .setColor(embedColour)
+                        .addFields(fieldObj);
+
+                    collector.stop();
+                    await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
+                        embedmsg.delete();
+                    }, 20000)).catch(error => console.error(error));
+                    if (failSteal === true) {
+                        player.takeDamge(dmgTaken);
+                        await showDamageTaken(player, dmgTaken);
+                    }
+                    return display(player, enemy);
                 }
             }
+            // HIDE!
+            if (COI.customId === 'hide') {
+                let embedTitle = '';
+                let embedColour = 'Black';
+                let fieldName = '';
+                let fieldValue = '';
+                let fieldObj = [];
+                let escaped = false;
 
-            if (collInteract.customId === 'hide') {
-                if (isHidden === false) {
-                    await collInteract.deferUpdate();
-                    const actionToTake = await hiding(enemy, user, pigmy);//'FAILED'||'SUCCESS'
-                    if (actionToTake === 'FAILED') {
-                        //hide failed                  
-                        const hideFailed = new EmbedBuilder()
-                            .setTitle('Failed!')
-                            .setColor('DarkRed')
-                            .addFields(
-                                { name: 'Oh NO!', value: 'You failed to hide!', inline: true },
-                            );
+                let failHide = false;
+                const dmgTaken = enemy.randDamage();
 
-                        await collInteract.channel.send({ embeds: [hideFailed] }).then(async hideFailed => setTimeout(() => {
-                            hideFailed.delete();
-                        }, 15000)).catch(console.error);
-
-                        await collector.stop();
-                        await stealPunish(enemy);
-                    } else if (actionToTake === 'SUCCESS') {
-                        const hideSuccess = new EmbedBuilder()
-                            .setTitle('Success!')
-                            .setColor('LuminousVividPink')
-                            .addFields(
-                                { name: 'Well Done!', value: 'You managed to hide!', inline: true },
-                            );
-
-                        await collInteract.channel.send({ embeds: [hideSuccess] }).then(async hideSuccess => setTimeout(() => {
-                            hideSuccess.delete();
-                        }, 15000)).catch(console.error);
+                if (!player.isHidden) {
+                    const result = player.hide(enemy);
+                    if (result === 'FAILURE') {
+                        embedTitle = 'Failed!';
+                        embedColour = 'DarkRed';
+                        fieldName = 'Oh NO!';
+                        fieldValue = 'You failed to hide!';
+                        failHide = true;
+                    } else if (result === 'SUCCESS') {
+                        embedTitle = 'Success!';
+                        embedColour = 'LuminousVividPink';
+                        fieldName = 'Well Done!';
+                        fieldValue = 'You managed to hide!';
 
                         hideButton.setLabel('Escape!');
-                        attackButton.setLabel('BackStab!');
-                        await collInteract.editReply({ components: [row] });
-                        isHidden = true;
+                        attackButton.setLabel('Backstab!');
+                        await COI.update({ components: [row] });
                     }
                 } else {
-                    //USER ESCAPED
-                    const escapeSuccess = new EmbedBuilder()
-                        .setTitle('Success!')
-                        .setColor('NotQuiteBlack')
-                        .addFields(
-                            { name: 'Well Done!', value: 'Escaped successfully!', inline: true },
-                        );
-
-                    await collInteract.channel.send({ embeds: [escapeSuccess] }).then(async escapeSuccess => setTimeout(() => {
-                        escapeSuccess.delete();
-                    }, 15000)).catch(console.error);
-
-                    await collector.stop();
-                    isHidden = false;
+                    embedTitle = 'Success!';
+                    embedColour = 'NotQuiteBlack';
+                    fieldName = 'Well Done!';
+                    fieldValue = 'Escaped Successfully!';
+                    escaped = true;
                 }
-            }
 
-            if (collInteract.customId === 'onehit') {
-                //run once reprompt reaction
-                //const currentLoadout = await Loadout.findOne({ where: { spec_id: uData.userid } });
-                //console.log(specialInfoForm(`ONEHIT START =======================`));
-                let weapon;
-                let offHand;
-                let dmgDealt;
-                if (foundLoadout === true) {
-                    weapon = await findMainHand(userLoadout.mainhand, userID);
-                    if (userLoadout.mainhand !== userLoadout.offhand) {
-                        offHand = await findOffHand(userLoadout.offhand, userID);
-                        //console.log(specialInfoForm2(`offHand equipped: ${offHand}`));
+
+                if (embedTitle !== '') {
+                    fieldObj.push({ name: fieldName, value: fieldValue, });
+
+                    const embed = new EmbedBuilder()
+                        .setTitle(embedTitle)
+                        .setColor(embedColour)
+                        .addFields(fieldObj);
+
+                    if (escaped) {
+                        collector.stop();
+                    }
+                    await COI.channel.send({ embeds: [embed] }).then(embedmsg => setTimeout(() => {
+                        embedmsg.delete();
+                    }, 20000)).catch(error => console.error(error));
+                    if (failHide === true) {
+                        player.takeDamge(dmgTaken);
+                        await showDamageTaken(player, dmgTaken);
+                    }
+                    if (!player.isHidden) {
+                        collector.stop();
+                        return display(player, enemy);
                     }
                 }
+            }
+            // Striking!!
+            if (COI.customId === 'onehit') {
+                collector.stop();
+                await runCombatTurn(player, enemy);
+                return;
+            }
+            // Blocking!
+            if (COI.customId === 'block') {
+                collector.stop();
+                let dmgTaken = enemy.randDamage();
 
-                dmgDealt = await userDamageLoadout(user, weapon, offHand);
-
-                if (isHidden === true) {
-                    //BACKSTAB
-                    dmgDealt = dmgDealt * 1.5;
-                    isHidden = false;
+                let blockStrength;
+                if (player.totalDefence <= 0) {
+                    dmgTaken = player.takeDamge(dmgTaken);
                 } else {
-                    await collInteract.deferUpdate();
+                    blockStrength = player.totalDefence * 1.5;
+                    if ((blockStrength - dmgTaken) <= 0) {
+                        dmgTaken -= blockStrength;
+                        dmgTaken = player.takeDamge(dmgTaken);
+                    } else {
+                        blockStrength -= dmgTaken;
+                        let counterDamage = (blockStrength * 0.25) + ((player.health * 0.02) * (player.str * 0.4));
+                        await runCombatTurn(player, enemy, counterDamage);
+                    }
                 }
-                await collector.stop();
-                await hitOnce(dmgDealt, weapon, offHand, enemy, false);
+                await showDamageTaken(player, dmgTaken, true);
+                return display(player, enemy);
             }
-
-            if (collInteract.customId === 'block') {
-                await collInteract.deferUpdate();
-
-                await collector.stop();
-                await blockAttack(enemy);
-            }
-
-            if (collInteract.customId === 'potone') {
-                //Potion One Used!
-                await collInteract.deferUpdate();
-                const userPotion = await findPotion(userLoadout.potionone, userID);
-                await usePotOne(userPotion);
-                await collector.stop();
-                await display();
-
+            // Potion Break!
+            if (COI.customId === 'potone') {
+                const potionUsed = await findPotion(player.loadout[5], userID);
+                const result = await handleUsePotion(potionUsed, player);
+                const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
+                if (reinEffects > 0) player.updateDefence(reinEffects);
+                const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
+                if (tonEffects > 0) player.updateUPs(tonEffects);
+                if (result !== 'Success') console.log('Potion effect not applied!');
+                collector.stop();
+                return display(player, enemy);
             }
         });
 
         collector.on('end', () => {
-            if (combatEmbed) {
-                combatEmbed.delete().catch(error => {
-                    if (error.code !== 10008) {
-                        console.error('Failed to delete the message:', error);
-                    }
-                });
-            }
+            combatEmbed.delete().catch(error => {
+                if (error.code !== 10008) {
+                    console.error('Failed to delete the message:', error);
+                }
+            });
         });
     }
 
-
-    //========================================
-    //This method checks for enemy png
-    function pngCheck(enemy) {
-        const enemyRef = enemyList.filter(eFab => eFab.ConstKey === enemy.constkey);
-        if (enemyRef[0].PngRef) return true;
-        return false;
-    }
-
-    //========================================
-    //This method is used when a user fails to steal from an enemy resulting in being attacked
-    async function stealPunish(enemy) {
-        const eDamage = await enemyDamage(enemy);
-
-        //Reload player info after being attacked
-        const dead = await takeDamage(eDamage, enemy, false);
-        user = await UserData.findOne({ where: { userid: userID } });
-        if (dead === false) {
-            return display();
-        }
-    }
-
-    //========================================
-    //This method finds a unique item attactched to the enemy that holds it
-    async function getUniqueItem(enemy) {
-        let returnLoot;
-        const returnLootList = uniqueLootList.filter(item => item.Loot_id === (enemy.constkey + 1000));
-        if (returnLootList.length) {
-            returnLoot = returnLootList[0];
-            return returnLoot;
-        }
-    }
-
-    //========================================
-    //This method is used for when an item is unique
-    async function makeUniqueItem(prefabItem) {
-        const theItem = prefabItem;
-
-        const lootStore = await LootStore.findOne({
-            where: { spec_id: userID, loot_id: theItem.Loot_id },
-        });
-
-        //check if an item was found in the previous .findOne()
-        //this checks if there is an item stored in the UserItems and adds one to the amount as defined in the dbInit script
-        //then return as a save call on the userItem data
-        if (lootStore) {
-            const inc = await lootStore.increment('amount');
-
-            if (inc) console.log('AMOUNT WAS UPDATED!');
-
-            await lootStore.save();
-
-            return lootStore;
-        }
-
-        //increase item total
-        //grab reference to user
-        //increase item total
-        user.totitem += 1;
-
-        await user.save();
-
-        if (theItem.Slot === 'Mainhand') {
-            await LootStore.create({
-                name: theItem.Name,
-                value: theItem.Value,
-                loot_id: theItem.Loot_id,
-                spec_id: userID,
-                rarity: theItem.Rarity,
-                rar_id: theItem.Rar_id,
-                attack: theItem.Attack,
-                defence: 0,
-                type: theItem.Type,
-                slot: theItem.Slot,
-                hands: theItem.Hands,
-                amount: 1
-            });
-        } else if (theItem.Slot === 'Offhand') {
-            await LootStore.create({
-                name: theItem.Name,
-                value: theItem.Value,
-                loot_id: theItem.Loot_id,
-                spec_id: userID,
-                rarity: theItem.Rarity,
-                rar_id: theItem.Rar_id,
-                attack: theItem.Attack,
-                defence: theItem.Defence,
-                type: theItem.Type,
-                slot: theItem.Slot,
-                hands: 'One',
-                amount: 1
-            });
-        } else {
-            //IS ARMOR
-            await LootStore.create({
-                name: theItem.Name,
-                value: theItem.Value,
-                loot_id: theItem.Loot_id,
-                spec_id: userID,
-                rarity: theItem.Rarity,
-                rar_id: theItem.Rar_id,
-                attack: 0,
-                defence: theItem.Defence,
-                type: theItem.Type,
-                slot: theItem.Slot,
-                hands: 'NONE',
-                amount: 1
-            });
-        }
-       
-
-        const itemAdded = await LootStore.findOne({
-            where: { spec_id: userID, loot_id: theItem.Loot_id },
-        });
-
-        return itemAdded;
-    }
-
-    //========================================
-    //This method updates the hasunique field preventing stealing the same item more than once
-    async function resetHasUniqueItem(enemy) {
-        const dbEdit = await ActiveEnemy.update({ hasunique: false }, { where: [{ specid: enemy.specid }, { constkey: enemy.constkey }] });
-        if (dbEdit > 0) {
-            //edit was made prepare reload of display
-            return display();
-        }
-
-    }
-
-    //========================================
-    //this method generates an item to be dropped upon an enemies death
-    async function makeItem(enemy, hasRar, pigmy) {
+    async function findItem(player, enemy, stealRar) {
         let foundRar = 0;
-        if (!hasRar) {
-            foundRar = await grabRar(enemy.level); //this returns a number between 0 and 10 inclusive
+        if (!stealRar) {
+            foundRar = await grabRar(enemy.level);
+        } else foundRar = stealRar;
+
+        const upgradeChance = Math.random();
+        if (foundRar < 10) if (upgradeChance >= player.mods[5]) foundRar++;
+
+        let choices = [];
+        for (const [key, value] of gearDrops) {
+            if (value === foundRar) choices.push(key);
+        }
+
+        if (choices.length <= 0) {
+            console.error('NO ITEM CHOICES FOR FOUND RARITY:', foundRar);
+            return await interaction.followUp('Something went wrong while spawning that item!');
+        }
+
+        const picked = randArrPos(choices);
+        const filtered = lootList.filter(item => item.Loot_id === picked);
+        const itemFound = filtered[0];
+        if (itemFound) return itemFound;
+    }
+
+    function makeItemText(item) {
+        let itemText;
+
+        if (item.Slot === 'Mainhand') {
+            itemText =
+                `Value: ${item.Value}c\nRarity: ${item.Rarity}\nAttack: ${item.Attack}\nType: ${item.Type}\nHands: ${item.Hands}\nSlot: ${item.Slot}`;
+        } else if (item.Slot === 'Offhand') {
+            itemText =
+                `Value: ${item.Value}c\nRarity: ${item.Rarity}\nAttack: ${item.Attack}\nDefence: ${item.Defence}\nType: ${item.Type}\nHands: ${item.Hands}\nSlot: ${item.Slot}`;
         } else {
-            foundRar = hasRar;
-        }
-        //console.log('Rarity Grabbed: ', foundRar);
-
-        let chanceToBeat = 1;
-        let upgradeChance = Math.random();
-        if (user.pclass === 'Thief') {
-            chanceToBeat -= 0.05;
+            itemText =
+                `Value: ${item.Value}c\nRarity: ${item.Rarity}\nDefence: ${item.Defence}\nType: ${item.Type}\nSlot: ${item.Slot}`;
         }
 
-        if (pigmy) {
-            if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
-                chanceToBeat -= 0.05;
-            } else {
-                chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
-            }
-        }
-
-        if (user.level >= 31) {
-            if ((Math.floor(user.level / 5) * 0.01) > 0.10) {
-                chanceToBeat -= 0.10;
-            } else {
-                chanceToBeat -= (Math.floor(user.level / 5) * 0.01);
-            }
-        }
-
-        if (foundRar < 10) {
-            if (upgradeChance >= chanceToBeat) {
-                foundRar++;
-            }
-        }
-
-        let iPool = lootList.filter(item => item.Rar_id === foundRar);
-        //list finished, select one item 
-        let randPos;
-        if (iPool.length <= 1) {
-            randPos = 0;
-        } else {
-            randPos = Math.floor(Math.random() * (iPool.length - 1));
-        }
-        const theItem = iPool[randPos];
-
-        //console.log(specialInfoForm(`theItem.Loot_id: ${theItem.Loot_id}`));
-
-        const lootStore = await LootStore.findOne({
-            where: [{ spec_id: interaction.user.id }, {loot_id: theItem.Loot_id }]
-        });
-
-        //check if an item was found in the previous .findOne()
-        //this checks if there is an item stored in the UserItems and adds one to the amount as defined in the dbInit script
-        //then return as a save call on the userItem data
-        if (lootStore) {
-            const inc = await lootStore.increment('amount');
-
-            if (inc) console.log('AMOUNT WAS UPDATED!');
-
-            await lootStore.save();
-
-            return lootStore;
-        }
-
-
-        //increase item total
-        //grab reference to user
-        //increase item total
-        user.totitem += 1;
-
-        await user.save();
-
-        let addedItem;
-        if (theItem.Slot === 'Mainhand') {
-            addedItem = await LootStore.create({
-                name: theItem.Name,
-                value: theItem.Value,
-                loot_id: theItem.Loot_id,
-                spec_id: userID,
-                rarity: theItem.Rarity,
-                rar_id: theItem.Rar_id,
-                attack: theItem.Attack,
-                defence: 0,
-                type: theItem.Type,
-                slot: theItem.Slot,
-                hands: theItem.Hands,
-                amount: 1
-            });
-        } else if (theItem.Slot === 'Offhand') {
-            addedItem = await LootStore.create({
-                name: theItem.Name,
-                value: theItem.Value,
-                loot_id: theItem.Loot_id,
-                spec_id: userID,
-                rarity: theItem.Rarity,
-                rar_id: theItem.Rar_id,
-                attack: theItem.Attack,
-                defence: theItem.Defence,
-                type: theItem.Type,
-                slot: theItem.Slot,
-                hands: 'One',
-                amount: 1
-            });
-        } else {
-            //IS ARMOR
-            addedItem = await LootStore.create({
-                name: theItem.Name,
-                value: theItem.Value,
-                loot_id: theItem.Loot_id,
-                spec_id: userID,
-                rarity: theItem.Rarity,
-                rar_id: theItem.Rar_id,
-                attack: 0,
-                defence: theItem.Defence,
-                type: theItem.Type,
-                slot: theItem.Slot,
-                hands: 'NONE',
-                amount: 1
-            });
-        }
-        
-
-        if (addedItem.name) {
-            const itemAdded = await LootStore.findOne({
-                where: { spec_id: userID, loot_id: theItem.Loot_id },
-            });
-
-            return itemAdded;
-        }
+        return itemText;
     }
 
-    //========================================
-    //This method updates the hasitem field in the ActiveEnemy database to prevent extra items being dropped on death
-    async function resetHasItem(enemy) {
-        const dbEdit = await ActiveEnemy.update({ hasitem: false }, { where: [{ specid: enemy.specid }, { constkey: enemy.constkey }] });
-        if (dbEdit > 0) {
-            //edit was made prepare reload of display
-            return display();
-        }
+    async function showDamageTaken(player, dmg, blocked) {
+        let embedTitle = 'Damage Taken';
+        dmg = Number.parseFloat(dmg).toFixed(1);
+        player.health = Number.parseFloat(player.health).toFixed(1);
+        if (blocked) embedTitle = 'Damage Blocked';
+        const attackDmgEmbed = new EmbedBuilder()
+            .setTitle(embedTitle)
+            .setColor('DarkRed')
+            .addFields(
+                { name: 'DAMAGE: ', value: `${dmg}`, inline: true },
+                { name: 'HEALTH REMAINING: ', value: `${player.health}`, inline: true },
+            );
 
+        await interaction.channel.send({ embeds: [attackDmgEmbed], ephemeral: true }).then(attkEmbed => setTimeout(() => {
+            attkEmbed.delete();
+        }, 15000)).catch(error => console.error(error));
+        return;
     }
 
-    //========================================
-    //This method spawns a drop embed upon stealing an item successfully
-    async function showStolen(itemRef) {
-        const item = itemRef;
-        let listedDefaults;
-        if (item.slot === 'Mainhand') {
-            //Item is weapon
-            listedDefaults =
-                `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
-        } else if (item.slot === 'Offhand') {
-            listedDefaults =
-                `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
-        } else {
-            listedDefaults =
-                `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
-        }
-
-        let embedColour = await grabColour(item.rar_id, false);
-
-        const itemDropEmbed = new EmbedBuilder()
-            .setTitle('~LOOT STOLEN~')
-            .setColor(embedColour)
-            .addFields({
-
-                name: `${item.name}`,
-                value: listedDefaults
-            });
-
-        await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
-            dropEmbed.delete();
-        }, 10000)).catch(console.error);
-    }
-
-    //========================================
-    // This function takes the enemies damage and comps against player defence resulting in either taking damage or dealing damage
-    async function blockAttack(enemy) {
-        let eDamage = await enemyDamage(enemy);
-
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        let currentHealth = user.health;
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                currentHealth += (extraStats.curreffect * 10);
-            }
-        }
-
-        if (user.pclass === 'Warrior') {
-            //5% damage reduction
-            eDamage -= (eDamage * 0.05);
-        } else if (user.pclass === 'Paladin') {
-            //15% damage reduction
-            eDamage -= (eDamage * 0.15);
-        } else if (user.pclass === 'Mage') {
-            //5% damage increase
-            eDamage += (eDamage * 0.05);
-        }
-
-        var defence = 0;
-        const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-        if (currentLoadout) {
-            let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-            let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-            let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-            let offHandItem;
-            if (currentLoadout.offhand === currentLoadout.mainhand) {
-                offHandItem = 'NONE';
-            } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
-
-            if (headSlotItem !== 'NONE') {
-                defence += headSlotItem.Defence;
-            }
-
-            if (chestSlotItem !== 'NONE') {
-                defence += chestSlotItem.Defence;
-            }
-
-            if (legSlotItem !== 'NONE') {
-                defence += legSlotItem.Defence;
-            }
-            //console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
-
-            if (offHandItem !== 'NONE') {
-                defence += offHandItem.Defence;
-            }
-            //console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
-
-            const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
-
-            if (extraDefence) {
-                if (extraDefence.duration > 0) {
-                    defence += extraDefence.curreffect;
-                }
-            }
-
-            let blockStrength;
-            if (defence > 0) {
-                blockStrength = defence * 1.5;
-                if ((blockStrength - eDamage) <= 0) {
-                    //Player takes damage
-                    eDamage -= blockStrength;
-
-                    const dmgBlockedEmbed = new EmbedBuilder()
-                        .setTitle("Damage Blocked")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'DAMAGE TAKEN REDUCED BY: ', value: ' ' + blockStrength + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
-                        blockedEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    return takeDamage(eDamage, enemy, true);
-                } else {
-                    //Player deals damage
-                    blockStrength -= eDamage;
-
-                    const dmgBlockedEmbed = new EmbedBuilder()
-                        .setTitle("Damage Blocked")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'BLOCK STRENGTH REMAINING: ', value: ' ' + blockStrength + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [dmgBlockedEmbed] }).then(async blockedEmbed => setTimeout(() => {
-                        blockedEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    let counterDamage = (blockStrength * 0.25) + ((currentHealth * 0.02) * (user.strength * 0.4));
-                    console.log(`counterDamage: ${counterDamage}`);
-
-                    const counterEmbed = new EmbedBuilder()
-                        .setTitle("Counter Attack!")
-                        .setColor('DarkRed')
-                        .addFields({ name: 'DAMAGE: ', value: ' ' + counterDamage + ' ', inline: true });
-
-                    await interaction.channel.send({ embeds: [counterEmbed] }).then(async cntrEmbed => setTimeout(() => {
-                        cntrEmbed.delete();
-                    }, 15000)).catch(console.error);
-
-                    let ghostWep, ghostOff;
-
-                    return hitOnce(counterDamage, ghostWep, ghostOff, enemy, true);
-                }
-            } else {
-                return takeDamage(eDamage, enemy, true);
-            }
-        } else if (!currentLoadout) {
-            return takeDamage(eDamage, enemy, true);
-        }
-    }
-
-    //========================================
-    //This method handles the bulk of combat calculations and value changes.
-    async function hitOnce(dmgDealt, weapon, offHand, enemy, isBlocked) {
-        if (enemy.health === null) {
-            console.log("Enemy has null as health an error has occured")
-            return enemyDead(enemy); //enemy is dead
-        }
-        const pigmy = await Pigmy.findOne({ where: { spec_id: userID } });
-
-        let eHealth = enemy.health;
-        const eDefence = enemy.defence;
-
-        let mainDmgType;
-        let offDmgType;
-        //console.log(basicInfoForm(`User damage Dealt before any bonuses or reductions: ${dmgDealt}`));
-
-        if (!weapon || weapon === 'NONE') {
-            mainDmgType = 'NONE';
-        }
-        if (!offHand || offHand === 'NONE') {
-            offDmgType = 'NONE';
-        }
-
-        const Etype = enemy.weakto.toLowerCase();
-        //console.log('Enemy Weakto: ', Etype);
-
-        if (mainDmgType === 'NONE' && offDmgType === 'NONE') {
-            //Do nothing no type match
-        } else {
-            if (mainDmgType !== 'NONE') {
-                mainDmgType = weapon.Type.toLowerCase();
-                //console.log('Weapon Type: ', mainDmgType);
-            }
-            if (offDmgType !== 'NONE') {
-                offDmgType = offHand.Type.toLowerCase();
-                //console.log('Offhand Type: ', offDmgType);
-            }
-        }
-
-        if (mainDmgType === Etype) {
-            dmgDealt += (dmgDealt * 0.5);
-            //console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
-        }
-        if (offDmgType === Etype) {
-            dmgDealt += (dmgDealt * 0.5);
-            //console.log(specialInfoForm(`User damage Dealt TYPEMATCH: ${dmgDealt}`));
-        }
-
-        let embedColour = 'NotQuiteBlack';
-        let embedTitle = 'Damage Dealt';
-
-        var spdUP = 0;
-        var dexUP = 0;
-
-        let pigmyStats = {
-            pigmyDmg: 0,
-            int: 0,
-            dex: 0,
-            str: 0,
-            spd: 0
-        };
-        if (pigmy) pigmyStats = pigmyTypeStats(pigmy);
-
-        spdUP += Math.floor(pigmyStats.spd / 50);
-        dexUP += Math.floor(pigmyStats.dex / 50);
-
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                spdUP += (extraStats.curreffect / 50);
-                dexUP += (extraStats.curreffect / 50);
-            }
-        }
-
-        let dhChance;
-        let isDH = false;
-        let runCount = 1;
-        if (user.pclass === 'Thief') {
-            dhChance = (((user.speed * 0.02) + 0.10) + spdUP);
-        } else { dhChance = ((user.speed * 0.02) + spdUP); }
-        //console.log('Current 2 hit chance: ', dhChance);
-        //console.log(specialInfoForm(`Current double hit chance: ${dhChance}`));
-
-        const procCall1 = Math.random();
-        //console.log(basicInfoForm(`RNG for double hit: ${procCall1}\n`));
-        //console.log('RNG rolled for double hit: ', procCall1, '\n');
-
-        //======================
-        // First proc call if statment to check for double
-        if (procCall1 <= dhChance) {
-            //double attack has triggered
-            runCount = 2;
-            console.log(successResult('Double hit!\n'));
-            isDH = true;
-            embedColour = 'Aqua';
-            embedTitle = 'Double Hit!';
-        }
-        //======================
-
-        
-
-        // Do {attack for n times} While (n < runCount)
-        var i = 0;
-        const staticDmg = dmgDealt;
-        do {
-            //  Implement Critical here
-            dmgDealt = staticDmg;
-            var critChance;
-            if (user.pclass === 'Thief') {
-                critChance = (((user.dexterity * 0.02) + 0.10) + dexUP);
-            } else { critChance = ((user.dexterity * 0.02) + dexUP); }
-            //console.log(specialInfoForm('Current crit chance: ', critChance));
-
-            const procCall2 = Math.random();
-            //console.log(basicInfoForm('RNG rolled for crit chance: ', procCall2, '\n'));
-
-            //======================
-            // Second proc call if statment to check for crit
-            if (procCall2 <= critChance) {
-                //attack is now a critical hit
-                dmgDealt *= 2;
-                console.log(successResult('Critical hit!\nNew damage before defence: ', dmgDealt, '\n'));
-                embedColour = 'LuminousVividPink';
-                embedTitle = 'Critical Hit!';
-            } else if (isDH) {
-                embedColour = 'Aqua';
-                embedTitle = 'Double Hit!';
-            } else {
-                embedColour = 'NotQuiteBlack';
-                embedTitle = 'Damage Dealt';
-            }
-            //======================
-
-            if (isBlocked === true) {
-                //Defence is ignored when a counter attack is made!
-            } else if (isBlocked === false) {
-                dmgDealt -= (eDefence * 2);
-            }
-
-            //if statment to check if enemy dies after attack
-            if ((eHealth - dmgDealt) <= 0) {
-                console.log('ENEMY IS DEAD');
-                //console.log(specialInfoForm(`ONEHIT STOP =======================`));
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-                return enemyDead(enemy); // enemy is dead
-            } else {
-                eHealth -= dmgDealt;
-                eHealth = Number.parseFloat(eHealth).toFixed(1);
-                dmgDealt = Number.parseFloat(dmgDealt).toFixed(1);
-                console.log(updatedValueForm(`CURRENT ENEMY HEALTH: ${eHealth}`));
-                //console.log('', );
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle(embedTitle)
-                    .setColor(embedColour)
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + dmgDealt + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                //NEW METHOD TO DEAL DAMAGE  
-                await hitE(eHealth, enemy);
-            }
-            i++;
-        } while (i < runCount)
-
-        /**
-            Deal with enemy damaging player calculations and handling here!!
-                
-            If enemy is still alive then player gets attacked
-    
-            Using similar calculations to dealing damage to enemy handle player damage taken
-    
-            Account for player class and stats when dealing damage
-        */
-        if (isBlocked === true) {
-            user = await UserData.findOne({ where: { userid: userID } });
-            return display();
-        } else if (isBlocked === false) {
-            //console.log(specialInfoForm2(`TAKEDAMAGE START =======================`));
-            const eDamage = await enemyDamage(enemy);
-            //console.log(basicInfoForm2(`Enemy damage before +-: ${eDamage}`));
-            
-
-            const dead = await takeDamage(eDamage, enemy, false);
-            user = await UserData.findOne({ where: { userid: userID } });
-            //console.log(specialInfoForm(`ONEHIT STOP =======================`));
-
-            if (dead === false) {
-                //console.log(`uData: ${uData} \nspecCode: ${specCode} \ninteraction: ${interaction} \nEnemy: ${enemy}`);
-                return display();
-            }
-        }
-    }
-
-    //========================================
-    // This method calculates damage dealt to user 
-    async function takeDamage(eDamage, enemy, isBlocked) {
-        const extraStats = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Tons' }] });
-        const maxHealth = 100 + (user.strength * 10);
-        let currentHealth = user.health;
-        if (extraStats) {
-            if (extraStats.duration > 0) {
-                currentHealth += (extraStats.curreffect * 10);
-            }
-        }
-
-        if (isBlocked === true) {
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died
-                console.log(failureResult('PLAYER IS DEAD :O'));
-                await hitP(0, user);
-                await playerDead(enemy);
-                return true;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log(successResult(`Current player health: ${currentHealth}`));
-                if (currentHealth > maxHealth) currentHealth = maxHealth;
-                //console.log('CURRENT PLAYER HEALTH: ', currentHealth);
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                await hitP(currentHealth);
-                return display();
-            }
-        } else if (isBlocked === false) {
-            if (user.pclass === 'Warrior') {
-                //5% damage reduction
-                eDamage -= (eDamage * 0.05);
-            } else if (user.pclass === 'Paladin') {
-                //15% damage reduction
-                eDamage -= (eDamage * 0.15);
-            } else if (user.pclass === 'Mage') {
-                //5% damage increase
-                eDamage += (eDamage * 0.05);
-            }
-
-            let defence = 0;
-            const currentLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-            if (currentLoadout) {
-                let headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-                let chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-                let legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-                let offHandItem;
-                if (currentLoadout.offhand === currentLoadout.mainhand) {
-                    offHandItem = 'NONE';
-                } else offHandItem = await findOffHand(currentLoadout.offhand, userID);
-
-                if (headSlotItem !== 'NONE') {
-                    defence += headSlotItem.Defence;
-                }
-
-                if (chestSlotItem !== 'NONE') {
-                    defence += chestSlotItem.Defence;
-                }
-
-                if (legSlotItem !== 'NONE') {
-                    defence += legSlotItem.Defence;
-                }
-                //console.log(updatedValueForm(`Total Defence from Armor: ${defence}`));
-
-                if (offHandItem !== 'NONE') {
-                    defence += offHandItem.Defence;
-                }
-                //console.log(updatedValueForm2(`Total Defence Plus offhand: ${defence}`));
-
-                const extraDefence = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'Reinforce' }] });
-
-                if (extraDefence) {
-                    if (extraDefence.duration > 0) {
-                        defence += extraDefence.curreffect;
-                    }
-                }
-
-                if (defence > 0) {
-                    //Player has defence use accordingly
-                    eDamage -= defence;
-                }
-            }
-
-            if (eDamage < 0) {
-                eDamage = 0;
-            }
-
-            if ((currentHealth - eDamage) <= 0) {
-                //Player has died
-                console.log(failureResult('PLAYER IS DEAD :O'));
-                //console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
-                await hitP(0);
-                await playerDead(enemy);
-                return true;
-            } else {
-                currentHealth -= eDamage;
-                currentHealth = Number.parseFloat(currentHealth).toFixed(1);
-                console.log(successResult(`Current player health: ${currentHealth}`));
-                if (currentHealth > maxHealth) currentHealth = maxHealth;
-
-                const attackDmgEmbed = new EmbedBuilder()
-                    .setTitle("Damage Taken")
-                    .setColor('DarkRed')
-                    .addFields(
-                        { name: 'DAMAGE: ', value: ' ' + eDamage + ' ', inline: true },
-                        { name: 'HEALTH REMAINING: ', value: ' ' + currentHealth + ' ', inline: true },
-                    );
-
-                await interaction.channel.send({ embeds: [attackDmgEmbed] }).then(async attkEmbed => setTimeout(() => {
-                    attkEmbed.delete();
-                }, 15000)).catch(console.error);
-
-                await hitP(currentHealth);
-                //console.log(specialInfoForm2(`TAKEDAMAGE STOP =======================`));
-                return false;
-            }
-        }
-    }
-
-    //========================================
-    //this method updates the enemies health after being attacked and returns
-    async function hitP(currentHealth) {
-        const dealDmg = await UserData.update({ health: currentHealth }, { where: { userid: userID } });
-        if (dealDmg) {
-            //console.log(updatedValueForm('Player Health has been updated'));
-            return;
-        }
-    }
-
-    //========================================
-    //this method updates the enemies health after being attacked and returns
-    async function hitE(eHealth, enemy) {
-        const dealDmg = await ActiveEnemy.update({ health: eHealth }, { where: [{ specid: specCode }, { constkey: enemy.constkey }] });
-        if (dealDmg) {
-            //console.log('Enemy Health has been updated');
-            return;
-        }
-    }
-
-    //========================================
-    // This method handles when player has died
     async function playerDead(enemy) {
-        /*PLAYER IS DEAD HANDLE HERE*/
-        //TEMPORARY EMBED FOR TESTING PURPOSES WILL BE CANVASED LATER
-
         const reviveButton = new ButtonBuilder()
             .setCustomId('primary')
             .setLabel('Revive')
@@ -1112,35 +556,27 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
 
         const grief = new ActionRowBuilder().addComponents(reviveButton);
 
-        const specialMsg = Math.random();
-        //console.log(`specialMsg: ${specialMsg}`);
-        const MsgID = Math.round(Math.random() * (deathMsgList.length - 1));
-        //console.log(`MsgID: ${MsgID}`);
-        let deathMsgListing;
-        if (enemy === 'Fayrn') {
-            deathMsgListing =
-                `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to the gods, please Mourn your loss to revive to full health.`
-        }
-        if (specialMsg >= 0.9) {
-            deathMsgListing = deathMsgList[MsgID].Value;
-            //console.log(`list: ${list}`);
+        const enemyRef = await ActiveEnemy.findOne({ where: [{ constkey: enemy.constkey }] });
+        const userRef = await grabU();
+
+        const specMsgChance = Math.random();
+        const msgID = randArrPos(deathMsgList);
+        let deathMsg;
+        if (specMsgChance >= 0.9) {
+            deathMsg = msgID.Value;
         } else {
-            deathMsgListing =
-                `Fighting fearlessly till the end, ${user.username} nonetheless fell prey to ${enemy.name}`
+            deathMsg = `Fighting fearlessly till the end, ${userRef.username}, nonetheless fell prey to ${enemyRef.name}`;
         }
 
-        await updateDiedTo(enemy);
-
-        await resetKillCount();
+        await updateDiedTo(enemyRef, userRef);
 
         const deadEmbed = new EmbedBuilder()
             .setTitle('YOU HAVE FALLEN IN COMBAT')
             .setColor('DarkGold')
             .addFields(
-                { name: `Obituary`, value: deathMsgListing, inline: true },
-            );
+                { name: `Obituary`, value: deathMsg, inline: true });
 
-        const embedMsg = await interaction.channel.send({ embeds: [deadEmbed], components: [grief] });
+        const embedMsg = await interaction.channel.send({ embeds: [deadEmbed], components: [grief], ephemeral: true });
 
         const filter = (i) => i.user.id === userID;
 
@@ -1150,10 +586,10 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             time: 40000,
         });
 
-        collector.on('collect', async (collInteract) => {
+        collector.on('collect', (collInteract) => {
             if (collInteract.customId === 'primary') {
-                await collector.stop();
-                await revive();
+                collector.stop();
+                return revive(userRef);
             }
         });
 
@@ -1168,77 +604,43 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
         });
     }
 
-    //========================================
-    // This method resets player health to full upon death
-    async function revive() {
-        const totalHealth = 100 + (user.strength * 10);
-        const editRow = await UserData.update({ health: totalHealth }, { where: { userid: userID } });
-        if (editRow > 0) return console.log(successResult('Player successfully revived to full health!'));
-    }
-
-    //========================================
-    //This method updates the value for lastdeath to be used for other info commands about a user
-    async function updateDiedTo(enemy) {
-        const tableEdit = await UserData.update({ lastdeath: enemy.name }, { where: { userid: userID } });
-        if (tableEdit > 0) {
-            //Value updated successfully
-            console.log(updatedValueForm(`User Death Updated!`));
-            return;
-        }
-    }
-
-    //========================================
-    //This method sets the killsthislife value to 0 upon user death
-    async function resetKillCount() {
+    async function updateDiedTo(enemy, user) {
+        await UserData.update({ lastdeath: enemy.name }, { where: { userid: userID } });
         if (user.highestkills < user.killsthislife) {
-            const updateKRecord = await UserData.update({ highestkills: user.killsthislife }, { where: { userid: userID } });
-            if (updateKRecord > 0) {
-                console.log(updatedValueForm(`NEW KILL RECORD!`));
-            }
+            await UserData.update({ highestkills: user.killsthislife }, { where: { userid: userID } });
         }
         const killreset = await UserData.update({ killsthislife: 0 }, { where: { userid: userID } });
-        if (killreset > 0) {
-            console.log(updatedValueForm2(`KILLS RESET!`));
-        }
+        if (killreset > 0) return;
     }
 
-    //========================================
-    // This method handles when enemy has died 
-    async function enemyDead(enemy) {
-        let xpGained = Math.floor(Math.random() * (enemy.xpmax - enemy.xpmin + 1) + enemy.xpmin);
+    async function revive(user) {
+        const totalHealth = 100 + (user.strength * 10);
+        const editRow = await UserData.update({ health: totalHealth }, { where: { userid: userID } });
+        if (editRow > 0) return;
+    }
 
-        const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: userID }, { activec: 'EXP' }] });
-        if (extraEXP) {
-            if (extraEXP.duration > 0) {
-                xpGained += xpGained * extraEXP.curreffect;
-            }
+    async function enemyDead(player, enemy) {
+        const enemyRef = await ActiveEnemy.findOne({ where: { constkey: enemy.constkey } });
+        const userRef = await grabU();
+        await updateValues(player, userRef);
+
+        let xpGained = Math.floor(Math.random() * (enemyRef.xpmax - enemyRef.xpmin + 1) + enemyRef.xpmin);
+
+        const coinsGained = xpGained + Math.floor(Math.random() * (10 - 1) + 1);
+
+
+        await isLvlUp(xpGained, coinsGained, interaction, userRef);
+
+        let blueyDropRate = 0.98;
+        const blueyRolled = Math.random();
+        if (blueyRolled > blueyDropRate) {
+            await dropRandomBlueprint(userRef.level, userID, interaction);
         }
-        const cCalc = ((xpGained - 5) + 1);
 
-        await isLvlUp(xpGained, cCalc, interaction, user);
-
-        let blueyBaseDropRate = 0.98;
-        const rolledChance = Math.random();
-
-        if (rolledChance > blueyBaseDropRate) {
-            //Blueprint drops!
-            await dropRandomBlueprint(user.level, userID, interaction);
-        }
-
-        let foundMaterial = await grabMat(enemy, user, interaction);
-        if (foundMaterial === 0) {
-            //Do nothing, invalid return value given
-        } else if (!foundMaterial) {
-            //Error occured ignore futher..
-        } else {
-            //console.log(basicInfoForm(`foundMaterial: ${foundMaterial}`));
-        }
+        await grabMat(enemyRef, userRef, interaction);
 
         const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
-        if (!activeEffect) {
-            //No active effects to manage
-        } else if (activeEffect) {
-            //console.log(specialInfoForm('ACTIVE EFFECTS FOUND'));
+        if (activeEffect) {
             const activeEffects = await ActiveStatus.findAll({ where: { spec_id: userID } });
             let runCount = 0;
             let currEffect;
@@ -1263,226 +665,281 @@ async function initialDisplay(uData, carriedCode, interaction, theEnemy) {
             } while (runCount < activeEffects.length)
         }
 
-        await isUniqueLevelUp(interaction, user);
+        await isUniqueLevelUp(interaction, userRef);
 
-        const newtotalK = user.totalkills + 1;
-        const newCurK = user.killsthislife + 1;
+        await userRef.increment(['totalkills', 'killsthislife'], { by: 1 });
+        await userRef.save();
 
-        await UserData.update({ totalkills: newtotalK }, { where: { userid: userID } });
-        await UserData.update({ killsthislife: newCurK }, { where: { userid: userID } });
-
-        if (enemy.hasitem === true) {
-            let item;
-            try {
-                item = await makeItem(enemy);
-
-                let listedDefaults;
-                if (item.slot === 'Mainhand') {
-                    //Item is weapon
-                    listedDefaults =
-                        `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
-                } else if (item.slot === 'Offhand') {
-                    listedDefaults =
-                        `Value: **${item.value}c**\nRarity: **${item.rarity}**\nAttack: **${item.attack}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\nAmount Owned: **${item.amount}**`;
-                } else {
-                    listedDefaults =
-                        `Value: **${item.value}c**\nRarity: **${item.rarity}**\nDefence: **${item.defence}**\nType: **${item.type}**\nSlot: **${item.slot}**\nAmount Owned: **${item.amount}**`;
-                }
-
-                const dropEmbedColour = await grabColour(item.rar_id);
-
-                const itemDropEmbed = new EmbedBuilder()
-                    .setTitle('~LOOT DROPPED~')
-                    .setColor(dropEmbedColour)
-                    .addFields({
-
-                        name: (`${item.name}\n`),
-                        value: listedDefaults
-                    });
-
-                await interaction.channel.send({ embeds: [itemDropEmbed] }).then(async dropEmbed => setTimeout(() => {
-                    dropEmbed.delete();
-                }, 20000)).catch(console.error);
-            } catch (error) {
-                console.log(errorForm(error));
-            }
+        if (userRef.totalkills > 10) {
+            await checkHintStats(userRef, interaction);
         }
+
+        if (enemy.hasItem) {
+            const madeItem = await findItem(player, enemy);
+            const itemCheck = await checkOwned(userRef, madeItem);
+            if (itemCheck !== 'Finished') return await interaction.followUp(`Something went wrong while adding an item ${madeItem.Name}`);
+
+            const fieldName = `${madeItem.Name}`;
+            const fieldValue = makeItemText(madeItem);
+            const embedColour = await grabColour(madeItem.Rar_id);
+
+            const itemDropEmbed = new EmbedBuilder()
+                .setTitle('~LOOT DROPPED~')
+                .setColor(embedColour)
+                .addFields(
+                    { name: fieldName, value: fieldValue });
+
+            await interaction.channel.send({ embeds: [itemDropEmbed], ephemeral: true }).then(embedMsg => setTimeout(() => {
+                embedMsg.delete();
+            }, 25000)).catch(error => console.error(error));
+        }
+
+        //const row = new ActionRowBuilder()
+        //    .addComponents(
+        //        new ButtonBuilder()
+        //            .setCustomId('spawn-new')
+        //            .setLabel('New Enemy')
+        //            .setStyle(ButtonStyle.Success)
+        //            .setDisabled(false)
+        //            .setEmoji('💀'));
 
         const killedEmbed = new EmbedBuilder()
             .setTitle("YOU KILLED THE ENEMY!")
             .setColor(0000)
             .setDescription("Well done!")
             .addFields(
-                { name: 'Xp Gained', value: ' ' + xpGained + ' ', inline: true },
-                { name: 'Coins Gained', value: ' ' + cCalc + ' ', inline: true },
+                { name: 'Xp Gained', value: `${xpGained}`, inline: true },
+                { name: 'Coins Gained', value: `${coinsGained}`, inline: true },
             );
 
-        await interaction.channel.send({ embeds: [killedEmbed] }).then(async embedMsg => setTimeout(() => {
+        const specCode = userID + enemyRef.constkey;
+
+        await ActiveEnemy.destroy({ where: [{ specid: specCode }, { constkey: enemyRef.constkey }] });
+
+        //if (!newEnemy.has(userID)) {
+        await interaction.channel.send({ embeds: [killedEmbed], ephemeral: true }).then(embedMsg => setTimeout(() => {
             embedMsg.delete();
-        }, 25000)).catch(console.error);
-        removeE(enemy);
+        }, 25000)).catch(error => console.error(error));
+        //} else {
+        
+        //    const embedMsg = await interaction.channel.send({ embeds: [killedEmbed], components: [row] });
+
+        //    const filter = (i) => i.user.id === userID;
+
+        //    const collector = embedMsg.createMessageComponentCollector({
+        //        componentType: ComponentType.Button,
+        //        filter,
+        //        time: 40000,
+        //    });
+
+        //    collector.on('collect', async (collInteract) => {
+        //        if (collInteract.customId === 'spawn-new') {
+        //            //console.log(specialInfoForm('SPAWN-NEW WAS PRESSED!'));
+        //            await collInteract.deferUpdate();
+        //            //delete the embed here
+        //            collector.stop();
+        //            startCombat();//run the entire script over again
+        //        }
+        //    });
+
+        //    collector.on('end', () => {
+        //        if (embedMsg) {
+        //            embedMsg.delete().catch(error => {
+        //                if (error.code !== 10008) {
+        //                    console.error('Failed to delete the message:', error);
+        //                }
+        //            });
+        //        }
+        //    });
+        //}
     }
 
-    //========================================
-    //this method is for removing an enemy when they have been killed
-    async function removeE(enemy) {
-        const rowCount = await ActiveEnemy.destroy({ where: [{ specid: enemy.specid }, { constkey: enemy.constkey }] });
-        if (!rowCount) console.log('That enemy did not exist.');
-
-        //console.log('Enemy removal success!!');
-        return;
+    async function updateValues(player, user) {
+        const tableUpdate = await user.update({
+            health: player.health
+        });
+        if (tableUpdate > 0) return await user.save();
     }
 
-    //========================================
-    // This method calculates damage dealt by an enemy and returns that value
-    function enemyDamage(enemy) {
-        // First: grab enemy damage min and max
-        // Second: rng between those inclusively 
-        // Third: Return the value for further use 
+    async function runCombatTurn(player, enemy, blocking) {
+        let embedTitle = 'Damage Dealt';
+        let embedColour = 'NotQuiteBlack';
+        let fieldName = '';
+        let fieldValue = '';
+        let fieldObj = {};
+        let finalFields = [];
 
-        const dmgDealt = Math.floor(Math.random() * (enemy.maxdmg - enemy.mindmg + 1) + enemy.mindmg);
-        return dmgDealt;
-    }
+        let initialDamage;
+        if (!blocking) initialDamage = player.curDamage;
+        if (blocking) initialDamage = blocking;
 
-    //========================================
-    // This function handles using an equipped potion
-    async function usePotOne(potion) {
-        //User used potion in slot one!
-        let appliedCurrEffect;
-        if (potion.activecategory === 'Healing') {
+        if (player.isHidden) {
+            initialDamage += initialDamage * 0.5;
+            player.isHidden = false;
+        }
 
-            const filterHeal = activeCategoryEffects.filter(effect => effect.Name === 'Healing');
-            //console.log(basicInfoForm('filterHeal @ potion: ', filterHeal[0][`${potion.name}`]));
-            const healAmount = filterHeal[0][`${potion.name}`];
-            let newHealth;
-            if (healAmount > 0) {
-                //console.log(successResult('HEALAMOUNT FOUND TRYING TO HEAL FOR THAT AMOUNT!', healAmount));
-                appliedCurrEffect = 0;
-                const totalHealth = 100 + (user.strength * 10);
-                if (user.health === totalHealth) {
-                    return await interaction.followUp('You are already at maximum health!!');
-                } else {
-                    if ((user.health + healAmount) > totalHealth) {
-                        newHealth = totalHealth;
-                        //console.log(specialInfoForm('newHealth if max health reached: ', newHealth));
-                    } else {
-                        newHealth = user.health + healAmount;
-                        //console.log(specialInfoForm('newHealth if no constraint reached: ', newHealth));
-                    }
-                    //console.log(specialInfoForm('newHealth after checks: ', newHealth));
-
-                    const editRow = await UserData.update({ health: newHealth }, { where: { userid: userID } });
-                    if (editRow > 0) console.log(successResult('USER HEALED SUCCESSFULLY!'));
-
-                    await interaction.followUp(`Healing potion used. Healed for: ${healAmount} Current Health: ${newHealth}`);
-                }
+        const critChance = player.mods[2];
+        const dhChance = player.mods[3];
+        const gearTypes = player.loadoutTypes.slice(3, 5);
+        for (const type of gearTypes) {
+            if (type.toLowerCase === enemy.weakTo.toLowerCase()) {
+                initialDamage += initialDamage * 0.5;
             }
         }
+
+        const staticDamage = initialDamage;
+        const turns = [];
+        let turnDamageOne = {
+            type: 'Normal',
+            dmg: staticDamage,
+        };
+
+        let turnDamageTwo = {
+            type: 'Normal',
+            dmg: staticDamage,
+        };
+
+        const rolledDH = Math.random();
+        let runFor = 1;
+        if (rolledDH <= dhChance) {
+            runFor = 2;
+            turnDamageOne.type = 'Double Hit';
+            turnDamageTwo.type = 'Double Hit';
+            embedColour = 'Aqua';
+        }
+
+        let i = 0;
+        let thisTurn;
+        do {
+            if (i === 0) thisTurn = turnDamageOne;
+            if (i === 1) thisTurn = turnDamageTwo;
+            initialDamage = staticDamage;
+
+            let rolledCrit = Math.random();
+            if (rolledCrit <= critChance) {
+                embedColour = 'LuminousVividPink';
+                initialDamage *= 2;
+                thisTurn.type = 'Critical Hit';
+                thisTurn.dmg = initialDamage;
+            } else {
+                thisTurn.type = 'Normal';
+                thisTurn.dmg = initialDamage;
+            }
+            turns.push(thisTurn);
+            i++;
+        } while (i < runFor)
+
+        for (let i = 0; i < turns.length; i++) {
+            fieldName = turns[i].type;
+
+            let newDmg;
+            if (!blocking) {
+                newDmg = turns[i].dmg - (enemy.defence * 2);
+                enemy.curHealth(turns[i].dmg);
+            } else {
+                newDmg = turns[i].dmg + (enemy.defence * 2); // Reseting Defence during enemy taking damage
+                enemy.curHealth(newDmg);
+            }
+            newDmg = Number.parseFloat(newDmg).toFixed(1);
+            fieldValue = newDmg;
+
+            fieldObj = { name: fieldName, value: `${fieldValue}`, inline: true };
+            finalFields.push(fieldObj);
+        }
+
+        if (finalFields.length > 0) {
+            const embed = new EmbedBuilder()
+                .setTitle(embedTitle)
+                .setColor(embedColour)
+                .addFields(finalFields);
+
+            await interaction.channel.send({ embeds: [embed], ephemeral: true }).then(embedMsg => setTimeout(() => {
+                embedMsg.delete();
+            }, 20000)).catch(error => console.error(error));
+            if (enemy.dead) return enemyDead(player, enemy);
+            if (player.dead) return playerDead(enemy);
+            if (!blocking) {
+                let dmgTaken = enemy.randDamage();
+                dmgTaken = player.takeDamge(dmgTaken);
+                await showDamageTaken(player, dmgTaken);
+                return display(player, enemy);
+            }
+            return;
+        }
+    }
+
+    async function handleUsePotion(potion, player) {
+        let appliedEffect;
+        if (potion.activecategory === 'Healing') {
+            const filterHeal = aCATE.filter(effect => effect.Name === 'Healing');
+            const healAmount = filterHeal[0][`${potion.name}`];
+            let newHealth;
+            if (healAmount <= 0) return;
+            appliedEffect = 0;
+            const totalHealth = 100 + (player.str * 10);
+            if (player.health === totalHealth) return await interaction.followUp('You are already at maximum health!!');
+            if ((player.health + healAmount) > totalHealth) {
+                newHealth = totalHealth;
+            } else newHealth = player.health + healAmount;
+            player.health = newHealth;
+            await interaction.followUp(`Healing potion used. Healed for: ${healAmount}\nCurrent Health: ${player.health}`);
+        }
         if (potion.activecategory === 'Reinforce') {
-            const filterDefence = activeCategoryEffects.filter(effect => effect.Name === 'Reinforce');
+            const filterDefence = aCATE.filter(effect => effect.Name === 'Reinforce');
             const defenceAmount = filterDefence[0][`${potion.name}`];
             if (defenceAmount > 0) {
                 //console.log(successResult('FOUND DEFENCE BOOST'));
-                appliedCurrEffect = defenceAmount;
+                appliedEffect = defenceAmount;
                 await interaction.followUp(`Reinforcement potion used. Defence increased by: ${defenceAmount}`);
             }
         }
         if (potion.activecategory === 'Tons') {
-            const filterStats = activeCategoryEffects.filter(effect => effect.Name === 'Tons');
+            const filterStats = aCATE.filter(effect => effect.Name === 'Tons');
             const statBoost = filterStats[0][`${potion.name}`];
             if (statBoost > 0) {
                 //console.log(successResult('FOUND STAT BOOST'));
-                appliedCurrEffect = statBoost;
+                appliedEffect = statBoost;
                 await interaction.followUp(`Tons of Stats potion used. ALL stats increased by: ${statBoost}`);
             }
         }
         if (potion.activecategory === 'EXP') {
-            const filterEXP = activeCategoryEffects.filter(effect => effect.Name === 'EXP');
+            const filterEXP = aCATE.filter(effect => effect.Name === 'EXP');
             const expBoost = filterEXP[0][`${potion.name}`];
             if (expBoost > 0) {
-               // console.log(successResult('FOUND EXP BOOST'));
-                appliedCurrEffect = expBoost;
+                //console.log(successResult('FOUND EXP BOOST'));
+                appliedEffect = expBoost;
                 await interaction.followUp(`EXP potion used. EXP gain increased by: ${expBoost}`);
             }
         }
+        const result = await applyStatus(appliedEffect, potion);
+        if (result !== 'Success') return 'Failure';
+        return 'Success';
+    }
 
-        const hasActiveStatus = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
-        try {
-            if (!hasActiveStatus) {
-                //Need to create new entry
-                await ActiveStatus.create({
-                    name: potion.name,
-                    curreffect: appliedCurrEffect,
-                    activec: potion.activecategory,
-                    cooldown: potion.cooldown,
-                    duration: potion.duration,
-                    potionid: potion.potion_id,
+    async function applyStatus(appliedEffect, potion) {
+        const activeDC = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
+        if (activeDC) {
+            const tableUpdate = await activeDC.update({ cooldown: potion.cooldown, duration: potion.duration });
+            if (tableUpdate <= 0) return 'Failure';
+        } else {
+            await ActiveStatus.create({
+                name: potion.name,
+                curreffect: appliedEffect,
+                activec: potion.activecategory,
+                cooldown: potion.cooldown,
+                duration: potion.duration,
+                potionid: potion.potion_id,
+                spec_id: userID,
+            });
+        }
 
-                    spec_id: userID,
-                });
-
-                const refindPot = await ActiveStatus.findOne({ where: [{ potionid: potion.potion_id }, { spec_id: userID }] });
-
-                if (refindPot) {
-                    //console.log(successResult('Potion One entry created SUCCESSFULLY!'));
-
-                    const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-
-                    const minusOne = thePotToReduce.amount - 1;
-
-                    if (minusOne <= 0) {
-                        //Destroy potion entry
-                        const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-                        if (destroyed > 0) {
-                            //console.log(successResult('POTION ENTRY DESTROYED!'));
-                            return;
-                        } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
-                    } else {
-                        const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
-
-                        if (removedPot > 0) {
-                            //console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
-                            return;
-                        } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
-                    }
-                } else console.log(warnedForm('SOMETHING WENT WRONG CREATING NEW STATUS ENTRY'));
-            } else {
-                //Need to update existing entry
-                const updatedEntry = await ActiveStatus.update({
-                    name: potion.name,
-                    curreffect: appliedCurrEffect,
-                    activec: potion.activecategory,
-                    cooldown: potion.cooldown,
-                    duration: potion.duration,
-                }, {
-                    where: [{ potionid: potion.potion_id }, { spec_id: userID }]
-                });
-
-                if (updatedEntry > 0) {
-                   // console.log(successResult('Potion One entry update SUCCESSFULLY!'));
-                    const thePotToReduce = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-
-                    const minusOne = thePotToReduce.amount - 1;
-
-                    if (minusOne <= 0) {
-                        //Destroy potion entry
-                        const destroyed = await OwnedPotions.destroy({ where: [{ spec_id: userID }, { potion_id: potion.potion_id }] });
-                        if (destroyed > 0) {
-                            //console.log(successResult('POTION ENTRY DESTROYED!'));
-                            return;
-                        } else console.log(warnedForm('POTION ENTRY NOT DESTROYED!'));
-                    } else {
-                        const removedPot = await OwnedPotions.update({ amount: minusOne }, { where: [{ spec_id: userID }, { potion_id: thePotToReduce.potion_id }] });
-
-                        if (removedPot > 0) {
-                            //console.log(successResult('AMOUNT DECREASED SUCCESSFULLY'));
-                            return;
-                        } else console.log(warnedForm('POTION AMMOUNT NOT DECREASED!'));
-                    }
-                } else console.log(warnedForm('SOMETHING WENT WRONG UPDATING STATUS ENTRY'));
-            }
-        } catch (err) {
-            console.error(errorForm('AN ERROR HAS OCCURED! ', err));
+        if ((potion.amount - 1) <= 0) {
+            const potionUpdate = await OwnedPotions.destroy({ where: [{ potion_id: potion.potion_id }, { spec_id: userID }] });
+            if (potionUpdate > 0) return 'Success';
+        } else {
+            await potion.decrement('amount');
+            await potion.save();
+            return 'Success';
         }
     }
 }
