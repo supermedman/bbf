@@ -1187,10 +1187,9 @@ async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCo
                 if (reinEffects > 0) player.updateDefence(reinEffects);
                 const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
                 if (tonEffects > 0) player.updateUPs(tonEffects);
-                if (result === 'Success') {
-                    collector.stop();
-                    return display(player, enemy);
-                }
+                if (result !== 'Success') console.log('Potion effect not applied!');
+                collector.stop();
+                return display(player, enemy);
             }
         });
 
@@ -1318,25 +1317,24 @@ async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCo
             await interaction.channel.send({ embeds: [embed] }).then(embedMsg => setTimeout(() => {
                 embedMsg.delete();
             }, 20000)).catch(error => console.error(error));
-            if (!enemy.isDead) {
-                if (!blocking) {
-                    let dmgTaken = enemy.randDamage();
-                    dmgTaken = player.takeDamge(dmgTaken);
-                    await showDamageTaken(player, dmgTaken);
-                }
-            } else {
+            if (enemy.dead) {
                 if (bossCombat) {
                     return userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.BKE_UPK}`);
                 } else {
                     return userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.EKE_UPK}`);
                 }
             }
-            if (player.isDead) {
+            if (player.dead) {
                 if (bossCombat) {
                     return userSpecEEFilter.bKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
                 } else return userSpecEEFilter.eKilledE.emit(`${userSpecEEFilter.PKE_UPK}`);
             }
-            if (!blocking) return display(player, enemy);
+            if (!blocking) {
+                let dmgTaken = enemy.randDamage();
+                dmgTaken = player.takeDamge(dmgTaken);
+                await showDamageTaken(player, dmgTaken);
+                return display(player, enemy);
+            }
             return;
         }
     }
