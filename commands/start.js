@@ -8,6 +8,9 @@ module.exports = {
         .setDescription('Start your grand adventure!'),
 	async execute(interaction) {
 
+		const userChecking = await UserData.findOne({ where: { userid: interaction.user.id } });
+		if (userChecking) return await interaction.reply('Profile already exists! Please use ``/startcombat`` to play!');
+
 		const warriorButton = new ButtonBuilder()
 			.setCustomId('slot1')
 			.setLabel('Warrior')
@@ -117,6 +120,7 @@ module.exports = {
 				strength: statObj.strength,
 				intelligence: statObj.intelligence,
 				dexterity: statObj.dexterity,
+				points: statObj.points,
 			});
 
 			if (tableUpdate) await newUser.save();

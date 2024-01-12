@@ -1243,7 +1243,7 @@ async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCo
         const dhChance = player.mods[3];
         const gearTypes = player.loadoutTypes.slice(3, 5);
         for (const type of gearTypes) {
-            if (type.toLowerCase === enemy.weakTo.toLowerCase()) {
+            if (type.toLowerCase() === enemy.weakTo.toLowerCase()) {
                 initialDamage += initialDamage * 0.5;
             }
         }

@@ -26,6 +26,10 @@ module.exports = {
 				.addUserOption(option => option.setName('target').setDescription('The user')))
 		.addSubcommand(subcommand =>
 			subcommand
+				.setName('bonus')
+				.setDescription('Take a look at the material bonuses from the towns around you!'))
+		.addSubcommand(subcommand =>
+			subcommand
 				.setName('establish')
 				.setDescription('Establish a new town!')
 				.addStringOption(option =>
@@ -694,6 +698,42 @@ module.exports = {
 				embedMsg.delete();
 			}, 120000)).catch(error => console.error(error));
 		}
+
+		// This pulls all local towns mat bonuses and displays
+		if (interaction.options.getSubcommand() === 'bonus') {
+			const towns = await Town.findAll({ where: { guildid: interaction.guild.id } });
+			if (towns.length <= 0) return await interaction.reply('There are no towns here!');
+
+			const allignBonus = {
+				Normal: [10, 5, 3],
+				Evil: [5, 3, 1],
+				Phase: [10, 8, 5],
+			};
+
+			let possibleBonus = [];
+			let curPos = 0;
+			for (const theTown of towns) {
+				const matTypes = theTown.mat_bonus.split(',');
+
+				const allignmentSlices = theTown.local_biome.split('-');
+				const allignment = allignmentSlices[1];
+
+				const matchBonus = allignBonus[`${allignment}`];
+
+				possibleBonus[curPos] = matTypes.join(', ') + ':\n +' + matchBonus.join(', +') + ', +' + matchBonus[0];
+				curPos++;
+			}
+
+			let finalFields = [];
+			if (curPos === 1) finalFields.push({ name: towns[0].name, value: possibleBonus[0].toString() });
+			if (curPos === 2) finalFields.push({ name: towns[0].name, value: possibleBonus[0].toString() }, { name: towns[1].name, value: possibleBonus[1].toString() });
+
+			const bonusEmbed = new EmbedBuilder()
+				.setTitle('Material Bonuses')
+				.addFields(finalFields);
+
+			return await interaction.reply({ embeds: [bonusEmbed] });
+        }
 
 		// Appoint user to edit permissions
 		if (interaction.options.getSubcommand() === 'appoint') {
@@ -1816,7 +1856,7 @@ module.exports = {
 				});
 
 				if (!theMat) {
-					fieldName = `${matRef.Name}:`;
+					fieldName = `Unknown material of ${matRef.Rarity} Rarity:`;
 					fieldValue = '0';
 				} else {
 					fieldName = `${theMat.name}:`;
@@ -1838,7 +1878,7 @@ module.exports = {
 			});
 
 			if (!theMat) {
-				fieldName = `${matRef.Name}:`;
+				fieldName = `Unknown material of ${matRef.Rarity} Rarity:`;
 				fieldValue = '0';
 			} else {
 				fieldName = `${theMat.name}:`;

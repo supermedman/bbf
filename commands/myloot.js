@@ -46,7 +46,7 @@ module.exports = {
             await interaction.deferReply();
             const loFound = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }] });
 
-            if (!loFound) return interaction.followUp('Sorry but you dont have any items yet! Use the command ``/shop`` to open the shop and make your first purchase.');
+            if (!loFound) return interaction.followUp('Sorry but you dont have any items yet! Try stealing from enemies while in combat or you can use the command ``/shop`` to open the shop and make your first purchase. Be warned, there is a fee when opening the shop more than once!!');
 
             const userItems = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
 
