@@ -10,7 +10,7 @@ const {
 } = require('../../chalkPresets.js');
 
 const { grabRar, grabColour } = require('./grabRar.js');
-const { MaterialStore } = require('../../dbObjects.js');
+const { MaterialStore, CoreBuilding, TownMaterial, Town } = require('../../dbObjects.js');
 
 const { checkHintMaterialView, checkHintMaterialUnique } = require('./handleHints.js');
 
@@ -23,7 +23,7 @@ const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
  * @param {any} interaction Reference to interaction object
  */
 async function grabMat(enemy, user, interaction) {
-    var hasUniqueType;
+    let hasUniqueType;
     let matTypes;
     for (var i = 0; i < enemyList.length; i++) {
         //if enemy with player level or lower can be found continue
@@ -43,7 +43,7 @@ async function grabMat(enemy, user, interaction) {
     } 
     console.log(`matTypes found: ${matTypes}`);
 
-    var passType;
+    let passType;
     let listStr;
     if (matTypes.length > 1) {
         //Enemy has more than one drop type...
@@ -112,7 +112,7 @@ async function grabMat(enemy, user, interaction) {
         return 0;
     } 
 
-    var foundRar = await grabRar(enemy.level);
+    let foundRar = await grabRar(enemy.level);
     //Use foundRar to drop an item from the list found!
     let matDropPool = [];
     for (var x = 0; x < foundMaterialList.length; x++) {
@@ -145,11 +145,33 @@ async function grabMat(enemy, user, interaction) {
 
         console.log(basicInfoForm('MaterialAmountDropped: ', droppedNum));
 
-        const result = await handleMaterialAdding(finalMaterial, droppedNum, user, passType);
+        const localTowns = await Town.findAll({ where: [{ guildid: interaction.guild.id }] });
+        let theTown = 'None';
+        if (localTowns.length > 0) theTown = localTowns[Math.floor(Math.random() * localTowns.length)];
+
+        if (theTown !== 'None') {
+            const matBonus = checkMatBonus(theTown, passType);
+            droppedNum += matBonus;
+        }
+        // TOWN AUTO DEPOSTE SETUP AND HANDLE HERE =======
+        const type = await checkTarget(user, foundRar);
+
+        let target;
+        if (type === 'town') target = await Town.findOne({ where: { townid: user.townid } });
+        if (type === 'user') target = user;
+
+        const result = await addMaterial(target, finalMaterial, droppedNum, type, passType);
+        // ===============================================
+
+        //const result = await handleMaterialAdding(finalMaterial, droppedNum, user, passType);
 
         await checkHintMaterialView(user, interaction);
 
-        var matListedDisplay = `Value: ${finalMaterial.Value}\nMaterial Type: **${passType}**\nRarity: ${finalMaterial.Rarity}\nAmount: ${droppedNum}`;
+        let embedTitle = '~Material Dropped~';
+        if (type === 'town') embedTitle = '~Material Deposited To Town~';
+
+        let matListedDisplay = `Value: ${finalMaterial.Value}\nMaterial Type: **${passType}**\nRarity: ${finalMaterial.Rarity}\nAmount: ${droppedNum}`;
+
 
         const matColour = await grabColour(foundRar);
 
@@ -157,7 +179,7 @@ async function grabMat(enemy, user, interaction) {
         const matTypePng = `attachment://${passType}.png`;
 
         const theMaterialEmbed = new EmbedBuilder()
-            .setTitle('~Material Dropped~')
+            .setTitle(embedTitle)
             .setThumbnail(matTypePng)
             .setColor(matColour)
             .addFields({
@@ -220,4 +242,112 @@ async function handleMaterialAdding(material, droppedAmount, user, matType) {
     }
 }
 
-module.exports = { grabMat };
+/**
+ * 
+ * @param {any} user
+ * @param {any} rarity
+ */
+async function checkTarget(user, rarity) {
+    const theTown = await Town.findOne({ where: { townid: user.townid } });
+    if (!theTown) return 'user';
+
+    const currentEditList = theTown.can_edit.split(',');
+    let exists = false;
+    for (const id of currentEditList) {
+        if (user.userid === id) {
+            exists = true;
+            break;
+        }
+    }
+    if (!exists) return 'user';
+
+    const theCore = await CoreBuilding.findOne({ where: [{ townid: user.townid }, { build_type: 'bank' }] });
+    if (!theCore) return 'user';
+
+    const currentSettings = theCore.settings.toString().split(',');
+    if (currentSettings.length <= 0) return 'user';
+    if (currentSettings[0] !== 'true') return 'user';
+    if (~~currentSettings[1] < rarity) return 'user';
+
+    return 'town';
+}
+
+function checkMatBonus(theTown, matType) {
+    const matTypes = theTown.mat_bonus.split(',');
+
+    const allignmentSlices = theTown.local_biome.split('-');
+    const allignment = allignmentSlices[1];
+
+    const allignBonus = {
+        Normal: [10, 5, 3],
+        Evil: [5, 3, 1],
+        Phase: [10, 8, 5],
+    };
+
+    const matchBonus = allignBonus[`${allignment}`];
+
+    let found = false;
+    let count = 0;
+    for (const type of matTypes) {
+        if (type === matType) {
+            found = true;
+            break;
+        }
+        count++;
+    }
+
+    if (count === 3) count = 0;
+    if (!found) return 0;
+    return matchBonus[count];
+}
+
+/**
+         * 
+         * @param {object} target DB instance object
+         * @param {object} item DB instance object
+         * @param {number} amount int
+         * @param {string} type town || user
+         */
+async function addMaterial(target, item, amount, type, matType) {
+    let matStore;
+    if (type === 'town') {
+        matStore = await TownMaterial.findOne({
+            where: [{ townid: target.townid }, { mat_id: item.Mat_id }, { mattype: matType }]
+        });
+    }
+    if (type === 'user') {
+        matStore = await MaterialStore.findOne({
+            where: [{ spec_id: target.userid }, { mat_id: item.Mat_id }, { mattype: matType }]
+        });
+    }
+
+    if (matStore) {
+        const inc = await matStore.increment('amount', { by: amount });
+        if (inc) await matStore.save();
+        return 'Added';
+    }
+
+    let newMat;
+    try {
+        if (type === 'town') newMat = await TownMaterial.create({ townid: target.townid, amount: amount });
+        if (type === 'user') newMat = await MaterialStore.create({ spec_id: target.userid, amount: amount });
+
+        if (newMat) {
+            await newMat.update({
+                name: item.Name,
+                value: item.Value,
+                mattype: matType,
+                mat_id: item.Mat_id,
+                rarity: item.Rarity,
+                rar_id: item.Rar_id,
+            });
+
+            await newMat.save();
+            return newMat;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+module.exports = { grabMat, handleMaterialAdding };
