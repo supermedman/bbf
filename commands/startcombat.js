@@ -138,6 +138,7 @@ const enemyExtraGen = (eFab) => {
     let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
     let XpMin = XpMax - Math.floor(XpMax / 5.2);
 
+    // This needs balancing, damage needs to scale up/down off of avg by 50% rough outline
     const avgDmgRef = eFab.AvgDmg;
     let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02 * Math.floor(lvl / 6)));
     let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
@@ -561,6 +562,7 @@ module.exports = {
                             await runCombatTurn(player, enemy, counterDamage);
                         }
                     }
+                    if (enemy.dead) return;
                     await showDamageTaken(player, dmgTaken, true);
                     return display(player, enemy);
                 }
@@ -884,7 +886,7 @@ module.exports = {
             const dhChance = player.mods[3];
             const gearTypes = player.loadoutTypes.slice(3, 5);
             for (const type of gearTypes) {
-                if (type.toLowerCase === enemy.weakTo.toLowerCase()) {
+                if (type.toLowerCase() === enemy.weakTo.toLowerCase()) {
                     initialDamage += initialDamage * 0.5;
                 }
             }
