@@ -63,7 +63,7 @@ module.exports = {
 				return interaction.reply('You already have a quest in progress.. Use ``/quest claim`` for more info!');
 			}
 
-			const maxQLvl = Math.round(user.level / 5);
+			const maxQLvl = Math.floor(user.level / 5);
 			let userMilestone = await Milestones.findOne({ where: { userid: user.userid } });
 
 			if (!userMilestone) {
@@ -126,7 +126,8 @@ module.exports = {
 
 			const normalQuests = questList.filter(quest => !quest.Story)
 				.filter(quest => quest.Level <= maxQLvl);
-			const storyQuests = questList.filter(quest => quest.Story);
+			const storyQuests = questList.filter(quest => quest.Story)
+				.filter(quest => quest.Level <= maxQLvl);
 
 			const lastQuest = userMilestone.laststoryquest;
 			const nextQuest = storyQuests.filter(quest => quest.ID === userMilestone.nextstoryquest);
