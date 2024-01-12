@@ -1,5 +1,7 @@
 const { AttachmentBuilder } = require('discord.js');
 
+const { InstalledBuild } = require('../../dbObjects.js');
+
 const Canvas = require('@napi-rs/canvas');
 
 /** 0-3 */
@@ -89,6 +91,14 @@ const woodStructures =
         './events/Models/json_prefabs/Building-Textures/wood-struct-ladder.png'
     ];
 
+const metalChains =
+    [
+        './events/Models/json_prefabs/Building-Textures/metal-chain-circle.png',
+        './events/Models/json_prefabs/Building-Textures/metal-chain-hex.png',
+        './events/Models/json_prefabs/Building-Textures/metal-chain-rect.png',
+        './events/Models/json_prefabs/Building-Textures/metal-chain-square.png'
+    ];
+
 /** 0-1 */
 const largeWoodStructures =
     [
@@ -104,6 +114,16 @@ const bushObjects =
         './events/Models/json_prefabs/Building-Textures/foliage-bush-large-three.png',
         './events/Models/json_prefabs/Building-Textures/foliage-bush-small-one.png',
         './events/Models/json_prefabs/Building-Textures/foliage-bush-small-two.png'
+    ];
+
+const installedObjects =
+    [
+        './events/Models/json_prefabs/Building-Textures/machine-final.png'
+    ];
+
+const otherObjects =
+    [
+        './events/Models/json_prefabs/Building-Textures/market-stall.png'
     ];
 
 const preLoadArray = (loadingGroup) => {
@@ -141,6 +161,8 @@ async function loadBuilding(buildingRef) {
     let returnPng;
     if (buildType === 'house') returnPng = await createPlayerHouse(buildingRef);
     if (buildType === 'grandhall') returnPng = await drawGrandhall(buildingRef);
+    if (buildType === 'bank') returnPng = await drawBank(buildingRef);
+    if (buildType === 'market') returnPng = await drawMarket(buildingRef);
     if (buildType === 'clergy') returnPng = await drawClergy(buildingRef);
 
 
@@ -151,16 +173,20 @@ async function loadBuilding(buildingRef) {
 async function createPlayerHouse(buildingRef) {
     const buildStyle = buildingRef.build_style;
 
+    let showForge = false;
+    const forgeSlot = await InstalledBuild.findOne({ where: [{ userid: buildingRef.ownerid }, { plotid: buildingRef.plotid }, { slot: 'Forge' }] });
+    if (forgeSlot) showForge = true;
+
     let buildPng;
-    if (buildStyle === 1) buildPng = await drawHouseStyleOne(buildingRef);
-    if (buildStyle === 2) buildPng = await drawHouseStyleTwo(buildingRef);
-    if (buildStyle === 3) buildPng = await drawHouseStyleThree(buildingRef);
+    if (buildStyle === 1) buildPng = await drawHouseStyleOne(buildingRef, showForge);
+    if (buildStyle === 2) buildPng = await drawHouseStyleTwo(buildingRef, showForge);
+    if (buildStyle === 3) buildPng = await drawHouseStyleThree(buildingRef, showForge);
 
     if (!buildPng) return;
     return buildPng;
 }
 
-async function drawHouseStyleOne(buildingRef) {
+async function drawHouseStyleOne(buildingRef, showForge) {
     const canvas = Canvas.createCanvas(800, 700);
     const ctx = canvas.getContext('2d');
 
@@ -175,6 +201,7 @@ async function drawHouseStyleOne(buildingRef) {
     const woodStructTex = await preLoadImages(woodStructures);
     const largeWoodStructTex = await preLoadImages(largeWoodStructures);
     const bushTex = await preLoadImages(bushObjects);
+    const installTex = await preLoadImages(installedObjects);
 
     ctx.drawImage(backgroundTex, 0, 0, 800, 700);
     ctx.drawImage(foregroundTex, 0, 0, 800, 700);
@@ -295,6 +322,8 @@ async function drawHouseStyleOne(buildingRef) {
     //ctx.fillRect(canvas.width - 260, 195, 120, 175);
     ctx.drawImage(windowStyle, canvas.width - 260, 195, 120, 175);
 
+    if (showForge === true) ctx.drawImage(installTex[0], 200, 550, 100, 100);
+
     ctx.beginPath();
     ctx.moveTo(35, 150);
     ctx.lineTo(765, 150);
@@ -306,7 +335,7 @@ async function drawHouseStyleOne(buildingRef) {
     return attachment;
 }
 
-async function drawHouseStyleTwo(buildingRef) {
+async function drawHouseStyleTwo(buildingRef, showForge) {
     const canvas = Canvas.createCanvas(800, 700);
     const ctx = canvas.getContext('2d');
 
@@ -321,6 +350,7 @@ async function drawHouseStyleTwo(buildingRef) {
     //const woodStructTex = await preLoadImages(woodStructures);
     const largeWoodStructTex = await preLoadImages(largeWoodStructures);
     const bushTex = await preLoadImages(bushObjects);
+    const installTex = await preLoadImages(installedObjects);
 
     ctx.drawImage(backgroundTex, 0, 0, 800, 700);
     ctx.drawImage(foregroundTex, 0, 0, 800, 700);
@@ -417,6 +447,8 @@ async function drawHouseStyleTwo(buildingRef) {
     //ctx.fillRect(canvas.width / 2.3, 240, 100, 165);
     ctx.drawImage(windowStyle, canvas.width / 2.3, 240, 100, 165);
 
+    if (showForge === true) ctx.drawImage(installTex[0], 265, 550, 100, 100);
+
     ctx.beginPath();
     ctx.moveTo(35, 150);
     ctx.lineTo(765, 150);
@@ -428,7 +460,7 @@ async function drawHouseStyleTwo(buildingRef) {
     return attachment;
 }
 
-async function drawHouseStyleThree(buildingRef) {
+async function drawHouseStyleThree(buildingRef, showForge) {
     const canvas = Canvas.createCanvas(800, 700);
     const ctx = canvas.getContext('2d');
 
@@ -443,6 +475,7 @@ async function drawHouseStyleThree(buildingRef) {
     //const woodStructTex = await preLoadImages(woodStructures);
     const largeWoodStructTex = await preLoadImages(largeWoodStructures);
     const bushTex = await preLoadImages(bushObjects);
+    const installTex = await preLoadImages(installedObjects);
 
     ctx.drawImage(backgroundTex, 0, 0, 800, 700);
     ctx.drawImage(foregroundTex, 0, 0, 800, 700);
@@ -544,6 +577,8 @@ async function drawHouseStyleThree(buildingRef) {
     //ctx.fillStyle = 'red';
     //ctx.fillRect(125, 175, 100, 165);
     ctx.drawImage(windowStyle, canvas.width - 430, 450, 100, 165);
+
+    if (showForge === true) ctx.drawImage(installTex[0], 265, 550, 100, 100);
 
     ctx.beginPath();
     ctx.moveTo(35, 150);
@@ -660,6 +695,115 @@ async function drawGrandhall(buildingRef) {
 
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'grandhall.png' });
+    return attachment;
+}
+
+async function drawBank(buildingRef) {
+    const canvas = Canvas.createCanvas(1000, 800);
+    const ctx = canvas.getContext('2d');
+
+    const wallTex = await Canvas.loadImage(allWallTiles[buildingRef.wall_tex - 1]);
+    const roofTex = await Canvas.loadImage(roofTiles[buildingRef.roof_tex - 1]);
+    const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
+    const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
+
+    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
+
+    //const woodStructTex = await preLoadImages(woodStructures);
+    //const largeWoodStructTex = await preLoadImages(largeWoodStructures);
+    //const bushTex = await preLoadImages(bushObjects);
+    const metalChainTex = await preLoadImages(metalChains);
+
+    ctx.drawImage(backgroundTex, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(foregroundTex, 0, 0, canvas.width, canvas.height);
+
+    const tileWall = (tex) => {
+        for (let i = 1; i < 6; i++) {
+            for (let j = 1; j < 15; j++) {
+                ctx.drawImage(tex, j * 65, i * 150, 65, 150);
+            }
+        }
+    };
+
+    // WALLS
+    ctx.beginPath();
+    ctx.moveTo(85, 500);
+    ctx.lineTo(85, 745);
+    ctx.lineTo(885, 745);
+    ctx.lineTo(685, 500);
+    ctx.lineTo(435, 255);
+    ctx.lineTo(85, 255);
+    ctx.clip();
+    tileWall(wallTex);
+    // WALLS\
+
+    // STRUCTURES
+    let chainType = 0;
+    for (let i = 0; i < 10; i++) {
+        if (i % 2 === 0) {
+            chainType = 1;
+        } else if (i % 3 === 0) {
+            chainType = 2;
+        } else if (i % 1 === 0) {
+            chainType = 0;
+        }
+
+        for (let j = 0; j < 2; j++) {
+            ctx.drawImage(metalChainTex[chainType], (i * 35) + 95, (j * 142) + 250, 30, 150);
+        }
+    }
+
+    // STRUCTURES\
+
+    // DOOR
+    //ctx.fillRect(100, 600, 100, 150);
+    ctx.drawImage(doorStyle, 115, 600, 125, 150);
+    // DOOR\
+
+    // WINDOWS
+    //ctx.fillRect(300, 575, 100, 150);
+    //ctx.fillRect(500, 575, 100, 150);
+
+    ctx.drawImage(windowStyle, 300, 575, 100, 150);
+    ctx.drawImage(windowStyle, 500, 575, 100, 150);
+    // WINDOWS\
+
+    // ROOF
+    ctx.beginPath();
+    ctx.moveTo(885, 745);
+    ctx.lineTo(685, 745);
+    ctx.lineTo(685, 500);
+
+    ctx.moveTo(685, 500);
+    ctx.lineTo(435, 500);
+    ctx.lineTo(435, 255);
+
+    ctx.clip();
+    ctx.drawImage(roofTex, 0, 0, 950, 750);
+    // ROOF\
+
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'bank.png' });
+    return attachment;
+}
+
+async function drawMarket(buildingRef) {
+    const canvas = Canvas.createCanvas(700, 300);
+    const ctx = canvas.getContext('2d');
+
+    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
+
+    const otherTex = await preLoadImages(otherObjects);
+
+    ctx.drawImage(backgroundTex, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(foregroundTex, 0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'red';
+    //ctx.fillRect(canvas.width / 2 - 50, 175, 100, 100);
+    ctx.drawImage(otherTex[0], canvas.width / 2 - 50, 175, 100, 100);
+
+    const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'market.png' });
     return attachment;
 }
 
