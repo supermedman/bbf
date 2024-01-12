@@ -42,7 +42,7 @@ module.exports = {
 							console.log(removePoint);
 
 							if (incStat > 0) {
-								return interaction.followUp(`Speed stat has been increased for ${uData.username} succsesfully!`);
+								return interaction.followUp(`Speed stat has been increased for ${uData.username} succsesfully! ${rem} points remain!`);
 							}
 							return interaction.followUp(`Could not find data for ${uData.username}.`);
 						}
@@ -63,7 +63,7 @@ module.exports = {
 
 							if (incStat > 0) {
 								if (incHealth > 0) {
-									return interaction.followUp(`Strength stat has been increased for ${uData.username} succsesfully!`);
+									return interaction.followUp(`Strength stat has been increased for ${uData.username} succsesfully! ${rem} points remain!`);
 								}
 							}
 							return interaction.followUp(`Could not find data for ${uData.username}.`);
@@ -78,7 +78,7 @@ module.exports = {
 							console.log(removePoint);
 
 							if (incStat > 0) {
-								return interaction.followUp(`Dexterity stat has been increased for ${uData.username} succsesfully!`);
+								return interaction.followUp(`Dexterity stat has been increased for ${uData.username} succsesfully! ${rem} points remain!`);
 							}
 							return interaction.followUp(`Could not find data for ${uData.username}.`);
 						}
@@ -92,7 +92,7 @@ module.exports = {
 							console.log(removePoint);
 
 							if (incStat > 0) {
-								return interaction.followUp(`Intelligence stat has been increased for ${uData.username} succsesfully!`);
+								return interaction.followUp(`Intelligence stat has been increased for ${uData.username} succsesfully! ${rem} points remain!`);
 							}
 							return interaction.followUp(`Could not find data for ${uData.username}.`);
 						}
