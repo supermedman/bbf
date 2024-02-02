@@ -1,9 +1,9 @@
 const { Events } = require('discord.js');
 const {
-    Equipped,
+    //Equipped,
     LootStore,
     LootShop,
-    LootDrop,
+    //LootDrop,
     Pigmy,
     Pighouse,
     Questing,
@@ -21,7 +21,15 @@ const {
     UniqueCrafted,
     ActiveStatus,
     OwnedTools,
-    UserHints
+    UserHints,
+	Town,
+	BigTile,
+	MediumTile,
+	TownMaterial,
+	TownPlots,
+	PlayerBuilding,
+	CoreBuilding,
+    EarlyAccess
 } = require('../dbObjects.js');
 
 //const { } = require('../dbObjects.js');
@@ -36,11 +44,11 @@ module.exports = {
         GuildData.sync();
 
         Loadout.sync();
-        Equipped.sync();
+        //Equipped.sync();
 
         LootShop.sync();
         
-        LootDrop.sync();
+        //LootDrop.sync();
 
         Pigmy.sync();
         Pighouse.sync();
@@ -65,5 +73,15 @@ module.exports = {
         ActiveDungeonBoss.sync({ force: true });
         
         ActiveEnemy.sync();
+
+        Town.sync();
+	    BigTile.sync();
+	    MediumTile.sync();
+	    TownMaterial.sync();
+	    TownPlots.sync();
+	    PlayerBuilding.sync();
+	    CoreBuilding.sync();
+
+        EarlyAccess.sync();
 	},
 };
