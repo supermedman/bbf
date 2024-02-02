@@ -91,6 +91,18 @@ for (const gear of lootList) {
 	} else console.log(`[WARNING] Gear ${gear.Name} is missing required "Loot_id" or "Rar_id" property.`);
 }
 
+client.materialFiles = new Collection();
+
+const materialPath = path.join(__dirname, 'events/Models/json_prefabs/materialLists');
+const foundMatFiles = fs.readdirSync(materialPath).filter(file => file.endsWith('.json'));
+
+for (const matFile of foundMatFiles){
+	let matType = matFile.split('L');
+	let matPath = `${materialPath}/${matFile}`;
+
+	client.materialFiles.set(matType[0], matPath);
+}
+console.log(...client.materialFiles);
 
 client.newEnemy = new Collection();
 client.betaTester = new Collection();
