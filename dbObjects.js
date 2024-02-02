@@ -9,10 +9,10 @@ const sequelize = new Sequelize('database', sqlUser, sqlPass, {
 	storage: 'database.sqlite',
 });
 
-const Equipped = require('./events/Models/Equipped')(sequelize, Sequelize.DataTypes);
+//const Equipped = require('./events/Models/Equipped')(sequelize, Sequelize.DataTypes);
 const LootStore = require('./events/Models/LootStore')(sequelize, Sequelize.DataTypes);
 const LootShop = require('./events/Models/LootShop')(sequelize, Sequelize.DataTypes);
-const LootDrop = require('./events/Models/LootDrop')(sequelize, Sequelize.DataTypes);
+//const LootDrop = require('./events/Models/LootDrop')(sequelize, Sequelize.DataTypes);
 const Pigmy = require('./events/Models/Pigmy')(sequelize, Sequelize.DataTypes);
 const Pighouse = require('./events/Models/Pighouse')(sequelize, Sequelize.DataTypes);
 const Questing = require('./events/Models/Questing')(sequelize, Sequelize.DataTypes);
@@ -32,11 +32,22 @@ const ActiveStatus = require('./events/Models/ActiveStatus')(sequelize, Sequeliz
 const OwnedTools = require('./events/Models/OwnedTools')(sequelize, Sequelize.DataTypes);
 const UserHints = require('./events/Models/UserHints')(sequelize, Sequelize.DataTypes);
 
+const Town = require('./events/Models/Town')(sequelize, Sequelize.DataTypes);
+const BigTile = require('./events/Models/BigTile')(sequelize, Sequelize.DataTypes);
+const MediumTile = require('./events/Models/MediumTile')(sequelize, Sequelize.DataTypes);
+const TownMaterial = require('./events/Models/TownMaterial')(sequelize, Sequelize.DataTypes);
+const TownPlots = require('./events/Models/TownPlots')(sequelize, Sequelize.DataTypes);
+const PlayerBuilding = require('./events/Models/PlayerBuilding')(sequelize, Sequelize.DataTypes);
+const CoreBuilding = require('./events/Models/CoreBuilding')(sequelize, Sequelize.DataTypes);
+
+const EarlyAccess = require('./events/Models/EarlyAccess')(sequelize, Sequelize.DataTypes);
+
+
 module.exports = {
-	Equipped,
+	//Equipped,
 	LootStore,
 	LootShop,
-	LootDrop,
+	//LootDrop,
 	Pigmy,
 	Pighouse,
 	Questing,
@@ -54,5 +65,13 @@ module.exports = {
 	UniqueCrafted,
 	ActiveStatus,
 	OwnedTools,
-	UserHints
+	UserHints,
+	Town,
+	BigTile,
+	MediumTile,
+	TownMaterial,
+	TownPlots,
+	PlayerBuilding,
+	CoreBuilding,
+	EarlyAccess
 };
