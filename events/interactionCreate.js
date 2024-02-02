@@ -1,7 +1,9 @@
 const { Events, Collection } = require('discord.js');
 const { warnedForm } = require('../chalkPresets');
-//const wait = require('node:timers/promises').setTimeout;
-// 
+
+const {EarlyAccess} = require('../dbObjects.js');
+
+let collectionRunOnce = false;
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -59,6 +61,63 @@ module.exports = {
 			// Button Interaction!!
 			console.log('Button Interaction:', interaction.user.username + ' ' + interaction.customId);
 
+			if (interaction.customId === 'this-gives-early-access'){
+				//ADD ROLE GIVING HERE!
+				const { betaTester, newEnemy } = interaction.client;
+				const {New_Spawn} = require('../userStorage.json');
+				const roleId = '903105915383865415';
+
+				const role = interaction.guild.roles.cache.get(roleId);
+
+				if (!role) return await interaction.reply({content: 'Role not found!', ephemeral: true});
+
+				return interaction.member.roles.add(role).then(async (member) => {
+					await interaction.reply({content: `Role added to ${member}!`, ephemeral: true});
+					
+					let eaCheck = await EarlyAccess.findOne({where: {userid: interaction.user.id}});
+					let hasButtonPerm = false;
+
+					const mappingCheck = new Map();
+					for (const id of New_Spawn){
+						mappingCheck.set(id, true);
+					}
+					console.log(...mappingCheck);
+					if (mappingCheck.has(interaction.user.id)) hasButtonPerm = true;
+
+					if (!eaCheck) eaCheck = await EarlyAccess.create({userid: interaction.user.id, spawn_new: hasButtonPerm});
+
+					if (!betaTester.has(interaction.user.id)){
+						betaTester.set(interaction.user.id, true);
+					}
+					
+					if (collectionRunOnce === false){
+						collectionRunOnce = true;
+
+						const allEA = await EarlyAccess.findAll();
+						console.log(...allEA);
+
+						for (const id of allEA){
+							if (!betaTester.has(id)){
+								betaTester.set(id, true);
+							}
+						}
+
+						const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
+						console.log(...newSpawnFilter);
+
+						for (const id of newSpawnFilter){
+							if (!newEnemy.has(id)){
+								newEnemy.set(id, true);
+							}
+						}
+					}
+
+				}).catch(error => {
+					console.error(error);
+					interaction.reply({content: 'Something went wrong adding that role!', ephemeral: true});
+				});
+			}
+			
 			// interaction.user.id === 'userid'
 			// interaction.customId === 'buttonid'
 
