@@ -46,7 +46,7 @@ client.commands = new Collection();
 
 client.cooldowns = new Collection();
 
-client.activeCombats = new Collection();
+//client.activeCombats = new Collection();
 
 //client.gcooldowns = new Collection();
 
@@ -90,6 +90,10 @@ for (const gear of lootList) {
 		}
 	} else console.log(`[WARNING] Gear ${gear.Name} is missing required "Loot_id" or "Rar_id" property.`);
 }
+
+
+client.newEnemy = new Collection();
+client.betaTester = new Collection();
 
 //client.on('unhandledRejection', error => {
 //	console.error('Unhandled promise rejection:', error);
