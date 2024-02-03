@@ -1,0 +1,7 @@
+node_modules/
+config.json
+deploy-commands-global.js
+deploy-commands.js
+remove-commands.js
+userStorage.json
+database.sqlite
