@@ -1,6 +1,6 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { GuildData, UserData } = require('../dbObjects.js');
-const { loadEnemy } = require('../commands/exported/loadEnemy.js');
+const { loadEnemy } = require('../commands/Game/exported/loadEnemy.js');
 const wait = require('node:timers/promises').setTimeout;
 
 //Refrence from messageCreate event Allowing smooth handling of enemies!
