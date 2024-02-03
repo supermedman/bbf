@@ -1,7 +1,7 @@
 const { Events } = require('discord.js');
 const { GuildData } = require('../dbObjects.js');
 
-const { checkBigTiles } = require('../commands/exported/createTile.js');
+const { checkBigTiles } = require('../commands/Game/exported/createTile.js');
 
 module.exports = {
 	name: Events.GuildCreate,
