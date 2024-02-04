@@ -129,7 +129,7 @@ module.exports = {
 		}
 
 		async function generateNewEnemy() {
-			const enemyList = require('../events/Models/json_prefabs/enemyList.json');
+			const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 			const enemyFab = enemyList[0];
 
 			const specCode = interaction.user.id + enemyFab.ConstKey;

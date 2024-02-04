@@ -33,14 +33,13 @@ module.exports = {
                     'Built like an angel <3',
                     'You have the most aweinspiring eyes!',
                     'This chair.. mmmmmmhmmmmm <3',
-                    'I love how smart you are!'
+                    'I love how smart you are!',
+                    'You are the absolute coolest person ;)'
                 ];
 
                 const theOutcome = Math.floor(Math.random() * choices.length);
 
                 await message.reply({ content: `${choices[theOutcome]}`, ephemeral: true });
-            } else if (message.author.id === '1058154299810644008') {
-                await message.reply('Yes, lord Anubis, how may I be of service?');
             } else if (message.author.id === '1125409544328192131') {
                 await message.reply('**Yo DAWG! WAAASS GOOD Macha!! **');
             } else if (message.author.id === '498781063531724800') {

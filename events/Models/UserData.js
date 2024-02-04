@@ -4,6 +4,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             unique: true,
         },
+        townid:{
+            type: DataTypes.STRING,
+            defaultValue: '0',
+        },
         username: DataTypes.TEXT,
         health: {
             type: DataTypes.INTEGER,

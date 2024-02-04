@@ -81,7 +81,6 @@ module.exports = {
 					for (const id of New_Spawn){
 						mappingCheck.set(id, true);
 					}
-					console.log(...mappingCheck);
 					if (mappingCheck.has(interaction.user.id)) hasButtonPerm = true;
 
 					if (!eaCheck) eaCheck = await EarlyAccess.create({userid: interaction.user.id, spawn_new: hasButtonPerm});
@@ -94,22 +93,21 @@ module.exports = {
 						collectionRunOnce = true;
 
 						const allEA = await EarlyAccess.findAll();
-						console.log(...allEA);
-
-						for (const id of allEA){
-							if (!betaTester.has(id)){
-								betaTester.set(id, true);
+						for (const user of allEA){
+							if (!betaTester.has(user.userid)){
+								betaTester.set(user.userid, true);
 							}
 						}
 
 						const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
-						console.log(...newSpawnFilter);
-
-						for (const id of newSpawnFilter){
-							if (!newEnemy.has(id)){
-								newEnemy.set(id, true);
+						for (const user of newSpawnFilter){
+							if (!newEnemy.has(user.userid)){
+								newEnemy.set(user.userid, true);
 							}
 						}
+
+						console.log(...newEnemy);
+						console.log(...betaTester);
 					}
 
 				}).catch(error => {
