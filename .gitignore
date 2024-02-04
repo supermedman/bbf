@@ -5,3 +5,4 @@ deploy-commands.js
 remove-commands.js
 userStorage.json
 database.sqlite
+desktop.ini

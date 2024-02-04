@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    return sequelize.define('activeEnemy', {
+    return sequelize.define('ActiveEnemy', {
 
         rowid: DataTypes.INTEGER,
         name: DataTypes.STRING,
@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         weakto: DataTypes.STRING,
         dead: DataTypes.BOOLEAN,
         hasitem: DataTypes.BOOLEAN,
+        hasunique: DataTypes.BOOLEAN,
         xpmin: DataTypes.INTEGER,
         xpmax: DataTypes.INTEGER,
         constkey: DataTypes.INTEGER,
