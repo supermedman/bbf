@@ -45,7 +45,7 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
             try {
                 if (uData.userid === '501177494137995264') {
                     theEnemy = await handleNewSpawn(cEnemy, user);
-                    initialDisplay(uData, specCode, interaction, theEnemy);
+                    initialDisplay(specCode, interaction, theEnemy);
                 }
             } catch (error) {
                 console.log(error);
@@ -54,7 +54,7 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
 
         
         if (uData.userid === '501177494137995264') {
-            await initialDisplay(uData, specCode, interaction, theEnemy);
+            await initialDisplay(specCode, interaction, theEnemy);
         } else {
             const fightButton = new ButtonBuilder()
                 .setLabel("Fight!")
@@ -87,10 +87,11 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
                     await collInteract.deferUpdate();
                     interactiveButtons.components[0].setDisabled(true);
 
-                    await collInteract.editReply({ components: [interactiveButtons] });
-
-                    await initialDisplay(user, specCode, collInteract, theEnemy);
-                    wait(5000).then(async () => {
+                    await collInteract.editReply({ components: [interactiveButtons] }).then(() => {
+                        initialDisplay(specCode, collInteract, theEnemy);
+                    });
+                    
+                    wait(3000).then(async () => {
                         await collector.stop();
                     });
                 }
@@ -130,14 +131,14 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
             if (!cEnemy.NewSpawn || cEnemy.NewSpawn === false) {
                 const specCode = uData.userid + cEnemy.ConstKey;
                 await addEnemy(cEnemy, specCode, user).then((theEnemy) => {
-                    initialDisplay(uData, specCode, interaction, theEnemy);
+                    initialDisplay(specCode, interaction, theEnemy);
                 });
             } else {
                 const specCode = uData.userid + cEnemy.ConstKey;
                 try {
                     await handleNewSpawn(cEnemy, user).then((theEnemy) => {
                         console.log(`theEnemy is:${theEnemy}`);
-                        initialDisplay(uData, specCode, interaction, theEnemy);
+                        initialDisplay(specCode, interaction, theEnemy);
                     });
                 } catch (error) {
                     console.log(error);

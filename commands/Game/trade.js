@@ -265,6 +265,7 @@ module.exports = {
 				let sentFollowUp = 'No reply yet.';
 				selectCollector.on('collect', async iCS => {
 					listedValue = iCS.values[0];
+					~~listedValue;
 					sentFollowUp = 'Value found!';
 					await selectCollector.stop();
 				});
