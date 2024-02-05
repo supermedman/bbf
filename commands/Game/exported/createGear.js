@@ -4,7 +4,7 @@ const { LootStore } = require('../../../dbObjects.js');
 async function checkOwned(user, item, amount) {
     let newAmount = amount ?? 1;
     const lootStore = await LootStore.findOne({
-        where: { spec_id: user.userid, loot_id: item.Loot_id },
+        where: { spec_id: user.userid, loot_id: item.Loot_id ?? item.loot_id },
     });
 
     let tableUpdated = '';
@@ -31,7 +31,7 @@ async function makeItem(user, item, amount) {
     await user.save();
 
     // Check item slot for assignments
-    let slotCheck = item.Slot;
+    let slotCheck = item.Slot ?? item.slot;
 
     // Dynamic value placeholders
     let dynHands = 'NONE';
@@ -39,30 +39,30 @@ async function makeItem(user, item, amount) {
     let dynDef = 0;
     if (slotCheck === 'Mainhand') {
         // If item is mainhand only hands and attack are needed
-        dynHands = item.Hands;
-        dynAtk = item.Attack;
+        dynHands = item.Hands ?? item.hands;
+        dynAtk = item.Attack ?? item.attack;
     } else if (slotCheck === 'Offhand') {
         // If item is offhand hands is One, both attack and defence are needed
         dynHands = 'One';
-        dynAtk = item.Attack;
-        dynDef = item.Defence;
+        dynAtk = item.Attack ?? item.attack;
+        dynDef = item.Defence ?? item.defence;
     } else {
         // Else item is armor and only defence is needed
-        dynDef = item.Defence;
+        dynDef = item.Defence ?? item.defence;
     }
 
     // Add new item with values filtered through 
     const isDone = await LootStore.create({
-        name: item.Name,
-        value: item.Value,
-        loot_id: item.Loot_id,
+        name: item.Name ?? item.name,
+        value: item.Value ?? item.value,
+        loot_id: item.Loot_id ?? item.loot_id,
         spec_id: user.userid,
-        rarity: item.Rarity,
-        rar_id: item.Rar_id,
+        rarity: item.Rarity ?? item.rarity,
+        rar_id: item.Rar_id ?? item.rar_id,
         attack: dynAtk,
         defence: dynDef,
-        type: item.Type,
-        slot: item.Slot,
+        type: item.Type ?? item.type,
+        slot: item.Slot ?? item.slot,
         hands: dynHands,
         amount: amount
     });
