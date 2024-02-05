@@ -9,6 +9,7 @@ const {
 } = require('../../chalkPresets.js');
 const { UserData, LootShop, LootStore, Pigmy } = require('../../dbObjects.js');
 const { grabRar } = require('./exported/grabRar.js');
+const {checkOwned} = require('./exported/createGear.js');
 
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 
@@ -107,7 +108,7 @@ module.exports = {
                     breakPoint++;
                 } else if (item.slot === 'Offhand') {
                     listedName = `Name: ${item.name}`;
-                    listedVal = `Value: **${item.value}c** \nRarity: **${item.rarity}** \nDefence: **${item.defence}** \nAttack: **${item.attack}** \nType: **${item.type}**\nSlot: **${item.slot}**\n\n`;
+                    listedVal = `Value: **${item.value}c** \nRarity: **${item.rarity}** \nDefence: **${item.defence}** \nAttack: **${item.attack}** \nType: **${item.type}**\nSlot: **${item.slot}**\nHands: **${item.hands}**\n\n`;
 
                     fieldValueObj = { name: listedName.toString(), value: listedVal.toString(), };
 
@@ -217,8 +218,8 @@ module.exports = {
                                 console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
                                 return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                             } else {
-                                const result = await addItem(item);
-                                if (result === 'Success') {
+                                const result = await checkOwned(uData, item, 1);
+                                if (result === 'Finished') {
                                     //const coinReduced = uData.coins - item.value;
 
                                     //await payUp(coinReduced, uData);
@@ -279,8 +280,8 @@ module.exports = {
                                 console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
                                 return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                             } else {
-                                const result = await addItem(item);
-                                if (result === 'Success') {
+                                const result = await checkOwned(uData, item, 1);
+                                if (result === 'Finished') {
                                     //const coinReduced = uData.coins - item.value;
 
                                     //await payUp(coinReduced, uData);
@@ -342,8 +343,8 @@ module.exports = {
                                 console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
                                 return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                             } else {
-                                const result = await addItem(item);
-                                if (result === 'Success') {
+                                const result = await checkOwned(uData, item, 1);
+                                if (result === 'Finished') {
                                     //const coinReduced = uData.coins - item.value;
 
                                     //await payUp(coinReduced, uData);
@@ -403,8 +404,8 @@ module.exports = {
                                 console.log(warnedForm('ITEM COST HIGHER THAN COINS OF USER', item.value, uData.coins));
                                 return interaction.channel.send("You don't have enough coin for that one.. this aint a charity!");
                             } else {
-                                const result = await addItem(item);
-                                if (result === 'Success') {
+                                const result = await checkOwned(uData, item, 1);
+                                if (result === 'Finished') {
                                     //const coinReduced = uData.coins - item.value;
 
                                     //await payUp(coinReduced, uData);
