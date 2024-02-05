@@ -79,16 +79,11 @@ module.exports = {
 
             choices = ["common", "uncommon", "rare", "very rare", "epic", "mystic", "?", "??", "???", "????"];
 
-            if (focusedValue) {
-                console.log(choices);
-                console.log(focusedValue);
-
-                //Mapping the complete list of options for discord to handle and present to the user
-                const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-                await interaction.respond(
-                    filtered.map(choice => ({ name: choice, value: choice })),
-                );
-            }
+            //Mapping the complete list of options for discord to handle and present to the user
+            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+            await interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            );
         }
     },
 	async execute(interaction) { 
@@ -1064,7 +1059,7 @@ module.exports = {
         async function findMaterialList(matType) {
             let listStr = `${matType}List.json`;
             console.log(specialInfoForm(`Currently checking ${listStr}`));
-            const matListRef = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+            const matListRef = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
             if (!matListRef) return 'NONE';
             return matListRef;
         }
