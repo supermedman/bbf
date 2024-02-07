@@ -402,7 +402,7 @@ module.exports = {
 						listStr = `${matTypeChosen}List.json`;
 						passType = `${matTypeChosen}`;
 
-						foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+						foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
 
 						foundRar = await grabRar(userPigmy.level);
 
