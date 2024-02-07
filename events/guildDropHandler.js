@@ -43,12 +43,12 @@ const wait = require('node:timers/promises').setTimeout;
 /**
  * 
  * @param {any} collectedUser ID STRING
- * @param {any} message STATIC MESSAGE OBJECT
+ * @param {any} interaction STATIC Interaction OBJECT
  */
 //This method grabs user data when no default spawn channel is active
-async function grabUM(collectedUser, message) {
+async function grabUM(collectedUser, interaction) {
 	uData = await UserData.findOne({ where: { userid: collectedUser } });
-	if (!uData) return message.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
+	if (!uData) return interaction.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
 
@@ -118,10 +118,12 @@ async function handleSpawn(message) {
 
 				collector.on('collect', async (collInteract) => {
 					const collectedUser = collInteract.user.id;
-					if (collInteract === 'accept') {
-						const user = await grabUM(collectedUser, message);
+					const interaction = collInteract;
+					if (collInteract.customId === 'accept') {
+						const user = await grabUM(collectedUser, interaction);
 						if (user) {
-							await enemyGrabbed(message, user);
+							console.log('Trying to spawn enemy, no spawn channel found!');
+							await enemyGrabbed(interaction, user);
 						}
 						await collInteract.deferUpdate();
 						interactiveButtons.components[0].setDisabled(true);
