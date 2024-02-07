@@ -77,16 +77,11 @@ module.exports = {
 
 			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "tooly"];
 
-			if (focusedValue) {
-				console.log(choices);
-				console.log(focusedValue);
-
-				//Mapping the complete list of options for discord to handle and present to the user
-				const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-				await interaction.respond(
-					filtered.map(choice => ({ name: choice, value: choice })),
-				);
-			}	
+			//Mapping the complete list of options for discord to handle and present to the user
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
 		}
 
 		if (focusedOption.name === 'typeview') {
@@ -94,16 +89,11 @@ module.exports = {
 
 			choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "tooly", "unique"];
 
-			if (focusedValue) {
-				console.log(choices);
-				console.log(focusedValue);
-
-				//Mapping the complete list of options for discord to handle and present to the user
-				const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-				await interaction.respond(
-					filtered.map(choice => ({ name: choice, value: choice })),
-				);
-			}
+			//Mapping the complete list of options for discord to handle and present to the user
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
 		}
 
 		if (focusedOption.name === 'rarity') {
@@ -111,16 +101,11 @@ module.exports = {
 
 			choices = ["common", "uncommon", "rare", "very rare", "epic", "mystic", "?", "??", "???", "????"];
 
-			if (focusedValue) {
-				console.log(choices);
-				console.log(focusedValue);
-
-				//Mapping the complete list of options for discord to handle and present to the user
-				const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-				await interaction.respond(
-					filtered.map(choice => ({ name: choice, value: choice })),
-				);
-			}
+			//Mapping the complete list of options for discord to handle and present to the user
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
 		}
     },
 	async execute(interaction) { 
@@ -177,7 +162,7 @@ module.exports = {
 				let listStr;
 				listStr = `${matType}List.json`;
 
-				const foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+				const foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
 				const matRarIsReal = foundMaterialList.filter(mat => mat.Rar_id === chosenRarID);
 				if (matRarIsReal.length <= 0) return interaction.followUp(`${matType} cannot be combined to ${rarType}!`);
 
@@ -1641,7 +1626,7 @@ module.exports = {
 			listStr = `${matType}List.json`;
 			passType = `${matType}`;
 
-			const foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+			const foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
 			if (!foundMaterialList) {
 				console.log(errorForm('MaterialList NOT FOUND!'));
 				return 0;
@@ -1692,7 +1677,7 @@ module.exports = {
 			listStr = `${matType}List.json`;
 			passType = `${matType}`;
 
-			const foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+			const foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
 			if (!foundMaterialList) {
 				console.log(errorForm('MaterialList NOT FOUND!'));
 				return 0;
@@ -1809,7 +1794,7 @@ module.exports = {
 			listStr = `${matType}List.json`;
 			passType = `${matType}`;
 
-			const foundMaterialList = require(`../events/Models/json_prefabs/materialLists/${listStr}`);
+			const foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
 			if (!foundMaterialList) {
 				console.log(errorForm('MaterialList NOT FOUND!'));
 				return 0;
