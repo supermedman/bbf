@@ -69,7 +69,7 @@ async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
     }
 
     if (choices.length <= 0) {
-        console.error('NO ENEMY CHOICES FOR PLAYER LEVEL:', player.level);
+        console.error('NO ENEMY CHOICES FOR PLAYER LEVEL:', user.level);
         return await interaction.reply('Something went wrong while spawning that enemy!');
     }
 
