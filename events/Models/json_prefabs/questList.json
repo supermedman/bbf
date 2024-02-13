@@ -29,6 +29,15 @@
         "ID": 6
     },
     {
+        "Name": "Stumble Upon The Uneven Coven",
+        "Story": false,
+        "Length": 3600000,
+        "Time": "1hr",
+        "Level": 1.5,
+        "ELevel": "???",
+        "ID": 99
+    },
+    {
         "Name": "Forgotten Battlefield",
         "Story": false,
         "Length": 28800000,
