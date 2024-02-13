@@ -294,8 +294,13 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
 
         const attachment = await createEnemyDisplay(enemy);
 
-        const combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
-
+        let combatEmbed;
+        if (interaction.replied || interaction.deferred){
+            combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
+        } else {
+            combatEmbed = await interaction.reply({ components: [row], files: [attachment] });
+        }
+        
         const filter = (i) => i.user.id === userID;
 
         const collector = combatEmbed.createMessageComponentCollector({

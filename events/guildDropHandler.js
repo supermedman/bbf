@@ -102,7 +102,9 @@ async function handleSpawn(message) {
 
 	//Send Enemy spawn to correct default channel, otherwise default to channel where message was last sent!
 	const theGuild = await GuildData.findOne({ where: { guildid: message.guild.id } });
-	console.log(theGuild);
+	
+	console.log(theGuild.guildid);
+	
 	try {
 		if (theGuild) {
 			//guild exists!
