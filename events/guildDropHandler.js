@@ -123,14 +123,17 @@ async function handleSpawn(message) {
 					const interaction = collInteract;
 					if (collInteract.customId === 'accept') {
 						const user = await grabUM(collectedUser, interaction);
-						if (user) {
-							console.log('Trying to spawn enemy, no spawn channel found!');
-							await enemyGrabbed(interaction, user);
-						}
+
 						await collInteract.deferUpdate();
 						interactiveButtons.components[0].setDisabled(true);
 
 						await collInteract.editReply({ components: [interactiveButtons] });
+						
+						if (user) {
+							console.log('Trying to spawn enemy, no spawn channel found!');
+							await enemyGrabbed(interaction, user);
+						}
+						
 						wait(2000).then(async () => {
 							await collector.stop();
 						});

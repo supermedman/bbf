@@ -60,6 +60,8 @@ const enemyExtraGen = (eFab) => {
 async function loadEnemy(interaction, user, altSpawnCode, altSpawner) {
     //const uData = user;
 
+    if (!user) return interaction.followUp('No User Found!');
+
     const {enemies} = interaction.client;
     let theEnemy;
 
