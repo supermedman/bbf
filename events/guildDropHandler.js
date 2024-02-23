@@ -47,7 +47,7 @@ const wait = require('node:timers/promises').setTimeout;
  */
 //This method grabs user data when no default spawn channel is active
 async function grabUM(collectedUser, interaction) {
-	uData = await UserData.findOne({ where: { userid: collectedUser } });
+	let uData = await UserData.findOne({ where: { userid: collectedUser } });
 	if (!uData) return interaction.channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
@@ -59,7 +59,7 @@ async function grabUM(collectedUser, interaction) {
  */
 //This method grabs user data when default spawn channel is active
 async function grabUC(collectedUser, channel) {
-	uData = await UserData.findOne({ where: { userid: collectedUser } });
+	let uData = await UserData.findOne({ where: { userid: collectedUser } });
 	if (!uData) return channel.send(`No User Data.. Please use the \`/start\` command to select a class and begin your adventure!!`);
 	return uData;
 }
@@ -125,15 +125,15 @@ async function handleSpawn(message) {
 						const user = await grabUM(collectedUser, interaction);
 
 						await collInteract.deferUpdate();
-						interactiveButtons.components[0].setDisabled(true);
 
-						await collInteract.editReply({ components: [interactiveButtons] });
-						
 						if (user) {
 							console.log('Trying to spawn enemy, no spawn channel found!');
 							await enemyGrabbed(interaction, user);
 						}
-						
+
+						interactiveButtons.components[0].setDisabled(true);
+
+						await collInteract.editReply({ components: [interactiveButtons] });
 						wait(2000).then(async () => {
 							await collector.stop();
 						});
@@ -165,11 +165,14 @@ async function handleSpawn(message) {
 					const interaction = collInteract;
 					if (collInteract.customId === 'accept') {
 						//user has chosen to fight!					
+						await collInteract.deferUpdate();
+
 						const user = await grabUC(collectedUser, channel);
 						if (user) {
+							console.log('Trying to spawn enemy, spawn channel found!');
 							await enemyGrabbed(interaction, user);
 						}
-						await collInteract.deferUpdate();
+						
 						interactiveButtons.components[0].setDisabled(true);
 
 						await collInteract.editReply({ components: [interactiveButtons] });
