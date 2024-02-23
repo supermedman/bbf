@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: '0',
         },
+        current_location: {
+            type: DataTypes.STRING,
+            defaultValue: 'Wilds',
+            allowNull: false,
+        },
         username: DataTypes.TEXT,
         health: {
             type: DataTypes.INTEGER,

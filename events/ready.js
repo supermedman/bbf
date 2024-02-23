@@ -29,7 +29,8 @@ const {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
-    EarlyAccess
+    EarlyAccess,
+    LocationData
 } = require('../dbObjects.js');
 
 //const { } = require('../dbObjects.js');
@@ -83,5 +84,7 @@ module.exports = {
 	    CoreBuilding.sync();
 
         EarlyAccess.sync();
+
+        LocationData.sync();
 	},
 };

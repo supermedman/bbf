@@ -34,7 +34,7 @@
         "Length": 3600000,
         "Time": "1hr",
         "Level": 1.5,
-        "ELevel": "???",
+        "ELevel": "2-7",
         "ID": 99
     },
     {
@@ -405,5 +405,16 @@
         "ELevel": "70-75",
         "IsLockedBy": 38,
         "ID": 39
+    },
+    {
+        "Name": "Free Whitepool Woods from Bandits",
+        "Story": false,
+        "Hunting": true,
+        "ZoneID": "1",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 1.5,
+        "ELevel": "2-7",
+        "ID": 58
     }
 ]

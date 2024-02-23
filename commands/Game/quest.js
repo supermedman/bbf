@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { Questing, UserData, Milestones, ActiveStatus, ActiveDungeon, Pigmy } = require('../../dbObjects.js');
+const { Questing, UserData, Milestones, ActiveStatus, ActiveDungeon, Pigmy, LocationData } = require('../../dbObjects.js');
 const { checkHintQuest, checkHintStoryQuest, checkHintLore, checkHintDungeon, checkHintPigmy } = require('./exported/handleHints.js');
 
 const { isLvlUp } = require('./exported/levelup.js');
@@ -496,6 +496,36 @@ module.exports = {
 				await interaction.reply({ embeds: [storyEmbed] }).then(embedMsg => setTimeout(() => {
 					embedMsg.delete();
 				}, 300000)).catch(error => console.error(error));
+			}
+
+			
+			const huntingCheck = questList.filter(quest => quest.Hunting)
+			.filter(quest => quest.ID === activeQuest.qid);
+
+			if (huntingCheck.length <= 0) { } else {
+				let userLocation = await LocationData.findOne({where: {userid: user.userid}});
+				if (!userLocation) userLocation = await LocationData.create({userid: user.userid});
+
+				const theQuest = huntingCheck[0];
+				let locationIDs = userLocation.unlocked_locations.split(',');
+				
+				let exists = false;
+				for (const id of locationIDs){
+					if (theQuest.ZoneID === id){ exists = true; break;}
+				}
+
+				if (!exists){ 
+					locationIDs.push(theQuest.ZoneID);
+					locationIDs.sort((a,b) => {
+						if (a > b) return 1;
+						if (a < b) return -1;
+						return 0;
+					});
+					
+					const tableUpdate = await userLocation.update({unlocked_locations: locationIDs.toString()});
+					if (tableUpdate > 0) await userLocation.save();
+				}
+				
 			}
 
 			await destroyQuest();

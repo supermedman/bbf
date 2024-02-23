@@ -42,6 +42,7 @@ const CoreBuilding = require('./events/Models/CoreBuilding')(sequelize, Sequeliz
 
 const EarlyAccess = require('./events/Models/EarlyAccess')(sequelize, Sequelize.DataTypes);
 
+const LocationData = require('./events/Models/LocationData')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	//Equipped,
@@ -73,5 +74,6 @@ module.exports = {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
-	EarlyAccess
+	EarlyAccess,
+	LocationData
 };
