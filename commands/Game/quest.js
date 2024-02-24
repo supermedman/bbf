@@ -138,16 +138,18 @@ module.exports = {
 			} else allQuests = normalQuests.concat(nextQuest);
 
 			let embedPages = [];
+			let questCount = 1;
 			for (const quest of allQuests) {
 				const questEmbed = new EmbedBuilder()
 					.setColor(0000)
-					.setTitle(`Quest: ${quest.ID}`)
+					.setTitle(`Quest: ${questCount}`)
 					.addFields(
 						{
 							name: `Name: ${quest.Name}`,
 							value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
 						});
 				embedPages.push(questEmbed);
+				questCount++;
 			}
 
 			const backButton = new ButtonBuilder()
