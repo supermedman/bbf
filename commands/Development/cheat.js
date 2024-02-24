@@ -15,7 +15,8 @@ module.exports = {
         if (interaction.user.id !== '501177494137995264') return await interaction.reply('Nope!');
         
         const itemID = interaction.options.getInteger('id');
-        
+
+        let filterItem = lootList.filter(item => item.Loot_id === itemID);
         
     },
 };
