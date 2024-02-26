@@ -22,7 +22,7 @@ function filterHunting(matWanted, maxLevel){
     let buildList = [];
     for (const Enemy of enemyList){
         if (Enemy.Level <= maxLevel){
-            if (Enemy.DropTypes.find(matWanted)){
+            if (Enemy.DropTypes.includes(matWanted)){
                 buildList.push(Enemy.ConstKey);
             }
         }
@@ -46,4 +46,14 @@ function checkUnlockedBiome(locData){
     return locationBuilder;
 }
 
-module.exports = { checkSpawnBiome, checkUnlockedBiome };
+/**
+ * 
+ * @param {String} biomeName Given when user attempts to travel to a new location
+ * @returns Int
+ */
+function checkSelectedBiome(biomeName){
+    const returnIndex = biomeList.indexOf(biomeName);
+    return returnIndex;
+}
+
+module.exports = { checkSpawnBiome, checkUnlockedBiome, checkSelectedBiome };

@@ -4,6 +4,7 @@ const { Op } = require('sequelize');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
 const { createEnemyDisplay } = require('./exported/displayEnemy.js');
 const { checkOwned } = require('./exported/createGear.js');
+const {checkSpawnBiome} = require('./exported/locationFilters.js');
 const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../../dbObjects.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
@@ -259,8 +260,12 @@ module.exports = {
 
             // This preloads an array with all enemy constkeys for enemies at or below the players level
             let choices = [];
-            for (const [key, value] of enemies) {
-                if (value <= player.level) choices.push(key);
+            choices = checkSpawnBiome(await grabU());
+
+            if (choices.length <= 0){
+                for (const [key, value] of enemies) {
+                    if (value <= player.level) choices.push(key);
+                }
             }
 
             if (choices.length <= 0) {

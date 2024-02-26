@@ -416,5 +416,16 @@
         "Level": 1.5,
         "ELevel": "2-7",
         "ID": 58
+    },
+    {
+        "Name": "Help Keep The Black Raven Meadows Safe",
+        "Story": false,
+        "Hunting": true,
+        "ZoneID": "2",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 1.5,
+        "ELevel": "2-7",
+        "ID": 59
     }
 ]
