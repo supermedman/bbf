@@ -274,7 +274,7 @@
         "Time": "12hr",
         "Level": 11,
         "ELevel": "50-55",
-        "ID": 60
+        "ID": 26
     },
     {
         "Name": "Attend Parade Day 1",
@@ -427,5 +427,27 @@
         "Level": 1.5,
         "ELevel": "2-7",
         "ID": 59
+    },
+    {
+        "Name": "Muck About in The Forgotten Polder of Gracemouth",
+        "Story": false,
+        "Hunting": true,
+        "ZoneID": "3",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 5,
+        "ELevel": "20-25",
+        "ID": 60
+    },
+    {
+        "Name": "Prevent The Wild Fires from Razing The Yutlid Plains",
+        "Story": false,
+        "Hunting": true,
+        "ZoneID": "4",
+        "Length": 21600000,
+        "Time": "6hr",
+        "Level": 5,
+        "ELevel": "20-25",
+        "ID": 61
     }
 ]
