@@ -1,37 +1,5 @@
 [
     {
-        "Biome": "Wilds",
-        "CanHave": ["Common", "Uncommon"],
-        "Unique": ["Diplomatic Wildling"]
-    },
-    {
-        "Biome": "Forest",
-        "CanHave": ["Common", "Uncommon", "Rare"],
-        "Unique": ["Kilyn Ennala"]
-    },
-    {
-        "Biome": "Grassland",
-        "CanHave": ["Common", "Uncommon", "Rare"],
-        "Unique": ["Caagduth"]
-    },
-    {
-        "Biome": "Swamp",
-        "CanHave": ["Uncommon", "Rare", "Very Rare"],
-        "Unique": ["Drathrus Zolzair"]
-    },
-    {
-        "Biome": "Plains",
-        "CanHave": ["Uncommon", "Rare", "Very Rare"],
-        "Unique": ["Rogbut"]
-    },
-    {
-        "Biome": "Desert",
-        "CanHave": ["Rare", "Very Rare", "Epic", "Mystic"],
-        "Unique": ["The Sentinel"]
-    },
-    {
-        "Biome": "Mountain",
-        "CanHave": ["Rare", "Very Rare", "Epic", "Mystic"],
-        "Unique": ["Dhossud Earthbender"]
+        "Rarity": "Common"
     }
 ]
