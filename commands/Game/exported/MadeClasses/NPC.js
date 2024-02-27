@@ -1,3 +1,11 @@
+const npcNameCaste = require('../../../../events/Models/json_prefabs/NPC_Prefabs/npcNameCaste.json');
+const npcStatCaste = require('../../../../events/Models/json_prefabs/NPC_Prefabs/npcStatCaste.json');
+const npcNames = require('../../../../events/Models/json_prefabs/NPC_Prefabs/npcNames.json');
+const npcTaskList = require('../../../../events/Models/json_prefabs/NPC_Prefabs/npcTaskList.json');
+const npcDialogCaste = require('../../../../events/Models/json_prefabs/NPC_Prefabs/npcDialogCaste.json');
+
+
+
 const randArrPos = (arr) => {
     let returnIndex = 0;
     if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
@@ -53,8 +61,20 @@ class NPC {
     genRandNpc(localBiome) {
         const biomes = ['Forest', 'Mountain', 'Desert', 'Plains', 'Swamp', 'Grassland'];
         const genFromBiome = localBiome ?? randArrPos(biomes);
+
+        let statCaste = npcStatCaste.filter(caste => caste.Biome === genFromBiome);
+        statCaste = statCaste[0];
+
+        this.level = Math.floor(Math.random() * (statCaste.LevelMax - statCaste.LevelMin + 1) + statCaste.LevelMin);
+        console.log('Spawned @ Level %d', this.level);
+
+        this.genName(genFromBiome);
+
+
         /**		
-         *      Name Refs:
+         *          === Name Refs ===
+         * 
+         *      Skill Refs:
          *      - coS === combatSkill
          *      - gaS === gatherSkill
          *      - crS === craftSkill
@@ -159,6 +179,61 @@ class NPC {
          *          - moveReq = 0 - 1
         * */
 
+    }
+
+    genName(localBiome){
+        // Generate NPC name off of level and location
+        let nameCaste = npcNameCaste.filter(caste => caste.Biome === localBiome);
+        nameCaste = nameCaste[0];
+        const finalCaste = this.#extraNameGens(nameCaste);
+        
+        let nameTypeList;
+        if (this.fromTown) nameTypeList = finalCaste.Tame;
+        if (this.fromWilds) nameTypeList = finalCaste.Wild;
+
+        console.log(`Current Name List: ${nameTypeList}`);
+        this.name = randArrPos(nameTypeList);
+    }
+
+    #extraNameGens(nameCaste){
+        // Array of Name Rarities Available to Biome
+        const rarChoices = nameCaste.CanHave;
+
+        // Filtering All Possible Rarity Castes
+        let rarCatChoices = [];
+        for (const choice of rarChoices){
+            rarCatChoices.push(npcNames.filter(cat => cat.Rarity === choice));
+        }
+
+        // Filtering all castes available for level range
+        let finalCasteChoices = [];
+        for (const cat of rarCatChoices){
+            if (this.level > cat.LevelMax) continue;
+            finalCasteChoices.push(cat);
+        }
+
+        console.log(`Current Available Castes: ${finalCasteChoices.length}`);
+
+        let finalCaste;
+        // Picking from one of available castes
+        if (finalCasteChoices.length > 1){
+            let commonWeight = (100 - finalCasteChoices.length * 25) + 10;
+            console.log(`Current Common Weight: ${commonWeight}/100`);
+
+            const rngRolled = Math.floor((Math.random()) * 100);
+            console.log(`Rolled Num: ${rngRolled}`);
+            if (rngRolled <= commonWeight) return finalCaste = finalCasteChoices[0];
+            
+            let tmpBypassCommon = randArrPos(finalCasteChoices);
+            while (tmpBypassCommon === finalCasteChoices[0]){
+                tmpBypassCommon = randArrPos(finalCasteChoices);
+            }
+            return finalCaste = tmpBypassCommon;
+        }
+    }
+
+    genNewTask(){
+        // Generate NPC's current task/new task off of level and location and prereq.
     }
 
     combatSkillCheck(){

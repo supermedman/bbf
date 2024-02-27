@@ -1,0 +1,79 @@
+[
+    {
+        "Biome": "Wilds",
+        
+        "LevelMin": 1,
+        "LevelMax": 12,
+
+        "SkillWeight": "Balanced",
+        "CombatSkill": 1,
+        "GatherSkill": 1,
+        "CraftSkill": 1
+    },
+    {
+        "Biome": "Forest",
+
+        "LevelMin": 1,
+        "LevelMax": 12,
+
+        "SkillWeight": "Balanced",
+        "CombatSkill": 3,
+        "GatherSkill": 3,
+        "CraftSkill": 3
+    },
+    {
+        "Biome": "Grassland",
+
+        "LevelMin": 1,
+        "LevelMax": 12,
+
+        "SkillWeight": "Balanced",
+        "CombatSkill": 3,
+        "GatherSkill": 3,
+        "CraftSkill": 3
+    },
+    {
+        "Biome": "Swamp",
+
+        "LevelMin": 8,
+        "LevelMax": 17,
+
+        "SkillWeight": "Gather",
+        "CombatSkill": 2,
+        "GatherSkill": 4,
+        "CraftSkill": 3
+    },
+    {
+        "Biome": "Plains",
+
+        "LevelMin": 8,
+        "LevelMax": 17,
+
+        "SkillWeight": "Combat",
+        "CombatSkill": 4,
+        "GatherSkill": 2,
+        "CraftSkill": 3
+    },
+    {
+        "Biome": "Desert",
+
+        "LevelMin": 12,
+        "LevelMax": 25,
+
+        "SkillWeight": "Combat",
+        "CombatSkill": 5,
+        "GatherSkill": 2,
+        "CraftSkill": 2
+    },
+    {
+        "Biome": "Mountain",
+
+        "LevelMin": 12,
+        "LevelMax": 25,
+
+        "SkillWeight": "Craft",
+        "CombatSkill": 2,
+        "GatherSkill": 2,
+        "CraftSkill": 5
+    }
+]

@@ -468,9 +468,9 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
                 const potionUsed = await findPotion(player.loadout[5], userID);
                 const result = await handleUsePotion(potionUsed, player);
                 const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
-                if (reinEffects > 0) player.updateDefence(reinEffects);
+                if (reinEffects.length > 0) player.updateDefence(reinEffects);
                 const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
-                if (tonEffects > 0) player.updateUPs(tonEffects);
+                if (tonEffects.length > 0) player.updateUPs(tonEffects);
                 if (result !== 'Success') console.log('Potion effect not applied!');
                 collector.stop();
                 return display(player, enemy);
