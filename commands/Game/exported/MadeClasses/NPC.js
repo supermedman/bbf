@@ -350,7 +350,8 @@ class NPC {
                 fieldValue = `Name: ${this.taskRequest.Name}\nRarity: ${this.taskRequest.Rarity}\nAmount: ${this.taskRequest.Amount}`;
                 break;
             case "Combat":
-                
+                fieldName = "Enemies To Kill: ";
+                fieldValue = `Level: ${this.taskRequest.MinLevel}+\nAmount: ${this.taskRequest.Amount}`;
                 break;
             case "Gather":
                 fieldName = "Material Requested: ";
@@ -421,6 +422,17 @@ class NPC {
 
     #genCombatTask(){
         console.log("Combat Task!");
+        let returnObj = {
+            MinLevel: 0,
+            Amount: 0,
+        };
+
+        const minimumLevel = Math.floor(Math.random() * (this.taskContents.LevelMax - this.taskContents.LevelMin + 1) + this.taskContents.LevelMin);
+        returnObj.MinLevel = minimumLevel;
+        const amountWanted = Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
+        returnObj.Amount = amountWanted;
+
+        this.taskRequest = returnObj;
     }
 
     #genGatherTask(){
