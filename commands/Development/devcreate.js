@@ -1,9 +1,12 @@
-const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
+const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
 const Canvas = require('@napi-rs/canvas');
 
+const {NPC} = require('../Game/exported/MadeClasses/NPC');
+
 //const HBimg = require('../../events/Models/json_prefabs/image_extras/healthbar.png');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
+
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,6 +20,21 @@ module.exports = {
 					option.setName('enemy')
 						.setDescription('Which enemy would you like displayed?')
 						.setRequired(true)
+						.setAutocomplete(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('npc-spawn')
+				.setDescription('Initial Spawn Tests For NPCs')
+				.addStringOption(option =>
+					option.setName('from')
+						.setDescription('Where is this npc from?')
+						.setRequired(true)
+						.setChoices(
+							{name: "Town", value: "fromTown"},
+							{name: "Wild", value: "fromWilds"}))
+				.addStringOption(option =>
+					option.setName('local-biome')
+						.setDescription('Would you like choose a biome?')
 						.setAutocomplete(true))),
 	async autocomplete(interaction) { 
 		const focusedOption = interaction.options.getFocused(true);
@@ -34,6 +52,17 @@ module.exports = {
 			for (const enemy of enemyMatchList){
 				choices.push(enemy.Name);
 			}
+
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
+		}
+
+		if (focusedOption.name === 'local-biome'){
+			const focusedValue = interaction.options.getFocused(false);
+
+			choices = ['Wilds', 'Forest', 'Mountain', 'Desert', 'Plains', 'Swamp', 'Grassland'];
 
 			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
@@ -101,6 +130,32 @@ module.exports = {
     		if (!interaction) return attachment;
 
 			return await interaction.reply({ files: [attachment] });
+		}
+
+		if (interaction.options.getSubcommand() === 'npc-spawn'){
+			const spawnType = interaction.options.getString('from');
+			let localBiome = interaction.options.getString('local-biome');
+
+			let theNpc;
+			if (spawnType === 'fromTown') theNpc = new NPC(spawnType);
+			if (spawnType === 'fromWilds') theNpc = new NPC();
+
+			//console.log(theNpc);
+
+			if (localBiome) theNpc.genRandNpc(localBiome);
+			if (!localBiome) theNpc.genRandNpc();
+
+			console.log(theNpc);
+
+			let dynDesc = `Name: ${theNpc.name}\nLevel: ${theNpc.level}\nBiome: ${theNpc.curBiome}\nTask Type: ${theNpc.taskType}\nFrom Town?: ${theNpc.fromTown}\nFrom Wilds?: ${theNpc.fromWilds}`;
+			let finalFields = theNpc.grabTaskDisplayFields();
+
+			const displayEmbed = new EmbedBuilder()
+			.setTitle("NPC Spawned!!")
+			.setDescription(dynDesc)
+			.addFields(finalFields);
+
+			await interaction.reply({embeds: [displayEmbed]});
 		}
 	},
 };

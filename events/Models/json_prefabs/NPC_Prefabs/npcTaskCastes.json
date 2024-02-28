@@ -1,0 +1,37 @@
+[
+    {
+        "Biome": "Wilds",
+        "MaxDiff": ["Easy"],
+        "Types": ["Basic"]
+    },
+    {
+        "Biome": "Forest",
+        "MaxDiff": ["Easy"],
+        "Types": ["Basic"]
+    },
+    {
+        "Biome": "Grassland",
+        "MaxDiff": ["Easy"],
+        "Types": ["Basic"]
+    },
+    {
+        "Biome": "Swamp",
+        "MaxDiff": ["Easy", "Medium"],
+        "Types": ["Basic", "Gather"]
+    },
+    {
+        "Biome": "Plains",
+        "MaxDiff": ["Easy", "Medium"],
+        "Types": ["Basic", "Combat"]
+    },
+    {
+        "Biome": "Desert",
+        "MaxDiff": ["Easy", "Hard"],
+        "Types": ["Basic", "Combat"]
+    },
+    {
+        "Biome": "Mountain",
+        "MaxDiff": ["Easy", "Hard"],
+        "Types": ["Basic", "Craft"]
+    }
+]

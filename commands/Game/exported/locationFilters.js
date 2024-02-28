@@ -32,6 +32,16 @@ function filterHunting(matWanted, maxLevel){
 
 /**
  * 
+ * @param {string} localBiome NPCs Current Biome
+ * @returns Useable "mat"List.json String
+ */
+function NPCcheckMaterialFav(localBiome) {
+    const favMat = huntingGrounds[biomeList.indexOf(localBiome)];
+    return favMat;
+}
+
+/**
+ * 
  * @param {Object} locData DB Instance: LocationData
  * @returns List of location Strings, ready to be used as command options or for further comps.
  */
@@ -56,4 +66,4 @@ function checkSelectedBiome(biomeName){
     return returnIndex;
 }
 
-module.exports = { checkSpawnBiome, checkUnlockedBiome, checkSelectedBiome };
+module.exports = { checkSpawnBiome, checkUnlockedBiome, checkSelectedBiome, NPCcheckMaterialFav };

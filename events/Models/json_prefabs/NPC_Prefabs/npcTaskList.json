@@ -1,23 +1,234 @@
 [
     {
-        "Biome": "Wilds"
+        "Category": "Fetch",
+        "Baby": [
+            {
+                "Name": "Baby_Fetch_Task_One",
+                "Conditions": {
+                    "Material": true,
+                    "Item": false,
+                    "RarityMax": "Common",
+                    "RarityMin": "Common",
+                    "Rar_id_Max": 0,
+                    "Rar_id_Min": 0,
+                    "MaxNeed": 10,
+                    "MinNeed": 3 
+                }
+            }
+        ],
+        "Easy": [
+            {
+                "Name": "Easy_Fetch_Task_One",
+                "Conditions": {
+                    "Material": true,
+                    "Item": false,
+                    "RarityMax": "Uncommon",
+                    "RarityMin": "Common",
+                    "Rar_id_Max": 1,
+                    "Rar_id_Min": 0,
+                    "MaxNeed": 10,
+                    "MinNeed": 3
+                }
+            }
+        ],
+        "Medium": [
+            {
+                "Name": "Medium_Fetch_Task_One",
+                "Conditions": {
+                    "Material": false,
+                    "Item": true,
+                    "RarityMax": "Rare",
+                    "RarityMin": "Common",
+                    "Rar_id_Max": 2,
+                    "Rar_id_Min": 0,
+                    "MaxNeed": 10,
+                    "MinNeed": 3
+                }
+            }
+        ],
+        "Hard": [
+            {
+                "Name": "Hard_Fetch_Task_One",
+                "Conditions": {
+                    "Material": false,
+                    "Item": true,
+                    "RarityMax": "Very Rare",
+                    "RarityMin": "Rare",
+                    "Rar_id_Max": 3,
+                    "Rar_id_Min": 2,
+                    "MaxNeed": 10,
+                    "MinNeed": 5
+                }
+            }
+        ],
+        "GodGiven": [
+            {
+                "Name": "GodGiven_Fetch_Task_One",
+                "Conditions": {
+                    "Material": false,
+                    "Item": true,
+                    "RarityMax": "??",
+                    "RarityMin": "Mystic",
+                    "Rar_id_Max": 7,
+                    "Rar_id_Min": 5,
+                    "MaxNeed": 5,
+                    "MinNeed": 1
+                }
+            }
+        ]
     },
     {
-        "Biome": "Forest"
+        "Category": "Combat",
+        "Baby": [
+            {
+                "Name": "Baby_Combat_Task_One",
+                "Conditions": {
+                    "LevelMax": 5,
+                    "LevelMin": 1,
+                    "MaxNeed": 10,
+                    "MinNeed": 3
+                }
+            }
+        ],
+        "Easy": [
+            {
+                "Name": "Easy_Combat_Task_One",
+                "Conditions": {
+                    "LevelMax": 10,
+                    "LevelMin": 5,
+                    "MaxNeed": 25,
+                    "MinNeed": 7
+                }
+            }
+        ],
+        "Medium": [
+            {
+                "Name": "Medium_Combat_Task_One",
+                "Conditions": {
+                    "LevelMax": 15,
+                    "LevelMin": 10,
+                    "MaxNeed": 40,
+                    "MinNeed": 15
+                }
+            }
+        ],
+        "Hard": [
+            {
+                "Name": "Hard_Combat_Task_One",
+                "Conditions": {
+                    "LevelMax": 35,
+                    "LevelMin": 25,
+                    "MaxNeed": 75,
+                    "MinNeed": 55
+                }
+            }
+        ],
+        "GodGiven": [
+            {
+                "Name": "GodGiven_Combat_Task_One",
+                "Conditions": {
+                    "LevelMax": 100,
+                    "LevelMin": 70,
+                    "MaxNeed": 250,
+                    "MinNeed": 100
+                }
+            }
+        ]
     },
     {
-        "Biome": "Grassland"
+        "Category": "Gather",
+        "Baby": [
+            {
+                "Name": "Baby_Gather_Task_One",
+                "Conditions": {
+                    "RarityMax": "Uncommon",
+                    "RarityMin": "Common",
+                    "Rar_id_Max": 1,
+                    "Rar_id_Min": 0,
+                    "MaxNeed": 20,
+                    "MinNeed": 10
+                }
+            }
+        ],
+        "Easy": [
+            {
+                "Name": "Easy_Gather_Task_One",
+                "Conditions": {
+                    "RarityMax": "Rare",
+                    "RarityMin": "Common",
+                    "Rar_id_Max": 2,
+                    "Rar_id_Min": 0,
+                    "MaxNeed": 35,
+                    "MinNeed": 10
+                }
+            }
+        ],
+        "Medium": [
+            {
+                "Name": "Medium_Gather_Task_One",
+                "Conditions": {
+                    "RarityMax": "Rare",
+                    "RarityMin": "Uncommon",
+                    "Rar_id_Max": 2,
+                    "Rar_id_Min": 1,
+                    "MaxNeed": 75,
+                    "MinNeed": 45
+                }
+            }
+        ],
+        "Hard": [
+            {
+                "Name": "Hard_Gather_Task_One",
+                "Conditions": {
+                    "RarityMax": "Mystic",
+                    "RarityMin": "Rare",
+                    "Rar_id_Max": 5,
+                    "Rar_id_Min": 2,
+                    "MaxNeed": 125,
+                    "MinNeed": 50
+                }
+            }
+        ],
+        "GodGiven": [
+            {
+                "Name": "GodGiven_Gather_Task_One",
+                "Conditions": {
+                    "RarityMax": "???",
+                    "RarityMin": "?",
+                    "Rar_id_Max": 8,
+                    "Rar_id_Min": 6,
+                    "MaxNeed": 250,
+                    "MinNeed": 50
+                }
+            }
+        ]
     },
     {
-        "Biome": "Swamp"
-    },
-    {
-        "Biome": "Plains"
-    },
-    {
-        "Biome": "Desert"
-    },
-    {
-        "Biome": "Mountain"
+        "Category": "Craft",
+        "Baby": [
+            {
+                "Name": "Baby_Craft_Task_One"
+            }
+        ],
+        "Easy": [
+            {
+                "Name": "Easy_Craft_Task_One"
+            }
+        ],
+        "Medium": [
+            {
+                "Name": "Medium_Craft_Task_One"
+            }
+        ],
+        "Hard": [
+            {
+                "Name": "Hard_Craft_Task_One"
+            }
+        ],
+        "GodGiven": [
+            {
+                "Name": "GodGiven_Craft_Task_One"
+            }
+        ]
     }
 ]
