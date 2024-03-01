@@ -1,4 +1,5 @@
 const { Events } = require('discord.js');
+
 const {
     //Equipped,
     LootStore,
@@ -32,8 +33,6 @@ const {
     EarlyAccess,
     LocationData
 } = require('../dbObjects.js');
-
-//const { } = require('../dbObjects.js');
 
 module.exports = {
 	name: Events.ClientReady,

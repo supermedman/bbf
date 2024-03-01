@@ -1,8 +1,11 @@
 node_modules/
+Profile/
 config.json
 deploy-commands-global.js
 deploy-commands.js
 remove-commands.js
+update-pfp.js
+arrayBuffer.json
 userStorage.json
 database.sqlite
 desktop.ini
