@@ -501,13 +501,13 @@ class NPC {
         embedContentList[1] = taskPicked.Dialog;
         embedContentList[2] = diffPicked.Dialog;
 
-        replyOptionsList[0] = randArrPos(locPicked.Options);
-        replyOptionsList[1] = randArrPos(taskPicked.Options);
-        replyOptionsList[2] = randArrPos(diffPicked.Options);
+        replyOptionsList[0] = locPicked.Options; //randArrPos(locPicked.Options);
+        replyOptionsList[1] = taskPicked.Options; //randArrPos(taskPicked.Options);
+        replyOptionsList[2] = diffPicked.Options; //randArrPos(diffPicked.Options);
 
         this.dialogList = embedContentList;
         this.replyOptions = replyOptionsList;
-        
+
         console.log(`Location Result: ${locPicked.Name}\nTask Result: ${taskPicked.Name}\nDifficulty Result: ${diffPicked.Name}`);
         console.log(...embedContentList);
         console.log(...replyOptionsList);

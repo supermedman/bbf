@@ -11,7 +11,12 @@
                             {
                                 "Label": "Likewise!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Strangers we shall remain.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -27,7 +32,12 @@
                             {
                                 "Label": "I agree!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I could easily live without it.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -43,7 +53,12 @@
                             {
                                 "Label": "No doubt!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Well, that sucks!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -59,7 +74,12 @@
                             {
                                 "Label": "Bounties you say?",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "You stink just as much!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -75,7 +95,12 @@
                             {
                                 "Label": "Is that so?",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Count me out!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -91,7 +116,12 @@
                             {
                                 "Label": "Doom never stopped me!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Doom is something I will be avoiding!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -107,7 +137,12 @@
                             {
                                 "Label": "Consider me a mirror!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "You haven't, good day.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -125,7 +160,12 @@
                             {
                                 "Label": "Go on.",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Well, go get it then!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -141,7 +181,12 @@
                             {
                                 "Label": "Consider mine on the market..",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "This one is not for sale!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -155,9 +200,14 @@
                         "Dialog": "I am in need of some materials!",
                         "Options": [
                             {
-                                "Label": "Reply_Option_One",
+                                "Label": "Write me a list!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Ask someone who cares!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -171,9 +221,14 @@
                         "Dialog": "This is the Craft dialog I was programmed with!",
                         "Options": [
                             {
-                                "Label": "Reply_Option_One",
+                                "Label": "Confirm Option",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Decline Option",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -191,7 +246,12 @@
                             {
                                 "Label": "Fantastic!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Then it is below my paygrade!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -207,7 +267,12 @@
                             {
                                 "Label": "I like the sound of that!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Find someone else then.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -223,7 +288,12 @@
                             {
                                 "Label": "More effort bigger reward!?",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Our talk has already been an effort.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -239,7 +309,12 @@
                             {
                                 "Label": "I'm not afraid of a challenge",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "No thank you.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
@@ -255,7 +330,12 @@
                             {
                                 "Label": "I have slane gods, do not make light of me!",
                                 "Description": "This is an option",
-                                "Value": "ValueOne"
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I will heed your warning and leave!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
                             }
                         ]
                     }
