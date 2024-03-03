@@ -10,9 +10,7 @@ const lootList = require('../../../../events/Models/json_prefabs/lootList.json')
 const {NPCcheckMaterialFav} = require('../locationFilters.js');
 
 const randArrPos = (arr) => {
-    let returnIndex = 0;
-    if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
-    return arr[returnIndex];
+    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
 class NPC {
@@ -85,6 +83,8 @@ class NPC {
         this.genName();
 
         this.genNewTask();
+
+        this.genDialogOptions();
         /**		
          *          === Name Refs ===
          * 
@@ -313,7 +313,7 @@ class NPC {
 
         let finalTask = randArrPos(finalTaskCat);
 
-        this.taskTags = `${this.taskType}, ${diffPicked}`;
+        this.taskTags = [this.taskType, diffPicked]; //`${this.taskType}, ${diffPicked}`
         this.taskList = finalTask;
         this.taskContents = this.taskList.Conditions;
 
@@ -479,6 +479,38 @@ class NPC {
 
     #genCraftTask(){
         console.log("Craft Task!");
+    }
+
+    genDialogOptions(){
+        const embedContentList = [];
+        const replyOptionsList = [];
+
+        // Compile all dialog castes together for the current preset tasktype/difficulty/biome
+        let locFilter = npcDialogCaste[0].Locations.filter(caste => caste.Biome === this.curBiome);
+        locFilter = locFilter[0].Castes;
+        let taskFilter = npcDialogCaste[0].TaskTypes.filter(caste => caste.Type === this.taskType);
+        taskFilter = taskFilter[0].Castes;
+        let diffFilter = npcDialogCaste[0].Difficulties.filter(caste => caste.Rated === this.taskTags[1]);
+        diffFilter = diffFilter[0].Castes;
+
+        const locPicked = randArrPos(locFilter);
+        const taskPicked = randArrPos(taskFilter);
+        const diffPicked = randArrPos(diffFilter);
+
+        embedContentList[0] = locPicked.Dialog;
+        embedContentList[1] = taskPicked.Dialog;
+        embedContentList[2] = diffPicked.Dialog;
+
+        replyOptionsList[0] = randArrPos(locPicked.Options);
+        replyOptionsList[1] = randArrPos(taskPicked.Options);
+        replyOptionsList[2] = randArrPos(diffPicked.Options);
+
+        this.dialogList = embedContentList;
+        this.replyOptions = replyOptionsList;
+        
+        console.log(`Location Result: ${locPicked.Name}\nTask Result: ${taskPicked.Name}\nDifficulty Result: ${diffPicked.Name}`);
+        console.log(...embedContentList);
+        console.log(...replyOptionsList);
     }
 
     combatSkillCheck(){
