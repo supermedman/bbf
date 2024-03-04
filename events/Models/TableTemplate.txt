@@ -1,0 +1,27 @@
+module.exports = (sequelize, DataTypes) => {
+    return sequelize.define('TableNameHere', {
+        
+    });
+};
+
+// DataTypes.STRING
+// DataTypes.INTEGER
+// DataTypes.BOOLEAN
+
+/**
+    fieldname: {
+        type: DataTypes.STRING,
+        defaultValue: 'tmp',
+        allowNull: false,
+    },
+
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV1 || .UUIDV4,
+        primaryKey: true,
+    },
+
+    {
+            timestamps: false
+        });
+*/
