@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    return sequelize.define('NPC', {
+    return sequelize.define('NPCTable', {
         npcid: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV1,

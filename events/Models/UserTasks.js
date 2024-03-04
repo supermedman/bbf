@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         npcid:{
             type: DataTypes.STRING,
+            defaultValue: '0',
             allowedNull: false,
         },
 
@@ -22,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: 'Baby'
         },
+
         name: {
             type: DataTypes.STRING,
             defaultValue: 'None',

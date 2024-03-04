@@ -1,5 +1,7 @@
 const {EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType, ActionRowBuilder} = require('discord.js');
 
+const {NPCTable, UserTasks} = require('../../../dbObjects.js');
+
 async function initialDialog(npc, interaction, user) {
     
     const npcDialogEmbed = new EmbedBuilder()
@@ -63,8 +65,13 @@ async function initialDialog(npc, interaction, user) {
         await iCS.deferUpdate().then(async () => {
             if ((currentStep + 1) === npc.dialogList.length){
                 //Last Dialog Piece
-                const requestEmbedMessage = await interaction.followUp({embeds: [npcRequestEmbed]});
-                console.log(requestEmbedMessage);
+                const result = await saveStateTask(npc, user);
+                if (result !== 'Success') return await interaction.followUp('Something went wrong while adding that task!');
+                
+                //const requestEmbedMessage = 
+                await interaction.followUp({embeds: [npcRequestEmbed]});
+                //console.log(requestEmbedMessage);
+
                 await dialogCollector.stop();
             } else {
                 // Still In Dialog
@@ -88,6 +95,32 @@ async function initialDialog(npc, interaction, user) {
             }
         });
     });
+}
+
+async function saveStateTask(npc, user){
+    let dbNpc = await NPCTable.create({
+        name: npc.name,
+        level: npc.level,
+        happiness: 0,
+        curbiome: npc.curbiome,
+    });
+
+    if (dbNpc) dbNpc = await NPCTable.findOne({where: {name: npc.name, level: npc.level}});
+
+    let newTask = await UserTasks.create({
+        userid: user.userid,
+        npcid: dbNpc.npcid,
+        task_type: npc.taskType,
+        task_difficulty: npc.taskTags[1],
+        name: npc.taskRequest.Name ?? 'None',
+        condition: (npc.taskRequest.MinLevel) ? npc.taskRequest.MinLevel : npc.taskRequest.Rar_id,
+        total_amount: npc.taskRequest.Amount, 
+    });
+
+    if (newTask) console.log(newTask);
+
+    if (dbNpc.npcid === newTask.npcid) return 'Success';
+    return 'Failure';
 }
 
 module.exports = { initialDialog };

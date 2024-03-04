@@ -31,7 +31,9 @@ const {
 	PlayerBuilding,
 	CoreBuilding,
     EarlyAccess,
-    LocationData
+    LocationData,
+    UserTasks,
+    NPCTable
 } = require('../dbObjects.js');
 
 module.exports = {
@@ -85,5 +87,8 @@ module.exports = {
         EarlyAccess.sync();
 
         LocationData.sync();
+
+        UserTasks.sync();
+        NPCTable.sync();
 	},
 };

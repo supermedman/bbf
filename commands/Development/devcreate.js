@@ -2,6 +2,8 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, ActionRowBuilder, 
 
 const Canvas = require('@napi-rs/canvas');
 
+const {UserData} = require('../../dbObjects.js');
+
 const {NPC} = require('../Game/exported/MadeClasses/NPC');
 const {initialDialog} = require('../Game/exported/handleNPC.js');
 
@@ -137,6 +139,8 @@ module.exports = {
 			const spawnType = interaction.options.getString('from');
 			let localBiome = interaction.options.getString('local-biome');
 
+			const user = await UserData.findOne({where: {userid: interaction.user.id}});
+
 			let theNpc;
 			if (spawnType === 'fromTown') theNpc = new NPC(spawnType);
 			if (spawnType === 'fromWilds') theNpc = new NPC();
@@ -178,7 +182,7 @@ module.exports = {
 
 			collector.on('collect', async (COI) =>{
 				if (COI.customId === 'start-dialog'){
-					initialDialog(theNpc, interaction);
+					initialDialog(theNpc, interaction, user);
 					collector.stop();
 				}
 			});
