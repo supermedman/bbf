@@ -3,7 +3,7 @@ const { warnedForm } = require('../chalkPresets');
 
 const {EarlyAccess} = require('../dbObjects.js');
 
-let collectionRunOnce = false;
+//let collectionRunOnce = false;
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -89,26 +89,26 @@ module.exports = {
 						betaTester.set(interaction.user.id, true);
 					}
 					
-					if (collectionRunOnce === false){
-						collectionRunOnce = true;
+					// if (collectionRunOnce === false){
+					// 	collectionRunOnce = true;
 
-						const allEA = await EarlyAccess.findAll();
-						for (const user of allEA){
-							if (!betaTester.has(user.userid)){
-								betaTester.set(user.userid, true);
-							}
-						}
+					// 	const allEA = await EarlyAccess.findAll();
+					// 	for (const user of allEA){
+					// 		if (!betaTester.has(user.userid)){
+					// 			betaTester.set(user.userid, true);
+					// 		}
+					// 	}
 
-						const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
-						for (const user of newSpawnFilter){
-							if (!newEnemy.has(user.userid)){
-								newEnemy.set(user.userid, true);
-							}
-						}
+					// 	const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
+					// 	for (const user of newSpawnFilter){
+					// 		if (!newEnemy.has(user.userid)){
+					// 			newEnemy.set(user.userid, true);
+					// 		}
+					// 	}
 
-						console.log(...newEnemy);
-						console.log(...betaTester);
-					}
+					// 	console.log(...newEnemy);
+					// 	console.log(...betaTester);
+					// }
 
 				}).catch(error => {
 					console.error(error);

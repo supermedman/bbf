@@ -36,6 +36,28 @@ const {
     NPCTable
 } = require('../dbObjects.js');
 
+async function loadEarlyAccess(client){
+    const {betaTester, newEnemy} = client;
+
+    const allEA = await EarlyAccess.findAll();
+    for (const user of allEA){
+        if (!betaTester.has(user.userid)){
+            betaTester.set(user.userid, true);
+        }
+    }
+
+    const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
+    for (const user of newSpawnFilter){
+        if (!newEnemy.has(user.userid)){
+            newEnemy.set(user.userid, true);
+        }
+    }
+
+    //console.log(...newEnemy);
+	//console.log(...betaTester);
+    console.log("Finished Applying Access Permissions!");
+}
+
 module.exports = {
 	name: Events.ClientReady,
 	once: true,
@@ -90,5 +112,11 @@ module.exports = {
 
         UserTasks.sync();
         NPCTable.sync();
+
+        try {
+            loadEarlyAccess(client);
+        } catch (e){
+            console.error(e);
+        }
 	},
 };
