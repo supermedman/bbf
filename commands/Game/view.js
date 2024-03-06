@@ -52,7 +52,7 @@ module.exports = {
         const user = await checkUser();
         if (user === "No User") return await interaction.reply('No userdata found, please use ``/start`` to make a profile!');
 
-        const { betaTester, materialFiles } = interaction.client;
+        const { betaTester } = interaction.client;
 
 		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
 
