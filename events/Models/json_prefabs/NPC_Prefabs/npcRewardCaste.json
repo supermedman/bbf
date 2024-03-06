@@ -1,0 +1,172 @@
+[
+    {
+        "Rated": "Baby", 
+        "Options": [
+            {
+                "Name": "Baby Reward One",
+                "Contents": {
+                    "Type": "Potion",
+                    "Name": "Minor Healing",
+                    "Amount": 3,
+                    "Multiplier": 0.5
+                }
+            },
+            {
+                "Name": "Baby Reward Two",
+                "Contents": {
+                    "Type": "Item",
+                    "Name": "Random",
+                    "Amount": 5,
+                    "Extra": 0,
+                    "Multiplier": 0.5
+                }
+            },
+            {
+                "Name": "Baby Reward Three",
+                "Contents": {
+                    "Type": "Material",
+                    "Name": "Random",
+                    "Amount": 25,
+                    "Extra": 1,
+                    "Multiplier": 0.5
+                }
+            }
+        ]
+    },
+    {
+        "Rated": "Easy", 
+        "Options": [
+            {
+                "Name": "Easy Reward One",
+                "Contents": {
+                    "Type": "Potion",
+                    "Name": "Medium Healing",
+                    "Amount": 3,
+                    "Multiplier": 0.8
+                }
+            },
+            {
+                "Name": "Easy Reward Two",
+                "Contents": {
+                    "Type": "Item",
+                    "Name": "Random",
+                    "Amount": 3,
+                    "Extra": 2,
+                    "Multiplier": 0.8
+                }
+            },
+            {
+                "Name": "Easy Reward Three",
+                "Contents": {
+                    "Type": "Material",
+                    "Name": "Random",
+                    "Amount": 25,
+                    "Extra": 2,
+                    "Multiplier": 0.8
+                }
+            }
+        ]
+    },
+    {
+        "Rated": "Medium", 
+        "Options": [
+            {
+                "Name": "Medium Reward One",
+                "Contents": {
+                    "Type": "Potion",
+                    "Name": "Major Healing",
+                    "Amount": 3,
+                    "Multiplier": 1
+                }
+            },
+            {
+                "Name": "Medium Reward Two",
+                "Contents": {
+                    "Type": "Item",
+                    "Name": "Random",
+                    "Amount": 5,
+                    "Extra": 3,
+                    "Multiplier": 1
+                }
+            },
+            {
+                "Name": "Medium Reward Three",
+                "Contents": {
+                    "Type": "Material",
+                    "Name": "Random",
+                    "Amount": 30,
+                    "Extra": 4,
+                    "Multiplier": 1
+                }
+            }
+        ]
+    },
+    {
+        "Rated": "Hard", 
+        "Options": [
+            {
+                "Name": "Hard Reward One",
+                "Contents": {
+                    "Type": "Potion",
+                    "Name": "Medium EXP",
+                    "Amount": 3,
+                    "Multiplier": 1.5
+                }
+            },
+            {
+                "Name": "Hard Reward Two",
+                "Contents": {
+                    "Type": "Item",
+                    "Name": "Random",
+                    "Amount": 5,
+                    "Extra": 5,
+                    "Multiplier": 1.5
+                }
+            },
+            {
+                "Name": "Hard Reward Three",
+                "Contents": {
+                    "Type": "Material",
+                    "Name": "Random",
+                    "Amount": 30,
+                    "Extra": 5,
+                    "Multiplier": 1.5
+                }
+            }
+        ]
+    },
+    {
+        "Rated": "GodGiven", 
+        "Options": [
+            {
+                "Name": "GodGiven Reward One",
+                "Contents": {
+                    "Type": "Potion",
+                    "Name": "Major EXP",
+                    "Amount": 3,
+                    "Multiplier": 2.5
+                }
+            },
+            {
+                "Name": "GodGiven Reward Two",
+                "Contents": {
+                    "Type": "Item",
+                    "Name": "Random",
+                    "Amount": 15,
+                    "Extra": 7,
+                    "Multiplier": 2.5
+                }
+            },
+            {
+                "Name": "GodGiven Reward Three",
+                "Contents": {
+                    "Type": "Material",
+                    "Name": "Random",
+                    "Amount": 50,
+                    "Extra": 7,
+                    "Multiplier": 2.5
+                }
+            }
+        ]
+    }
+]

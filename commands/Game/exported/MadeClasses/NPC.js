@@ -492,23 +492,28 @@ class NPC {
         taskFilter = taskFilter[0].Castes;
         let diffFilter = npcDialogCaste[0].Difficulties.filter(caste => caste.Rated === this.taskTags[1]);
         diffFilter = diffFilter[0].Castes;
+        let reapFilter = npcDialogCaste[0].Rewards.filter(caste => caste.Rated === this.taskTags[1]);
+        reapFilter = reapFilter[0].Castes;
 
         const locPicked = randArrPos(locFilter);
         const taskPicked = randArrPos(taskFilter);
         const diffPicked = randArrPos(diffFilter);
+        const reapPicked = randArrPos(reapFilter);
 
         embedContentList[0] = locPicked.Dialog;
         embedContentList[1] = taskPicked.Dialog;
         embedContentList[2] = diffPicked.Dialog;
+        embedContentList[3] = reapPicked.Dialog;
 
         replyOptionsList[0] = locPicked.Options; //randArrPos(locPicked.Options);
         replyOptionsList[1] = taskPicked.Options; //randArrPos(taskPicked.Options);
         replyOptionsList[2] = diffPicked.Options; //randArrPos(diffPicked.Options);
+        replyOptionsList[3] = reapPicked.Options;
 
         this.dialogList = embedContentList;
         this.replyOptions = replyOptionsList;
 
-        console.log(`Location Result: ${locPicked.Name}\nTask Result: ${taskPicked.Name}\nDifficulty Result: ${diffPicked.Name}`);
+        console.log(`Location Result: ${locPicked.Name}\nTask Result: ${taskPicked.Name}\nDifficulty Result: ${diffPicked.Name}\nReward Result: ${reapPicked.Name}`);
         console.log(...embedContentList);
         console.log(...replyOptionsList);
     }

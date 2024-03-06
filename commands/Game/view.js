@@ -1,10 +1,18 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, ActionRowBuilder } = require('discord.js');
 
-const {UserTasks, Milestones, UserData, LocationData, MaterialStore, LootStore} = require('../../dbObjects.js');
+const {UserTasks, Milestones, UserData, LocationData, MaterialStore, LootStore, OwnedPotions} = require('../../dbObjects.js');
 const { checkUnlockedBiome } = require('./exported/locationFilters.js');
+const { checkOwned } = require('./exported/createGear.js');
+const {handleMaterialAdding} = require('./exported/materialDropper.js');
 
-
+const npcRewardCaste = require('../../events/Models/json_prefabs/NPC_Prefabs/npcRewardCaste.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
+const blueprintList = require('../../events/Models/json_prefabs/blueprintList.json');
+const { isLvlUp } = require('./exported/levelup.js');
+
+const randArrPos = (arr) => {
+    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -293,7 +301,7 @@ module.exports = {
                 if (COI.customId === 'action-button'){
                     // Preform Request fill if possible!
                     const result = await attemptTaskFill(taskList[currentPage]);
-                    console.log(result);
+                    //console.log(result);
                     
                     let responseTitle = " ";
                     let responseColour = "DarkButNotQuiteBlack";
@@ -359,7 +367,7 @@ module.exports = {
                             // Procced with task updates
                             if (result.status === "Incomplete") return respCollector.stop();
                             const finalOutcome = await handleTaskProgress(taskList[currentPage], madeProgress);
-                            console.log(finalOutcome);
+                            //console.log(finalOutcome);
                             if (finalOutcome !== "Finished") {
                                 await RCOI.reply({content: "Something went wrong while updating the database!", ephemeral: true});
                                 await respCollector.stop();
@@ -404,10 +412,13 @@ module.exports = {
             if (progressObj.status === "Complete" && !progressObj.has) {
                 //Combat, Complete
                 const tableUpdate = await taskObj.update({complete: true, amount: taskObj.total_amount});
-                if (tableUpdate > 0) {
+                if (tableUpdate) {
                     await taskObj.save();
+                    const userInc = await user.increment("tasks_complete");
+                    if (userInc) await user.save();
+                    await handleRewardPayout(taskObj);
                     return "Finished";
-                } else return "Failure";
+                } else return "Failure: 1";
             }
 
             let userEntry;
@@ -418,9 +429,9 @@ module.exports = {
                 userEntry = await LootStore.findOne({where: {spec_id: user.userid, name: taskObj.name}});
             } else if (checkItem.length <= 0){
                 userEntry = await MaterialStore.findOne({where: {spec_id: user.userid, name: taskObj.name}});
-            } else return "Failure";
+            } else return "Failure: 2";
 
-            if (!userEntry) return "Failure";
+            if (!userEntry) return "Failure: 3";
 
             let amountRemove = 0;
             if (taskObj.amount !== 0){
@@ -435,27 +446,30 @@ module.exports = {
                     //return "Finished";
                 } else if (!isItem && entryDestroyed){
                     //return "Finished";
-                } else return "Failure";
+                } else return "Failure: 4";
             } else {
                 const tableUpdate = await userEntry.decrement('amount', {by: amountRemove});
-                if (tableUpdate > 0){
+                if (tableUpdate){
                     await userEntry.save();
                     //return "Finished";
-                } else return "Failure";
+                } else return "Failure: 5";
             }
 
             if (progressObj.status === "Complete"){
                 const taskUpdate = await taskObj.update({complete: true, amount: taskObj.total_amount});
-                if (taskUpdate > 0){
+                if (taskUpdate){
                     await taskObj.save();
+                    const userInc = await user.increment("tasks_complete");
+                    if (userInc) await user.save();
+                    await handleRewardPayout(taskObj);
                     return "Finished";
-                } else return "Failure";
+                } else return "Failure: 6";
             } else {
                 const inc = await taskObj.increment('amount', {by: progressObj.has});
                 if (inc){
                     await taskObj.save();
                     return "Finished";
-                } else return "Failure";
+                } else return "Failure: 7";
             }
         }
 
@@ -477,6 +491,191 @@ module.exports = {
                 if (userMat.amount >= taskObj.total_amount || userMat.amount >= (taskObj.total_amount - taskObj.amount)) return {status: "Complete", has: userMat.amount};
                 return {status: "Partial", has: userMat.amount};
             }
+        }
+
+        async function handleRewardPayout(taskObj){
+            const rewardCaste = npcRewardCaste.filter(caste => caste.Rated === taskObj.task_difficulty);
+            const reapPicked = randArrPos(rewardCaste[0].Options);
+            //console.log(reapPicked);
+            
+            let finalResult;
+            switch(reapPicked.Contents.Type){
+                case "Potion":
+                    finalResult = await handlePotionReward(reapPicked);
+                break;
+                case "Item":
+                    finalResult = await handleItemReward(reapPicked);
+                break;
+                case "Material":
+                    finalResult = await handleMaterialReward(reapPicked);
+                break;
+            }
+
+            if (finalResult.status !== "Complete") return "Reward Error: " + finalResult.status;
+            
+            //console.log(finalResult);
+            // XP && Gold reward here!
+            const rateScale = new Map();
+
+            rateScale.set("Baby", 10);
+            rateScale.set("Easy", 15);
+            rateScale.set("Medium", 20);
+            rateScale.set("Hard", 30);
+            rateScale.set("GodGiven", 75);
+
+            /**
+             * 
+             * @param {number} diffScale Grabbed from rateScale Map() 
+             * @param {number} amountTotal Total Amount requested for task completetion
+             * @param {number} multiplier Task Rated Scaler
+             * @param {number} rarScale Rarity of requested items/materials || 1 if combat
+             */            
+            const xpCalc = (diffScale, amountTotal, multiplier, rarScale) => {
+                let intitalScale = (diffScale / (0.1 * (rarScale === 0) ? 1 : rarScale)) * amountTotal;
+                intitalScale += intitalScale * multiplier;
+                intitalScale = Math.round(intitalScale);
+                return intitalScale;
+            };
+            
+            const scaleOne = rateScale.get(taskObj.task_difficulty);
+            const xpGained = xpCalc(scaleOne, taskObj.total_amount, reapPicked.Contents.Multiplier, (taskObj.task_type === "Combat") ? 1 : taskObj.condition);
+            const coinGained = Math.abs(Math.floor(Math.random() * (xpGained - (xpGained - 50) + 1) + (xpGained - 50)));
+            
+            await isLvlUp(xpGained, coinGained, interaction, user);
+
+            let embedTitle = `**${taskObj.task_difficulty} ${taskObj.task_type} Rewards:**`;
+            let embedDesc = ``;
+
+            let fieldName = '', fieldValue = '', fieldObj = {};
+            const finalFields = [];
+
+            switch(reapPicked.Contents.Type){
+                case "Potion":
+                    // INSTANCE finalResult.instance
+                    embedDesc = `You recieved **Potions**!! You can find them by using the command \`\`/myloot potions\`\`. Details listed below: `;
+                    fieldName = `Name: **${finalResult.instance.name}**`;
+                    fieldValue = `Value: **${finalResult.instance.value}**\nCooldown: **${finalResult.instance.cooldown}**\nDuration: **${finalResult.instance.duration}**\nAmount Acquired: **${reapPicked.Contents.Amount}**`;
+                    fieldObj = {name: fieldName, value: fieldValue};
+                break;
+                case "Item":
+                    // RAW finalResult.raw
+                    embedDesc = `You recieved **Items**!! You can find them by using the command \`\`/myloot gear\`\`. Details listed below: `;
+                    fieldName = `Name: **${finalResult.raw.Name}**`;
+                    fieldValue = loadItemFieldValues(finalResult.raw) + `\nAmount Acquired: **${reapPicked.Contents.Amount}**`;
+                    fieldObj = {name: fieldName, value: fieldValue};
+                break;
+                case "Material":
+                    // INSTANCE finalResult.instance
+                    embedDesc = `You recieved **Materials**!! You can find them by using the command \`\`/myloot material\`\`. Details listed below: `;
+                    fieldName = `Name: **${finalResult.instance.name}**`;
+                    fieldValue = `Value: **${finalResult.instance.value}**\nType: **${finalResult.instance.mattype}**\nRarity: **${finalResult.instance.rarity}**\nAmount Acquired: **${reapPicked.Contents.Amount}**`
+                    fieldObj = {name: fieldName, value: fieldValue};
+                break;
+            }
+
+            finalFields.push(fieldObj);
+            finalFields.push({name: "Xp Gained: ", value: `${xpGained}`});
+            finalFields.push({name: "Coins Gained: ", value: `${coinGained}c`});
+            
+            // Create Reward Display Here!
+            const rewardEmbed = new EmbedBuilder()
+            .setTitle(embedTitle)
+            .setColor('DarkNavy')
+            .setDescription(embedDesc)
+            .addFields(finalFields);
+
+            return await interaction.followUp({embeds: [rewardEmbed]}).then(eMsg => setTimeout(() => {
+                eMsg.delete();
+            }, 60000)).catch(e=>console.error(e));
+        }
+
+        function loadItemFieldValues(fabItem){
+            let returnString = `Value: **${fabItem.Value}**c\nType: **${fabItem.Type}**\nSlot: **${fabItem.Slot}**\nRarity: **${fabItem.Rarity}**`;
+            switch(fabItem.Slot){
+                case "Mainhand":
+                    returnString += `\nHands: **${fabItem.Hands}**\nAttack: **${fabItem.Attack}**`;
+                break;
+                case "Offhand":
+                    returnString += `\nHands: **${fabItem.Hands}**\nAttack: **${fabItem.Attack}**\nDefence: **${fabItem.Defence}**`;
+                break;
+                case "Headslot":
+                    returnString += `\nDefence: **${fabItem.Defence}**`;
+                break;
+                case "Chestslot":
+                    returnString += `\nDefence: **${fabItem.Defence}**`;
+                break;
+                case "Legslot":
+                    returnString += `\nDefence: **${fabItem.Defence}**`;
+                break;
+            }
+
+            return returnString;
+        }
+
+        async function handlePotionReward(reapObj){
+            let bluey = blueprintList.filter(bluey => bluey.Name === reapObj.Contents.Name);
+            bluey = bluey[0];
+
+            let potCheck = await OwnedPotions.findOne({where: {spec_id: user.userid, name: reapObj.Contents.Name}});
+            if (!potCheck) {
+                // Create potion
+                potCheck = await OwnedPotions.create({
+                    name: reapObj.Contents.Name,
+                    value: bluey.CoinCost,
+                    activecategory: bluey.ActiveCategory,
+                    duration: bluey.Duration,
+                    cooldown: bluey.CoolDown,
+                    potion_id: bluey.PotionID,
+                    blueprintid: bluey.BlueprintID,
+                    amount: 0,
+                    spec_id: user.userid,
+                });
+            }
+
+            if (!potCheck) return {status: "Failure: Potion"};
+            
+            // Increase Potion
+            const inc = await potCheck.increment('amount', {by: reapObj.Contents.Amount});
+            if (inc){
+                await potCheck.save();
+                return {status: "Complete", instance: potCheck};
+            } else return {status: "Failure: Pot INC"};
+        }
+
+        async function handleItemReward(reapObj){
+            const {gearDrops} = interaction.client;
+
+            const keyList = [];
+            for (const [key, value] of gearDrops){
+                if (value === reapObj.Contents.Extra) keyList.push(key);
+            }
+
+            const pickedKey = randArrPos(keyList);
+            let theItem = lootList.filter(item => item.Loot_id === pickedKey);
+            theItem = theItem[0];
+            const itemAddOutcome = await checkOwned(user, theItem, reapObj.Contents.Amount);
+            if (itemAddOutcome !== "Finished") return {status: "Failure: Item"};
+            return {status: "Complete", raw: theItem};
+        }
+
+        async function handleMaterialReward(reapObj){
+            const {materialFiles} = interaction.client;
+
+            const typeList = [];
+            for (const [key, value] of materialFiles){
+                typeList.push({type: key, file: value});
+            }
+
+            const pickedType = randArrPos(typeList);
+            const passType = pickedType.type;
+            const matFile = require(pickedType.file);
+
+            let theMat = matFile.filter(mat => mat.Rar_id === reapObj.Contents.Extra);
+            theMat = theMat[0];
+
+            const materialAddOutcome = await handleMaterialAdding(theMat, reapObj.Contents.Amount, user, passType);
+            if (!materialAddOutcome.name) return {status: "Failure: Material"};
+            return {status: "Complete", instance: materialAddOutcome};
         }
 	},
 };

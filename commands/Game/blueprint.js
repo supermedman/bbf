@@ -786,7 +786,7 @@ module.exports = {
 							if (totCheckSuccess.toString() === grabbedMTA.toString()) {
 								const embed = {
 									title: `${grabbedName}`,
-									color: 0000,
+									color: 0o0,
 									description: `**${grabbedDescription}** \n${listedDefaults}`,
 									fields: finalFields,
 								};
@@ -904,7 +904,7 @@ module.exports = {
 								console.log(successResult('All materials passed checks, adding embed to crafting list'));
 								const embed = {
 									title: `${grabbedNameP}`,
-									color: 0000,
+									color: 0o0,
 									description: `**${grabbedDescriptionP}** \n${listedDefaultsP}`,
 									fields: finalFieldsP,
 								};
@@ -1202,7 +1202,7 @@ module.exports = {
 
 				const confirmEmbed = {
 					title: `Crafting ${theBlueprint.PassiveCategory}`,
-					color: 0000,
+					color: 0o0,
 					description: `${theBlueprint.Description} \n\n${listedDefaults}`,
 					fields: finalFields,
 				}
@@ -1341,7 +1341,7 @@ module.exports = {
 
 					const potionEmbed = new EmbedBuilder()
 						.setTitle('~POTION CREATED~')
-						.setColor(0000)
+						.setColor(0o0)
 						.addFields({
 							name: `${potion.Name}`, value: list,
 						});

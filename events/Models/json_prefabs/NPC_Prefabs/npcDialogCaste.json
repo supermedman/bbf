@@ -341,6 +341,113 @@
                     }
                 ]
             }
+        ],
+        "Rewards": [
+            {
+                "Rated": "Baby",
+                "Castes": [
+                    {
+                        "Name": "Caste_Baby_Reward_One",
+                        "Dialog": "You will receive a fitting reward for the difficulty!",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Easy",
+                "Castes": [
+                    {
+                        "Name": "Caste_Easy_Reward_One",
+                        "Dialog": "You will receive a plesant reward for you effort.",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Medium",
+                "Castes": [
+                    {
+                        "Name": "Caste_Medium_Reward_One",
+                        "Dialog": "You shall be rewarded for your time!",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Hard",
+                "Castes": [
+                    {
+                        "Name": "Caste_Hard_Reward_One",
+                        "Dialog": "You will be greatly rewarded for this task!",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "GodGiven",
+                "Castes": [
+                    {
+                        "Name": "Caste_GodGiven_Reward_One",
+                        "Dialog": "Riches shall await your return, should you survive and succeed",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
     }
 ]
