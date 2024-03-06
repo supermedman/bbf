@@ -6,6 +6,7 @@ const {UserData} = require('../../dbObjects.js');
 
 const {NPC} = require('../Game/exported/MadeClasses/NPC');
 const {initialDialog} = require('../Game/exported/handleNPC.js');
+const {createBigTile} = require('../Game/exported/createTile.js');
 
 //const HBimg = require('../../events/Models/json_prefabs/image_extras/healthbar.png');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');

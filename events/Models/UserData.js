@@ -64,6 +64,16 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 0,
             allowNull: false,
         },
+        tasks_complete: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+            allowNull: false,
+        },
+        tasks_failed: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+            allowNull: false,
+        },
         totitem: DataTypes.INTEGER,
         shopresets: DataTypes.INTEGER,
         refreshcount: DataTypes.INTEGER,

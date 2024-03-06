@@ -15,6 +15,15 @@ module.exports = (sequelize, DataTypes) => {
             allowedNull: false,
         },
 
+        complete: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        failed: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+
         task_type: {
             type: DataTypes.STRING,
             defaultValue: 'Fetch',
