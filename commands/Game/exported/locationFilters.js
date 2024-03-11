@@ -36,7 +36,7 @@ function filterHunting(matWanted, maxLevel){
  * @returns Useable "mat"List.json String
  */
 function NPCcheckMaterialFav(localBiome) {
-    const favMat = huntingGrounds[biomeList.indexOf(localBiome)];
+    const favMat = huntingGrounds[(biomeList.indexOf(localBiome) === 0) ? 1 : biomeList.indexOf(localBiome)];
     return favMat;
 }
 
