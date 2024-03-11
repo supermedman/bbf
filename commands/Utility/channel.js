@@ -74,7 +74,7 @@ module.exports = {
 									//updated spawn channel success!
 									//Retrieve Channel object for further use
 									const newChannel = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
-									await interaction.followUp(`Channel ${newChannel.Name} is now the spawn channel!`);
+									await interaction.followUp(`Channel ${newChannel.name} is now the spawn channel!`);
 								} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
 
 							} else {

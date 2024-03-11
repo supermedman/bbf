@@ -1,7 +1,8 @@
 const { Events, Collection } = require('discord.js');
 const { warnedForm } = require('../chalkPresets');
 
-const {EarlyAccess} = require('../dbObjects.js');
+const {EarlyAccess, UserData} = require('../dbObjects.js');
+const { spawnNpc } = require('../commands/Game/exported/npcSpawner.js');
 
 //let collectionRunOnce = false;
 
@@ -14,6 +15,13 @@ module.exports = {
 			if (!command) {
 				console.error(`No command matching ${interaction.commandName} was found.`);
 				return;
+			}
+
+			if (command.data.name !== 'start'){
+				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
+				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
+				const rollNpc = 0.98, rolled = Math.random();
+				if (rolled >= rollNpc) spawnNpc(userCheck, interaction);
 			}
 
 			const { cooldowns } = interaction.client;

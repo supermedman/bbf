@@ -5,6 +5,7 @@ const { checkHintQuest, checkHintStoryQuest, checkHintLore, checkHintDungeon, ch
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
 const { checkOwned } = require('./exported/createGear.js');
+const {spawnNpc} = require('./exported/npcSpawner.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -141,7 +142,7 @@ module.exports = {
 			let questCount = 1;
 			for (const quest of allQuests) {
 				const questEmbed = new EmbedBuilder()
-					.setColor(0000)
+					.setColor(0o0)
 					.setTitle(`Quest: ${questCount}`)
 					.addFields(
 						{
@@ -362,7 +363,7 @@ module.exports = {
 			const statsEmbed = new EmbedBuilder()
 				.setTitle("~QUEST COMPLETE~")
 				.setDescription(`Page 1/${totalPages}`)
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields(
 					{
 						name: "<< SUMMARY >>",
@@ -556,7 +557,11 @@ module.exports = {
 			if (interaction.replied || interaction.deferred) {
 				embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 			} else embedMsg = await interaction.reply({ components: [interactiveButtons], embeds: [embedPages[0]] });
-			 
+			
+			// ==== SPAWNING NPC SETUP ====
+			const rollNeeded = 0.66, npcRoll = Math.random();
+			if (npcRoll >= rollNeeded) spawnNpc(user, interaction);
+			// ====					   ====
 
 			const filter = (i) => i.user.id === interaction.user.id;
 
