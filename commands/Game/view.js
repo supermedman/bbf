@@ -475,7 +475,7 @@ module.exports = {
 
         async function attemptTaskFill(taskObj){
             //console.log(taskObj);
-            if (taskObj.name === 'None') return (taskObj.total_amount <= taskObj.amount) ? {status: "Incomplete"}:{status: "Complete"};
+            if (taskObj.name === 'None') return (taskObj.total_amount <= taskObj.amount) ? {status: "Complete"}:{status: "Incomplete"};
 
             const checkItem = lootList.filter(item => item.Name === taskObj.name);
             if (checkItem.length === 1){
