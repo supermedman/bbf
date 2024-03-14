@@ -42,28 +42,14 @@ module.exports = {
 
             const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
 
-            if (focusedValue) {
-                let first = focusedValue.charAt();
-
-                for (var n = 0; n < items.length; n++) {
-                    if (items[n].name.charAt() === first) {//Check for item starting with the letter provided
-                        var picked = items[n].name;//assign picked to item name at postion n in the items list found
-                        //prevent any type errors			
-                        choices.push(picked.toString());//push each name one by one into the choices array
-                    } else {
-                        //Item name does not match keep looking
-                    }
-
-                }
-                console.log(choices);
-                console.log(focusedValue);
-
-                //Mapping the complete list of options for discord to handle and present to the user
-                const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-                await interaction.respond(
-                    filtered.map(choice => ({ name: choice, value: choice })),
-                );
-            }
+            if (items.length > 0){
+                choices = items.map(item => item.name);
+            } else choices = ["None"];
+            
+            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+            await interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            );
         }
         
 
@@ -72,16 +58,10 @@ module.exports = {
 
             choices = ["common", "uncommon", "rare", "very rare", "epic", "mystic", "?", "??", "???", "????"];
 
-            if (focusedValue) {
-                console.log(choices);
-                console.log(focusedValue);
-
-                //Mapping the complete list of options for discord to handle and present to the user
-                const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-                await interaction.respond(
-                    filtered.map(choice => ({ name: choice, value: choice })),
-                );
-            }
+            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+            await interaction.respond(
+                filtered.map(choice => ({ name: choice, value: choice })),
+            );
         }
 	},
     async execute(interaction) {
