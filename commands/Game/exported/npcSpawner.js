@@ -5,7 +5,9 @@ const {initialDialog} = require('./handleNPC.js');
 
 async function spawnNpc(user, interaction) {
     // Static fromWilds atm
-    const theNpc = new NPC().genRandNpc(user.current_location);
+    const theNpc = new NPC();
+
+    theNpc.genRandNpc(user.current_location);
 
     const startDialogButton = new ButtonBuilder()
     .setCustomId('start-dialog')
