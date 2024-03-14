@@ -559,7 +559,7 @@ module.exports = {
 			} else embedMsg = await interaction.reply({ components: [interactiveButtons], embeds: [embedPages[0]] });
 			
 			// ==== SPAWNING NPC SETUP ====
-			const rollNeeded = 0.66, npcRoll = Math.random();
+			const rollNeeded = 0.33, npcRoll = Math.random();
 			if (npcRoll >= rollNeeded) spawnNpc(user, interaction);
 			// ====					   ====
 
