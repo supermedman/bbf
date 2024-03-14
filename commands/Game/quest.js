@@ -1,10 +1,11 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { Questing, UserData, Milestones, ActiveStatus, ActiveDungeon, Pigmy } = require('../../dbObjects.js');
+const { Questing, UserData, Milestones, ActiveStatus, ActiveDungeon, Pigmy, LocationData } = require('../../dbObjects.js');
 const { checkHintQuest, checkHintStoryQuest, checkHintLore, checkHintDungeon, checkHintPigmy } = require('./exported/handleHints.js');
 
 const { isLvlUp } = require('./exported/levelup.js');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
 const { checkOwned } = require('./exported/createGear.js');
+const {spawnNpc} = require('./exported/npcSpawner.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -138,16 +139,18 @@ module.exports = {
 			} else allQuests = normalQuests.concat(nextQuest);
 
 			let embedPages = [];
+			let questCount = 1;
 			for (const quest of allQuests) {
 				const questEmbed = new EmbedBuilder()
-					.setColor(0000)
-					.setTitle(`Quest: ${quest.ID}`)
+					.setColor(0o0)
+					.setTitle(`Quest: ${questCount}`)
 					.addFields(
 						{
 							name: `Name: ${quest.Name}`,
 							value: `Quest Level: ${quest.Level}\n Length: ${quest.Time}\n Enemy Level: ${quest.ELevel}\n`,
 						});
 				embedPages.push(questEmbed);
+				questCount++;
 			}
 
 			const backButton = new ButtonBuilder()
@@ -360,7 +363,7 @@ module.exports = {
 			const statsEmbed = new EmbedBuilder()
 				.setTitle("~QUEST COMPLETE~")
 				.setDescription(`Page 1/${totalPages}`)
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields(
 					{
 						name: "<< SUMMARY >>",
@@ -498,6 +501,36 @@ module.exports = {
 				}, 300000)).catch(error => console.error(error));
 			}
 
+			
+			const huntingCheck = questList.filter(quest => quest.Hunting)
+			.filter(quest => quest.ID === activeQuest.qid);
+
+			if (huntingCheck.length <= 0) { } else {
+				let userLocation = await LocationData.findOne({where: {userid: user.userid}});
+				if (!userLocation) userLocation = await LocationData.create({userid: user.userid});
+
+				const theQuest = huntingCheck[0];
+				let locationIDs = userLocation.unlocked_locations.split(',');
+				
+				let exists = false;
+				for (const id of locationIDs){
+					if (theQuest.ZoneID === id){ exists = true; break;}
+				}
+
+				if (!exists){ 
+					locationIDs.push(theQuest.ZoneID);
+					locationIDs.sort((a,b) => {
+						if (a > b) return 1;
+						if (a < b) return -1;
+						return 0;
+					});
+					
+					const tableUpdate = await userLocation.update({unlocked_locations: locationIDs.toString()});
+					if (tableUpdate > 0) await userLocation.save();
+				}
+				
+			}
+
 			await destroyQuest();
 
 			const backButton = new ButtonBuilder()
@@ -524,7 +557,11 @@ module.exports = {
 			if (interaction.replied || interaction.deferred) {
 				embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 			} else embedMsg = await interaction.reply({ components: [interactiveButtons], embeds: [embedPages[0]] });
-			 
+			
+			// ==== SPAWNING NPC SETUP ====
+			const rollNeeded = 0.33, npcRoll = Math.random();
+			if (npcRoll >= rollNeeded) spawnNpc(user, interaction);
+			// ====					   ====
 
 			const filter = (i) => i.user.id === interaction.user.id;
 

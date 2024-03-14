@@ -1,0 +1,453 @@
+[
+    {
+        "Locations": [
+            {
+                "Biome": "Wilds",
+                "Castes": [
+                    {
+                        "Name": "Caste_Wilds_One",
+                        "Dialog": "Hello, Stranger in a strange place!",
+                        "Options": [
+                            {
+                                "Label": "Likewise!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Strangers we shall remain.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Biome": "Forest",
+                "Castes": [
+                    {
+                        "Name": "Caste_Forest_One",
+                        "Dialog": "Nature is truely beautiful, isnt it?",
+                        "Options": [
+                            {
+                                "Label": "I agree!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I could easily live without it.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Biome": "Grassland",
+                "Castes": [
+                    {
+                        "Name": "Caste_Grassland_One",
+                        "Dialog": "These lands remind me of my hometown.",
+                        "Options": [
+                            {
+                                "Label": "No doubt!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Well, that sucks!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Biome": "Swamp",
+                "Castes": [
+                    {
+                        "Name": "Caste_Swamp_One",
+                        "Dialog": "This place stinks! The bounties do not!",
+                        "Options": [
+                            {
+                                "Label": "Bounties you say?",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "You stink just as much!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Biome": "Plains",
+                "Castes": [
+                    {
+                        "Name": "Caste_Plains_One",
+                        "Dialog": "These Plains can be peaceful and deadly all the same!",
+                        "Options": [
+                            {
+                                "Label": "Is that so?",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Count me out!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Biome": "Desert",
+                "Castes": [
+                    {
+                        "Name": "Caste_Desert_One",
+                        "Dialog": "Doom can be found throughout these sands!",
+                        "Options": [
+                            {
+                                "Label": "Doom never stopped me!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Doom is something I will be avoiding!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Biome": "Mountain",
+                "Castes": [
+                    {
+                        "Name": "Caste_Mountain_One",
+                        "Dialog": "I never thought I'd see a friendly face in these ranges!",
+                        "Options": [
+                            {
+                                "Label": "Consider me a mirror!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "You haven't, good day.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "TaskTypes": [
+            {
+                "Type": "Fetch",
+                "Castes": [
+                    {
+                        "Name": "Caste_Fetch_One",
+                        "Dialog": "I am in need of a certain something..",
+                        "Options": [
+                            {
+                                "Label": "Go on.",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Well, go get it then!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Type": "Combat",
+                "Castes": [
+                    {
+                        "Name": "Caste_Combat_One",
+                        "Dialog": "I am in need of a sellsword!",
+                        "Options": [
+                            {
+                                "Label": "Consider mine on the market..",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "This one is not for sale!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Type": "Gather",
+                "Castes": [
+                    {
+                        "Name": "Caste_Gather_One",
+                        "Dialog": "I am in need of some materials!",
+                        "Options": [
+                            {
+                                "Label": "Write me a list!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Ask someone who cares!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Type": "Craft",
+                "Castes": [
+                    {
+                        "Name": "Caste_Craft_One",
+                        "Dialog": "This is the Craft dialog I was programmed with!",
+                        "Options": [
+                            {
+                                "Label": "Confirm Option",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Decline Option",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "Difficulties": [
+            {
+                "Rated": "Baby",
+                "Castes": [
+                    {
+                        "Name": "Caste_Baby_One",
+                        "Dialog": "This task should be a cake walk!",
+                        "Options": [
+                            {
+                                "Label": "Fantastic!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Then it is below my paygrade!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Easy",
+                "Castes": [
+                    {
+                        "Name": "Caste_Easy_One",
+                        "Dialog": "This task should prove quite easy!",
+                        "Options": [
+                            {
+                                "Label": "I like the sound of that!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Find someone else then.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Medium",
+                "Castes": [
+                    {
+                        "Name": "Caste_Medium_One",
+                        "Dialog": "This task may prove to take some effort!",
+                        "Options": [
+                            {
+                                "Label": "More effort bigger reward!?",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "Our talk has already been an effort.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Hard",
+                "Castes": [
+                    {
+                        "Name": "Caste_Hard_One",
+                        "Dialog": "This task will be hard!",
+                        "Options": [
+                            {
+                                "Label": "I'm not afraid of a challenge",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "No thank you.",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "GodGiven",
+                "Castes": [
+                    {
+                        "Name": "Caste_GodGiven_One",
+                        "Dialog": "This is a GodGiven Task, do not make light of it!",
+                        "Options": [
+                            {
+                                "Label": "I have slane gods, do not make light of me!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I will heed your warning and leave!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "Rewards": [
+            {
+                "Rated": "Baby",
+                "Castes": [
+                    {
+                        "Name": "Caste_Baby_Reward_One",
+                        "Dialog": "You will receive a fitting reward for the difficulty!",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Easy",
+                "Castes": [
+                    {
+                        "Name": "Caste_Easy_Reward_One",
+                        "Dialog": "You will receive a plesant reward for you effort.",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Medium",
+                "Castes": [
+                    {
+                        "Name": "Caste_Medium_Reward_One",
+                        "Dialog": "You shall be rewarded for your time!",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "Hard",
+                "Castes": [
+                    {
+                        "Name": "Caste_Hard_Reward_One",
+                        "Dialog": "You will be greatly rewarded for this task!",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rated": "GodGiven",
+                "Castes": [
+                    {
+                        "Name": "Caste_GodGiven_Reward_One",
+                        "Dialog": "Riches shall await your return, should you survive and succeed",
+                        "Options": [
+                            {
+                                "Label": "I accept!",
+                                "Description": "This is an option",
+                                "Value": "Confirm"
+                            },
+                            {
+                                "Label": "I decline!",
+                                "Description": "This is an option",
+                                "Value": "Decline"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

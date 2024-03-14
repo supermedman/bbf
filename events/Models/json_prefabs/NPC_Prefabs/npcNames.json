@@ -1,0 +1,44 @@
+[
+    {
+        "Rarity": "Common",
+        "LevelMax": 5,
+        "Tame": ["Bob", "Jill", "Jack", "Lisa"],
+        "Wild": ["Unknown Explorer", "Disheveled Guide", "Rookie Adventurer"]
+    },
+    {
+        "Rarity": "Uncommon",
+        "LevelMax": 8,
+        "Tame": ["Ronald"],
+        "Wild": ["Apt Explorer", "Orderly Guide", "Adept Adventurer"]
+    },
+    {
+        "Rarity": "Rare",
+        "LevelMax": 12,
+        "Tame": ["Jessop the Shy"],
+        "Wild": ["Talented Explorer", "Polished Guide", "Experienced Adventurer"]
+    },
+    {
+        "Rarity": "Very Rare",
+        "LevelMax": 17,
+        "Tame": ["Eleanor of the Ocean"],
+        "Wild": ["Unknown Outrider", "Disheveled Researcher", "Rookie Mercenary"]
+    },
+    {
+        "Rarity": "Epic",
+        "LevelMax": 20,
+        "Tame": ["Josselyn the Shadow"],
+        "Wild": ["Apt Outrider", "Orderly Researcher", "Adept Mercenary"]
+    },
+    {
+        "Rarity": "Mystic",
+        "LevelMax": 25,
+        "Tame": ["Bart the Bruiser"],
+        "Wild": ["Talented Outrider", "Polished Researcher", "Experienced Mercenary"]
+    },
+    {
+        "Rarity": "?",
+        "LevelMax": 30,
+        "Tame": ["Vanora of the West"],
+        "Wild": ["Sir Landgrab", "Noteworthy Scholar", "Battle-hardened Commander"]
+    }
+]

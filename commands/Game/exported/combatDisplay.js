@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 const { grabRar, grabColour } = require('./grabRar.js');
 const { createEnemyDisplay } = require('./displayEnemy.js');
 const { checkOwned } = require('./createGear.js');
-const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../../../dbObjects.js');
+const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted, UserTasks } = require('../../../dbObjects.js');
 
 const lootList = require('../../../events/Models/json_prefabs/lootList.json');
 const uniqueLootList = require('../../../events/Models/json_prefabs/uniqueLootList.json');
@@ -294,12 +294,7 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
 
         const attachment = await createEnemyDisplay(enemy);
 
-        let combatEmbed;
-        if (interaction.replied || interaction.deferred){
-            combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
-        } else {
-            combatEmbed = await interaction.reply({ components: [row], files: [attachment] });
-        }
+        const combatEmbed = await interaction.followUp({ components: [row], files: [attachment] });
         
         const filter = (i) => i.user.id === userID;
 
@@ -473,9 +468,9 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
                 const potionUsed = await findPotion(player.loadout[5], userID);
                 const result = await handleUsePotion(potionUsed, player);
                 const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
-                if (reinEffects > 0) player.updateDefence(reinEffects);
+                if (reinEffects.length > 0) player.updateDefence(reinEffects);
                 const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
-                if (tonEffects > 0) player.updateUPs(tonEffects);
+                if (tonEffects.length > 0) player.updateUPs(tonEffects);
                 if (result !== 'Success') console.log('Potion effect not applied!');
                 collector.stop();
                 return display(player, enemy);
@@ -672,6 +667,19 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
 
         await isUniqueLevelUp(interaction, userRef);
 
+        const activeCombatTasks = await UserTasks.findAll({where: {userid: userRef.userid, task_type: "Combat", complete: false, failed: false}});
+            if (activeCombatTasks.length > 0){
+                //Combat tasks found, check if conditions met
+                const filterTasks = activeCombatTasks.filter(task => task.condition <= enemy.level);
+                if (filterTasks.length > 0) {
+                    for (const task of filterTasks){
+                        const inc = await task.increment('amount');
+                        if (inc) await task.save();
+                    }
+                    console.log('Combat tasks updated!');
+                }
+            }
+
         await userRef.increment(['totalkills', 'killsthislife'], { by: 1 });
         await userRef.save();
 
@@ -710,7 +718,7 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
 
         const killedEmbed = new EmbedBuilder()
             .setTitle("YOU KILLED THE ENEMY!")
-            .setColor(0000)
+            .setColor(0o0)
             .setDescription("Well done!")
             .addFields(
                 { name: 'Xp Gained', value: `${xpGained}`, inline: true },

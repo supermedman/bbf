@@ -1,9 +1,10 @@
 const { Events, Collection } = require('discord.js');
 const { warnedForm } = require('../chalkPresets');
 
-const {EarlyAccess} = require('../dbObjects.js');
+const {EarlyAccess, UserData} = require('../dbObjects.js');
+const { spawnNpc } = require('../commands/Game/exported/npcSpawner.js');
 
-let collectionRunOnce = false;
+//let collectionRunOnce = false;
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -14,6 +15,13 @@ module.exports = {
 			if (!command) {
 				console.error(`No command matching ${interaction.commandName} was found.`);
 				return;
+			}
+
+			if (command.data.name !== 'start'){
+				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
+				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
+				const rollNpc = 0.98, rolled = Math.random();
+				if (rolled >= rollNpc) spawnNpc(userCheck, interaction);
 			}
 
 			const { cooldowns } = interaction.client;
@@ -89,26 +97,26 @@ module.exports = {
 						betaTester.set(interaction.user.id, true);
 					}
 					
-					if (collectionRunOnce === false){
-						collectionRunOnce = true;
+					// if (collectionRunOnce === false){
+					// 	collectionRunOnce = true;
 
-						const allEA = await EarlyAccess.findAll();
-						for (const user of allEA){
-							if (!betaTester.has(user.userid)){
-								betaTester.set(user.userid, true);
-							}
-						}
+					// 	const allEA = await EarlyAccess.findAll();
+					// 	for (const user of allEA){
+					// 		if (!betaTester.has(user.userid)){
+					// 			betaTester.set(user.userid, true);
+					// 		}
+					// 	}
 
-						const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
-						for (const user of newSpawnFilter){
-							if (!newEnemy.has(user.userid)){
-								newEnemy.set(user.userid, true);
-							}
-						}
+					// 	const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
+					// 	for (const user of newSpawnFilter){
+					// 		if (!newEnemy.has(user.userid)){
+					// 			newEnemy.set(user.userid, true);
+					// 		}
+					// 	}
 
-						console.log(...newEnemy);
-						console.log(...betaTester);
-					}
+					// 	console.log(...newEnemy);
+					// 	console.log(...betaTester);
+					// }
 
 				}).catch(error => {
 					console.error(error);

@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             defaultValue: '0',
         },
+        current_location: {
+            type: DataTypes.STRING,
+            defaultValue: 'Wilds',
+            allowNull: false,
+        },
         username: DataTypes.TEXT,
         health: {
             type: DataTypes.INTEGER,
@@ -55,6 +60,16 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
         qt: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+            allowNull: false,
+        },
+        tasks_complete: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+            allowNull: false,
+        },
+        tasks_failed: {
             type: DataTypes.INTEGER,
             defaultValue: 0,
             allowNull: false,

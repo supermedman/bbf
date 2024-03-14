@@ -302,6 +302,7 @@ Perk Points: ${uData.points}
 \nXP to next level: ${uData.xp}/${nxtLvl}
 \nCoins: ${uData.coins}\n
 Quest Tokens (Qts): ${uData.qt}\n
+Current Location: ${uData.current_location}
 Current Town: ${userTown.name ?? userTown}\n
 \nTotal Enemies Killed: ${uData.totalkills}
 Most Kills In One Life: ${uData.highestkills}

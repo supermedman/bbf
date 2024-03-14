@@ -170,7 +170,7 @@ async function findMainHand(mainHandID, userID) {
         }
         
         if (!mainHandItem) {
-            
+            console.log('Item Not Found');
         }
         if (mainHandItem) {
             //Item found, return entire object!

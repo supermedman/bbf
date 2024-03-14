@@ -4,7 +4,8 @@ const { Op } = require('sequelize');
 const { grabRar, grabColour } = require('./exported/grabRar.js');
 const { createEnemyDisplay } = require('./exported/displayEnemy.js');
 const { checkOwned } = require('./exported/createGear.js');
-const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted } = require('../../dbObjects.js');
+const {checkSpawnBiome} = require('./exported/locationFilters.js');
+const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted, UserTasks } = require('../../dbObjects.js');
 
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
@@ -259,8 +260,12 @@ module.exports = {
 
             // This preloads an array with all enemy constkeys for enemies at or below the players level
             let choices = [];
-            for (const [key, value] of enemies) {
-                if (value <= player.level) choices.push(key);
+            choices = checkSpawnBiome(await grabU());
+
+            if (choices.length <= 0){
+                for (const [key, value] of enemies) {
+                    if (value <= player.level) choices.push(key);
+                }
             }
 
             if (choices.length <= 0) {
@@ -770,6 +775,19 @@ module.exports = {
 
             await isUniqueLevelUp(interaction, userRef);
 
+            const activeCombatTasks = await UserTasks.findAll({where: {userid: userRef.userid, task_type: "Combat", complete: false, failed: false}});
+            if (activeCombatTasks.length > 0){
+                //Combat tasks found, check if conditions met
+                const filterTasks = activeCombatTasks.filter(task => task.condition <= enemy.level);
+                if (filterTasks.length > 0) {
+                    for (const task of filterTasks){
+                        const inc = await task.increment('amount');
+                        if (inc) await task.save();
+                    }
+                    console.log('Combat tasks updated!');
+                }
+            }
+
             await userRef.increment(['totalkills', 'killsthislife'], { by: 1 });
             await userRef.save();
 
@@ -808,7 +826,7 @@ module.exports = {
 
             const killedEmbed = new EmbedBuilder()
                 .setTitle("YOU KILLED THE ENEMY!")
-                .setColor(0000)
+                .setColor(0o0)
                 .setDescription("Well done!")
                 .addFields(
                     { name: 'Xp Gained', value: `${xpGained}`, inline: true },

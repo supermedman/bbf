@@ -2717,6 +2717,24 @@
         "Spec_id": 0
     },
     {
+        "Name": "Pretty Pink Pulverizer",
+        "Value": 100000000000,
+
+        "Attack": 600,
+        "Type": "NESSY",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "Unique",
+        "Rar_id": 12,
+
+        "DismantleTypes": [ "tooly", "gemy" ],
+
+        "Loot_id": 20002,
+        "Spec_id": 0
+    },
+    {
         "Name": "TmpChest",
         "Value": 10,
 

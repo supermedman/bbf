@@ -148,8 +148,8 @@ class Player {
     checkCritChance() {
         let critChance = 0;
         if (this.pClass === 'Thief') {
-            critChance = (((this.dex * 0.02) + 0.10) + this.dexUP);
-        } else critChance = ((this.dex * 0.02) + this.dexUP);
+            critChance = (((this.dex * 0.02) + 0.10) + (this.dexUP * 0.02));
+        } else critChance = ((this.dex * 0.02) + (this.dexUP * 0.02));
         this.mods[2] = critChance;
     }
 
@@ -157,8 +157,8 @@ class Player {
     checkDHChance() {
         let dhChance = 0;
         if (this.pClass === 'Thief') {
-            dhChance = (((this.spd * 0.02) + 0.10) + this.spdUP);
-        } else dhChance = ((this.spd * 0.02) + this.spdUP);
+            dhChance = (((this.spd * 0.02) + 0.10) + (this.spdUP * 0.02));
+        } else dhChance = ((this.spd * 0.02) + (this.spdUP * 0.02));
         this.mods[3] = dhChance;
     }
 

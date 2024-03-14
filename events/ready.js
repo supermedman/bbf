@@ -1,4 +1,5 @@
 const { Events } = require('discord.js');
+
 const {
     //Equipped,
     LootStore,
@@ -29,10 +30,33 @@ const {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
-    EarlyAccess
+    EarlyAccess,
+    LocationData,
+    UserTasks,
+    NPCTable
 } = require('../dbObjects.js');
 
-//const { } = require('../dbObjects.js');
+async function loadEarlyAccess(client){
+    const {betaTester, newEnemy} = client;
+
+    const allEA = await EarlyAccess.findAll();
+    for (const user of allEA){
+        if (!betaTester.has(user.userid)){
+            betaTester.set(user.userid, true);
+        }
+    }
+
+    const newSpawnFilter = allEA.filter(user => user.spawn_new === true);
+    for (const user of newSpawnFilter){
+        if (!newEnemy.has(user.userid)){
+            newEnemy.set(user.userid, true);
+        }
+    }
+
+    //console.log(...newEnemy);
+	//console.log(...betaTester);
+    console.log("Finished Applying Access Permissions!");
+}
 
 module.exports = {
 	name: Events.ClientReady,
@@ -83,5 +107,16 @@ module.exports = {
 	    CoreBuilding.sync();
 
         EarlyAccess.sync();
+
+        LocationData.sync();
+
+        UserTasks.sync();
+        NPCTable.sync();
+
+        try {
+            loadEarlyAccess(client);
+        } catch (e){
+            console.error(e);
+        }
 	},
 };
