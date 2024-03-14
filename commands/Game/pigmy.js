@@ -213,13 +213,13 @@ module.exports = {
 			if (isOverwrite === true) {
 				confirmEmbed = {
 					title: `~OVERWRITE ${toolType}~`,
-					color: 0000,
+					color: 0o0,
 					fields: [{ name: `${theTool.name}`, value: `Giving this will overwrite the current ${toolType}. Continue?` }],
 				};
 			} else if (isOverwrite === false) {
 				confirmEmbed = {
 					title: `~GIVE ${toolType}~`,
-					color: 0000,
+					color: 0o0,
 					fields: [{ name: `${theTool.name}`, value: `Give this tool?` }],
 				};
 			}
@@ -587,7 +587,7 @@ module.exports = {
 				const pigClaimEmbed = new EmbedBuilder()
 					.setTitle('==**YOU CLAIMED REWARDS**==')
 					.setDescription(dynDes)
-					.setColor(0000)
+					.setColor(0o0)
 					.addFields(
 						{
 							name: `Rewards after ${hrs}hours`,
@@ -934,7 +934,7 @@ module.exports = {
 
 				const playEmbed = new EmbedBuilder()
 					.setTitle(`~PLAYTIME~`)
-					.setColor(0000)
+					.setColor(0o0)
 					.setFields(
 						{
 							name: `${userPigmy.name}`, value: playedWithVal,
@@ -967,7 +967,7 @@ module.exports = {
 				const pigmyInfoStr = `Level: ${userPigmy.level} \nXP: ${userPigmy.exp} \nType: ${userPigmy.type} \nMood: ${userPigmy.mood} \nBuffs: ${pigRef[0].Buff}`
 
 				const pigEmbed = new EmbedBuilder()
-					.setColor(0000)
+					.setColor(0o0)
 					.setTitle(`${interaction.user.username}'s Pigmy`)
 					.setImage(pigRef[0].Image)
 					.addFields(

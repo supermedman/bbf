@@ -32,8 +32,8 @@ module.exports = {
 	async autocomplete(interaction) {
 		//Focused option is assigned to what the user is inputting as the paramaters for what option to select from
 		const focusedOption = interaction.options.getFocused(true);
-		//FIGURE OUT HOW TO MAP CURRENT INVENTORY ITEMS AS THE OPTIONS FOR SELECTING
-		
+        
+        const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1) };
 
         let choices = [];
 
@@ -43,7 +43,7 @@ module.exports = {
             const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
 
             if (items.length > 0){
-                choices = items.map(item => item.name);
+                choices = items.map(item => makeCapital(item.name.toString()));
             } else choices = ["None"];
             
             const filtered = choices.filter(choice => choice.startsWith(focusedValue));
