@@ -10,6 +10,9 @@ module.exports = {
         .setDescription('What exactly are you swinging around?'),
 
     async execute(interaction) {
+        //Turn this into an image
+        // Show loadout as character with plugnplay equipment
+
         await interaction.deferReply();
 
         const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
@@ -256,7 +259,7 @@ module.exports = {
 
             potionEmbed = new EmbedBuilder()
                 .setTitle('CURRENTLY EQUIPPED')
-                .setColor(0000)
+                .setColor(0o0)
                 .addFields(
                     {
                         name: (`${potName}`),

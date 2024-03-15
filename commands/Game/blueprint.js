@@ -681,7 +681,7 @@ module.exports = {
 			// String select menu for Blueprint categories
 			// Load bluey as full material object
 			// Use matObj to calc if more than one can be made
-			// Only have as option for none unqiue bluey
+			// Only have as option for non-unqiue bluey
 
 
 			if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
