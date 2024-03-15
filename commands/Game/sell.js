@@ -65,804 +65,1156 @@ module.exports = {
         }
 	},
     async execute(interaction) {
-        await interaction.deferReply();
 
-        if (interaction.options.getSubcommand() === 'some') {
-            const itemname = interaction.options.getString('item');
-            const amountsell = interaction.options.getInteger('amount');
-            console.log(itemname);
+        if (interaction.options.getSubcommand() === 'some'){
+            const itemName = interaction.options.getString('item');
+            if (itemName === 'None') return await interaction.reply('That was not a vaild item!');
+            const amountSelling = interaction.options.getInteger('amount') ?? 0;
 
-            const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
-            if (item) {
-                if (!amountsell) {
+            const theItem = await LootStore.findOne({where: {spec_id: interaction.user.id, name: itemName}});
+            if (!theItem) return await interaction.reply('Item not found, you do not own that!');
 
-                    var disableSellOne = false;
-                    var disableSellAll = false;
+            const loadoutCheck = await Loadout.findOne({where: {spec_id: interaction.user.id}});
+            const hasLoadout = (loadoutCheck) ? true : false;
 
-                    const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+            const user = await UserData.findOne({where: {userid: interaction.user.id}});
+            if (!user) return await interaction.reply('Something went wrong while locating your profile!');
 
-                    //const loadOutFilter = [{ slot: [currentLoadout.headslot, currentLoadout.chestslot, currentLoadout.legslot, currentLoadout.mainhand, currentLoadout.offhand], userid: [interaction.user.id] }];
+            let confirmEmbed;
+            let buttonRow;
 
-                    if (!currentLoadout) {
-                        //Nothing is equipped yet
-                    } else {
-                        //Something is equipped
-                        if (item.loot_id === currentLoadout.headslot) {
-                            //Item is equipped restrict selling all!
-                            disableSellAll = true;
-                            if (item.amount === 1) {
-                                disableSellOne = true;
-                            }
-                        }
-                        if (item.loot_id === currentLoadout.chestslot) {
-                            //Item is equipped restrict selling all!
-                            disableSellAll = true;
-                            if (item.amount === 1) {
-                                disableSellOne = true;
-                            }
-                        }
-                        if (item.loot_id === currentLoadout.legslot) {
-                            //Item is equipped restrict selling all!
-                            disableSellAll = true;
-                            if (item.amount === 1) {
-                                disableSellOne = true;
-                            }
-                        }
-                        if (item.loot_id === currentLoadout.mainhand) {
-                            //Item is equipped restrict selling all!
-                            disableSellAll = true;
-                            if (item.amount === 1) {
-                                disableSellOne = true;
-                            }
-                        }
-                        if (item.loot_id === currentLoadout.offhand) {
-                            //Item is equipped restrict selling all!
-                            disableSellAll = true;
-                            if (item.amount === 1) {
-                                disableSellOne = true;
-                            }
-                        }
-                        //let checkPass = currentLoadout;
-                        //checkPass = checkPass.filter(item.loot_id === loadOutFilter.slot && item.spec_id === loadOutFilter.userid);
-                        //if (checkPass.length > 0) {
-                        //    //Item is equipped restrict selling all!
-                        //    disableSellAll = true;
-                        //    if (item.amount === 1) {
-                        //        disableSellOne = true;
-                        //    }
-                        //}
-                    }
+            const cancelButton = new ButtonBuilder()
+            .setLabel('Cancel')
+            .setCustomId('cancel-sell')
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('❌');
 
-                    const cancelButton = new ButtonBuilder()
-                        .setLabel("Cancel")
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('❌')
-                        .setCustomId('cancel');
+            if (amountSelling > 0){
+                const itemMatch = (hasLoadout) ? filterLoadout(loadoutCheck, theItem) : false;
+                if (itemMatch === true && theItem.amount === amountSelling || theItem.amount < amountSelling) return await interaction.reply('You do not have that many, or you have it equipped!');
+                
+                const confirmButton = new ButtonBuilder()
+                .setLabel('Confirm')
+                .setCustomId('confirm-sell')
+                .setStyle(ButtonStyle.Success)
+                .setEmoji('✅');
 
-                    const sellOneButton = new ButtonBuilder()
-                        .setLabel("SELL ONE")
-                        .setStyle(ButtonStyle.Success)
-                        .setEmoji('✅')
-                        .setDisabled(disableSellOne)
-                        .setCustomId('confirm');
+                buttonRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
 
-                    const leaveOneButton = new ButtonBuilder()
-                        .setLabel("LEAVE ONE")
-                        .setStyle(ButtonStyle.Primary)
-                        .setEmoji('💲')
-                        .setCustomId('leave-one');
-
-                    const sellAllButton = new ButtonBuilder()
-                        .setLabel("SELL ALL")
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('💲')
-                        .setDisabled(disableSellAll)
-                        .setCustomId('sell-all');
-
-                    const sellButtons = new ActionRowBuilder().addComponents(cancelButton, sellOneButton, leaveOneButton, sellAllButton);
-
-                    //create embed
-                    const sellEmbed = new EmbedBuilder()
-                        .setTitle("~Selling Options~")
-                        .setColor(0x39acf3)
-                        .addFields(
-                            {
-                                name: (`Inventory`),
-                                value: `You have ${item.amount} ${item.name}(s) currently`
-                            }
-                        );
-
-                    const embedMsg = await interaction.followUp({ embeds: [sellEmbed], components: [sellButtons] });
-
-                    const filter = (i) => i.user.id === interaction.user.id;
-
-                    const collector = embedMsg.createMessageComponentCollector({
-                        ComponentType: ComponentType.Button,
-                        filter,
-                        time: 60000,
-                    });
-
-                    collector.on('collect', async (collInteract) => {
-                        await collInteract.deferUpdate();
-                        if (collInteract.customId === 'confirm') {
-                            console.log('ITEM FOUND!', item.name);
-                            var uData = await grabU();
-                            console.log('Item', item.amount);
-
-                            //sell item here
-                            await collector.stop();
-                            await sold(item, uData);
-                        } else if (collInteract.customId === 'sell-all') {
-                            console.log('ITEM FOUND!', item.name);
-                            var uData = await grabU();
-                            console.log('Item', item.amount);
-
-                            //sell item here
-                            await collector.stop();
-                            await sellAll(item, uData);
-                        } else if (collInteract.customId === 'leave-one') {
-                            console.log('ITEM FOUND!', item.name);
-                            var uData = await grabU();
-                            console.log('Item', item.amount);
-
-                            //sell item here
-                            await collector.stop();
-                            await leaveOne(item, uData);
-                        } else if (collInteract.customId === 'cancel') {
-                            await wait(1000);
-                            await collector.stop();
-                        }
-                    });
-
-                    collector.on('end', () => {
-                        if (embedMsg) {
-                            embedMsg.delete();
-                        }
-                    });
-                } else if (amountsell) {
-                    //handle user input sell amount
-                    const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
-                    if (!currentLoadout) {
-                        //Nothing is equipped yet
-                        if (amountsell > item.amount) {
-                            return interaction.followUp(`You do not have that many ${item.name}`);
-                        } else if (amountsell === item.amount) {
-                            var uData = await grabU();
-                            await sellAll(item, uData);
-                        } else {
-                            var uData = await grabU();
-                            await sell(item, amountsell, uData);
-                        }
-                    } else {
-                        var isEquipped = false;
-                        //Something is equipped|| currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand
-                        if (item.loot_id === currentLoadout.headslot) {
-                            //Item is equipped restrict selling all!
-                            isEquipped = true;
-                        }
-                        if (item.loot_id === currentLoadout.chestslot) {
-                            //Item is equipped restrict selling all!
-                            isEquipped = true;
-                        }
-                        if (item.loot_id === currentLoadout.legslot) {
-                            //Item is equipped restrict selling all!
-                            isEquipped = true;
-                        }
-                        if (item.loot_id === currentLoadout.mainhand) {
-                            //Item is equipped restrict selling all!
-                            isEquipped = true;
-                        }
-                        if (item.loot_id === currentLoadout.offhand) {
-                            //Item is equipped restrict selling all!
-                            isEquipped = true;
-                        }
-                        if (isEquipped === true) {
-                            //Restrict selling
-                            if (amountsell > item.amount) {
-                                return interaction.followUp(`You do not have that many ${item.name}`);
-                            }
-                            if (amountsell > (item.amount - 1)) {
-                                //Amount -1 is counting the one currently equipped
-                                return interaction.followUp(`You cannot sell all of ${item.name}, it is currently equipped!`);
-                            } else if (amountsell === (item.amount - 1)) {
-                                //Leaving one item due to being equipped selling the rest
-                                var uData = await grabU();
-                                await leaveOne(item, uData);
-                            } else {
-                                var uData = await grabU();
-                                await sell(item, amountsell, uData);
-                            }
-                        } else {
-                            if (amountsell > item.amount) {
-                                return interaction.followUp(`You do not have that many ${item.name}`);
-                            } else if (amountsell === item.amount) {
-                                var uData = await grabU();
-                                await sellAll(item, uData);
-                            } else {
-                                var uData = await grabU();
-                                await sell(item, amountsell, uData);
-                            }
-                        }
-                    }
-                }
+                const dynDesc = `Amount to sell: **${amountSelling}**\nAmount Owned: **${theItem.amount}**\nCoins Received: **${(theItem.value * amountSelling)}**c`
+                confirmEmbed = new EmbedBuilder()
+                .setTitle(`Selling ${theItem.name}`)
+                .setDescription(dynDesc)
+                .setColor('DarkOrange');
             } else {
-                console.log('ITEM NOT FOUND!');
-                return interaction.followUp('You dont have that item in your inventory.. to see your loot use the command ``/myloot``');
+                let hideSA = false;
+                const itemMatch = (hasLoadout) ? filterLoadout(loadoutCheck, theItem) : false;
+                if (itemMatch === true) hideSA = true;
+
+                const sellOneB = new ButtonBuilder()
+                .setLabel('Sell One')
+                .setCustomId('sell-one')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('1️⃣');
+
+                const leaveOneB = new ButtonBuilder()
+                .setLabel('Leave One')
+                .setCustomId('leave-one')
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji('💲');
+
+                const sellAllB = new ButtonBuilder()
+                .setLabel('Sell All')
+                .setCustomId('sell-all')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('💲')
+                .setDisabled(hideSA);
+
+                buttonRow = new ActionRowBuilder().addComponents(sellOneB, leaveOneB, sellAllB, cancelButton);
+                
+                const dynDesc = `Choose one of the options below! You have ${theItem.amount} ${theItem.name}`;
+                confirmEmbed = new EmbedBuilder()
+                .setTitle(`Selling ${theItem.name}`)
+                .setDescription(dynDesc)
+                .setColor('DarkOrange');
             }
+
+            const embedMsg = await interaction.reply({embeds: [confirmEmbed], components: [buttonRow]});
+
+            const filter = (i) => i.user.id === interaction.user.id;
+
+            const collector = embedMsg.createMessageComponentCollector({
+                ComponentType: ComponentType.Button,
+                filter,
+                time: 60000,
+            });
+
+            collector.on('collect', async COI => {
+                if (COI.customId === 'confirm-sell'){
+                    const result = await sellItem(theItem, amountSelling, user);
+                    if (result.status !== "Success") return await COI.reply(`Something went wrong, ${result.status}`).then(collector.stop());
+                    await interaction.followUp({embeds: [result.embed]}).then(finalMsg => setTimeout(() => {
+                        finalMsg.delete();
+                    }, 35000)).catch(err => console.error(err));
+                    await collector.stop();
+                }
+                if (COI.customId === 'sell-one'){
+                    const result = await sellItem(theItem, 1, user);
+                    if (result.status !== "Success") return await COI.reply(`Something went wrong, ${result.status}`).then(collector.stop());
+                    await interaction.followUp({embeds: [result.embed]}).then(finalMsg => setTimeout(() => {
+                        finalMsg.delete();
+                    }, 35000)).catch(err => console.error(err));
+                    await collector.stop();
+                }
+                if (COI.customId === 'leave-one'){
+                    const result = await sellItem(theItem, (theItem.amount - 1), user);
+                    if (result.status !== "Success") return await COI.reply(`Something went wrong, ${result.status}`).then(collector.stop());
+                    await interaction.followUp({embeds: [result.embed]}).then(finalMsg => setTimeout(() => {
+                        finalMsg.delete();
+                    }, 35000)).catch(err => console.error(err));
+                    await collector.stop();
+                }
+                if (COI.customId === 'sell-all'){
+                    const result = await sellItem(theItem, theItem.amount, user);
+                    if (result.status !== "Success") return await COI.reply(`Something went wrong, ${result.status}`).then(collector.stop());
+                    await interaction.followUp({embeds: [result.embed]}).then(finalMsg => setTimeout(() => {
+                        finalMsg.delete();
+                    }, 35000)).catch(err => console.error(err));
+                    await collector.stop();
+                }
+
+                if (COI.customId === 'cancel-sell'){
+                    await collector.stop();
+                }
+            });
+
+            collector.on('end', () => {
+                embedMsg.delete().catch(error => {
+                    if (error.code !== 10008) {
+                        console.error('Failed to delete the message:', error);
+                    }
+                });
+            });
         }
 
-        if (interaction.options.getSubcommand() === 'all') {
-            const rarityUsed = interaction.options.getString('rarity');
+        if (interaction.options.getSubcommand() === 'all'){
+            const rarityList = ["common", "uncommon", "rare", "very rare", "epic", "mystic", "?", "??", "???", "????"];
+            const rarPicked = rarityList.indexOf(interaction.options.getString('rarity'));
+            if (rarPicked === -1) return await interaction.reply('That was not a vaild option!');
 
-            var chosenRarID;
+            const itemRarMatchList = await LootStore.findAll({where: {spec_id: interaction.user.id, rar_id: rarPicked}});
+            if (itemRarMatchList.length === 0) return await interaction.reply('You have no items of that rarity!');
 
-            //TEMPORARY SORTING BELOW, NEEDS UPDATING ONCE I UNDERSTAND HOW TO USE FILTERS
-            //============================
-            if (rarityUsed === 'common') {
-                chosenRarID = 0;
-            } else if (rarityUsed === 'uncommon') {
-                chosenRarID = 1;
-            } else if (rarityUsed === 'rare') {
-                chosenRarID = 2;
-            } else if (rarityUsed === 'very rare') {
-                chosenRarID = 3;
-            } else if (rarityUsed === 'epic') {
-                chosenRarID = 4;
-            } else if (rarityUsed === 'mystic') {
-                chosenRarID = 5;
-            } else if (rarityUsed === '?') {
-                chosenRarID = 6;
-            } else if (rarityUsed === '??') {
-                chosenRarID = 7;
-            } else if (rarityUsed === '???') {
-                chosenRarID = 8;
-            } else if (rarityUsed === '????') {
-                chosenRarID = 9;
-            } else if (rarityUsed === 'forgotten') {
-                //Dont allow selling of these like this >:)
-                return interaction.followUp('Mmmm nope, no easy way out for selling these ones! Try ``/sell some`` Instead');
-            } else {
-                return interaction.followUp('That was not a valid rarity, valid options are: **common**, **uncommon**, **rare**, **very rare**, **epic**, **mystic**, **?**, **??**, **???**, **????**');
-            }
-            //============================
-            if (chosenRarID > 9 || chosenRarID < 0) {
-                //This shouldnt be possible
-            } else {
-                //Valid rarity was found, time to sell it
+            const loadoutCheck = await Loadout.findOne({where: {spec_id: interaction.user.id}});
+            const hasLoadout = (loadoutCheck) ? true : false;
 
-                /**
-                        How to handle this?
-                            - Loop each item checking for rarId match
-                            - Once items are filtered check for matches against currently equipped
-                            - If match (Sell all but one)
-                            - If not (SELL ALL)
-                            - Can use prebuilt sell functions for super clean and speedy code too!!
+            const user = await UserData.findOne({where: {userid: interaction.user.id}});
+            if (!user) return await interaction.reply('Something went wrong while loading your profile!');
 
-                        UI/UX Tings!
-                            - Confirmation button (extra super duper sure you wanna sell all 150 rocks??)
-                            - Give total listings of:
-                                - Total item amount to be sold
-                                - Total coins gained from selling
-                                - Any items limited due to being equipped
-                                - Which rarity was selected in the first place LMAOOOO               
-                 */
+            let totalItemsSold = itemRarMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
+            let totalValueSold = itemRarMatchList.reduce((totalValue, item) => totalValue + (item.value * item.amount), 0);
+            
+            const acceptButton = new ButtonBuilder()
+            .setLabel("Confirm")
+            .setCustomId('confirm-sellall')
+            .setStyle(ButtonStyle.Success)
+            .setEmoji('✅');
 
-                //FIRST STEP: FILTER/GATHER ALL ITEMS WITH SELECTED RAR_ID
+            const cancelButton = new ButtonBuilder()
+            .setLabel("Cancel")
+            .setCustomId('cancel-sellall')
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('❌');
 
-                const fullItemMatchList = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }] });
-                console.log(`ITEMS FOUND COMPARING TO EQUIPPED NOW...`);
+            const buttonRow = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
 
-                const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+            const estGainDesc = `Predicted Items Sold: **${totalItemsSold}**\nPredicted Coins Gained: **${totalValueSold}**c`;
 
-                //SEARCH HANDLED CHECK IF EXISTS
-                if (!currentLoadout) {
-                    //No loadout found prepare to purge
+            const confirmEmbed = new EmbedBuilder()
+            .setTitle(`~Selling ${interaction.options.getString('rarity')} Items~`)
+            .setColor('DarkButNotBlack')
+            .setDescription(estGainDesc);
 
-                    //CAN USE .reduce() IN ORDER TO OBTAIN TOTALS FOR ITEM AMOUNT AND COIN VALUE
-                    var totalItemsSold = await fullItemMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
-                    var totalSoldValue = await fullItemMatchList.reduce((totalValue, item) => totalValue + (item.value * item.amount), 0);
+            const confirmMsg = await interaction.reply({embeds: [confirmEmbed], components: [buttonRow]});
 
-                    console.log(`Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`);
+            const filter = (i) => i.user.id === interaction.user.id;
 
-                    const acceptButton = new ButtonBuilder()
-                        .setLabel("Yes")
-                        .setStyle(ButtonStyle.Success)
-                        .setEmoji('✅')
-                        .setCustomId('accept');
+            const collector = confirmMsg.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter,
+                time: 120000,
+            });
 
-                    const cancelButton = new ButtonBuilder()
-                        .setLabel("No")
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('❌')
-                        .setCustomId('cancel');
-
-                    const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
-
-                    const list = `Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`;
-
-                    const confirmEmbed = new EmbedBuilder()
-                        .setColor('Blurple')
-                        .setTitle('Confirm Sell-All')
-                        .addFields(
-                            {
-                                name: `Would you really like to Sell-All: ${rarityUsed} items owned?`,
-                                value: list,
-
-                            });
-
-                    const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
-
-                    const filter = (i) => i.user.id === interaction.user.id;
-
-                    const collector = embedMsg.createMessageComponentCollector({
-                        ComponentType: ComponentType.Button,
-                        filter,
-                        time: 120000,
-                    });
-
-                    collector.on('collect', async (collInteract) => {                       
-                        if (collInteract.customId === 'accept') {
-                            //Proceed with selling all 
-                            await collInteract.deferUpdate();
-                            acceptButton.setDisabled(true);
-                            cancelButton.setDisabled(true);
-
-                            await embedMsg.edit({
-                                components: [interactiveButtons],
-                            });
-
-                            const sellComplete = await handleSellAllClean(fullItemMatchList);
-                            if (sellComplete === 'FAILED') {
-                                //Something went wrong :/
-                            } else if (sellComplete === 'SUCCESS') {
-                                //All items sold successfully!!
-                                await collector.stop();
-                            }
-                        }
-
-                        if (collInteract.customId === 'cancel') {
-                            //Sell all canceled!
-                            await collInteract.deferUpdate();
-                            acceptButton.setDisabled(true);
-                            cancelButton.setDisabled(true);
-
-                            await embedMsg.edit({
-                                components: [interactiveButtons],
-                            });
-
-                            await collector.stop();
-                        }
-                    });
-
-                    collector.on('end', () => {
-                        if (embedMsg) {
-                            embedMsg.delete();
-                        }
-                    });
-
-                } else {
-                    var equippedList = [];
-                    const userID = interaction.user.id;
-                    //Loadout was found, compare values here
-                    const headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
-                    if (headSlotItem === 'NONE') {
-                        //NO ITEM FOUND
-                    } else if (headSlotItem.Rar_id !== chosenRarID){
-                        //Equipped Item Rarity missmatch disregard and continue
-                    } else {
-                        //Search for match
-                        //USE .filter() TO FIND A MATCH
-                        const headSlotMatch = await fullItemMatchList.filter(item => item.loot_id === headSlotItem.Loot_id);
-                        if (headSlotMatch.length === 0) {
-                            //Item not found 
-                            console.log(`No headslot match`);
+            collector.on('collect', async COI => {
+                if (COI.customId === 'confirm-sellall'){
+                    const trackingObj = {
+                        amountSold: 0,
+                        valueSold: 0,
+                        destroyed: 0,
+                    };
+                    for (const item of itemRarMatchList){
+                        if (hasLoadout){
+                            const loadoutMatch = filterLoadout(loadoutCheck, item);
+                            const result = await sellingItems(item, loadoutMatch, trackingObj);
+                            if (result !== "Success") console.log('Item handle Failure', result);
+                            continue;
                         } else {
-                            //Item found push to equippedList
-                            equippedList.push(headSlotMatch[0].Loot_id);
+                            const result = await sellingItems(item, false, trackingObj);
+                            if (result !== "Success") console.log('Item handle Failure', result);
+                            continue;
                         }
                     }
-
-                    const chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
-                    if (chestSlotItem === 'NONE') {
-                        //NO ITEM FOUND
-                    } else if (chestSlotItem.Rar_id !== chosenRarID) {
-                        //Equipped Item Rarity missmatch disregard and continue
-                    } else {
-                        //Search for match
-                        //USE .filter() TO FIND A MATCH
-                        const chestSlotMatch = await fullItemMatchList.filter(item => item.loot_id === chestSlotItem.Loot_id);
-                        if (chestSlotMatch.length === 0) {
-                            //Item not found
-                            console.log(`No chestslot match`);
-                        } else {
-                            //Item found push to equippedList
-                            equippedList.push(chestSlotMatch[0].Loot_id);
-                        }
-                    }
-
-                    const legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
-                    if (legSlotItem === 'NONE') {
-                        //NO ITEM FOUND
-                    } else if (legSlotItem.Rar_id !== chosenRarID) {
-                        //Equipped Item Rarity missmatch disregard and continue
-                    } else {
-                        //Search for match
-                        //USE .filter() TO FIND A MATCH
-                        const legSlotMatch = await fullItemMatchList.filter(item => item.loot_id === legSlotItem.Loot_id);
-                        if (legSlotMatch.length === 0) {
-                            //Item not found 
-                            console.log(`No legslot match`);
-                        } else {
-                            //Item found push to equippedList
-                            equippedList.push(legSlotMatch[0].Loot_id);
-                        }
-                    }
-
-                    const mainHandItem = await findMainHand(currentLoadout.mainhand, userID);
-                    if (mainHandItem === 'NONE') {
-                        //NO ITEM FOUND
-                    } else if (mainHandItem.Rar_id !== chosenRarID) {
-                        //Equipped Item Rarity missmatch disregard and continue
-                    } else {
-                        //Search for match
-                        //USE .filter() TO FIND A MATCH
-                        const mainHandMatch = await fullItemMatchList.filter(item => item.loot_id === mainHandItem.Loot_id);
-                        if (mainHandMatch.length === 0) {
-                            //Item not found 
-                            console.log(`No mainHand match`);
-                        } else {
-                            //Item found push to equippedList
-                            equippedList.push(mainHandMatch[0].Loot_id);
-                        }
-                    }
-
-                    //const offHandItem; TO BE ADDED
-
-                    console.log(`equippedList contents after comparing all values: ${equippedList}`);
-                    //EQUIPPED HAS BEEN HANDLED: DISPLAY FURTHER
-
-
-                    //========================================
-                    var totalItemsSold = await fullItemMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
-                    var totalSoldValue = await fullItemMatchList.reduce((totalValue, item) => totalValue + (item.value * item.amount), 0);
-
-                    console.log(`Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`);
-
-                    const acceptButton = new ButtonBuilder()
-                        .setLabel("Yes")
-                        .setStyle(ButtonStyle.Success)
-                        .setEmoji('✅')
-                        .setCustomId('accept');
-
-                    const cancelButton = new ButtonBuilder()
-                        .setLabel("No")
-                        .setStyle(ButtonStyle.Danger)
-                        .setEmoji('❌')
-                        .setCustomId('cancel');
-
-                    const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
-
-                    const list = `Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`;
-
-                    const confirmEmbed = new EmbedBuilder()
-                        .setColor('Blurple')
-                        .setTitle('Confirm Sell-All')
-                        .addFields(
-                            {
-                                name: `Would you really like to Sell-All: ${rarityUsed} items owned?`,
-                                value: list,
-
-                            });
-
-                    const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
-
-                    const filter = (i) => i.user.id === interaction.user.id;
-
-                    const collector = embedMsg.createMessageComponentCollector({
-                        ComponentType: ComponentType.Button,
-                        filter,
-                        time: 120000,
-                    });
-
-                    collector.on('collect', async (collInteract) => {
-                        if (collInteract.customId === 'accept') {
-                            //Proceed with selling all 
-                            await collInteract.deferUpdate();
-                            acceptButton.setDisabled(true);
-                            cancelButton.setDisabled(true);
-
-                            await embedMsg.edit({
-                                components: [interactiveButtons],
-                            });
-
-
-                            //const sellComplete = await fullItemMatchListClean.forEach(handleSellAll(equippedList));
-
-
-                            if (equippedList.length !== 0) {
-                                const sellComplete = await handleSellAll(fullItemMatchList, equippedList);
-                                if (sellComplete === 'FAILED') {
-                                    //Something went wrong :/
-                                } else if (sellComplete === 'SUCCESS') {
-                                    //All items sold successfully!!
-                                    await collector.stop();
-                                }
-                            } else if (equippedList.length === 0) {                              
-                                const sellComplete = await handleSellAllClean(fullItemMatchList);
-                                if (sellComplete === 'FAILED') {
-                                    //Something went wrong :/
-                                } else if (sellComplete === 'SUCCESS') {
-                                    //All items sold successfully!!
-                                    await collector.stop();
-                                }
-                            }                          
-                        }
-
-                        if (collInteract.customId === 'cancel') {
-                            //Sell all canceled!
-                            await collInteract.deferUpdate();
-                            acceptButton.setDisabled(true);
-                            cancelButton.setDisabled(true);
-
-                            await embedMsg.edit({
-                                components: [interactiveButtons],
-                            });
-                            await collector.stop();
-                        }
-                    });
-
-                    collector.on('end', () => {
-                        if (embedMsg) {
-                            embedMsg.delete();
-                        } 
-                    });
+                    console.log(trackingObj);
+        
+                    totalItemsSold = (totalItemsSold === trackingObj.amountSold) ? totalItemsSold : trackingObj.amountSold;
+                    totalValueSold = (totalValueSold === trackingObj.valueSold) ? totalValueSold : trackingObj.valueSold;
+        
+                    const userUpdated = await handleUser(user, trackingObj);
+                    if (userUpdated !== "Finished") await interaction.followUp('Something went wrong while updating user values!');
+                    
+                    const dynDesc = `Total Items Sold: **${totalItemsSold}**\nTotal Coins Earned: **${totalValueSold}**c\nUnique Items Sold: ${trackingObj.destroyed}`;
+                    
+                    const finalEmbed = new EmbedBuilder()
+                    .setTitle('~Items Sold~')
+                    .setColor('DarkGreen')
+                    .setDescription(dynDesc);
+        
+                    await interaction.followUp({embeds: [finalEmbed]}).then(embedMsg => setTimeout(() => {
+                        embedMsg.delete();
+                    }, 45000)).catch(err => console.error(err));
+                    
+                    collector.stop();
                 }
+
+                if (COI.customId === 'cancel-sellall'){
+                    await collector.stop();
+                }
+            });
+
+            collector.on('end', () => {
+                confirmMsg.delete().catch(error => {
+                    if (error.code !== 10008) {
+                        console.error('Failed to delete the message:', error);
+                    }
+                });
+            });
+
+            
+        }
+
+        /**
+         * This function handles the removal of items sold by the amount specified,
+         * uses the given User Instance for coin updates & item count reduction if needed
+         * @param {object} item DB Instance of Item
+         * @param {number} amount Item amount to be sold
+         * @param {object} user DB Instance of User
+         */
+        async function sellItem(item, amount, user){
+            const statusReturn = {
+                status: "",
+                embed: {
+                    title: "Items Sold",
+                    color: 0o0,
+                    description: "",
+                }
+            };
+            const isDestroyed = ((item.amount - amount) === 0) ? true : false;
+            const payOut = amount * item.value;
+
+            statusReturn.embed.description = `Items Sold: ${amount}\nCoin Gained: ${payOut}`;
+
+            if (isDestroyed){
+                const demo = await item.destroy();
+                if (demo){
+                    const incCoin = await user.increment('coins', {by: payOut});
+                    const decTot = await user.decrement('totitem');
+                    if (incCoin && decTot) {
+                        await user.save();
+                        statusReturn.status = "Success";
+                        return statusReturn;
+                    } else return {status: "Failure: 1"};
+                } else return {status: "Failure: 2"};
+            } else {
+                const decItem = await item.decrement('amount', {by: amount});
+                if (decItem){
+                    const incCoin = await user.increment('coins', {by: payOut});
+                    if (incCoin) {
+                        await user.save();
+                        statusReturn.status = "Success";
+                        return statusReturn;
+                    } else return {status: "Failure: 1"};
+                } else return {status: "Failure: 2"};
             }
         }
 
         /**
-         * 
-         * @param {any} fullItemMatchList OBJECT ARRAY: Contains full list of items filtered by rarity chosen
+         * This function handles updating/destroying items based on equipped status
+         * @param {object} item DB Instance of Item
+         * @param {boolean} isEquip Whether the item is equipped or not
+         * @param {object} trackingObj Accumulator Object for later calculations
+         * @returns String as final outcome 
          */
-        //This method handles selling all of rarity if no items are equipped
-        async function handleSellAllClean(fullItemMatchList) {
-            //Go one item at a time calling sellAll for each reload uData on each item for proper values
-            var uData;
+        async function sellingItems(item, isEquip, trackingObj){
+            const amount = (isEquip) ? item.amount - 1 : item.amount;
+            const payOut = amount * item.value;
 
-            try {
-                for (var n = 0; n < fullItemMatchList.length;) {
-                    //First grab uData
-                    uData = await grabU();
-                    //Second call sellAll at n position
-                    await sellAll(fullItemMatchList[n], uData);
-                    console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
-                    n++;
-                }
-                return 'SUCCESS';
-            } catch (err) {
-                console.error(err);
-                return 'FAILED';
-            }          
+            trackingObj.valueSold += payOut;
+            trackingObj.amountSold += amount;
+
+            if (amount !== item.amount){
+                // Equipped
+                const decItem = await item.decrement('amount', {by: amount});
+                if (decItem){
+                    return "Success";
+                } else return "Failure: 1";
+            } else {
+                // Not Equipped
+                const demo = await item.destroy();
+                if (demo){
+                    trackingObj.destroyed++;
+                    return "Success";
+                } else return "Failure: 2";
+            }
+        }
+
+        async function handleUser(user, valuesObj){
+            const incCoin = await user.increment('coins', {by: valuesObj.valueSold});
+            const decItem = await user.decrement('totitem', {by: valuesObj.destroyed});
+            if (incCoin && decItem){
+                await user.save();
+                return "Finished";
+            } else return "Failure";
         }
 
         /**
          * 
-         * @param {Array} fullItemMatchList OBJECT ARRAY: Contains full list of items filtered by rarity chosen
-         * @param {Array} equippedList INT ID ARRAY: Contains currently equipped items listed by ids
+         * @param {object} loadout DB Instance of loadout
+         * @param {object} item DB Instance of Item
+         * @returns True if equipped, false if not
          */
-        //This method handles selling all of rarity if no items are equipped
-        async function handleSellAll(fullItemMatchList, equippedList) {
-            //Go one item at a time calling sellAll for each reload uData on each item for proper values
-            var uData;
+        function filterLoadout(loadout, item){
+            let loadoutMatch = false;
 
-            try {
-                for (var n = 0; n < fullItemMatchList.length;) {
-                    //First grab uData
-                    uData = await grabU();
-                    //Second check for equipped id match at n position
-                    for (var e = 0; e < equippedList.length; e++) {
-                        //Third: If match leave one, If not sell all
-                        if (fullItemMatchList[n].loot_id === equippedList[e].Loot_id) {
-                            //Item matches equipped item, leave one!
-                            await leaveOne(fullItemMatchList[n], uData);
-                            console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
-                            n++;
-                        } else if (fullItemMatchList[n].loot_id !== equippedList[e].Loot_id) {
-                            //Item does not match sell all
-                            await sellAll(fullItemMatchList[n], uData);
-                            console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
-                            n++;
-                        }
-                    }                                    
-                }
-                return 'SUCCESS';
-            } catch (err) {
-                console.error(err);
-                return 'FAILED';
+            switch(item.slot){
+                case "Mainhand":
+                    loadoutMatch = (loadout.mainhand === item.loot_id) ? true : false;
+                break;
+                case "Offhand":
+                    loadoutMatch = (loadout.offhand === item.loot_id) ? true : false;
+                break;
+                case "Headslot":
+                    loadoutMatch = (loadout.headslot === item.loot_id) ? true : false;
+                break;
+                case "Chestslot":
+                    loadoutMatch = (loadout.chestslot === item.loot_id) ? true : false;
+                break;
+                case "Legslot":
+                    loadoutMatch = (loadout.legslot === item.loot_id) ? true : false;
+                break;
             }
+
+            return loadoutMatch;
         }
 
 
-        //this method sells the user defined amount of items
-        async function sell(item, amountsell, uData) {
-            var soldFor = (item.value * amountsell);
-            var newtotal = uData.coins + soldFor;
+        // await interaction.deferReply();
 
-            var newA = item.amount - amountsell;
+        // if (interaction.options.getSubcommand() === 'some') {
+        //     const itemname = interaction.options.getString('item');
+        //     const amountsell = interaction.options.getInteger('amount');
+        //     console.log(itemname);
 
-            const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
-            if (removed) {
-                //item was updated
-                console.log('ITEM COUNT UPDATED');
-                const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
-                if (editC) {
-                    console.log('COINS UPDATED!');
-                    console.log('Item sold! You gained: ', soldFor);
+        //     const item = await LootStore.findOne({ where: [{ spec_id: interaction.user.id }, { name: itemname }] });
+        //     if (item) {
+        //         if (!amountsell) {
 
-                    const soldEmbed = {
-                        title: 'Item Sold!',
-                        color: 0000,
-                        fields: [{
-                            name: 'You gained: ', value: `${soldFor}c`,
-                        }],
-                    };
+        //             var disableSellOne = false;
+        //             var disableSellAll = false;
 
-                    await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
-                        embedMsg.delete();
-                    }, 1000));
+        //             const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
 
-                    //await interaction.followUp(`Item sold! You gained: ${soldFor}c`);
-                    if (newA <= 0) {
-                        //no more items remove from table
-                        const newtot = uData.totitem - 1;
-                        const totalItem = UserData.update({ totitem: newtot }, { where: [{ userid: interaction.user.id }] });
-                        if (totalItem) console.log('TOTAL ITEM COUNT REDUCED!');
+        //             //const loadOutFilter = [{ slot: [currentLoadout.headslot, currentLoadout.chestslot, currentLoadout.legslot, currentLoadout.mainhand, currentLoadout.offhand], userid: [interaction.user.id] }];
 
-                        const isGone = await LootStore.destroy({ where: [{ name: item.name }, { spec_id: interaction.user.id }] });
-                        if (isGone) console.log('ITEM REMOVED FROM TABLE');
-                    } else { }
-                    return;
-                }
-            } else { }//something went wrong  
-        }
+        //             if (!currentLoadout) {
+        //                 //Nothing is equipped yet
+        //             } else {
+        //                 //Something is equipped
+        //                 if (item.loot_id === currentLoadout.headslot) {
+        //                     //Item is equipped restrict selling all!
+        //                     disableSellAll = true;
+        //                     if (item.amount === 1) {
+        //                         disableSellOne = true;
+        //                     }
+        //                 }
+        //                 if (item.loot_id === currentLoadout.chestslot) {
+        //                     //Item is equipped restrict selling all!
+        //                     disableSellAll = true;
+        //                     if (item.amount === 1) {
+        //                         disableSellOne = true;
+        //                     }
+        //                 }
+        //                 if (item.loot_id === currentLoadout.legslot) {
+        //                     //Item is equipped restrict selling all!
+        //                     disableSellAll = true;
+        //                     if (item.amount === 1) {
+        //                         disableSellOne = true;
+        //                     }
+        //                 }
+        //                 if (item.loot_id === currentLoadout.mainhand) {
+        //                     //Item is equipped restrict selling all!
+        //                     disableSellAll = true;
+        //                     if (item.amount === 1) {
+        //                         disableSellOne = true;
+        //                     }
+        //                 }
+        //                 if (item.loot_id === currentLoadout.offhand) {
+        //                     //Item is equipped restrict selling all!
+        //                     disableSellAll = true;
+        //                     if (item.amount === 1) {
+        //                         disableSellOne = true;
+        //                     }
+        //                 }
+        //                 //let checkPass = currentLoadout;
+        //                 //checkPass = checkPass.filter(item.loot_id === loadOutFilter.slot && item.spec_id === loadOutFilter.userid);
+        //                 //if (checkPass.length > 0) {
+        //                 //    //Item is equipped restrict selling all!
+        //                 //    disableSellAll = true;
+        //                 //    if (item.amount === 1) {
+        //                 //        disableSellOne = true;
+        //                 //    }
+        //                 //}
+        //             }
 
-        //This method sells all but one of the item selected and does nothing if only one item is already present
-        async function leaveOne(item, uData) {
+        //             const cancelButton = new ButtonBuilder()
+        //                 .setLabel("Cancel")
+        //                 .setStyle(ButtonStyle.Danger)
+        //                 .setEmoji('❌')
+        //                 .setCustomId('cancel');
 
-            if (item.amount === 1) {
-                await interaction.followUp(`You only have one of this item, no items have been sold!`);
-                return;
-            }
-            console.log('Current users coins', uData.coins);
-            var soldFor = (item.value * item.amount) - item.value;
-            var newtotal = uData.coins + (item.value * item.amount);
+        //             const sellOneButton = new ButtonBuilder()
+        //                 .setLabel("SELL ONE")
+        //                 .setStyle(ButtonStyle.Success)
+        //                 .setEmoji('✅')
+        //                 .setDisabled(disableSellOne)
+        //                 .setCustomId('confirm');
 
-            console.log('Total coins after adding users coins', newtotal);
-            newtotal = newtotal - item.value;
+        //             const leaveOneButton = new ButtonBuilder()
+        //                 .setLabel("LEAVE ONE")
+        //                 .setStyle(ButtonStyle.Primary)
+        //                 .setEmoji('💲')
+        //                 .setCustomId('leave-one');
 
-            var newA = 1;
+        //             const sellAllButton = new ButtonBuilder()
+        //                 .setLabel("SELL ALL")
+        //                 .setStyle(ButtonStyle.Danger)
+        //                 .setEmoji('💲')
+        //                 .setDisabled(disableSellAll)
+        //                 .setCustomId('sell-all');
 
-            const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //             const sellButtons = new ActionRowBuilder().addComponents(cancelButton, sellOneButton, leaveOneButton, sellAllButton);
 
-            if (removed) {
-                //item was updated
-                console.log('ITEM COUNT UPDATED');
-                const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
-                if (editC) {
-                    console.log('COINS UPDATED!');
-                    console.log('Item sold! You gained: ', soldFor);
+        //             //create embed
+        //             const sellEmbed = new EmbedBuilder()
+        //                 .setTitle("~Selling Options~")
+        //                 .setColor(0x39acf3)
+        //                 .addFields(
+        //                     {
+        //                         name: (`Inventory`),
+        //                         value: `You have ${item.amount} ${item.name}(s) currently`
+        //                     }
+        //                 );
 
-                    const soldEmbed = {
-                        title: 'Item Sold!',
-                        color: 0000,
-                        fields: [{
-                            name: 'You gained: ', value: `${soldFor}c`,
-                        }],
-                    };
+        //             const embedMsg = await interaction.followUp({ embeds: [sellEmbed], components: [sellButtons] });
 
-                    await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
-                        embedMsg.delete();
-                    }, 1000));
-                    return;
-                }
-            } else { }//something went wrong                  
-        }
+        //             const filter = (i) => i.user.id === interaction.user.id;
 
-        //This method sells all of the item selected
-        async function sellAll(item, uData) {
+        //             const collector = embedMsg.createMessageComponentCollector({
+        //                 ComponentType: ComponentType.Button,
+        //                 filter,
+        //                 time: 60000,
+        //             });
 
-            console.log('Current users coins', uData.coins);
-            var newtotal = uData.coins + (item.value * item.amount);
-            var soldFor = (item.value * item.amount);
+        //             collector.on('collect', async (collInteract) => {
+        //                 await collInteract.deferUpdate();
+        //                 if (collInteract.customId === 'confirm') {
+        //                     console.log('ITEM FOUND!', item.name);
+        //                     var uData = await grabU();
+        //                     console.log('Item', item.amount);
 
-            var newA = 0;
+        //                     //sell item here
+        //                     await collector.stop();
+        //                     await sold(item, uData);
+        //                 } else if (collInteract.customId === 'sell-all') {
+        //                     console.log('ITEM FOUND!', item.name);
+        //                     var uData = await grabU();
+        //                     console.log('Item', item.amount);
 
-            const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //                     //sell item here
+        //                     await collector.stop();
+        //                     await sellAll(item, uData);
+        //                 } else if (collInteract.customId === 'leave-one') {
+        //                     console.log('ITEM FOUND!', item.name);
+        //                     var uData = await grabU();
+        //                     console.log('Item', item.amount);
 
-            if (removed) {
-                //item was updated
-                console.log('ITEM COUNT UPDATED');
-                const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
-                if (editC) {
-                    console.log('COINS UPDATED!');
-                    console.log('Item sold! You gained: ', soldFor);
+        //                     //sell item here
+        //                     await collector.stop();
+        //                     await leaveOne(item, uData);
+        //                 } else if (collInteract.customId === 'cancel') {
+        //                     await wait(1000);
+        //                     await collector.stop();
+        //                 }
+        //             });
 
-                    const soldEmbed = {
-                        title: 'Item Sold!',
-                        color: 0000,
-                        fields: [{
-                            name: 'You gained: ', value: `${soldFor}c`,
-                        }],
-                    };
+        //             collector.on('end', () => {
+        //                 if (embedMsg) {
+        //                     embedMsg.delete();
+        //                 }
+        //             });
+        //         } else if (amountsell) {
+        //             //handle user input sell amount
+        //             const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+        //             if (!currentLoadout) {
+        //                 //Nothing is equipped yet
+        //                 if (amountsell > item.amount) {
+        //                     return interaction.followUp(`You do not have that many ${item.name}`);
+        //                 } else if (amountsell === item.amount) {
+        //                     var uData = await grabU();
+        //                     await sellAll(item, uData);
+        //                 } else {
+        //                     var uData = await grabU();
+        //                     await sell(item, amountsell, uData);
+        //                 }
+        //             } else {
+        //                 var isEquipped = false;
+        //                 //Something is equipped|| currentLoadout.chestslot || currentLoadout.legslot || currentLoadout.mainhand || currentLoadout.offhand
+        //                 if (item.loot_id === currentLoadout.headslot) {
+        //                     //Item is equipped restrict selling all!
+        //                     isEquipped = true;
+        //                 }
+        //                 if (item.loot_id === currentLoadout.chestslot) {
+        //                     //Item is equipped restrict selling all!
+        //                     isEquipped = true;
+        //                 }
+        //                 if (item.loot_id === currentLoadout.legslot) {
+        //                     //Item is equipped restrict selling all!
+        //                     isEquipped = true;
+        //                 }
+        //                 if (item.loot_id === currentLoadout.mainhand) {
+        //                     //Item is equipped restrict selling all!
+        //                     isEquipped = true;
+        //                 }
+        //                 if (item.loot_id === currentLoadout.offhand) {
+        //                     //Item is equipped restrict selling all!
+        //                     isEquipped = true;
+        //                 }
+        //                 if (isEquipped === true) {
+        //                     //Restrict selling
+        //                     if (amountsell > item.amount) {
+        //                         return interaction.followUp(`You do not have that many ${item.name}`);
+        //                     }
+        //                     if (amountsell > (item.amount - 1)) {
+        //                         //Amount -1 is counting the one currently equipped
+        //                         return interaction.followUp(`You cannot sell all of ${item.name}, it is currently equipped!`);
+        //                     } else if (amountsell === (item.amount - 1)) {
+        //                         //Leaving one item due to being equipped selling the rest
+        //                         var uData = await grabU();
+        //                         await leaveOne(item, uData);
+        //                     } else {
+        //                         var uData = await grabU();
+        //                         await sell(item, amountsell, uData);
+        //                     }
+        //                 } else {
+        //                     if (amountsell > item.amount) {
+        //                         return interaction.followUp(`You do not have that many ${item.name}`);
+        //                     } else if (amountsell === item.amount) {
+        //                         var uData = await grabU();
+        //                         await sellAll(item, uData);
+        //                     } else {
+        //                         var uData = await grabU();
+        //                         await sell(item, amountsell, uData);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         console.log('ITEM NOT FOUND!');
+        //         return interaction.followUp('You dont have that item in your inventory.. to see your loot use the command ``/myloot``');
+        //     }
+        // }
 
-                    await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
-                        embedMsg.delete();
-                    }, 1000));
-                    if (newA <= 0) {
-                        //no more items remove from table
-                        const newtot = uData.totitem - 1;
-                        const totalItem = UserData.update({ totitem: newtot }, { where: [{ userid: interaction.user.id }] });
-                        if (totalItem) console.log('TOTAL ITEM COUNT REDUCED!');
+        // if (interaction.options.getSubcommand() === 'all') {
+        //     const rarityUsed = interaction.options.getString('rarity');
 
-                        const isGone = await LootStore.destroy({ where: [{ name: item.name }, { spec_id: interaction.user.id }] });
-                        if (isGone) console.log('ITEM REMOVED FROM TABLE');
-                    } else { }
-                    return;
-                }
-            } else { }//something went wrong                  
-        }
+        //     var chosenRarID;
 
-        //This method sells only one of the item selected
-        async function sold(item, uData) {
+        //     //TEMPORARY SORTING BELOW, NEEDS UPDATING ONCE I UNDERSTAND HOW TO USE FILTERS
+        //     //============================
+        //     if (rarityUsed === 'common') {
+        //         chosenRarID = 0;
+        //     } else if (rarityUsed === 'uncommon') {
+        //         chosenRarID = 1;
+        //     } else if (rarityUsed === 'rare') {
+        //         chosenRarID = 2;
+        //     } else if (rarityUsed === 'very rare') {
+        //         chosenRarID = 3;
+        //     } else if (rarityUsed === 'epic') {
+        //         chosenRarID = 4;
+        //     } else if (rarityUsed === 'mystic') {
+        //         chosenRarID = 5;
+        //     } else if (rarityUsed === '?') {
+        //         chosenRarID = 6;
+        //     } else if (rarityUsed === '??') {
+        //         chosenRarID = 7;
+        //     } else if (rarityUsed === '???') {
+        //         chosenRarID = 8;
+        //     } else if (rarityUsed === '????') {
+        //         chosenRarID = 9;
+        //     } else if (rarityUsed === 'forgotten') {
+        //         //Dont allow selling of these like this >:)
+        //         return interaction.followUp('Mmmm nope, no easy way out for selling these ones! Try ``/sell some`` Instead');
+        //     } else {
+        //         return interaction.followUp('That was not a valid rarity, valid options are: **common**, **uncommon**, **rare**, **very rare**, **epic**, **mystic**, **?**, **??**, **???**, **????**');
+        //     }
+        //     //============================
+        //     if (chosenRarID > 9 || chosenRarID < 0) {
+        //         //This shouldnt be possible
+        //     } else {
+        //         //Valid rarity was found, time to sell it
 
-            var newA = item.amount - 1;
+        //         /**
+        //                 How to handle this?
+        //                     - Loop each item checking for rarId match
+        //                     - Once items are filtered check for matches against currently equipped
+        //                     - If match (Sell all but one)
+        //                     - If not (SELL ALL)
+        //                     - Can use prebuilt sell functions for super clean and speedy code too!!
 
-            const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //                 UI/UX Tings!
+        //                     - Confirmation button (extra super duper sure you wanna sell all 150 rocks??)
+        //                     - Give total listings of:
+        //                         - Total item amount to be sold
+        //                         - Total coins gained from selling
+        //                         - Any items limited due to being equipped
+        //                         - Which rarity was selected in the first place LMAOOOO               
+        //          */
 
-            if (removed) {
-                //item was updated
-                console.log('ITEM COUNT UPDATED');
+        //         //FIRST STEP: FILTER/GATHER ALL ITEMS WITH SELECTED RAR_ID
 
-                var newtotal = uData.coins + item.value;
+        //         const fullItemMatchList = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }, { rar_id: chosenRarID }] });
+        //         console.log(`ITEMS FOUND COMPARING TO EQUIPPED NOW...`);
 
-                const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
-                if (editC) {
-                    console.log('COINS UPDATED!');
-                    console.log('Item sold! You gained: ', item.value);
+        //         const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
 
-                    const soldEmbed = {
-                        title: 'Item Sold!',
-                        color: 0000,
-                        fields: [{
-                            name: 'You gained: ', value: `${item.value}c`,
-                        }],
-                    };
+        //         //SEARCH HANDLED CHECK IF EXISTS
+        //         if (!currentLoadout) {
+        //             //No loadout found prepare to purge
 
-                    await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
-                        embedMsg.delete();
-                    }, 1000));
+        //             //CAN USE .reduce() IN ORDER TO OBTAIN TOTALS FOR ITEM AMOUNT AND COIN VALUE
+        //             var totalItemsSold = await fullItemMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
+        //             var totalSoldValue = await fullItemMatchList.reduce((totalValue, item) => totalValue + (item.value * item.amount), 0);
 
-                    if (newA <= 0) {
-                        //no more items remove from table
-                        const newtot = uData.totitem - 1;
-                        const totalItem = UserData.update({ totitem: newtot }, { where: [{ userid: interaction.user.id }] });
-                        if (totalItem) console.log('TOTAL ITEM COUNT REDUCED!');
+        //             console.log(`Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`);
 
-                        const isGone = await LootStore.destroy({ where: [{ name: item.name }, { spec_id: interaction.user.id }] });
-                        if (isGone) console.log('ITEM REMOVED FROM TABLE');
-                    } else { }//do nothing
-                    return;
-                }
+        //             const acceptButton = new ButtonBuilder()
+        //                 .setLabel("Yes")
+        //                 .setStyle(ButtonStyle.Success)
+        //                 .setEmoji('✅')
+        //                 .setCustomId('accept');
 
-            } else { }//something went wrong
+        //             const cancelButton = new ButtonBuilder()
+        //                 .setLabel("No")
+        //                 .setStyle(ButtonStyle.Danger)
+        //                 .setEmoji('❌')
+        //                 .setCustomId('cancel');
 
-        }
+        //             const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
 
-        async function grabU() {
-            uData = await UserData.findOne({ where: { userid: interaction.user.id } });
-            //console.log(uData);
-            return uData;
-        }
+        //             const list = `Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`;
+
+        //             const confirmEmbed = new EmbedBuilder()
+        //                 .setColor('Blurple')
+        //                 .setTitle('Confirm Sell-All')
+        //                 .addFields(
+        //                     {
+        //                         name: `Would you really like to Sell-All: ${rarityUsed} items owned?`,
+        //                         value: list,
+
+        //                     });
+
+        //             const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
+
+        //             const filter = (i) => i.user.id === interaction.user.id;
+
+        //             const collector = embedMsg.createMessageComponentCollector({
+        //                 ComponentType: ComponentType.Button,
+        //                 filter,
+        //                 time: 120000,
+        //             });
+
+        //             collector.on('collect', async (collInteract) => {                       
+        //                 if (collInteract.customId === 'accept') {
+        //                     //Proceed with selling all 
+        //                     await collInteract.deferUpdate();
+        //                     acceptButton.setDisabled(true);
+        //                     cancelButton.setDisabled(true);
+
+        //                     await embedMsg.edit({
+        //                         components: [interactiveButtons],
+        //                     });
+
+        //                     const sellComplete = await handleSellAllClean(fullItemMatchList);
+        //                     if (sellComplete === 'FAILED') {
+        //                         //Something went wrong :/
+        //                     } else if (sellComplete === 'SUCCESS') {
+        //                         //All items sold successfully!!
+        //                         await collector.stop();
+        //                     }
+        //                 }
+
+        //                 if (collInteract.customId === 'cancel') {
+        //                     //Sell all canceled!
+        //                     await collInteract.deferUpdate();
+        //                     acceptButton.setDisabled(true);
+        //                     cancelButton.setDisabled(true);
+
+        //                     await embedMsg.edit({
+        //                         components: [interactiveButtons],
+        //                     });
+
+        //                     await collector.stop();
+        //                 }
+        //             });
+
+        //             collector.on('end', () => {
+        //                 if (embedMsg) {
+        //                     embedMsg.delete();
+        //                 }
+        //             });
+
+        //         } else {
+        //             var equippedList = [];
+        //             const userID = interaction.user.id;
+        //             //Loadout was found, compare values here
+        //             const headSlotItem = await findHelmSlot(currentLoadout.headslot, userID);
+        //             if (headSlotItem === 'NONE') {
+        //                 //NO ITEM FOUND
+        //             } else if (headSlotItem.Rar_id !== chosenRarID){
+        //                 //Equipped Item Rarity missmatch disregard and continue
+        //             } else {
+        //                 //Search for match
+        //                 //USE .filter() TO FIND A MATCH
+        //                 const headSlotMatch = await fullItemMatchList.filter(item => item.loot_id === headSlotItem.Loot_id);
+        //                 if (headSlotMatch.length === 0) {
+        //                     //Item not found 
+        //                     console.log(`No headslot match`);
+        //                 } else {
+        //                     //Item found push to equippedList
+        //                     equippedList.push(headSlotMatch[0].Loot_id);
+        //                 }
+        //             }
+
+        //             const chestSlotItem = await findChestSlot(currentLoadout.chestslot, userID);
+        //             if (chestSlotItem === 'NONE') {
+        //                 //NO ITEM FOUND
+        //             } else if (chestSlotItem.Rar_id !== chosenRarID) {
+        //                 //Equipped Item Rarity missmatch disregard and continue
+        //             } else {
+        //                 //Search for match
+        //                 //USE .filter() TO FIND A MATCH
+        //                 const chestSlotMatch = await fullItemMatchList.filter(item => item.loot_id === chestSlotItem.Loot_id);
+        //                 if (chestSlotMatch.length === 0) {
+        //                     //Item not found
+        //                     console.log(`No chestslot match`);
+        //                 } else {
+        //                     //Item found push to equippedList
+        //                     equippedList.push(chestSlotMatch[0].Loot_id);
+        //                 }
+        //             }
+
+        //             const legSlotItem = await findLegSlot(currentLoadout.legslot, userID);
+        //             if (legSlotItem === 'NONE') {
+        //                 //NO ITEM FOUND
+        //             } else if (legSlotItem.Rar_id !== chosenRarID) {
+        //                 //Equipped Item Rarity missmatch disregard and continue
+        //             } else {
+        //                 //Search for match
+        //                 //USE .filter() TO FIND A MATCH
+        //                 const legSlotMatch = await fullItemMatchList.filter(item => item.loot_id === legSlotItem.Loot_id);
+        //                 if (legSlotMatch.length === 0) {
+        //                     //Item not found 
+        //                     console.log(`No legslot match`);
+        //                 } else {
+        //                     //Item found push to equippedList
+        //                     equippedList.push(legSlotMatch[0].Loot_id);
+        //                 }
+        //             }
+
+        //             const mainHandItem = await findMainHand(currentLoadout.mainhand, userID);
+        //             if (mainHandItem === 'NONE') {
+        //                 //NO ITEM FOUND
+        //             } else if (mainHandItem.Rar_id !== chosenRarID) {
+        //                 //Equipped Item Rarity missmatch disregard and continue
+        //             } else {
+        //                 //Search for match
+        //                 //USE .filter() TO FIND A MATCH
+        //                 const mainHandMatch = await fullItemMatchList.filter(item => item.loot_id === mainHandItem.Loot_id);
+        //                 if (mainHandMatch.length === 0) {
+        //                     //Item not found 
+        //                     console.log(`No mainHand match`);
+        //                 } else {
+        //                     //Item found push to equippedList
+        //                     equippedList.push(mainHandMatch[0].Loot_id);
+        //                 }
+        //             }
+
+        //             //const offHandItem; TO BE ADDED
+
+        //             console.log(`equippedList contents after comparing all values: ${equippedList}`);
+        //             //EQUIPPED HAS BEEN HANDLED: DISPLAY FURTHER
+
+
+        //             //========================================
+        //             var totalItemsSold = await fullItemMatchList.reduce((totalAmount, item) => totalAmount + item.amount, 0);
+        //             var totalSoldValue = await fullItemMatchList.reduce((totalValue, item) => totalValue + (item.value * item.amount), 0);
+
+        //             console.log(`Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`);
+
+        //             const acceptButton = new ButtonBuilder()
+        //                 .setLabel("Yes")
+        //                 .setStyle(ButtonStyle.Success)
+        //                 .setEmoji('✅')
+        //                 .setCustomId('accept');
+
+        //             const cancelButton = new ButtonBuilder()
+        //                 .setLabel("No")
+        //                 .setStyle(ButtonStyle.Danger)
+        //                 .setEmoji('❌')
+        //                 .setCustomId('cancel');
+
+        //             const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
+
+        //             const list = `Total item AMOUNT to be sold: ${totalItemsSold}\nTotal VALUE of items sold: ${totalSoldValue}`;
+
+        //             const confirmEmbed = new EmbedBuilder()
+        //                 .setColor('Blurple')
+        //                 .setTitle('Confirm Sell-All')
+        //                 .addFields(
+        //                     {
+        //                         name: `Would you really like to Sell-All: ${rarityUsed} items owned?`,
+        //                         value: list,
+
+        //                     });
+
+        //             const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
+
+        //             const filter = (i) => i.user.id === interaction.user.id;
+
+        //             const collector = embedMsg.createMessageComponentCollector({
+        //                 ComponentType: ComponentType.Button,
+        //                 filter,
+        //                 time: 120000,
+        //             });
+
+        //             collector.on('collect', async (collInteract) => {
+        //                 if (collInteract.customId === 'accept') {
+        //                     //Proceed with selling all 
+        //                     await collInteract.deferUpdate();
+        //                     acceptButton.setDisabled(true);
+        //                     cancelButton.setDisabled(true);
+
+        //                     await embedMsg.edit({
+        //                         components: [interactiveButtons],
+        //                     });
+
+
+        //                     //const sellComplete = await fullItemMatchListClean.forEach(handleSellAll(equippedList));
+
+
+        //                     if (equippedList.length !== 0) {
+        //                         const sellComplete = await handleSellAll(fullItemMatchList, equippedList);
+        //                         if (sellComplete === 'FAILED') {
+        //                             //Something went wrong :/
+        //                         } else if (sellComplete === 'SUCCESS') {
+        //                             //All items sold successfully!!
+        //                             await collector.stop();
+        //                         }
+        //                     } else if (equippedList.length === 0) {                              
+        //                         const sellComplete = await handleSellAllClean(fullItemMatchList);
+        //                         if (sellComplete === 'FAILED') {
+        //                             //Something went wrong :/
+        //                         } else if (sellComplete === 'SUCCESS') {
+        //                             //All items sold successfully!!
+        //                             await collector.stop();
+        //                         }
+        //                     }                          
+        //                 }
+
+        //                 if (collInteract.customId === 'cancel') {
+        //                     //Sell all canceled!
+        //                     await collInteract.deferUpdate();
+        //                     acceptButton.setDisabled(true);
+        //                     cancelButton.setDisabled(true);
+
+        //                     await embedMsg.edit({
+        //                         components: [interactiveButtons],
+        //                     });
+        //                     await collector.stop();
+        //                 }
+        //             });
+
+        //             collector.on('end', () => {
+        //                 if (embedMsg) {
+        //                     embedMsg.delete();
+        //                 } 
+        //             });
+        //         }
+        //     }
+        // }
+
+        // /**
+        //  * 
+        //  * @param {any} fullItemMatchList OBJECT ARRAY: Contains full list of items filtered by rarity chosen
+        //  */
+        // //This method handles selling all of rarity if no items are equipped
+        // async function handleSellAllClean(fullItemMatchList) {
+        //     //Go one item at a time calling sellAll for each reload uData on each item for proper values
+        //     var uData;
+
+        //     try {
+        //         for (var n = 0; n < fullItemMatchList.length;) {
+        //             //First grab uData
+        //             uData = await grabU();
+        //             //Second call sellAll at n position
+        //             await sellAll(fullItemMatchList[n], uData);
+        //             console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
+        //             n++;
+        //         }
+        //         return 'SUCCESS';
+        //     } catch (err) {
+        //         console.error(err);
+        //         return 'FAILED';
+        //     }          
+        // }
+
+        // /**
+        //  * 
+        //  * @param {Array} fullItemMatchList OBJECT ARRAY: Contains full list of items filtered by rarity chosen
+        //  * @param {Array} equippedList INT ID ARRAY: Contains currently equipped items listed by ids
+        //  */
+        // //This method handles selling all of rarity if no items are equipped
+        // async function handleSellAll(fullItemMatchList, equippedList) {
+        //     //Go one item at a time calling sellAll for each reload uData on each item for proper values
+        //     var uData;
+
+        //     try {
+        //         for (var n = 0; n < fullItemMatchList.length;) {
+        //             //First grab uData
+        //             uData = await grabU();
+        //             //Second check for equipped id match at n position
+        //             for (var e = 0; e < equippedList.length; e++) {
+        //                 //Third: If match leave one, If not sell all
+        //                 if (fullItemMatchList[n].loot_id === equippedList[e].Loot_id) {
+        //                     //Item matches equipped item, leave one!
+        //                     await leaveOne(fullItemMatchList[n], uData);
+        //                     console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
+        //                     n++;
+        //                 } else if (fullItemMatchList[n].loot_id !== equippedList[e].Loot_id) {
+        //                     //Item does not match sell all
+        //                     await sellAll(fullItemMatchList[n], uData);
+        //                     console.log(`${fullItemMatchList[n].amount} ${fullItemMatchList[n].name} Sold for ${fullItemMatchList[n].value}c each!`);
+        //                     n++;
+        //                 }
+        //             }                                    
+        //         }
+        //         return 'SUCCESS';
+        //     } catch (err) {
+        //         console.error(err);
+        //         return 'FAILED';
+        //     }
+        // }
+
+
+        // //this method sells the user defined amount of items
+        // async function sell(item, amountsell, uData) {
+        //     var soldFor = (item.value * amountsell);
+        //     var newtotal = uData.coins + soldFor;
+
+        //     var newA = item.amount - amountsell;
+
+        //     const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //     if (removed) {
+        //         //item was updated
+        //         console.log('ITEM COUNT UPDATED');
+        //         const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
+        //         if (editC) {
+        //             console.log('COINS UPDATED!');
+        //             console.log('Item sold! You gained: ', soldFor);
+
+        //             const soldEmbed = {
+        //                 title: 'Item Sold!',
+        //                 color: 0000,
+        //                 fields: [{
+        //                     name: 'You gained: ', value: `${soldFor}c`,
+        //                 }],
+        //             };
+
+        //             await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
+        //                 embedMsg.delete();
+        //             }, 1000));
+
+        //             //await interaction.followUp(`Item sold! You gained: ${soldFor}c`);
+        //             if (newA <= 0) {
+        //                 //no more items remove from table
+        //                 const newtot = uData.totitem - 1;
+        //                 const totalItem = UserData.update({ totitem: newtot }, { where: [{ userid: interaction.user.id }] });
+        //                 if (totalItem) console.log('TOTAL ITEM COUNT REDUCED!');
+
+        //                 const isGone = await LootStore.destroy({ where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //                 if (isGone) console.log('ITEM REMOVED FROM TABLE');
+        //             } else { }
+        //             return;
+        //         }
+        //     } else { }//something went wrong  
+        // }
+
+        // //This method sells all but one of the item selected and does nothing if only one item is already present
+        // async function leaveOne(item, uData) {
+
+        //     if (item.amount === 1) {
+        //         await interaction.followUp(`You only have one of this item, no items have been sold!`);
+        //         return;
+        //     }
+        //     console.log('Current users coins', uData.coins);
+        //     var soldFor = (item.value * item.amount) - item.value;
+        //     var newtotal = uData.coins + (item.value * item.amount);
+
+        //     console.log('Total coins after adding users coins', newtotal);
+        //     newtotal = newtotal - item.value;
+
+        //     var newA = 1;
+
+        //     const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+
+        //     if (removed) {
+        //         //item was updated
+        //         console.log('ITEM COUNT UPDATED');
+        //         const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
+        //         if (editC) {
+        //             console.log('COINS UPDATED!');
+        //             console.log('Item sold! You gained: ', soldFor);
+
+        //             const soldEmbed = {
+        //                 title: 'Item Sold!',
+        //                 color: 0000,
+        //                 fields: [{
+        //                     name: 'You gained: ', value: `${soldFor}c`,
+        //                 }],
+        //             };
+
+        //             await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
+        //                 embedMsg.delete();
+        //             }, 1000));
+        //             return;
+        //         }
+        //     } else { }//something went wrong                  
+        // }
+
+        // //This method sells all of the item selected
+        // async function sellAll(item, uData) {
+
+        //     console.log('Current users coins', uData.coins);
+        //     var newtotal = uData.coins + (item.value * item.amount);
+        //     var soldFor = (item.value * item.amount);
+
+        //     var newA = 0;
+
+        //     const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+
+        //     if (removed) {
+        //         //item was updated
+        //         console.log('ITEM COUNT UPDATED');
+        //         const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
+        //         if (editC) {
+        //             console.log('COINS UPDATED!');
+        //             console.log('Item sold! You gained: ', soldFor);
+
+        //             const soldEmbed = {
+        //                 title: 'Item Sold!',
+        //                 color: 0000,
+        //                 fields: [{
+        //                     name: 'You gained: ', value: `${soldFor}c`,
+        //                 }],
+        //             };
+
+        //             await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
+        //                 embedMsg.delete();
+        //             }, 1000));
+        //             if (newA <= 0) {
+        //                 //no more items remove from table
+        //                 const newtot = uData.totitem - 1;
+        //                 const totalItem = UserData.update({ totitem: newtot }, { where: [{ userid: interaction.user.id }] });
+        //                 if (totalItem) console.log('TOTAL ITEM COUNT REDUCED!');
+
+        //                 const isGone = await LootStore.destroy({ where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //                 if (isGone) console.log('ITEM REMOVED FROM TABLE');
+        //             } else { }
+        //             return;
+        //         }
+        //     } else { }//something went wrong                  
+        // }
+
+        // //This method sells only one of the item selected
+        // async function sold(item, uData) {
+
+        //     var newA = item.amount - 1;
+
+        //     const removed = await LootStore.update({ amount: newA }, { where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+
+        //     if (removed) {
+        //         //item was updated
+        //         console.log('ITEM COUNT UPDATED');
+
+        //         var newtotal = uData.coins + item.value;
+
+        //         const editC = await UserData.update({ coins: newtotal }, { where: [{ userid: interaction.user.id }] });
+        //         if (editC) {
+        //             console.log('COINS UPDATED!');
+        //             console.log('Item sold! You gained: ', item.value);
+
+        //             const soldEmbed = {
+        //                 title: 'Item Sold!',
+        //                 color: 0000,
+        //                 fields: [{
+        //                     name: 'You gained: ', value: `${item.value}c`,
+        //                 }],
+        //             };
+
+        //             await interaction.followUp({ embeds: [soldEmbed] }).then(async embedMsg => setTimeout(() => {
+        //                 embedMsg.delete();
+        //             }, 1000));
+
+        //             if (newA <= 0) {
+        //                 //no more items remove from table
+        //                 const newtot = uData.totitem - 1;
+        //                 const totalItem = UserData.update({ totitem: newtot }, { where: [{ userid: interaction.user.id }] });
+        //                 if (totalItem) console.log('TOTAL ITEM COUNT REDUCED!');
+
+        //                 const isGone = await LootStore.destroy({ where: [{ name: item.name }, { spec_id: interaction.user.id }] });
+        //                 if (isGone) console.log('ITEM REMOVED FROM TABLE');
+        //             } else { }//do nothing
+        //             return;
+        //         }
+
+        //     } else { }//something went wrong
+
+        // }
+
+        // async function grabU() {
+        //     uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+        //     //console.log(uData);
+        //     return uData;
+        // }
 	},
 
 };
