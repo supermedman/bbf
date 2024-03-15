@@ -182,7 +182,7 @@ module.exports = {
 							if (strLength === grabbedMTA.toString()) {
 								//console.log(successResult('finalFields Values: ', finalFields));
 
-								let embedColour = 0000;
+								let embedColour = 0o0;
 								if (bpSlice[0].Rar_id) {
 									embedColour = await grabColour(bpSlice[0].Rar_id, false);
 								}
@@ -344,7 +344,7 @@ module.exports = {
 							if (strLength === grabbedMTAP.toString()) {
 								//console.log(successResult('finalFields Values: ', finalFieldsP));
 
-								let embedColour = 0000;
+								let embedColour = 0o0;
 								if (bpSliceP[0].Rar_id) {
 									embedColour = await grabColour(bpSliceP[0].Rar_id, false);
 								}
@@ -508,7 +508,7 @@ module.exports = {
 							if (strLength === grabbedMTA.toString()) {
 								//console.log(successResult('finalFields Values: ', finalFields));
 
-								let embedColour = 0000;
+								let embedColour = 0o0;
 								if (bpSlice[0].Rar_id) {
 									embedColour = await grabColour(bpSlice[0].Rar_id);
 								}
@@ -1026,7 +1026,7 @@ module.exports = {
 								console.log(successResult('All materials passed checks, adding embed to crafting list'));
 								const embed = {
 									title: `${grabbedNameP}`,
-									color: 0000,
+									color: 0o0,
 									description: `**${grabbedDescriptionP}** \n${listedDefaultsP}`,
 									fields: finalFieldsP,
 								};
@@ -1422,7 +1422,7 @@ module.exports = {
 
 				const equipEmbed = new EmbedBuilder()
 					.setTitle('~GEAR CREATED~')
-					.setColor(0000)
+					.setColor(0o0)
 					.addFields({
 						name: `${theEquip.name}`, value: list,
 					});
@@ -1478,7 +1478,7 @@ module.exports = {
 
 				const toolEmbed = new EmbedBuilder()
 					.setTitle('~TOOL CREATED~')
-					.setColor(0000)
+					.setColor(0o0)
 					.addFields({
 						name: `${theTool.name}`, value: list,
 					});

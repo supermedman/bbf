@@ -32,16 +32,11 @@ module.exports = {
 
 			choices = ["level", "coins", "total items", "qts", "total kills", "highest life kills", "total perk points"];
 
-			if (focusedValue) {
-				console.log(choices);
-				console.log(focusedValue);
-
-				//Mapping the complete list of options for discord to handle and present to the user
-				const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-				await interaction.respond(
-					filtered.map(choice => ({ name: choice, value: choice })),
-				);
-			}
+			//Mapping the complete list of options for discord to handle and present to the user
+			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+			await interaction.respond(
+				filtered.map(choice => ({ name: choice, value: choice })),
+			);
 		}
     },
 	async execute(interaction) { 
@@ -134,7 +129,7 @@ module.exports = {
 				console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} ranking user: ${rankedUser.username} value ${rankedUser[`${whereValue}`]}`));
 
 				embedFieldName = `**RANK ${((userPos + 1))}**`;
-				embedFieldValue = `Name: ${rankedUser.username}\n${whereValue}: ${rankedUser[`${whereValue}`]}`;
+				embedFieldValue = `Name: **${rankedUser.username}**\n${whereValue}: **${rankedUser[`${whereValue}`]}**`;
 
 				embedFieldObj = { name: embedFieldName.toString(), value: embedFieldValue.toString(), };
 				finalFields.push(embedFieldObj);
@@ -142,8 +137,8 @@ module.exports = {
             }
 
 			const embed = {
-				title: `Top 10, RANKED BY ${displayWhereValue}`,
-				color: 0000,
+				title: `~Top 10, RANKED BY ${displayWhereValue}~`,
+				color: 0o0,
 				fields: finalFields,
 			};
 
