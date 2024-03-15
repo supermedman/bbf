@@ -677,6 +677,13 @@ module.exports = {
 		}
 
 		if (interaction.options.getSubcommand() === 'available') {
+			// Simplify nearly all code here
+			// String select menu for Blueprint categories
+			// Load bluey as full material object
+			// Use matObj to calc if more than one can be made
+			// Only have as option for none unqiue bluey
+
+
 			if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
 			await interaction.deferReply();
 			//View ONLY blueprints ready for crafting
