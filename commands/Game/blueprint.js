@@ -1239,7 +1239,7 @@ module.exports = {
 				let blueyReady = true;
 				const matTypeAmount = blueyFab.MaterialTypeAmount;
 				for (let matPos = 0; matPos < matTypeAmount; matPos++){
-					const matOwnedCheck = userMaterials.filter(mat => mat.name === blueyFab[`Material${(matPos + 1)}`] && mat.amount >= blueyFab[`Material${(matPos + 1)}_Amount`]);
+					const matOwnedCheck = userMaterials.filter(mat => mat.name === blueyFab[`Material${(matPos + 1)}`] && mat.amount >= (blueyFab[`Material${(matPos + 1)}_Amount`] * amount));
 					if (matOwnedCheck.length !== 1) {
 						blueyReady = false;
 						break;
