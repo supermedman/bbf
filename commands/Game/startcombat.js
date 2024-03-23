@@ -996,7 +996,7 @@ module.exports = {
                 const filterHeal = aCATE.filter(effect => effect.Name === 'Healing');
                 const healAmount = filterHeal[0][`${potion.name}`];
                 let newHealth;
-                if (healAmount <= 0) return;
+                if (healAmount <= 0) return "No Heal";
                 appliedEffect = 0;
                 const totalHealth = 100 + (player.str * 10);
                 if (player.health === totalHealth) return await interaction.followUp('You are already at maximum health!!');
