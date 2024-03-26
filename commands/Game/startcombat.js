@@ -238,9 +238,9 @@ module.exports = {
             const activeEffect = await ActiveStatus.findOne({ where: { spec_id: userID } });
             if (!activeEffect) { } else {
                 const reinEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Reinforce' }, { duration: { [Op.gt]: 0 } }] });
-                if (reinEffects > 0) player.updateDefence(reinEffects);
+                if (reinEffects > 0) curPlayer.updateDefence(reinEffects);
                 const tonEffects = await ActiveStatus.findAll({ where: [{ spec_id: userID }, { activec: 'Tons' }, { duration: { [Op.gt]: 0 } }] });
-                if (tonEffects > 0) player.updateUPs(tonEffects);
+                if (tonEffects > 0) curPlayer.updateUPs(tonEffects);
             }
 
             //userCombat.set(interaction.user.id, curPlayer);
