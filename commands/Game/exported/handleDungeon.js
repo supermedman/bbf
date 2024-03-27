@@ -1352,7 +1352,7 @@ async function handleCombat(player, enemy, interaction, userSpecEEFilter, bossCo
             if ((player.health + healAmount) > totalHealth) {
                 newHealth = totalHealth;
             } else newHealth = player.health + healAmount;
-            player.healthHealth(newHealth);
+            player.health = newHealth;
             await interaction.followUp(`Healing potion used. Healed for: ${healAmount}\nCurrent Health: ${player.health}`);
         }
         if (potion.activecategory === 'Reinforce') {
