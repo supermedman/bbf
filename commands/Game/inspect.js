@@ -3,6 +3,7 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discor
 const { UserData, UniqueCrafted, Loadout, Pigmy } = require('../../dbObjects.js');
 
 const {findChestSlot, findHelmSlot, findLegSlot, findMainHand, findOffHand, findPotion} = require('../Game/exported/findLoadout.js');
+const {userDamageLoadout} = require('../Game/exported/dealDamage.js');
 
 const Canvas = require('@napi-rs/canvas');
 
@@ -202,7 +203,7 @@ module.exports = {
             const attachment = new AttachmentBuilder(await canvas.encode('png'), {name: 'user-display.png'});
             return await interaction.reply({files: [attachment]});
         } else if (interaction.options.getString('style') === 'oldView'){
-            await interaction.deferUpdate();
+            await interaction.deferReply();
 
             const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
             if (!currentLoadout) return interaction.followUp('You have not equipped anything yet! Use ``/equip < Loadout-Slot > < Item-Name >`` to equip something, dont forget to start the word with a CAPITAL LETTER!');
