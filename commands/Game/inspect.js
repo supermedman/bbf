@@ -6,6 +6,9 @@ const Canvas = require('@napi-rs/canvas');
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
 
+const lootList = require('../../events/Models/json_prefabs/lootList.json');
+const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
+
 const UI = [
 	'./events/Models/json_prefabs/image_extras/user-inspect/gold-frame-menu.png',
 	'./events/Models/json_prefabs/image_extras/user-inspect/silver-frame-menu.png'
