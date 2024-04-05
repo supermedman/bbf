@@ -136,7 +136,7 @@ module.exports = {
 			let allQuests;
 			if (lastQuest === userMilestone.nextstoryquest) {
 				allQuests = normalQuests;
-			} else allQuests = normalQuests.prepend(nextQuest);
+			} else allQuests = normalQuests.unshift(nextQuest);
 
 			let embedPages = [];
 			let questCount = 1;
