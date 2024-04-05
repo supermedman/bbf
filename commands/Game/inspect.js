@@ -3,10 +3,6 @@ const { UserData, UniqueCrafted, Loadout, Pigmy } = require('../../dbObjects.js'
 
 const Canvas = require('@napi-rs/canvas');
 
-//const { userDamageLoadout } = require('./exported/dealDamage.js');
-const { grabColour } = require('./exported/grabRar.js');
-//const { findHelmSlot, findChestSlot, findLegSlot, findMainHand, findOffHand, findPotion } = require('./exported/findLoadout.js');
-
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
 
