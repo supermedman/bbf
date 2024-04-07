@@ -161,7 +161,7 @@ module.exports = {
                 }
             }
 
-            const finalProcDamage = procDamage - totalDamage;
+            const finalProcDamage = Math.round(procDamage - totalDamage);
 
             const lineSpacing = 30;
             let currentPosition = 615;
