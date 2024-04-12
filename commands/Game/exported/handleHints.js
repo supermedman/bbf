@@ -212,7 +212,7 @@ async function checkHintStoryQuest(user, interaction) {
 
     if (userHints.storyquest_hint === true) return;
 
-    await interaction.channel.send('You should try going on the quest ``Raid Kreylas hideaway``, after that check the last page of quests for the next story quest :)');
+    await interaction.channel.send('You should try going on the quest ``Krelya\'s Cultist Hideaway``, after that check the last page of quests for the next story quest :)');
     await UserHints.update({ storyquest_hint: true }, { where: { spec_id: user.userid } });
     return;
 }

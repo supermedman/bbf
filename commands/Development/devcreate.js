@@ -2,7 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, ActionRowBuilder, 
 
 const Canvas = require('@napi-rs/canvas');
 
-const {UserData} = require('../../dbObjects.js');
+const {UserData, UniqueCrafted, Loadout, Pigmy} = require('../../dbObjects.js');
 
 const {NPC} = require('../Game/exported/MadeClasses/NPC');
 const {initialDialog} = require('../Game/exported/handleNPC.js');
@@ -10,7 +10,50 @@ const {createBigTile} = require('../Game/exported/createTile.js');
 
 //const HBimg = require('../../events/Models/json_prefabs/image_extras/healthbar.png');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
+const lootList = require('../../events/Models/json_prefabs/lootList.json');
+const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
+const { grabColour } = require('../Game/exported/grabRar.js');
+const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
 
+const UI = [
+	'./events/Models/json_prefabs/image_extras/user-inspect/gold-frame-menu.png',
+	'./events/Models/json_prefabs/image_extras/user-inspect/silver-frame-menu.png'
+];
+
+const preLoadImages = async (loadingGroup) => {
+    let returnArr = [];
+    for (const item of loadingGroup) {
+        const loadedImg = await Canvas.loadImage(item);
+        returnArr.push(loadedImg);
+    }
+    return returnArr;
+};
+
+/**
+ * This method locates gear refs using given loot ids, to be used for displays
+ * @param {string} userID Users id for locating crafted gear
+ * @param {any[]} gear Array of loot ids to be used for searching
+ */
+const loadLoadout = async (userID, gear) => {
+	const returnArr = [];
+	for (const id of gear){
+		let itemRef;
+		if (id === 0) {itemRef = "None";} else if (id >= 30000){
+			//Crafted
+			itemRef = await UniqueCrafted.findOne({where: {spec_id: userID, loot_id: id}});
+		} else if (id < 1000 || id >= 20000){
+			//Normal or special
+			itemRef = lootList.filter(item => item.Loot_id === id);
+			itemRef = itemRef[0];
+		} else if (id > 1000){
+			//Unique
+			itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+			itemRef = itemRef[0];
+		}
+		returnArr.push(itemRef);
+	}
+	return returnArr;
+};
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -39,7 +82,11 @@ module.exports = {
 				.addStringOption(option =>
 					option.setName('local-biome')
 						.setDescription('Would you like choose a biome?')
-						.setAutocomplete(true))),
+						.setAutocomplete(true)))
+		.addSubcommand(subcommand =>
+			subcommand
+				.setName('player-inspect')
+				.setDescription('Canvas Testing for inspect based display')),
 	async autocomplete(interaction) { 
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -195,6 +242,137 @@ module.exports = {
 					}
 				});
 			})
+		}
+
+		if (interaction.options.getSubcommand() === 'player-inspect'){
+			const canvas = Canvas.createCanvas(1000, 1000);
+			const ctx = canvas.getContext('2d');
+
+			const uiMenu = await preLoadImages(UI);
+
+			const userLoadout = await Loadout.findOne({where: {spec_id: interaction.user.id}});
+			let equippedGear = [userLoadout.headslot, userLoadout.chestslot, userLoadout.legslot, userLoadout.offhand, userLoadout.mainhand];
+			equippedGear = await loadLoadout(interaction.user.id, equippedGear);
+
+			const background = await Canvas.loadImage('./events/Models/json_prefabs/image_extras/user-inspect/static-background.jpg');
+			ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+			ctx.drawImage(uiMenu[0], 500, 0, 500, 500);
+			ctx.drawImage(uiMenu[1], 500, 500, 500, 500);
+
+			ctx.fillStyle = 'White';
+			ctx.font = '30px sans-serif';
+
+			ctx.fillText('Equipped', 690, 35);
+			ctx.fillText('Damage Stats', 658, 535);
+
+			ctx.font = '25px sans-serif';
+
+			const itemTextList = ['Helm: ', 'Chest: ', 'Legs: ', 'Offhand: ', 'Mainhand: '];
+
+			let pxCollector = 90;
+			for (let i = 0; i < 5; i++) {
+				ctx.fillStyle = (equippedGear[i] === "None") ? 'Grey' : await grabColour(equippedGear[i].Rar_id ?? equippedGear[i].rar_id, true);
+				const textToDisplay = (equippedGear[i] === "None") ? itemTextList + "None" : itemTextList[i] + equippedGear[i].Name ?? equippedGear[i].name;
+				ctx.fillText(textToDisplay, 565, pxCollector);
+				pxCollector += 25;
+				const typeToDisplay = (equippedGear[i] === "None") ? "Type: None" : "Type: " + equippedGear[i].Type ?? equippedGear[i].type;
+				ctx.fillText(typeToDisplay, 565, pxCollector);
+				pxCollector += 40;
+			}
+
+			let totalDamage = 0, totalDefence = 0, loadoutTypes = [];
+
+			for (const item of equippedGear){
+				if (item.Attack || item.attack) totalDamage += item.Attack ?? item.attack;
+				if (item.Defence || item.defence) totalDefence += item.Defence ?? item.defence;
+				if (item !== "None") loadoutTypes.push(item.Type ?? item.type);
+			}
+
+			const user = await UserData.findOne({where: {userid: interaction.user.id}});
+			const playerDamage = (user.intelligence * 8) + (user.strength * 2);
+
+			const pigmy = await Pigmy.findOne({where: {spec_id: user.userid}});
+			const pigmyBuffs = (pigmy) ? pigmyTypeStats(pigmy) : "None";
+			const pigmyBaseDamage = (pigmyBuffs !== "None") ? pigmyBuffs.pigmyDmg : 0;
+			const pigmyAddDamage = (pigmyBuffs !== "None") ? ((pigmyBuffs.int * 8) + (pigmyBuffs.str * 2)) : 0;
+
+			let strongList = [], baseMod = 0, baseModDamage = 0;
+			switch(user.pclass){
+				case "Mage":
+					strongList = ['magic', 'fire', 'frost', 'light', 'dark'];
+					baseMod = 0.15;
+				break;
+				case "Thief":
+					strongList = ['slash', 'dark'];
+				break;
+				case "Warrior":
+					strongList = ['slash', 'blunt', 'fire'];
+					baseMod = 0.05;
+				break;
+				case "Paladin":
+					strongList = ['null', 'blunt', 'rad'];
+					baseMod = -0.05;
+				break;
+			}
+			strongList.push('spirit', 'pain', 'chaos');
+			baseModDamage = playerDamage;
+			baseModDamage = baseModDamage + playerDamage * baseMod;
+
+			const proxTimes = loadoutTypes.filter(type => {
+				if (strongList.some(strong => type.toLowerCase() === strong)) {
+					return true;
+				} else return false;
+			});
+
+			let procDamage = totalDamage;
+			if (proxTimes.length > 0) {
+				for (let i = 0; i < proxTimes.length; i++) {
+					procDamage += procDamage * 0.65;
+				}
+			}
+
+			const finalProcDamage = procDamage - totalDamage;
+
+			const lineSpacing = 30;
+			let currentPosition = 615;
+
+			ctx.fillStyle = 'White';
+			// Base Player Damage
+			ctx.fillText('Base Player Damage: ' + `${playerDamage}`, 565, currentPosition);
+			currentPosition += lineSpacing;
+
+			// Damage modified by Player Class
+			ctx.fillText('Player Class Modifier: ' + `${baseModDamage}`, 565, currentPosition);
+			currentPosition += lineSpacing;
+
+			// Base Pigmy Damage
+			ctx.fillText('Base Pigmy Damage: ' + `${pigmyBaseDamage}`, 565, currentPosition);
+			currentPosition += lineSpacing;
+
+			// Additive Pigmy Stat Damage
+			ctx.fillText('Additional Pigmy Buff Damage: ' + `${pigmyAddDamage}`, 565, currentPosition);
+			currentPosition += lineSpacing;
+
+			// Total Item Damage
+			ctx.fillText('Total Item Damage: ' + `${totalDamage}`, 565, currentPosition);
+			currentPosition += lineSpacing;
+
+			// Damage modified by Strong Using
+			ctx.fillText('Strong Type Increase: ' + `${finalProcDamage}`, 565, currentPosition); //ctx.fillText('Strong Using These Types: ' + strongList.toString(), 565, currentPosition);
+			currentPosition += lineSpacing;
+			currentPosition += lineSpacing;
+			
+			// Final Total Damage Dealt 
+			const finalDamageDisplay = baseModDamage + totalDamage + pigmyBaseDamage + pigmyAddDamage + finalProcDamage;
+			ctx.fillText('Final Total Damage: ' + `${finalDamageDisplay}`, 565, currentPosition);
+			currentPosition += lineSpacing;
+
+			// Total Item Defence
+			ctx.fillText('Total Item Defence: ' + `${totalDefence}`, 565, currentPosition);
+
+			const attachment = new AttachmentBuilder(await canvas.encode('png'), {name: 'user-display.png'});
+			return await interaction.reply({files: [attachment]});
 		}
 	},
 };

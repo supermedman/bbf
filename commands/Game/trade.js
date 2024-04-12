@@ -661,12 +661,8 @@ module.exports = {
 				async function payOut(listedValue, fromUser) {
 					const user = await UserData.findOne({ where: { userid: fromUser.id } });
 
-					const newTotal = user.coins + listedValue;
-
-					console.log('User getting paid: ', user.dataValues);
-
-					const tableUpdate = await UserData.update({ coins: newTotal }, { where: { userid: user.userid } });
-					if (tableUpdate > 0) return 'Paid';
+					const inc = await user.increment('coins', {by: listedValue});
+					if (inc) return 'Paid';
 				}
 
 				/**
@@ -677,12 +673,8 @@ module.exports = {
 				async function payUp(listedValue, toUser) {
 					const user = await UserData.findOne({ where: { userid: toUser.id } });
 
-					const newTotal = user.coins - listedValue;
-
-					console.log('User paying: ', user.dataValues);
-
-					const tableUpdate = await UserData.update({ coins: newTotal }, { where: { userid: user.userid } });
-					if (tableUpdate > 0) return 'Paid';
+					const dec = await user.decrement('coins', {by: listedValue});
+					if (dec) return 'Paid';
 				}
 
 				

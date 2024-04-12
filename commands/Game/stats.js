@@ -94,7 +94,7 @@ module.exports = {
 
                     const userDisplayEmbed = new EmbedBuilder()
                         .setTitle(`Requested Stats for:`)
-                        .setColor(0000)
+                        .setColor(0o0)
                         .addFields(
                             {
                                 name: (`${uData.username}`),
@@ -122,7 +122,7 @@ module.exports = {
 
                 const userDisplayEmbed = {
                     title: `Requested Stats for: `,
-                    color: 0000,
+                    color: 0o0,
                     fields: [{
                         name: `${uData.username}`,
                         value: list,
@@ -164,7 +164,7 @@ module.exports = {
 
                     const embed = {
                         title: `Active Status Effects: Page ${(curRun + 1)}`,
-                        color: 0000,
+                        color: 0o0,
                         fields: finalFields,
                     };
 
@@ -272,7 +272,7 @@ module.exports = {
                 }
                 const skillDisplayEmbed = new EmbedBuilder()
                     .setTitle(`Specific stat info`)
-                    .setColor(0000)
+                    .setColor(0o0)
                     .addFields(
                         {
                             name: (`=== ${skill} ===`),

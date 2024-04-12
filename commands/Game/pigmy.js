@@ -827,7 +827,7 @@ module.exports = {
 				let foundRar = 0;
 				let bpFiltered = blueprintList.filter(bluey => bluey.Name === userPigmy.toy);
 				if (bpFiltered.length <= 0) bpFiltered = bpFiltered.filter(bluey => bluey.Name === userPigmy.hat);
-				foundRar = bpFiltered[0].Rar_id;
+				foundRar = (bpFiltered.length <= 0) ? 0 : bpFiltered[0].Rar_id;
 				fillColourEquip = await grabColour(foundRar, true);// This will be updated to include varying rarids from titles
 				context.fillStyle = `${fillColourEquip}`;
 				//=====================================
