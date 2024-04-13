@@ -141,6 +141,10 @@ module.exports = {
             ["++","+","+","+","+","+","+","+","+","++", "---"],
         ];
 
+        const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
+        const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
+        const shieldTypes = ["Phase Demon", "Phase Aura", "Plot Armor"];
+
         const subcomGroup = interaction.options.getSubcommandGroup();
         const subcom = interaction.options.getSubcommand();
 
@@ -174,9 +178,11 @@ module.exports = {
                         console.log(`Slot: ${slot}\nRarity: ${rarity}\nDismantle Into: ${disTypes.toString()}\nDamage Values: ${dmgTypes.map(item => `\nType: ${item.Type}\nDamage: ${item.DMG}`)}`);
                         console.log('Number of trial runs requested: %d', trialRuns);
 
-                        const result = runCombatInstance(dmgTypes, enemyHPTypes);
+                        const moddedVals = typeMatchCheck(dmgTypes, enemyHPTypes);
 
-                        console.log(result);
+                        const result = runCombatInstance(moddedVals, enemyHPTypes);
+
+                        console.log(moddedVals);
                     break;
                 }
             break;
@@ -193,11 +199,207 @@ module.exports = {
 
         /**
          * 
+         * @param {Object[]} combatVals Object array of Damage & HP {Type: String, Dmg: Integer, Against: {Type: String, HP: Integer}}
+         * @param {Object[]} hpBase Object array of HP {Type: String, HP: Integer}
+         * @returns Array of table matches useable for damage value modifications
+         */
+        function runCombatInstance(combatVals, hpBase){
+            // Damage values modded based on type matches
+            // HP takes damage: Shield > Armor > Flesh
+            // Use .indexOf() foreach damage instance, if -1 skip, else add in order found in static array
+            const orderedHPLevel = {
+                Shield: [],
+                Armor: [],
+                Flesh: []
+            };
+            for (const HP_INST of hpBase){
+                if (shieldTypes.indexOf(HP_INST.Type) !== -1) {
+                    orderedHPLevel.Shield.push(HP_INST);
+                } else if (armorTypes.indexOf(HP_INST.Type) !== -1) {
+                    orderedHPLevel.Armor.push(HP_INST);
+                } else if (fleshTypes.indexOf(HP_INST.Type) !== -1) {
+                    orderedHPLevel.Flesh.push(HP_INST);
+                } 
+            }
+
+            if (orderedHPLevel.Shield.length <= 0) orderedHPLevel.Shield.push('None');
+            if (orderedHPLevel.Armor.length <= 0) orderedHPLevel.Armor.push('None');
+            if (orderedHPLevel.Flesh.length <= 0) orderedHPLevel.Flesh.push('None');
+
+            console.log(orderedHPLevel);
+            
+
+            // Find highest matchup against top most HP level
+            const againstShield = (orderedHPLevel.Shield[0] !== 'None') ? combatVals.filter(dmg => { 
+                if (orderedHPLevel.Shield.some(hp => dmg.Against.Type === hp.Type)) {
+                    return true;
+                } else return false;
+            }).sort((a, b) => {
+                if (a.DMG < b.DMG) return 1;
+                if (a.DMG > b.DMG) return -1;
+                return 0;
+            }) : 'None';
+            const totalShieldDMG = (againstShield !== 'None') ? againstShield.reduce((total, obj) => total + obj.DMG, 0) : 0;
+            const totalShieldHP = (againstShield !== 'None') ? orderedHPLevel.Shield.reduce((total, obj) => total + obj.HP, 0) : 0;
+            console.log(againstShield);
+            console.log(totalShieldDMG);
+            console.log(totalShieldHP);
+
+            const againstArmor = (orderedHPLevel.Armor[0] !== 'None') ? combatVals.filter(dmg => { 
+                if (orderedHPLevel.Armor.some(hp => dmg.Against.Type === hp.Type)) {
+                    return true;
+                } else return false;
+            }).sort((a, b) => {
+                if (a.DMG < b.DMG) return 1;
+                if (a.DMG > b.DMG) return -1;
+                return 0;
+            }) : 'None';
+            const totalArmorDMG = (againstArmor !== 'None') ? againstArmor.reduce((total, obj) => total + obj.DMG, 0) : 0;
+            const totalArmorHP = (againstArmor !== 'None') ? orderedHPLevel.Armor.reduce((total, obj) => total + obj.HP, 0) : 0;
+            console.log(againstArmor);
+            console.log(totalArmorDMG);
+            console.log(totalArmorHP);
+
+            const againstFlesh = (orderedHPLevel.Flesh[0] !== 'None') ? combatVals.filter(dmg => { 
+                if (orderedHPLevel.Flesh.some(hp => dmg.Against.Type === hp.Type)) {
+                    return true;
+                } else return false;
+            }).sort((a, b) => {
+                if (a.DMG < b.DMG) return 1;
+                if (a.DMG > b.DMG) return -1;
+                return 0;
+            }) : 'None';
+            const totalFleshDMG = (againstFlesh !== 'None') ? againstFlesh.reduce((total, obj) => total + obj.DMG, 0) : 0;
+            const totalFleshHP = (againstFlesh !== 'None') ? orderedHPLevel.Flesh.reduce((total, obj) => total + obj.HP, 0) : 0;
+            console.log(againstFlesh);
+            console.log(totalFleshDMG);
+            console.log(totalFleshHP);
+            
+            let combatEnd = false;
+
+            // Single Combat loop dealing damage 
+            // Multiple checks need to be made
+                // 1. Is arr[0].dmg >= Shield HP
+                //      - If === Remove Shield entry && arr[0].dmg entry
+                //      - If dmg > Shield, remove shield and subtract from arr[0].dmg expended amount
+                // 2. Is arr total dmg >= Shield HP
+                //      - If === Remove Shield entry && all dmg, causing end of current turn
+                //      - If tot dmg > Shield, remove shield and all depleated dmg vals, subtract expended amount from remaining dmg entries
+                // 3. Shield HP is > total dmg dealt and remains
+                //      - Subtract from shield dmg dealt, end of current turn
+            //=============================
+            // STILL NEEDED:
+            // DAMAGE CARRY OVER CHECK FOR PREVENTING EXTRA DAMAGE TO BUILD UP ACROSS HP TYPES/DAMAGE LOST IN THE SAME WAY
+            // Shields 
+            let shieldBrake = (againstShield !== 'None') ? false : true;
+            if (!shieldBrake) {
+                let shieldsLeft = totalShieldHP;
+                if (totalShieldDMG >= totalShieldHP){
+                    
+                    // Shield Break
+                    for (const dmgObj of againstShield){
+                        if (dmgObj.DMG > shieldsLeft){
+                            // damage checked is greater than current shield value
+                            dmgObj.DMG -= shieldsLeft;
+                            shieldsLeft = 0;
+                            shieldBrake = true;
+                            break;
+                        } else if (dmgObj.DMG === shieldsLeft) {
+                            // damage checked is equal to current shield value
+                            dmgObj.spent = true;
+                            shieldsLeft = 0;
+                            shieldBrake = true;
+                            break;
+                        } else {
+                            // damage checked is less than current shield value
+                            dmgObj.spent = true;
+                            shieldsLeft -= dmgObj.DMG;
+                        }
+                    }
+                } else {
+                    // Shield Remains
+                    // Combat turn ends subtracting dmg dealt from shields
+                    shieldsLeft -= totalShieldDMG;
+                    combatEnd = true;
+                }
+                console.log('Shields Left: %d', shieldsLeft);
+            }
+            // Armor 
+            let armorBrake = (againstArmor !== 'None') ? false : true;
+            if (!armorBrake){
+                let armorLeft = totalArmorHP;
+                if (totalArmorDMG >= totalArmorHP){
+                    // Armor Break
+                    for (const dmgObj of againstArmor){
+                        if (dmgObj.DMG > armorLeft){
+                            // damage checked is greater than current armor value
+                            dmgObj.DMG -= armorLeft;
+                            armorLeft = 0;
+                            armorBrake = true;
+                            break;
+                        } else if (dmgObj.DMG === armorLeft) {
+                            // damage checked is equal to current armor value
+                            dmgObj.spent = true;
+                            armorLeft = 0;
+                            armorBrake = true;
+                            break;
+                        } else {
+                            // damage checked is less than current armor value
+                            dmgObj.spent = true;
+                            armorLeft -= dmgObj.DMG;
+                        }
+                    }
+                } else {
+                    // Armor Remains
+                    // Combat turn ends subtracting dmg dealt from armor
+                    armorLeft -= totalArmorDMG;
+                    combatEnd = true;
+                }
+                console.log('Armor Left: %d', armorLeft);
+            }
+            // Flesh 
+            let dead = (againstFlesh !== 'None') ? false : true;
+            if (!dead){
+                let hpLeft = totalFleshHP;
+                if (totalFleshDMG >= totalFleshHP){
+                    // HP Depleted enemy is dead
+                    for (const dmgObj of againstFlesh){
+                        if (dmgObj.DMG > hpLeft){
+                            // damage checked is greater than current base hp value
+                            dmgObj.DMG -= hpLeft;
+                            hpLeft = 0;
+                            dead = true;
+                            break;
+                        } else if (dmgObj.DMG === hpLeft) {
+                            // damage checked is equal to current base hp value
+                            dmgObj.spent = true;
+                            hpLeft = 0;
+                            dead = true;
+                            break;
+                        } else {
+                            // damage checked is less than current base hp value
+                            dmgObj.spent = true;
+                            hpLeft -= dmgObj.DMG;
+                        }
+                    }
+                } else {
+                    // HP Remains
+                    // Combat turn ends subtracting dmg dealt from HP
+                    hpLeft -= totalFleshDMG;
+                    combatEnd = true;
+                }
+                console.log('Base HP Left: %d', hpLeft);
+            }
+            //=============================
+        }
+
+        /**
+         * 
          * @param {Object[]} dmgBase Object array of Damage {Type: String, Dmg: Integer}
          * @param {Object[]} hpBase Object array of HP {Type: String, HP: Integer}
          * @returns Array of table matches useable for damage value modifications
          */
-        function runCombatInstance(dmgBase, hpBase){
+        function typeMatchCheck(dmgBase, hpBase){
             // First find index matchup for each dmg Instance against each HP instance 
             const matchedLookups = [];
             for (const DMG_INST of dmgBase){
