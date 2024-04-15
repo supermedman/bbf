@@ -290,33 +290,21 @@ module.exports = {
             
 
             // Find highest matchup against top most HP level
-            const againstShield = (orderedHPLevel.Shield[0] !== 'None') ? combatVals.filter(dmg => { 
-                if (orderedHPLevel.Shield.some(hp => dmg.Against.Type === hp.Type)) {
-                    return true;
-                } else return false;
-            }).sort((a, b) => { a.DMG - b.DMG; }) : 'None';
+            const againstShield = (orderedHPLevel.Shield[0] !== 'None') ? combatVals.filter(dmg => { return orderedHPLevel.Shield.some(hp => dmg.Against.Type === hp.Type); }).sort((a, b) => { return a.DMG - b.DMG; }) : 'None';
             const totalShieldDMG = (againstShield !== 'None') ? againstShield.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalShieldHP = (againstShield !== 'None') ? orderedHPLevel.Shield.reduce((total, obj) => total + obj.HP, 0) : 0;
             // console.log(againstShield);
             // console.log(totalShieldDMG);
             // console.log(totalShieldHP);
 
-            const againstArmor = (orderedHPLevel.Armor[0] !== 'None') ? combatVals.filter(dmg => { 
-                if (orderedHPLevel.Armor.some(hp => dmg.Against.Type === hp.Type)) {
-                    return true;
-                } else return false;
-            }).sort((a, b) => { a.DMG - b.DMG; }) : 'None';
+            const againstArmor = (orderedHPLevel.Armor[0] !== 'None') ? combatVals.filter(dmg => { return orderedHPLevel.Armor.some(hp => dmg.Against.Type === hp.Type); }).sort((a, b) => { return a.DMG - b.DMG; }) : 'None';
             const totalArmorDMG = (againstArmor !== 'None') ? againstArmor.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalArmorHP = (againstArmor !== 'None') ? orderedHPLevel.Armor.reduce((total, obj) => total + obj.HP, 0) : 0;
             // console.log(againstArmor);
             // console.log(totalArmorDMG);
             // console.log(totalArmorHP);
 
-            const againstFlesh = (orderedHPLevel.Flesh[0] !== 'None') ? combatVals.filter(dmg => { 
-                if (orderedHPLevel.Flesh.some(hp => dmg.Against.Type === hp.Type)) {
-                    return true;
-                } else return false;
-            }).sort((a, b) => { a.DMG - b.DMG; }) : 'None';
+            const againstFlesh = (orderedHPLevel.Flesh[0] !== 'None') ? combatVals.filter(dmg => { return orderedHPLevel.Flesh.some(hp => dmg.Against.Type === hp.Type); }).sort((a, b) => { return a.DMG - b.DMG; }) : 'None';
             const totalFleshDMG = (againstFlesh !== 'None') ? againstFlesh.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalFleshHP = (againstFlesh !== 'None') ? orderedHPLevel.Flesh.reduce((total, obj) => total + obj.HP, 0) : 0;
             // console.log(againstFlesh);
