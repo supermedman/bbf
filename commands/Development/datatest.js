@@ -164,7 +164,7 @@ module.exports = {
                             },
                             {
                                 Type: "Armor",
-                                HP: 10,
+                                HP: 25,
                             }
                         ];
 
@@ -182,7 +182,7 @@ module.exports = {
 
                         const result = runCombatInstance(moddedVals, enemyHPTypes);
 
-                        console.log(moddedVals);
+                        //console.log(moddedVals);
                     break;
                 }
             break;
@@ -226,7 +226,7 @@ module.exports = {
             if (orderedHPLevel.Armor.length <= 0) orderedHPLevel.Armor.push('None');
             if (orderedHPLevel.Flesh.length <= 0) orderedHPLevel.Flesh.push('None');
 
-            console.log(orderedHPLevel);
+            //console.log(orderedHPLevel);
             
 
             // Find highest matchup against top most HP level
@@ -234,46 +234,34 @@ module.exports = {
                 if (orderedHPLevel.Shield.some(hp => dmg.Against.Type === hp.Type)) {
                     return true;
                 } else return false;
-            }).sort((a, b) => {
-                if (a.DMG < b.DMG) return 1;
-                if (a.DMG > b.DMG) return -1;
-                return 0;
-            }) : 'None';
+            }).sort((a, b) => { a.DMG - b.DMG; }) : 'None';
             const totalShieldDMG = (againstShield !== 'None') ? againstShield.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalShieldHP = (againstShield !== 'None') ? orderedHPLevel.Shield.reduce((total, obj) => total + obj.HP, 0) : 0;
-            console.log(againstShield);
-            console.log(totalShieldDMG);
-            console.log(totalShieldHP);
+            // console.log(againstShield);
+            // console.log(totalShieldDMG);
+            // console.log(totalShieldHP);
 
             const againstArmor = (orderedHPLevel.Armor[0] !== 'None') ? combatVals.filter(dmg => { 
                 if (orderedHPLevel.Armor.some(hp => dmg.Against.Type === hp.Type)) {
                     return true;
                 } else return false;
-            }).sort((a, b) => {
-                if (a.DMG < b.DMG) return 1;
-                if (a.DMG > b.DMG) return -1;
-                return 0;
-            }) : 'None';
+            }).sort((a, b) => { a.DMG - b.DMG; }) : 'None';
             const totalArmorDMG = (againstArmor !== 'None') ? againstArmor.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalArmorHP = (againstArmor !== 'None') ? orderedHPLevel.Armor.reduce((total, obj) => total + obj.HP, 0) : 0;
-            console.log(againstArmor);
-            console.log(totalArmorDMG);
-            console.log(totalArmorHP);
+            // console.log(againstArmor);
+            // console.log(totalArmorDMG);
+            // console.log(totalArmorHP);
 
             const againstFlesh = (orderedHPLevel.Flesh[0] !== 'None') ? combatVals.filter(dmg => { 
                 if (orderedHPLevel.Flesh.some(hp => dmg.Against.Type === hp.Type)) {
                     return true;
                 } else return false;
-            }).sort((a, b) => {
-                if (a.DMG < b.DMG) return 1;
-                if (a.DMG > b.DMG) return -1;
-                return 0;
-            }) : 'None';
+            }).sort((a, b) => { a.DMG - b.DMG; }) : 'None';
             const totalFleshDMG = (againstFlesh !== 'None') ? againstFlesh.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalFleshHP = (againstFlesh !== 'None') ? orderedHPLevel.Flesh.reduce((total, obj) => total + obj.HP, 0) : 0;
-            console.log(againstFlesh);
-            console.log(totalFleshDMG);
-            console.log(totalFleshHP);
+            // console.log(againstFlesh);
+            // console.log(totalFleshDMG);
+            // console.log(totalFleshHP);
             
             let combatEnd = false;
 
@@ -301,6 +289,7 @@ module.exports = {
                         if (dmgObj.DMG > shieldsLeft){
                             // damage checked is greater than current shield value
                             dmgObj.DMG -= shieldsLeft;
+                            dmgObj.used = true;
                             shieldsLeft = 0;
                             shieldBrake = true;
                             break;
@@ -324,8 +313,20 @@ module.exports = {
                 }
                 console.log('Shields Left: %d', shieldsLeft);
             }
+            let shieldDMGChanged = [];
+            if (againstShield !== 'None') {
+                shieldDMGChanged = againstShield.filter(obj => obj.used);
+                shieldDMGChanged = shieldDMGChanged[0];
+            
+                const shieldCarryChangeCheck = singleLookup(shieldDMGChanged);
+                //console.log(shieldCarryChangeCheck);
+
+                const checkFor = (ele) => ele.Type === shieldCarryChangeCheck.Type;
+                againstArmor[againstArmor.findIndex(checkFor)].DMG = shieldCarryChangeCheck.DMG;
+            }
+             
             // Armor 
-            let armorBrake = (againstArmor !== 'None') ? false : true;
+            let armorBrake = (againstArmor !== 'None' && !combatEnd) ? false : true;
             if (!armorBrake){
                 let armorLeft = totalArmorHP;
                 if (totalArmorDMG >= totalArmorHP){
@@ -334,6 +335,7 @@ module.exports = {
                         if (dmgObj.DMG > armorLeft){
                             // damage checked is greater than current armor value
                             dmgObj.DMG -= armorLeft;
+                            dmgObj.used = true;
                             armorLeft = 0;
                             armorBrake = true;
                             break;
@@ -357,8 +359,20 @@ module.exports = {
                 }
                 console.log('Armor Left: %d', armorLeft);
             }
+            let armorDMGChanged = [];
+            if (againstArmor !== 'None' && !combatEnd) {
+                armorDMGChanged = againstArmor.filter(obj => obj.used);
+                armorDMGChanged = armorDMGChanged[0];
+            
+                const armorCarryChangeCheck = singleLookup(armorDMGChanged);
+                //console.log(armorCarryChangeCheck);
+
+                const checkFor = (ele) => ele.Type === armorCarryChangeCheck.Type;
+                againstFlesh[againstFlesh.findIndex(checkFor)].DMG = armorCarryChangeCheck.DMG;
+            }
+
             // Flesh 
-            let dead = (againstFlesh !== 'None') ? false : true;
+            let dead = (againstFlesh !== 'None' && !combatEnd) ? false : true;
             if (!dead){
                 let hpLeft = totalFleshHP;
                 if (totalFleshDMG >= totalFleshHP){
@@ -367,6 +381,7 @@ module.exports = {
                         if (dmgObj.DMG > hpLeft){
                             // damage checked is greater than current base hp value
                             dmgObj.DMG -= hpLeft;
+                            dmgObj.used = true;
                             hpLeft = 0;
                             dead = true;
                             break;
@@ -390,7 +405,28 @@ module.exports = {
                 }
                 console.log('Base HP Left: %d', hpLeft);
             }
+            // const fleshDMGChanged = (againstFlesh !== 'None' && !combatEnd) ? againstFlesh.filter(obj => obj.used) : [];
+            // console.log(...fleshDMGChanged);
+
+            console.log(...againstShield);
+            console.log(...againstArmor);
+            console.log(...againstFlesh);
             //=============================
+        }
+
+        /**
+         * 
+         * @param {Object} dmgObj Damage Object containing HP values and dmg values
+         */
+        function singleLookup(dmgObj) {
+            const yLookup = rowMatch.indexOf(dmgObj.Type);
+            const xLookup = columnMatch.indexOf(dmgObj.Against.Type);
+
+            const modBY = damageModifier[damageKeyIndexer.indexOf(damageMatchTable[yLookup][xLookup])];
+
+            dmgObj.DMG = dmgObj.DMG + (dmgObj.DMG * modBY);
+
+            return dmgObj;
         }
 
         /**
