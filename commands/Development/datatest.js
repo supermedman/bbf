@@ -1,5 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
 
+const randArrPos = (arr) => {
+    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+};
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('datatest')
@@ -157,26 +161,82 @@ module.exports = {
                     case "simulation":
                         const trialRuns = interaction.options.getInteger('amount') ?? 1;
 
+                        let scaleMult = (level, HPStrIndex) => 1 + (level * (HPStrIndex/2 + 0.02));
+                        
+                        // Rand Gen Flesh HP
+                        const fleshHPRange = (level, HPType) => {
+                            const staticMin = 5;
+                            const staticMax = 25;
+
+                            const scaleBY = scaleMult(level, fleshTypes.indexOf(HPType));
+
+                            const finalFlesh = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin * scaleBY) + 1) + (staticMin * scaleBY));
+                            //console.log(finalFlesh);
+                            return finalFlesh;
+                        }
+
+                        // Rand Gen Armor HP
+                        const armorHPRange = (level, HPType) => {
+                            const staticMin = 0;
+                            const staticMax = 10;
+
+                            const scaleBY = scaleMult(level, armorTypes.indexOf(HPType));
+
+                            const finalArmor = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+                            //console.log(finalArmor);
+                            return finalArmor;
+                        }
+
+                        // Rand Gen Shield HP
+                        const shieldHPRange = (level, HPType) => {
+                            const staticMin = 0;
+                            const staticMax = 5;
+
+                            const scaleBY = scaleMult(level, shieldTypes.indexOf(HPType));
+
+                            const finalShield = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+                            return finalShield;
+                        }
+
+                        //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
+                        const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+
+                        // Initilize Flesh
+                        let enemyFlesh = {
+                            Type: randArrPos(fleshTypes)
+                        };
+                        enemyFlesh.HP = fleshHPRange(enemyLevel, enemyFlesh.Type);
+
+                        // Initilize Armor
+                        let enemyArmor = {
+                            Type: randArrPos(armorTypes)
+                        };
+                        enemyArmor.HP = armorHPRange(enemyLevel, enemyArmor.Type);
+
+                        // Initilize Shield
+                        let enemyShield = {
+                            Type: randArrPos(shieldTypes)
+                        };
+                        enemyShield.HP = shieldHPRange(enemyLevel, enemyShield.Type);
+
+                        // Load Enemy   
                         const enemyHPTypes = [
-                            {
-                                Type: "Flesh",
-                                HP: 100,
-                            },
-                            {
-                                Type: "Armor",
-                                HP: 25,
-                            }
+                            enemyFlesh, 
+                            enemyArmor,
+                            enemyShield
                         ];
+                        console.log("Enemy Spawned @ level: %d", enemyLevel);
+                        console.log(...enemyHPTypes);
 
                         const ITEM_CODE = "TYP_PAsp:25-SLph:10_typ-r00-DIS_SL-SI-WO_dis-HEslo-100001";
 
-                        const slot = checkingSlot(ITEM_CODE);
-                        const rarity = checkingRar(ITEM_CODE);
-                        const disTypes = checkingDismantle(ITEM_CODE);
+                        //const slot = checkingSlot(ITEM_CODE);
+                        //const rarity = checkingRar(ITEM_CODE);
+                        //const disTypes = checkingDismantle(ITEM_CODE);
                         const dmgTypes = checkingDamage(ITEM_CODE);
 
-                        console.log(`Slot: ${slot}\nRarity: ${rarity}\nDismantle Into: ${disTypes.toString()}\nDamage Values: ${dmgTypes.map(item => `\nType: ${item.Type}\nDamage: ${item.DMG}`)}`);
-                        console.log('Number of trial runs requested: %d', trialRuns);
+                        //console.log(`Slot: ${slot}\nRarity: ${rarity}\nDismantle Into: ${disTypes.toString()}\nDamage Values: ${dmgTypes.map(item => `\nType: ${item.Type}\nDamage: ${item.DMG}`)}`);
+                        //console.log('Number of trial runs requested: %d', trialRuns);
 
                         const moddedVals = typeMatchCheck(dmgTypes, enemyHPTypes);
 

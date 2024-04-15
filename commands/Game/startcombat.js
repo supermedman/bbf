@@ -1003,6 +1003,8 @@ module.exports = {
                 if ((player.health + healAmount) > totalHealth) {
                     newHealth = totalHealth;
                 } else newHealth = player.health + healAmount;
+                console.log('Player Health: ', player.health);
+                console.log('New Health: ', newHealth);
                 player.health = newHealth;
                 await interaction.followUp(`Healing potion used. Healed for: ${healAmount}\nCurrent Health: ${player.health}`);
             }
