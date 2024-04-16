@@ -1,7 +1,13 @@
 const { SlashCommandBuilder } = require('discord.js');
 
+const {chlkPreset} = require('../../chalkPresets.js');
+
 const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+};
+
+const inclusiveRandNum = (max, min) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
 module.exports = {
@@ -161,88 +167,35 @@ module.exports = {
                     case "simulation":
                         const trialRuns = interaction.options.getInteger('amount') ?? 1;
 
-                        let scaleMult = (level, HPStrIndex) => 1 + (level * (HPStrIndex/2 + 0.02));
+                        for (let i = 0; i < trialRuns; i++){
+                            console.log(chlkPreset.sInfoOne(`Current run: ${i}`));
+                            // Load Enemy   
+                            const enemyHPTypes = genEnemy();
+
+                            console.log(`Flesh Type: ${enemyHPTypes[0].Type}\nHP: ${enemyHPTypes[0].HP}\nArmor Type: ${enemyHPTypes[1].Type}\nHP: ${enemyHPTypes[1].HP}\nShield Type: ${enemyHPTypes[2].Type}\nHP: ${enemyHPTypes[2].HP}`);
+
+                            const gearMade = genGearPiece();
+                            console.log(gearMade);
+                            console.log(chlkPreset.bInfoOne('===== GEAR GEN END ====='));
+
+
+                            const ITEM_CODE = gearMade; //"TYP_PAsp:25-SLph:10_typ-r00-DIS_SL-SI-WO_dis-HEslo-100001";
+
+                            //const slot = checkingSlot(ITEM_CODE);
+                            //const rarity = checkingRar(ITEM_CODE);
+                            //const disTypes = checkingDismantle(ITEM_CODE);
+                            const dmgTypes = checkingDamage(ITEM_CODE);
+
+                            //console.log(`Slot: ${slot}\nRarity: ${rarity}\nDismantle Into: ${disTypes.toString()}\nDamage Values: ${dmgTypes.map(item => `\nType: ${item.Type}\nDamage: ${item.DMG}`)}`);
+                            //console.log('Number of trial runs requested: %d', trialRuns);
+
+                            const moddedVals = typeMatchCheck(dmgTypes, enemyHPTypes);
+
+                            const result = runCombatInstance(moddedVals, enemyHPTypes);
+
+                            //console.log(moddedVals);
+                        }
                         
-                        // Rand Gen Flesh HP
-                        const fleshHPRange = (level, HPType) => {
-                            const staticMin = 5;
-                            const staticMax = 25;
-
-                            const scaleBY = scaleMult(level, fleshTypes.indexOf(HPType));
-
-                            const finalFlesh = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin * scaleBY) + 1) + (staticMin * scaleBY));
-                            //console.log(finalFlesh);
-                            return finalFlesh;
-                        }
-
-                        // Rand Gen Armor HP
-                        const armorHPRange = (level, HPType) => {
-                            const staticMin = 0;
-                            const staticMax = 10;
-
-                            const scaleBY = scaleMult(level, armorTypes.indexOf(HPType));
-
-                            const finalArmor = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
-                            //console.log(finalArmor);
-                            return finalArmor;
-                        }
-
-                        // Rand Gen Shield HP
-                        const shieldHPRange = (level, HPType) => {
-                            const staticMin = 0;
-                            const staticMax = 5;
-
-                            const scaleBY = scaleMult(level, shieldTypes.indexOf(HPType));
-
-                            const finalShield = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
-                            return finalShield;
-                        }
-
-                        //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
-                        const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
-
-                        // Initilize Flesh
-                        let enemyFlesh = {
-                            Type: randArrPos(fleshTypes)
-                        };
-                        enemyFlesh.HP = fleshHPRange(enemyLevel, enemyFlesh.Type);
-
-                        // Initilize Armor
-                        let enemyArmor = {
-                            Type: randArrPos(armorTypes)
-                        };
-                        enemyArmor.HP = armorHPRange(enemyLevel, enemyArmor.Type);
-
-                        // Initilize Shield
-                        let enemyShield = {
-                            Type: randArrPos(shieldTypes)
-                        };
-                        enemyShield.HP = shieldHPRange(enemyLevel, enemyShield.Type);
-
-                        // Load Enemy   
-                        const enemyHPTypes = [
-                            enemyFlesh, 
-                            enemyArmor,
-                            enemyShield
-                        ];
-                        console.log("Enemy Spawned @ level: %d", enemyLevel);
-                        console.log(...enemyHPTypes);
-
-                        const ITEM_CODE = "TYP_PAsp:25-SLph:10_typ-r00-DIS_SL-SI-WO_dis-HEslo-100001";
-
-                        //const slot = checkingSlot(ITEM_CODE);
-                        //const rarity = checkingRar(ITEM_CODE);
-                        //const disTypes = checkingDismantle(ITEM_CODE);
-                        const dmgTypes = checkingDamage(ITEM_CODE);
-
-                        //console.log(`Slot: ${slot}\nRarity: ${rarity}\nDismantle Into: ${disTypes.toString()}\nDamage Values: ${dmgTypes.map(item => `\nType: ${item.Type}\nDamage: ${item.DMG}`)}`);
-                        //console.log('Number of trial runs requested: %d', trialRuns);
-
-                        const moddedVals = typeMatchCheck(dmgTypes, enemyHPTypes);
-
-                        const result = runCombatInstance(moddedVals, enemyHPTypes);
-
-                        //console.log(moddedVals);
                     break;
                 }
             break;
@@ -258,12 +211,176 @@ module.exports = {
         return await interaction.reply(`Command took ${endTime - startTime}ms to complete!`);
 
         /**
+         * This function randomly generates an item in the new built string format
+         * @returns String useable as item code for all base item props
+         */
+        function genGearPiece(){
+            console.log(chlkPreset.bInfoOne('===== GEAR GEN START ====='));
+            const typePrefix = "TYP_";
+            const typeSuffix = "_typ";
+            const disPrefix = "DIS_";
+            const disSuffix = "_dis";
+
+            const genTypeAmount = inclusiveRandNum(4,1);
+            const genDisAmount = inclusiveRandNum(5,2);
+
+            // Gen Type:Value Pairs for dmg/def
+            // =====================
+            let keyMatchArr = [];
+            for (const [key] of dmgKeys){
+                keyMatchArr.push(key);
+            }
+
+            let typesPicked = [];
+            for (let i = 0; i < genTypeAmount; i++){
+                let randPicked = randArrPos(keyMatchArr);
+                typesPicked.push(randPicked);
+                keyMatchArr.splice(keyMatchArr.indexOf(randPicked), 1);
+            }
+            
+            let typePairs = [];
+            for (let type of typesPicked){
+                const typeValue = inclusiveRandNum(100, 5);
+                type += `:${typeValue}`;
+                typePairs.push(type);
+            }
+
+            const finalTypePairs = typePairs.join('-');
+            
+            const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
+            //console.log(finalTypeStr);
+            // =====================
+
+            // Gen Rarity
+            // =====================
+            keyMatchArr = [];
+            for (const [key] of rarKeys){
+                keyMatchArr.push(key);
+            }
+            const finalRarStr = randArrPos(keyMatchArr);
+            //console.log(finalRarStr);
+            // =====================
+
+            // Gen Dis Types
+            // =====================
+            keyMatchArr = [];
+            for (const [key] of disKeys){
+                keyMatchArr.push(key);
+            }
+
+            let disPicked = [];
+            for (let i = 0; i < genDisAmount; i++){
+                let randPicked = randArrPos(keyMatchArr);
+                disPicked.push(randPicked);
+                keyMatchArr.splice(keyMatchArr.indexOf(randPicked), 1);
+            }
+
+            const finalDis = disPicked.join('-');
+
+            const finalDisStr = disPrefix + finalDis + disSuffix;
+            //console.log(finalDisStr);
+            // =====================
+
+            // Gen Slot
+            // =====================
+            keyMatchArr = [];
+            for (const [key] of slotKeys){
+                keyMatchArr.push(key);
+            }
+            const finalSlotStr = randArrPos(keyMatchArr);
+            //console.log(finalSlotStr);
+            // =====================
+
+            const finalStrs = [finalTypeStr, finalRarStr, finalDisStr, finalSlotStr];
+
+            const returnStr = finalStrs.join('-');
+
+            return returnStr;
+        }
+
+        /**
+         * This function generates a randomized enemy
+         * @returns Array of Types and HP values in an object array
+         */
+        function genEnemy() {
+            let scaleMult = (level, HPStrIndex) => 1 + (level * (HPStrIndex/2 + 0.02));
+                        
+            // Rand Gen Flesh HP
+            const fleshHPRange = (level, HPType) => {
+                const staticMin = 5;
+                const staticMax = 25;
+
+                const scaleBY = scaleMult(level, fleshTypes.indexOf(HPType));
+
+                const finalFlesh = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin * scaleBY) + 1) + (staticMin * scaleBY));
+                //console.log(finalFlesh);
+                return finalFlesh;
+            }
+
+            // Rand Gen Armor HP
+            const armorHPRange = (level, HPType) => {
+                const staticMin = 0;
+                const staticMax = 10;
+
+                const scaleBY = scaleMult(level, armorTypes.indexOf(HPType));
+
+                const finalArmor = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+                //console.log(finalArmor);
+                return finalArmor;
+            }
+
+            // Rand Gen Shield HP
+            const shieldHPRange = (level, HPType) => {
+                const staticMin = 0;
+                const staticMax = 5;
+
+                const scaleBY = scaleMult(level, shieldTypes.indexOf(HPType));
+
+                const finalShield = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+                return finalShield;
+            }
+
+            //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
+            const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+
+            // Initilize Flesh
+            let enemyFlesh = {
+                Type: randArrPos(fleshTypes)
+            };
+            enemyFlesh.HP = fleshHPRange(enemyLevel, enemyFlesh.Type);
+
+            // Initilize Armor
+            let enemyArmor = {
+                Type: randArrPos(armorTypes)
+            };
+            enemyArmor.HP = armorHPRange(enemyLevel, enemyArmor.Type);
+
+            // Initilize Shield
+            let enemyShield = {
+                Type: randArrPos(shieldTypes)
+            };
+            enemyShield.HP = shieldHPRange(enemyLevel, enemyShield.Type);
+
+            console.log("Enemy Spawned @ level: %d", enemyLevel);
+
+            const enemyHPTypes = [
+                enemyFlesh, 
+                enemyArmor,
+                enemyShield
+            ];
+
+            return enemyHPTypes;
+        }
+
+        /**
          * 
          * @param {Object[]} combatVals Object array of Damage & HP {Type: String, Dmg: Integer, Against: {Type: String, HP: Integer}}
          * @param {Object[]} hpBase Object array of HP {Type: String, HP: Integer}
          * @returns Array of table matches useable for damage value modifications
          */
         function runCombatInstance(combatVals, hpBase){
+
+            console.log(chlkPreset.bInfoTwo('===== COMBAT START ====='));
             // Damage values modded based on type matches
             // HP takes damage: Shield > Armor > Flesh
             // Use .indexOf() foreach damage instance, if -1 skip, else add in order found in static array
@@ -273,11 +390,11 @@ module.exports = {
                 Flesh: []
             };
             for (const HP_INST of hpBase){
-                if (shieldTypes.indexOf(HP_INST.Type) !== -1) {
+                if (shieldTypes.indexOf(HP_INST.Type) !== -1 && HP_INST.HP > 0) {
                     orderedHPLevel.Shield.push(HP_INST);
-                } else if (armorTypes.indexOf(HP_INST.Type) !== -1) {
+                } else if (armorTypes.indexOf(HP_INST.Type) !== -1 && HP_INST.HP > 0) {
                     orderedHPLevel.Armor.push(HP_INST);
-                } else if (fleshTypes.indexOf(HP_INST.Type) !== -1) {
+                } else if (fleshTypes.indexOf(HP_INST.Type) !== -1 && HP_INST.HP > 0) {
                     orderedHPLevel.Flesh.push(HP_INST);
                 } 
             }
@@ -286,33 +403,26 @@ module.exports = {
             if (orderedHPLevel.Armor.length <= 0) orderedHPLevel.Armor.push('None');
             if (orderedHPLevel.Flesh.length <= 0) orderedHPLevel.Flesh.push('None');
 
-            //console.log(orderedHPLevel);
-            
-
             // Find highest matchup against top most HP level
-            const againstShield = (orderedHPLevel.Shield[0] !== 'None') ? combatVals.filter(dmg => { return orderedHPLevel.Shield.some(hp => dmg.Against.Type === hp.Type); }).sort((a, b) => { return a.DMG - b.DMG; }) : 'None';
+            const againstShield = (orderedHPLevel.Shield[0] !== 'None') ? combatVals.filter(dmg => { 
+                return orderedHPLevel.Shield.some(hp => dmg.Against.Type === hp.Type); 
+            }).sort((a, b) => { return b.DMG - a.DMG; }) : 'None';
             const totalShieldDMG = (againstShield !== 'None') ? againstShield.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalShieldHP = (againstShield !== 'None') ? orderedHPLevel.Shield.reduce((total, obj) => total + obj.HP, 0) : 0;
-            // console.log(againstShield);
-            // console.log(totalShieldDMG);
-            // console.log(totalShieldHP);
 
-            const againstArmor = (orderedHPLevel.Armor[0] !== 'None') ? combatVals.filter(dmg => { return orderedHPLevel.Armor.some(hp => dmg.Against.Type === hp.Type); }).sort((a, b) => { return a.DMG - b.DMG; }) : 'None';
-            const totalArmorDMG = (againstArmor !== 'None') ? againstArmor.reduce((total, obj) => total + obj.DMG, 0) : 0;
+            const againstArmor = (orderedHPLevel.Armor[0] !== 'None') ? combatVals.filter(dmg => { 
+                return orderedHPLevel.Armor.some(hp => dmg.Against.Type === hp.Type); 
+            }).sort((a, b) => { return b.DMG - a.DMG; }) : 'None';
+            let totalArmorDMG = (againstArmor !== 'None') ? againstArmor.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalArmorHP = (againstArmor !== 'None') ? orderedHPLevel.Armor.reduce((total, obj) => total + obj.HP, 0) : 0;
-            // console.log(againstArmor);
-            // console.log(totalArmorDMG);
-            // console.log(totalArmorHP);
 
-            const againstFlesh = (orderedHPLevel.Flesh[0] !== 'None') ? combatVals.filter(dmg => { return orderedHPLevel.Flesh.some(hp => dmg.Against.Type === hp.Type); }).sort((a, b) => { return a.DMG - b.DMG; }) : 'None';
-            const totalFleshDMG = (againstFlesh !== 'None') ? againstFlesh.reduce((total, obj) => total + obj.DMG, 0) : 0;
+            const againstFlesh = (orderedHPLevel.Flesh[0] !== 'None') ? combatVals.filter(dmg => { 
+                return orderedHPLevel.Flesh.some(hp => dmg.Against.Type === hp.Type); 
+            }).sort((a, b) => { return b.DMG - a.DMG; }) : 'None';
+            let totalFleshDMG = (againstFlesh !== 'None') ? againstFlesh.reduce((total, obj) => total + obj.DMG, 0) : 0;
             const totalFleshHP = (againstFlesh !== 'None') ? orderedHPLevel.Flesh.reduce((total, obj) => total + obj.HP, 0) : 0;
-            // console.log(againstFlesh);
-            // console.log(totalFleshDMG);
-            // console.log(totalFleshHP);
             
             let combatEnd = false;
-
             // Single Combat loop dealing damage 
             // Multiple checks need to be made
                 // 1. Is arr[0].dmg >= Shield HP
@@ -324,14 +434,11 @@ module.exports = {
                 // 3. Shield HP is > total dmg dealt and remains
                 //      - Subtract from shield dmg dealt, end of current turn
             //=============================
-            // STILL NEEDED:
-            // DAMAGE CARRY OVER CHECK FOR PREVENTING EXTRA DAMAGE TO BUILD UP ACROSS HP TYPES/DAMAGE LOST IN THE SAME WAY
             // Shields 
             let shieldBrake = (againstShield !== 'None') ? false : true;
             if (!shieldBrake) {
                 let shieldsLeft = totalShieldHP;
                 if (totalShieldDMG >= totalShieldHP){
-                    
                     // Shield Break
                     for (const dmgObj of againstShield){
                         if (dmgObj.DMG > shieldsLeft){
@@ -360,22 +467,28 @@ module.exports = {
                     combatEnd = true;
                 }
                 console.log('Shields Left: %d', shieldsLeft);
+                console.log('Starting Shield HP: %d', totalShieldHP);
+                console.log('Expected Damage to Shield: %d', totalShieldDMG);
             }
-            let shieldDMGChanged = [];
-            if (againstShield !== 'None') {
-                shieldDMGChanged = againstShield.filter(obj => obj.used);
-                shieldDMGChanged = shieldDMGChanged[0];
-            
-                const shieldCarryChangeCheck = singleLookup(shieldDMGChanged);
-                //console.log(shieldCarryChangeCheck);
 
-                const checkFor = (ele) => ele.Type === shieldCarryChangeCheck.Type;
-                againstArmor[againstArmor.findIndex(checkFor)].DMG = shieldCarryChangeCheck.DMG;
+            if (againstShield !== 'None' && againstArmor !== 'None' && !combatEnd) {
+                let shieldDMGChanged = againstShield.filter(obj => obj.used);
+                shieldDMGChanged = shieldDMGChanged[0];
+                
+                // console.log(shieldDMGChanged);
+                // console.log(combatEnd);
+
+                const checkFor = (ele) => ele.Type === shieldDMGChanged.Type;
+                if (againstArmor[againstArmor.findIndex(checkFor)].DMG < shieldDMGChanged.DMG) { } else {
+                    const shieldCarryChangeCheck = singleLookup(shieldDMGChanged);
+                    againstArmor[againstArmor.findIndex(checkFor)].DMG = shieldCarryChangeCheck.DMG;
+                }
+                totalArmorDMG = (againstArmor !== 'None') ? againstArmor.reduce((total, obj) => total + obj.DMG, 0) : 0;
             }
              
             // Armor 
             let armorBrake = (againstArmor !== 'None' && !combatEnd) ? false : true;
-            if (!armorBrake){
+            if (!armorBrake && !combatEnd){
                 let armorLeft = totalArmorHP;
                 if (totalArmorDMG >= totalArmorHP){
                     // Armor Break
@@ -406,22 +519,28 @@ module.exports = {
                     combatEnd = true;
                 }
                 console.log('Armor Left: %d', armorLeft);
+                console.log('Starting Armor HP: %d', totalArmorHP);
+                console.log('Expected Damage to Armor: %d', totalArmorDMG);
             }
-            let armorDMGChanged = [];
-            if (againstArmor !== 'None' && !combatEnd) {
-                armorDMGChanged = againstArmor.filter(obj => obj.used);
-                armorDMGChanged = armorDMGChanged[0];
             
-                const armorCarryChangeCheck = singleLookup(armorDMGChanged);
-                //console.log(armorCarryChangeCheck);
+            if (againstArmor !== 'None' && againstFlesh !== 'None' && !combatEnd) {
+                let armorDMGChanged = againstArmor.filter(obj => obj.used);
+                armorDMGChanged = armorDMGChanged[0];
+                
+                // console.log(armorDMGChanged);
+                // console.log(combatEnd);
 
-                const checkFor = (ele) => ele.Type === armorCarryChangeCheck.Type;
-                againstFlesh[againstFlesh.findIndex(checkFor)].DMG = armorCarryChangeCheck.DMG;
+                const checkFor = (ele) => ele.Type === armorDMGChanged.Type;
+                if (againstFlesh[againstFlesh.findIndex(checkFor)].DMG < armorDMGChanged.DMG) { } else {
+                    const armorCarryChangeCheck = singleLookup(armorDMGChanged);
+                    againstFlesh[againstFlesh.findIndex(checkFor)].DMG = armorCarryChangeCheck.DMG;
+                }
+                totalFleshDMG = (againstFlesh !== 'None') ? againstFlesh.reduce((total, obj) => total + obj.DMG, 0) : 0;
             }
 
             // Flesh 
-            let dead = (againstFlesh !== 'None' && !combatEnd) ? false : true;
-            if (!dead){
+            let dead = false;
+            if (!dead && !combatEnd){
                 let hpLeft = totalFleshHP;
                 if (totalFleshDMG >= totalFleshHP){
                     // HP Depleted enemy is dead
@@ -452,13 +571,52 @@ module.exports = {
                     combatEnd = true;
                 }
                 console.log('Base HP Left: %d', hpLeft);
+                console.log('Starting Base HP: %d', totalFleshHP);
+                console.log('Expected Damage to Base HP: %d', totalFleshDMG);
             }
             // const fleshDMGChanged = (againstFlesh !== 'None' && !combatEnd) ? againstFlesh.filter(obj => obj.used) : [];
             // console.log(...fleshDMGChanged);
 
-            console.log(...againstShield);
-            console.log(...againstArmor);
-            console.log(...againstFlesh);
+            /**
+             * 
+             * @param  {...any} arr Arrays to be checked for values to display
+             * @returns Single array with filtered values
+             */
+            const hasTypes = (...arr) => {
+                let both = 0;
+                for (let i = 0; i < arr.length; i++){
+                    let include = (arr[i] !== 'None') ? true : false;
+                    if (include && i === 0) both += 2;
+                    if (include && i === 1) both += 4;
+                }
+                
+                let returnArr = [];
+                if (both === 6) {
+                    returnArr = arr[0].concat(arr[1]);
+                } else if (both === 2){
+                    returnArr = arr[0];
+                } else if (both === 4){
+                    returnArr = arr[1];
+                }
+
+                return returnArr;
+            }
+
+
+            const allDamages = againstFlesh.concat(hasTypes(againstArmor, againstShield));
+            //const allDamages = againstShield.concat(againstArmor, againstFlesh);
+            for(const dmgOBJ of allDamages){
+                if (dmgOBJ !== 'None') console.log(dmgOBJ);
+            }
+            if (dead) {
+                console.log(chlkPreset.pass('Enemy Defeated in one turn!'));
+            } else if (!dead && combatEnd) {
+                console.log(chlkPreset.fail('Enemy Survives turn one!'));
+            }
+            console.log(chlkPreset.bInfoTwo('===== COMBAT END ====='));
+            // console.log(...againstShield);
+            // console.log(...againstArmor);
+            // console.log(...againstFlesh);
             //=============================
         }
 

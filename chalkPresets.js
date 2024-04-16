@@ -10,12 +10,23 @@ const failureResult = chalk.italic.whiteBright.dim.bgRed;
 //console.log(failureResult('Testing failure here!'));
 const basicInfoForm = chalk.dim.whiteBright.bgBlackBright;
 //console.log(basicInfoForm('Testing basic info here!'));
-const basicInfoForm2 = chalk.dim.whiteBright.bgBlackBright;
+const basicInfoForm2 = chalk.dim.blueBright.bgBlackBright;
 //console.log(basicInfoForm('Testing basic2 info here!'));
 const specialInfoForm = chalk.bold.cyan.bgBlackBright;
 //console.log(specialInfoForm('Testing special info here!'));
-const specialInfoForm2 = chalk.bold.cyan.bgBlackBright;
+const specialInfoForm2 = chalk.bold.magenta.bgBlackBright;
 //console.log(specialInfoForm('Testing special2 info here!'));
+
+const chlkPreset = {
+    warn: warnedForm,
+    err: errorForm,
+    pass: successResult,
+    fail: failureResult,
+    bInfoOne: basicInfoForm,
+    bInfoTwo: basicInfoForm2,
+    sInfoOne: specialInfoForm,
+    sInfoTwo: specialInfoForm2
+};
 
 module.exports = {
     warnedForm,
@@ -25,5 +36,6 @@ module.exports = {
     basicInfoForm,
     basicInfoForm2,
     specialInfoForm,
-    specialInfoForm2
+    specialInfoForm2,
+    chlkPreset
 };
