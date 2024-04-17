@@ -434,6 +434,9 @@ module.exports = {
                 // 3. Shield HP is > total dmg dealt and remains
                 //      - Subtract from shield dmg dealt, end of current turn
             //=============================
+            // NEEDED:
+            //      - Removal of expended damage entries from subsequent HP type checks/calculations
+            //      - Reduction of uneeded code blocks, functions, and calculations
             // Shields 
             let shieldBrake = (againstShield !== 'None') ? false : true;
             if (!shieldBrake) {

@@ -67,8 +67,8 @@
         "DPL": 3,
         "Buff": "Speed +10, Dexterity +10",
 
-        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
-        "Image": "attachment://Missing-Image.png",
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Light-Pigmy.png",
+        "Image": "attachment://Light-Pigmy.png",
 
         "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Light-Background.jpg",
 
@@ -82,8 +82,8 @@
         "DPL": 3,
         "Buff": "Intelligence +10, Strength +10",
 
-        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
-        "Image": "attachment://Missing-Image.png",
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Dark-Pigmy.png",
+        "Image": "attachment://Dark-Pigmy.png",
 
         "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Dark-Background.jpg",
 
@@ -97,8 +97,8 @@
         "DPL": 5,
         "Buff": "Intelligence +20",
 
-        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
-        "Image": "attachment://Missing-Image.png",
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Magic-Pigmy.png",
+        "Image": "attachment://Magic-Pigmy.png",
 
         "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Magic-Background.jpg",
 
@@ -112,8 +112,8 @@
         "DPL": 10,
         "Buff": "All Base Stats +10",
 
-        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Missing-Image.png",
-        "Image": "attachment://Missing-Image.png",
+        "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Elder-Pigmy.png",
+        "Image": "attachment://Elder-Pigmy.png",
 
         "BackRef": "./events/Models/json_prefabs/pigmy-list-png/Elder-Background.jpg",
 

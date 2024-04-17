@@ -65,7 +65,7 @@ module.exports = {
 			for (var i = 0; i < pigmyList.length; i++) {
 				pigs.push(pigmyList[i]);
 				const pigEmbed = new EmbedBuilder()
-					.setColor(0000)
+					.setColor(0o0)
 					.setTitle(`Pigmy: ${i + 1}`)
 					.setImage(pigmyList[i].Image)
 					.addFields(

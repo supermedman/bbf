@@ -48,246 +48,156 @@ module.exports = {
 
 				const channelType = interaction.options.getString('channeltype') ?? 'NONE';
 				if (channelType === 'NONE') return interaction.followUp('That was not a valid option!');
+
 				//prompt user to assign new channel
 				//check if channel is already assigned
 				const newChannelID = interaction.options.getString('channelid');
 				console.log(`New Channel Given, ID: ${newChannelID}`);
 
 				if (channelType === 'spawn') {
-					if (guildID) {
-						//First check if channel already exists with inputed channel id
-						var newAssign = await GuildData.findOne({ where: [{ guildid: guildID }, { spawnchannel: newChannelID }] });
-						if (newAssign) {
-							//Channel is already assigned as spawn channel
-							await interaction.followUp(`This channel is already assigned as the spawn channel!`);
-						} else {
-							//channel is new or guild has no assigned channel, procced
-							//check if no channel is assigned yet
-							newAssign = await GuildData.findOne({ where: { guildid: guildID } });
-							console.log(newAssign);
-							console.log(`newAssign Channel ID: ${newAssign.spawnchannel}`);
-							if (newAssign.spawnchannel === '0') {
-								//no channel is assigned complete action and report success!
-								const editChannel = await GuildData.update({ spawnchannel: newChannelID }, { where: { guildid: guildID } });
+					const currentSpawnChl = await GuildData.findOne({where: {guildid: guildID, spawnchannel: newChannelID}});
+					if (currentSpawnChl) return await interaction.followUp('This channel is already the spawn channel!');
 
-								if (editChannel > 0) {
-									//updated spawn channel success!
-									//Retrieve Channel object for further use
-									const newChannel = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
-									await interaction.followUp(`Channel ${newChannel.name} is now the spawn channel!`);
-								} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
+					const guildRef = await GuildData.findOne({where: {guildid: guildID}});
+					if (!guildRef) return await interaction.followUp('This guild is not in the database!!');
 
-							} else {
-								//Retrieve Channel object for further use
-								const newChannel = await interaction.guild.channels.cache.find(c1 => c1.id === newChannelID);
-								console.log(`New Channel: ${newChannel}`);
-								const curChannel = await interaction.guild.channels.cache.find(c2 => c2.id === newAssign.spawnchannel);
-								console.log(`Current Channel: ${curChannel}`);
-								console.log(`Current Spawn Channel: ${curChannel.Name} \nNew spawn channel: ${newChannel.Name}`);
+					const channelObj = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
+					if (!channelObj.name) return await interaction.followUp('This is not a valid channel id!');
 
-								const acceptButton = new ButtonBuilder()
-									.setLabel("Yes")
-									.setStyle(ButtonStyle.Success)
-									.setEmoji('✅')
-									.setCustomId('accept');
+					if (guildRef.spawnchannel === '0') {
+						const tableUpdate = await guildRef.update({spawnchannel: newChannelID});
+						if (tableUpdate) await guildRef.save();
+						return await interaction.followUp(`${channelObj.name} is now the spawn channel!`);	
+					} else {
+						const acceptButton = new ButtonBuilder()
+						.setLabel("Yes")
+						.setStyle(ButtonStyle.Success)
+						.setEmoji('✅')
+						.setCustomId('accept');
 
-								const cancelButton = new ButtonBuilder()
-									.setLabel("No")
-									.setStyle(ButtonStyle.Danger)
-									.setEmoji('❌')
-									.setCustomId('cancel');
+						const cancelButton = new ButtonBuilder()
+						.setLabel("No")
+						.setStyle(ButtonStyle.Danger)
+						.setEmoji('❌')
+						.setCustomId('cancel');
 
-								const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
+						const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
 
-								const confirmEmbed = new EmbedBuilder()
-									.setColor('DarkButNotBlack')
-									.setTitle('Spawn Channel')
-									.addFields(
-										{
-											name: `Channel: ${newChannel.name}`,
-											value: `Would you like to make this the new spawn channel?`,
+						const confirmEmbed = new EmbedBuilder()
+							.setColor('DarkButNotBlack')
+							.setTitle('Spawn Channel')
+							.addFields(
+								{
+									name: `Channel: ${channelObj.name}`,
+									value: `Would you like to make this the new spawn channel?`,
 
-										});
-
-								const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
-
-								const filter = (i) => i.user.id === interaction.user.id;
-
-								const collector = embedMsg.createMessageComponentCollector({
-									ComponentType: ComponentType.Button,
-									filter,
-									time: 120000,
 								});
 
-								collector.on('collect', async (collInteract) => {
-									if (collInteract.customId === 'accept') {
-										//User has confirmed channel change, procced
-										const editChannel = await GuildData.update({ spawnchannel: newChannelID }, { where: { guildid: guildID } });
+						const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
 
-										if (editChannel > 0) {
-											//updated spawn channel success!
-											//Retrieve Channel object for further use
-											const newChannel = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
-											await interaction.followUp(`Channel ${newChannel.name} is now the spawn channel!`);
-											await collInteract.deferUpdate();
+						const filter = (i) => i.user.id === interaction.user.id;
 
-											acceptButton.setDisabled(true);
-											cancelButton.setDisabled(true);
+						const collector = embedMsg.createMessageComponentCollector({
+							ComponentType: ComponentType.Button,
+							filter,
+							time: 120000,
+						});
 
-											embedMsg.edit({
-												components: [interactiveButtons],
-											});
-											wait(5000).then(async () => {
-												await collector.stop();
-											});
-
-										} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
-									}
-
-									if (collInteract.customId === 'cancel') {
-										//User has canceled channel change, inform and delete
-										collInteract.reply('Channel Change cancelled!');
-										await collInteract.deferUpdate();
-
-										acceptButton.setDisabled(true);
-										cancelButton.setDisabled(true);
-
-										embedMsg.edit({
-											components: [interactiveButtons],
-										});
-										wait(5000).then(async () => {
-											await collector.stop();
-										});
-									}
-								});
-
-								collector.on('end', () => {
-									if (embedMsg) {
-										embedMsg.delete();
-									} else if (!embedMsg) {
-										//do nothing
-									}
-								});								
+						collector.on('collect', async COI => {
+							if (COI.customId === 'cancel'){
+								await collector.stop();
 							}
-						}
+
+							if (COI.customId === 'accept'){
+								const tableUpdate = await guildRef.update({spawnchannel: newChannelID});
+								if (tableUpdate) await guildRef.save();
+
+								await collector.stop();
+								
+								return await interaction.followUp(`${channelObj.name} is now the spawn channel!`);
+							}
+						});
+
+						collector.on('end', () => {
+							embedMsg.delete().catch(error => {
+								if (error.code !== 10008) {
+									console.error('Failed to delete the message:', error);
+								}
+							});
+						});
 					}
 				} else if (channelType === 'announce') {
-					if (guildID) {
-						//First check if channel already exists with inputed channel id
-						var newAssign = await GuildData.findOne({ where: [{ guildid: guildID }, { announcechannel: newChannelID }] });
-						if (newAssign) {
-							//Channel is already assigned as spawn channel
-							return await interaction.followUp(`This channel is already assigned as the spawn channel!`);
-						} else {
-							//channel is new or guild has no assigned channel, procced
-							//check if no channel is assigned yet
-							newAssign = await GuildData.findOne({ where: { guildid: guildID } });
-							console.log(newAssign);
-							console.log(`newAssign Channel ID: ${newAssign.announcechannel}`);
-							if (newAssign.announcechannel === '0') {
-								//no channel is assigned complete action and report success!
-								const editChannel = await GuildData.update({ announcechannel: newChannelID }, { where: { guildid: guildID } });
 
-								if (editChannel > 0) {
-									//updated spawn channel success!
-									//Retrieve Channel object for further use
-									const newChannel = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
-									return await interaction.followUp(`Channel ${newChannel.Name} is now the Announcement channel!`);
-								} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
+					const currentAnonChl = await GuildData.findOne({where: {guildid: guildID, announcechannel: newChannelID}});
+					if (currentAnonChl) return await interaction.followUp('This channel is already the announcement channel!');
 
-							} else {
-								//Retrieve Channel object for further use
-								const newChannel = await interaction.guild.channels.cache.find(c1 => c1.id === newChannelID);
-								console.log(`New Channel: ${newChannel}`);
-								const curChannel = await interaction.guild.channels.cache.find(c2 => c2.id === newAssign.announcechannel);
-								console.log(`Current Channel: ${curChannel}`);
-								console.log(`Current Announcement Channel: ${curChannel.Name} \nNew Announcement channel: ${newChannel.Name}`);
+					const guildRef = await GuildData.findOne({where: {guildid: guildID}});
+					if (!guildRef) return await interaction.followUp('This guild is not in the database!!');
 
-								const acceptButton = new ButtonBuilder()
-									.setLabel("Yes")
-									.setStyle(ButtonStyle.Success)
-									.setEmoji('✅')
-									.setCustomId('accept');
+					const channelObj = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
+					if (!channelObj.name) return await interaction.followUp('This is not a valid channel id!');
 
-								const cancelButton = new ButtonBuilder()
-									.setLabel("No")
-									.setStyle(ButtonStyle.Danger)
-									.setEmoji('❌')
-									.setCustomId('cancel');
+					if (guildRef.announcechannel === '0') {
+						const tableUpdate = await guildRef.update({announcechannel: newChannelID});
+						if (tableUpdate) await guildRef.save();
+						return await interaction.followUp(`${channelObj.name} is now the announcement channel!`);	
+					} else {
+						const acceptButton = new ButtonBuilder()
+						.setLabel("Yes")
+						.setStyle(ButtonStyle.Success)
+						.setEmoji('✅')
+						.setCustomId('accept');
 
-								const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
+						const cancelButton = new ButtonBuilder()
+						.setLabel("No")
+						.setStyle(ButtonStyle.Danger)
+						.setEmoji('❌')
+						.setCustomId('cancel');
 
-								const confirmEmbed = new EmbedBuilder()
-									.setColor('DarkButNotBlack')
-									.setTitle('Announcement Channel')
-									.addFields(
-										{
-											name: `Channel: ${newChannel.name}`,
-											value: `Would you like to make this the new Announcement channel?`,
+						const interactiveButtons = new ActionRowBuilder().addComponents(acceptButton, cancelButton);
 
-										});
+						const confirmEmbed = new EmbedBuilder()
+							.setColor('DarkButNotBlack')
+							.setTitle('Spawn Channel')
+							.addFields(
+								{
+									name: `Channel: ${channelObj.name}`,
+									value: `Would you like to make this the new announcement channel?`,
 
-								const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
-
-								const filter = (i) => i.user.id === interaction.user.id;
-
-								const collector = embedMsg.createMessageComponentCollector({
-									ComponentType: ComponentType.Button,
-									filter,
-									time: 120000,
 								});
 
-								collector.on('collect', async (collInteract) => {
-									if (collInteract.customId === 'accept') {
-										//User has confirmed channel change, procced
-										const editChannel = await GuildData.update({ announcechannel: newChannelID }, { where: { guildid: guildID } });
+						const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [confirmEmbed] });
 
-										if (editChannel > 0) {
-											//updated spawn channel success!
-											//Retrieve Channel object for further use
-											const newChannel = await interaction.guild.channels.cache.find(c => c.id === newChannelID);
-											await interaction.followUp(`Channel ${newChannel.name} is now the Announcement channel!`);
-											await collInteract.deferUpdate();
+						const filter = (i) => i.user.id === interaction.user.id;
 
-											acceptButton.setDisabled(true);
-											cancelButton.setDisabled(true);
+						const collector = embedMsg.createMessageComponentCollector({
+							ComponentType: ComponentType.Button,
+							filter,
+							time: 120000,
+						});
 
-											embedMsg.edit({
-												components: [interactiveButtons],
-											});
-											wait(5000).then(async () => {
-												await collector.stop();
-											});
-
-										} else {/*Something went wrong!*/console.log(`Data edit Falure!`); }
-									}
-
-									if (collInteract.customId === 'cancel') {
-										//User has canceled channel change, inform and delete
-										collInteract.reply('Channel Change cancelled!');
-										await collInteract.deferUpdate();
-
-										acceptButton.setDisabled(true);
-										cancelButton.setDisabled(true);
-
-										embedMsg.edit({
-											components: [interactiveButtons],
-										});
-										wait(5000).then(async () => {
-											await collector.stop();
-										});
-									}
-								});
-
-								collector.on('end', () => {
-									if (embedMsg) {
-										embedMsg.delete();
-									} else if (!embedMsg) {
-										//do nothing
-									}
-								});
+						collector.on('collect', async COI => {
+							if (COI.customId === 'cancel'){
+								await collector.stop();
 							}
-						}
+
+							if (COI.customId === 'accept'){
+								const tableUpdate = await guildRef.update({announcechannel: newChannelID});
+								if (tableUpdate) await guildRef.save();
+
+								await collector.stop();
+								
+								return await interaction.followUp(`${channelObj.name} is now the announcement channel!`);
+							}
+						});
+
+						collector.on('end', () => {
+							embedMsg.delete().catch(error => {
+								if (error.code !== 10008) {
+									console.error('Failed to delete the message:', error);
+								}
+							});
+						});
 					}
 				} else return interaction.followUp('That was not a valid option!');
 			}).catch(error => {
