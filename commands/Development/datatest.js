@@ -169,6 +169,18 @@ module.exports = {
         const startTime = new Date().getTime();
         let endTime;
 
+        // TO DO
+
+        // Merge Status and damage dealing functions together
+        // Once functional, create interactive combat (devcombat)
+        // Improve speed and check for proper functionallity, allow outside testers access
+        // Implement blocking mechanics with new item codes and damage methods
+        // Create new ways to handle potion use and abilities
+        // Stress test all mechanics 
+        // Debug where needed
+        // Allow more testing
+        // Start conversion of old combat to new combat!!!
+
         // Combat order of operations
         /**
          *      Deal Shield Damage:
