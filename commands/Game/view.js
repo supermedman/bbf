@@ -332,6 +332,13 @@ module.exports = {
                             responseColour = "Yellow";
                             responseDesc = "Pressing confirm will consume the requested items from your inventory, the task will remain partially incomplete. Rewards will be recevied upon full completion!";
                         break;
+                        case "Dupe":
+                            // Task was already complete, preventing dupe rewards
+                            responseTitle = "TASK FOUND ALREADY COMPLETE";
+                            responseColour = "White";
+                            responseDesc = "You have already completed this task!! Please use ``/view task active`` for an updated list, or use ``/view task complete`` to see this task as is.";
+                            collector.stop();
+                        return;
                     }
 
                     const respConfirmButton = new ButtonBuilder()
@@ -475,6 +482,9 @@ module.exports = {
 
         async function attemptTaskFill(taskObj){
             //console.log(taskObj);
+            const dupeFillCheck = await UserTasks.findOne({where: {taskid: taskObj.taskid}});
+            if (dupeFillCheck.complete === 1) return {status: "Dupe"};
+
             if (taskObj.name === 'None') return (taskObj.total_amount <= taskObj.amount) ? {status: "Complete"}:{status: "Incomplete"};
 
             const checkItem = lootList.filter(item => item.Name === taskObj.name);
