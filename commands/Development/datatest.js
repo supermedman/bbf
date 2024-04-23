@@ -169,6 +169,21 @@ module.exports = {
         const startTime = new Date().getTime();
         let endTime;
 
+        // Combat order of operations
+        /**
+         *      Deal Shield Damage:
+         *      - No status applied while shield HP is active
+         *      X Turn Ends
+         *      If armor not broken, deal damage to armor:
+         *      - Check for relavent Status effects 
+         *      - Check if Flesh effects can activate
+         *      - Apply all applicable effects
+         *      X Turn Ends
+         *      If armor broken, armor set to 0, recalculate damage values:
+         *      - Check if Flesh effects can activate
+         *      - Apply status effects
+         *      X Turn Ends
+         */
         switch(subcomGroup){
             case "combat":
                 switch(subcom){
