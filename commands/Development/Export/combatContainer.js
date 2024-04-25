@@ -1,0 +1,1 @@
+// Used for any external methods, calls, filtering related to combat itself. 

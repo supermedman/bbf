@@ -181,6 +181,10 @@ module.exports = {
         // Allow more testing
         // Start conversion of old combat to new combat!!!
 
+        // Constructer that can inately handle button component calls?
+        // Maybe hijack interaction create somehow to check for that?
+        // Will need to create button names from combat instance. Could create combat instance class with gen-id 
+
         // Combat order of operations
         /**
          *      Deal Shield Damage:
