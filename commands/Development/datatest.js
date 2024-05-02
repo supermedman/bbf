@@ -10,6 +10,75 @@ const inclusiveRandNum = (max, min) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
+const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
+const shieldTypes = ["Phase Demon", "Phase Aura", /*"Plot Armor"*/];
+
+class EnemyFab {
+    constructor(){
+        //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
+        //const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+        this.level = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+
+        // This is better for actual values being created, not the best for current testing however.
+        //let scaleMult = (level, HPStrIndex) => 1 + (level * ((HPStrIndex + 0.01)/0.2));
+        // Using much much lower scale values to check for proper status effects
+        let scaleMult = (level, HPStrIndex) => 1 + (level * (HPStrIndex/2 + 0.04));
+
+        // Rand Gen Flesh HP
+        const fleshHPRange = (level, HPType) => {
+            const staticMin = 5;
+            const staticMax = 25;
+
+            const scaleBY = scaleMult(level, fleshTypes.indexOf(HPType));
+
+            const finalFlesh = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin * scaleBY) + 1) + (staticMin * scaleBY));
+            //console.log(finalFlesh);
+            return finalFlesh;
+        }
+
+        this.flesh = {
+            Type: randArrPos(fleshTypes)
+        };
+        this.flesh.HP = fleshHPRange(this.level, this.flesh.Type);
+        
+        // Rand Gen Armor HP
+        const armorHPRange = (level, HPType) => {
+            const staticMin = 0;
+            const staticMax = 10;
+
+            const scaleBY = scaleMult(level, armorTypes.indexOf(HPType));
+
+            const finalArmor = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+            //console.log(finalArmor);
+            return finalArmor;
+        }
+
+        this.armor = {
+            Type: randArrPos(armorTypes)
+        };
+        this.armor.HP = armorHPRange(this.level, this.armor.Type);
+
+        // Rand Gen Shield HP
+        const shieldHPRange = (level, HPType) => {
+            const staticMin = 0;
+            const staticMax = 5;
+
+            const scaleBY = scaleMult(level, shieldTypes.indexOf(HPType));
+
+            const finalShield = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+            return finalShield;
+        }
+
+        this.shield = {
+            Type: randArrPos(shieldTypes)
+        };
+        this.shield.HP = shieldHPRange(this.level, this.shield.Type);
+
+        this.activeEffects = [];
+    }
+}
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('datatest')
@@ -22,6 +91,14 @@ module.exports = {
                         subcommand
                             .setName('simulation')
                             .setDescription('Simulate combat trials.')
+                                .addIntegerOption(option => 
+                                    option
+                                    .setName('amount')
+                                    .setDescription('Amount of trials to run.')))
+                    .addSubcommand(subcommand =>
+                        subcommand
+                            .setName('full')
+                            .setDescription('Simulate combat & status')
                                 .addIntegerOption(option => 
                                     option
                                     .setName('amount')
@@ -159,9 +236,399 @@ module.exports = {
             ["++","+","+","+","+","+","+","+","+","++", "---"],
         ];
 
-        const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-        const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
-        const shieldTypes = ["Phase Demon", "Phase Aura", "Plot Armor"];
+        const statusKeys = new Map([
+            ["Blunt", "Concusion"],
+            ["Slash", "TBD"],
+            ["Magic", "MagiWeak"],
+            ["Rad", "Confusion"],
+            ["Frost", "Slow"],
+            ["Fire", "TBD"],
+            ["Dark", "Blind"],
+            ["Light", "Flash"]
+        ]);
+        /**
+         *      - Concusion: Blunt
+         *      - Bleed: Slash
+         *      - Magic Weakness: Magic
+         *      - Confusion: Radiation
+         *      - Slow: Frost
+         *      - Burn: Fire
+         *      - Blind: Dark
+         *      - Flash: Light
+         */
+        const testStatus = {
+            /**
+             * This method checks if the Cuncusion status effect should be applied
+             * @param {Object} armor Armor HP obj
+             * @param {Object} flesh Flesh HP obj 
+             * @param {Number} blunt Blunt damage being dealt
+             * @param {Object} condition Attack Conditions: {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Boolean
+             */
+            Concusion: (armor, flesh, blunt, condition, curEffects) => {
+                if (flesh.Type === 'Flesh' && armor.HP > 0 || flesh.Type === 'Specter' || flesh.Type === 'Magical Flesh' && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
+                
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            // Blunt > (armor.HP * 0.5) = true
+                            if (blunt > (armor.HP * 0.5)) return true;
+                        return false;
+                        case "Bark":
+                            // Immune = false
+                        return false;
+                        case "Fossil":
+                            // Immune = false
+                        return false;
+                        case "Demon":
+                            // Blunt > (armor.HP * 0.5) && MagiWeak = true
+                            if (blunt > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                        return false;
+                    }
+                }
+                
+                switch(flesh.Type){
+                    case "Flesh":
+                        // Crit & 0 armor = true
+                        if (condition.Crit) return true;
+                    return false;
+                    case "Magical Flesh":
+                        // MagiWeak = true
+                        if (curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * This method checks if the Bleed status effect should be applied
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Number} slash Slash Dmg being dealt
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Object: { status_Strength: boolean } || false
+             */
+            Bleed: (armor, flesh, slash, condition, curEffects) => {
+                if (flesh.Type === "Flesh" && armor.HP > 0 || flesh.Type === "Magical Flesh" && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            // Immune to Bleed
+                        return false;
+                        case "Bark":
+                            // Slash > armor.HP * 0.5 && Burn = true
+                            if (slash > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'Burn') !== -1) {
+                                // Crit && DH = Big Bleed 
+                                // Crit || DH = Bleed
+                                // Little Bleed
+                                if (condition.Crit && condition.DH) {
+                                    return { Strength: "Big Bleed"};
+                                } else if (condition.Crit || condition.DH){
+                                    return { Strength: "Bleed" };
+                                } else return { Strength: "Little Bleed"};
+                            }
+                        return false;
+                        case "Fossil":
+                            // Immune to Bleed
+                        return false;
+                        case "Demon":
+                            // Immune to Bleed
+                        return false;
+                    }
+                }
+                
+                switch(flesh.Type){
+                    case "Flesh":
+                        // Crit && DH = Big Bleed 
+                        // Crit || DH = Bleed
+                        // Little Bleed
+                        if (condition.Crit && condition.DH) {
+                            return { Strength: "Big Bleed"};
+                        } else if (condition.Crit || condition.DH){
+                            return { Strength: "Bleed" };
+                        } else return { Strength: "Little Bleed"};
+                    case "Magical Flesh":
+                        // Crit && DH = Big Bleed 
+                        // Crit || DH = Bleed
+                        // Little Bleed
+                        if (condition.Crit && condition.DH) {
+                            return { Strength: "Big Bleed"};
+                        } else if (condition.Crit || condition.DH){
+                            return { Strength: "Bleed" };
+                        } else return { Strength: "Little Bleed"};
+                    case "Specter":
+                        // Immune to Bleed
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * This method checks if the MagiWeak status effect should be applied
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Boolean
+             */
+            Magic_Weakness: (armor, flesh, magic, condition, curEffects) => {
+                if (armor.HP === 0 && flesh.Type === 'Specter') return false;
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            if (curEffects.findIndex(eff => eff.Type === 'Concusion') !== -1 && condition.Crit) return true;
+                        return false;
+                        case "Bark":
+                            if (condition.Crit) return true;
+                        return false;
+                        case "Fossil":
+                            if (condition.Crit) return true;
+                        return false;
+                        case "Demon":
+                            if (condition.Crit) return true;
+                        return false;
+                    }
+                }
+
+                switch(flesh.Type){
+                    case "Flesh":
+                        if (condition.Crit) return true;
+                    return false;
+                    case "Magical Flesh":
+                    
+                    return true;
+                    case "Specter":
+                        // Immune 
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * 
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Number} rad Radiation damage
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Boolean
+             */
+            Confusion: (armor, flesh, rad, condition, curEffects) => {
+                if (armor.HP === 0 && flesh.Type === 'Specter') return false;
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            if (rad > (armor.HP * 0.5) && condition.Crit) return true;
+                        return false;
+                        case "Bark":
+                            // Immune
+                        return false;
+                        case "Fossil":
+                            // Immune
+                        return false;
+                        case "Demon":
+                            if (rad > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'Concusion') !== -1) return true;
+                        return false;
+                    }
+                }
+
+                switch(flesh.Type){
+                    case "Flesh":
+                        // Crit & 0 armor = true
+                    return true;
+                    case "Magical Flesh":
+                        // MagiWeak = true
+                        if (condition.Crit) return true;
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * This method checks if the Slow status effect should be applied
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Number} frost Frost damage being dealt
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Boolean
+             */
+            Slow: (armor, flesh, frost, condition, curEffects) => {
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            // Applied
+                        return true;
+                        case "Bark":
+                            // Applied
+                        return true;
+                        case "Fossil":
+                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                        return false;
+                        case "Demon":
+                            // Applied
+                        return true;
+                    }
+                }
+
+                switch(flesh.Type){
+                    case "Flesh":
+                        if (condition.Crit) return true;
+                    return false;
+                    case "Magical Flesh":
+                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                    return false;
+                    case "Specter":
+                        // Immune
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * This method checks if the Burn status effect should be applied
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Number} fire Fire damage being dealt
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Object: { status_Strength: boolean } || false
+             */
+            Burn: (armor, flesh, fire, condition, curEffects) => {
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) {
+                                if (condition.DH) {
+                                    return { Strength: "Inferno"};
+                                } else return { Strength: "Burn"};
+                            }
+                        return false;
+                        case "Bark":
+                            // Applied
+                            if (condition.DH) {
+                                return { Strength: "Inferno"};
+                            } else return { Strength: "Burn"};
+                        case "Fossil":
+                            // Immune
+                        return false;
+                        case "Demon":
+                            if (fire > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1){
+                                if (condition.Crit && condition.DH) {
+                                    return { Strength: "Inferno"};
+                                } else if (condition.Crit || condition.DH){
+                                    return { Strength: "Burn"};
+                                } else return { Strength: "Smolder"};
+                            }
+                        return false;
+                    }
+                }
+
+                switch(flesh.Type){
+                    case "Flesh":
+                        if (condition.Crit && condition.DH) {
+                            return { Strength: "Inferno"};
+                        } else if (condition.Crit || condition.DH){
+                            return { Strength: "Burn"};
+                        } else return { Strength: "Smolder"};
+                    case "Magical Flesh":
+                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) {
+                            if (condition.DH) {
+                                return { Strength: "Inferno"};
+                            } else return { Strength: "Burn"};
+                        }
+                    return false;
+                    case "Specter":
+                        // Immune
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * This method checks if the Blind status effect should be applied
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Number} dark Dark damage being dealt
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Boolean
+             */
+            Blind: (armor, flesh, dark, condition, curEffects) => {
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            // Immune
+                        return false;
+                        case "Bark":
+                            if (condition.Crit) return true;
+                        return false;
+                        case "Fossil":
+                            // Immune
+                        return false;
+                        case "Demon":
+                            // Immune
+                        return false;
+                    }
+                }
+
+                switch(flesh.Type){
+                    case "Flesh":
+                        if (condition.Crit) return true;
+                    return false;
+                    case "Magical Flesh":
+                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                    return false;
+                    case "Specter":
+                        if (curEffects.findIndex(eff => eff.Type === 'Flash') !== -1) return true;
+                    return false;
+                }
+                return false;
+            },
+            /**
+             * This method checks if the Flash status effect should be applied
+             * @param {Object} armor Armor HP Obj
+             * @param {Object} flesh Flesh HP Obj
+             * @param {Number} light Light damage being dealt
+             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
+             * @param {Object[]} curEffects Object array of any and all currently applied status effects
+             * @returns Boolean
+             */
+            Flash: (armor, flesh, light, condition, curEffects) => {
+
+                if (armor.HP > 0){
+                    switch(armor.Type){
+                        case "Armor":
+                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                        return false;
+                        case "Bark":
+                            // Immune
+                        return false;
+                        case "Fossil":
+                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                        return false;
+                        case "Demon":
+                            // Applied
+                        return true;
+                    }
+                }
+
+                switch(flesh.Type){
+                    case "Flesh":
+                        if (condition.Crit) return true;
+                    return false;
+                    case "Magical Flesh":
+                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
+                    return false;
+                    case "Specter":
+                        // Applied
+                    return true;
+                }
+                return false;
+            }
+        }
 
         const subcomGroup = interaction.options.getSubcommandGroup();
         const subcom = interaction.options.getSubcommand();
@@ -185,6 +652,8 @@ module.exports = {
         // Maybe hijack interaction create somehow to check for that?
         // Will need to create button names from combat instance. Could create combat instance class with gen-id 
 
+        const trialRuns = interaction.options.getInteger('amount') ?? 1;
+
         // Combat order of operations
         /**
          *      Deal Shield Damage:
@@ -204,8 +673,6 @@ module.exports = {
             case "combat":
                 switch(subcom){
                     case "simulation":
-                        const trialRuns = interaction.options.getInteger('amount') ?? 1;
-
                         for (let i = 0; i < trialRuns; i++){
                             console.log(chlkPreset.sInfoOne(`Current run: ${i}`));
                             // Load Enemy   
@@ -236,12 +703,20 @@ module.exports = {
                         }
                         
                     break;
+                    case "full":
+                        for (let i = 0; i < trialRuns; i++){
+                            console.log(chlkPreset.sInfoOne(`Current run: ${i}`));
+
+                            const finalResult = singleCombatRun();
+                            console.log(finalResult);
+                        }
+                    break;
                 }
             break;
             case "status":
                 switch(subcom){
                     case "simulation":
-                        const trialRuns = interaction.options.getInteger('amount') ?? 1;
+                        
 
                         // Shields are immune to all status effects
 
@@ -251,397 +726,7 @@ module.exports = {
 
                         // Basic flesh status effects test one:
                         // Status effect pairs
-                        const statusKeys = new Map([
-                            ["Blunt", "Concusion"],
-                            ["Slash", "TBD"],
-                            ["Magic", "MagiWeak"],
-                            ["Rad", "Confusion"],
-                            ["Frost", "Slow"],
-                            ["Fire", "TBD"],
-                            ["Dark", "Blind"],
-                            ["Light", "Flash"]
-                        ]);
-                        /**
-                         *      - Concusion: Blunt
-                         *      - Bleed: Slash
-                         *      - Magic Weakness: Magic
-                         *      - Confusion: Radiation
-                         *      - Slow: Frost
-                         *      - Burn: Fire
-                         *      - Blind: Dark
-                         *      - Flash: Light
-                         */
-                        const testStatus = {
-                            /**
-                             * This method checks if the Cuncusion status effect should be applied
-                             * @param {Object} armor Armor HP obj
-                             * @param {Object} flesh Flesh HP obj 
-                             * @param {Number} blunt Blunt damage being dealt
-                             * @param {Object} condition Attack Conditions: {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Boolean
-                             */
-                            Concusion: (armor, flesh, blunt, condition, curEffects) => {
-                                if (flesh.Type === 'Flesh' && armor.HP > 0 || flesh.Type === 'Specter' || flesh.Type === 'Magical Flesh' && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
-                                
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            // Blunt > (armor.HP * 0.5) = true
-                                            if (blunt > (armor.HP * 0.5)) return true;
-                                        return false;
-                                        case "Bark":
-                                            // Immune = false
-                                        return false;
-                                        case "Fossil":
-                                            // Immune = false
-                                        return false;
-                                        case "Demon":
-                                            // Blunt > (armor.HP * 0.5) && MagiWeak = true
-                                            if (blunt > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                        return false;
-                                    }
-                                }
-                                
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        // Crit & 0 armor = true
-                                        if (condition.Crit) return true;
-                                    return false;
-                                    case "Magical Flesh":
-                                        // MagiWeak = true
-                                        if (curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * This method checks if the Bleed status effect should be applied
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Number} slash Slash Dmg being dealt
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Object: { status_Strength: boolean } || false
-                             */
-                            Bleed: (armor, flesh, slash, condition, curEffects) => {
-                                if (flesh.Type === "Flesh" && armor.HP > 0 || flesh.Type === "Magical Flesh" && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            // Immune to Bleed
-                                        return false;
-                                        case "Bark":
-                                            // Slash > armor.HP * 0.5 && Burn = true
-                                            if (slash > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'Burn') !== -1) {
-                                                // Crit && DH = Big Bleed 
-                                                // Crit || DH = Bleed
-                                                // Little Bleed
-                                                if (condition.Crit && condition.DH) {
-                                                    return { Strength: "big_Bleed"};
-                                                } else if (condition.Crit || condition.DH){
-                                                    return { Strength: "bleed" };
-                                                } else return { Strength: "little_Bleed"};
-                                            }
-                                        return false;
-                                        case "Fossil":
-                                            // Immune to Bleed
-                                        return false;
-                                        case "Demon":
-                                            // Immune to Bleed
-                                        return false;
-                                    }
-                                }
-                                
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        // Crit && DH = Big Bleed 
-                                        // Crit || DH = Bleed
-                                        // Little Bleed
-                                        if (condition.Crit && condition.DH) {
-                                            return { Strength: "big_Bleed"};
-                                        } else if (condition.Crit || condition.DH){
-                                            return { Strength: "bleed" };
-                                        } else return { Strength: "little_Bleed"};
-                                    case "Magical Flesh":
-                                        // Crit && DH = Big Bleed 
-                                        // Crit || DH = Bleed
-                                        // Little Bleed
-                                        if (condition.Crit && condition.DH) {
-                                            return { Strength: "big_Bleed"};
-                                        } else if (condition.Crit || condition.DH){
-                                            return { Strength: "bleed" };
-                                        } else return { Strength: "little_Bleed"};
-                                    case "Specter":
-                                        // Immune to Bleed
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * This method checks if the MagiWeak status effect should be applied
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Boolean
-                             */
-                            Magic_Weakness: (armor, flesh, magic, condition, curEffects) => {
-                                if (armor.HP === 0 && flesh.Type === 'Specter') return false;
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            if (curEffects.findIndex(eff => eff.Type === 'Concusion') !== -1 && condition.Crit) return true;
-                                        return false;
-                                        case "Bark":
-                                            if (condition.Crit) return true;
-                                        return false;
-                                        case "Fossil":
-                                            if (condition.Crit) return true;
-                                        return false;
-                                        case "Demon":
-                                            if (condition.Crit) return true;
-                                        return false;
-                                    }
-                                }
-
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        if (condition.Crit) return true;
-                                    return false;
-                                    case "Magical Flesh":
-                                    
-                                    return true;
-                                    case "Specter":
-                                        // Immune 
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * 
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Number} rad Radiation damage
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Boolean
-                             */
-                            Confusion: (armor, flesh, rad, condition, curEffects) => {
-                                if (armor.HP === 0 && flesh.Type === 'Specter') return false;
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            if (rad > (armor.HP * 0.5) && condition.Crit) return true;
-                                        return false;
-                                        case "Bark":
-                                            // Immune
-                                        return false;
-                                        case "Fossil":
-                                            // Immune
-                                        return false;
-                                        case "Demon":
-                                            if (rad > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'Concusion') !== -1) return true;
-                                        return false;
-                                    }
-                                }
-
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        // Crit & 0 armor = true
-                                    return true;
-                                    case "Magical Flesh":
-                                        // MagiWeak = true
-                                        if (condition.Crit) return true;
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * This method checks if the Slow status effect should be applied
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Number} frost Frost damage being dealt
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Boolean
-                             */
-                            Slow: (armor, flesh, frost, condition, curEffects) => {
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            // Applied
-                                        return true;
-                                        case "Bark":
-                                            // Applied
-                                        return true;
-                                        case "Fossil":
-                                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                        return false;
-                                        case "Demon":
-                                            // Applied
-                                        return true;
-                                    }
-                                }
-
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        if (condition.Crit) return true;
-                                    return false;
-                                    case "Magical Flesh":
-                                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                    return false;
-                                    case "Specter":
-                                        // Immune
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * This method checks if the Burn status effect should be applied
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Number} fire Fire damage being dealt
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Object: { status_Strength: boolean } || false
-                             */
-                            Burn: (armor, flesh, fire, condition, curEffects) => {
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) {
-                                                if (condition.DH) {
-                                                    return { Strength: "inferno"};
-                                                } else return { Strength: "burn"};
-                                            }
-                                        return false;
-                                        case "Bark":
-                                            // Applied
-                                        return true;
-                                        case "Fossil":
-                                            // Immune
-                                        return false;
-                                        case "Demon":
-                                            if (fire > (armor.HP * 0.5) && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1){
-                                                if (condition.Crit && condition.DH) {
-                                                    return { Strength: "inferno"};
-                                                } else if (condition.Crit || condition.DH){
-                                                    return { Strength: "burn"};
-                                                } else return { Strength: "smolder"};
-                                            }
-                                        return false;
-                                    }
-                                }
-
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        if (condition.Crit && condition.DH) {
-                                            return { Strength: "inferno"};
-                                        } else if (condition.Crit || condition.DH){
-                                            return { Strength: "burn"};
-                                        } else return { Strength: "smolder"};
-                                    case "Magical Flesh":
-                                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) {
-                                            if (condition.DH) {
-                                                return { Strength: "inferno"};
-                                            } else return { Strength: "burn"};
-                                        }
-                                    return false;
-                                    case "Specter":
-                                        // Immune
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * This method checks if the Blind status effect should be applied
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Number} dark Dark damage being dealt
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Boolean
-                             */
-                            Blind: (armor, flesh, dark, condition, curEffects) => {
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            // Immune
-                                        return false;
-                                        case "Bark":
-                                            if (condition.Crit) return true;
-                                        return false;
-                                        case "Fossil":
-                                            // Immune
-                                        return false;
-                                        case "Demon":
-                                            // Immune
-                                        return false;
-                                    }
-                                }
-
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        if (condition.Crit) return true;
-                                    return false;
-                                    case "Magical Flesh":
-                                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                    return false;
-                                    case "Specter":
-                                        if (curEffects.findIndex(eff => eff.Type === 'Flash') !== -1) return true;
-                                    return false;
-                                }
-                                return false;
-                            },
-                            /**
-                             * This method checks if the Flash status effect should be applied
-                             * @param {Object} armor Armor HP Obj
-                             * @param {Object} flesh Flesh HP Obj
-                             * @param {Number} light Light damage being dealt
-                             * @param {Object} condition Contains {Crit: boolean, DH: boolean}
-                             * @param {Object[]} curEffects Object array of any and all currently applied status effects
-                             * @returns Boolean
-                             */
-                            Flash: (armor, flesh, light, condition, curEffects) => {
-
-                                if (armor.HP > 0){
-                                    switch(armor.Type){
-                                        case "Armor":
-                                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                        return false;
-                                        case "Bark":
-                                            // Immune
-                                        return false;
-                                        case "Fossil":
-                                            if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                        return false;
-                                        case "Demon":
-                                            // Applied
-                                        return true;
-                                    }
-                                }
-
-                                switch(flesh.Type){
-                                    case "Flesh":
-                                        if (condition.Crit) return true;
-                                    return false;
-                                    case "Magical Flesh":
-                                        if (condition.Crit && curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
-                                    return false;
-                                    case "Specter":
-                                        // Applied
-                                    return true;
-                                }
-                                return false;
-                            }
-                        }
+                        
 
                         // Combo Effects
                         /**
@@ -655,6 +740,10 @@ module.exports = {
 
                         for (let i = 0; i < trialRuns; i++){
                             console.log(chlkPreset.sInfoOne(`Current run: ${i}`));
+
+                            const newEGen = new EnemyFab();
+                            console.log(newEGen);
+                            console.log('===========');
 
                             const enemyHPTypes = genEnemy();
                             enemyHPTypes[2].HP === 0;
@@ -711,6 +800,277 @@ module.exports = {
 
         return await interaction.reply(`Command took ${endTime - startTime}ms to complete!`);
 
+
+
+        function singleCombatRun(){
+            const weapon = checkingDamage(genGearPiece());
+            console.log(weapon);
+
+            const enemy = new EnemyFab();
+            console.log(enemy);
+
+            // Check shields, check if damage exceeds HP
+            // End combat turn if not
+            // Remove shields and remove any expended dmg types
+
+            // Check Armor, check if damage exceeds HP
+            // Check for status effects, then end combat turn
+            // Remove armor and remove any expended dmg types
+
+            // Check Flesh, check if damage exceeds HP
+            // Check for status effects, then end combat turn if not
+            // End combat, enemy is dead
+
+            // Create damage objects
+            // Total up damage to shield
+            // Check dmg to hp
+            const result = orderNModDamageList(weapon, enemy);
+
+            const statusBrain = /Active: Check Status/;
+            const indexedResult = (result) ? result.outcome.search(statusBrain) : 'None';
+            //console.log(indexedResult);
+            if (indexedResult !== 'None' && indexedResult !== -1){
+                // Remove any existing shield/armor hp depending on status checks being made before checking status effects
+                const hpTypeSlice = result.outcome.slice(0, indexedResult - 1);
+                switch(hpTypeSlice){
+                    case "Armor":
+                        enemy.shield.HP = 0;
+                    break;
+                    case "Flesh":
+                        enemy.shield.HP = 0;
+                        enemy.armor.HP = 0;
+                    break;
+                }
+
+                // Status effects need to be checked using given damage types.
+                for (const dmgObj of result.dmgCheck){
+                    // Use the outcome for applicable effect construction
+                    const effectOutcome = checkForStatus(dmgObj, enemy, testStatus, enemy.activeEffects);
+
+                    // If outcome is true or false, 
+                    // Otherwise create applicable effect and push to enemy effects list
+                    if (effectOutcome instanceof Object) {
+                        const effectObj = (effectOutcome.Strength) ? { Type: effectOutcome.Strength } : { Type: statusKeys.get(effectOutcome.Type) } ;
+
+                        enemy.activeEffects.push(effectObj);
+                    }
+                }
+                //console.log(enemy.activeEffects);
+
+                // Subtract damage dealt after checking for status effects
+                switch(hpTypeSlice){
+                    case "Armor":
+                        enemy.armor.HP -= result.dmgDealt;
+                    break;
+                    case "Flesh":
+                        enemy.flesh.HP -= result.dmgDealt;
+                    break;
+                }
+                console.log(enemy);
+            }
+            
+
+            return result;
+        }
+
+
+        function orderNModDamageList(dmgList, enemy){
+            let shieldDMG = [], armorDMG = [], fleshDMG = [];
+            let hpREF = [enemy.shield.Type, enemy.armor.Type, enemy.flesh.Type];
+
+            //Shield = 0, Armor = 1, Flesh = 2
+            for (let i = 0; i < 3; i++){
+                for (const dmgObj of dmgList){
+                    // Lookup damage x hp type match with table ref
+                    const yLookup = rowMatch.indexOf(dmgObj.Type);
+                    const xLookup = columnMatch.indexOf(hpREF[i]);
+
+                    // Create modified damage value
+                    const modBY = damageModifier[damageKeyIndexer.indexOf(damageMatchTable[yLookup][xLookup])];
+
+                    // Create new obj containing modified damage and the hp type modified against
+                    const moddedDMG = {
+                        Type: dmgObj.Type,
+                        DMG: dmgObj.DMG + (dmgObj.DMG * modBY),
+                        Against: { Type: hpREF[i] }
+                    };
+
+                    // Filter to correct list for faster checking later
+                    if (i === 0) shieldDMG.push(moddedDMG);
+                    if (i === 1) armorDMG.push(moddedDMG);
+                    if (i === 2) fleshDMG.push(moddedDMG);
+                }
+            }
+            
+            // =========================
+            // HANDLE CODE THAT SKIPS CALCS WHEN STARTING SHIELD/ARMOR VALUES ARE 0!!!
+            // =========================
+
+            // Sum shield list and compare to enemy shield hp, if total damage < shield hp, return values and outcome
+            const totalShieldDmg = shieldDMG.reduce((total, dobj) => total + dobj.DMG, 0);
+            console.log('Total Shield Damage: %d', totalShieldDmg);
+            if (totalShieldDmg < enemy.shield.HP) {
+                // Shield remains after damage, skip status effect calculations as well as further armor/flesh damage calculations
+                //enemy.shield.HP -= totalShieldDmg;
+                return {outcome: 'Shield Active'};
+            } else if (totalShieldDmg === enemy.shield.HP) {
+                // Shield breaks, no damage remains, skip status effect & further dmg calculations
+                //enemy.shield.HP = 0;
+                return {outcome: 'Shield Break: Damage Exhausted'};
+            }
+
+            // Sort dmg highest to lowest before looping on shield
+            shieldDMG.sort((a, b) => { return b.DMG - a.DMG; });
+
+            // Shield can be broken, calculate values after damage to shield is dealt.
+            let enemyShieldRef = enemy.shield.HP;
+            for (const sDmg of shieldDMG){
+                if (sDmg.DMG > enemyShieldRef){
+                    // Shield Break, damage overflow
+                    sDmg.DMG -= enemyShieldRef;
+                    sDmg.used = true;
+                    enemyShieldRef = 0;
+                } else if (sDmg.DMG === enemyShieldRef){
+                    // Shield Break, damage exhausted
+                    sDmg.DMG = 0;
+                    sDmg.spent = true;
+                    enemyShieldRef = 0;
+                } else {
+                    // Shield Remains, prepare next loop.
+                    enemyShieldRef -= sDmg.DMG;
+                    sDmg.DMG = 0;
+                    sDmg.spent = true;
+                }
+                // Shield has been broken
+                if (enemyShieldRef <= 0) break;
+            }
+
+            let shieldDmgUsed = shieldDMG.filter(dObj => dObj.used);
+            const shieldDmgSpent = shieldDMG.filter(dObj => dObj.spent);
+            if (shieldDmgSpent.length > 0) {
+                // Damage spent, remove entries from other type lists
+                for (const spentDmg of shieldDmgSpent){
+                    const checkFor = (ele) => ele.Type === spentDmg.Type;
+                    // Apply spent prop to both entries found using the above predicate method
+                    // While also setting DMG values to 0
+                    armorDMG[armorDMG.findIndex(checkFor)].spent = true;
+                    armorDMG[armorDMG.findIndex(checkFor)].DMG = 0;
+
+                    fleshDMG[fleshDMG.findIndex(checkFor)].spent = true;
+                    fleshDMG[fleshDMG.findIndex(checkFor)].DMG = 0;
+                }
+            } 
+            if (shieldDmgUsed.length > 0) {
+                // Modify damage type used after checking diff values  
+                shieldDmgUsed = shieldDmgUsed[0];
+                const checkFor = (ele) => ele.Type === shieldDmgUsed.Type;
+                // If remaining dmg is > armor dmg do nothing, preventing excessive dmg scaling
+                // If remaining dmg is < armor dmg scale dmg using type match to prevent dmg loss
+                if (armorDMG[armorDMG.findIndex(checkFor)].DMG > shieldDmgUsed.DMG) {
+                    //console.log('Type Damage after shield break, before mod: %d', shieldDmgUsed.DMG);
+                    const shieldDmgCarry = singleLookup(shieldDmgUsed);
+                    //console.log('Type Damage after shield break, after mod: %d', shieldDmgCarry.DMG);
+                    armorDMG[armorDMG.findIndex(checkFor)].DMG = shieldDmgCarry.DMG;
+                }
+            }
+
+            // Shield damage list is dealt with by this point!
+            //console.log(shieldDMG);
+
+            // Check if armor can be broken
+            // Then sort Highest to Lowest
+            const totalArmorDMG = armorDMG.reduce((total, dObj) => total + dObj.DMG, 0);
+            console.log('Total Armor Damage: %d', totalArmorDMG);
+            if (totalArmorDMG < enemy.armor.HP){
+                // Armor left after damage dealt
+                // Check if status effects can be applied!
+
+                // =========================
+                // NEED TO HANDLE CURRENTLY ACTIVE EFFECTS BEING CARRIED OVER AND CHECKED
+                return {outcome: 'Armor Active: Check Status', dmgDealt: totalArmorDMG, dmgCheck: armorDMG};
+                // =========================
+            } else if (totalArmorDMG === enemy.armor.HP){
+                // Armor break, all damage exhausted. 
+                // ?? how to handle status effects for this case
+                return {outcome: 'Armor Break: Damage Exhausted', dmgDealt: totalArmorDMG};
+            }
+
+            // Sort damage highest to lowest before looping on armor
+            armorDMG.sort((a, b) => { return b.DMG - a.DMG; });
+
+            // Armor can be broken, loop till broken and calculate remaining values
+            let enemyArmorRef = enemy.armor.HP;
+            for (const aDmg of armorDMG) {
+                if (aDmg.DMG > enemyArmorRef){
+                    // Armor Break, damage overflow
+                    aDmg.DMG -= enemyArmorRef;
+                    aDmg.used = true;
+                    enemyArmorRef = 0;
+                } else if (aDmg.DMG === enemyArmorRef){
+                    // Armor Break, damage exhausted
+                    aDmg.DMG = 0;
+                    aDmg.spent = true;
+                    enemyArmorRef = 0;
+                } else {
+                    // Armor Remains, prepare next loop.
+                    enemyArmorRef -= aDmg.DMG;
+                    aDmg.DMG = 0;
+                    aDmg.spent = true;
+                }
+                // Armor has been broken
+                if (enemyArmorRef <= 0) break;
+            }
+
+            let armorDmgUsed = armorDMG.filter(dObj => dObj.used);
+            const armorDmgSpent = armorDMG.filter(dObj => dObj.spent);
+            if (armorDmgSpent.length > 0) {
+                for (const spentDmg of armorDmgSpent){
+                    const checkFor = (ele) => ele.Type === spentDmg.Type;
+                    // Apply spent prop to both entries found using the above predicate method
+                    // While also setting DMG values to 0
+                    fleshDMG[fleshDMG.findIndex(checkFor)].spent = true;
+                    fleshDMG[fleshDMG.findIndex(checkFor)].DMG = 0;
+                }
+            }
+            if (armorDmgUsed.length > 0) {
+                // Modify damage type used after checking diff values  
+                armorDmgUsed = armorDmgUsed[0];
+                const checkFor = (ele) => ele.Type === armorDmgUsed.Type;
+                // If remaining dmg is > flesh dmg do nothing, preventing excessive dmg scaling
+                // If remaining dmg is < flesh dmg scale dmg using type match to prevent dmg loss
+                if (fleshDMG[fleshDMG.findIndex(checkFor)].DMG > armorDmgUsed.DMG) {
+                    //console.log('Type Damage after armor break, before mod: %d', armorDmgUsed.DMG);
+                    const armorDmgCarry = singleLookup(armorDmgUsed);
+                    //console.log('Type Damage after armor break, after mod: %d', armorDmgCarry.DMG);
+                    fleshDMG[fleshDMG.findIndex(checkFor)].DMG = armorDmgCarry.DMG;
+                }
+            }
+
+            // These lists should be modified by all applicable calculations at this point!
+            //console.log(armorDMG);
+            //console.log(fleshDMG);
+
+            // Check if flesh HP can be reduced to 0
+            const totalFleshDMG = fleshDMG.reduce((total, dObj) => total + dObj.DMG, 0);
+            console.log('Total Flesh Damage: %d', totalFleshDMG);
+            if (totalFleshDMG < enemy.flesh.HP) {
+                // Enemy stays alive
+                // Check for status effects to be applied
+
+                // =========================
+                // NEED TO HANDLE CURRENTLY ACTIVE EFFECTS BEING CARRIED OVER AND CHECKED
+                return {outcome: 'Flesh Active: Check Status', dmgDealt: totalFleshDMG, dmgCheck: fleshDMG};
+                // =========================
+            } else {
+                // Enemy is dead if this is reached!
+                //enemy.flesh.HP = 0;
+                return {outcome: 'Dead'};
+            }
+        }
+
+
+
+
         /**
          * 
          * @param {Object} dmgObj Damage Object: {Type: string, DMG: number}
@@ -728,7 +1088,7 @@ module.exports = {
                 DH: inclusiveRandNum(1,0)
             };
             
-            console.log(condition);
+            //console.log(condition);
 
             // testStatus.prop(armor, flesh, blunt, condition, curEffects)
             let returnOutcome = false;
@@ -738,10 +1098,11 @@ module.exports = {
                 break;
                 case "Slash":
                     returnOutcome = testStatus.Bleed(armorObj, fleshObj, dmgObj.DMG, condition, curEffects);
-                    if (returnOutcome !== false){
-                        returnOutcome = {
+                    console.log('Slash Proc: ', returnOutcome);
+                    if (returnOutcome.Strength){
+                        return returnOutcome = {
                             Type: dmgObj.Type,
-                            Strength: returnOutcome
+                            Strength: returnOutcome.Strength
                         };
                     }
                 break;
@@ -756,10 +1117,11 @@ module.exports = {
                 break;
                 case "Fire":
                     returnOutcome = testStatus.Burn(armorObj, fleshObj, dmgObj.DMG, condition, curEffects);
+                    console.log('Fire Proc: ', returnOutcome);
                     if (returnOutcome !== false){
-                        returnOutcome = {
+                        return returnOutcome = {
                             Type: dmgObj.Type,
-                            Strength: returnOutcome
+                            Strength: returnOutcome.Strength
                         };
                     }
                 break;
@@ -775,7 +1137,8 @@ module.exports = {
                 break;
             }
 
-            if (returnOutcome === true) {
+            console.log(returnOutcome);
+            if (returnOutcome === true){
                 returnOutcome = {
                     Type: dmgObj.Type
                 };
@@ -868,6 +1231,8 @@ module.exports = {
             const finalStrs = [finalTypeStr, finalRarStr, finalDisStr, finalSlotStr];
 
             const returnStr = finalStrs.join('-');
+
+            console.log(chlkPreset.bInfoOne('===== GEAR GEN END ====='));
 
             return returnStr;
         }
