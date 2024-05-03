@@ -41,6 +41,7 @@ class EnemyFab {
             Type: randArrPos(fleshTypes)
         };
         this.flesh.HP = fleshHPRange(this.level, this.flesh.Type);
+        this.maxFleshHP = this.flesh.HP;
         
         // Rand Gen Armor HP
         const armorHPRange = (level, HPType) => {
@@ -58,6 +59,7 @@ class EnemyFab {
             Type: randArrPos(armorTypes)
         };
         this.armor.HP = armorHPRange(this.level, this.armor.Type);
+        this.maxArmorHP = this.armor.HP;
 
         // Rand Gen Shield HP
         const shieldHPRange = (level, HPType) => {
@@ -74,8 +76,49 @@ class EnemyFab {
             Type: randArrPos(shieldTypes)
         };
         this.shield.HP = shieldHPRange(this.level, this.shield.Type);
+        this.maxShieldHP = this.shield.HP;
 
         this.activeEffects = [];
+
+        this.internalEffects = {
+            HitChance: 0,
+            HitStrength: 0,
+            ArmorStrength: 0, // Total armor inc/dec
+            ArmorBurn: false, // Caused by inferno -25% armor
+            ArmorCrack: false, // Caused by concusion -50% armor
+            Weakness: {
+                Physical: {
+                    Blunt: 0,
+                    Slash: 0
+                },
+                Magical: {
+                    Magic: 0,
+                    Fire: 0,
+                    Frost: 0,
+                    Light: 0,
+                    Dark: 0
+                }
+            }
+        }
+
+        this.externalRedux = {
+            DHChance: 0,
+            CritChance: 0
+        }
+    }
+
+    updateArmStr(){
+        if (this.internalEffects.ArmorStrength === -0.75 && this.internalEffects.ArmorBurn && this.internalEffects.ArmorCrack) return;
+        
+        this.internalEffects.ArmorStrength = 0;
+
+        if (this.internalEffects.ArmorBurn && this.internalEffects.ArmorCrack) {
+            this.internalEffects.ArmorStrength -= 0.75;
+        } else if (this.internalEffects.ArmorBurn && !this.internalEffects.ArmorCrack) {
+            this.internalEffects.ArmorStrength -= 0.25;
+        } else if (!this.internalEffects.ArmorBurn && this.internalEffects.ArmorCrack) {
+            this.internalEffects.ArmorStrength -= 0.50;
+        }
     }
 }
 
@@ -638,14 +681,24 @@ module.exports = {
 
         // TO DO
 
-        // Merge Status and damage dealing functions together
+        // ===========================
+        // DONE -x- Merge Status and damage dealing functions together
+        // Implement Status effect modifications
+        // Handle and Predict outcomes
+        // Create basic discord visual for combat turns
+        // Measure speed and efficency with API calls involved
+        // ===========================
         // Once functional, create interactive combat (devcombat)
         // Improve speed and check for proper functionallity, allow outside testers access
+        // ===========================
         // Implement blocking mechanics with new item codes and damage methods
+        // ===========================
         // Create new ways to handle potion use and abilities
+        // ===========================
         // Stress test all mechanics 
         // Debug where needed
         // Allow more testing
+        // ===========================
         // Start conversion of old combat to new combat!!!
 
         // Constructer that can inately handle button component calls?
@@ -709,6 +762,16 @@ module.exports = {
 
                             const finalResult = singleCombatRun();
                             console.log(finalResult);
+
+                            // Test display here!!
+
+                            // HP bar colours: Flesh = Red, Armor = Orange, Shield = Blue
+
+                            // How to tell the difference between different types?
+                            // Visual indicator?
+                            // Written Context?
+                            // Colouration difference?
+                            // 
                         }
                     break;
                 }
@@ -807,7 +870,7 @@ module.exports = {
             console.log(weapon);
 
             const enemy = new EnemyFab();
-            console.log(enemy);
+            console.log(`Enemy @ lvl ${chlkPreset.bInfoOne(enemy.level)}: \n${enemy.flesh.Type}: ${chlkPreset.bInfoTwo(enemy.flesh.HP)}\n${enemy.armor.Type}: ${chlkPreset.bInfoTwo(enemy.armor.HP)}\n${enemy.shield.Type}: ${chlkPreset.bInfoTwo(enemy.shield.HP)}`);
 
             // Check shields, check if damage exceeds HP
             // End combat turn if not
@@ -825,6 +888,7 @@ module.exports = {
             // Total up damage to shield
             // Check dmg to hp
             const result = orderNModDamageList(weapon, enemy);
+            if (result.outcome === 'Dead') return result;
 
             const statusBrain = /Active: Check Status/;
             const indexedResult = (result) ? result.outcome.search(statusBrain) : 'None';
@@ -866,11 +930,59 @@ module.exports = {
                         enemy.flesh.HP -= result.dmgDealt;
                     break;
                 }
-                console.log(enemy);
+                console.log(enemy.activeEffects.map(effect => `Effect: ${effect.Type}`));
             }
             
+            // Apply DOT effect damage here!
+            if (enemy.activeEffects.length > 0){
+                let dmgAcc = 0;
+                for (const effect of enemy.activeEffects){
+                    switch(effect.Type){
+                        case "Little Bleed":
+                            // 5% Max HP dmg
+                            dmgAcc += (enemy.maxFleshHP * 0.05); 
+                        break;
+                        case "Bleed":
+                            // 10% Max HP dmg
+                            dmgAcc += (enemy.maxFleshHP * 0.10); 
+                        break;
+                        case "Big Bleed":
+                            // 15% Max HP dmg
+                            dmgAcc += (enemy.maxFleshHP * 0.15); 
+                        break;
+                        case "Inferno":
+                            // 15% Max HP dmg + 25% armor redux (Only Applies Once!)
+                            if (!enemy.internalEffects.ArmorBurn && enemy.armor.HP > 0) enemy.internalEffects.ArmorBurn = true; //enemy.armor.HP = enemy.armor.HP - (enemy.armor.HP * 0.25);
+                            dmgAcc += (enemy.armor.HP > 0) ? (enemy.maxArmorHP * 0.15) : (enemy.maxFleshHP * 0.15); 
+                        break;
+                        case "Burn":
+                            // 12% Max HP dmg
+                            dmgAcc += (enemy.armor.HP > 0) ? (enemy.maxArmorHP * 0.12) : (enemy.maxFleshHP * 0.12); 
+                        break;
+                        case "Smolder":
+                            // 7% Max HP dmg
+                            dmgAcc += (enemy.armor.HP > 0) ? (enemy.maxArmorHP * 0.07) : (enemy.maxFleshHP * 0.07); 
+                        break;
+                        default:
+                            // No damage dealt
+                        break;
+                    }
+                }
+                console.log('DOT damage to be dealt: %d', dmgAcc);
 
-            return result;
+                // ============================
+                // APPLY ANY ADDITIONAL EFFECT MODIFIERS HERE 
+                // ============================
+
+
+                // Adjust armor values here, accounting for any status effects applied this turn
+                enemy.updateArmStr();
+                console.log('Armor Strength After Effects: %d', enemy.internalEffects.ArmorStrength);
+
+                // ============================
+                // DEAL DoT TO ENEMY HERE, ACCOUNT FOR ARMOR REDUX AND WEAKNESSES
+                // ============================
+            }
         }
 
 
@@ -906,146 +1018,150 @@ module.exports = {
             // HANDLE CODE THAT SKIPS CALCS WHEN STARTING SHIELD/ARMOR VALUES ARE 0!!!
             // =========================
 
-            // Sum shield list and compare to enemy shield hp, if total damage < shield hp, return values and outcome
-            const totalShieldDmg = shieldDMG.reduce((total, dobj) => total + dobj.DMG, 0);
-            console.log('Total Shield Damage: %d', totalShieldDmg);
-            if (totalShieldDmg < enemy.shield.HP) {
-                // Shield remains after damage, skip status effect calculations as well as further armor/flesh damage calculations
-                //enemy.shield.HP -= totalShieldDmg;
-                return {outcome: 'Shield Active'};
-            } else if (totalShieldDmg === enemy.shield.HP) {
-                // Shield breaks, no damage remains, skip status effect & further dmg calculations
-                //enemy.shield.HP = 0;
-                return {outcome: 'Shield Break: Damage Exhausted'};
-            }
-
-            // Sort dmg highest to lowest before looping on shield
-            shieldDMG.sort((a, b) => { return b.DMG - a.DMG; });
-
-            // Shield can be broken, calculate values after damage to shield is dealt.
-            let enemyShieldRef = enemy.shield.HP;
-            for (const sDmg of shieldDMG){
-                if (sDmg.DMG > enemyShieldRef){
-                    // Shield Break, damage overflow
-                    sDmg.DMG -= enemyShieldRef;
-                    sDmg.used = true;
-                    enemyShieldRef = 0;
-                } else if (sDmg.DMG === enemyShieldRef){
-                    // Shield Break, damage exhausted
-                    sDmg.DMG = 0;
-                    sDmg.spent = true;
-                    enemyShieldRef = 0;
-                } else {
-                    // Shield Remains, prepare next loop.
-                    enemyShieldRef -= sDmg.DMG;
-                    sDmg.DMG = 0;
-                    sDmg.spent = true;
+            if (enemy.shield.HP > 0) {
+                // Sum shield list and compare to enemy shield hp, if total damage < shield hp, return values and outcome
+                const totalShieldDmg = shieldDMG.reduce((total, dobj) => total + dobj.DMG, 0);
+                console.log('Total Shield Damage: %d', totalShieldDmg);
+                if (totalShieldDmg < enemy.shield.HP) {
+                    // Shield remains after damage, skip status effect calculations as well as further armor/flesh damage calculations
+                    //enemy.shield.HP -= totalShieldDmg;
+                    return {outcome: 'Shield Active'};
+                } else if (totalShieldDmg === enemy.shield.HP) {
+                    // Shield breaks, no damage remains, skip status effect & further dmg calculations
+                    //enemy.shield.HP = 0;
+                    return {outcome: 'Shield Break: Damage Exhausted'};
                 }
-                // Shield has been broken
-                if (enemyShieldRef <= 0) break;
-            }
 
-            let shieldDmgUsed = shieldDMG.filter(dObj => dObj.used);
-            const shieldDmgSpent = shieldDMG.filter(dObj => dObj.spent);
-            if (shieldDmgSpent.length > 0) {
-                // Damage spent, remove entries from other type lists
-                for (const spentDmg of shieldDmgSpent){
-                    const checkFor = (ele) => ele.Type === spentDmg.Type;
-                    // Apply spent prop to both entries found using the above predicate method
-                    // While also setting DMG values to 0
-                    armorDMG[armorDMG.findIndex(checkFor)].spent = true;
-                    armorDMG[armorDMG.findIndex(checkFor)].DMG = 0;
+                // Sort dmg highest to lowest before looping on shield
+                shieldDMG.sort((a, b) => { return b.DMG - a.DMG; });
 
-                    fleshDMG[fleshDMG.findIndex(checkFor)].spent = true;
-                    fleshDMG[fleshDMG.findIndex(checkFor)].DMG = 0;
+                // Shield can be broken, calculate values after damage to shield is dealt.
+                let enemyShieldRef = enemy.shield.HP;
+                for (const sDmg of shieldDMG){
+                    if (sDmg.DMG > enemyShieldRef){
+                        // Shield Break, damage overflow
+                        sDmg.DMG -= enemyShieldRef;
+                        sDmg.used = true;
+                        enemyShieldRef = 0;
+                    } else if (sDmg.DMG === enemyShieldRef){
+                        // Shield Break, damage exhausted
+                        sDmg.DMG = 0;
+                        sDmg.spent = true;
+                        enemyShieldRef = 0;
+                    } else {
+                        // Shield Remains, prepare next loop.
+                        enemyShieldRef -= sDmg.DMG;
+                        sDmg.DMG = 0;
+                        sDmg.spent = true;
+                    }
+                    // Shield has been broken
+                    if (enemyShieldRef <= 0) break;
                 }
-            } 
-            if (shieldDmgUsed.length > 0) {
-                // Modify damage type used after checking diff values  
-                shieldDmgUsed = shieldDmgUsed[0];
-                const checkFor = (ele) => ele.Type === shieldDmgUsed.Type;
-                // If remaining dmg is > armor dmg do nothing, preventing excessive dmg scaling
-                // If remaining dmg is < armor dmg scale dmg using type match to prevent dmg loss
-                if (armorDMG[armorDMG.findIndex(checkFor)].DMG > shieldDmgUsed.DMG) {
-                    //console.log('Type Damage after shield break, before mod: %d', shieldDmgUsed.DMG);
-                    const shieldDmgCarry = singleLookup(shieldDmgUsed);
-                    //console.log('Type Damage after shield break, after mod: %d', shieldDmgCarry.DMG);
-                    armorDMG[armorDMG.findIndex(checkFor)].DMG = shieldDmgCarry.DMG;
+
+                let shieldDmgUsed = shieldDMG.filter(dObj => dObj.used);
+                const shieldDmgSpent = shieldDMG.filter(dObj => dObj.spent);
+                if (shieldDmgSpent.length > 0) {
+                    // Damage spent, remove entries from other type lists
+                    for (const spentDmg of shieldDmgSpent){
+                        const checkFor = (ele) => ele.Type === spentDmg.Type;
+                        // Apply spent prop to both entries found using the above predicate method
+                        // While also setting DMG values to 0
+                        armorDMG[armorDMG.findIndex(checkFor)].spent = true;
+                        armorDMG[armorDMG.findIndex(checkFor)].DMG = 0;
+
+                        fleshDMG[fleshDMG.findIndex(checkFor)].spent = true;
+                        fleshDMG[fleshDMG.findIndex(checkFor)].DMG = 0;
+                    }
+                } 
+                if (shieldDmgUsed.length > 0) {
+                    // Modify damage type used after checking diff values  
+                    shieldDmgUsed = shieldDmgUsed[0];
+                    const checkFor = (ele) => ele.Type === shieldDmgUsed.Type;
+                    // If remaining dmg is > armor dmg do nothing, preventing excessive dmg scaling
+                    // If remaining dmg is < armor dmg scale dmg using type match to prevent dmg loss
+                    if (armorDMG[armorDMG.findIndex(checkFor)].DMG > shieldDmgUsed.DMG) {
+                        //console.log('Type Damage after shield break, before mod: %d', shieldDmgUsed.DMG);
+                        const shieldDmgCarry = singleLookup(shieldDmgUsed);
+                        //console.log('Type Damage after shield break, after mod: %d', shieldDmgCarry.DMG);
+                        armorDMG[armorDMG.findIndex(checkFor)].DMG = shieldDmgCarry.DMG;
+                    }
                 }
             }
-
+            
             // Shield damage list is dealt with by this point!
             //console.log(shieldDMG);
 
-            // Check if armor can be broken
-            // Then sort Highest to Lowest
-            const totalArmorDMG = armorDMG.reduce((total, dObj) => total + dObj.DMG, 0);
-            console.log('Total Armor Damage: %d', totalArmorDMG);
-            if (totalArmorDMG < enemy.armor.HP){
-                // Armor left after damage dealt
-                // Check if status effects can be applied!
+            if (enemy.armor.HP > 0) {
+                // Check if armor can be broken
+                // Then sort Highest to Lowest
+                const totalArmorDMG = armorDMG.reduce((total, dObj) => total + dObj.DMG, 0);
+                console.log('Total Armor Damage: %d', totalArmorDMG);
+                if (totalArmorDMG < enemy.armor.HP){
+                    // Armor left after damage dealt
+                    // Check if status effects can be applied!
 
-                // =========================
-                // NEED TO HANDLE CURRENTLY ACTIVE EFFECTS BEING CARRIED OVER AND CHECKED
-                return {outcome: 'Armor Active: Check Status', dmgDealt: totalArmorDMG, dmgCheck: armorDMG};
-                // =========================
-            } else if (totalArmorDMG === enemy.armor.HP){
-                // Armor break, all damage exhausted. 
-                // ?? how to handle status effects for this case
-                return {outcome: 'Armor Break: Damage Exhausted', dmgDealt: totalArmorDMG};
-            }
-
-            // Sort damage highest to lowest before looping on armor
-            armorDMG.sort((a, b) => { return b.DMG - a.DMG; });
-
-            // Armor can be broken, loop till broken and calculate remaining values
-            let enemyArmorRef = enemy.armor.HP;
-            for (const aDmg of armorDMG) {
-                if (aDmg.DMG > enemyArmorRef){
-                    // Armor Break, damage overflow
-                    aDmg.DMG -= enemyArmorRef;
-                    aDmg.used = true;
-                    enemyArmorRef = 0;
-                } else if (aDmg.DMG === enemyArmorRef){
-                    // Armor Break, damage exhausted
-                    aDmg.DMG = 0;
-                    aDmg.spent = true;
-                    enemyArmorRef = 0;
-                } else {
-                    // Armor Remains, prepare next loop.
-                    enemyArmorRef -= aDmg.DMG;
-                    aDmg.DMG = 0;
-                    aDmg.spent = true;
+                    // =========================
+                    // NEED TO HANDLE CURRENTLY ACTIVE EFFECTS BEING CARRIED OVER AND CHECKED
+                    return {outcome: 'Armor Active: Check Status', dmgDealt: totalArmorDMG, dmgCheck: armorDMG};
+                    // =========================
+                } else if (totalArmorDMG === enemy.armor.HP){
+                    // Armor break, all damage exhausted. 
+                    // ?? how to handle status effects for this case
+                    return {outcome: 'Armor Break: Damage Exhausted', dmgDealt: totalArmorDMG};
                 }
-                // Armor has been broken
-                if (enemyArmorRef <= 0) break;
-            }
 
-            let armorDmgUsed = armorDMG.filter(dObj => dObj.used);
-            const armorDmgSpent = armorDMG.filter(dObj => dObj.spent);
-            if (armorDmgSpent.length > 0) {
-                for (const spentDmg of armorDmgSpent){
-                    const checkFor = (ele) => ele.Type === spentDmg.Type;
-                    // Apply spent prop to both entries found using the above predicate method
-                    // While also setting DMG values to 0
-                    fleshDMG[fleshDMG.findIndex(checkFor)].spent = true;
-                    fleshDMG[fleshDMG.findIndex(checkFor)].DMG = 0;
+                // Sort damage highest to lowest before looping on armor
+                armorDMG.sort((a, b) => { return b.DMG - a.DMG; });
+
+                // Armor can be broken, loop till broken and calculate remaining values
+                let enemyArmorRef = enemy.armor.HP;
+                for (const aDmg of armorDMG) {
+                    if (aDmg.DMG > enemyArmorRef){
+                        // Armor Break, damage overflow
+                        aDmg.DMG -= enemyArmorRef;
+                        aDmg.used = true;
+                        enemyArmorRef = 0;
+                    } else if (aDmg.DMG === enemyArmorRef){
+                        // Armor Break, damage exhausted
+                        aDmg.DMG = 0;
+                        aDmg.spent = true;
+                        enemyArmorRef = 0;
+                    } else {
+                        // Armor Remains, prepare next loop.
+                        enemyArmorRef -= aDmg.DMG;
+                        aDmg.DMG = 0;
+                        aDmg.spent = true;
+                    }
+                    // Armor has been broken
+                    if (enemyArmorRef <= 0) break;
+                }
+
+                let armorDmgUsed = armorDMG.filter(dObj => dObj.used);
+                const armorDmgSpent = armorDMG.filter(dObj => dObj.spent);
+                if (armorDmgSpent.length > 0) {
+                    for (const spentDmg of armorDmgSpent){
+                        const checkFor = (ele) => ele.Type === spentDmg.Type;
+                        // Apply spent prop to both entries found using the above predicate method
+                        // While also setting DMG values to 0
+                        fleshDMG[fleshDMG.findIndex(checkFor)].spent = true;
+                        fleshDMG[fleshDMG.findIndex(checkFor)].DMG = 0;
+                    }
+                }
+                if (armorDmgUsed.length > 0) {
+                    // Modify damage type used after checking diff values  
+                    armorDmgUsed = armorDmgUsed[0];
+                    const checkFor = (ele) => ele.Type === armorDmgUsed.Type;
+                    // If remaining dmg is > flesh dmg do nothing, preventing excessive dmg scaling
+                    // If remaining dmg is < flesh dmg scale dmg using type match to prevent dmg loss
+                    if (fleshDMG[fleshDMG.findIndex(checkFor)].DMG > armorDmgUsed.DMG) {
+                        //console.log('Type Damage after armor break, before mod: %d', armorDmgUsed.DMG);
+                        const armorDmgCarry = singleLookup(armorDmgUsed);
+                        //console.log('Type Damage after armor break, after mod: %d', armorDmgCarry.DMG);
+                        fleshDMG[fleshDMG.findIndex(checkFor)].DMG = armorDmgCarry.DMG;
+                    }
                 }
             }
-            if (armorDmgUsed.length > 0) {
-                // Modify damage type used after checking diff values  
-                armorDmgUsed = armorDmgUsed[0];
-                const checkFor = (ele) => ele.Type === armorDmgUsed.Type;
-                // If remaining dmg is > flesh dmg do nothing, preventing excessive dmg scaling
-                // If remaining dmg is < flesh dmg scale dmg using type match to prevent dmg loss
-                if (fleshDMG[fleshDMG.findIndex(checkFor)].DMG > armorDmgUsed.DMG) {
-                    //console.log('Type Damage after armor break, before mod: %d', armorDmgUsed.DMG);
-                    const armorDmgCarry = singleLookup(armorDmgUsed);
-                    //console.log('Type Damage after armor break, after mod: %d', armorDmgCarry.DMG);
-                    fleshDMG[fleshDMG.findIndex(checkFor)].DMG = armorDmgCarry.DMG;
-                }
-            }
-
+            
             // These lists should be modified by all applicable calculations at this point!
             //console.log(armorDMG);
             //console.log(fleshDMG);
@@ -1098,7 +1214,7 @@ module.exports = {
                 break;
                 case "Slash":
                     returnOutcome = testStatus.Bleed(armorObj, fleshObj, dmgObj.DMG, condition, curEffects);
-                    console.log('Slash Proc: ', returnOutcome);
+                    //console.log('Slash Proc: ', returnOutcome);
                     if (returnOutcome.Strength){
                         return returnOutcome = {
                             Type: dmgObj.Type,
@@ -1117,7 +1233,7 @@ module.exports = {
                 break;
                 case "Fire":
                     returnOutcome = testStatus.Burn(armorObj, fleshObj, dmgObj.DMG, condition, curEffects);
-                    console.log('Fire Proc: ', returnOutcome);
+                    //console.log('Fire Proc: ', returnOutcome);
                     if (returnOutcome !== false){
                         return returnOutcome = {
                             Type: dmgObj.Type,
@@ -1137,7 +1253,7 @@ module.exports = {
                 break;
             }
 
-            console.log(returnOutcome);
+            //console.log(returnOutcome);
             if (returnOutcome === true){
                 returnOutcome = {
                     Type: dmgObj.Type

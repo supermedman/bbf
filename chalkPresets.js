@@ -37,5 +37,6 @@ module.exports = {
     basicInfoForm2,
     specialInfoForm,
     specialInfoForm2,
-    chlkPreset
+    chlkPreset,
+    chalk
 };
