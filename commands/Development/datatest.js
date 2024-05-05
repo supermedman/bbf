@@ -753,7 +753,7 @@ module.exports = {
 
         // ===========================
         // DONE -x- Merge Status and damage dealing functions together
-        // Implement Status effect modifications
+        // DONE -x- Implement Status effect modifications
         // Handle and Predict outcomes
         // Create basic discord visual for combat turns
         // Measure speed and efficency with API calls involved
@@ -1286,6 +1286,28 @@ module.exports = {
             let shieldDMG = [], armorDMG = [], fleshDMG = [];
             let hpREF = [enemy.shield.Type, enemy.armor.Type, enemy.flesh.Type];
 
+            // Initial locator for applying additive damage due to applied status effects
+            // Physical Damage
+            const enemyPhysWeak = enemy.internalEffects.Weakness.Physical;
+            const mappedPhysWeak = [enemyPhysWeak.Blunt, enemyPhysWeak.Slash];
+            const physTypeMap = ["Blunt", "Slash"];
+
+            const applyPhysMod = (dmgObj) => {
+                if (physTypeMap.indexOf(dmgObj.Type) !== -1) return mappedPhysWeak[physTypeMap.indexOf(dmgObj.Type)];
+                return 0;
+            };
+
+            // Initial locator for applying additive damage due to applied status effects
+            // Magical Damage
+            const enemyMagicWeak = enemy.internalEffects.Weakness.Magical;
+            const mappedMagiWeak = [enemyMagicWeak.Magic, enemyMagicWeak.Fire, enemyMagicWeak.Frost, enemyMagicWeak.Light, enemyMagicWeak.Dark];
+            const magiTypeMap = ["Magic", "Fire", "Frost", "Light", "Dark"];
+
+            const applyMagiMod = (dmgObj) => {
+                if (magiTypeMap.indexOf(dmgObj.Type) !== -1) return mappedMagiWeak[magiTypeMap.indexOf(dmgObj.Type)];
+                return 0;
+            };
+
             //Shield = 0, Armor = 1, Flesh = 2
             for (let i = 0; i < 3; i++){
                 for (const dmgObj of dmgList){
@@ -1294,7 +1316,15 @@ module.exports = {
                     const xLookup = columnMatch.indexOf(hpREF[i]);
 
                     // Create modified damage value
-                    const modBY = damageModifier[damageKeyIndexer.indexOf(damageMatchTable[yLookup][xLookup])];
+                    // Add internalEffect Weakness modifier for damage type 
+                    let modBY = damageModifier[damageKeyIndexer.indexOf(damageMatchTable[yLookup][xLookup])];
+
+                    //console.log('modBy before weakness check: %d', modBY);
+                    if (enemy.activeEffects.length > 0){
+                        modBY += applyPhysMod(dmgObj); // if (dmgTypePhysComp(dmgObj)) 
+                        modBY += applyMagiMod(dmgObj); // if (dmgTypeMagiComp(dmgObj))
+                    }
+                    //console.log('modBy after weakness check: %d', modBY);
 
                     // Create new obj containing modified damage and the hp type modified against
                     const moddedDMG = {
@@ -2111,6 +2141,8 @@ module.exports = {
             const dmgSlice = TEST_CODE.slice(startIndex + 4, endIndex);
             const dmgListed = dmgSlice.split("-");
           
+            // Merge contents from any offhand equipped during this construction
+            // Create entries for new values, Sum existing entries.
             const finalTypes = [];
             for (const DT of dmgListed){
               let cutStr = DT.split(":");

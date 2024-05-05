@@ -6,9 +6,37 @@
 // Need to handle all basic combat types, Dungeon, startcombat, combatDisplay.
 
 // combCollecter.on('end-{userid}', async () => { /**This combat instance is expired, recycle however possible, flag for uncaching*/});
+// <https://discord.js.org/docs/packages/discord.js/14.15.1/Collector:Class#stop>
 
 class Combat {
-    constructor() {
+    constructor(user, weapon, buttonComponentObject, actionRow, interactionCollector) {
+        this.staticID = user.id;
+        this.mainHand = weapon;
 
+        this.startTime = new Date().getTime();
+        this.deleteAfter = 900000;
+        
+        this.active = true;
+        this.removePending = false;
+
+
+        this.attackButton = buttonComponentObject.attackButton;
+        this.actionRow = actionRow;
+        this.collector = interactionCollector;
+    }
+
+    sweepCheck(now){
+        if (this.startTime - now >= this.deleteAfter && !this.active) this.removePending = true;
+        return 'Finished';
+    }
+
+    setActive(){
+        this.active = true;
+    }
+
+    setInactive(){
+        this.active = false;
     }
 }
+
+module.exports = {Combat};
