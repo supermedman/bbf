@@ -500,15 +500,39 @@ async function combatStartedTEMP(interaction){
 
 
 
-    combatInstance.combCollecter.on('collect', async (COI) => {
+    combatInstance.combCollecter.on('collect', (COI) => {
         if (COI.customId === combatInstance.attackButton.customId){
             combatInstance.setActive();
 
             attackEnemy(weaponDamage, enemy);
         }
-    })
+    });
 }
 // Setup Universal Button Handles
+
+
+const combatLog = {
+    title: "Enemy",
+    color: 0o0,
+    description: "Enemy Info Here",
+    fields: [
+        {name: "Shield", value: 10},
+        {name: "Armor", value: 150},
+        {name: "Flesh", value: 300},
+    ]
+};
+
+
+// Display +-00-+
+const { AttachmentBuilder } = require('discord.js');
+
+const Canvas = require('@napi-rs/canvas');
+
+const canvas = Canvas.createCanvas(700, 300);
+const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = 0x1d1f20;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
 
