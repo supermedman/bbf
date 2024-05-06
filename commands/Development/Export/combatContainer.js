@@ -496,12 +496,12 @@ async function combatStartedTEMP(interaction){
         time: 900000,
     });
 
-    const combatInstance = new Combat(interaction.user, weaponCode, buttonObject, actionRow, combCollecter);
+    const combatInstance = new Combat(interaction.user, weaponCode/*, buttonObject, actionRow, combCollecter*/);
 
 
 
-    combatInstance.combCollecter.on('collect', (COI) => {
-        if (COI.customId === combatInstance.attackButton.customId){
+    combCollecter.on('collect', (COI) => {
+        if (COI.customId === buttonObject.attackButton.customId){
             combatInstance.setActive();
 
             attackEnemy(weaponDamage, enemy);

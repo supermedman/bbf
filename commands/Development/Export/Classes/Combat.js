@@ -9,7 +9,7 @@
 // <https://discord.js.org/docs/packages/discord.js/14.15.1/Collector:Class#stop>
 
 class Combat {
-    constructor(user, weapon, buttonComponentObject, actionRow, interactionCollector) {
+    constructor(user, weapon/*, buttonComponentObject, actionRow, interactionCollector*/) {
         this.staticID = user.id;
         this.mainHand = weapon;
 
@@ -20,9 +20,9 @@ class Combat {
         this.removePending = false;
 
 
-        this.attackButton = buttonComponentObject.attackButton;
-        this.actionRow = actionRow;
-        this.collector = interactionCollector;
+        // this.attackButton = buttonComponentObject.attackButton;
+        // this.actionRow = actionRow;
+        // this.collector = interactionCollector;
     }
 
     sweepCheck(now){
