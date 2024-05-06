@@ -517,38 +517,43 @@ module.exports = {
                             enemyDead = true;
                         }
 
-                        // ================
-                        // STATUS EFFECT CHECK
-                        // ================
-
-                        // "Status Not Checked" || "Status Checked"
-                        const statusCheckStartTime = new Date().getTime();
-                        const wasStatusChecked = handleActiveStatus(combatResult, enemy);
-                        const statusCheckEndTime = new Date().getTime();
-                        console.log(`Status Check took: ${statusCheckEndTime - statusCheckStartTime}ms`);
-
-                        console.log(wasStatusChecked);
-
-                        // ================ ================
-                        // ENEMY STATUS UPDATES & DEAL DoT
-                        // ================ ================
+                        let wasStatusChecked = "Status Not Checked";
                         let returnedStatus = 'None';
-                        if (wasStatusChecked !== "Status Not Checked" || enemy.activeEffects.length > 0){
-                            const statusApplyStartTime = new Date().getTime();
-                            returnedStatus = applyActiveStatus(combatResult, enemy);
-                            const statusApplyEndTime = new Date().getTime();
-                            console.log(`Status Apply took: ${statusApplyEndTime - statusApplyStartTime}ms`);
+                        if (!enemyDead) {
+                            // ================
+                            // STATUS EFFECT CHECK
+                            // ================
 
-                            console.log(returnedStatus);
+                            // "Status Not Checked" || "Status Checked"
+                            const statusCheckStartTime = new Date().getTime();
+                            wasStatusChecked = handleActiveStatus(combatResult, enemy);
+                            const statusCheckEndTime = new Date().getTime();
+                            console.log(`Status Check took: ${statusCheckEndTime - statusCheckStartTime}ms`);
+
+                            console.log(wasStatusChecked);
+
+                            // ================ ================
+                            // ENEMY STATUS UPDATES & DEAL DoT
+                            // ================ ================
+                            
+                            if (wasStatusChecked !== "Status Not Checked" || enemy.activeEffects.length > 0){
+                                const statusApplyStartTime = new Date().getTime();
+                                returnedStatus = applyActiveStatus(combatResult, enemy);
+                                const statusApplyEndTime = new Date().getTime();
+                                console.log(`Status Apply took: ${statusApplyEndTime - statusApplyStartTime}ms`);
+
+                                console.log(returnedStatus);
+                            }
+                            
+                            // ================
+                            // RECHECK DEAD STATUS
+                            // ================
+                            if (enemy.flesh.HP <= 0){
+                                console.log('Enemy is dead now.');
+                                enemyDead = true;
+                            }
                         }
                         
-                        // ================
-                        // RECHECK DEAD STATUS
-                        // ================
-                        if (enemy.flesh.HP <= 0){
-                            console.log('Enemy is dead now.');
-                            enemyDead = true;
-                        }
 
                         // ================
                         // BUILD DAMAGE EMBED & DISPLAY IT
