@@ -339,11 +339,12 @@ module.exports = {
             // ====================
             // Check current enemy hp values with maxHp values to find aprox damage dealt to each type
             // ====================
+            let dealtTo = (statusLog === 'None') ? 'Shield' : damagedType;
+            if (combatLog.outcome === 'Dead') dealtTo = 'Flesh';
 
-            const dealtTo = (statusLog === 'None') ? 'Shield' : damagedType;
             returnEmbed.Description = `Total Base Damage Dealt to ${dealtTo}: ${combatLog.dmgDealt}`;
 
-            if (combatLog.dmgCheck || combatLog.dmgCheck.length > 0){
+            if (combatLog.dmgCheck){
                 for (const dmgObj of combatLog.dmgCheck){
                     let fieldName = '', fieldValue = '', fieldObj = {};
                     
@@ -449,7 +450,10 @@ module.exports = {
                 }
             }
 
-            returnEmbed.Fields = (finalFields.length > 0) ? finalFields : [{name: 'Embed Failsafe', value: '@ me if you see this'}];
+            if (combatLog.outcome === 'Dead') {
+                returnEmbed.Fields = [{name: 'Enemy Is Dead!', value: 'No damage data ready... *YET*'}];
+            } else returnEmbed.Fields = (finalFields.length > 0) ? finalFields : [{name: 'Embed Failsafe', value: '@ me if you see this'}];
+            
 
             return returnEmbed;
         }
