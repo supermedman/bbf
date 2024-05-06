@@ -186,6 +186,12 @@ class EnemyFab {
         this.internalEffects.HitChance += 0.50;
         this.externalRedux.CritChance -= 0.50;
     }
+
+    reloadMaxHP(){
+        this.maxFleshHP = this.flesh.HP;
+        this.maxArmorHP = this.armor.HP;
+        this.maxShieldHP = this.shield.HP;
+    }
 }
 
 module.exports = {EnemyFab};

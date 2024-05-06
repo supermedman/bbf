@@ -143,6 +143,291 @@ const damageMatchTable = [
 
 const {statusContainer} = require('./statusEffect');
 
+/**
+ * This function handles all status checks based on damage type using status effect container object methods
+ * @param {Object} dmgObj Damage object used to check for status effect
+ * @param {Object} enemy EnemyFab object type
+ * @returns false | {Type: String}
+ */
+function statusCheck(dmgObj, enemy){
+    const flesh = enemy.flesh;
+    const armor = enemy.armor;
+    const curEffects = enemy.activeEffects;
+    
+    
+    // Modify the chances for each based on enemy.externalRedux
+    // Base values of 0.15 during prototyping
+    const critChance = 0.15 + enemy.externalRedux.CritChance;
+    const doubleHitChance = 0.15 + enemy.externalRedux.DHChance;
+
+    const condition = {
+        Crit: rollChance(critChance),
+        DH: rollChance(doubleHitChance)
+    };
+
+    let returnOutcome = false;
+    switch(dmgObj.Type){
+        case "Blunt":
+            returnOutcome = statusContainer.Concussion(armor, flesh, dmgObj.DMG, condition, curEffects);
+        break;
+        case "Slash":
+            returnOutcome = statusContainer.Bleed(armor, flesh, dmgObj.DMG, condition, curEffects);
+            //console.log('Slash Proc: ', returnOutcome);
+            if (returnOutcome.Strength){
+                return returnOutcome = {
+                    Type: dmgObj.Type,
+                    Strength: returnOutcome.Strength
+                };
+            }
+        break;
+        case "Magic":
+            returnOutcome = statusContainer.Magic_Weakness(armor, flesh, dmgObj.DMG, condition, curEffects);
+        break;
+        case "Rad":
+            returnOutcome = statusContainer.Confusion(armor, flesh, dmgObj.DMG, condition, curEffects);
+        break;
+        case "Frost":
+            returnOutcome = statusContainer.Slow(armor, flesh, dmgObj.DMG, condition, curEffects);
+        break;
+        case "Fire":
+            returnOutcome = statusContainer.Burn(armor, flesh, dmgObj.DMG, condition, curEffects);
+            //console.log('Fire Proc: ', returnOutcome);
+            if (returnOutcome.Strength){
+                return returnOutcome = {
+                    Type: dmgObj.Type,
+                    Strength: returnOutcome.Strength
+                };
+            }
+        break;
+        case "Dark":
+            returnOutcome = statusContainer.Blind(armor, flesh, dmgObj.DMG, condition, curEffects);
+        break;
+        case "Light":
+            returnOutcome = statusContainer.Flash(armor, flesh, dmgObj.DMG, condition, curEffects);
+        break;
+        default:
+            // No effect applied
+            //console.log('DEFAULT REACHED!');
+        break;
+    }
+
+    //console.log(returnOutcome);
+    if (returnOutcome){
+        returnOutcome = {
+            Type: dmgObj.Type
+        };
+    }
+
+    return returnOutcome;
+}
+
+function handleActiveStatus(result, enemy){
+    const statusBrain = /Active: Check Status/;
+    const indexedResult = (result) ? result.outcome.search(statusBrain) : 'None';
+    if (indexedResult === 'None' || indexedResult === -1) return "Status Not Checked";
+    
+    // Checking status effects
+    // Clean wipe remaining HP values before checking status effects
+    const hpTypeSlice = result.outcome.slice(0, indexedResult - 1);
+    switch(hpTypeSlice){
+        case "Armor":
+            enemy.shield.HP = 0;
+        break;
+        case "Flesh":
+            enemy.shield.HP = 0;
+            enemy.armor.HP = 0;
+        break;
+    }
+
+    // Status effects need to be checked using given damage types.
+    for (const dmgObj of result.dmgCheck){
+        // Use the outcome for applicable effect construction
+        const effectOutcome = statusCheck(dmgObj, enemy);
+
+        // ==========================
+        // APPLY CRIT/DH DAMAGE MODS HERE
+        // ==========================
+
+        // If outcome is true or false, 
+        // Otherwise create applicable effect and push to enemy effects list
+        if (effectOutcome instanceof Object) {
+            const effectObj = (effectOutcome.Strength) ? { Type: effectOutcome.Strength, IsNew: true } : { Type: statusKeys.get(effectOutcome.Type), IsNew: true } ;
+
+            // If effect type is already applied to the enemy, prevent reapplication
+            const doubleCheck = enemy.activeEffects.filter(effect => effect.Type === effectObj.Type);
+            if (doubleCheck.length > 0) continue;
+            enemy.activeEffects.push(effectObj);
+        }
+    }
+
+    switch(hpTypeSlice){
+        case "Armor":
+            enemy.armor.HP -= result.dmgDealt;
+        break;
+        case "Flesh":
+            enemy.flesh.HP -= result.dmgDealt;
+        break;
+    }
+    
+    return {DamagedType: hpTypeSlice};
+}
+
+function applyActiveStatus(result, enemy){
+    const damageReturnObj = {
+        totalAcc: 0,
+        physAcc: 0,
+        magiAcc: 0,
+        blastAcc: 0,
+        newEffects: []
+    };
+
+    let totalEffectDamage = 0;
+
+    let physAcc = 0, magiAcc = 0;
+    for (const effect of enemy.activeEffects){
+        // Checking DOT effects
+        switch(effect.Type){
+            case "Little Bleed":
+                // 5% Max HP dmg
+                physAcc += (enemy.maxFleshHP * 0.05); 
+            break;
+            case "Bleed":
+                // 10% Max HP dmg
+                physAcc += (enemy.maxFleshHP * 0.10); 
+            break;
+            case "Big Bleed":
+                // 15% Max HP dmg
+                physAcc += (enemy.maxFleshHP * 0.15); 
+            break;
+            case "Inferno":
+                // 15% Max HP dmg + 25% armor redux (Only Applies Once!)
+                enemy.applyArmorBurn();
+                magiAcc += (enemy.armor.HP > 0) ? (enemy.maxArmorHP * 0.15) : (enemy.maxFleshHP * 0.15); 
+            break;
+            case "Burn":
+                // 12% Max HP dmg
+                magiAcc += (enemy.armor.HP > 0) ? (enemy.maxArmorHP * 0.12) : (enemy.maxFleshHP * 0.12); 
+            break;
+            case "Smolder":
+                // 7% Max HP dmg
+                magiAcc += (enemy.armor.HP > 0) ? (enemy.maxArmorHP * 0.07) : (enemy.maxFleshHP * 0.07); 
+            break;
+            default:
+                // No damage dealt
+            break;
+        }
+        // ============================
+        // APPLY ANY ADDITIONAL EFFECT MODIFIERS HERE 
+        // ============================
+        if (!effect.IsNew) continue;
+        damageReturnObj.newEffects.push({Effect: effect.Type});
+        switch(effect.Type) {
+            case "Concussion":
+                // -25% base damage, apply armorCrack
+                enemy.applyArmorCrack();
+            break;
+            case "MagiWeak":
+                // +25% damage from magic types
+                enemy.applyMagiWeak();
+            break;
+            case "Confusion":
+                // Enemy hit chance -25%, Physical damage +50%
+                enemy.applyConfusion();
+            break;
+            case "Slow":
+                // Double hit chance +50% 
+                enemy.applySlow();
+            break;
+            case "Blind":
+                // Enemy hit chance -50%, Double hit chance +50%
+                enemy.applyBlind();
+            break;
+            case "Flash":
+                // Enemy hit chance -50%, Crit chance +50% 
+                enemy.applyFlash();
+            break;
+        }
+        effect.IsNew = false;
+    }
+    if ((physAcc + magiAcc) > 0) console.log('DOT damage to be dealt, BEFORE MODS: %d', physAcc + magiAcc);
+
+    // Adjust armor values here, accounting for any status effects applied this turn
+    if (enemy.internalEffects.ArmorStrength !== 0) console.log('Armor Strength After Effects: %d', enemy.internalEffects.ArmorStrength);
+
+    // ============================
+    // DEAL DoT TO ENEMY HERE, ACCOUNT FOR ARMOR REDUX AND WEAKNESSES
+    // ============================
+    physAcc = physAcc + (physAcc * enemy.internalEffects.Weakness.Physical.Slash);
+    magiAcc = magiAcc + (magiAcc * enemy.internalEffects.Weakness.Magical.Fire);
+    
+    if ((physAcc + magiAcc) > 0) console.log('DOT damage to be dealt, AFTER MODS: %d', physAcc + magiAcc);
+
+    // Check if bleed is dealt to bark, if not, dealt to flesh instead
+    if (enemy.armor.Type === "Bark" && enemy.armor.HP > 0) {enemy.armor.HP -= physAcc;} else {
+        enemy.flesh.HP -= physAcc;
+    }
+
+    // Check if burn is dealt to armor, if not, dealt to flesh instead
+    // If bleed is dealt to bark and bark is broken, this damage will automatically be dealt to flesh hp, even if it scaled with armor!!
+    if (enemy.armor.HP > 0) {enemy.armor.HP -= magiAcc;} else {
+        enemy.flesh.HP -= magiAcc;
+    }
+
+    damageReturnObj.physAcc = physAcc;
+    damageReturnObj.magiAcc = magiAcc;
+
+    // Track total damage to compare later
+    totalEffectDamage = physAcc + magiAcc;
+
+    // CHECKING FOR BLAST DAMAGE HERE!
+    const fireProcList = ["Inferno", "Burn", "Smolder"];
+    const checkFireStatusProc = (ele) => fireProcList.some(type => ele.Type === type);
+    const checkSlowStatusProc = (ele) => ele.Type === "Slow";
+
+    // Check if both damage types have been dealt at once to see if blast can still activate
+    const checkFireDamage = (ele) => ele.Type === "Fire";
+    const checkFrostDamage = (ele) => ele.Type === "Frost";
+
+    // Crazy blast proc check 
+    if ((enemy.activeEffects.findIndex(checkFireStatusProc) !== -1 && enemy.activeEffects.findIndex(checkSlowStatusProc) !== -1) || ((result.dmgCheck.findIndex(checkFireDamage) !== -1 && result.dmgCheck[result.dmgCheck.findIndex(checkFireDamage)].DMG > 0) && (result.dmgCheck.findIndex(checkFrostDamage) !== -1 && result.dmgCheck[result.dmgCheck.findIndex(checkFrostDamage)].DMG > 0))){
+        const fireDamage = result.dmgCheck[result.dmgCheck.findIndex(checkFireDamage)].DMG;
+        const frostDamage = result.dmgCheck[result.dmgCheck.findIndex(checkFrostDamage)].DMG;
+
+        const blastOutcome = statusContainer.Blast(enemy.armor, enemy.flesh, fireDamage, frostDamage, enemy.internalEffects.Weakness, magiAcc);
+        if (blastOutcome.DMG > 0) {
+            totalEffectDamage += blastOutcome.DMG;
+            damageReturnObj.blastAcc = blastOutcome.DMG;
+
+            if (blastOutcome.Armor && blastOutcome.DMG > enemy.armor.HP){
+                // Armor Breaks, carry damage to HP
+                blastOutcome.DMG -= enemy.armor.HP;
+                enemy.armor.HP = 0;
+                enemy.flesh.HP -= blastOutcome.DMG;
+            } else if (blastOutcome.Armor) {
+                // Armor Remains
+                enemy.armor.HP -= blastOutcome.DMG;
+            } else {
+                // No Armor
+                enemy.flesh.HP -= blastOutcome.DMG;
+            }
+
+            // Remove any slow/burn effects currently active.
+            if (enemy.activeEffects.findIndex(checkFireStatusProc) !== -1) {
+                // If inferno removed, remove armor burn as well
+                if (enemy.activeEffects[enemy.activeEffects.findIndex(checkFireStatusProc)].Type === "Inferno") enemy.removeArmorBurn(); 
+                enemy.activeEffects.splice(enemy.activeEffects.findIndex(checkFireStatusProc), 1);
+            }
+            if (enemy.activeEffects.findIndex(checkSlowStatusProc) !== -1) {
+                enemy.activeEffects.splice(enemy.activeEffects.findIndex(checkSlowStatusProc), 1);
+                enemy.removeSlow();
+            }
+        }
+    }
+
+    damageReturnObj.totalAcc = totalEffectDamage;
+
+    return damageReturnObj;
+}
 
 // ===============================
 //       HELPER METHODS
@@ -162,7 +447,7 @@ const {EnemyFab} = require('./Classes/EnemyFab');
  * 
  * @param {Object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
- * @returns {Object outcome: String, dmgDealt?: Number, dmgCheck?: Object[]}
+ * @returns {Object outcome: String, dmgDealt: Number, dmgCheck?: Object[]}
  */
 function attackEnemy(dmgList, enemy){
     let shieldDMG = [], armorDMG = [], fleshDMG = [];
@@ -230,7 +515,7 @@ function attackEnemy(dmgList, enemy){
         } else if (totalShieldDmg === enemy.shield.HP) {
             // Shield breaks, no damage remains, skip status effect & further dmg calculations
             //enemy.shield.HP = 0;
-            return {outcome: 'Shield Break: Damage Exhausted'};
+            return {outcome: 'Shield Break: Damage Exhausted', dmgDealt: totalShieldDmg};
         }
 
         // =========================
@@ -371,7 +656,7 @@ function attackEnemy(dmgList, enemy){
         return {outcome: 'Flesh Active: Check Status', dmgDealt: totalFleshDMG, dmgCheck: fleshDMG};
     } else {
         // Enemy is dead if this is reached!
-        return {outcome: 'Dead'};
+        return {outcome: 'Dead', dmgDealt: totalFleshDMG};
     }
 }
 
@@ -391,84 +676,6 @@ function singleLookup(dmgObj, ...extraMod) {
     return dmgObj;
 }
 
-/**
- * This function handles all status checks based on damage type using status effect container object methods
- * @param {Object} dmgObj Damage object used to check for status effect
- * @param {Object} enemy EnemyFab object type
- * @returns false | {Type: String}
- */
-function statusCheck(dmgObj, enemy){
-    const flesh = enemy.flesh;
-    const armor = enemy.armor;
-    const curEffects = enemy.activeEffects;
-    
-    
-    // Modify the chances for each based on enemy.externalRedux
-    // Base values of 0.15 during prototyping
-    const critChance = 0.15 + enemy.externalRedux.CritChance;
-    const doubleHitChance = 0.15 + enemy.externalRedux.DHChance;
-
-    const condition = {
-        Crit: rollChance(critChance),
-        DH: rollChance(doubleHitChance)
-    };
-
-    let returnOutcome = false;
-    switch(dmgObj.Type){
-        case "Blunt":
-            returnOutcome = statusContainer.Concussion(armor, flesh, dmgObj.DMG, condition, curEffects);
-        break;
-        case "Slash":
-            returnOutcome = statusContainer.Bleed(armor, flesh, dmgObj.DMG, condition, curEffects);
-            //console.log('Slash Proc: ', returnOutcome);
-            if (returnOutcome.Strength){
-                return returnOutcome = {
-                    Type: dmgObj.Type,
-                    Strength: returnOutcome.Strength
-                };
-            }
-        break;
-        case "Magic":
-            returnOutcome = statusContainer.Magic_Weakness(armor, flesh, dmgObj.DMG, condition, curEffects);
-        break;
-        case "Rad":
-            returnOutcome = statusContainer.Confusion(armor, flesh, dmgObj.DMG, condition, curEffects);
-        break;
-        case "Frost":
-            returnOutcome = statusContainer.Slow(armor, flesh, dmgObj.DMG, condition, curEffects);
-        break;
-        case "Fire":
-            returnOutcome = statusContainer.Burn(armor, flesh, dmgObj.DMG, condition, curEffects);
-            //console.log('Fire Proc: ', returnOutcome);
-            if (returnOutcome.Strength){
-                return returnOutcome = {
-                    Type: dmgObj.Type,
-                    Strength: returnOutcome.Strength
-                };
-            }
-        break;
-        case "Dark":
-            returnOutcome = statusContainer.Blind(armor, flesh, dmgObj.DMG, condition, curEffects);
-        break;
-        case "Light":
-            returnOutcome = statusContainer.Flash(armor, flesh, dmgObj.DMG, condition, curEffects);
-        break;
-        default:
-            // No effect applied
-            //console.log('DEFAULT REACHED!');
-        break;
-    }
-
-    //console.log(returnOutcome);
-    if (returnOutcome){
-        returnOutcome = {
-            Type: dmgObj.Type
-        };
-    }
-
-    return returnOutcome;
-}
-
 // ===============================
 //     CORE INTERACTIVE CODE
 // ===============================
@@ -476,7 +683,7 @@ function statusCheck(dmgObj, enemy){
 const {Combat} = require('./Classes/Combat');
 
 // Generate combat instance
-async function combatStartedTEMP(interaction){
+async function combatStartedTEMP(interaction, weaponCode){
     const buttonObject = {
         attackButton: new ButtonBuilder()
         .setCustomId(`attack-${interaction.user.id}`)
@@ -524,6 +731,7 @@ const combatLog = {
 
 
 // Display +-00-+
+/*
 const { AttachmentBuilder } = require('discord.js');
 
 const Canvas = require('@napi-rs/canvas');
@@ -533,7 +741,7 @@ const ctx = canvas.getContext('2d');
 
 ctx.fillStyle = 0x1d1f20;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
+*/
 
 
-
-module.exports = {attackEnemy, statusCheck, checkingDamage};
+module.exports = {attackEnemy, checkingDamage, handleActiveStatus, applyActiveStatus};

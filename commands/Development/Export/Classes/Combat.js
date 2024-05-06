@@ -13,6 +13,8 @@ class Combat {
         this.staticID = user.id;
         this.mainHand = weapon;
 
+        this.staticDamage = [];
+
         this.startTime = new Date().getTime();
         this.deleteAfter = 900000;
         

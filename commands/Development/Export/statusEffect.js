@@ -430,7 +430,7 @@ const statusContainer = {
             }
         }
 
-        return {blastDamage, blastArmor};
+        return {DMG: blastDamage, Armor: blastArmor};
     }
 }
 
