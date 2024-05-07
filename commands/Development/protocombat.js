@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder} = require('discord.js');
 
-const {checkingDamage} = require('./Export/combatContainer');
+const {checkingDamage, genGearPiece} = require('./Export/combatContainer');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,7 +8,9 @@ module.exports = {
         .setDescription('Combat Prototypes to be tested!!'),
 
 	async execute(interaction) { 
-        if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is not available yet!');
+        const users = ['501177494137995264', '1163605882882510948', '389509861681135636', '951980834469060629'];
+        const accessCheck = () => users.some(ele => interaction.user.id === ele);
+        if (users.findIndex(accessCheck) === -1) return interaction.reply('This command is not available yet!');
         
         const startTime = new Date().getTime();
         let endTime;
@@ -38,9 +40,13 @@ module.exports = {
         const wepThree = 'TYP_MAma:40-SLph:60_typ-r00-DIS_SL_dis-MAslo-100001';
 
         // RANDOM GEN - CAN BE PICKED AFTER ALL THREE ARE TESTED?
-        const wepFour = '';
+        const wepFour = genGearPiece();
 
         const weaponList = [wepOne, wepTwo, wepThree];
+
+        const usersReady = ['501177494137995264', '1163605882882510948'];
+        const readyCheck = () => usersReady.some(ele => interaction.user.id === ele);
+        if (usersReady.findIndex(readyCheck) !== -1) weaponList.push(wepFour);
 
         // Loading embed fields and string select options with wep values
         let finalFields = [];
@@ -50,6 +56,7 @@ module.exports = {
             let fieldName = '', fieldValue = '', fieldObj = {};
             
             fieldName = `**WEAPON ${wepCounter}: **` + wep;
+            if (wepCounter === 4) fieldName = `**RANDOM WEAPON: **` + wep;
             fieldValue = checkingDamage(wep).map(dmgObj => `\nType: ${dmgObj.Type}\nDamage: ${dmgObj.DMG}`).toString();
             
             fieldObj = {name: fieldName, value: fieldValue};
@@ -324,7 +331,7 @@ module.exports = {
             return returnEmbed;
         }
 
-        function generateAttackTurnEmbed(combatLog, damagedType, statusLog, enemy){
+        function generateAttackTurnEmbed(combatLog, damagedType, statusLog, enemy, isDead){
             const returnEmbed = {
                 Title: 'Title',
                 Description: 'Desc',
@@ -450,8 +457,10 @@ module.exports = {
                 }
             }
 
-            if (combatLog.outcome === 'Dead') {
-                returnEmbed.Fields = [{name: 'Enemy Is Dead!', value: 'No damage data ready... *YET*'}];
+            if (combatLog.outcome === 'Dead' || isDead) {
+                if (returnEmbed.Fields.length === 0) {returnEmbed.Fields = [{name: 'Enemy Is Dead!', value: 'No damage data ready... *YET*'}];} else {
+                    returnEmbed.Fields.push({name: 'Enemy Has Died', value: 'R.I.P'})
+                }
             } else returnEmbed.Fields = (finalFields.length > 0) ? finalFields : [{name: 'Embed Failsafe', value: '@ me if you see this'}];
             
 
@@ -564,7 +573,7 @@ module.exports = {
                         // BUILD DAMAGE EMBED & DISPLAY IT
                         // ================
                         const turnDisplayStartTime = new Date().getTime();
-                        const turnOutcomeEmbed = generateAttackTurnEmbed(combatResult, wasStatusChecked, returnedStatus, enemy);
+                        const turnOutcomeEmbed = generateAttackTurnEmbed(combatResult, wasStatusChecked, returnedStatus, enemy, enemyDead);
                         const turnDisplayEndTime = new Date().getTime();
                         console.log(`Final Turn Display Embed Took: ${turnDisplayEndTime - turnDisplayStartTime}ms`);
 

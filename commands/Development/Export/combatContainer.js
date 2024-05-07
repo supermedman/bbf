@@ -108,6 +108,96 @@ function checkingDamage(TEST_CODE) {
     return finalTypes;
 }
 
+/**
+ * This function randomly generates an item in the new built string format
+ * @returns String useable as item code for all base item props
+ */
+function genGearPiece(){
+    //console.log(chlkPreset.bInfoOne('===== GEAR GEN START ====='));
+    const typePrefix = "TYP_";
+    const typeSuffix = "_typ";
+    const disPrefix = "DIS_";
+    const disSuffix = "_dis";
+
+    const genTypeAmount = inclusiveRandNum(4,1);
+    const genDisAmount = inclusiveRandNum(5,2);
+
+    // Gen Type:Value Pairs for dmg/def
+    // =====================
+    let keyMatchArr = [];
+    for (const [key] of dmgKeys){
+        keyMatchArr.push(key);
+    }
+
+    let typesPicked = [];
+    for (let i = 0; i < genTypeAmount; i++){
+        let randPicked = randArrPos(keyMatchArr);
+        typesPicked.push(randPicked);
+        keyMatchArr.splice(keyMatchArr.indexOf(randPicked), 1);
+    }
+    
+    let typePairs = [];
+    for (let type of typesPicked){
+        const typeValue = inclusiveRandNum(100, 5);
+        type += `:${typeValue}`;
+        typePairs.push(type);
+    }
+
+    const finalTypePairs = typePairs.join('-');
+    
+    const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
+    //console.log(finalTypeStr);
+    // =====================
+
+    // Gen Rarity
+    // =====================
+    keyMatchArr = [];
+    for (const [key] of rarKeys){
+        keyMatchArr.push(key);
+    }
+    const finalRarStr = randArrPos(keyMatchArr);
+    //console.log(finalRarStr);
+    // =====================
+
+    // Gen Dis Types
+    // =====================
+    keyMatchArr = [];
+    for (const [key] of disKeys){
+        keyMatchArr.push(key);
+    }
+
+    let disPicked = [];
+    for (let i = 0; i < genDisAmount; i++){
+        let randPicked = randArrPos(keyMatchArr);
+        disPicked.push(randPicked);
+        keyMatchArr.splice(keyMatchArr.indexOf(randPicked), 1);
+    }
+
+    const finalDis = disPicked.join('-');
+
+    const finalDisStr = disPrefix + finalDis + disSuffix;
+    //console.log(finalDisStr);
+    // =====================
+
+    // Gen Slot
+    // =====================
+    keyMatchArr = [];
+    for (const [key] of slotKeys){
+        keyMatchArr.push(key);
+    }
+    const finalSlotStr = randArrPos(keyMatchArr);
+    //console.log(finalSlotStr);
+    // =====================
+
+    const finalStrs = [finalTypeStr, finalRarStr, finalDisStr, finalSlotStr];
+
+    const returnStr = finalStrs.join('-');
+
+    //console.log(chlkPreset.bInfoOne('===== GEAR GEN END ====='));
+
+    return returnStr;
+}
+
 // ===============================
 //       LOOKUP TABLES
 // ===============================
@@ -437,6 +527,14 @@ const rollChance = (chance) => {
     return (Math.random() <= chance) ? 1 : 0;
 };
 
+const inclusiveRandNum = (max, min) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+const randArrPos = (arr) => {
+    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+};
+
 // ===============================
 //       CORE ATTACK CODE
 // ===============================
@@ -754,4 +852,4 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 */
 
 
-module.exports = {attackEnemy, checkingDamage, handleActiveStatus, applyActiveStatus};
+module.exports = {attackEnemy, checkingDamage, handleActiveStatus, applyActiveStatus, genGearPiece};
