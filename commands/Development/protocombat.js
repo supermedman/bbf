@@ -342,7 +342,7 @@ module.exports = {
             let dealtTo = (statusLog === 'None') ? 'Shield' : damagedType.DamagedType;
             if (combatLog.outcome === 'Dead') dealtTo = 'Flesh';
 
-            returnEmbed.Description = `Total Base Damage Dealt to ${dealtTo}: ${combatLog.dmgDealt}`;
+            returnEmbed.Description = `Total Base Damage Dealt to ${dealtTo}: ${combatLog.dmgDealt}\nAccumluative Total Damage Dealt Across All HP Types: ${combatLog.finTot}`;
 
             if (combatLog.dmgCheck){
                 for (const dmgObj of combatLog.dmgCheck){

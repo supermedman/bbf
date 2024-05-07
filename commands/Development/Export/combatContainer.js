@@ -450,6 +450,7 @@ const {EnemyFab} = require('./Classes/EnemyFab');
  * @returns {Object outcome: String, dmgDealt: Number, dmgCheck?: Object[]}
  */
 function attackEnemy(dmgList, enemy){
+    let finalTotalDamage = 0;
     let shieldDMG = [], armorDMG = [], fleshDMG = [];
     const hpREF = [enemy.shield.Type, enemy.armor.Type, enemy.flesh.Type];
 
@@ -511,12 +512,14 @@ function attackEnemy(dmgList, enemy){
         if (totalShieldDmg < enemy.shield.HP) {
             // Shield remains after damage, skip status effect calculations as well as further armor/flesh damage calculations
             enemy.shield.HP -= totalShieldDmg;
-            return {outcome: 'Shield Active'};
+            return {outcome: 'Shield Active', dmgDealt: totalShieldDmg, finTot: totalShieldDmg};
         } else if (totalShieldDmg === enemy.shield.HP) {
             // Shield breaks, no damage remains, skip status effect & further dmg calculations
             enemy.shield.HP = 0;
-            return {outcome: 'Shield Break: Damage Exhausted', dmgDealt: totalShieldDmg};
+            return {outcome: 'Shield Break: Damage Exhausted', dmgDealt: totalShieldDmg, finTot: totalShieldDmg};
         }
+
+        finalTotalDamage += totalShieldDmg;
 
         // =========================
         // BULK CODE
@@ -585,12 +588,16 @@ function attackEnemy(dmgList, enemy){
         if (totalArmorDMG < enemy.armor.HP){
             // Armor left after damage dealt
             // Check if status effects can be applied!
-            return {outcome: 'Armor Active: Check Status', dmgDealt: totalArmorDMG, dmgCheck: armorDMG};
+            finalTotalDamage += totalArmorDMG;
+            return {outcome: 'Armor Active: Check Status', dmgDealt: totalArmorDMG, dmgCheck: armorDMG, finTot: finalTotalDamage};
         } else if (totalArmorDMG === enemy.armor.HP){
             // Armor break, all damage exhausted. 
             enemy.armor.HP = 0;
-            return {outcome: 'Armor Break: Damage Exhausted', dmgDealt: totalArmorDMG};
+            finalTotalDamage += totalArmorDMG;
+            return {outcome: 'Armor Break: Damage Exhausted', dmgDealt: totalArmorDMG, finTot: finalTotalDamage};
         }
+
+        finalTotalDamage += totalArmorDMG;
 
         // =========================
         // BULK CODE
@@ -654,10 +661,12 @@ function attackEnemy(dmgList, enemy){
     if (totalFleshDMG < enemy.flesh.HP) {
         // Enemy stays alive
         // Check for status effects to be applied
-        return {outcome: 'Flesh Active: Check Status', dmgDealt: totalFleshDMG, dmgCheck: fleshDMG};
+        finalTotalDamage += totalFleshDMG;
+        return {outcome: 'Flesh Active: Check Status', dmgDealt: totalFleshDMG, dmgCheck: fleshDMG, finTot: finalTotalDamage};
     } else {
         // Enemy is dead if this is reached!
-        return {outcome: 'Dead', dmgDealt: totalFleshDMG};
+        finalTotalDamage += totalFleshDMG;
+        return {outcome: 'Dead', dmgDealt: totalFleshDMG, finTot: finalTotalDamage};
     }
 }
 
