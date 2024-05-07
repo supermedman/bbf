@@ -514,7 +514,7 @@ function attackEnemy(dmgList, enemy){
             return {outcome: 'Shield Active'};
         } else if (totalShieldDmg === enemy.shield.HP) {
             // Shield breaks, no damage remains, skip status effect & further dmg calculations
-            //enemy.shield.HP = 0;
+            enemy.shield.HP = 0;
             return {outcome: 'Shield Break: Damage Exhausted', dmgDealt: totalShieldDmg};
         }
 
@@ -588,6 +588,7 @@ function attackEnemy(dmgList, enemy){
             return {outcome: 'Armor Active: Check Status', dmgDealt: totalArmorDMG, dmgCheck: armorDMG};
         } else if (totalArmorDMG === enemy.armor.HP){
             // Armor break, all damage exhausted. 
+            enemy.armor.HP = 0;
             return {outcome: 'Armor Break: Damage Exhausted', dmgDealt: totalArmorDMG};
         }
 

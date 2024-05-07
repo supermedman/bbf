@@ -339,7 +339,7 @@ module.exports = {
             // ====================
             // Check current enemy hp values with maxHp values to find aprox damage dealt to each type
             // ====================
-            let dealtTo = (statusLog === 'None') ? 'Shield' : damagedType;
+            let dealtTo = (statusLog === 'None') ? 'Shield' : damagedType.DamagedType;
             if (combatLog.outcome === 'Dead') dealtTo = 'Flesh';
 
             returnEmbed.Description = `Total Base Damage Dealt to ${dealtTo}: ${combatLog.dmgDealt}`;
