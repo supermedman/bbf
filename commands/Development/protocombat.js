@@ -486,7 +486,7 @@ module.exports = {
 
         
         async function combatLooper(player, enemy){
-            if (enemy === "List Empty") return await interaction.follUp({content: "Testing Complete, End of Current prototype!"});
+            if (enemy === "List Empty") return await interaction.followUp({content: "Testing Complete, End of Current prototype!"});
             const currCombEmbed = generateEnemyEmbed(enemy);
 
             const attackButton = new ButtonBuilder()
