@@ -8,7 +8,7 @@ module.exports = {
         .setDescription('Combat Prototypes to be tested!!'),
 
 	async execute(interaction) { 
-        const users = ['501177494137995264', '1163605882882510948', '389509861681135636', '951980834469060629'];
+        const users = ['501177494137995264', '1163605882882510948', '389509861681135636', '951980834469060629', '498781063531724800'];
         const accessCheck = () => users.some(ele => interaction.user.id === ele);
         if (users.findIndex(accessCheck) === -1) return interaction.reply('This command is not available yet!');
         
@@ -44,7 +44,7 @@ module.exports = {
 
         const weaponList = [wepOne, wepTwo, wepThree];
 
-        const usersReady = ['501177494137995264', '1163605882882510948'];
+        const usersReady = ['501177494137995264', '1163605882882510948', '498781063531724800'];
         const readyCheck = () => usersReady.some(ele => interaction.user.id === ele);
         if (usersReady.findIndex(readyCheck) !== -1) weaponList.push(wepFour);
 
@@ -440,8 +440,8 @@ module.exports = {
                     fieldValue = '';
 
                     fieldName = 'Attack Condition Effects:';
-                    fieldValue += (enemy.externalRedux.DHChance > 0) ? `Double Hit Chance: ${enemy.externalRedux.DHChance}` : `\n`;
-                    fieldValue += (enemy.externalRedux.CritChance > 0) ? `Critical Hit Chance: ${enemy.externalRedux.CritChance}` : `\n`;
+                    fieldValue += (enemy.externalRedux.DHChance > 0) ? `Double Hit Chance: ${enemy.externalRedux.DHChance}\n` : `\n`;
+                    fieldValue += (enemy.externalRedux.CritChance > 0) ? `Critical Hit Chance: ${enemy.externalRedux.CritChance}\n` : `\n`;
 
                     fieldObj = {name: fieldName, value: fieldValue};
                     finalFields.push(fieldObj);
@@ -449,8 +449,8 @@ module.exports = {
                     fieldValue = '';
 
                     fieldName = 'Enemy Attack Effects:';
-                    fieldValue += (enemy.internalEffects.HitChance < 1) ? `Enemy Hit Chance: ${enemy.internalEffects.HitChance}` : `\n`;
-                    fieldValue += (enemy.internalEffects.HitStrength < 1) ? `Enemy Hit Strength: ${enemy.internalEffects.HitStrength}` : `\n`;
+                    fieldValue += (enemy.internalEffects.HitChance < 1) ? `Enemy Hit Chance: ${enemy.internalEffects.HitChance}\n` : `\n`;
+                    fieldValue += (enemy.internalEffects.HitStrength < 1) ? `Enemy Hit Strength: ${enemy.internalEffects.HitStrength}\n` : `\n`;
 
                     fieldObj = {name: fieldName, value: fieldValue};
                     finalFields.push(fieldObj);
