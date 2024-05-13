@@ -18,7 +18,7 @@ setupFinalFields.push({name: '``info``', value: '- This will display assigned ch
 setupFinalFields.push({name: '``help``', value: '- This will display the current embed'});
 setupFinalFields.push({name: '== ``/channel`` ==', value: '\u200b'});
 setupFinalFields.push({name: '``assign`` ``<Spawn> | <Announce>``', value: '- This will prompt a channel selection, the channel selected will be used for the associated type chosen'});
-setupFinalFields.push({name: '``remove``', value: '- This will allow you to reset the chosen channel type back to ``None``'});
+setupFinalFields.push({name: '``remove`` ``<Spawn> | <Announce>``', value: '- This will allow you to reset the chosen channel type back to ``None``'});
 
 const setupEmbed = new EmbedBuilder()
 .setTitle("~=** Black Blade Setup! **=~")
