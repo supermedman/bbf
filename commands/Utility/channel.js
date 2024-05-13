@@ -18,7 +18,7 @@ module.exports = {
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('assign')
-				.setDescription('Assigns the default spawn channel here.')
+				.setDescription('Assign a channel')
 				.addStringOption(option =>
 					option.setName('channeltype')
 						.setDescription('Which channel type would you like to assign?')
@@ -30,11 +30,11 @@ module.exports = {
 				.addStringOption(option =>
 					option.setName('channelid')
 						.setDescription('New Default Channel to be used')
-						.setRequired(true)))
+						.setRequired(true))) // Set this to .addChannelOption Instead!!
 		.addSubcommand(subcommand =>
 			subcommand
 				.setName('remove')
-				.setDescription('Removes the default spawn channel here.')),
+				.setDescription('Removes an assigned channel')),
 
 	async execute(interaction) { 
 		

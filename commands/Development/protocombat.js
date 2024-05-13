@@ -364,7 +364,7 @@ module.exports = {
             }
             
             // Load status logs if exist
-            if (statusLog !== 'None'){
+            if (statusLog !== 'None' && statusLog.totalAcc > 0 || statusLog !== 'None' && statusLog.newEffects.length > 0){
                 let fieldName = '', fieldValue = '', fieldObj = {};
 
                 fieldName = `Total Status Effect Damage Dealt: ${statusLog.totalAcc}`;
