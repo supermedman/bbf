@@ -221,22 +221,22 @@ module.exports = {
             // Preset Flesh Tests
             for (const enemy of fleshTestDummies){
                 enemy.flesh.Type = 'Flesh';
-                enemy.flesh.HP = 150;
+                enemy.flesh.HP = 200;
                 if (i === 0) {
-                    enemy.level = 10;
+                    enemy.level = 12;
                     enemy.armor.HP = 0;
                     enemy.shield.HP = 0;
                 } else if (i === 1){
                     enemy.level = 15;
                     enemy.armor.Type = 'Armor';
-                    enemy.armor.HP = 75;
+                    enemy.armor.HP = 100;
                     enemy.shield.HP = 0;
                 } else if (i === 2){
                     enemy.level = 20;
                     enemy.armor.Type = 'Armor';
-                    enemy.armor.HP = 75;
+                    enemy.armor.HP = 100;
                     enemy.shield.Type = 'Phase Aura';
-                    enemy.shield.HP = 25;
+                    enemy.shield.HP = 50;
                 }
 
                 enemy.reloadMaxHP();
@@ -249,8 +249,8 @@ module.exports = {
             // Preset Magic Tests
             for (const enemy of magicTestDummies){
                 enemy.flesh.Type = 'Magical Flesh';
-                enemy.flesh.HP = 150;
-                enemy.armor.HP = 75;
+                enemy.flesh.HP = 200;
+                enemy.armor.HP = 100;
                 enemy.shield.HP = 0;
                 if (i === 0) {
                     enemy.level = 15;
@@ -273,7 +273,7 @@ module.exports = {
             for (const enemy of specterTestDummies){
                 enemy.flesh.Type = 'Specter';
                 enemy.level = 15;
-                enemy.flesh.HP = 150;
+                enemy.flesh.HP = 200;
                 enemy.armor.HP = 0;
                 enemy.shield.HP = 0;
 
@@ -306,7 +306,7 @@ module.exports = {
                 Fields: []
             };
 
-            returnEmbed.Title = `Enemy #${6 - remainingEnemyList.length}`;
+            returnEmbed.Title = `Enemy #${7 - remainingEnemyList.length}`;
             returnEmbed.Description = `This is a testing dummy, it is: LEVEL ${enemy.level}`;
 
             let hpFields = [];
@@ -331,7 +331,7 @@ module.exports = {
             return returnEmbed;
         }
 
-        function generateAttackTurnEmbed(combatLog, damagedType, statusLog, enemy, isDead){
+        function generateAttackTurnEmbed(combatLog, damagedType, statusLog, enemy, isDead, condition){
             const returnEmbed = {
                 Title: 'Title',
                 Description: 'Desc',
@@ -350,6 +350,8 @@ module.exports = {
             if (combatLog.outcome === 'Dead') dealtTo = 'Flesh';
 
             returnEmbed.Description = `Total Base Damage Dealt to ${dealtTo}: ${combatLog.dmgDealt}\nAccumluative Total Damage Dealt Across All HP Types: ${combatLog.finTot}`;
+            if (condition.DH) returnEmbed.Description += `\nAttack was a **Double Hit**!`;
+            if (condition.Crit) returnEmbed.Description += `\nAttack was a **Critical Hit**!`;
 
             if (combatLog.dmgCheck){
                 for (const dmgObj of combatLog.dmgCheck){
@@ -458,14 +460,21 @@ module.exports = {
             }
 
             if (combatLog.outcome === 'Dead' || isDead) {
-                if (returnEmbed.Fields.length === 0) {returnEmbed.Fields = [{name: 'Enemy Is Dead!', value: 'No damage data ready... *YET*'}];} else {
-                    returnEmbed.Fields.push({name: 'Enemy Has Died', value: 'R.I.P'})
-                }
+                if (finalFields.length > 0) returnEmbed.Fields = finalFields;
+                returnEmbed.Fields.push({name: 'Enemy Has Died', value: 'R.I.P'});
             } else returnEmbed.Fields = (finalFields.length > 0) ? finalFields : [{name: 'Embed Failsafe', value: '@ me if you see this'}];
             
 
             return returnEmbed;
         }
+
+        // ===============================
+        //       HELPER METHODS
+        // ===============================
+
+        const rollChance = (chance) => {
+            return (Math.random() <= chance) ? 1 : 0;
+        };
 
         // ==============================
         //     TEMP COMBAT CODE HERE
@@ -520,8 +529,24 @@ module.exports = {
                         // ATTACKING ENEMY!!
                         console.log('Attacking!!');
 
+                        // ===============================
+                        // APPLY CRIT/DH TO ALL DAMAGE VALUES AT ONCE
+                        // ===============================
+                        // Modify the chances for each based on enemy.externalRedux
+                        // Base values of 0.15 during prototyping
+                        const critChance = 0.15 + enemy.externalRedux.CritChance;
+                        const doubleHitChance = 0.15 + enemy.externalRedux.DHChance;
+
+                        const condition = {
+                            Crit: rollChance(critChance),
+                            DH: rollChance(doubleHitChance)
+                        };
+                        console.log('Checking Attack Conditions:');
+                        console.log(condition); // Attack Condition: Crit? DH?
+
+
                         const attackStartTime = new Date().getTime();
-                        const combatResult = attackEnemy(player.staticDamage, enemy);
+                        const combatResult = attackEnemy(player.staticDamage, enemy, condition);
                         const attackEndTime =  new Date().getTime();
                         console.log(`Attack took: ${attackEndTime - attackStartTime}ms`);
 
@@ -540,7 +565,7 @@ module.exports = {
 
                             // "Status Not Checked" || "Status Checked"
                             const statusCheckStartTime = new Date().getTime();
-                            wasStatusChecked = handleActiveStatus(combatResult, enemy);
+                            wasStatusChecked = handleActiveStatus(combatResult, enemy, condition);
                             const statusCheckEndTime = new Date().getTime();
                             console.log(`Status Check took: ${statusCheckEndTime - statusCheckStartTime}ms`);
 
@@ -573,7 +598,7 @@ module.exports = {
                         // BUILD DAMAGE EMBED & DISPLAY IT
                         // ================
                         const turnDisplayStartTime = new Date().getTime();
-                        const turnOutcomeEmbed = generateAttackTurnEmbed(combatResult, wasStatusChecked, returnedStatus, enemy, enemyDead);
+                        const turnOutcomeEmbed = generateAttackTurnEmbed(combatResult, wasStatusChecked, returnedStatus, enemy, enemyDead, condition);
                         const turnDisplayEndTime = new Date().getTime();
                         console.log(`Final Turn Display Embed Took: ${turnDisplayEndTime - turnDisplayStartTime}ms`);
 

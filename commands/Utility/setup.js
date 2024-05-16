@@ -2,6 +2,25 @@ const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = 
 
 const { GuildData } = require('../../dbObjects.js');
 
+
+let introEmbedDesc = '*Hello and welcome!*\nThis is Black Blade, an expansive game app. Contained within are a plethora of features and commands focused around entertainment! A few of those core features are: ``Interactive Combat``, ``Quests``, ``Progressive Storyline``, ``NPC Tasks``, ``Pets (Pigmies)``, ``In Game Trading``, ``Unique Loot``, ``Boss Battles``, ``Travel``, and ``Designable Towns``.';
+introEmbedDesc += '\nUpon entering the world of Black Blade, you will be required to prove yourself before major features are fully unlocked... Acquiring Level 5 by way of combat is the first step to greatness! Quests are an excellent way to passively progress your level, fill your coin purse, and acquire new gear, during busy days and nights out. Completing quests will earn you favor with a group of creatures called Pigmies.. Pigmies love to gather, play, dress up, and show off too!! Not only are they cute companions, they also provide benefits to those they like!';
+introEmbedDesc += '\nBlack Blade currently has **3** major stages:';
+
+const introFinalFields = [];
+
+introFinalFields.push({name: '== **Stage 1** == ||Early Game||', value: '    - Quests, Combat, Pigmies, Tasks, and Lots of LOOT\n    - Approximate Level range 1-25'});
+introFinalFields.push({name: '== **Stage 2** == ||Mid Game||', value: '    - Progressive Storyline, Trading, Boss Battles, Crafting (Potions, Items, Gear), and BETTER LOOT\n    - Approximate Level Range 31-75'});
+introFinalFields.push({name: '== **Stage 3** == ||Late Game||', value: '    - Deep Lore, Large Scale Trading, Difficult Tasks, Tough Bosses, Intro to Towns, Travel, and Teamwork\n    - Approximate Level Range 75-100'});
+introFinalFields.push({name: '== **End Game** == ', value: '    - Town Focus, Major Trade Deals, New NPC Mechanics, and MORE\n    - Approximate Level Range 100+'});
+
+
+const introEmbed = new EmbedBuilder()
+.setTitle("~=** Welcome to Black Blade! **=~")
+.setDescription(introEmbedDesc)
+.setColor('DarkGold')
+.addFields(introFinalFields);
+
 let setupEmbedDesc = '**This message section is primarily for Admin, Owners, and/or other users with applicable permissions.**  ';
 setupEmbedDesc += '\nThank you for adding this app!!\n';
 setupEmbedDesc += 'It is suggested that you create at least one specific text channel with which you can dedicate to the Black Blade App. In order for the app to function at all, it needs to be able to send messages to at least one channel, while also retaining all of the initial permissions outlined in its scope. These permissions only need to be active on ***at least*** one channel for the bare minimum of features to work.';

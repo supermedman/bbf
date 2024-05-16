@@ -237,9 +237,10 @@ const {statusContainer} = require('./statusEffect');
  * This function handles all status checks based on damage type using status effect container object methods
  * @param {Object} dmgObj Damage object used to check for status effect
  * @param {Object} enemy EnemyFab object type
+ * @param {Object} condition Condition object containing {Crit: 1|0, DH: 1|0}
  * @returns false | {Type: String}
  */
-function statusCheck(dmgObj, enemy){
+function statusCheck(dmgObj, enemy, condition){
     const flesh = enemy.flesh;
     const armor = enemy.armor;
     const curEffects = enemy.activeEffects;
@@ -247,13 +248,13 @@ function statusCheck(dmgObj, enemy){
     
     // Modify the chances for each based on enemy.externalRedux
     // Base values of 0.15 during prototyping
-    const critChance = 0.15 + enemy.externalRedux.CritChance;
-    const doubleHitChance = 0.15 + enemy.externalRedux.DHChance;
+    // const critChance = 0.15 + enemy.externalRedux.CritChance;
+    // const doubleHitChance = 0.15 + enemy.externalRedux.DHChance;
 
-    const condition = {
-        Crit: rollChance(critChance),
-        DH: rollChance(doubleHitChance)
-    };
+    // const condition = {
+    //     Crit: rollChance(critChance),
+    //     DH: rollChance(doubleHitChance)
+    // };
 
     let returnOutcome = false;
     switch(dmgObj.Type){
@@ -311,7 +312,7 @@ function statusCheck(dmgObj, enemy){
     return returnOutcome;
 }
 
-function handleActiveStatus(result, enemy){
+function handleActiveStatus(result, enemy, condition){
     const statusBrain = /Active: Check Status/;
     const indexedResult = (result) ? result.outcome.search(statusBrain) : 'None';
     if (indexedResult === 'None' || indexedResult === -1) return "Status Not Checked";
@@ -332,7 +333,7 @@ function handleActiveStatus(result, enemy){
     // Status effects need to be checked using given damage types.
     for (const dmgObj of result.dmgCheck){
         // Use the outcome for applicable effect construction
-        const effectOutcome = statusCheck(dmgObj, enemy);
+        const effectOutcome = statusCheck(dmgObj, enemy, condition);
 
         // ==========================
         // APPLY CRIT/DH DAMAGE MODS HERE
@@ -523,10 +524,6 @@ function applyActiveStatus(result, enemy){
 //       HELPER METHODS
 // ===============================
 
-const rollChance = (chance) => {
-    return (Math.random() <= chance) ? 1 : 0;
-};
-
 const inclusiveRandNum = (max, min) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
@@ -545,9 +542,10 @@ const {EnemyFab} = require('./Classes/EnemyFab');
  * 
  * @param {Object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
+ * @param {Object} condition Condition object containing {Crit: 1|0, DH: 1|0}
  * @returns {Object outcome: String, dmgDealt: Number, dmgCheck?: Object[]}
  */
-function attackEnemy(dmgList, enemy){
+function attackEnemy(dmgList, enemy, condition){
     let finalTotalDamage = 0;
     let shieldDMG = [], armorDMG = [], fleshDMG = [];
     const hpREF = [enemy.shield.Type, enemy.armor.Type, enemy.flesh.Type];
@@ -588,6 +586,12 @@ function attackEnemy(dmgList, enemy){
                 modBY += applyPhysMod(dmgObj); // if (dmgTypePhysComp(dmgObj)) 
                 modBY += applyMagiMod(dmgObj); // if (dmgTypeMagiComp(dmgObj))
             }
+            
+            let contMod = 0;
+            if (condition.DH) contMod += 0.5;
+            if (condition.Crit) contMod += 0.5;
+
+            contMod += 1;
 
             // Create new obj containing modified damage and the hp type modified against
             const moddedDMG = {
@@ -595,6 +599,8 @@ function attackEnemy(dmgList, enemy){
                 DMG: dmgObj.DMG + (dmgObj.DMG * modBY),
                 Against: { Type: hpREF[i] }
             };
+
+            moddedDMG.DMG *= contMod;
 
             // Filter to correct list for faster checking later
             if (i === 0) shieldDMG.push(moddedDMG);
