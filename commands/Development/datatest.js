@@ -231,7 +231,11 @@ module.exports = {
         .addSubcommandGroup(subcommandgroup =>
             subcommandgroup
                 .setName('crafting')
-                .setDescription('Crafting catagory testing')),
+                .setDescription('Crafting catagory testing')
+                .addSubcommand(subcommand =>
+                    subcommand
+                        .setName('create')
+                        .setDescription('Simulate crafting.'))),
 
 	async execute(interaction) { 
         if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is not for you!');
@@ -926,14 +930,459 @@ module.exports = {
                 }
             break;
             case "crafting":
+                switch(subcom){
+                    case "create":
+                        const userInputChoices = {
+                            castePicked: "",
+                            matsUsed: [],
+                            imbuedWith: []
+                        };
+                        // =======================
+                        //    HOW WILL IT WORK?
+                        // =======================
+                        /**     WEAPONS/MAINHAND
+                         *  - Castes:
+                         *   - 3 CATS:
+                         *      - Magic
+                         *      - Melee
+                         *      - Special
+                         *   - 1 || 2 hands
+                         * 
+                         *  - Requirements: (Ordered by amount needed)
+                         *   - Magic:
+                         *      - Magical (Both)
+                         *      - Skinny (Tome/1 Hand)|| Woody (Staff/2 Hand)
+                         *      - Gemy (Both)
+                         *   - Melee:
+                         *      - Metalic (Blade/1||2 Hands) || Woody (Polearm/2 Hands)
+                         *      - Skinny (Blade/1||2 Hands) || Metalic (Polearm/2 Hands)
+                         *      - Woody (Blade/1||2 Hands) || Skinny (Polearm/2 Hands)
+                         *   - Special: TBD
+                         *      - Fleshy?
+                         *      - Slimy?
+                         *      - Rocky?
+                         *   - ALL CATS:
+                         *      - Tooly
+                         * 
+                         *  - Types:
+                         *   - Between 1 and 5 different types
+                         *   - Caste CATS have predefined "Natural Types"
+                         *      - Magic: Magic, Fire, Frost, Dark, Light
+                         *      - Melee: Blunt, Slash, Rad?
+                         *      - Special: Spirit, Pain, Chaos, Null
+                         *   - Additional types can be "Imbued" by using PURE essence 
+                         *      - This is capped at 2, and adds a flat damage value
+                         *      - If a damage type already exists this flat value is additive towards it
+                         * 
+                         *  - Damage:
+                         *   - Min damage value locked at 1 (maybe 2?)
+                         *   - Max damage value will be soft capped dependent on testing 
+                         *   - Initial Base Damage Formula:
+                         * 
+                         *       = ((25 + ((5 * h1)/a2)) * (1 + a1))log(x)
+                         * 
+                         * where 'a1' is rarity (0-10), 'a2' is damage type amount (1-5),
+                         * where 'h1' is hands required (1 or 2), 
+                         * and where 'x' (51 < x > 1) is material amount
+                         * 
+                         */
+                        const itemGenDmgConstant = (rarity, dmgAmount, hands, matAmount) => {
+                            let a1 = rarity, a2 = dmgAmount, h1 = hands, x = matAmount;
 
+                            let dmgReturn = ((25 + ((5 * h1) / a2)) * (1 + a1)) * Math.log10(x);
+
+                            console.log(`Rarity: ${a1}, Dmg Type Amount: ${a2}, Hands: ${h1}, Material Amount: ${x}`);
+                            //console.log(dmgReturn);
+                            return dmgReturn;
+                        };
+                        //itemGenDmgConstant(10, 5, 1, 50); // 485.905421
+
+                        // ===============
+                        //  CASTE OPTIONS
+                        // ===============
+                        /**
+                         *  == MAGIC 1H ==
+                         *   - Wand (Magical, Woody, Gemy, Tooly?)
+                         *   - Tome (Magical, Skinny, Gemy, Tooly?)
+                         * 
+                         *  == MAGIC 2H ==
+                         *   - Staff (Magical, Woody, Gemy, Tooly?)
+                         *   - Focus (Magical, Metalic, Gemy, Tooly?)
+                         * 
+                         *  == MELEE 1H ==
+                         *   - Light Blade (Metalic, Skinny, Woody, Tooly?)
+                         *   - Mace (Metalic, Woody, Skinny, Tooly?)
+                         * 
+                         *  == MELEE 2H ==
+                         *   - Polearm (Woody, Metalic, Skinny, Tooly?)
+                         *   - Heavy Blade (Metalic, Skinny, Woody, Tooly?)
+                         * 
+                         *  == SPECIAL 1H ==
+                         *   - TBD
+                         * 
+                         *  == SPECIAL 2H ==
+                         *   - TBD
+                         */
+                        const itemGenCaste = (type) => {
+                            const typeCasteCheck = (type) => {
+                                const casteObj = {
+                                    name: type,
+                                    hands: 1,
+                                    dmgCat: "",
+                                    mats: []
+                                };
+                                switch(type){
+                                    case "Wand":
+                                        casteObj.mats = ["Magical", "Woody", "Gemy"];
+                                        casteObj.dmgCat = "Magic";
+                                    break;
+                                    case "Tome":
+                                        casteObj.mats =  ["Magical", "Skinny", "Gemy"];
+                                        casteObj.dmgCat = "Magic";
+                                    break;
+                                    case "Staff":
+                                        casteObj.mats =  ["Magical", "Woody", "Gemy"];
+                                        casteObj.hands = 2;
+                                        casteObj.dmgCat = "Magic";
+                                    break;
+                                    case "Focus":
+                                        casteObj.mats =  ["Magical", "Metalic", "Gemy"];
+                                        casteObj.hands = 2;
+                                        casteObj.dmgCat = "Magic";
+                                    break;
+                                    case "Light Blade":
+                                        casteObj.mats =  ["Metalic", "Skinny", "Woody"];
+                                        casteObj.dmgCat = "Melee";
+                                    break;
+                                    case "Mace":
+                                        casteObj.mats =  ["Metalic", "Woody", "Skinny"];
+                                        casteObj.dmgCat = "Melee";
+                                    break;
+                                    case "Polearm":
+                                        casteObj.mats =  ["Woody", "Metalic", "Skinny"];
+                                        casteObj.hands = 2;
+                                        casteObj.dmgCat = "Melee";
+                                    break;
+                                    case "Heavy Blade":
+                                        casteObj.mats =  ["Metalic", "Skinny", "Woody"];
+                                        casteObj.hands = 2;
+                                        casteObj.dmgCat = "Melee";
+                                    break;
+                                }
+                                casteObj.mats.push("Tooly");
+                                return casteObj;
+                            }
+
+                            const casteObj = typeCasteCheck(type);
+                            //console.log(casteObj);
+                            return casteObj;
+                        };
+
+                        const tmpTypeCastes = ["Wand", "Tome", "Staff", "Focus", "Light Blade", "Mace", "Polearm", "Heavy Blade"];
+                        const casteGenOutcome = itemGenCaste(randArrPos(tmpTypeCastes));
+
+                        // REVISE THE METHOD OF LOADING DMG TYPE CHOICES, PURE MAGIC TYPE SHOULD ALLOW MAGIC TYPE DAMAGE INTO THE POOL?
+
+                        const itemGenDmgTypes = (castObj) => {
+                            let dmgTypeChoices = [];
+                            switch(castObj.dmgCat){
+                                case "Magic":
+                                    dmgTypeChoices = ["Magic", "Fire", "Frost", "Dark", "Light"];
+                                break;
+                                case "Melee":
+                                    dmgTypeChoices = ["Blunt", "Slash"];
+                                break;
+                                case "Special":
+                                    dmgTypeChoices = ["Spirit", "Pain", "Chaos", "Rad", "Null"]
+                                break;
+                            }
+                            return dmgTypeChoices;
+                        };
+
+                        // Creating dmgOptions as a prop and assigning possible dmg Types as value
+                        casteGenOutcome.dmgOptions = itemGenDmgTypes(casteGenOutcome);
+
+                        // Creating dmgTypes as a prop, checking for "Imbued" PURE types before rolling amount of dmg types
+                        casteGenOutcome.dmgTypes = userInputChoices.imbuedWith;
+
+                        const itemGenPickDmgTypes = (casteObj) => {
+                            const maxTypeAmount = inclusiveRandNum(5 - casteObj.dmgTypes.length, 1);
+                            const dmgTypeOptions = casteObj.dmgOptions;
+
+                            // This prevents any one type being picked more than once
+                            const dmgTypesPicked = [];
+                            let overflow = 0;
+                            for (let i = 0; i < maxTypeAmount; i++){
+                                if (dmgTypeOptions.length <= 0) {
+                                    overflow = maxTypeAmount - i;
+                                    break;
+                                }
+                                let randPicked = randArrPos(dmgTypeOptions);
+                                dmgTypesPicked.push(randPicked);
+                                dmgTypeOptions.splice(dmgTypeOptions.indexOf(randPicked), 1);
+                            }
+                            console.log(dmgTypesPicked);
+                            console.log('Overflow Types: %d', overflow);
+                            casteObj.typeOverflow = overflow;
+                            return dmgTypesPicked;
+                        };
+                        casteGenOutcome.dmgTypes = itemGenPickDmgTypes(casteGenOutcome);
+                        // This is used later, needed for carry over damage multiplying against overflow when not enough unique damage types
+                        casteGenOutcome.totalTypes = casteGenOutcome.dmgTypes.length + casteGenOutcome.typeOverflow;
+                        //delete casteGenOutcome.typeOverflow;
+                        delete casteGenOutcome.dmgOptions;
+                        //console.log(casteGenOutcome.dmgTypes.length + casteGenOutcome.typeOverflow);
+
+                        // =======================
+                        //   WHAT IS ALLOWED?
+                        // =======================
+                        /**
+                         *  == What is user input defined? ==
+                         *  - Caste CAT
+                         *      - CAT Style (If any: EX. Blade||Polearm)
+                         *  - Hands Required?
+                         *  - PURE Types to add
+                         * 
+                         *  == What follows this prompt? ==
+                         *  - Required Material types
+                         *  - Minimum Material Amount
+                         *      - Required Base Total: 30
+                         *      - Mat 1 (m1): 15
+                         *      - Mat 2 (m2): 10
+                         *      - Mat 3 (m3): 5
+                         *  - Additional Material Amount
+                         *      - Optional Added Total: 31-50
+                         *      - Mat 4 (m4)(typeof Tooly): 1-20
+                         *  
+                         *  == How are these values used? ==
+                         *  - Used for itemGenConstant()
+                         *  - Used to calculate rarity 
+                         *      - Weighted by amount
+                         *      - Averaged to find final rarity
+                         *      - Formula:
+                         *  w1 = 30% = (m1 * 2)
+                         *  w2 = 20% = (m2 * 2)
+                         *  w3 = 10% = (m3 * 2)
+                         * 
+                         *  w4? = 40% = (m4 * 2)
+                         *  m4 = 0 
+                         *  ? (w1 + 20%, w2 + 10%, w3 + 10%) 
+                         *  : (w3 + (10% - w4), w2 + (10% - w4), w1 + (20% - w4))
+                         * 
+                         *  r1 = m1 Rar
+                         *  r2 = m2 Rar
+                         *  r3 = m3 Rar
+                         *  r4? = m4 Rar
+                         *  
+                         *  Highest Weighted Rarity:
+                         *  Rarity = func()
+                         */
+                        const rarityGenConstant = (matOne, matTwo, matThree, matFour) => {
+                            const m1 = matOne, m2 = matTwo, m3 = matThree, m4 = matFour;
+                            const r1 = m1.rarity, r2 = m2.rarity, r3 = m3.rarity, r4 = m4.rarity;
+                            let w1 = (m1.amount * 2), w2 = (m2.amount * 2), w3 = (m3.amount * 2), w4 = (m4.amount * 2);
+                            
+                            let RW = 40 - w4;
+                            //console.log(RW);
+                            if (RW === 0) {} else {
+                                w3 += RW >= 10 ? 10 : RW;
+                                RW -= RW >= 10 ? 10 : RW;
+                                if (RW > 0){
+                                    w2 += RW >= 10 ? 10 : RW;
+                                    RW -= RW >= 10 ? 10 : RW;
+                                }
+
+                                if (RW > 0){
+                                    w1 += RW >= 20 ? 20 : RW;
+                                    RW = 0;
+                                }
+                            }
+
+                            //console.log(`Rarity 1: ${r1}, Weight 1: ${w1}\nRarity 2: ${r2}, Weight 2: ${w2}\nRarity 3: ${r3}, Weight 3: ${w3}\nRarity 4: ${r4}, Weight 4: ${w4}\n`);
+
+                            const finalArr = [{rarity: r1, weight: w1}, {rarity: r2, weight: w2}, {rarity: r3, weight: w3}, {rarity: r4, weight: w4}];
+                            finalArr.sort((a,b) => b.weight - a.weight);
+
+                            const rarArr = [r1, r2, r3, r4];
+                            //const maxRar = rarArr[0];
+                
+                            rarArr.sort((a,b) => b - a);
+                            const tmpArr = [];
+                            const dupeCheck = [];
+                            for (const rar of rarArr){
+                                if (tmpArr.indexOf(rar) !== -1 && dupeCheck.indexOf(rar) === -1){
+                                    dupeCheck.push(rar);
+                                    continue;
+                                }
+                                tmpArr.push(rar);
+                            }
+                            // =======================
+                            // THIS NEEDS REVISIONS FOR HIGH RAR SCALES
+                            // =======================
+                            let addedWeights = [];
+                            if (dupeCheck.length > 0){
+                                // Add dupe rar weight % together, then finish weighted calculations
+                                for (const rar of dupeCheck){
+                                    const addedWeight = finalArr.filter(obj => obj.rarity === rar).reduce((acc, rarObj) => {
+                                        return (acc > 0) ? acc + rarObj.weight : rarObj.weight;
+                                    }, 0);
+                                    addedWeights.push({rarity: rar, weight: addedWeight});
+                                }
+                                //console.log(addedWeights);
+                            }
+
+                            //console.log(finalArr);
+                            let finalFilterArr = finalArr;
+
+                            if (addedWeights.length > 0){
+                                finalFilterArr = finalArr.filter(rarObj => addedWeights.some(moddedRar => rarObj.rarity !== moddedRar.rarity));
+                                finalFilterArr = finalFilterArr.concat(addedWeights);
+                                finalFilterArr.sort((a,b) => b.weight - a.weight);
+                            }
+                            //console.log(finalFilterArr);
+                            //console.log(`Rarity Picked: ${finalFilterArr[0].rarity}`);
+                            //console.log(`Rarity Second: ${finalFilterArr[1].rarity}`);
+                            if (finalFilterArr[1].rarity / 2 >= finalFilterArr[0].rarity * 2){
+                                finalFilterArr[0].rarity += 2;
+                            }
+                            return finalFilterArr[0].rarity; // Returns final rarity after calculations are complete!!!
+                        };
+
+                        // Loading material files for use in next section during display
+                        const {materialFiles} = interaction.client;
+                        const matListRefs = [];
+                        for (const matRef of casteGenOutcome.mats){
+                            for (const [key, value] of materialFiles){
+                                if (key === matRef.toLowerCase()){
+                                    matListRefs.push({matKey: matRef, file: value});
+                                    break;
+                                }
+                            }
+                        }
+
+                        const exMatOne = {
+                            name: "",
+                            type: casteGenOutcome.mats[0],
+                            rarity: inclusiveRandNum(10,0),
+                            amount: 15
+                        };
+                        const exMatTwo = {
+                            name: "",
+                            type: casteGenOutcome.mats[1],
+                            rarity: inclusiveRandNum(10,0),
+                            amount: 10
+                        };
+                        const exMatThree = {
+                            name: "",
+                            type: casteGenOutcome.mats[2],
+                            rarity: inclusiveRandNum(10,0),
+                            amount: 5
+                        };
+                        const exMatFour = {
+                            name: "",
+                            type: casteGenOutcome.mats[3],
+                            rarity: inclusiveRandNum(10,0),
+                            amount: inclusiveRandNum(20,0)
+                        };
+                        // LOADING MATERIALS AND SHORT DISPLAY
+                        //===================================
+                        const displayTemp = [exMatOne, exMatTwo, exMatThree, exMatFour];
+                        let i = 0, matTotal = 0;
+                        for (const tmpMat of displayTemp){
+                            // Its so easy isnt it? Looks simple enough ;)
+                            const genName = (matFile = require(matListRefs[i].file)) => {
+                                let rarToUse = tmpMat.rarity;
+                                if (tmpMat.rarity >= 10) rarToUse--; // Catch case for rar 10 mat
+                                if (i === 3 && rarToUse === 9) rarToUse--; // Catch case for rar 10 Tooly
+                                const filterMat = matFile.filter(mat => mat.Rar_id === rarToUse);
+                                return filterMat[0].Name;
+                            }; 
+                            // Should have the correct name || rar-1 mat name at least for now! 
+                            tmpMat.name = genName();
+
+                            console.log(`MATERIAL ${i} == Rar: ${tmpMat.rarity}, Amount: ${tmpMat.amount}, Name: ${tmpMat.name}`);
+                            i++;
+                            matTotal += tmpMat.amount;
+                        }
+                        //===================================
+                        const rarPicked = rarityGenConstant(exMatOne, exMatTwo, exMatThree, exMatFour);
+                        const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteGenOutcome.totalTypes, casteGenOutcome.hands, matTotal);
+                        
+                        casteGenOutcome.rarity = rarPicked;
+                        casteGenOutcome.maxSingleTypeDamage = itemMaxTypeDamage;
+
+                        console.log(casteGenOutcome);  
+
+                        // GENERATE AN ITEM CODE HERE!
+                        const finalItemCode = createNewItemCode(casteGenOutcome);
+                        console.log(finalItemCode);
+
+                        // AND THEN DECONSTRUCT IT BACK INTO A FULL ITEM
+                        const finalUseableItem = checkingDamage(finalItemCode);
+                        console.log(finalUseableItem);
+
+                        await interaction.reply(`Item Crafted: \nCaste Name: **${casteGenOutcome.name}**\nRarity: **${checkingRar(finalItemCode)}**\nHands to Hold Weapon: ${casteGenOutcome.hands}\n===============\nMaterials Used For Crafting: ${displayTemp.map(matObj => `\nName: **${matObj.name}**\nRarity: **${matObj.rarity}**\nAmount Used: **${matObj.amount}**`).join('\n').toString()}\n===============\nDamage Values: ${finalUseableItem.map(dmgObj => `\nType: **${dmgObj.Type}**\nDamage: **${dmgObj.DMG}**`).join('\n').toString()}`);
+                        
+                        endTime = new Date().getTime();
+                        return console.log(`Command took ${endTime - startTime}ms to complete!`);
+                    break;
+                }
             break;
         }           
         endTime = new Date().getTime();
 
         return await interaction.reply(`Command took ${endTime - startTime}ms to complete!`);
 
+        function createNewItemCode(casteObj){
+            const typePrefix = "TYP_";
+            const typeSuffix = "_typ";
+            const disPrefix = "DIS_";
+            const disSuffix = "_dis";
 
+            // DAMAGE TYPE:VALUE PAIRS
+            let typePairs = [];
+            for (const type of casteObj.dmgTypes){
+                let typeValue = inclusiveRandNum(casteObj.maxSingleTypeDamage, casteObj.maxSingleTypeDamage - (casteObj.maxSingleTypeDamage*0.25));
+                // Retrieve Keys from value matches
+                let keyType = "";
+                for (const [key, value] of dmgKeys){
+                    if (value === type) keyType = key;
+                }
+
+                // Mod typeValue against overflow types for proper damage distributions
+                if (casteObj.typeOverflow > 0) {
+                    typeValue *= 2;
+                    casteObj.typeOverflow--;
+                }
+
+                keyType += `:${typeValue}`;
+                typePairs.push(keyType);
+            }
+
+            const finalTypePairs = typePairs.join('-');
+            const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
+
+            const finalRarStr = (casteObj.rarity < 10) ? "r0" + casteObj.rarity : "r" + casteObj.rarity;
+
+            let disPicked = [];
+            for (const matType of casteObj.mats){
+                for (const [key, value] of disKeys){
+                    if (value === matType) {
+                        disPicked.push(key);
+                        break;
+                    }
+                }
+            }
+            const finalDis = disPicked.join('-');
+            const finalDisStr = disPrefix + finalDis + disSuffix;
+
+            const finalSlotStr = "MAslo"; //Hard coded mainhand item code!
+
+            const finalStrs = [finalTypeStr, finalRarStr, finalDisStr, finalSlotStr];
+            const finalStringCode = finalStrs.join('-');
+
+            return finalStringCode;
+        }
 
         function singleCombatRun(){
             const weapon = checkingDamage(genGearPiece());

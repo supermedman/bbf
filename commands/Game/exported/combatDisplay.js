@@ -624,7 +624,7 @@ async function initialDisplay(carriedCode, interaction, theEnemy) {
         const userRef = await grabU();
         await updateValues(player, userRef);
 
-        let xpGained = Math.floor(Math.random() * (enemyRef.xpmax - enemyRef.xpmin + 1) + enemyRef.xpmin);
+        let xpGained = Math.floor(Math.random() * (enemyRef.xpmax - enemyRef.xpmin + 1) + enemyRef.xpmin); // Error Thrown null.xpmax was recieved..
 
         const coinsGained = xpGained + Math.floor(Math.random() * (10 - 1) + 1);
 
