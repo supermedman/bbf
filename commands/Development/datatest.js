@@ -1242,7 +1242,7 @@ module.exports = {
                             //console.log(finalFilterArr);
                             //console.log(`Rarity Picked: ${finalFilterArr[0].rarity}`);
                             //console.log(`Rarity Second: ${finalFilterArr[1].rarity}`);
-                            if (finalFilterArr[1].rarity / 2 >= finalFilterArr[0].rarity * 2){
+                            if (finalFilterArr[1].rarity / 2 >= finalFilterArr[0].rarity * 2 && finalFilterArr[0].weight <= finalFilterArr[1].weight / 1.5){
                                 finalFilterArr[0].rarity += 2;
                             }
                             return finalFilterArr[0].rarity; // Returns final rarity after calculations are complete!!!
@@ -1287,17 +1287,20 @@ module.exports = {
                         // LOADING MATERIALS AND SHORT DISPLAY
                         //===================================
                         const displayTemp = [exMatOne, exMatTwo, exMatThree, exMatFour];
-                        let i = 0, matTotal = 0;
+                        let i = 0, matTotal = 0, rarValPairs = [];
                         for (const tmpMat of displayTemp){
+
                             // Its so easy isnt it? Looks simple enough ;)
                             const genName = (matFile = require(matListRefs[i].file)) => {
                                 let rarToUse = tmpMat.rarity;
                                 if (tmpMat.rarity >= 10) rarToUse--; // Catch case for rar 10 mat
                                 if (i === 3 && rarToUse === 9) rarToUse--; // Catch case for rar 10 Tooly
                                 const filterMat = matFile.filter(mat => mat.Rar_id === rarToUse);
+                                rarValPairs.push({rar: filterMat[0].Rar_id, val: filterMat[0].Value});
                                 return filterMat[0].Name;
                             }; 
-                            // Should have the correct name || rar-1 mat name at least for now! 
+                            
+                            // Should have the correct name || rar (-1||-2) mat name at least for now! 
                             tmpMat.name = genName();
 
                             console.log(`MATERIAL ${i} == Rar: ${tmpMat.rarity}, Amount: ${tmpMat.amount}, Name: ${tmpMat.name}`);
@@ -1310,6 +1313,10 @@ module.exports = {
                         
                         casteGenOutcome.rarity = rarPicked;
                         casteGenOutcome.maxSingleTypeDamage = itemMaxTypeDamage;
+                        casteGenOutcome.totalMatsUsed = matTotal;
+                        casteGenOutcome.rarValPairs = rarValPairs;
+
+                        extractName(casteGenOutcome);
 
                         console.log(casteGenOutcome);  
 
@@ -1321,7 +1328,7 @@ module.exports = {
                         const finalUseableItem = checkingDamage(finalItemCode);
                         console.log(finalUseableItem);
 
-                        await interaction.reply(`Item Crafted: \nCaste Name: **${casteGenOutcome.name}**\nRarity: **${checkingRar(finalItemCode)}**\nHands to Hold Weapon: ${casteGenOutcome.hands}\n===============\nMaterials Used For Crafting: ${displayTemp.map(matObj => `\nName: **${matObj.name}**\nRarity: **${matObj.rarity}**\nAmount Used: **${matObj.amount}**`).join('\n').toString()}\n===============\nDamage Values: ${finalUseableItem.map(dmgObj => `\nType: **${dmgObj.Type}**\nDamage: **${dmgObj.DMG}**`).join('\n').toString()}`);
+                        await interaction.reply(`Item Crafted: \nName: **${casteGenOutcome.name}**\nCaste Name: **${casteGenOutcome.casteType}**\nRarity: **${checkingRar(finalItemCode)}**\nValue: **${casteGenOutcome.value}**\nHands to Hold Weapon: ${casteGenOutcome.hands}\n===============\nMaterials Used For Crafting: ${displayTemp.map(matObj => `\nName: **${matObj.name}**\nRarity: **${matObj.rarity}**\nAmount Used: **${matObj.amount}**`).join('\n').toString()}\n===============\nDamage Values: ${finalUseableItem.map(dmgObj => `\nType: **${dmgObj.Type}**\nDamage: **${dmgObj.DMG}**`).join('\n').toString()}`);
                         
                         endTime = new Date().getTime();
                         return console.log(`Command took ${endTime - startTime}ms to complete!`);
@@ -1333,13 +1340,29 @@ module.exports = {
 
         return await interaction.reply(`Command took ${endTime - startTime}ms to complete!`);
 
+        // Uses item caste type to choose from a list of names
+        // Can be changed to create the name based on mat types/amounts
+        function extractName(item){
+            const nameCaste = require('./Export/Json/nameCaste.json');
+
+            const casteFiltered = nameCaste.filter(ele => ele.Caste_Type === item.name);
+            const name = randArrPos(casteFiltered[0].Caste_Forms);
+            item.casteType = item.name;
+            item.name = name;
+            return;
+        }
+
+
         function createNewItemCode(casteObj){
             const typePrefix = "TYP_";
             const typeSuffix = "_typ";
             const disPrefix = "DIS_";
             const disSuffix = "_dis";
+            
+            let totalValue = 0;
 
             // DAMAGE TYPE:VALUE PAIRS
+            let totalDamage = 0;
             let typePairs = [];
             for (const type of casteObj.dmgTypes){
                 let typeValue = inclusiveRandNum(casteObj.maxSingleTypeDamage, casteObj.maxSingleTypeDamage - (casteObj.maxSingleTypeDamage*0.25));
@@ -1354,10 +1377,52 @@ module.exports = {
                     typeValue *= 2;
                     casteObj.typeOverflow--;
                 }
-
+                totalDamage += typeValue; // Total Item damage used for easy display + final value total
                 keyType += `:${typeValue}`;
                 typePairs.push(keyType);
             }
+
+            console.log('Total Item Damage: %d', totalDamage);
+            //console.log('Attempt 2 % Value on Damage Type Amount: %d', (casteObj.dmgTypes.length / 20));
+
+            totalValue = (1 + casteObj.rarity) * totalDamage;
+            //console.log('(1 + Rar * Total Damage): %d', ((1 + casteObj.rarity) * totalDamage));
+            
+            const calcRarVal = (rarValPairs, rarity) => {
+                let domRarTotal = 0, otherRarTotal = 0;
+                for (const pair of rarValPairs){
+                    if (pair.rar === rarity) domRarTotal += pair.val * 2;
+                    if (pair.rar < rarity) otherRarTotal += pair.val;
+                    if (pair.rar > (rarity + 1) * 2) {
+                        otherRarTotal += (pair.val / 3);
+                    } else if (pair.rar > rarity) {
+                        otherRarTotal += (pair.val / 2);
+                    }
+                }
+                //console.log(`DomRarTotal: ${domRarTotal}\nOtherRarTotal: ${otherRarTotal}`);
+                domRarTotal *= (1 + rarity);
+                otherRarTotal += otherRarTotal * ((1 + rarity) / 20);
+                //console.log(`DomRarTotal AFTER: ${domRarTotal}\nOtherRarTotal AFTER: ${otherRarTotal}`);
+                return domRarTotal + otherRarTotal;
+            };
+
+            totalValue *= (casteObj.hands === 1) ? 1.4 : 1.8;
+            //console.log('Hands Mutliplier: %d', (casteObj.hands === 1) ? 1.4 : 1.8);
+            //console.log('After Hands Multiplier: %d', totalValue);
+
+            totalValue += totalValue * (casteObj.totalTypes / 20);
+            //console.log('Dmg Type Additive Bonus: %d', (totalValue * (casteObj.totalTypes / 20)));
+            //console.log('After DmgType +Bonus: %d', totalValue);
+
+            const matValues = calcRarVal(casteObj.rarValPairs, casteObj.rarity);
+            console.log('Final Mats Value: %d', matValues);
+
+            totalValue += matValues;
+
+            totalValue = Math.floor(totalValue);
+            console.log('Final Value: %d', totalValue);
+
+            casteObj.value = totalValue;
 
             const finalTypePairs = typePairs.join('-');
             const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
@@ -1383,6 +1448,7 @@ module.exports = {
 
             return finalStringCode;
         }
+
 
         function singleCombatRun(){
             const weapon = checkingDamage(genGearPiece());

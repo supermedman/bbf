@@ -516,7 +516,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setTitle('JOINING TOWN')
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields({ name: 'Join this town?', value: 'Select a button below.' });
 
 			const embedMsg = await interaction.followUp({ embeds: [embed], components: [buttonRow] });
@@ -772,7 +772,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setTitle('APPOINTING USER')
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields({ name: `Appoint ${targetUser.username}?`, value: 'Select a button below.' });
 
 			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
@@ -846,7 +846,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setTitle('DEMOTING USER')
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields({ name: `Demote ${targetUser.username}?`, value: 'Select a button below.' });
 
 			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
@@ -909,7 +909,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setTitle('TRANSFER OWNERSHIP')
-				.setColor(0000)
+				.setColor(0o0)
 				.setDescription('This process **CANNOT BE UNDONE!!!**')
 				.addFields({ name: 'Are you sure you want to transfer ownership?', value: `${targetUser.username} will become the new mayor!` });
 
@@ -1301,7 +1301,7 @@ module.exports = {
 			const embed = new EmbedBuilder()
 				.setTitle(embedTitle)
 				.setDescription(embedDesc)
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields(finalFields);
 
 			await interaction.deferReply();
@@ -1420,7 +1420,7 @@ module.exports = {
 			// Handle confirm embed here
 			const embed = {
 				title: embedTitle,
-				color: 0000,
+				color: 0o0,
 				fields: finalFields,
 			};
 
@@ -1603,7 +1603,7 @@ module.exports = {
 			// Handle confirm embed here
 			const embed = {
 				title: embedTitle,
-				color: 0000,
+				color: 0o0,
 				fields: finalFields,
 			};
 
@@ -1712,7 +1712,7 @@ module.exports = {
 
 				let embed = {
 					title: embedTitle,
-					color: 0000,
+					color: 0o0,
 					fields: finalFields
 				};
 				embedPages.push(embed);

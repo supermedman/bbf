@@ -1,0 +1,58 @@
+[
+    {
+        "Caste_Type": "Wand",
+        "Caste_Forms": [
+            "Rose Quartz Studded Wand",
+            "Worn Wood Wand"
+        ]
+    },
+    {
+        "Caste_Type": "Tome",
+        "Caste_Forms": [
+            "Rose Quartz Studded Tome",
+            "Worn Leather Tome"
+        ]
+    },
+    {
+        "Caste_Type": "Staff",
+        "Caste_Forms": [
+            "Rose Quartz Studded Staff",
+            "Worn Wood Staff"
+        ]
+    },
+    {
+        "Caste_Type": "Focus",
+        "Caste_Forms": [
+            "Rose Quartz Studded Focus",
+            "Worn Iron Focus"
+        ]
+    },
+    {
+        "Caste_Type": "Light Blade",
+        "Caste_Forms": [
+            "Rose Quartz Studded Light Blade",
+            "Worn Iron Light Blade"
+        ]
+    },
+    {
+        "Caste_Type": "Mace",
+        "Caste_Forms": [
+            "Rose Quartz Studded Mace",
+            "Worn Iron Mace"
+        ]
+    },
+    {
+        "Caste_Type": "Polearm",
+        "Caste_Forms": [
+            "Rose Quartz Studded Polearm",
+            "Worn Iron Polearm"
+        ]
+    },
+    {
+        "Caste_Type": "Heavy Blade",
+        "Caste_Forms": [
+            "Rose Quartz Studded Heavy Blade",
+            "Worn Iron Heavy Blade"
+        ]
+    }
+]
