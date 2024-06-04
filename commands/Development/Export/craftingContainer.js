@@ -18,6 +18,21 @@ const dmgKeys = new Map([
     ["CHsp", "Chaos"]
 ]);
 
+const rarKeys = new Map([
+    ["r00", "Common"],
+    ["r01", "Uncommon"],
+    ["r02", "Rare"],
+    ["r03", "Very Rare"],
+    ["r04", "Epic"],
+    ["r05", "Mystic"],
+    ["r06", "?"],
+    ["r07", "??"],
+    ["r08", "???"],
+    ["r09", "????"],
+    ["r10", "Forgotten"],
+    ["r12", "Unique"]
+]);
+
 const disKeys = new Map([
     ["SL", "Slimy"],
     ["HE", "Herby"],
@@ -31,6 +46,14 @@ const disKeys = new Map([
     ["GE", "Gemy"],
     ["TO", "Tooly"],
     ["UN", "Unique"]
+]);
+
+const slotKeys = new Map([
+    ["HEslo", "Headslot"],
+    ["CHslo", "Chestslot"],
+    ["LEslo", "Legslot"],
+    ["MAslo", "Mainhand"],
+    ["OFslo", "Offhand"]
 ]);
 
 // ===============================
@@ -166,6 +189,14 @@ const itemGenPickDmgTypes = (casteObj) => {
     const maxTypeAmount = inclusiveRandNum(5 - casteObj.dmgTypes.length, 1);
     const dmgTypeOptions = casteObj.dmgOptions;
 
+    // Preventing Imbued Pure types from being double selected
+    if (casteObj.dmgTypes.length > 0){
+        for (const pure of casteObj.dmgTypes){
+            if (dmgTypeOptions.indexOf(pure) !== -1) 
+                dmgTypeOptions.splice(dmgTypeOptions.indexOf(pure), 1);
+        }
+    }
+
     // This prevents any one type being picked more than once
     const dmgTypesPicked = [];
     let overflow = 0;
@@ -178,8 +209,8 @@ const itemGenPickDmgTypes = (casteObj) => {
         dmgTypesPicked.push(randPicked);
         dmgTypeOptions.splice(dmgTypeOptions.indexOf(randPicked), 1);
     }
-    console.log(dmgTypesPicked);
-    console.log('Overflow Types: %d', overflow);
+    //console.log(dmgTypesPicked);
+    //console.log('Overflow Types: %d', overflow);
     casteObj.typeOverflow = overflow;
     return dmgTypesPicked;
 };
@@ -187,15 +218,16 @@ const itemGenPickDmgTypes = (casteObj) => {
 /**
  * This method takes 4 Basic Material Objects and through a series of calculations, logical comparisons,
  * and formulas determines the final overall rarity that the casteObj should receive.
- * @param {object} matOne Basic Material Object
- * @param {object} matTwo Basic Material Object
- * @param {object} matThree Basic Material Object
- * @param {object} matFour Basic Material Object
+ * @param {object} matOne Basic Material Object: {rarity: number, amount: number}
+ * @param {object} matTwo Basic Material Object: {rarity: number, amount: number}
+ * @param {object} matThree Basic Material Object: {rarity: number, amount: number}
+ * @param {object} matFour Basic Material Object: {rarity: number, amount: number}
  * @returns Number for Final Rarity
  */
 const rarityGenConstant = (matOne, matTwo, matThree, matFour) => {
     const m1 = matOne, m2 = matTwo, m3 = matThree, m4 = matFour;
     const r1 = m1.rarity, r2 = m2.rarity, r3 = m3.rarity, r4 = m4.rarity;
+    if (r1 === r2 === r3 === r4) return r1;
     let w1 = (m1.amount * 2), w2 = (m2.amount * 2), w3 = (m3.amount * 2), w4 = (m4.amount * 2);
     
     let RW = 40 - w4;
@@ -274,6 +306,10 @@ const dmgTypeAmountGen = (casteObj) => {
             casteObj.typeOverflow--;
         }
 
+        // t1 = tooly rarity
+        // t2 = tooly amount
+        // ((1.2 + t1) * (0.08 * t2)) / 2
+
         totalDamage += typeValue; // Total Item damage used for easy display + final value total
         dmgTypePairs.push({type: type, dmg: typeValue});
     }
@@ -325,7 +361,39 @@ const itemValueGenConstant = (casteObj) => {
     return totalValue;
 };
 
+// ===============================
+//   TEMP STRING CODE DESTRUCT
+// ===============================
 
+/**
+ * 
+ * @param {String} TEST_CODE ITEM_CODE used for deconstruction
+ * @returns Useable rarity value
+ */
+function checkingRar(TEST_CODE) {
+    const RAR = /-r\d{2}-/;
+    const rarStarts = TEST_CODE.search(RAR);
+    
+    const rarCode = TEST_CODE.slice(rarStarts + 1, rarStarts + 4);
+    const foundRar = rarKeys.get(rarCode);
+    
+    return foundRar;
+}
+
+/**
+ * 
+ * @param {String} TEST_CODE ITEM_CODE used for deconstruction
+ * @returns Usable item slot value
+ */
+function checkingSlot(TEST_CODE){
+    const SLOT = /-\D{2}slo/;
+    const slotStarts = TEST_CODE.search(SLOT);
+  
+    const slotCode =  TEST_CODE.slice(slotStarts + 1, slotStarts + 6);
+    const foundSlot = slotKeys.get(slotCode);
+  
+    return foundSlot;
+}
 
 
 // ===============================
@@ -434,6 +502,17 @@ function createNewItemCode(casteObj){
     return finalStringCode;
 }
 
+// !!WIP!!
+function extractName(item){
+    const nameCaste = require('./Json/nameCaste.json');
+
+    const casteFiltered = nameCaste.filter(ele => ele.Caste_Type === item.name);
+    const name = randArrPos(casteFiltered[0].Caste_Forms);
+    item.casteType = item.name;
+    item.name = name;
+    return;
+}
+
 module.exports = {
     itemGenDmgConstant, 
     itemGenCaste, 
@@ -442,5 +521,8 @@ module.exports = {
     rarityGenConstant,
     dmgTypeAmountGen,
     itemValueGenConstant,
-    createNewItemCode
+    checkingRar,
+    checkingSlot,
+    createNewItemCode,
+    extractName
 };

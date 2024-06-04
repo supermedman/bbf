@@ -174,7 +174,7 @@ module.exports = {
 
             const dismantleEmbed = new EmbedBuilder()
                 .setTitle('~Dismantle Options~')
-                .setColor(0000)
+                .setColor(0o0)
                 .addFields({
                     name: `${item.name}: `, value: `You currently have ${item.amount}`
                 });
