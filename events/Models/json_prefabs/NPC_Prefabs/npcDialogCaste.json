@@ -369,7 +369,7 @@
                 "Castes": [
                     {
                         "Name": "Caste_Easy_Reward_One",
-                        "Dialog": "You will receive a plesant reward for you effort.",
+                        "Dialog": "You will receive a pleasant reward for you effort.",
                         "Options": [
                             {
                                 "Label": "I accept!",
