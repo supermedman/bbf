@@ -372,19 +372,19 @@ function createNewItemStringEntry(item, ITEM_CODE){
         username: 'th3ward3n'
     };
     
+    // DB Table Reference Example
     const mockItemStrings = {
-        user_id: "String",
-        name: "Missing Name",
-        value: 1,
+        user_id: mockUserData.id,
+        name: item.name,
+        value: item.value,
         amount: 1,
-        item_code: "String",
-        caste_id: 1,
-        creation_id: 2,
-        unique_gen_id: "UUIDV1",
-        item_id: "String"
+        item_code: ITEM_CODE,
+        // ^^^ INHERENT ITEM VALUES ^^^
+        caste_id: 1, // Extract from casteType ?? place into caste type given type values
+        creation_id: 2, // Dependent on item
+        unique_gen_id: "UUIDV1", // Static Gen Prop
+        item_id: "String" // Requires caste_id, creation_id, and unique_gen_id to be resolved.
     };
-
-
 }
 
 
