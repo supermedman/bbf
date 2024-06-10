@@ -57,6 +57,44 @@ const slotKeys = new Map([
     ["OFslo", "Offhand"]
 ]);
 
+// CASTE ID
+/**
+ * Wand-1H: 1
+ * Tome-1H: 2
+ * Staff-2H: 3
+ * Focus-2H: 4
+ * Light Blade-1H: 5
+ * Mace-1H: 6
+ * Polearm-2H: 7
+ * Heavy Blade-2H: 8
+ * 
+ * 1H: [1,2,5,6]
+ * 2H: [3,4,7,8]
+ * 
+ * Magic: [1,2,3,4]
+ * Melee: [5,6,7,8]
+ * 
+ * Extract Using: 
+ *
+ * ```js
+ *  for (const [key, value] of casteKeys) {
+ *      if (~~key === dbItemRef.caste_id) {
+ *          const casteData = JSON.parse(value);
+ *      }
+ *  }
+ * ```
+ */
+const casteKeys = new Map([
+    ["1", '{"Caste": "Wand", "Hands": 1, "Type": "Magic"}'],
+    ["2", '{"Caste": "Tome", "Hands": 1, "Type": "Magic"}'],
+    ["3", '{"Caste": "Staff", "Hands": 2, "Type": "Magic"}'],
+    ["4", '{"Caste": "Focus", "Hands": 2, "Type": "Magic"}'],
+    ["5", '{"Caste": "Light Blade", "Hands": 1, "Type": "Melee"}'],
+    ["6", '{"Caste": "Mace", "Hands": 1, "Type": "Melee"}'],
+    ["7", '{"Caste": "Polearm", "Hands": 2, "Type": "Melee"}'],
+    ["8", '{"Caste": "Heavy Blade", "Hands": 2, "Type": "Melee"}']
+]);
+
 // ===============================
 //      STRING CODE DESTRUCT
 // ===============================
@@ -145,4 +183,333 @@ function checkingSlot(TEST_CODE){
     const foundSlot = slotKeys.get(slotCode);
   
     return foundSlot;
+}
+
+// ===============================
+//      STRING CODE CONSTRUCT
+// ===============================
+
+/**
+ * This function takes a valid casteObj and converts it into an item string usable for storage, combat, ect.
+ * @param {object} item casteObj Template: {...casteObj, dmgTypePairs: object[ { type: string, dmg: number } ], rarity: number, mats: string[]}
+ * @returns String: Usable Item Code String
+ */
+function createMainhandItemCode(item){
+    const typePrefix = "TYP_";
+    const typeSuffix = "_typ";
+    const disPrefix = "DIS_";
+    const disSuffix = "_dis";
+
+    // DAMAGE TYPE:VALUE PAIRS
+    let typePairs = [];
+    for (const pair of item.dmgTypePairs){
+        let keyType = "";
+        for (const [key, value] of dmgKeys){
+            if (value === pair.type) keyType = key;
+        }
+
+        keyType += `:${pair.dmg}`;
+        typePairs.push(keyType);
+    }
+
+    const finalTypePairs = typePairs.join('-');
+    const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
+
+    // RARITY
+    const finalRarStr = (item.rarity < 10) ? "r0" + item.rarity : "r" + item.rarity;
+
+    // DISMANTLE TYPES
+    let disPicked = [];
+    for (const matType of item.mats){
+        for (const [key, value] of disKeys){
+            if (value === matType) {
+                disPicked.push(key);
+                break;
+            }
+        }
+    }
+    const finalDis = disPicked.join('-');
+    const finalDisStr = disPrefix + finalDis + disSuffix;
+
+    // SLOT
+    const finalSlotStr = "MAslo"; //Hard coded mainhand item code!
+
+    // FINAL STRING
+    const finalStrs = [finalTypeStr, finalRarStr, finalDisStr, finalSlotStr];
+    const finalStringCode = finalStrs.join('-');
+
+    return finalStringCode;
+}
+
+/**
+ * This function takes a Universal Item Object and constructs a TYPE:DMG Item String Code segment.
+ * @param {object} item casteObj Template: {...casteObj, dmgTypePairs: object[ { type: string, dmg: number } ]}
+ * @returns String: Usable TYPE:DMG Item String Code segment
+ */
+function uni_createDmgTypeString(item){
+    const typePrefix = "TYP_";
+    const typeSuffix = "_typ";
+
+    // DAMAGE TYPE:VALUE PAIRS
+    let typePairs = [];
+    for (const pair of item.dmgTypePairs){
+        let keyType = "";
+        for (const [key, value] of dmgKeys){
+            if (value === pair.type) keyType = key;
+        }
+
+        keyType += `:${pair.dmg}`;
+        typePairs.push(keyType);
+    }
+
+    const finalTypePairs = typePairs.join('-');
+    const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
+
+    return finalTypeStr;
+}
+
+/**
+ * This function creates an Item String Code using a formated Universal Item Object, It does not handle
+ * Damage or Defence sections of the string.
+ * @param {object} item Universal Item Object {rarity: number, mats: string[], slot: string}
+ * @returns String: BasicItemStrCode
+ */
+function uni_CreateStandardItemCode(item){
+    const disPrefix = "DIS_";
+    const disSuffix = "_dis";
+
+    // RARITY
+    const finalRarStr = (item.rarity < 10) ? "r0" + item.rarity : "r" + item.rarity;
+
+    // DISMANTLE TYPES
+    let disPicked = [];
+    for (const matType of item.mats){
+        for (const [key, value] of disKeys){
+            if (value === matType) {
+                disPicked.push(key);
+                break;
+            }
+        }
+    }
+    const finalDis = disPicked.join('-');
+    const finalDisStr = disPrefix + finalDis + disSuffix;
+
+    // SLOT
+    let finalSlotStr;
+    for (const [key, value] of slotKeys){
+        if (value === item.slot){
+            finalSlotStr = key;
+            break;
+        }
+    }
+
+    // FINAL BASIC STRING
+    const finalStrs = [finalRarStr, finalDisStr, finalSlotStr];
+    const basicStringCode = finalStrs.join('-');
+
+    return basicStringCode;
+}
+
+
+
+// ========================
+//     TABLE REFERENCE
+// ========================
+
+// CASTE ID
+/**
+ * Wand-1H: 1
+ * Tome-1H: 2
+ * Staff-2H: 3
+ * Focus-2H: 4
+ * Light Blade-1H: 5
+ * Mace-1H: 6
+ * Polearm-2H: 7
+ * Heavy Blade-2H: 8
+ * 
+ * 1H: [1,2,5,6]
+ * 2H: [3,4,7,8]
+ * 
+ * Magic: [1,2,3,4]
+ * Melee: [5,6,7,8]
+ */
+
+// USER STORAGE
+/**
+ * user_id: String
+ * name: String
+ * value: Int
+ * amount: Int
+ * item_code: String
+ * caste_id: Int
+ * creation_id: Int
+ * unique_gen_id: UUIDV1
+ * item_id: 
+ *  IF NOT CRAFTED: `${caste_id + creation_offset_id}`
+ *  IF CRAFTED: `${this.unique_gen_id}`
+ */
+// '../../events/Models/ItemStrings.js'
+
+// STATIC STORAGE
+/**
+ * name: String
+ * value: Int
+ * item_code: String
+ * caste_id: Int
+ * creation_offset_id: Int
+ * user_created: Boolean
+ */
+// '../../events/Models/ItemLootPool.js'
+
+// ============================
+//      MOCK DB FUNCTIONS
+// ============================
+
+
+function createNewItemStringEntry(item, ITEM_CODE){
+    const mockUserData = {
+        id: '501177494137995264',
+        username: 'th3ward3n'
+    };
+    
+    const mockItemStrings = {
+        user_id: "String",
+        name: "Missing Name",
+        value: 1,
+        amount: 1,
+        item_code: "String",
+        caste_id: 1,
+        creation_id: 2,
+        unique_gen_id: "UUIDV1",
+        item_id: "String"
+    };
+
+
+}
+
+
+// ============================
+//        TEMP TESTING
+// ============================
+
+/**
+ *  name
+ *  hands
+ *  dmgCat
+ *  mats
+ *  dmgTypes
+ *  typeOverflow
+ *  totalTypes
+ *  rarity
+ *  maxSingleTypeDamage
+ *  totalMatsUsed
+ *  rarValPairs
+ *  totalDamage
+ *  dmgTypePairs
+ *  value
+ *  casteType
+ *  
+ *  './craftingContainer.js'
+ */
+const exampleCasteObj = {
+    name: 'Lament',
+    hands: 1,
+    dmgCat: 'Melee',
+    mats: ["Metalic", "Woody", "Skinny", "Tooly"],
+    dmgTypes: ["Blunt", "Frost"],
+    typeOverflow: 2,
+    totalTypes: 4,
+    rarity: 4,
+    maxSingleTypeDamage: 40,
+    totalMatsUsed: 30,
+    rarValPairs: [
+        {rar: 4, val: 75},
+        {rar: 4, val: 75},
+        {rar: 4, val: 75},
+        {rar: 4, val: 75}
+    ],
+    totalDamage: 75,
+    dmgTypePairs: [
+        {type: "Blunt", dmg: 38},
+        {type: "Frost", dmg: 37}
+    ],
+    value: 2250,
+    casteType: 'Mace'
+};
+
+/**
+ * {    
+ * 
+        "Name": "Lament",
+        "Value": 225,
+
+        "Attack": 40,
+        "Type": "BLUNT",
+
+        "Slot": "Mainhand",
+        "Hands": "One",
+
+        "Rarity": "Epic",
+        "Rar_id": 4,
+
+        "DismantleTypes": [ "metalic", "skinny" ],
+
+        "Loot_id": 27,
+        "Spec_id": 0
+    }
+ * 
+    '../../events/Models/json_prefabs/lootList.json'
+ */
+const exampleJsonItem = [JSON.parse(JSON.stringify({
+    Name: "Lament",
+    Value: 225,
+    Attack: 40,
+    Type: "BLUNT",
+    Slot: "Mainhand",
+    Hands: "One",
+    Rarity: "Epic",
+    Rar_id: 4,
+    DismantleTypes: ["metalic", "skinny"],
+    Loot_id: 27,
+}, null, " "))];
+
+
+const exampleDBItem = {
+    spec_id: "0",
+    loot_id: 27,
+    name: "Lament",
+    value: 225,
+    attack: 40,
+    defence: 0,
+    type: "BLUNT",
+    slot: "Mainhand",
+    hands: "One",
+    rarity: "Epic",
+    rar_id: 4,
+    amount: 1
+};
+
+/**
+ * This function takes an item object falling into one of three types, and then converts it 
+ * into a standard universal item object for all further uses and applications.
+ * @param {object} item Can be JSON prefab, crafted, or DB entry.
+ * @returns Universal Item Object
+ */
+function convertMainhand(item){
+    let universalItem;
+
+    return universalItem;
+}
+
+
+function displayMainhand(item){
+    
+}
+
+function displayOffhand(item){
+
+}
+
+function displayArmor(item){
+
 }

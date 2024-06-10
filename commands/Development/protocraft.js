@@ -21,6 +21,12 @@ const inclusiveRandNum = (max, min) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+// function* objectEntries(obj) {
+//     for (let key of Object.keys(obj)) {
+//         yield [key, obj[key]];
+//     }
+// }
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('protocraft')
@@ -150,6 +156,10 @@ module.exports = {
             matsNeeded: [],
             imbuedWith: imbuedWith.filter(imbue => imbue.length > 0) // Filter for only non-empty strings
         };
+
+        // for (let [key, value] of objectEntries(userInputChoices)) {
+        //     console.log(`${key}: ${value}`);
+        // }
 
         // Create the base item casteObj
         const casteObj = itemGenCaste(userInputChoices.castePicked);
