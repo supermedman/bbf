@@ -1,4 +1,5 @@
-// Used for the deconstruction of item code strings into useable values
+// Used for the deconstruction of item string codes into useable values
+// As well as the construction of item string codes from valid item objects
 
 // ===============================
 //          ITEM KEYS
@@ -423,6 +424,23 @@ function createNewItemStringEntry(item, ITEM_CODE){
     return mockItemStrings; // This should be a valid, fully filled mock db entry object 
 }
 
+// ============================
+//        FINAL DISPLAY
+// ============================
+
+
+function displayMainhand(item){
+    
+}
+
+function displayOffhand(item){
+
+}
+
+function displayArmor(item){
+
+}
+
 
 // ============================
 //        TEMP TESTING
@@ -532,20 +550,14 @@ const exampleDBItem = {
  * @returns Universal Item Object
  */
 function convertMainhand(item){
+    const startTime = new Date().getTime(); // Timer Start
     let universalItem;
-
-    return universalItem;
-}
-
-
-function displayMainhand(item){
+    // =====================
     
-}
 
-function displayOffhand(item){
-
-}
-
-function displayArmor(item){
-
+    // ^^ CODE GOES HERE ^^
+    // =====================
+    const endTime = new Date().getTime(); // Timer End
+    console.log(`Final Processing Time: ${endTime - startTime}ms`);
+    return universalItem;
 }
