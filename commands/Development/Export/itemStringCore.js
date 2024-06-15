@@ -246,7 +246,7 @@ function createMainhandItemCode(item){
  * @param {object} item casteObj Template: {...casteObj, dmgTypePairs: object[ { type: string, dmg: number } ]}
  * @returns String: Usable TYPE:DMG Item String Code segment
  */
-function uni_createDmgTypeString(item){
+function uni_CreateDmgTypeString(item){
     const typePrefix = "TYP_";
     const typeSuffix = "_typ";
 
@@ -274,7 +274,7 @@ function uni_createDmgTypeString(item){
  * @param {object} item Universal Item Object {rarity: number, mats: string[], slot: string}
  * @returns String: BasicItemStrCode
  */
-function uni_CreateStandardItemCode(item){
+function uni_CreateStandardBaseItemCode(item){
     const disPrefix = "DIS_";
     const disSuffix = "_dis";
 
@@ -310,7 +310,16 @@ function uni_CreateStandardItemCode(item){
     return basicStringCode;
 }
 
-
+/**
+ * This function combines both a prefix string and a base item string to return a valid full 
+ * Item String Code
+ * @param {string} PREFIX_TYPE_STRING Prefix string, defence/damage type pairs
+ * @param {string} BASE_ITEM_STRING Complete base item string missing Prefix
+ * @returns String as Final Item String Code
+ */
+function uni_CreateCompleteItemCode(PREFIX_TYPE_STRING, BASE_ITEM_STRING){
+    return PREFIX_TYPE_STRING + '-' + BASE_ITEM_STRING;
+}
 
 // ========================
 //     TABLE REFERENCE
@@ -365,13 +374,37 @@ function uni_CreateStandardItemCode(item){
 //      MOCK DB FUNCTIONS
 // ============================
 
-
+/**
+ * This function simulates the process for saving an item to the database using the new loot tables
+ * It also generates an item_id based on the method from which the item was first obtained:
+ * JSON Prefab
+ * DB Entry
+ * Newly Crafted
+ * @param {object} item uni Item Object: {name: string, value: number, casteType: number, createdBy: number}
+ * @param {string} ITEM_CODE Valid item string code
+ */
 function createNewItemStringEntry(item, ITEM_CODE){
     const mockUserData = {
         id: '501177494137995264',
         username: 'th3ward3n'
     };
     
+    /**
+     *  === ITEM OBJECT NEEDS ===
+     *  - name: String
+     *      - Found item name
+     * 
+     *  - value: Number
+     *      - Found item value
+     * 
+     *  - casteType: Number
+     *      - Conditionally decided based on item
+     *  
+     *  - createdBy: Number
+     *      - Dictated by method of acquisition
+     *          - Crafted: 2
+     *          - ItemLootPool: creation_offset_id (based on current loot_id system)
+     */
     // DB Table Reference Example
     const mockItemStrings = {
         user_id: mockUserData.id,
@@ -385,6 +418,9 @@ function createNewItemStringEntry(item, ITEM_CODE){
         unique_gen_id: "UUIDV1", // Static Gen Prop
         item_id: "String" // Requires caste_id, creation_id, and unique_gen_id to be resolved.
     };
+
+
+    return mockItemStrings; // This should be a valid, fully filled mock db entry object 
 }
 
 
