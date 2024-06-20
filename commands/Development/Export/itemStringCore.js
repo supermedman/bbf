@@ -314,13 +314,26 @@ function uni_CreateStandardBaseItemCode(item){
 /**
  * This function combines both a prefix string and a base item string to return a valid full 
  * Item String Code
- * @param {string} PREFIX_TYPE_STRING Prefix string, defence/damage type pairs
- * @param {string} BASE_ITEM_STRING Complete base item string missing Prefix
+ * @param {object} item Universal Item Object {rarity: number, mats: string[], slot: string, dmgTypePairs?: object[ { type: string, dmg: number } ]}
  * @returns String as Final Item String Code
  */
-function uni_CreateCompleteItemCode(PREFIX_TYPE_STRING, BASE_ITEM_STRING){
-    return PREFIX_TYPE_STRING + '-' + BASE_ITEM_STRING;
+function uni_CreateCompleteItemCode(item){
+    if (item.slot === "Mainhand"){
+        return uni_CreateDmgTypeString(item) + '-' + uni_CreateStandardBaseItemCode(item);
+    } else {
+        //PREFIX_TYPE_STRING, BASE_ITEM_STRING
+        //return PREFIX_TYPE_STRING + '-' + BASE_ITEM_STRING;
+        return 'Invalid Slot Type'
+    }
 }
+
+// ========================
+//     HELPER FUNCTION
+// ========================
+
+const randArrPos = (arr) => {
+    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+};
 
 // ========================
 //     TABLE REFERENCE
@@ -414,8 +427,8 @@ function createNewItemStringEntry(item, ITEM_CODE){
         amount: 1,
         item_code: ITEM_CODE,
         // ^^^ INHERENT ITEM VALUES ^^^
-        caste_id: 1, // Extract from casteType ?? place into caste type given type values
-        creation_id: 2, // Dependent on item
+        caste_id: item.casteID, // Extract from casteType ?? place into caste type given type values
+        creation_id: item.crafted_id, // Dependent on item
         unique_gen_id: "UUIDV1", // Static Gen Prop
         item_id: "String" // Requires caste_id, creation_id, and unique_gen_id to be resolved.
     };
@@ -488,7 +501,8 @@ const exampleCasteObj = {
         {type: "Frost", dmg: 37}
     ],
     value: 2250,
-    casteType: 'Mace'
+    casteType: 'Mace',
+    slot: 'Mainhand'
 };
 
 /**
@@ -553,7 +567,80 @@ function convertMainhand(item){
     const startTime = new Date().getTime(); // Timer Start
     let universalItem;
     // =====================
-    
+    let wasCrafted = true;
+    if (item instanceof Array) item = item[0];
+    let dmgTypeKey = Array.from(dmgKeys.keys()).find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+    let mats = item.mats ?? item.DismantleTypes?.map(type => {
+        let key = type.substring(0, 2).toUpperCase();
+        return disKeys.get(key) || type;
+    }) ?? [];
+
+    const casteTypes = Array.from(casteKeys.entries()).map(([key, caste]) => ({ key, casteTyped: JSON.parse(caste) }));
+
+    let itemCaste = item.casteType ?? "None";
+    let itemCasteId = ~~casteTypes.filter(casteObj => casteObj.casteTyped.Caste === itemCaste)[0]?.key;
+    if (itemCaste === "None"){
+        wasCrafted = false;
+        const stringToNum = {"one": 1, "two": 2};
+        const handsCheck = Number(stringToNum[(item.Hands ?? item.hands).toLowerCase()]);
+        //.find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const meleeKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ph").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const magicKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ma").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+        let theMeleeType = meleeKeys?.length > 0 ? dmgKeys.get(randArrPos(meleeKeys)) : undefined;
+        const hasMelee = theMeleeType ? true : false;
+        let theMagicType = magicKeys?.length > 0 ? dmgKeys.get(randArrPos(magicKeys)) : undefined;
+        const hasMagic = theMagicType ? true : false;
+
+        let finalCasteDmgType;
+        if (hasMelee && hasMagic){
+            finalCasteDmgType = meleeKeys.length > magicKeys.length ? "Melee": "Magic";
+        } else if (!hasMelee && hasMagic){
+            finalCasteDmgType = "Magic";
+            switch(theMagicType){
+                case "Magic":
+                    theMagicType = ["Tome", "Focus"];
+                break
+                default:
+                    theMagicType = ["Wand", "Staff"];
+                break
+            }
+        } else if (hasMelee && !hasMagic){
+            finalCasteDmgType = "Melee";
+            switch(theMeleeType){
+                case "Blunt":
+                    theMeleeType = ["Mace", "Polearm"];
+                break
+                case "Slash":
+                    theMeleeType = ["Light Blade", "Heavy Blade"];
+                break
+            }
+        }
+        const finalCasteType = (finalCasteDmgType === "Melee") ? theMeleeType: theMagicType;
+
+        const casteMatch = casteTypes.filter(casteObj => {
+            //console.log(casteObj);
+            return casteObj.casteTyped.Hands === handsCheck && casteObj.casteTyped.Type === finalCasteDmgType && finalCasteType[finalCasteType.findIndex(type => casteObj.casteTyped.Caste === type)] === casteObj.casteTyped.Caste;
+        });
+
+        itemCaste = casteMatch[0].casteTyped.Caste;
+        itemCasteId = ~~casteMatch[0].key;
+    }
+
+    universalItem = {
+        name: item.name ?? item.Name,
+        value: item.value ?? item.Value,
+        rarity: item.rar_id ?? item.Rar_id ?? item.rarity,
+        slot: item.slot ?? item.Slot,
+        dmgTypePairs: item.dmgTypePairs ?? [{ type: dmgTypeKey ? dmgKeys.get(dmgTypeKey) : undefined, dmg: item.Attack ?? item.attack }],
+        mats,
+        casteName: itemCaste,
+        casteID: itemCasteId,
+        crafted_id: wasCrafted ? 2 : item.loot_id ?? item.Loot_id 
+    };
+
+    //console.log(universalItem);
 
     // ^^ CODE GOES HERE ^^
     // =====================
@@ -561,3 +648,11 @@ function convertMainhand(item){
     console.log(`Final Processing Time: ${endTime - startTime}ms`);
     return universalItem;
 }
+
+function runTest(exItem){
+    const uniItem = convertMainhand(exItem);
+    const strCode = uni_CreateCompleteItemCode(uniItem);
+    console.log(createNewItemStringEntry(uniItem, strCode));
+}
+
+runTest(exampleDBItem);
