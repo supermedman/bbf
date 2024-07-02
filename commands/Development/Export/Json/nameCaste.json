@@ -54,5 +54,61 @@
             "Rose Quartz Studded Heavy Blade",
             "Worn Iron Heavy Blade"
         ]
+    },
+    {
+        "Caste_Type": "Light Buckler",
+        "Caste_Forms": [
+            "Rose Quartz Studded Light Buckler",
+            "Worn Leather Light Buckler"
+        ]
+    },
+    {
+        "Caste_Type": "Heavy Shield",
+        "Caste_Forms": [
+            "Rose Quartz Studded Heavy Shield",
+            "Worn Iron Heavy Shield"
+        ]
+    },
+    {
+        "Caste_Type": "Light Cap",
+        "Caste_Forms": [
+            "Rose Quartz Studded Light Cap",
+            "Worn Cloth Light Cap"
+        ]
+    },
+    {
+        "Caste_Type": "Heavy Helm",
+        "Caste_Forms": [
+            "Rose Quartz Studded Heavy Helm",
+            "Worn Iron Heavy Helm"
+        ]
+    },
+    {
+        "Caste_Type": "Light Robe",
+        "Caste_Forms": [
+            "Rose Quartz Studded Light Robe",
+            "Worn Cloth Light Robe"
+        ]
+    },
+    {
+        "Caste_Type": "Heavy Chestplate",
+        "Caste_Forms": [
+            "Rose Quartz Studded Heavy Chestplate",
+            "Worn Iron Heavy Chestplate"
+        ]
+    },
+    {
+        "Caste_Type": "Light Leggings",
+        "Caste_Forms": [
+            "Rose Quartz Studded Light Leggings",
+            "Worn Cloth Light Leggings"
+        ]
+    },
+    {
+        "Caste_Type": "Heavy Greaves",
+        "Caste_Forms": [
+            "Rose Quartz Studded Heavy Greaves",
+            "Worn Iron Heavy Greaves"
+        ]
     }
 ]

@@ -93,7 +93,25 @@ const casteKeys = new Map([
     ["5", '{"Caste": "Light Blade", "Hands": 1, "Type": "Melee"}'],
     ["6", '{"Caste": "Mace", "Hands": 1, "Type": "Melee"}'],
     ["7", '{"Caste": "Polearm", "Hands": 2, "Type": "Melee"}'],
-    ["8", '{"Caste": "Heavy Blade", "Hands": 2, "Type": "Melee"}']
+    ["8", '{"Caste": "Heavy Blade", "Hands": 2, "Type": "Melee"}'],
+
+    ["9", '{"Caste": "Light Cap", "Hands": 0, "Type": "Magic"}'],
+    ["10", '{"Caste": "Heavy Helm", "Hands": 0, "Type": "Melee"}'],
+    ["11", '{"Caste": "Light Robe", "Hands": 0, "Type": "Magic"}'],
+    ["12", '{"Caste": "Heavy Chestplate", "Hands": 0, "Type": "Melee"}'],
+    ["13", '{"Caste": "Light Leggings", "Hands": 0, "Type": "Magic"}'],
+    ["14", '{"Caste": "Heavy Greaves", "Hands": 0, "Type": "Melee"}'],
+    ["15", '{"Caste": "Light Buckler", "Hands": 1, "Type": "Magic"}'],
+    ["16", '{"Caste": "Heavy Shield", "Hands": 1, "Type": "Melee"}'],
+
+    ["17", '{"Caste": "Eye Stone", "Hands": 1, "Type": "Special"}'],
+    ["18", '{"Caste": "Mage Blade", "Hands": 2, "Type": "Special"}'],
+    ["19", '{"Caste": "Claw", "Hands": 1, "Type": "Special"}'],
+    ["20", '{"Caste": "Lance", "Hands": 2, "Type": "Special"}'],
+    ["21", '{"Caste": "Phased Helm", "Hands": 0, "Type": "Special"}'],
+    ["22", '{"Caste": "Phased Garments", "Hands": 0, "Type": "Special"}'],
+    ["23", '{"Caste": "Phased Leggings", "Hands": 0, "Type": "Special"}'],
+    ["24", '{"Caste": "Phased Carapace", "Hands": 1, "Type": "Special"}'],
 ]);
 
 // ===============================
@@ -124,6 +142,39 @@ function checkingDamage(TEST_CODE) {
       const pushObj = {
         Type: dmgKeys.get(cutStr[0]),
         DMG: ~~cutStr[1]
+      };
+  
+      if (pushObj.Type !== "Magic") finalTypes.push(pushObj);
+      // Shifting magic to the front to make sure it always gets checked first when applying status effects!
+      if (pushObj.Type === "Magic") finalTypes.unshift(pushObj); 
+    }
+    return finalTypes;
+}
+
+/**
+ * 
+ * @param {String} TEST_CODE ITEM_CODE used for deconstruction
+ * @returns Object[{Type: String, DEF: Number}]: Useable defence type/value object list
+ */
+function checkingDefence(TEST_CODE) {
+    const entryType = /TYPD_/;
+    const exitType = /_typd/;
+  
+    let startIndex = TEST_CODE.search(entryType);
+    let endIndex = TEST_CODE.search(exitType);
+
+    const defSlice = TEST_CODE.slice(startIndex + 5, endIndex);
+    const defListed = defSlice.split("-");
+  
+    // Merge contents from any offhand equipped during this construction
+    // Create entries for new values, Sum existing entries.
+    const finalTypes = [];
+    for (const DT of defListed){
+      let cutStr = DT.split(":");
+  
+      const pushObj = {
+        Type: dmgKeys.get(cutStr[0]),
+        DEF: ~~cutStr[1]
       };
   
       if (pushObj.Type !== "Magic") finalTypes.push(pushObj);
@@ -270,6 +321,33 @@ function uni_CreateDmgTypeString(item){
 }
 
 /**
+ * This function takes a Universal Item Object and constructs a TYPE:DEF Item String Code segment.
+ * @param {object} item casteObj Template: {...casteObj, defTypePairs: object[ { type: string, def: number } ]}
+ * @returns String: Usable TYPE:DEF Item String Code segment
+ */
+function uni_CreateDefTypeString(item){
+    const typePrefix = "TYPD_";
+    const typeSuffix = "_typd";
+
+    // DAMAGE TYPE:VALUE PAIRS
+    let typePairs = [];
+    for (const pair of item.defTypePairs){
+        let keyType = "";
+        for (const [key, value] of dmgKeys){
+            if (value === pair.type) keyType = key;
+        }
+
+        keyType += `:${pair.def}`;
+        typePairs.push(keyType);
+    }
+
+    const finalTypePairs = typePairs.join('-');
+    const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
+
+    return finalTypeStr;
+}
+
+/**
  * This function creates an Item String Code using a formated Universal Item Object, It does not handle
  * Damage or Defence sections of the string.
  * @param {object} item Universal Item Object {rarity: number, mats: string[], slot: string}
@@ -320,10 +398,13 @@ function uni_CreateStandardBaseItemCode(item){
 function uni_CreateCompleteItemCode(item){
     if (item.slot === "Mainhand"){
         return uni_CreateDmgTypeString(item) + '-' + uni_CreateStandardBaseItemCode(item);
+    } else if (item.slot === "Offhand") {
+        return uni_CreateDmgTypeString(item) + '-' + uni_CreateDefTypeString(item) + '-' + uni_CreateStandardBaseItemCode(item);
     } else {
+        return uni_CreateDefTypeString(item) + '-' + uni_CreateStandardBaseItemCode(item);
         //PREFIX_TYPE_STRING, BASE_ITEM_STRING
         //return PREFIX_TYPE_STRING + '-' + BASE_ITEM_STRING;
-        return 'Invalid Slot Type'
+        //return 'Invalid Slot Type'
     }
 }
 
@@ -649,10 +730,395 @@ function convertMainhand(item){
     return universalItem;
 }
 
+
+function convertOffhand(item){
+    const startTime = new Date().getTime(); // Timer Start
+    let universalItem;
+
+    let wasCrafted = true;
+    if (item instanceof Array) item = item[0];
+    let dmgTypeKey = Array.from(dmgKeys.keys()).find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+    let mats = item.mats ?? item.DismantleTypes?.map(type => {
+        let key = type.substring(0, 2).toUpperCase();
+        return disKeys.get(key) || type;
+    }) ?? [];
+
+    const casteTypes = Array.from(casteKeys.entries()).map(([key, caste]) => ({ key, casteTyped: JSON.parse(caste) }));
+
+    let itemCaste = item.casteType ?? "None";
+    let itemCasteId = ~~casteTypes.filter(casteObj => casteObj.casteTyped.Caste === itemCaste)[0]?.key;
+    if (itemCaste === "None"){
+        wasCrafted = false;
+        const stringToNum = {"none": 0, "one": 1, "two": 2};
+        const handsCheck = Number(stringToNum[(item.Hands ?? item.hands).toLowerCase()]);
+        //.find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const meleeKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ph").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const magicKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ma").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+        let theMeleeType = meleeKeys?.length > 0 ? dmgKeys.get(randArrPos(meleeKeys)) : undefined;
+        const hasMelee = theMeleeType ? true : false;
+        let theMagicType = magicKeys?.length > 0 ? dmgKeys.get(randArrPos(magicKeys)) : undefined;
+        const hasMagic = theMagicType ? true : false;
+
+        let finalCasteDmgType;
+        if (hasMelee && hasMagic){
+            finalCasteDmgType = meleeKeys.length > magicKeys.length ? "Melee": "Magic";
+        } else if (!hasMelee && hasMagic){
+            finalCasteDmgType = "Magic";
+            theMagicType = ["Light Buckler"];
+        } else if (hasMelee && !hasMagic){
+            finalCasteDmgType = "Melee";
+            theMeleeType = ["Heavy Shield"];
+        }
+        const finalCasteType = (finalCasteDmgType === "Melee") ? theMeleeType: theMagicType;
+
+        const casteMatch = casteTypes.filter(casteObj => {
+            //console.log(casteObj);
+            return casteObj.casteTyped.Hands === handsCheck && casteObj.casteTyped.Type === finalCasteDmgType && finalCasteType[finalCasteType.findIndex(type => casteObj.casteTyped.Caste === type)] === casteObj.casteTyped.Caste;
+        });
+
+        itemCaste = casteMatch[0].casteTyped.Caste;
+        itemCasteId = ~~casteMatch[0].key;
+    }
+
+    universalItem = {
+        name: item.name ?? item.Name,
+        value: item.value ?? item.Value,
+        rarity: item.rar_id ?? item.Rar_id ?? item.rarity,
+        slot: item.slot ?? item.Slot,
+        dmgTypePairs: item.dmgTypePairs ?? [{ type: dmgTypeKey ? dmgKeys.get(dmgTypeKey) : undefined, dmg: item.Attack ?? item.attack }],
+        defTypePairs: item.defTypePairs ?? [{ type: dmgTypeKey ? dmgKeys.get(dmgTypeKey) : undefined, def: item.Defence ?? item.defence }],
+        mats,
+        casteName: itemCaste,
+        casteID: itemCasteId,
+        crafted_id: wasCrafted ? 2 : item.loot_id ?? item.Loot_id 
+    };
+
+    const endTime = new Date().getTime(); // Timer End
+    console.log(`Final Processing Time: ${endTime - startTime}ms`);
+    return universalItem;
+}
+
+
+function convertArmor(item){
+    const startTime = new Date().getTime(); // Timer Start
+    let universalItem;
+
+    let wasCrafted = true;
+    if (item instanceof Array) item = item[0];
+    let dmgTypeKey = Array.from(dmgKeys.keys()).find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+    let mats = item.mats ?? item.DismantleTypes?.map(type => {
+        let key = type.substring(0, 2).toUpperCase();
+        return disKeys.get(key) || type;
+    }) ?? [];
+
+    const casteTypes = Array.from(casteKeys.entries()).map(([key, caste]) => ({ key, casteTyped: JSON.parse(caste) }));
+
+    let itemCaste = item.casteType ?? "None";
+    let itemCasteId = ~~casteTypes.filter(casteObj => casteObj.casteTyped.Caste === itemCaste)[0]?.key;
+    if (itemCaste === "None"){
+        wasCrafted = false;
+        const stringToNum = {"none": 0, "one": 1, "two": 2};
+        const handsCheck = Number(stringToNum[(item.Hands ?? item.hands)?.toLowerCase() ?? 'none']);
+        //.find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const meleeKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ph").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const magicKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ma").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+        let theMeleeType = meleeKeys?.length > 0 ? dmgKeys.get(randArrPos(meleeKeys)) : undefined;
+        const hasMelee = theMeleeType ? true : false;
+        let theMagicType = magicKeys?.length > 0 ? dmgKeys.get(randArrPos(magicKeys)) : undefined;
+        const hasMagic = theMagicType ? true : false;
+
+        let finalCasteDmgType;
+        if (hasMelee && hasMagic){
+            finalCasteDmgType = meleeKeys.length > magicKeys.length ? "Melee": "Magic";
+        } else if (!hasMelee && hasMagic){
+            finalCasteDmgType = "Magic";
+            switch((item.slot ?? item.Slot).toLowerCase()){
+                case "headslot":
+                    theMagicType = ["Light Cap"];
+                break;
+                case "chestslot":
+                    theMagicType = ["Light Robe"];
+                break;
+                case "legslot":
+                    theMagicType = ["Light Leggings"];
+                break;
+            }
+        } else if (hasMelee && !hasMagic){
+            finalCasteDmgType = "Melee";
+            switch((item.slot ?? item.Slot).toLowerCase()){
+                case "headslot":
+                    theMeleeType = ["Heavy Helm"];
+                break;
+                case "chestslot":
+                    theMeleeType = ["Heavy Chestplate"];
+                break;
+                case "legslot":
+                    theMeleeType = ["Heavy Greaves"];
+                break;
+            }
+        }
+        const finalCasteType = (finalCasteDmgType === "Melee") ? theMeleeType: theMagicType;
+
+        const casteMatch = casteTypes.filter(casteObj => {
+            //console.log(casteObj);
+            return casteObj.casteTyped.Hands === handsCheck && casteObj.casteTyped.Type === finalCasteDmgType && finalCasteType[finalCasteType.findIndex(type => casteObj.casteTyped.Caste === type)] === casteObj.casteTyped.Caste;
+        });
+
+        itemCaste = casteMatch[0].casteTyped.Caste;
+        itemCasteId = ~~casteMatch[0].key;
+    }
+
+    universalItem = {
+        name: item.name ?? item.Name,
+        value: item.value ?? item.Value,
+        rarity: item.rar_id ?? item.Rar_id ?? item.rarity,
+        slot: item.slot ?? item.Slot,
+        defTypePairs: item.defTypePairs ?? [{ type: dmgTypeKey ? dmgKeys.get(dmgTypeKey) : undefined, def: item.Defence ?? item.defence }],
+        mats,
+        casteName: itemCaste,
+        casteID: itemCasteId,
+        crafted_id: wasCrafted ? 2 : item.loot_id ?? item.Loot_id 
+    };
+
+    const endTime = new Date().getTime(); // Timer End
+    console.log(`Final Processing Time: ${endTime - startTime}ms`);
+    return universalItem;
+}
+
+/**
+ * This function takes an item object, and converts it into a standard universal item object
+ * usable for item string codes, and item string storage
+ * @param {object} item Any item type from any storage source: JSON, crafted, DB entry
+ */
+function convertToUniItem(item){
+    const startTime = new Date().getTime(); // Timer Start
+    let universalItem;
+    // ============== Standardization START
+    let wasCrafted = true;
+    if (item instanceof Array) item = item[0];
+    let dmgTypeKey = Array.from(dmgKeys.keys()).find(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+    let mats = item.mats ?? item.DismantleTypes?.map(type => {
+        let key = type.substring(0, 2).toUpperCase();
+        return disKeys.get(key) || type;
+    }) ?? [];
+
+    const casteTypes = Array.from(casteKeys.entries()).map(([key, caste]) => ({ key, casteTyped: JSON.parse(caste) }));
+    // ============== Standardization END
+
+    // ============== Caste Form START
+    let itemCaste = item.casteType ?? "None";
+    let itemCasteId = ~~casteTypes.filter(casteObj => casteObj.casteTyped.Caste === itemCaste)[0]?.key;
+
+    if (itemCaste === "None") {
+        wasCrafted = false;
+        const stringToNum = {"none": 0, "one": 1, "two": 2};
+        // Check hands required, converting to number for filtering
+        const handsCheck = Number(stringToNum[(item.Hands ?? item.hands)?.toLowerCase() ?? 'none']);
+        
+        // Determine domanant dmg/def type of item using dmg/def types found
+        const meleeKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ph").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const magicKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ma").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+        const specialKeys = Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "sp").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+
+        let theMeleeType = meleeKeys?.length > 0 ? dmgKeys.get(randArrPos(meleeKeys)) : undefined;
+        const hasMelee = theMeleeType ? true : false;
+
+        let theMagicType = magicKeys?.length > 0 ? dmgKeys.get(randArrPos(magicKeys)) : undefined;
+        const hasMagic = theMagicType ? true : false;
+
+        let theSpecialType = specialKeys?.length > 0 ? dmgKeys.get(randArrPos(specialKeys)) : undefined;
+        const hasSpecial = theSpecialType ? true : false;
+
+        // Complex sorting system for deciding proper caste form
+        let finalCasteDmgType;
+        if (hasMelee && hasMagic){
+            finalCasteDmgType = meleeKeys.length > magicKeys.length ? "Melee": "Magic";
+        } else if (!hasMelee && hasMagic){
+            finalCasteDmgType = "Magic";
+            switch((item.slot ?? item.Slot).toLowerCase()){
+                case "mainhand":
+                    switch(theMagicType){
+                        case "Magic":
+                            theMagicType = ["Tome", "Focus"];
+                        break
+                        default:
+                            theMagicType = ["Wand", "Staff"];
+                        break
+                    }
+                break;
+                case "offhand":
+                    theMagicType = ["Light Buckler"];
+                break;
+                case "headslot":
+                    theMagicType = ["Light Cap"];
+                break;
+                case "chestslot":
+                    theMagicType = ["Light Robe"];
+                break;
+                case "legslot":
+                    theMagicType = ["Light Leggings"];
+                break;
+            }
+        } else if (hasMelee && !hasMagic){
+            finalCasteDmgType = "Melee";
+            switch((item.slot ?? item.Slot).toLowerCase()){
+                case "mainhand":
+                    switch(theMeleeType){
+                        case "Blunt":
+                            theMeleeType = ["Mace", "Polearm"];
+                        break
+                        case "Slash":
+                            theMeleeType = ["Light Blade", "Heavy Blade"];
+                        break
+                        default:
+                            theMeleeType = ["Mace", "Polearm", "Light Blade", "Heavy Blade"];
+                        break;
+                    }
+                break;
+                case "offhand":
+                    theMeleeType = ["Heavy Shield"];
+                break;
+                case "headslot":
+                    theMeleeType = ["Heavy Helm"];
+                break;
+                case "chestslot":
+                    theMeleeType = ["Heavy Chestplate"];
+                break;
+                case "legslot":
+                    theMeleeType = ["Heavy Greaves"];
+                break;
+            }
+        }
+
+        if (hasSpecial) {
+            finalCasteDmgType = "Special";
+            switch((item.slot ?? item.Slot).toLowerCase()){
+                case "mainhand":
+                    theSpecialType = ["Eye Stone", "Mage Blade", "Claw", "Lance"];
+                break;
+                case "offhand":
+                    theSpecialType = ["Phased Carapace"];
+                break;
+                case "headslot":
+                    theSpecialType = ["Phased Helm"];
+                break;
+                case "chestslot":
+                    theSpecialType = ["Phased Garments"];
+                break;
+                case "legslot":
+                    theSpecialType = ["Phased Leggings"];
+                break;
+            }
+        }
+
+        // Apply final caste choice
+        let finalCasteType = (finalCasteDmgType === "Melee") ? theMeleeType: theMagicType;
+        if (hasSpecial) {
+            finalCasteType = theSpecialType;
+        }
+
+        // ==== DEBUGING ====
+        // ==== DEBUGING ====
+
+        // Filter for exclusive matching caste form
+        const casteMatch = casteTypes.filter(casteObj => {
+            //console.log(casteObj);
+            return casteObj.casteTyped.Hands === handsCheck && casteObj.casteTyped.Type === finalCasteDmgType && finalCasteType[finalCasteType.findIndex(type => casteObj.casteTyped.Caste === type)] === casteObj.casteTyped.Caste;
+        });
+
+        // Finalize found caste form
+        itemCaste = casteMatch[0].casteTyped.Caste;
+        itemCasteId = ~~casteMatch[0].key;
+    }
+    // ============== Caste Form END
+
+    // ============== Assignment START
+    universalItem = {
+        name: item.name ?? item.Name,
+        value: item.value ?? item.Value,
+        rarity: item.rar_id ?? item.Rar_id ?? item.rarity,
+        slot: item.slot ?? item.Slot,
+        dmgTypePairs: item.dmgTypePairs ?? [{ type: dmgTypeKey ? dmgKeys.get(dmgTypeKey) : undefined, dmg: item.Attack ?? item.attack }],
+        defTypePairs: item.defTypePairs ?? [{ type: dmgTypeKey ? dmgKeys.get(dmgTypeKey) : undefined, def: item.Defence ?? item.defence }],
+        mats,
+        casteName: itemCaste,
+        casteID: itemCasteId,
+        crafted_id: wasCrafted ? 2 : item.loot_id ?? item.Loot_id 
+    };
+
+    // ============== Assignment END
+    const endTime = new Date().getTime(); // Timer End
+    // console.log(`Final Processing Time: ${endTime - startTime}ms`);
+    return universalItem;
+}
+
+const itemLootList = require('../../../events/Models/json_prefabs/lootList.json');
+function createItemList(){
+    let convertedList = [];
+    for (const item of itemLootList){
+        if (item.Loot_id >= 10000) continue;
+        try {
+            convertedList.push(convertToUniItem(item));
+        } catch (e) {
+            console.log(item.Loot_id);
+            console.error(e);
+        }
+    }
+
+    //let stringCodeList = [];
+    for (const uniItem of convertedList){
+        //stringCodeList.push(uni_CreateCompleteItemCode(uniItem));
+        uniItem.itemStringCode = uni_CreateCompleteItemCode(uniItem);
+        // console.log('Dmg Pairs', uniItem.dmgTypePairs);
+        // console.log('Def Pairs', uniItem.defTypePairs);
+    }
+    console.log('Generation Complete! Showing First and last items in converted list now: ');
+    console.log(convertedList[0]);
+    console.log(convertedList[convertedList.length - 1]);
+    return convertedList;
+}
+
+const nameChecks = ["Iron Greathelm", "Heavy Hide Vest", "Ruby Infused Skeletal Warboots", "Kinslayer", "The Blockade"];
+
+function tempLoadingItems(){
+    const filteredList = itemLootList.filter(item => nameChecks.some(str => item.Name === str));
+    let convertedList = [];
+    for (const item of filteredList){
+        console.log(item.Slot);
+        convertedList.push(convertToUniItem(item));
+    }
+    
+    let stringCodeList = [];
+    for (const uniItem of convertedList){
+        stringCodeList.push(uni_CreateCompleteItemCode(uniItem));
+        console.log('Dmg Pairs', uniItem.dmgTypePairs);
+        console.log('Def Pairs', uniItem.defTypePairs);
+    }
+    //console.log(convertedList);
+    console.log(stringCodeList);
+}
+
 function runTest(exItem){
     const uniItem = convertMainhand(exItem);
     const strCode = uni_CreateCompleteItemCode(uniItem);
     console.log(createNewItemStringEntry(uniItem, strCode));
 }
 
-runTest(exampleDBItem);
+// runTest(exampleCasteObj);
+// tempLoadingItems();
+
+module.exports = { 
+    createItemList,
+    checkingDamage,
+    checkingDefence,
+    checkingDismantle,
+    checkingRar,
+    checkingSlot,
+    convertToUniItem,
+    uni_CreateCompleteItemCode
+};

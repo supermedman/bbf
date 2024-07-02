@@ -97,6 +97,27 @@ const itemGenDmgConstant = (rarity, dmgAmount, hands, matAmount) => {
 };
 
 /**
+ * This method takes item properties anc calculates the final total max defence possible for 
+ * each type based on the given parameters
+ * 
+ * EX. itemGenDefConstant(10, 5, "Chestslot", 50);
+ * 
+ * Returns 37.377
+ * @param {number} rarity Base rarity of the item being crafted
+ * @param {number} defAmount Number of different defence types
+ * @param {string} slotType Items slot type
+ * @param {number} matAmount Total number of materials used for crafting
+ * @returns number
+ */
+const itemGenDefConstant = (rarity, defAmount, slotType, matAmount) => {
+    let a1 = rarity, a2 = defAmount, h1 = (slotType === 'Chestslot') ? 2 : 1, x = matAmount;
+
+    let defReturn = (((5 * h1) * (1 + a1)) / a2) * Math.log10(x);
+    console.log(`Rarity: ${a1}, Def Type Amount: ${a2}, Slot Type: ${h1}, Material Amount: ${x}`);
+    return defReturn;
+};
+
+/**
  * This method checks the caste type and preloads the casteObj with the needed values 
  * in order to be used further.
  * casteObj is the base Object for the final item.
@@ -148,6 +169,26 @@ const itemGenCaste = (type) => {
                 casteObj.hands = 2;
                 casteObj.dmgCat = "Melee";
             break;
+            case "Eye Stone":
+                casteObj.mats =  ["Magical", "Rocky", "Metalic"];
+                casteObj.hands = 1;
+                casteObj.dmgCat = "Special";
+            break;
+            case "Mage Blade":
+                casteObj.mats =  ["Magical", "Gemy", "Skinny"];
+                casteObj.hands = 2;
+                casteObj.dmgCat = "Special";
+            break;
+            case "Claw":
+                casteObj.mats =  ["Metalic", "Skinny", "Fleshy"];
+                casteObj.hands = 1;
+                casteObj.dmgCat = "Special";
+            break;
+            case "Lance":
+                casteObj.mats =  ["Metalic", "Woody", "Skinny"];
+                casteObj.hands = 2;
+                casteObj.dmgCat = "Special";
+            break;
         }
         casteObj.mats.push("Tooly");
         return casteObj;
@@ -155,6 +196,98 @@ const itemGenCaste = (type) => {
 
     const casteObj = typeCasteCheck(type);
     //console.log(casteObj);
+    return casteObj;
+};
+
+const itemCasteFilter = (type, slot) => {
+    let casteObj = {
+        name: type,
+        slot,
+        hands: 1,
+        dmgCat: "",
+        mats: []
+    };
+    switch(slot) {
+        case "Mainhand":
+            return casteObj = itemGenCaste(type);
+        case "Offhand":
+            switch(type){
+                case "Light Buckler":
+                    casteObj.mats =  ["Magical", "Skinny", "Metalic"];
+                    casteObj.hands = 1;
+                    casteObj.dmgCat = "Magic";
+                break;
+                case "Heavy Shield":
+                    casteObj.mats =  ["Metalic", "Woody", "Skinny"];
+                    casteObj.hands = 1;
+                    casteObj.dmgCat = "Melee";
+                break;
+                case "Phased Carapace":
+                    casteObj.mats =  ["Metalic", "Magical", "Skinny"];
+                    casteObj.hands = 1;
+                    casteObj.dmgCat = "Special";
+                break;
+            }
+        break;
+        case "Headslot":
+            switch(type){
+                case "Light Cap":
+                    casteObj.mats =  ["Silky", "Gemy", "Magical"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Magic";
+                break;
+                case "Heavy Helm":
+                    casteObj.mats =  ["Metalic", "Skinny", "Silky"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Melee";
+                break;
+                case "Phased Helm":
+                    casteObj.mats =  ["Metalic", "Skinny", "Magical"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Special";
+                break;
+            }
+        break;
+        case "Chestslot":
+            switch(type){
+                case "Light Robe":
+                    casteObj.mats =  ["Silky", "Gemy", "Magical"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Magic";
+                break;
+                case "Heavy Chestplate":
+                    casteObj.mats =  ["Metalic", "Skinny", "Silky"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Melee";
+                break;
+                case "Phased Garments":
+                    casteObj.mats =  ["Metalic", "Skinny", "Magical"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Special";
+                break;
+            }
+        break;
+        case "Legslot":
+            switch(type){
+                case "Light Leggings":
+                    casteObj.mats =  ["Silky", "Gemy", "Magical"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Magic";
+                break;
+                case "Heavy Greaves":
+                    casteObj.mats =  ["Metalic", "Skinny", "Silky"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Melee";
+                break;
+                case "Phased Leggings":
+                    casteObj.mats =  ["Metalic", "Skinny", "Magical"];
+                    casteObj.hands = 0;
+                    casteObj.dmgCat = "Special";
+                break;
+            }
+        break;
+    }
+    casteObj.mats.push("Tooly");
     return casteObj;
 };
 
@@ -297,6 +430,8 @@ const dmgTypeAmountGen = (casteObj) => {
     let totalDamage = 0;
     let dmgTypePairs = [];
 
+    const overflowPlaceholder = ~~casteObj.typeOverflow;
+
     for (const type of casteObj.dmgTypes){
         let typeValue = inclusiveRandNum(casteObj.maxSingleTypeDamage, casteObj.maxSingleTypeDamage - (casteObj.maxSingleTypeDamage*0.25));
         
@@ -314,9 +449,37 @@ const dmgTypeAmountGen = (casteObj) => {
         dmgTypePairs.push({type: type, dmg: typeValue});
     }
 
+    if (casteObj.slot === 'Offhand') casteObj.typeOverflow = overflowPlaceholder;
     casteObj.totalDamage = totalDamage;
     casteObj.dmgTypePairs = dmgTypePairs;
     return totalDamage;
+};
+
+
+const defTypeAmountGen = (casteObj) => {
+    let totalDefence = 0;
+    let defTypePairs = [];
+
+    for (const type of casteObj.dmgTypes){
+        let typeValue = inclusiveRandNum(casteObj.maxSingleTypeDefence, casteObj.maxSingleTypeDefence - (casteObj.maxSingleTypeDefence*0.25));
+        
+        // Mod typeValue against overflow types for proper defence distributions
+        if (casteObj.typeOverflow > 0) {
+            typeValue *= 2;
+            casteObj.typeOverflow--;
+        }
+
+        // t1 = tooly rarity
+        // t2 = tooly amount
+        // ((1.2 + t1) * (0.08 * t2)) / 2
+
+        totalDefence += typeValue; // Total Item defence used for easy display + final value total
+        defTypePairs.push({type: type, def: typeValue});
+    }
+
+    casteObj.totalDefence = totalDefence;
+    casteObj.defTypePairs = defTypePairs;
+    return totalDefence;
 };
 
 /**
@@ -343,10 +506,16 @@ const itemValueGenConstant = (casteObj) => {
         return domRarTotal + otherRarTotal;
     };
 
-    totalValue = (1 + casteObj.rarity) * casteObj.totalDamage;
+    const totDmg = casteObj.totalDamage ?? 0;
+    const totDef = casteObj.totalDefence ?? 0;
+    totalValue = (1 + casteObj.rarity) * (totDmg + totDef);
 
-    totalValue *= (casteObj.hands === 1) ? 1.4 : 1.8;
-
+    if (casteObj.hands === 0) {
+        totalValue *= (casteObj.slot !== "Chestslot") ? 1.5 : 1.9;
+    } else {
+        totalValue *= (casteObj.hands === 1) ? 1.4 : 1.8;
+    }
+    
     totalValue += totalValue * (casteObj.totalTypes / 10);
 
     const matValues = calcRarVal(casteObj.rarValPairs, casteObj.rarity);
@@ -360,41 +529,6 @@ const itemValueGenConstant = (casteObj) => {
     casteObj.value = totalValue;
     return totalValue;
 };
-
-// ===============================
-//   TEMP STRING CODE DESTRUCT
-// ===============================
-
-/**
- * 
- * @param {String} TEST_CODE ITEM_CODE used for deconstruction
- * @returns Useable rarity value
- */
-function checkingRar(TEST_CODE) {
-    const RAR = /-r\d{2}-/;
-    const rarStarts = TEST_CODE.search(RAR);
-    
-    const rarCode = TEST_CODE.slice(rarStarts + 1, rarStarts + 4);
-    const foundRar = rarKeys.get(rarCode);
-    
-    return foundRar;
-}
-
-/**
- * 
- * @param {String} TEST_CODE ITEM_CODE used for deconstruction
- * @returns Usable item slot value
- */
-function checkingSlot(TEST_CODE){
-    const SLOT = /-\D{2}slo/;
-    const slotStarts = TEST_CODE.search(SLOT);
-  
-    const slotCode =  TEST_CODE.slice(slotStarts + 1, slotStarts + 6);
-    const foundSlot = slotKeys.get(slotCode);
-  
-    return foundSlot;
-}
-
 
 // ===============================
 //         ITEM FUNCTIONS
@@ -422,60 +556,6 @@ function createNewItemCode(casteObj){
         keyType += `:${pair.dmg}`;
         typePairs.push(keyType);
     }
-
-    // let totalValue = 0;
-    // let totalDamage = 0;
-    // for (const type of casteObj.dmgTypes){
-    //     let typeValue = inclusiveRandNum(casteObj.maxSingleTypeDamage, casteObj.maxSingleTypeDamage - (casteObj.maxSingleTypeDamage*0.25));
-    //     // Retrieve Keys from value matches
-    //     let keyType = "";
-    //     for (const [key, value] of dmgKeys){
-    //         if (value === type) keyType = key;
-    //     }
-
-    //     // Mod typeValue against overflow types for proper damage distributions
-    //     if (casteObj.typeOverflow > 0) {
-    //         typeValue *= 2;
-    //         casteObj.typeOverflow--;
-    //     }
-    //     totalDamage += typeValue; // Total Item damage used for easy display + final value total
-    //     keyType += `:${typeValue}`;
-    //     typePairs.push(keyType);
-    // }
-
-    //console.log('Total Item Damage: %d', totalDamage);
-
-    // totalValue = (1 + casteObj.rarity) * totalDamage;
-    
-    // const calcRarVal = (rarValPairs, rarity) => {
-    //     let domRarTotal = 0, otherRarTotal = 0;
-    //     for (const pair of rarValPairs){
-    //         if (pair.rar === rarity) domRarTotal += pair.val * 2;
-    //         if (pair.rar < rarity) otherRarTotal += pair.val;
-    //         if (pair.rar > (rarity + 1) * 2) {
-    //             otherRarTotal += (pair.val / 3);
-    //         } else if (pair.rar > rarity) {
-    //             otherRarTotal += (pair.val / 2);
-    //         }
-    //     }
-    //     domRarTotal *= (1 + rarity);
-    //     otherRarTotal += otherRarTotal * ((1 + rarity) / 20);
-    //     return domRarTotal + otherRarTotal;
-    // };
-
-    // totalValue *= (casteObj.hands === 1) ? 1.4 : 1.8;
-
-    // totalValue += totalValue * (casteObj.totalTypes / 20);
-
-    // const matValues = calcRarVal(casteObj.rarValPairs, casteObj.rarity);
-    // //console.log('Final Mats Value: %d', matValues);
-
-    // totalValue += matValues;
-
-    // totalValue = Math.floor(totalValue);
-    // //console.log('Final Value: %d', totalValue);
-
-    // casteObj.value = totalValue;
 
     const finalTypePairs = typePairs.join('-');
     const finalTypeStr = typePrefix + finalTypePairs + typeSuffix;
@@ -514,15 +594,16 @@ function extractName(item){
 }
 
 module.exports = {
-    itemGenDmgConstant, 
+    itemGenDmgConstant,
+    itemGenDefConstant,
+    itemCasteFilter, 
     itemGenCaste, 
     itemGenDmgTypes, 
     itemGenPickDmgTypes, 
     rarityGenConstant,
     dmgTypeAmountGen,
+    defTypeAmountGen,
     itemValueGenConstant,
-    checkingRar,
-    checkingSlot,
     createNewItemCode,
     extractName
 };

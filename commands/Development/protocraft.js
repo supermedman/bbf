@@ -3,23 +3,37 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBui
 const {chlkPreset} = require('../../chalkPresets');
 
 const {
-    itemGenCaste, 
+    itemCasteFilter, 
     itemGenDmgTypes, 
     itemGenPickDmgTypes, 
     rarityGenConstant, 
     itemGenDmgConstant,
+    itemGenDefConstant,
     dmgTypeAmountGen,
+    defTypeAmountGen,
     itemValueGenConstant,
     createNewItemCode,
-    extractName,
-    checkingRar,
-    checkingSlot
+    extractName
 } = require('./Export/craftingContainer');
+
+const {
+    checkingDamage,
+    checkingDefence,
+    checkingDismantle,
+    checkingRar,
+    checkingSlot,
+    convertToUniItem,
+    uni_CreateCompleteItemCode
+} = require('./Export/itemStringCore');
 const { grabColour } = require('../Game/exported/grabRar');
 
 const inclusiveRandNum = (max, min) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
+
+const pureRegEx = /Pure /;
+const uniqueMatList = require('../../events/Models/json_prefabs/materialLists/uniqueList.json');
+const pureListing = uniqueMatList.filter(mat => mat.Name.search(pureRegEx) !== -1);        
 
 // function* objectEntries(obj) {
 //     for (let key of Object.keys(obj)) {
@@ -33,15 +47,23 @@ module.exports = {
         .setDescription('Prototype crafting interface and command usage.')
         .addStringOption(option =>
             option
+            .setName('item-slot')
+            .setDescription('Select one of the following item slots to continue.')
+            .setRequired(true)
+            .addChoices(
+                {name: 'Mainhand', value: 'Mainhand'},
+                {name: 'Offhand', value: 'Offhand'},
+                {name: 'Helmet', value: 'Headslot'},
+                {name: 'Chestpiece', value: 'Chestslot'},
+                {name: 'Leggings', value: 'Legslot'},
+            )
+        )
+        .addStringOption(option =>
+            option
             .setName('item-group')
             .setDescription('Select one of the following item groups to continue.')
             .setRequired(true)
-            .addChoices(
-                {name: 'Magic 1 Handed', value: 'magic1h'},
-                {name: 'Magic 2 Handed', value: 'magic2h'},
-                {name: 'Melee 1 Handed', value: 'melee1h'},
-                {name: 'Melee 2 Handed', value: 'melee2h'},
-            )
+            .setAutocomplete(true)
         )
         .addStringOption(option =>
             option
@@ -68,10 +90,6 @@ module.exports = {
 
         let pureMatNames = [];
         if (focusedOption.name === 'imbued-mat-1' || focusedOption.name === 'imbued-mat-2'){
-            const pureRegEx = /Pure /;
-            const uniqueMatList = require('../../events/Models/json_prefabs/materialLists/uniqueList.json');
-            const pureListing = uniqueMatList.filter(mat => mat.Name.search(pureRegEx) !== -1);        
-            
             for (const mat of pureListing){
                 pureMatNames.push(mat.Name);
             }
@@ -91,22 +109,71 @@ module.exports = {
 
         let choices = [];
         switch(focusedOption.name){
+            case "item-group":
+                focusedValue = interaction.options.getFocused(false);
+                const itemSlot = interaction.options.getString('item-slot') ?? 'None';
+                //console.log(itemSlot);
+                switch(itemSlot){
+                    case "Mainhand":
+                        choices = ['Magic 1 Handed', 'Magic 2 Handed', 'Melee 1 Handed', 'Melee 2 Handed'];
+                    break;
+                    case "Offhand":
+                        choices = ['Magic Shield', 'Melee Shield'];
+                    break;
+                    case "Headslot":
+                        choices = ['Magic Helm', 'Melee Helm'];
+                    break;
+                    case "Chestslot":
+                        choices = ['Magic Chestpiece', 'Melee Chestpiece'];
+                    break;
+                    case "Legslot":
+                        choices = ['Magic Leggings', 'Melee Leggings'];
+                    break;
+                    default:
+                        choices = ['None'];
+                    break;
+                }
+            break;
             case "item-type":
                 focusedValue = interaction.options.getFocused(false);
                 const itemGroup = interaction.options.getString('item-group') ?? 'None';
-
+                //console.log(itemGroup);
                 switch(itemGroup){
-                    case "magic1h":
+                    case "Magic 1 Handed":
                         choices = ['Wand', 'Tome'];
                     break;
-                    case "magic2h":
+                    case "Magic 2 Handed":
                         choices = ['Staff', 'Focus'];
                     break;
-                    case "melee1h":
+                    case "Melee 1 Handed":
                         choices = ['Light Blade', 'Mace'];
                     break;
-                    case "melee2h":
+                    case "Melee 2 Handed":
                         choices = ['Polearm', 'Heavy Blade'];
+                    break;
+                    case "Magic Shield":
+                        choices = ['Light Buckler'];
+                    break;
+                    case "Melee Shield":
+                        choices = ['Heavy Shield'];
+                    break;
+                    case "Magic Helm":
+                        choices = ['Light Cap'];
+                    break;
+                    case "Melee Helm":
+                        choices = ['Heavy Helm'];
+                    break;
+                    case "Magic Chestpiece":
+                        choices = ['Light Robe'];
+                    break;
+                    case "Melee Chestpiece":
+                        choices = ['Heavy Chestplate'];
+                    break;
+                    case "Magic Leggings":
+                        choices = ['Light Leggings'];
+                    break;
+                    case "Melee Leggings":
+                        choices = ['Heavy Greaves'];
                     break;
                     default:
                         choices = ['None'];
@@ -152,6 +219,7 @@ module.exports = {
         // Load array with mats containing either Type or ''
         const imbuedWith = [imbuedMat1, imbuedMat2];
         const userInputChoices = {
+            slotPicked: interaction.options.getString('item-slot'),
             castePicked: interaction.options.getString('item-type'),
             matsNeeded: [],
             imbuedWith: imbuedWith.filter(imbue => imbue.length > 0) // Filter for only non-empty strings
@@ -162,9 +230,10 @@ module.exports = {
         // }
 
         // Create the base item casteObj
-        const casteObj = itemGenCaste(userInputChoices.castePicked);
+        const casteObj = itemCasteFilter(userInputChoices.castePicked, userInputChoices.slotPicked);
         userInputChoices.matsNeeded = casteObj.mats;
 
+        // These options are used as both damage and defence types
         // Creating dmgOptions as a prop and assigning possible dmg Types as value
         casteObj.dmgOptions = itemGenDmgTypes(casteObj);
 
@@ -301,19 +370,22 @@ module.exports = {
 
             const rarPicked = rarityGenConstant(materialList[0], materialList[1], materialList[2], materialList[3]);
             const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteObj.totalTypes, casteObj.hands, matTotal);
-            
+            const itemMaxTypeDefence = itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal);
+
             casteObj.rarity = rarPicked;
             casteObj.maxSingleTypeDamage = itemMaxTypeDamage;
+            casteObj.maxSingleTypeDefence = itemMaxTypeDefence;
             casteObj.totalMatsUsed = matTotal;
             casteObj.rarValPairs = rarValPairs;
 
-            const totalDamage = dmgTypeAmountGen(casteObj);
+            const totalDamage = (casteObj.hands > 0) ? dmgTypeAmountGen(casteObj) : 0;
+            const totalDefence = (casteObj.slot === 'Offhand' || casteObj.hands === 0) ? defTypeAmountGen(casteObj) : 0;
             const totalValue = itemValueGenConstant(casteObj);
 
             //console.log('Total Item Damage: %d', totalDamage);
             //console.log('Total Item Value: %d', totalValue);
 
-            const finalItemCode = createNewItemCode(casteObj);
+            const finalItemCode = uni_CreateCompleteItemCode(casteObj);
             extractName(casteObj);
 
             console.log(casteObj);
@@ -323,12 +395,27 @@ module.exports = {
             finalFields.push({name: 'Name:', value: `**${casteObj.name}**`});
             finalFields.push({name: 'Slot:', value: `**${checkingSlot(finalItemCode)}**`});
             finalFields.push({name: 'Rarity:', value: `**${checkingRar(finalItemCode)}**`});
-            finalFields.push({name: 'Hands Needed:', value: `**${casteObj.hands}**`});
-            finalFields.push({name: 'Total Item Damage:', value: `**${totalDamage}**`});
+            if (casteObj.hands > 0){
+                finalFields.push({name: 'Hands Needed:', value: `**${casteObj.hands}**`});
+            }
+            if (totalDamage > 0) {
+                finalFields.push({name: 'Total Item Damage:', value: `**${totalDamage}**`});
+            }
+            if (totalDefence > 0){
+                finalFields.push({name: 'Total Item Defence:', value: `**${totalDefence}**`});
+            }
             finalFields.push({name: 'Total Item Value:', value: `**${totalValue}**`});
-            finalFields.push({name: '**Damage Types:**', value: ` `});
-            for (const dmgObj of casteObj.dmgTypePairs){
-                finalFields.push({name: `${dmgObj.type}`, value: `${dmgObj.dmg}`, inline: true});
+            if (totalDamage > 0){
+                finalFields.push({name: '**Damage Types:**', value: ` `});
+                for (const dmgObj of casteObj.dmgTypePairs){
+                    finalFields.push({name: `${dmgObj.type}`, value: `${dmgObj.dmg}`, inline: true});
+                }
+            }
+            if (totalDefence > 0){
+                finalFields.push({name: '**Defence Types:**', value: ` `});
+                for (const defObj of casteObj.defTypePairs){
+                    finalFields.push({name: `${defObj.type}`, value: `${defObj.def}`, inline: true});
+                }
             }
 
             const embedColour = await grabColour(casteObj.rarity);
