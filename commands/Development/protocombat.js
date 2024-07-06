@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder} = require('discord.js');
 
-const {checkingDamage, genGearPiece} = require('./Export/combatContainer');
+const {genGearPiece} = require('./Export/combatContainer');
+
+const {checkingDamage} = require('./Export/itemStringCore');
 
 module.exports = {
 	data: new SlashCommandBuilder()

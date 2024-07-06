@@ -29,6 +29,14 @@ module.exports = (sequelize, DataTypes) => {
         user_created: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
+        },
+        crafted_by: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: '0'
         }
+    },
+    {
+        timestamps: false
     });
 };

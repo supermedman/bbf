@@ -1,0 +1,54 @@
+[
+    {
+        "Name": "Goblin",
+        "Description": "Green, size of a toddler.. \nbet you could punt it\n$^)",
+        "Level": 1,
+
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+
+        "DropTypes": [ "fleshy" ],
+
+        "ConstKey": 1
+    },
+    {
+        "Name": "Tranceserpent",
+        "Description": "Like a foggy mirror! Hits like a truck tho ;O",
+        "Level": 3,
+        
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+
+        "DropTypes": [ "gemy" ],
+
+        "ConstKey": 3
+    },
+    {
+        "Name": "Terrorling",
+        "Description": "A small and condensed entity of terror. One of the servants of Ados",
+        "Level": 3,
+        
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+
+        "DropTypes": [ "magical" ],
+
+        "ConstKey": 4
+    },
+    {
+        "Name": "Metallich",
+        "Description": "This metalic creature breaks most undead rules.. totally metal!",
+        "Level": 13,
+        
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+
+        "DropTypes": [ "magical", "metalic", "herby" ],
+
+        "ConstKey": 89
+    }
+]

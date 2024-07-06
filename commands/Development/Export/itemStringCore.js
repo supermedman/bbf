@@ -32,7 +32,16 @@ const rarKeys = new Map([
     ["r08", "???"],
     ["r09", "????"],
     ["r10", "Forgotten"],
-    ["r12", "Unique"]
+    ["r11", "TEMP"],
+    ["r12", "Unique"],
+    ["r13", "Soul Bound"],
+    ["r14", "Shadow Bound"],
+    ["r15", "Chaos Bound"],
+    ["r16", "Law Bound"],
+    ["r17", "Hateful"],
+    ["r18", "Shifted"],
+    ["r19", "$hrouded"],
+    ["r20", "DREAM-WOKEN"]
 ]);
 
 const disKeys = new Map([

@@ -225,6 +225,7 @@ const damageMatchTable = [
     ["++","+","+","+","+","+","+","+","+","++", "---"],
     ["+","+","+","+","++","+","+","+","+","++", "---"],
     ["++","+","+","+","+","+","+","+","+","++", "---"],
+    ["=", "=", "=", "=", "=", "=", "=", "=", "=", "--", "---",]
 ];
 
 // ===============================
@@ -540,10 +541,10 @@ const {EnemyFab} = require('./Classes/EnemyFab');
 
 /**
  * 
- * @param {Object[]} dmgList Array of DMG Objects ready to be modified
+ * @param {object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
- * @param {Object} condition Condition object containing {Crit: 1|0, DH: 1|0}
- * @returns {Object outcome: String, dmgDealt: Number, dmgCheck?: Object[]}
+ * @param {object} condition Condition object containing {Crit: 1|0, DH: 1|0}
+ * @returns {object}  {outcome: string, dmgDealt: number, dmgCheck?: object[]}
  */
 function attackEnemy(dmgList, enemy, condition){
     let finalTotalDamage = 0;
@@ -775,6 +776,20 @@ function attackEnemy(dmgList, enemy, condition){
 }
 
 /**
+ * This function handles being attacked by an enemy
+ * @param {object[]} defList Array of TYPE/DEF objects
+ * @param {number} enemyDmg Base damage dealt by enemy
+ * @returns {object} outcome: string, dmgTaken: number
+ */
+function enemyAttack(defList, enemyDmg){
+    const defenceTotal = defList.reduce((acc, defObj) => { 
+        return (acc > 0) ? acc + defObj.DEF : defObj.DEF;
+    }, 0);
+    if (defenceTotal >= enemyDmg) return {outcome: "No Damage Taken", dmgTaken: 0};
+    return {outcome: "Damage Taken", dmgTaken: (enemyDmg - defenceTotal)};
+}
+
+/**
  * 
  * @param {Object} dmgObj Damage Object containing HP types and dmg values
  * @param {...[Object]} extraMod Results from checking against both phys and magi enemy.internalEffects.Weakness
@@ -858,4 +873,4 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 */
 
 
-module.exports = {attackEnemy, checkingDamage, handleActiveStatus, applyActiveStatus, genGearPiece};
+module.exports = {attackEnemy, enemyAttack, checkingDamage, handleActiveStatus, applyActiveStatus, genGearPiece};

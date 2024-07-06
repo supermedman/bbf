@@ -18,21 +18,6 @@ const dmgKeys = new Map([
     ["CHsp", "Chaos"]
 ]);
 
-const rarKeys = new Map([
-    ["r00", "Common"],
-    ["r01", "Uncommon"],
-    ["r02", "Rare"],
-    ["r03", "Very Rare"],
-    ["r04", "Epic"],
-    ["r05", "Mystic"],
-    ["r06", "?"],
-    ["r07", "??"],
-    ["r08", "???"],
-    ["r09", "????"],
-    ["r10", "Forgotten"],
-    ["r12", "Unique"]
-]);
-
 const disKeys = new Map([
     ["SL", "Slimy"],
     ["HE", "Herby"],
@@ -46,14 +31,6 @@ const disKeys = new Map([
     ["GE", "Gemy"],
     ["TO", "Tooly"],
     ["UN", "Unique"]
-]);
-
-const slotKeys = new Map([
-    ["HEslo", "Headslot"],
-    ["CHslo", "Chestslot"],
-    ["LEslo", "Legslot"],
-    ["MAslo", "Mainhand"],
-    ["OFslo", "Offhand"]
 ]);
 
 // ===============================

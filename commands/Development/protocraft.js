@@ -35,12 +35,6 @@ const pureRegEx = /Pure /;
 const uniqueMatList = require('../../events/Models/json_prefabs/materialLists/uniqueList.json');
 const pureListing = uniqueMatList.filter(mat => mat.Name.search(pureRegEx) !== -1);        
 
-// function* objectEntries(obj) {
-//     for (let key of Object.keys(obj)) {
-//         yield [key, obj[key]];
-//     }
-// }
-
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('protocraft')
@@ -224,10 +218,6 @@ module.exports = {
             matsNeeded: [],
             imbuedWith: imbuedWith.filter(imbue => imbue.length > 0) // Filter for only non-empty strings
         };
-
-        // for (let [key, value] of objectEntries(userInputChoices)) {
-        //     console.log(`${key}: ${value}`);
-        // }
 
         // Create the base item casteObj
         const casteObj = itemCasteFilter(userInputChoices.castePicked, userInputChoices.slotPicked);

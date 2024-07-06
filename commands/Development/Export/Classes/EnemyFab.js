@@ -4,9 +4,43 @@ const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
+const inclusiveRandNum = (max, min) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+const hitChance = (chance) => {
+    return (Math.random() <= chance) ? true : false;
+};
+
 const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
+// Flesh based on Material Drop Order: [0[1st], 1[2nd], 2[3rd]];
+/** == Flesh ==
+ *  If only 'fleshy' drop: Pick Flesh
+ *  If only 2 drop types, 'fleshy' 1st & 'magical' !2nd: Pick Flesh
+ *  
+ */
+/** == Magical Flesh ==
+ * 
+ */
+/** == Specter ==
+ * 
+ */
 const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
+/** == Armor ==
+ * 
+ */
+/** == Bark ==
+ * 
+ */
+/** == Fossil ==
+ * 
+ */
+/** == Demon ==
+ * 
+ */
 const shieldTypes = ["Phase Demon", "Phase Aura", /*"Plot Armor"*/];
+// Phase Demon
+// Phase Aura
 
 // This is better for actual values being created, not the best for current testing however.
 //let scaleMult = (level, HPStrIndex) => 1 + (level * ((HPStrIndex + 0.01)/0.2));
@@ -48,35 +82,71 @@ const shieldHPRange = (level, HPType) => {
     return finalShield;
 }
 
+// Generate Damage Range
+const dmgOutputRange = (level) => {
+    const levelMultDmgMods = new Map([
+        [1, {mod: 1.5, min: 2, max: 5}],
+        [25, {mod: 1.7, min: 5, max: 10}],
+        [50, {mod: 2, min: 15, max: 25}],
+        [75, {mod: 2.5, min: 25, max: 35}],
+        [100, {mod: 3, min: 40, max: 50}]
+    ]);
+    const dmgModRef = {
+        mod: 1,
+        min: 2,
+        max: 5
+    };
+    for (const [key, value] of levelMultDmgMods){
+        if (key === level) {
+            // Key match found, end loop.
+            dmgModRef.mod = value.mod; 
+            dmgModRef.min = value.min;
+            dmgModRef.max = value.max;
+            break;
+        } else if (key < level) {
+            // Level falls into key range, continue.
+            dmgModRef.mod = value.mod; 
+            dmgModRef.min = value.min;
+            dmgModRef.max = value.max;
+        } else if (key > level) break; // last assigned key range is a match, end loop.
+    }
+
+    dmgModRef.min += (dmgModRef.mod * level);
+    dmgModRef.max += (dmgModRef.mod * level);
+    return {maxDmg: dmgModRef.max, minDmg: dmgModRef.min};
+}
+
 /**
  * Main enemy class constructor
  * Contains methods for all status effects being applied and removed.
  */
 class EnemyFab {
-    constructor() {
+    constructor(lvl, fabFlesh, fabArmor, fabShield) {
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
         //const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
-        this.level = Math.floor(Math.random() * (100 - 1 + 1) + 1);
+        this.level = (lvl) ? lvl : Math.floor(Math.random() * (100 - 1 + 1) + 1);
 
         this.flesh = {
-            Type: randArrPos(fleshTypes)
+            Type: (fabFlesh) ? fabFlesh : randArrPos(fleshTypes)
         };
         this.flesh.HP = fleshHPRange(this.level, this.flesh.Type);
         this.maxFleshHP = this.flesh.HP;
         
         this.armor = {
-            Type: randArrPos(armorTypes)
+            Type: (fabArmor) ? fabArmor : randArrPos(armorTypes)
         };
-        this.armor.HP = armorHPRange(this.level, this.armor.Type);
+        this.armor.HP = (this.armor.Type === 'None') ? 0 : armorHPRange(this.level, this.armor.Type);
         this.maxArmorHP = this.armor.HP;
 
         this.shield = {
-            Type: randArrPos(shieldTypes)
+            Type: (fabShield) ? fabShield : randArrPos(shieldTypes)
         };
-        this.shield.HP = shieldHPRange(this.level, this.shield.Type);
+        this.shield.HP = (this.shield.Type === 'None') ? 0 : shieldHPRange(this.level, this.shield.Type);
         this.maxShieldHP = this.shield.HP;
 
         this.activeEffects = [];
+
+        this.staticDmgRange = dmgOutputRange(this.level);
 
         this.internalEffects = {
             HitChance: 1,
@@ -103,6 +173,15 @@ class EnemyFab {
             DHChance: 0,
             CritChance: 0
         }
+    }
+
+    attack(){
+        let attackDmg = inclusiveRandNum(this.staticDmgRange.maxDmg, this.staticDmgRange.minDmg);
+        attackDmg *= this.internalEffects.HitStrength;
+        let landHit = (this.internalEffects.HitChance < 1) ? hitChance(this.internalEffects.HitChance) : true;
+
+        if (landHit) return attackDmg;
+        return "MISS";
     }
 
     applyArmorBurn(){

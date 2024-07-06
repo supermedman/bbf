@@ -27,7 +27,7 @@ class Combat {
         // this.collector = interactionCollector;
     }
 
-    sweepCheck(now){
+    sweepCheck(now = new Date().getTime()){
         if (this.startTime - now >= this.deleteAfter && !this.active) this.removePending = true;
         return 'Finished';
     }

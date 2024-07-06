@@ -47,6 +47,9 @@ const LocationData = require('./events/Models/LocationData')(sequelize, Sequeliz
 const UserTasks = require('./events/Models/UserTasks')(sequelize, Sequelize.DataTypes);
 const NPCTable = require('./events/Models/NPCTable')(sequelize, Sequelize.DataTypes);
 
+const ItemStrings = require('./events/Models/ItemStrings')(sequelize, Sequelize.DataTypes);
+const ItemLootPool = require('./events/Models/ItemLootPool')(sequelize, Sequelize.DataTypes);
+
 module.exports = {
 	//Equipped,
 	LootStore,
@@ -80,5 +83,7 @@ module.exports = {
 	EarlyAccess,
 	LocationData,
 	UserTasks,
-	NPCTable
+	NPCTable,
+	ItemStrings,
+	ItemLootPool
 };
