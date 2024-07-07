@@ -33,7 +33,9 @@ const {
     EarlyAccess,
     LocationData,
     UserTasks,
-    NPCTable
+    NPCTable,
+    ItemStrings,
+	ItemLootPool
 } = require('../dbObjects.js');
 
 async function loadEarlyAccess(client){
@@ -112,6 +114,9 @@ module.exports = {
 
         UserTasks.sync();
         NPCTable.sync();
+
+        ItemStrings.sync();
+        ItemLootPool.sync();
 
         try {
             loadEarlyAccess(client);

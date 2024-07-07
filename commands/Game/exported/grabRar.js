@@ -423,7 +423,7 @@ async function grabRar(level) {
 }
 
 //This method takes a given rarid and returns a hex colour code for use with embeds
-async function grabColour(rarid, needStr) {
+function grabColour(rarid, needStr) {
     let catchStr = false;
     if (needStr === true) catchStr = true;
     if (needStr === false) catchStr = false;

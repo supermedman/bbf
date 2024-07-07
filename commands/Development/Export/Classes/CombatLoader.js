@@ -1,7 +1,7 @@
 const { Loadout, ItemStrings, UserData } = require('../../../../dbObjects');
 
 const userTestObj = {
-    level: 13,
+    level: 25,
     pclass: "Thief",
     health: 97,
     speed: 4,

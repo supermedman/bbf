@@ -13,32 +13,47 @@ const hitChance = (chance) => {
 };
 
 const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
+const staticFleshMods = [0.4, 0.25, 0.2];
 // Flesh based on Material Drop Order: [0[1st], 1[2nd], 2[3rd]];
+// MULT = 1 + (lvl * TYPE)
 /** == Flesh ==
  *  If only 'fleshy' drop: Pick Flesh
  *  If only 2 drop types, 'fleshy' 1st & 'magical' !2nd: Pick Flesh
  *  
+ *  
+ *  TYPE: 
+ *  - 0.2
  */
 /** == Magical Flesh ==
- * 
+ * TYPE: 
+ * - 0.15
  */
 /** == Specter ==
- * 
+ * TYPE: 
+ * - 0.15
  */
 const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
+const staticArmorMods = [0.2, 0.15, 0.15, 0.1];
+// MULT = 1 + ((lvl/25) * TYPE)
 /** == Armor ==
- * 
+ * TYPE: 
+ *  - 0.2
  */
 /** == Bark ==
- * 
+ * TYPE: 
+ *  - 0.15
  */
 /** == Fossil ==
- * 
+ * TYPE: 
+ *  - 0.15
  */
 /** == Demon ==
- * 
+ * TYPE: 
+ *  - 0.1
  */
 const shieldTypes = ["Phase Demon", "Phase Aura", /*"Plot Armor"*/];
+const staticShieldMods = [0.02, 0.01];
+// MULT = 1 + ((lvl/50) * TYPE)
 // Phase Demon
 // Phase Aura
 
@@ -47,69 +62,94 @@ const shieldTypes = ["Phase Demon", "Phase Aura", /*"Plot Armor"*/];
 // Using much much lower scale values to check for proper status effects
 let scaleMult = (level, HPStrIndex) => 1 + (level * (HPStrIndex/2 + 0.04));
 
+// strIdx  = 0,    1,    2,    3
+// Mult    = 0.025, 0.035, 0.05, 0.06
+
+// lvlMult = lvl * Mult
+
+
 // Rand Gen Flesh HP
 const fleshHPRange = (level, HPType) => {
-    const staticMin = 5;
-    const staticMax = 25;
+    const modObj = levelRangMods(level);
+    const staticMin = (5 * modObj.mod) + (modObj.min * modObj.mod); // 5
+    const staticMax = (10 * modObj.mod) + (modObj.max * modObj.mod); // 25? 10
 
-    const scaleBY = scaleMult(level, fleshTypes.indexOf(HPType));
+    modObj.mod = 1 + (level * staticFleshMods[fleshTypes.indexOf(HPType)]);
 
-    const finalFlesh = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin * scaleBY) + 1) + (staticMin * scaleBY));
+    // const scaleBY = scaleMult(level, fleshTypes.indexOf(HPType));
+
+    const finalFlesh = Math.floor(Math.random() * ((staticMax * modObj.mod) - (staticMin * modObj.mod) + 1) + (staticMin * modObj.mod));
     //console.log(finalFlesh);
     return finalFlesh;
 }
 
 // Rand Gen Armor HP
 const armorHPRange = (level, HPType) => {
-    const staticMin = 0;
-    const staticMax = 10;
+    if (level < 10) return 0;
+    const modObj = levelRangMods(level);
+    const staticMin = (3 * modObj.mod) + (modObj.min * modObj.mod); // 0
+    const staticMax = (8 * modObj.mod) + (modObj.max * modObj.mod); // 10
 
-    const scaleBY = scaleMult(level, armorTypes.indexOf(HPType));
+    modObj.mod = 1 + ((level/25) * staticArmorMods[armorTypes.indexOf(HPType)]);
 
-    const finalArmor = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+    // const scaleBY = scaleMult(level, armorTypes.indexOf(HPType));
+
+    const finalArmor = Math.floor(Math.random() * ((staticMax * modObj.mod) - (staticMin + 1 * modObj.mod)) + (staticMin * modObj.mod));
     //console.log(finalArmor);
     return finalArmor;
 }
 
 // Rand Gen Shield HP
 const shieldHPRange = (level, HPType) => {
-    const staticMin = 0;
-    const staticMax = 5;
+    if (level < 25) return 0;
+    const modObj = levelRangMods(level);
+    const staticMin = (2 * modObj.mod) + modObj.min * modObj.mod; // 0
+    const staticMax = (4 * modObj.mod) + (modObj.max * modObj.mod); // 5
 
-    const scaleBY = scaleMult(level, shieldTypes.indexOf(HPType));
+    modObj.mod = 1 + ((level/50) * staticShieldMods[shieldTypes.indexOf(HPType)]);
 
-    const finalShield = Math.floor(Math.random() * ((staticMax * scaleBY) - (staticMin + 1 * scaleBY)) + (staticMin * scaleBY));
+    //const scaleBY = scaleMult(level, shieldTypes.indexOf(HPType));
+
+    const finalShield = Math.floor(Math.random() * ((staticMax * modObj.mod) - (staticMin + 1 * modObj.mod)) + (staticMin * modObj.mod));
     return finalShield;
 }
 
-// Generate Damage Range
-const dmgOutputRange = (level) => {
-    const levelMultDmgMods = new Map([
+const levelRangMods = (level) => {
+    const levelMultMods = new Map([
         [1, {mod: 1.5, min: 2, max: 5}],
         [25, {mod: 1.7, min: 5, max: 10}],
         [50, {mod: 2, min: 15, max: 25}],
         [75, {mod: 2.5, min: 25, max: 35}],
         [100, {mod: 3, min: 40, max: 50}]
     ]);
-    const dmgModRef = {
+
+    const modRef = {
         mod: 1,
         min: 2,
         max: 5
     };
-    for (const [key, value] of levelMultDmgMods){
+
+    for (const [key, value] of levelMultMods){
         if (key === level) {
             // Key match found, end loop.
-            dmgModRef.mod = value.mod; 
-            dmgModRef.min = value.min;
-            dmgModRef.max = value.max;
+            modRef.mod = value.mod; 
+            modRef.min = value.min;
+            modRef.max = value.max;
             break;
         } else if (key < level) {
             // Level falls into key range, continue.
-            dmgModRef.mod = value.mod; 
-            dmgModRef.min = value.min;
-            dmgModRef.max = value.max;
+            modRef.mod = value.mod; 
+            modRef.min = value.min;
+            modRef.max = value.max;
         } else if (key > level) break; // last assigned key range is a match, end loop.
     }
+
+    return modRef;
+}
+
+// Generate Damage Range
+const dmgOutputRange = (level) => {
+    const dmgModRef = levelRangMods(level);
 
     dmgModRef.min += (dmgModRef.mod * level);
     dmgModRef.max += (dmgModRef.mod * level);

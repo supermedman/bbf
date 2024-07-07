@@ -209,6 +209,23 @@ function checkingRar(TEST_CODE) {
 }
 
 /**
+ * This function takes a given rarity and converts it into its rarID equivalent.
+ * @param {string} rarity rarKeys String Matched Rarity 
+ * @returns number as RarID
+ */
+function checkingRarID(rarity){
+    let keyCopy;
+    for (const [key, value] of rarKeys){
+        if (value === rarity){
+            keyCopy = key;
+            keyCopy = ~~keyCopy.slice(1,);
+            break;
+        }
+    }
+    return keyCopy;
+}
+
+/**
  * 
  * @param {String} TEST_CODE ITEM_CODE used for deconstruction
  * @returns String[]: Useable dismantled types list
@@ -244,6 +261,21 @@ function checkingSlot(TEST_CODE){
     const foundSlot = slotKeys.get(slotCode);
   
     return foundSlot;
+}
+
+/**
+ * This function extracts a matching caste type for the caste ID given.
+ * @param {number} casteID Caste ID of item to be checked
+ * @returns object {Caste: string, Hands: number, Type: string}
+ */
+function checkingCaste(casteID){
+    let casteData;
+    for (const [key, value] of casteKeys) {
+        if (~~key === casteID) {
+            casteData = JSON.parse(value);
+        }
+    }
+    return casteData;
 }
 
 // ===============================
@@ -425,6 +457,8 @@ const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
+const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1) };
+
 // ========================
 //     TABLE REFERENCE
 // ========================
@@ -531,19 +565,100 @@ function createNewItemStringEntry(item, ITEM_CODE){
 //        FINAL DISPLAY
 // ============================
 
+const genDMGMap = (item) => {
+    let dmgStr = '\nDamage Values:';
+    dmgStr += checkingDamage(item.item_code).map(dmgObj => `\n**${dmgObj.Type}**: **${dmgObj.DMG}** Atk\n`).toString();
+    return dmgStr;
+};
 
-function displayMainhand(item){
-    
+const genDEFMap = (item) => {
+    let defStr = '\nDefence Values:';
+    defStr += checkingDefence(item.item_code).map(defObj => `\n**${defObj.Type}**: **${defObj.DEF}** Def\n`).toString();
+    return defStr;
+};
+
+const genDDMap = (item) => {
+    let headerStr = '\nDamage/Defence:';
+    const dmgPairs = checkingDamage(item.item_code), defPairs = checkingDefence(item.item_code);
+    const typePairs = dmgPairs.concat(defPairs);
+    const pairStr = typePairs.map(pairObj => `\n**${pairObj.Type}**: **${pairObj.DMG ?? pairObj.DEF}** ${(pairObj.DMG) ? 'Atk' : 'Def\n'}`).toString();
+    return headerStr + pairStr;
 }
 
-function displayOffhand(item){
+const genDISMap = (itemExtra) => {
+    let disStr = '\nDismantle Types:\n';
+    disStr += itemExtra.iDis.map(dis => `**${dis}**`).join(', ').toString();
+    return disStr;
+};
 
+function generateItemEmbedField(item, itemExtra, showAmount, makeInline){
+    let fieldName, fieldValue, fieldObj;
+    fieldName = `>>__**${item.name}**__<<`;
+
+    fieldValue = `Value: **${item.value}c**\nRarity: **${itemExtra.iRar}**\nHands: **${itemExtra.iCaste.Hands}**\nSlot: **${itemExtra.iSlot}**\n`;
+    if (showAmount) fieldValue += `Amount: **${item.amount}**\n`;
+    switch(itemExtra.iSlot){
+        case "Mainhand":
+            fieldValue += genDMGMap(item);
+        break;
+        case "Offhand":
+            fieldValue += genDDMap(item);
+        break;
+        default:
+            fieldValue += genDEFMap(item);
+        break;
+    }
+    fieldValue += genDISMap(itemExtra);
+
+
+    fieldObj = {name: fieldName, value: fieldValue, inline: makeInline};
+    return fieldObj;
 }
 
-function displayArmor(item){
+/**
+ * This function handles all use cases for needing to display an item to an enduser,
+ * formatting is done to account for differing display types and situations.
+ * @param {object} item DB Item Instance Object
+ * @param {string} styleType Defines Return Object Format
+ * @returns object as defined by styleType
+ */
+function uni_displayItem(item, styleType){
+    let returnObject;
+    const itemExtras = {
+        iRar: checkingRar(item.item_code),
+        iCasteRAW: checkingCaste(item.caste_id),
+        iDis: checkingDismantle(item.item_code),
+        iSlot: checkingSlot(item.item_code)
+    };
+    const handsCheckMatch = ['None', 'One', 'Two'];
+    itemExtras.iCaste = {
+        Caste: itemExtras.iCasteRAW.Caste,
+        Hands: handsCheckMatch[itemExtras.iCasteRAW.Hands],
+        Type: itemExtras.iCasteRAW.Type
+    };
 
+    switch(styleType){
+        case "Single":
+            // Loot Drop(`/startcombat`, `/quest claim`)
+            // Needed Values: color, fields{name: item.name, value: (item) => {}}
+            returnObject = {
+                color: grabColour(checkingRarID(itemExtras.iRar)),
+                fields: generateItemEmbedField(item, itemExtras, false, false)
+            };
+        break;
+        case "List":
+            // Inventory(/myloot gear)
+            // Needed Values: fields{name: item.name, value: (item) => {}}
+            returnObject = generateItemEmbedField(item, itemExtras, true, true);
+        break;
+        case "Shop":
+            // Shop Display(/shop)
+            // NEEDS ADDITIONAL SOURCE CODE CHANGES 
+        break;
+    }
+
+    return returnObject;
 }
-
 
 // ============================
 //        TEMP TESTING
@@ -898,6 +1013,9 @@ function convertArmor(item){
     return universalItem;
 }
 
+const itemLootList = require('../../../events/Models/json_prefabs/lootList.json');
+const { grabColour } = require('../../Game/exported/grabRar');
+
 /**
  * This function takes an item object, and converts it into a standard universal item object
  * usable for item string codes, and item string storage
@@ -915,6 +1033,15 @@ function convertToUniItem(item){
         let key = type.substring(0, 2).toUpperCase();
         return disKeys.get(key) || type;
     }) ?? [];
+
+    if (mats.length === 0 && item.loot_id) {
+        const itemFabMatch = itemLootList.filter(itemFab => itemFab.Loot_id === item.loot_id)[0];
+        let fixedDisList = [];
+        for (const disMat of itemFabMatch.DismantleTypes){
+            fixedDisList.push(makeCapital(disMat));
+        }
+        mats = fixedDisList;
+    }
 
     const casteTypes = Array.from(casteKeys.entries()).map(([key, caste]) => ({ key, casteTyped: JSON.parse(caste) }));
     // ============== Standardization END
@@ -1066,7 +1193,7 @@ function convertToUniItem(item){
     return universalItem;
 }
 
-const itemLootList = require('../../../events/Models/json_prefabs/lootList.json');
+
 function createItemList(){
     let convertedList = [];
     for (const item of itemLootList){
@@ -1090,6 +1217,13 @@ function createItemList(){
     console.log(convertedList[0]);
     console.log(convertedList[convertedList.length - 1]);
     return convertedList;
+}
+
+
+function createSingleUniItem(dbItem){
+    const convertedItem = convertToUniItem(dbItem);
+    convertedItem.itemStringCode = uni_CreateCompleteItemCode(convertedItem);
+    return convertedItem;
 }
 
 const nameChecks = ["Iron Greathelm", "Heavy Hide Vest", "Ruby Infused Skeletal Warboots", "Kinslayer", "The Blockade"];
@@ -1123,11 +1257,13 @@ function runTest(exItem){
 
 module.exports = { 
     createItemList,
+    createSingleUniItem,
     checkingDamage,
     checkingDefence,
     checkingDismantle,
     checkingRar,
     checkingSlot,
     convertToUniItem,
+    uni_displayItem,
     uni_CreateCompleteItemCode
 };

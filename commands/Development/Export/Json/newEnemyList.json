@@ -3,52 +3,4121 @@
         "Name": "Goblin",
         "Description": "Green, size of a toddler.. \nbet you could punt it\n$^)",
         "Level": 1,
-
         "Body": "Flesh",
         "Armor": "None",
         "Shield": "None",
-
-        "DropTypes": [ "fleshy" ],
-
+        "DropTypes": [
+            "fleshy"
+        ],
         "ConstKey": 1
+    },
+    {
+        "Name": "Witch",
+        "Description": "moley moley moley mole..",
+        "Level": 2,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 2
     },
     {
         "Name": "Tranceserpent",
         "Description": "Like a foggy mirror! Hits like a truck tho ;O",
         "Level": 3,
-        
         "Body": "Magical Flesh",
-        "Armor": "Fossil",
+        "Armor": "None",
         "Shield": "None",
-
-        "DropTypes": [ "gemy" ],
-
+        "DropTypes": [
+            "gemy"
+        ],
         "ConstKey": 3
     },
     {
         "Name": "Terrorling",
         "Description": "A small and condensed entity of terror. One of the servants of Ados",
         "Level": 3,
-        
         "Body": "Magical Flesh",
         "Armor": "None",
         "Shield": "None",
-
-        "DropTypes": [ "magical" ],
-
+        "DropTypes": [
+            "magical"
+        ],
         "ConstKey": 4
+    },
+    {
+        "Name": "MystSoul",
+        "Description": "The real mystery, whos soul? \nOne of the servents of Mien",
+        "Level": 4,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 5
+    },
+    {
+        "Name": "Steamfreak",
+        "Description": "One who can harrness the shroud.",
+        "Level": 5,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 6
+    },
+    {
+        "Name": "Hollowlich",
+        "Description": "All it takes is looking into the eyes of this creature to understand its name.",
+        "Level": 6,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 7
+    },
+    {
+        "Name": "Crypthound",
+        "Description": "Fabled to be one of the keepers for the gates of the underworld.",
+        "Level": 6,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 8
+    },
+    {
+        "Name": "Abyssthing",
+        "Description": "An entity with origins in the abyssal realm, best dispatch it quickly!",
+        "Level": 6,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny"
+        ],
+        "ConstKey": 9
+    },
+    {
+        "Name": "ArcticSavage",
+        "Description": "A savage its origins are prehistoric.",
+        "Level": 7,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "metalic",
+            "herby"
+        ],
+        "ConstKey": 10
+    },
+    {
+        "Name": "Vampbeast",
+        "Description": "Both a beast and a vampire, some might say that breaks all the rules.",
+        "Level": 7,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 11
+    },
+    {
+        "Name": "Gravecrackle",
+        "Description": "The last thing you hear is the crumbling of a granite stone..",
+        "Level": 8,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "rocky",
+            "gemy"
+        ],
+        "ConstKey": 12
+    },
+    {
+        "Name": "Slime",
+        "Description": "Its a slime :P",
+        "Level": 1,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 13
+    },
+    {
+        "Name": "Rock",
+        "Description": "A rock??",
+        "Level": 1,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky"
+        ],
+        "ConstKey": 14
+    },
+    {
+        "Name": "Ghost",
+        "Description": "Woah! Spoopy..",
+        "Level": 4,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 15
+    },
+    {
+        "Name": "Eli",
+        "Description": "Eli the Destroyer",
+        "Level": 10,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 16
+    },
+    {
+        "Name": "Mornbody",
+        "Description": "An entity embodying grief",
+        "Level": 2,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 17
+    },
+    {
+        "Name": "The Calm Man",
+        "Description": "A strangly calm man stands before you..",
+        "Level": 5,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 18
+    },
+    {
+        "Name": "The Fiery Bane Bee",
+        "Description": "Ayo what da bee doin?",
+        "Level": 8,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical"
+        ],
+        "ConstKey": 19
+    },
+    {
+        "Name": "Ghoul Fly",
+        "Description": "This large fly feasts on living and dead flesh.",
+        "Level": 1,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 20
+    },
+    {
+        "Name": "Snakeflare",
+        "Description": "A snake.. or is it a flare?",
+        "Level": 1,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 21
+    },
+    {
+        "Name": "Pink Beaver",
+        "Description": "... it's just a beaver painted pink :o",
+        "Level": 1,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 22
+    },
+    {
+        "Name": "Mystling",
+        "Description": "Younger cousin of the mystsoul. \nOne of the servents of Mien",
+        "Level": 2,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 23
+    },
+    {
+        "Name": "Hauntsnare",
+        "Description": "This creature will freeze you in your tracks with only a look! \nOne of the servents of Dyvulla.",
+        "Level": 2,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 24
+    },
+    {
+        "Name": "Crimson Crow",
+        "Description": "A blood soaked crow.. best take care with this beast!",
+        "Level": 2,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 25
+    },
+    {
+        "Name": "Rage Deer",
+        "Description": "It must be mating season ;O",
+        "Level": 2,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 26
+    },
+    {
+        "Name": "Thornbug",
+        "Description": "An insect covered in pointy thorns.. ouch",
+        "Level": 3,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 27
+    },
+    {
+        "Name": "Swarmwing",
+        "Description": "Watch out for their numbers, they never travel alone.. \nunlike you",
+        "Level": 3,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy"
+        ],
+        "ConstKey": 28
+    },
+    {
+        "Name": "Smogwoman",
+        "Description": "An entity somewhat resembling a woman, the dark cloud around it warns caution",
+        "Level": 4,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 29
+    },
+    {
+        "Name": "Icetooth",
+        "Description": "An icy tooth imbued with magic!",
+        "Level": 4,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 30
+    },
+    {
+        "Name": "Flailplant",
+        "Description": "Its a plant, and its flailing.. *WACK* ouchie.. try not to get hit",
+        "Level": 4,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "woody",
+            "herby"
+        ],
+        "ConstKey": 31
+    },
+    {
+        "Name": "Muckbrute",
+        "Description": "A muddy angry mess of a creature, all it sees is red",
+        "Level": 5,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "woody"
+        ],
+        "ConstKey": 32
+    },
+    {
+        "Name": "Devouring Trapper",
+        "Description": "Falling into its traps.. I'm sure you know what happens next",
+        "Level": 6,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "woody",
+            "herby"
+        ],
+        "ConstKey": 33
+    },
+    {
+        "Name": "Dream Assasin",
+        "Description": "Sleeping with one eye open won't save you from this adept assasin! \nOne of the servents of Fayrn",
+        "Level": 6,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 34
+    },
+    {
+        "Name": "Unthinkable Faerie",
+        "Description": "Inconceivable!",
+        "Level": 6,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 35
+    },
+    {
+        "Name": "Cavecrash Striker",
+        "Description": "It's fabled these creatures collapse caves while miners work as a favoured pastime",
+        "Level": 6,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 36
+    },
+    {
+        "Name": "Soilmirage",
+        "Description": "What might look like a normal mirage could very well be one of these \nNever hesitate to stab the ground!",
+        "Level": 7,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "rocky"
+        ],
+        "ConstKey": 37
+    },
+    {
+        "Name": "Wind Satyr",
+        "Description": "A Satyr belonging to the wind tribe",
+        "Level": 7,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "herby",
+            "silky"
+        ],
+        "ConstKey": 38
+    },
+    {
+        "Name": "Aurahound",
+        "Description": "These hounds feed off the aura of other living creatures.. scary!",
+        "Level": 8,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 39
+    },
+    {
+        "Name": "Bone Squirrel",
+        "Description": "WOAH IS THAT A SQUIRREL!",
+        "Level": 8,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 40
+    },
+    {
+        "Name": "Chaosspore Newt",
+        "Description": "Despite its name this creature is actually quite deadly and should be avoided unless unavoidable!! \nOne of the servents of Zimmir",
+        "Level": 9,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 41
+    },
+    {
+        "Name": "Rust Maw Medusa",
+        "Description": "This creature can turn you to stone with one look.. oh wait, those snakes are fake.. \nIt might give you tetnus",
+        "Level": 9,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 42
+    },
+    {
+        "Name": "Vorpal Slayer",
+        "Description": "Very few have ever seen one of these and lived to give a report.. this should be a cake walk!",
+        "Level": 9,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical"
+        ],
+        "ConstKey": 43
+    },
+    {
+        "Name": "Change Sprite",
+        "Description": "This freindly looking sprite tends to change its tune without provocation",
+        "Level": 9,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 44
+    },
+    {
+        "Name": "Soulspike",
+        "Description": "A spike with the explict goal of stealing souls. \nOne of the servents of Wadon",
+        "Level": 10,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 45
+    },
+    {
+        "Name": "The Giant Malformation",
+        "Description": "EWWW WHAT IS THAT!! One of the servants of Ados",
+        "Level": 11,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 46
+    },
+    {
+        "Name": "Bane Crawler",
+        "Description": "It- It's a really big spider.. KILL IT!! KILL IT NOW!!",
+        "Level": 11,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny",
+            "silky"
+        ],
+        "ConstKey": 47
+    },
+    {
+        "Name": "Battlestealth Berserker",
+        "Description": "These fighters are known but not seen, to see one means your life will soon be over.",
+        "Level": 12,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny",
+            "metalic",
+            "herby"
+        ],
+        "ConstKey": 48
+    },
+    {
+        "Name": "Hill Soaker",
+        "Description": "The only two known facts about this entity are that it exists.. and that it only leaves the blood of its victims behind",
+        "Level": 13,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 49
+    },
+    {
+        "Name": "Phantomsword",
+        "Description": "This ghostly weapon will cut you in half with a single strike :o",
+        "Level": 15,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "metalic"
+        ],
+        "ConstKey": 50
+    },
+    {
+        "Name": "Mountaincrash Striker",
+        "Description": "A much bigger and stronger striker varient",
+        "Level": 18,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny",
+            "metalic",
+            "herby"
+        ],
+        "ConstKey": 51
+    },
+    {
+        "Name": "Bloodshock Beholder",
+        "Description": "Its name comes from an imperfect translation of a forgotten dialect!",
+        "Level": 19,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 52
+    },
+    {
+        "Name": "Flaming Mouth",
+        "Description": "Ahhhh thats hawt",
+        "Level": 17,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 53
+    },
+    {
+        "Name": "Spellstench Heap",
+        "Description": "An amalgimation of used spells and the essence of those who cast them.",
+        "Level": 14,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 54
+    },
+    {
+        "Name": "Damned Troll",
+        "Description": "A troll from the depths of the underworld",
+        "Level": 16,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 55
+    },
+    {
+        "Name": "Ancient Celestial-fungus",
+        "Description": "This fungus has origins predating all known life in this realm.",
+        "Level": 18,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "herby"
+        ],
+        "ConstKey": 56
+    },
+    {
+        "Name": "Chaotic Venom Titan",
+        "Description": "Predicting its next move is like teaching a newborn the social hierarchy. One of the servants of Zimmir",
+        "Level": 20,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 57
+    },
+    {
+        "Name": "Mysterious Boss-charmer",
+        "Description": "A fellow adventurer corrupted by the gods",
+        "Level": 21,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 58
+    },
+    {
+        "Name": "Krelya, The Soulreaper",
+        "Description": "Krelya is the second hand to Wadon, God of Souls.. \nThis fight will not be easy.",
+        "Level": 25,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 59
+    },
+    {
+        "Name": "Dark Daemon",
+        "Description": "A daemon of the dark coven.. \nOne of the servents of Dyvulla.",
+        "Level": 10,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 60
+    },
+    {
+        "Name": "Evil Shadow",
+        "Description": "Its just a shadow nothing to worry about im sure.. \nOne of the servents of Dyvulla.",
+        "Level": 5,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 61
+    },
+    {
+        "Name": "Harlpei, Fire Scale",
+        "Description": "Origins are fabled to be from the Fire Scale tribe at the bottom of the ocean.",
+        "Level": 15,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical"
+        ],
+        "ConstKey": 62
+    },
+    {
+        "Name": "Bla$tym",
+        "Description": "An explosive creature. \nOne of the servents of Nizdea.",
+        "Level": 12,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 63
+    },
+    {
+        "Name": "$caklyd",
+        "Description": "These creatures roam the ocean depths until fully matured. \nOne of the servents of Nizdea.",
+        "Level": 13,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 64
+    },
+    {
+        "Name": "Phase Troll",
+        "Description": "A Troll with phase abilities, not to be taken lightly.",
+        "Level": 14,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "metalic",
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 65
+    },
+    {
+        "Name": "Vampbug",
+        "Description": "A bug with a liking for blood",
+        "Level": 7,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 66
+    },
+    {
+        "Name": "Vortexserpent",
+        "Description": "A hailstrom of slithering",
+        "Level": 11,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 67
+    },
+    {
+        "Name": "Cursemutant",
+        "Description": "A human cursed and distorted with malace.",
+        "Level": 10,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 68
+    },
+    {
+        "Name": "Fogstep",
+        "Description": "A fully developed Fogling is able to use a small amount of magical power",
+        "Level": 4,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 69
+    },
+    {
+        "Name": "Steamstep",
+        "Description": "A stronger and more volatile entity belonging to the Fog family",
+        "Level": 5,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 70
+    },
+    {
+        "Name": "Titanium Thunder Scorpion",
+        "Description": "This insect has a hardend shell with highly conductive properties",
+        "Level": 12,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical",
+            "metalic"
+        ],
+        "ConstKey": 71
+    },
+    {
+        "Name": "Gastalon",
+        "Description": "A bloated creature, hit it hard, really hard",
+        "Level": 12,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 72
+    },
+    {
+        "Name": "Tombling",
+        "Description": "This small impish creature can be found near crypts and tombs",
+        "Level": 3,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 73
+    },
+    {
+        "Name": "Warpman",
+        "Description": "A man consumed by the power of the warp",
+        "Level": 11,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "herby",
+            "magical"
+        ],
+        "ConstKey": 74
+    },
+    {
+        "Name": "Smoghag",
+        "Description": "A witch shrouded in a toxic smog",
+        "Level": 10,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "woody",
+            "herby"
+        ],
+        "ConstKey": 75
+    },
+    {
+        "Name": "Soulgolem",
+        "Description": "A massive golem infused with souls of the dammed \nOne of the servants of Wadon",
+        "Level": 18,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "rocky",
+            "metalic"
+        ],
+        "ConstKey": 76
+    },
+    {
+        "Name": "The Dark Thing",
+        "Description": "An entity wrapped in darkness \nOne of the servants of Dyvulla",
+        "Level": 11,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 77
+    },
+    {
+        "Name": "Curseteeth",
+        "Description": "A cursed mass of teeth thirsting for flesh.",
+        "Level": 7,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "magical"
+        ],
+        "ConstKey": 78
+    },
+    {
+        "Name": "Bonebug",
+        "Description": "The size of a cat, a shell made of human bones..",
+        "Level": 5,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 79
+    },
+    {
+        "Name": "Bowelscreamer",
+        "Description": "This monster rips its victims to ribons before letting a screech of victory siginalling a kill \nOne of the servants of Ados",
+        "Level": 10,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 80
+    },
+    {
+        "Name": "Fogling",
+        "Description": "A small ethereal being bursting with power, known to become much stronger with age",
+        "Level": 3,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 81
+    },
+    {
+        "Name": "Cindermorph",
+        "Description": "The condensate of both weak magical power and the ashes of a fire 'make sure you soak the stones, lest you summon a morph'",
+        "Level": 8,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 82
+    },
+    {
+        "Name": "Poisonedgirl",
+        "Description": "A poor soul fallen ill to the sickness, too much of a good thing can never be good for long",
+        "Level": 1,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 83
+    },
+    {
+        "Name": "Ashgolem",
+        "Description": "These devious golems carry all the tools for starting fires, they encourage the creation of Cinder Morphs",
+        "Level": 9,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "rocky",
+            "metalic"
+        ],
+        "ConstKey": 84
+    },
+    {
+        "Name": "Grimeface",
+        "Description": "The slimy remains of those who have been corrupted, usually found roaming in groups",
+        "Level": 7,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 85
+    },
+    {
+        "Name": "Savage Frost Serpent",
+        "Description": "The glint of its scales should be the first sign to either draw your weapon or run",
+        "Level": 8,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 86
+    },
+    {
+        "Name": "Urratis",
+        "Description": "Normally these creatures are quite passive. Should they become separated from their magical Cryptees, hell hath no greater fury!",
+        "Level": 22,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 87
+    },
+    {
+        "Name": "Cryptees",
+        "Description": "Normally these creatures are quite passive. Should they become separated from their brute Urratis, hell hath no greater anguish!",
+        "Level": 21,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 88
     },
     {
         "Name": "Metallich",
         "Description": "This metalic creature breaks most undead rules.. totally metal!",
         "Level": 13,
-        
         "Body": "Magical Flesh",
         "Armor": "Armor",
         "Shield": "None",
-
-        "DropTypes": [ "magical", "metalic", "herby" ],
-
+        "DropTypes": [
+            "magical",
+            "metalic",
+            "herby"
+        ],
         "ConstKey": 89
+    },
+    {
+        "Name": "Ravaging Rot Hog",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 17,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 90
+    },
+    {
+        "Name": "The Muted Babbler",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 17,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "gemy",
+            "fleshy"
+        ],
+        "ConstKey": 91
+    },
+    {
+        "Name": "The Delirious Hunter",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 23,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 92
+    },
+    {
+        "Name": "Chaosfiend",
+        "Description": "Not enough is yet known about this creature! One of the servants of Zimmir",
+        "Level": 24,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 93
+    },
+    {
+        "Name": "Sorrowscream",
+        "Description": "Not enough is yet known about this creature! One of the servants of Ados",
+        "Level": 21,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody"
+        ],
+        "ConstKey": 94
+    },
+    {
+        "Name": "Soultaur",
+        "Description": "Condensed souls, refined through battle, the product of which makes up Wadons upper ranks!",
+        "Level": 22,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 95
+    },
+    {
+        "Name": "Bladewraith",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 18,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "metalic",
+            "herby",
+            "silky"
+        ],
+        "ConstKey": 96
+    },
+    {
+        "Name": "Quiet Eyes",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 20,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 97
+    },
+    {
+        "Name": "Iron-Scaled Corpse Monster",
+        "Description": "Not enough is yet known about this creature! One of the servants of Ados",
+        "Level": 19,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "metalic",
+            "skinny",
+            "fleshy"
+        ],
+        "ConstKey": 98
+    },
+    {
+        "Name": "Chaoslich",
+        "Description": "Not enough is yet known about this creature! One of the servants of Zimmir",
+        "Level": 17,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "magical",
+            "herby",
+            "silky"
+        ],
+        "ConstKey": 99
+    },
+    {
+        "Name": "The Child of Fayrn",
+        "Description": "There will surely be no haven, waken nor dreamt, should you end this fight the victor...",
+        "Level": 25,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 100
+    },
+    {
+        "Name": "Buldak, The Spicy",
+        "Description": "You've done enough, and that is where your living participation ends..",
+        "Level": 69,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "fleshy",
+            "slimy",
+            "silky"
+        ],
+        "ConstKey": 101
+    },
+    {
+        "Name": "Flamecreep",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 23,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 102
+    },
+    {
+        "Name": "Chaoscat",
+        "Description": "Not enough is yet known about this creature! One of the servants of Zimmir",
+        "Level": 23,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "herby",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 103
+    },
+    {
+        "Name": "Icy Troglodyte",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 24,
+        "Body": "Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "fleshy",
+            "herby",
+            "metalic",
+            "rocky"
+        ],
+        "ConstKey": 104
+    },
+    {
+        "Name": "Tattooed Jester Bear",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 25,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "gemy",
+            "skinny",
+            "metalic",
+            "slimy"
+        ],
+        "ConstKey": 105
+    },
+    {
+        "Name": "Electric Razor Drake",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 26,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "magical",
+            "skinny",
+            "rocky"
+        ],
+        "ConstKey": 106
+    },
+    {
+        "Name": "Blazetree",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 27,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "woody",
+            "herby",
+            "magical"
+        ],
+        "ConstKey": 107
+    },
+    {
+        "Name": "Plaguesoul",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 25,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 108
+    },
+    {
+        "Name": "Gasgirl",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 24,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "herby",
+            "slimy",
+            "silky"
+        ],
+        "ConstKey": 109
+    },
+    {
+        "Name": "Blazeseeker",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 26,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny",
+            "gemy",
+            "rocky"
+        ],
+        "ConstKey": 110
+    },
+    {
+        "Name": "Phasechild",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 28,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "metalic",
+            "magical",
+            "herby",
+            "silky"
+        ],
+        "ConstKey": 111
+    },
+    {
+        "Name": "Grumpy Guardian",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 34,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "metalic",
+            "woody"
+        ],
+        "ConstKey": 112
+    },
+    {
+        "Name": "Gallsword",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 33,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 113
+    },
+    {
+        "Name": "Cavetaur",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 32,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "herby",
+            "woody"
+        ],
+        "ConstKey": 114
+    },
+    {
+        "Name": "Vamptalon",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 31,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "magical"
+        ],
+        "ConstKey": 115
+    },
+    {
+        "Name": "Nightling",
+        "Description": "Not enough is yet known about this creature! \nOne of the servants of Dyvulla",
+        "Level": 25,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 116
+    },
+    {
+        "Name": "Glowtaur",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 35,
+        "Body": "Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "rocky",
+            "herby"
+        ],
+        "ConstKey": 117
+    },
+    {
+        "Name": "Doomflayer",
+        "Description": "Not enough is yet known about this creature! One of the servants of Ados",
+        "Level": 36,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "magical"
+        ],
+        "ConstKey": 118
+    },
+    {
+        "Name": "Abyssseeker",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 30,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "magical",
+            "silky"
+        ],
+        "ConstKey": 119
+    },
+    {
+        "Name": "Mournstep",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 28,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "woody"
+        ],
+        "ConstKey": 120
+    },
+    {
+        "Name": "Vicious Tomb Dog",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 38,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "metalic",
+            "magical"
+        ],
+        "ConstKey": 121
+    },
+    {
+        "Name": "Insidious Guardian",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 39,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "woody",
+            "gemy",
+            "magical",
+            "metalic"
+        ],
+        "ConstKey": 122
+    },
+    {
+        "Name": "Gloomsnake",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 19,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 123
+    },
+    {
+        "Name": "Aurataur",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 26,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "metalic"
+        ],
+        "ConstKey": 124
+    },
+    {
+        "Name": "Barbling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 14,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "woody"
+        ],
+        "ConstKey": 125
+    },
+    {
+        "Name": "Moldling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 13,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "woody"
+        ],
+        "ConstKey": 126
+    },
+    {
+        "Name": "Toxinling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 12,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "woody"
+        ],
+        "ConstKey": 127
+    },
+    {
+        "Name": "Hauntman",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 38,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy",
+            "metalic",
+            "rocky"
+        ],
+        "ConstKey": 128
+    },
+    {
+        "Name": "Phasestep",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 27,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "magical",
+            "gemy"
+        ],
+        "ConstKey": 129
+    },
+    {
+        "Name": "Frightsnare",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 16,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "magical"
+        ],
+        "ConstKey": 130
+    },
+    {
+        "Name": "Bonespawn",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 29,
+        "Body": "Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 131
+    },
+    {
+        "Name": "Dawnling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 15,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy",
+            "metalic",
+            "silky"
+        ],
+        "ConstKey": 132
+    },
+    {
+        "Name": "Infernalmutant",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 16,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 133
+    },
+    {
+        "Name": "Phantomhound",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 39,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "magical",
+            "fleshy"
+        ],
+        "ConstKey": 134
+    },
+    {
+        "Name": "Vaporling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 41,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy"
+        ],
+        "ConstKey": 135
+    },
+    {
+        "Name": "Darkling",
+        "Description": "Not enough is yet known about this creature! \nOne of the servants of Dyvulla",
+        "Level": 27,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 136
+    },
+    {
+        "Name": "Purple Slime",
+        "Description": "Its a purple slime :P",
+        "Level": 8,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 137
+    },
+    {
+        "Name": "Red Slime",
+        "Description": "Its a red slime :P",
+        "Level": 13,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 138
+    },
+    {
+        "Name": "Pink Slime",
+        "Description": "Its a pink slime :P",
+        "Level": 19,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "silky"
+        ],
+        "ConstKey": 139
+    },
+    {
+        "Name": "Sparkly Slime",
+        "Description": "Its a sparkly slime :P",
+        "Level": 25,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 140
+    },
+    {
+        "Name": "Rainbow Slime",
+        "Description": "Its a rainbow slime :P",
+        "Level": 31,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 141
+    },
+    {
+        "Name": "Corpse Piler",
+        "Description": "Enslaved for the purpose of building corpse monsters, in service of Ados",
+        "Level": 45,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy",
+            "skinny"
+        ],
+        "ConstKey": 142
+    },
+    {
+        "Name": "Corpse Eater",
+        "Description": "Enslaved for the purpose of recylcing corpse monsters, in service of Ados",
+        "Level": 50,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "metalic"
+        ],
+        "ConstKey": 143
+    },
+    {
+        "Name": "Dark Night, Telomeres",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 20,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 144
+    },
+    {
+        "Name": "The Apparition",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 20,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "gemy",
+            "slimy"
+        ],
+        "ConstKey": 145
+    },
+    {
+        "Name": "Lone Specter",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 20,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody"
+        ],
+        "ConstKey": 146
+    },
+    {
+        "Name": "Blackbirch",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 21,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "woody",
+            "tooly",
+            "herby"
+        ],
+        "ConstKey": 147
+    },
+    {
+        "Name": "Burnedoak",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 21,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "woody",
+            "tooly",
+            "herby"
+        ],
+        "ConstKey": 148
+    },
+    {
+        "Name": "Ancient Redwood",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 24,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "woody"
+        ],
+        "ConstKey": 149
+    },
+    {
+        "Name": "Marrowblight",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 22,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "rocky",
+            "slimy"
+        ],
+        "ConstKey": 150
+    },
+    {
+        "Name": "Swolbinkia, The Grim Moon Snake",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 22,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "rocky"
+        ],
+        "ConstKey": 151
+    },
+    {
+        "Name": "The Lone Demon",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 22,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 152
+    },
+    {
+        "Name": "Usinira, The Forsaken Body",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 45,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy"
+        ],
+        "ConstKey": 153
+    },
+    {
+        "Name": "Yutlid",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 60,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly",
+            "gemy"
+        ],
+        "ConstKey": 154
+    },
+    {
+        "Name": "Yutlid Dawnspawn",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 31,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly",
+            "gemy",
+            "slimy"
+        ],
+        "ConstKey": 155
+    },
+    {
+        "Name": "Yutlid Doomhound",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 34,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 156
+    },
+    {
+        "Name": "Yutlid Deathtooth",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 40,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "skinny",
+            "slimy"
+        ],
+        "ConstKey": 157
+    },
+    {
+        "Name": "Yutlid Phase'elder",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 75,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "silky",
+            "skinny",
+            "herby"
+        ],
+        "ConstKey": 158
+    },
+    {
+        "Name": "Dawn-curse",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 23,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 159
+    },
+    {
+        "Name": "The Apparition",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 26,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 160
+    },
+    {
+        "Name": "Umbrathing",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 27,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody"
+        ],
+        "ConstKey": 161
+    },
+    {
+        "Name": "Glowvine",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 28,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby"
+        ],
+        "ConstKey": 162
+    },
+    {
+        "Name": "Putrid Wraith",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 28,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "gemy"
+        ],
+        "ConstKey": 163
+    },
+    {
+        "Name": "Agile Jester Rat",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 29,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "gemy"
+        ],
+        "ConstKey": 164
+    },
+    {
+        "Name": "Tanglebrute",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 29,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "rocky"
+        ],
+        "ConstKey": 165
+    },
+    {
+        "Name": "Insidious Gnoll, Barebirch",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 29,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "rocky",
+            "slimy"
+        ],
+        "ConstKey": 166
+    },
+    {
+        "Name": "Fangrobber",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 30,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 167
+    },
+    {
+        "Name": "Riq, Goobone",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 30,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 168
+    },
+    {
+        "Name": "Ruq, Goobone",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 30,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "gemy",
+            "silky"
+        ],
+        "ConstKey": 169
+    },
+    {
+        "Name": "Ruz, Goobone",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 30,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 170
+    },
+    {
+        "Name": "Dolphipus",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 31,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 171
+    },
+    {
+        "Name": "Nervous Daggerfish",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 32,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy",
+            "metalic"
+        ],
+        "ConstKey": 172
+    },
+    {
+        "Name": "Wesix",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 32,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "gemy"
+        ],
+        "ConstKey": 173
+    },
+    {
+        "Name": "Voxon",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 32,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 174
+    },
+    {
+        "Name": "Essence Expunger",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 33,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody"
+        ],
+        "ConstKey": 175
+    },
+    {
+        "Name": "Grazer of Souls",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 33,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "rocky"
+        ],
+        "ConstKey": 176
+    },
+    {
+        "Name": "Grazer of History",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 33,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 177
+    },
+    {
+        "Name": "Common Humming Nightpest",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 34,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "silky",
+            "skinny"
+        ],
+        "ConstKey": 178
+    },
+    {
+        "Name": "Butcher Spider",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 34,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "rocky",
+            "herby"
+        ],
+        "ConstKey": 179
+    },
+    {
+        "Name": "Birchblade, Nightcoat",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 35,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "woody"
+        ],
+        "ConstKey": 180
+    },
+    {
+        "Name": "Birchblade, Flamecoat",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 35,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "slimy",
+            "rocky",
+            "tooly"
+        ],
+        "ConstKey": 181
+    },
+    {
+        "Name": "Ambirosi, Drainer of Perversion",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 35,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 182
+    },
+    {
+        "Name": "Flustered Banshee",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 36,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "fleshy"
+        ],
+        "ConstKey": 183
+    },
+    {
+        "Name": "Stormcloud Disperser",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 36,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "rocky"
+        ],
+        "ConstKey": 184
+    },
+    {
+        "Name": "Titanic Issia",
+        "Description": "This creature measures 10 meters long!! It may swallow you whole..",
+        "Level": 36,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "slimy",
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 185
+    },
+    {
+        "Name": "Evanescent Dawnchild",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 37,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "woody"
+        ],
+        "ConstKey": 186
+    },
+    {
+        "Name": "Rot Jackal",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 37,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly"
+        ],
+        "ConstKey": 187
+    },
+    {
+        "Name": "Anemos",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 37,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 188
+    },
+    {
+        "Name": "Cateli, The Grievous",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 37,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy"
+        ],
+        "ConstKey": 189
+    },
+    {
+        "Name": "Spitesword",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 38,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 190
+    },
+    {
+        "Name": "Grotesque Guardian",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 38,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 191
+    },
+    {
+        "Name": "Shadowbeard, Yutlid",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 39,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly",
+            "gemy"
+        ],
+        "ConstKey": 192
+    },
+    {
+        "Name": "Frothclaw",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 39,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy"
+        ],
+        "ConstKey": 193
+    },
+    {
+        "Name": "Yutlid Bloodface",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 40,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly"
+        ],
+        "ConstKey": 194
+    },
+    {
+        "Name": "Crimson Razorback",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 40,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "slimy",
+            "fleshy"
+        ],
+        "ConstKey": 195
+    },
+    {
+        "Name": "Quiet Vine",
+        "Description": "Most vines tend to be quiet, this one happens to be extra quiet!",
+        "Level": 40,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby"
+        ],
+        "ConstKey": 196
+    },
+    {
+        "Name": "Slagtree",
+        "Description": "A tree like formation of magically infused rocklike byproduct, caused by the Yutlid's",
+        "Level": 85,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "rocky"
+        ],
+        "ConstKey": 197
+    },
+    {
+        "Name": "Yessilese",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 75,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy"
+        ],
+        "ConstKey": 198
+    },
+    {
+        "Name": "Yessilese Duskspawn",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 45,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 199
+    },
+    {
+        "Name": "Yessilese Stormkeeper",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 75,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "gemy"
+        ],
+        "ConstKey": 200
+    },
+    {
+        "Name": "Ironash Yessilese",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 75,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "rocky",
+            "silky"
+        ],
+        "ConstKey": 201
+    },
+    {
+        "Name": "Bucoth, of the Yessilese",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 90,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly"
+        ],
+        "ConstKey": 202
+    },
+    {
+        "Name": "The Answer",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 42,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 203
+    },
+    {
+        "Name": "Collector of Slime",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 42,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 204
+    },
+    {
+        "Name": "Collector of Stone",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 42,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky"
+        ],
+        "ConstKey": 205
+    },
+    {
+        "Name": "REALLY Big Meat Ball",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 42,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 206
+    },
+    {
+        "Name": "Tortured Poplargrove",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 43,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "woody",
+            "herby"
+        ],
+        "ConstKey": 207
+    },
+    {
+        "Name": "The Mournful Maiden",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 43,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "gemy"
+        ],
+        "ConstKey": 208
+    },
+    {
+        "Name": "Chaos Bindling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 43,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "woody",
+            "slimy"
+        ],
+        "ConstKey": 209
+    },
+    {
+        "Name": "Reader of The Chaos-Streams",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 47,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "gemy",
+            "metalic"
+        ],
+        "ConstKey": 210
+    },
+    {
+        "Name": "Rotwings",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 43,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 211
+    },
+    {
+        "Name": "Electric Corpse Snake",
+        "Description": "This horrendous slithering creature moves with electical impulse, forcing its collection of limbs to spasm",
+        "Level": 44,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "skinny"
+        ],
+        "ConstKey": 212
+    },
+    {
+        "Name": "Rotling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 44,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "slimy",
+            "fleshy",
+            "tooly"
+        ],
+        "ConstKey": 213
+    },
+    {
+        "Name": "Corpse Critter",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 44,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 214
+    },
+    {
+        "Name": "Horrible Vision",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 44,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 215
+    },
+    {
+        "Name": "They Are Insane",
+        "Description": "You hear them whisper it...",
+        "Level": 45,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "fleshy"
+        ],
+        "ConstKey": 216
+    },
+    {
+        "Name": "Corpseflayer",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 46,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 217
+    },
+    {
+        "Name": "Phasebent Moaner",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 46,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly"
+        ],
+        "ConstKey": 218
+    },
+    {
+        "Name": "Tormented Animax",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 46,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "woody",
+            "metalic"
+        ],
+        "ConstKey": 219
+    },
+    {
+        "Name": "Thistle Giant",
+        "Description": "A curious creature, with a bad habit of putting things it finds fascinating into its mouth.. Similar to a child",
+        "Level": 46,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "rocky"
+        ],
+        "ConstKey": 220
+    },
+    {
+        "Name": "Two-Tailed Doppelganger",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 47,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly"
+        ],
+        "ConstKey": 221
+    },
+    {
+        "Name": "Ashen Vaporling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 47,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "rocky"
+        ],
+        "ConstKey": 222
+    },
+    {
+        "Name": "Deathlord Underling",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 47,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 223
+    },
+    {
+        "Name": "Deathlord Doompaws",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 48,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "fleshy"
+        ],
+        "ConstKey": 224
+    },
+    {
+        "Name": "Deathlord, Ron",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 85,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "gemy"
+        ],
+        "ConstKey": 225
+    },
+    {
+        "Name": "Phasemetal Meltjaw",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 48,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "metalic"
+        ],
+        "ConstKey": 226
+    },
+    {
+        "Name": "Lanky Embercrest",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 48,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 227
+    },
+    {
+        "Name": "Bronzebacked Collapser",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 48,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 228
+    },
+    {
+        "Name": "Oppressor of Souls",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 49,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "herby"
+        ],
+        "ConstKey": 229
+    },
+    {
+        "Name": "Cave Kobold",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 49,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 230
+    },
+    {
+        "Name": "Harlpei, Frost Scale",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 49,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 231
+    },
+    {
+        "Name": "Blood Satyr",
+        "Description": "A twisted Satyr belonging to one of many roaming bands of blood drinkers",
+        "Level": 49,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "woody"
+        ],
+        "ConstKey": 232
+    },
+    {
+        "Name": "Western Hellhound",
+        "Description": "The western Hellhound is descended from the Northern Hellhound, it developed a sense of destructive impulse during its migration, tending to travel alone and fight others of its kind on sight",
+        "Level": 50,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 233
+    },
+    {
+        "Name": "Northern Hellhound",
+        "Description": "The Northern Hellhound is somewhat small, travelling in packs, it exibits social hierarchy behavior",
+        "Level": 50,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 234
+    },
+    {
+        "Name": "Filthy Miscreation",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 50,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "silky",
+            "gemy",
+            "herby"
+        ],
+        "ConstKey": 235
+    },
+    {
+        "Name": "Rabid Mountain Frog",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 51,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "ConstKey": 236
+    },
+    {
+        "Name": "Disfigured Corpse Blob",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 51,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 237
+    },
+    {
+        "Name": "Dreamling",
+        "Description": "Thus lay entranced before you, one of those caught in the dreaming..",
+        "Level": 66,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 238
+    },
+    {
+        "Name": "Phasemetalthing",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 51,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 239
+    },
+    {
+        "Name": "Phasescreamer",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 56,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "skinny"
+        ],
+        "ConstKey": 240
+    },
+    {
+        "Name": "Tusked Assassin Spider",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 51,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 241
+    },
+    {
+        "Name": "Badbog, Phase-Alchemist",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 52,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly",
+            "gemy"
+        ],
+        "ConstKey": 242
+    },
+    {
+        "Name": "Phase-Essence Factory Guard",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 52,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 243
+    },
+    {
+        "Name": "Phase-Essence Factory Worker",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 52,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "metalic",
+            "woody",
+            "magical"
+        ],
+        "ConstKey": 244
+    },
+    {
+        "Name": "Phase-Essence Factory Core",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 52,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 245
+    },
+    {
+        "Name": "Forsaken Forgesmith",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 53,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "skinny",
+            "slimy"
+        ],
+        "ConstKey": 246
+    },
+    {
+        "Name": "Forsaken Forgesmith Allfather",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 98,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "gemy"
+        ],
+        "ConstKey": 247
+    },
+    {
+        "Name": "River Dragon",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 53,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "skinny"
+        ],
+        "ConstKey": 248
+    },
+    {
+        "Name": "Granite Kobold",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 53,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "herby",
+            "rocky"
+        ],
+        "ConstKey": 249
+    },
+    {
+        "Name": "Sapphire Lump",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 53,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "gemy"
+        ],
+        "ConstKey": 250
+    },
+    {
+        "Name": "Bitter Ooze",
+        "Description": "You probably shouldnt think too long on the name..",
+        "Level": 54,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 251
+    },
+    {
+        "Name": "Chaoscrackle",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 54,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "woody"
+        ],
+        "ConstKey": 252
+    },
+    {
+        "Name": "Ancient Rat",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 54,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "gemy"
+        ],
+        "ConstKey": 253
+    },
+    {
+        "Name": "Hairy Helltree",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 54,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly",
+            "woody"
+        ],
+        "ConstKey": 254
+    },
+    {
+        "Name": "Daywalker",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 55,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 255
+    },
+    {
+        "Name": "Rusted Phasemetal Terrors",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 55,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly"
+        ],
+        "ConstKey": 256
+    },
+    {
+        "Name": "Pigmy Collapser",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 55,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "gemy"
+        ],
+        "ConstKey": 257
+    },
+    {
+        "Name": "Plaguerunner",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 55,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 258
+    },
+    {
+        "Name": "The Hungry",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 56,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "slimy",
+            "skinny",
+            "metalic"
+        ],
+        "ConstKey": 259
+    },
+    {
+        "Name": "Greater Change Sprite",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 56,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "skinny"
+        ],
+        "ConstKey": 260
+    },
+    {
+        "Name": "Rotten Phasebeast",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 56,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 261
+    },
+    {
+        "Name": "Haunting Deformity",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 57,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "skinny"
+        ],
+        "ConstKey": 262
+    },
+    {
+        "Name": "Scarred Phantom",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 57,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "gemy",
+            "silky"
+        ],
+        "ConstKey": 263
+    },
+    {
+        "Name": "Lone Auraboy",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 57,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "woody"
+        ],
+        "ConstKey": 264
+    },
+    {
+        "Name": "Moaning Wispmother",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 57,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny",
+            "slimy"
+        ],
+        "ConstKey": 265
+    },
+    {
+        "Name": "Gatekeeper",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 58,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "metalic",
+            "gemy"
+        ],
+        "ConstKey": 266
+    },
+    {
+        "Name": "Scalekeeper",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 58,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 267
+    },
+    {
+        "Name": "Yreltora, The Gavel",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 62,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy",
+            "magical"
+        ],
+        "ConstKey": 268
+    },
+    {
+        "Name": "Dread Maiden",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 58,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny",
+            "metalic"
+        ],
+        "ConstKey": 269
+    },
+    {
+        "Name": "Primitive Army Footman",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 58,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical"
+        ],
+        "ConstKey": 270
+    },
+    {
+        "Name": "Primitive Army Knight",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 59,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "gemy"
+        ],
+        "ConstKey": 271
+    },
+    {
+        "Name": "Primitive Army Mage",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 59,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "gemy"
+        ],
+        "ConstKey": 272
+    },
+    {
+        "Name": "Shadowtendril",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 59,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "rocky"
+        ],
+        "ConstKey": 273
+    },
+    {
+        "Name": "Feral Troglodyte",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 59,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "fleshy"
+        ],
+        "ConstKey": 274
+    },
+    {
+        "Name": "Demon, Vol'gon",
+        "Description": "You could have let them lie..",
+        "Level": 60,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy"
+        ],
+        "ConstKey": 275
+    },
+    {
+        "Name": "Demon, Zrol'rak",
+        "Description": "You had to make them die..",
+        "Level": 70,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "metalic"
+        ],
+        "ConstKey": 276
+    },
+    {
+        "Name": "Demon, Movorg",
+        "Description": "Will this silence the warnings?!",
+        "Level": 80,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "silky"
+        ],
+        "ConstKey": 277
+    },
+    {
+        "Name": "Demon, Orinevera",
+        "Description": "Will this stifle their cries??",
+        "Level": 90,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "skinny",
+            "metalic"
+        ],
+        "ConstKey": 278
+    },
+    {
+        "Name": "Demon, Arkhen",
+        "Description": "You sought, and fought.. Now crumble and cry..",
+        "Level": 100,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy",
+            "herby"
+        ],
+        "ConstKey": 279
+    },
+    {
+        "Name": "Forsaken Soul",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 60,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy"
+        ],
+        "ConstKey": 280
+    },
+    {
+        "Name": "Elusive Phantomspawn",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 60,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "fleshy"
+        ],
+        "ConstKey": 281
+    },
+    {
+        "Name": "Dead Herder",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 61,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "rocky",
+            "metalic"
+        ],
+        "ConstKey": 282
+    },
+    {
+        "Name": "Two-Tailed Frostwing",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 61,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 283
+    },
+    {
+        "Name": "Moon-River Deathlord",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 61,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "woody"
+        ],
+        "ConstKey": 284
+    },
+    {
+        "Name": "Isolated Nymph",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 61,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "woody",
+            "metalic"
+        ],
+        "ConstKey": 285
+    },
+    {
+        "Name": "Bearded Gnome",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 62,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "fleshy",
+            "magical"
+        ],
+        "ConstKey": 286
+    },
+    {
+        "Name": "Killer Razor Beast",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 62,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "magical",
+            "rocky"
+        ],
+        "ConstKey": 287
+    },
+    {
+        "Name": "Fireborne Razor Drake",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 62,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy"
+        ],
+        "ConstKey": 288
+    },
+    {
+        "Name": "Tomb Bull",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 63,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "gemy"
+        ],
+        "ConstKey": 289
+    },
+    {
+        "Name": "Aquatic Voidbellow",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 63,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "gemy",
+            "magical"
+        ],
+        "ConstKey": 290
+    },
+    {
+        "Name": "Gunkguard",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 63,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "woody",
+            "magical"
+        ],
+        "ConstKey": 291
+    },
+    {
+        "Name": "Ironshoulder Berserker",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 63,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "fleshy",
+            "slimy"
+        ],
+        "ConstKey": 292
+    },
+    {
+        "Name": "Gray Leviathan",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 64,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "rocky"
+        ],
+        "ConstKey": 293
+    },
+    {
+        "Name": "Sunglow Succubi",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 64,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "gemy",
+            "slimy"
+        ],
+        "ConstKey": 294
+    },
+    {
+        "Name": "Hungry Bowelsoul",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 64,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "skinny",
+            "herby"
+        ],
+        "ConstKey": 295
+    },
+    {
+        "Name": "Cobalt Bone Owl",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 64,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic",
+            "fleshy"
+        ],
+        "ConstKey": 296
+    },
+    {
+        "Name": "Infamous Bronze Gnoll",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 65,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "herby",
+            "skinny"
+        ],
+        "ConstKey": 297
+    },
+    {
+        "Name": "Forsaken Time Carver",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 65,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "metalic"
+        ],
+        "ConstKey": 298
+    },
+    {
+        "Name": "Silent Butcher",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 65,
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "None",
+        "DropTypes": [
+            "herby"
+        ],
+        "ConstKey": 299
+    },
+    {
+        "Name": "Terror Bunyip",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 65,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy"
+        ],
+        "ConstKey": 300
+    },
+    {
+        "Name": "HASARANGA",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 65,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "silky",
+            "rocky",
+            "magical"
+        ],
+        "ConstKey": 301
+    },
+    {
+        "Name": "Hateful Eyes",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 66,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy"
+        ],
+        "ConstKey": 302
+    },
+    {
+        "Name": "Eastern Goblin",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 66,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "skinny"
+        ],
+        "ConstKey": 303
+    },
+    {
+        "Name": "Eastern Goblin Stockmaster",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 67,
+        "Body": "Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "slimy",
+            "woody",
+            "tooly",
+            "skinny"
+        ],
+        "ConstKey": 304
+    },
+    {
+        "Name": "Eastern Goblin Shaman",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 68,
+        "Body": "Magical Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "skinny",
+            "magical"
+        ],
+        "ConstKey": 305
+    },
+    {
+        "Name": "Eastern Goblin Brute",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 69,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy",
+            "silky",
+            "skinny"
+        ],
+        "ConstKey": 306
+    },
+    {
+        "Name": "Eastern Goblin King",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 70,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "fleshy",
+            "slimy",
+            "skinny"
+        ],
+        "ConstKey": 307
+    },
+    {
+        "Name": "Hate Engine",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 71,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "tooly",
+            "metalic"
+        ],
+        "ConstKey": 308
+    },
+    {
+        "Name": "Tower Fuser",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 72,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "skinny",
+            "slimy"
+        ],
+        "ConstKey": 309
+    },
+    {
+        "Name": "Enraged Icespawn",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 73,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "fleshy",
+            "metalic"
+        ],
+        "ConstKey": 310
+    },
+    {
+        "Name": "Spiked Striker",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 74,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "rocky"
+        ],
+        "ConstKey": 311
+    },
+    {
+        "Name": "COPY",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 1000,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            " "
+        ],
+        "ConstKey": 100000000
+    },
+    {
+        "Name": "NULL",
+        "Description": "You shouldnt be here, I think its time you left >:)",
+        "Level": 100,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "slimy",
+            "rocky",
+            "woody",
+            "skinny",
+            "herby",
+            "gemy",
+            "magical",
+            "metalic",
+            "fleshy",
+            "silky"
+        ],
+        "ConstKey": 0
     }
 ]
