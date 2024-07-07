@@ -161,25 +161,28 @@ const dmgOutputRange = (level) => {
  * Contains methods for all status effects being applied and removed.
  */
 class EnemyFab {
-    constructor(lvl, fabFlesh, fabArmor, fabShield) {
+    constructor(eFab) {
+        const {Level, Body, Armor, Shield, Name, Description} = eFab;
+        this.name = Name;
+        this.description = Description;
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
         //const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
-        this.level = (lvl) ? lvl : Math.floor(Math.random() * (100 - 1 + 1) + 1);
+        this.level = (Level) ? Level : Math.floor(Math.random() * (100 - 1 + 1) + 1);
 
         this.flesh = {
-            Type: (fabFlesh) ? fabFlesh : randArrPos(fleshTypes)
+            Type: (Body) ? Body : randArrPos(fleshTypes)
         };
         this.flesh.HP = fleshHPRange(this.level, this.flesh.Type);
         this.maxFleshHP = this.flesh.HP;
         
         this.armor = {
-            Type: (fabArmor) ? fabArmor : randArrPos(armorTypes)
+            Type: (Armor) ? Armor : randArrPos(armorTypes)
         };
         this.armor.HP = (this.armor.Type === 'None') ? 0 : armorHPRange(this.level, this.armor.Type);
         this.maxArmorHP = this.armor.HP;
 
         this.shield = {
-            Type: (fabShield) ? fabShield : randArrPos(shieldTypes)
+            Type: (Shield) ? Shield : randArrPos(shieldTypes)
         };
         this.shield.HP = (this.shield.Type === 'None') ? 0 : shieldHPRange(this.level, this.shield.Type);
         this.maxShieldHP = this.shield.HP;
