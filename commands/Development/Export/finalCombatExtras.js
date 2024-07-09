@@ -1,3 +1,4 @@
+const { Collection } = require('discord.js');
 const { CombatInstance } = require('./Classes/CombatLoader');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
@@ -9,6 +10,13 @@ const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
+/**
+ * This function searches for an existing combatInstance for the given id,
+ * it creates one if not found.
+ * @param {string} id Discord User ID
+ * @param {Collection} combatInstance combat instance collection
+ * @returns {CombatInstance} Player Instance Object
+ */
 const loadPlayer = (id, combatInstance) => {
     if (combatInstance.has(id)) return combatInstance.get(id);
     let newInstance = new CombatInstance(id);
@@ -34,6 +42,15 @@ const loadRandomEnemy = (lvl, enemies) => {
     return newEnemy;
 };
 
+/**
+ * This function locates a given enemy if provided, if not it selects one from a list
+ * of level matching key,value pairs, and then randomly selects from that list
+ * creating a new enemy. 
+ * @param {number} pLvl Player Level
+ * @param {Collection} enemies enemy level/id collection
+ * @param {number} eID Defaults to false if not provided
+ * @returns {EnemyFab}
+ */
 const loadEnemy = (pLvl, enemies, eID=false) => {
     let theEnemy;
     if (eID) theEnemy = loadPickedEnemy(eID);

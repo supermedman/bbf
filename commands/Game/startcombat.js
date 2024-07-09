@@ -137,7 +137,7 @@ const enemyExtraGen = (eFab) => {
     }
 
     let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
-    let XpMin = XpMax - Math.floor(XpMax / 5.2);
+    let XpMin = XpMax - Math.floor(XpMax * 0.25);
 
     // This needs balancing, damage needs to scale up/down off of avg by 50% rough outline
     const avgDmgRef = eFab.AvgDmg;

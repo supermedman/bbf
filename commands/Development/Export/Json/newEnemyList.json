@@ -9,6 +9,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": true,
         "ConstKey": 1
     },
     {
@@ -23,6 +25,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": true,
         "ConstKey": 2
     },
     {
@@ -35,6 +39,8 @@
         "DropTypes": [
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 3
     },
     {
@@ -47,6 +53,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 4
     },
     {
@@ -59,6 +67,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 5
     },
     {
@@ -71,6 +81,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 6
     },
     {
@@ -85,6 +97,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 7
     },
     {
@@ -98,6 +112,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 8
     },
     {
@@ -110,6 +126,8 @@
         "DropTypes": [
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 9
     },
     {
@@ -124,6 +142,8 @@
             "metalic",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 10
     },
     {
@@ -137,6 +157,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 11
     },
     {
@@ -151,6 +173,8 @@
             "rocky",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 12
     },
     {
@@ -163,6 +187,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 13
     },
     {
@@ -175,6 +201,8 @@
         "DropTypes": [
             "rocky"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": true,
         "ConstKey": 14
     },
     {
@@ -187,6 +215,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 15
     },
     {
@@ -200,6 +230,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 16
     },
     {
@@ -213,6 +245,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 17
     },
     {
@@ -226,6 +260,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 18
     },
     {
@@ -239,6 +275,8 @@
             "fleshy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 19
     },
     {
@@ -251,6 +289,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 20
     },
     {
@@ -263,6 +303,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 21
     },
     {
@@ -276,6 +318,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 22
     },
     {
@@ -288,6 +332,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 23
     },
     {
@@ -302,6 +348,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 24
     },
     {
@@ -314,6 +362,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 25
     },
     {
@@ -327,6 +377,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 26
     },
     {
@@ -339,6 +391,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 27
     },
     {
@@ -352,6 +406,8 @@
             "magical",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 28
     },
     {
@@ -365,6 +421,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 29
     },
     {
@@ -377,6 +435,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 30
     },
     {
@@ -390,6 +450,8 @@
             "woody",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 31
     },
     {
@@ -403,6 +465,8 @@
             "fleshy",
             "woody"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 32
     },
     {
@@ -416,6 +480,8 @@
             "woody",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 33
     },
     {
@@ -430,6 +496,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 34
     },
     {
@@ -443,6 +511,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 35
     },
     {
@@ -456,6 +526,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 36
     },
     {
@@ -469,6 +541,8 @@
             "magical",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 37
     },
     {
@@ -484,6 +558,8 @@
             "herby",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 38
     },
     {
@@ -497,6 +573,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 39
     },
     {
@@ -510,6 +588,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": true,
         "ConstKey": 40
     },
     {
@@ -522,6 +602,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 41
     },
     {
@@ -535,6 +617,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 42
     },
     {
@@ -548,6 +632,8 @@
             "fleshy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 43
     },
     {
@@ -561,6 +647,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 44
     },
     {
@@ -573,6 +661,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 45
     },
     {
@@ -586,6 +676,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 46
     },
     {
@@ -600,6 +692,8 @@
             "skinny",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 47
     },
     {
@@ -615,6 +709,8 @@
             "metalic",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 48
     },
     {
@@ -628,6 +724,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 49
     },
     {
@@ -641,6 +739,8 @@
             "magical",
             "metalic"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": true,
         "ConstKey": 50
     },
     {
@@ -656,6 +756,8 @@
             "metalic",
             "herby"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 51
     },
     {
@@ -669,6 +771,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 52
     },
     {
@@ -681,6 +785,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 53
     },
     {
@@ -693,6 +799,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 54
     },
     {
@@ -707,6 +815,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 55
     },
     {
@@ -720,6 +830,8 @@
             "magical",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 56
     },
     {
@@ -733,6 +845,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 57
     },
     {
@@ -747,6 +861,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": true,
         "ConstKey": 58
     },
     {
@@ -760,6 +876,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 59
     },
     {
@@ -774,6 +892,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 60
     },
     {
@@ -786,6 +906,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 61
     },
     {
@@ -799,6 +921,8 @@
             "fleshy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 62
     },
     {
@@ -812,6 +936,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 63
     },
     {
@@ -825,6 +951,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 64
     },
     {
@@ -840,6 +968,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 65
     },
     {
@@ -852,6 +982,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 66
     },
     {
@@ -865,6 +997,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 67
     },
     {
@@ -877,6 +1011,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 68
     },
     {
@@ -889,6 +1025,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 69
     },
     {
@@ -901,6 +1039,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 70
     },
     {
@@ -915,6 +1055,8 @@
             "magical",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 71
     },
     {
@@ -927,6 +1069,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 72
     },
     {
@@ -939,6 +1083,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 73
     },
     {
@@ -953,6 +1099,8 @@
             "herby",
             "magical"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 74
     },
     {
@@ -967,6 +1115,8 @@
             "woody",
             "herby"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 75
     },
     {
@@ -981,6 +1131,8 @@
             "rocky",
             "metalic"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 76
     },
     {
@@ -993,6 +1145,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 77
     },
     {
@@ -1006,6 +1160,8 @@
             "fleshy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 78
     },
     {
@@ -1018,6 +1174,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 79
     },
     {
@@ -1031,6 +1189,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 80
     },
     {
@@ -1044,6 +1204,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 81
     },
     {
@@ -1056,6 +1218,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 82
     },
     {
@@ -1069,6 +1233,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 83
     },
     {
@@ -1083,6 +1249,8 @@
             "rocky",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 84
     },
     {
@@ -1096,6 +1264,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 85
     },
     {
@@ -1108,6 +1278,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "Frost",
+        "UniqueItem": false,
         "ConstKey": 86
     },
     {
@@ -1121,6 +1293,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 87
     },
     {
@@ -1134,6 +1308,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 88
     },
     {
@@ -1148,6 +1324,8 @@
             "metalic",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 89
     },
     {
@@ -1160,6 +1338,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 90
     },
     {
@@ -1174,6 +1354,8 @@
             "gemy",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 91
     },
     {
@@ -1187,6 +1369,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 92
     },
     {
@@ -1199,6 +1383,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 93
     },
     {
@@ -1212,6 +1398,8 @@
             "magical",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 94
     },
     {
@@ -1224,6 +1412,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 95
     },
     {
@@ -1239,6 +1429,8 @@
             "herby",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 96
     },
     {
@@ -1252,6 +1444,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 97
     },
     {
@@ -1267,6 +1461,8 @@
             "skinny",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 98
     },
     {
@@ -1282,6 +1478,8 @@
             "herby",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 99
     },
     {
@@ -1295,6 +1493,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "Null",
+        "UniqueItem": false,
         "ConstKey": 100
     },
     {
@@ -1309,6 +1509,8 @@
             "slimy",
             "silky"
         ],
+        "UniqueType": "Null",
+        "UniqueItem": false,
         "ConstKey": 101
     },
     {
@@ -1323,6 +1525,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 102
     },
     {
@@ -1338,6 +1542,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 103
     },
     {
@@ -1354,6 +1560,8 @@
             "metalic",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 104
     },
     {
@@ -1369,6 +1577,8 @@
             "metalic",
             "slimy"
         ],
+        "UniqueType": "Null",
+        "UniqueItem": false,
         "ConstKey": 105
     },
     {
@@ -1384,6 +1594,8 @@
             "skinny",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 106
     },
     {
@@ -1398,6 +1610,8 @@
             "herby",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 107
     },
     {
@@ -1412,6 +1626,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 108
     },
     {
@@ -1427,6 +1643,8 @@
             "slimy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 109
     },
     {
@@ -1442,6 +1660,8 @@
             "gemy",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 110
     },
     {
@@ -1457,6 +1677,8 @@
             "herby",
             "silky"
         ],
+        "UniqueType": "Null",
+        "UniqueItem": false,
         "ConstKey": 111
     },
     {
@@ -1471,6 +1693,8 @@
             "metalic",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 112
     },
     {
@@ -1483,6 +1707,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 113
     },
     {
@@ -1497,6 +1723,8 @@
             "herby",
             "woody"
         ],
+        "UniqueType": "Blunt",
+        "UniqueItem": false,
         "ConstKey": 114
     },
     {
@@ -1510,6 +1738,8 @@
             "herby",
             "magical"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 115
     },
     {
@@ -1524,6 +1754,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 116
     },
     {
@@ -1538,6 +1770,8 @@
             "rocky",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 117
     },
     {
@@ -1551,6 +1785,8 @@
             "slimy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 118
     },
     {
@@ -1565,6 +1801,8 @@
             "magical",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 119
     },
     {
@@ -1578,6 +1816,8 @@
             "rocky",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 120
     },
     {
@@ -1592,6 +1832,8 @@
             "metalic",
             "magical"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 121
     },
     {
@@ -1608,6 +1850,8 @@
             "magical",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 122
     },
     {
@@ -1620,6 +1864,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 123
     },
     {
@@ -1633,6 +1879,8 @@
             "magical",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 124
     },
     {
@@ -1646,6 +1894,8 @@
             "metalic",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 125
     },
     {
@@ -1659,6 +1909,8 @@
             "herby",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 126
     },
     {
@@ -1672,6 +1924,8 @@
             "herby",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 127
     },
     {
@@ -1687,6 +1941,8 @@
             "metalic",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 128
     },
     {
@@ -1701,6 +1957,8 @@
             "magical",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 129
     },
     {
@@ -1714,6 +1972,8 @@
             "slimy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 130
     },
     {
@@ -1728,6 +1988,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 131
     },
     {
@@ -1743,6 +2005,8 @@
             "metalic",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 132
     },
     {
@@ -1757,6 +2021,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 133
     },
     {
@@ -1771,6 +2037,8 @@
             "magical",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 134
     },
     {
@@ -1784,6 +2052,8 @@
             "magical",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 135
     },
     {
@@ -1797,6 +2067,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 136
     },
     {
@@ -1809,6 +2081,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 137
     },
     {
@@ -1821,6 +2095,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 138
     },
     {
@@ -1834,6 +2110,8 @@
             "slimy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 139
     },
     {
@@ -1846,6 +2124,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 140
     },
     {
@@ -1858,6 +2138,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 141
     },
     {
@@ -1871,6 +2153,8 @@
             "fleshy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 142
     },
     {
@@ -1884,6 +2168,8 @@
             "magical",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 143
     },
     {
@@ -1896,6 +2182,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 144
     },
     {
@@ -1910,6 +2198,8 @@
             "gemy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 145
     },
     {
@@ -1923,6 +2213,8 @@
             "magical",
             "woody"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 146
     },
     {
@@ -1937,6 +2229,8 @@
             "tooly",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 147
     },
     {
@@ -1951,6 +2245,8 @@
             "tooly",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 148
     },
     {
@@ -1964,6 +2260,8 @@
             "herby",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 149
     },
     {
@@ -1978,6 +2276,8 @@
             "rocky",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 150
     },
     {
@@ -1991,6 +2291,8 @@
             "silky",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 151
     },
     {
@@ -2004,6 +2306,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 152
     },
     {
@@ -2017,6 +2321,8 @@
             "magical",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 153
     },
     {
@@ -2030,6 +2336,8 @@
             "tooly",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 154
     },
     {
@@ -2044,6 +2352,8 @@
             "gemy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 155
     },
     {
@@ -2056,6 +2366,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 156
     },
     {
@@ -2070,6 +2382,8 @@
             "skinny",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 157
     },
     {
@@ -2084,6 +2398,8 @@
             "skinny",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 158
     },
     {
@@ -2096,6 +2412,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 159
     },
     {
@@ -2108,6 +2426,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 160
     },
     {
@@ -2121,6 +2441,8 @@
             "magical",
             "woody"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 161
     },
     {
@@ -2133,6 +2455,8 @@
         "DropTypes": [
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 162
     },
     {
@@ -2146,6 +2470,8 @@
             "tooly",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 163
     },
     {
@@ -2159,6 +2485,8 @@
             "silky",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 164
     },
     {
@@ -2172,6 +2500,8 @@
             "slimy",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 165
     },
     {
@@ -2186,6 +2516,8 @@
             "rocky",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 166
     },
     {
@@ -2198,6 +2530,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 167
     },
     {
@@ -2210,6 +2544,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 168
     },
     {
@@ -2224,6 +2560,8 @@
             "gemy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 169
     },
     {
@@ -2236,6 +2574,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 170
     },
     {
@@ -2250,6 +2590,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 171
     },
     {
@@ -2264,6 +2606,8 @@
             "gemy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 172
     },
     {
@@ -2277,6 +2621,8 @@
             "tooly",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 173
     },
     {
@@ -2289,6 +2635,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 174
     },
     {
@@ -2302,6 +2650,8 @@
             "magical",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 175
     },
     {
@@ -2315,6 +2665,8 @@
             "metalic",
             "rocky"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 176
     },
     {
@@ -2327,6 +2679,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 177
     },
     {
@@ -2340,6 +2694,8 @@
             "silky",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 178
     },
     {
@@ -2354,6 +2710,8 @@
             "rocky",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 179
     },
     {
@@ -2367,6 +2725,8 @@
             "slimy",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 180
     },
     {
@@ -2381,6 +2741,8 @@
             "rocky",
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 181
     },
     {
@@ -2395,6 +2757,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 182
     },
     {
@@ -2408,6 +2772,8 @@
             "herby",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 183
     },
     {
@@ -2421,6 +2787,8 @@
             "herby",
             "rocky"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 184
     },
     {
@@ -2435,6 +2803,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 185
     },
     {
@@ -2448,6 +2818,8 @@
             "herby",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 186
     },
     {
@@ -2460,6 +2832,8 @@
         "DropTypes": [
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 187
     },
     {
@@ -2474,6 +2848,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 188
     },
     {
@@ -2487,6 +2863,8 @@
             "magical",
             "gemy"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 189
     },
     {
@@ -2499,6 +2877,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 190
     },
     {
@@ -2513,6 +2893,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 191
     },
     {
@@ -2526,6 +2908,8 @@
             "tooly",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 192
     },
     {
@@ -2539,6 +2923,8 @@
             "magical",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 193
     },
     {
@@ -2551,6 +2937,8 @@
         "DropTypes": [
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 194
     },
     {
@@ -2564,6 +2952,8 @@
             "slimy",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 195
     },
     {
@@ -2576,6 +2966,8 @@
         "DropTypes": [
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 196
     },
     {
@@ -2589,6 +2981,8 @@
             "magical",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 197
     },
     {
@@ -2602,6 +2996,8 @@
             "tooly",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 198
     },
     {
@@ -2614,6 +3010,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 199
     },
     {
@@ -2627,6 +3025,8 @@
             "metalic",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 200
     },
     {
@@ -2641,6 +3041,8 @@
             "rocky",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 201
     },
     {
@@ -2653,6 +3055,8 @@
         "DropTypes": [
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 202
     },
     {
@@ -2667,6 +3071,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 203
     },
     {
@@ -2679,6 +3085,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 204
     },
     {
@@ -2691,6 +3099,8 @@
         "DropTypes": [
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 205
     },
     {
@@ -2705,6 +3115,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 206
     },
     {
@@ -2719,6 +3131,8 @@
             "woody",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 207
     },
     {
@@ -2732,6 +3146,8 @@
             "silky",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 208
     },
     {
@@ -2746,6 +3162,8 @@
             "woody",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 209
     },
     {
@@ -2760,6 +3178,8 @@
             "gemy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 210
     },
     {
@@ -2772,6 +3192,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 211
     },
     {
@@ -2785,6 +3207,8 @@
             "slimy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 212
     },
     {
@@ -2799,6 +3223,8 @@
             "fleshy",
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 213
     },
     {
@@ -2811,6 +3237,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 214
     },
     {
@@ -2823,6 +3251,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 215
     },
     {
@@ -2836,6 +3266,8 @@
             "silky",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 216
     },
     {
@@ -2848,6 +3280,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 217
     },
     {
@@ -2860,6 +3294,8 @@
         "DropTypes": [
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 218
     },
     {
@@ -2874,6 +3310,8 @@
             "woody",
             "metalic"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 219
     },
     {
@@ -2887,6 +3325,8 @@
             "herby",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 220
     },
     {
@@ -2899,6 +3339,8 @@
         "DropTypes": [
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 221
     },
     {
@@ -2912,6 +3354,8 @@
             "tooly",
             "rocky"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 222
     },
     {
@@ -2926,6 +3370,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 223
     },
     {
@@ -2939,6 +3385,8 @@
             "slimy",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 224
     },
     {
@@ -2952,6 +3400,8 @@
             "tooly",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 225
     },
     {
@@ -2966,6 +3416,8 @@
             "woody",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 226
     },
     {
@@ -2978,6 +3430,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "Magic",
+        "UniqueItem": false,
         "ConstKey": 227
     },
     {
@@ -2990,6 +3444,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 228
     },
     {
@@ -3002,6 +3458,8 @@
         "DropTypes": [
             "herby"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 229
     },
     {
@@ -3015,6 +3473,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 230
     },
     {
@@ -3027,6 +3487,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 231
     },
     {
@@ -3040,6 +3502,8 @@
             "slimy",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 232
     },
     {
@@ -3052,6 +3516,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 233
     },
     {
@@ -3066,6 +3532,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 234
     },
     {
@@ -3080,6 +3548,8 @@
             "gemy",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 235
     },
     {
@@ -3092,6 +3562,8 @@
         "DropTypes": [
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 236
     },
     {
@@ -3106,6 +3578,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 237
     },
     {
@@ -3118,6 +3592,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 238
     },
     {
@@ -3132,6 +3608,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 239
     },
     {
@@ -3145,6 +3623,8 @@
             "metalic",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 240
     },
     {
@@ -3157,6 +3637,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 241
     },
     {
@@ -3170,6 +3652,8 @@
             "tooly",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 242
     },
     {
@@ -3182,6 +3666,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 243
     },
     {
@@ -3196,6 +3682,8 @@
             "woody",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 244
     },
     {
@@ -3208,6 +3696,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 245
     },
     {
@@ -3222,6 +3712,8 @@
             "skinny",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 246
     },
     {
@@ -3235,6 +3727,8 @@
             "metalic",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 247
     },
     {
@@ -3248,6 +3742,8 @@
             "silky",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 248
     },
     {
@@ -3261,6 +3757,8 @@
             "herby",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 249
     },
     {
@@ -3273,6 +3771,8 @@
         "DropTypes": [
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 250
     },
     {
@@ -3285,6 +3785,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 251
     },
     {
@@ -3298,6 +3800,8 @@
             "slimy",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 252
     },
     {
@@ -3311,6 +3815,8 @@
             "silky",
             "gemy"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 253
     },
     {
@@ -3324,6 +3830,8 @@
             "tooly",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 254
     },
     {
@@ -3337,6 +3845,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 255
     },
     {
@@ -3349,6 +3859,8 @@
         "DropTypes": [
             "tooly"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 256
     },
     {
@@ -3362,6 +3874,8 @@
             "silky",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 257
     },
     {
@@ -3374,6 +3888,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 258
     },
     {
@@ -3388,6 +3904,8 @@
             "skinny",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 259
     },
     {
@@ -3401,6 +3919,8 @@
             "herby",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 260
     },
     {
@@ -3415,6 +3935,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 261
     },
     {
@@ -3428,6 +3950,8 @@
             "tooly",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 262
     },
     {
@@ -3442,6 +3966,8 @@
             "gemy",
             "silky"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 263
     },
     {
@@ -3455,6 +3981,8 @@
             "slimy",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 264
     },
     {
@@ -3469,6 +3997,8 @@
             "skinny",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 265
     },
     {
@@ -3482,6 +4012,8 @@
             "metalic",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 266
     },
     {
@@ -3496,6 +4028,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 267
     },
     {
@@ -3510,6 +4044,8 @@
             "fleshy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 268
     },
     {
@@ -3524,6 +4060,8 @@
             "skinny",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 269
     },
     {
@@ -3536,6 +4074,8 @@
         "DropTypes": [
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 270
     },
     {
@@ -3549,6 +4089,8 @@
             "herby",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 271
     },
     {
@@ -3562,6 +4104,8 @@
             "silky",
             "gemy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 272
     },
     {
@@ -3575,6 +4119,8 @@
             "metalic",
             "rocky"
         ],
+        "UniqueType": "Dark",
+        "UniqueItem": false,
         "ConstKey": 273
     },
     {
@@ -3588,6 +4134,8 @@
             "herby",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 274
     },
     {
@@ -3601,6 +4149,8 @@
             "tooly",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 275
     },
     {
@@ -3615,6 +4165,8 @@
             "woody",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 276
     },
     {
@@ -3627,6 +4179,8 @@
         "DropTypes": [
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 277
     },
     {
@@ -3641,6 +4195,8 @@
             "skinny",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 278
     },
     {
@@ -3655,6 +4211,8 @@
             "fleshy",
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 279
     },
     {
@@ -3668,6 +4226,8 @@
             "magical",
             "fleshy"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 280
     },
     {
@@ -3681,6 +4241,8 @@
             "slimy",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 281
     },
     {
@@ -3695,6 +4257,8 @@
             "rocky",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 282
     },
     {
@@ -3707,6 +4271,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 283
     },
     {
@@ -3720,6 +4286,8 @@
             "metalic",
             "woody"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 284
     },
     {
@@ -3734,6 +4302,8 @@
             "woody",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 285
     },
     {
@@ -3748,6 +4318,8 @@
             "fleshy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 286
     },
     {
@@ -3761,6 +4333,8 @@
             "magical",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 287
     },
     {
@@ -3774,6 +4348,8 @@
             "magical",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 288
     },
     {
@@ -3787,6 +4363,8 @@
             "slimy",
             "gemy"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 289
     },
     {
@@ -3801,6 +4379,8 @@
             "gemy",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 290
     },
     {
@@ -3815,6 +4395,8 @@
             "woody",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 291
     },
     {
@@ -3829,6 +4411,8 @@
             "fleshy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 292
     },
     {
@@ -3842,6 +4426,8 @@
             "slimy",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 293
     },
     {
@@ -3856,6 +4442,8 @@
             "gemy",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 294
     },
     {
@@ -3870,6 +4458,8 @@
             "skinny",
             "herby"
         ],
+        "UniqueType": "Soul",
+        "UniqueItem": false,
         "ConstKey": 295
     },
     {
@@ -3883,6 +4473,8 @@
             "metalic",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 296
     },
     {
@@ -3896,6 +4488,8 @@
             "herby",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 297
     },
     {
@@ -3908,6 +4502,8 @@
         "DropTypes": [
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 298
     },
     {
@@ -3920,6 +4516,8 @@
         "DropTypes": [
             "herby"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 299
     },
     {
@@ -3933,6 +4531,8 @@
             "tooly",
             "fleshy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 300
     },
     {
@@ -3947,6 +4547,8 @@
             "rocky",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 301
     },
     {
@@ -3959,6 +4561,8 @@
         "DropTypes": [
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 302
     },
     {
@@ -3972,6 +4576,8 @@
             "magical",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 303
     },
     {
@@ -3987,6 +4593,8 @@
             "tooly",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 304
     },
     {
@@ -4001,6 +4609,8 @@
             "skinny",
             "magical"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 305
     },
     {
@@ -4016,6 +4626,8 @@
             "silky",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 306
     },
     {
@@ -4031,6 +4643,8 @@
             "slimy",
             "skinny"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 307
     },
     {
@@ -4044,6 +4658,8 @@
             "tooly",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 308
     },
     {
@@ -4058,6 +4674,8 @@
             "skinny",
             "slimy"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 309
     },
     {
@@ -4072,6 +4690,8 @@
             "fleshy",
             "metalic"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 310
     },
     {
@@ -4085,6 +4705,8 @@
             "tooly",
             "rocky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 311
     },
     {
@@ -4097,6 +4719,8 @@
         "DropTypes": [
             " "
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 100000000
     },
     {
@@ -4118,6 +4742,8 @@
             "fleshy",
             "silky"
         ],
+        "UniqueType": "None",
+        "UniqueItem": false,
         "ConstKey": 0
     }
 ]

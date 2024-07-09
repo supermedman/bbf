@@ -89,6 +89,9 @@ class CombatInstance {
             spd: uData.speed,
             str: uData.strength
         };
+        this.dropChance = this.#setDropChance();
+        this.upChance = this.#setUpgradeChance();
+        this.staticExtras = (this.staticStats.spd * 0.02) + (this.staticStats.dex * 0.02);
         this.staticCondition = {
             DH: (this.staticStats.spd * 0.02) + thiefBuff,
             Crit: (this.staticStats.dex * 0.02) + thiefBuff
@@ -107,6 +110,32 @@ class CombatInstance {
         let finalHealth = healthBase + (this.level * 2) + (this.staticStats.str * 5);
         finalHealth *= healthModM[healthModC.indexOf(this.staticStats.pClass)];
         return finalHealth;
+    }
+
+    #setDropChance(){
+        let chanceToBeat = 0.850;
+        chanceToBeat -= (this.staticStats.pClass === 'Thief') ? 0.1 : 0;
+        if (this.level >= 31){
+            if ((Math.floor(this.level / 4) * 0.01) > 0.25) {
+                chanceToBeat -= 0.25;
+            } else chanceToBeat -= (Math.floor(this.level / 4) * 0.01);
+        }
+
+        // Pigmy Check here
+        return chanceToBeat;
+    }
+
+    #setUpgradeChance(){
+        let chanceToBeat = 1;
+        chanceToBeat -= (this.staticStats.pClass === 'Thief') ? 0.05 : 0;
+        if (this.level >= 31) {
+            if ((Math.floor(this.level / 5) * 0.01) > 0.10) {
+                chanceToBeat -= 0.10;
+            } else chanceToBeat -= (Math.floor(this.level / 5) * 0.01);
+        }
+
+        // Pigmy Check here
+        return chanceToBeat;
     }
 
     async retrieveLoadout(){
@@ -141,12 +170,50 @@ class CombatInstance {
         return;
     }
 
+    async reloadInternals(){
+        const needUpdated = await this.#checkLoadoutChanges();
+        if (needUpdated !== "No Update"){
+            this.#updateLoadoutIds(needUpdated);
+            await this.retrieveLoadout();
+        }
+        return;
+    }
+
+    async #checkLoadoutChanges(){
+        const slotMatch = ["mainhand", "offhand", "headslot", "chestslot", "legslot"];
+        let curSlotIdx = 0;
+        const loadoutMatch = await Loadout.findOne({where: {spec_id: this.userId}});
+
+        let updateList = [];
+        for (const id of this.loadout.ids){
+            if (id !== loadoutMatch[`${slotMatch[curSlotIdx]}`]){
+                updateList.push({slot: slotMatch[curSlotIdx], id: loadoutMatch[`${slotMatch[curSlotIdx]}`]});
+            }
+            curSlotIdx++;
+        }
+
+        if (updateList.length === 0) return "No Update";
+        return updateList;
+    }
+
+    #updateLoadoutIds(updateList){
+        const slotMatch = ["mainhand", "offhand", "headslot", "chestslot", "legslot"];
+        for (const upObj of updateList){
+            this.loadout.ids[slotMatch.indexOf(upObj.slot)] = upObj.id;
+        }
+        return;
+    }
+
     rollDH(){
         return rollChance(this.staticCondition.DH);
     }
 
     rollCrit(){
         return rollChance(this.staticCondition.Crit);
+    }
+
+    hiding(enemy){
+        return rollChance(this.staticExtras - (enemy.level * 0.01));
     }
 
     sweepCheck(now = new Date().getTime()){

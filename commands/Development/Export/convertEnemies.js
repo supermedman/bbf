@@ -79,6 +79,8 @@ function formatEnemyList(){
             Armor: "None",
             Shield: "None",
             DropTypes: enemy.DropTypes,
+            UniqueType: uDrop,
+            UniqueItem: enemy.HasUnique ?? false,
             ConstKey: enemy.ConstKey
         };
 

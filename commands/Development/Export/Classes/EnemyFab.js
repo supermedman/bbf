@@ -1,5 +1,7 @@
 // Main enemy class container
 
+const { grabRar } = require("../../../Game/exported/grabRar");
+
 const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
@@ -61,6 +63,24 @@ const staticShieldMods = [0.02, 0.01];
 //let scaleMult = (level, HPStrIndex) => 1 + (level * ((HPStrIndex + 0.01)/0.2));
 // Using much much lower scale values to check for proper status effects
 let scaleMult = (level, HPStrIndex) => 1 + (level * (HPStrIndex/2 + 0.04));
+
+const xpPayoutScale = (lvl) => {
+    let nxtLvl;
+    if (lvl < 20) {
+        nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
+    } else if (lvl === 20) {
+        nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
+    } else if (lvl > 20) {
+        const lvlScale = 1.5 * (Math.floor(lvl / 5));
+        nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
+    }
+
+    let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
+    let XpMin = XpMax - Math.floor(XpMax * 0.25);
+
+    return {max: XpMax, min: XpMin};
+}
+
 
 // strIdx  = 0,    1,    2,    3
 // Mult    = 0.025, 0.035, 0.05, 0.06
@@ -162,7 +182,7 @@ const dmgOutputRange = (level) => {
  */
 class EnemyFab {
     constructor(eFab) {
-        const {Level, Body, Armor, Shield, Name, Description} = eFab;
+        const {Level, Body, Armor, Shield, Name, Description, UniqueItem} = eFab;
         this.name = Name;
         this.description = Description;
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
@@ -210,12 +230,18 @@ class EnemyFab {
                     Dark: 0
                 }
             }
-        }
+        };
+
+        this.payouts = {
+            item: false,
+            uItem: UniqueItem,
+            xp: xpPayoutScale(this.level)
+        };
 
         this.externalRedux = {
             DHChance: 0,
             CritChance: 0
-        }
+        };
     }
 
     attack(){
@@ -225,6 +251,39 @@ class EnemyFab {
 
         if (landHit) return attackDmg;
         return "MISS";
+    }
+
+    loadItems(player){
+        this.payouts.item = hitChance(player.dropChance);
+    }
+
+    rollXP(){
+        return Math.floor(Math.random() * (this.payouts.xp.max - this.payouts.xp.min + 1) + this.payouts.xp.min + 1);
+    }
+
+    steal(player){
+        // Unique Check
+        if (this.payouts.uItem){
+            this.payouts.uItem = false;
+            return "Unique";
+        }
+
+        // Has Item Check
+        if (!this.payouts.item) return "No Item";
+
+        // Load Item Rar, Scale difficulty
+        let totalChance;
+        const itemRar = grabRar(this.level);
+        if (itemRar > 0){
+            totalChance = player.staticExtras - (itemRar * 0.02);
+        } else totalChance = player.staticExtras;
+
+        // Rollchance
+        if (hitChance(totalChance)) {
+            this.payouts.item = false;
+            return itemRar;
+        }
+        return "Fail";
     }
 
     applyArmorBurn(){
