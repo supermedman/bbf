@@ -12,8 +12,8 @@ const {
     dmgTypeAmountGen,
     defTypeAmountGen,
     itemValueGenConstant,
-    createNewItemCode,
-    extractName
+    extractName,
+    benchmarkQualification
 } = require('./Export/craftingContainer');
 
 const {
@@ -39,44 +39,112 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('protocraft')
         .setDescription('Prototype crafting interface and command usage.')
-        .addStringOption(option =>
-            option
-            .setName('item-slot')
-            .setDescription('Select one of the following item slots to continue.')
-            .setRequired(true)
-            .addChoices(
-                {name: 'Mainhand', value: 'Mainhand'},
-                {name: 'Offhand', value: 'Offhand'},
-                {name: 'Helmet', value: 'Headslot'},
-                {name: 'Chestpiece', value: 'Chestslot'},
-                {name: 'Leggings', value: 'Legslot'},
+        .addSubcommand(subcommand =>
+            subcommand
+            .setName('test-select')
+            .setDescription('Faster testing ability')
+            .addStringOption(option =>
+                option
+                .setName('item-slot')
+                .setDescription('Select one of the following item slots to continue.')
+                .setRequired(true)
+                .addChoices(
+                    {name: 'Mainhand', value: 'Mainhand'},
+                    {name: 'Offhand', value: 'Offhand'},
+                    {name: 'Helmet', value: 'Headslot'},
+                    {name: 'Chestpiece', value: 'Chestslot'},
+                    {name: 'Leggings', value: 'Legslot'},
+                )
+            )
+            .addStringOption(option =>
+                option
+                .setName('item-group')
+                .setDescription('Select one of the following item groups to continue.')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('item-type')
+                .setDescription('Select one of the following item types to continue.')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('item-rarity')
+                .setDescription('Select one of the following item slots to continue.')
+                .setRequired(true)
+                .addChoices(
+                    {name: 'Common', value: '0'},
+                    {name: 'Uncommon', value: '1'},
+                    {name: 'Rare', value: '2'},
+                    {name: 'Very Rare', value: '3'},
+                    {name: 'Epic', value: '4'},
+                    {name: 'Mystic', value: '5'},
+                    {name: '?', value: '6'},
+                    {name: '??', value: '7'},
+                    {name: '???', value: '8'},
+                    {name: '????', value: '9'},
+                    {name: 'Forgotten', value: '10'},
+                )
+            )
+            .addStringOption(option =>
+                option
+                .setName('imbued-mat-1')
+                .setDescription('1st Optional PURE material to imbue item with')
+                .setAutocomplete(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('imbued-mat-2')
+                .setDescription('2nd Optional PURE material to imbue item with')
+                .setAutocomplete(true)
             )
         )
-        .addStringOption(option =>
-            option
-            .setName('item-group')
-            .setDescription('Select one of the following item groups to continue.')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-            option
-            .setName('item-type')
-            .setDescription('Select one of the following item types to continue.')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-            option
-            .setName('imbued-mat-1')
-            .setDescription('1st Optional PURE material to imbue item with')
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-            option
-            .setName('imbued-mat-2')
-            .setDescription('2nd Optional PURE material to imbue item with')
-            .setAutocomplete(true)
+        .addSubcommand(subcommand =>
+            subcommand
+            .setName('craft')
+            .setDescription('Regular Protocraft')
+            .addStringOption(option =>
+                option
+                .setName('item-slot')
+                .setDescription('Select one of the following item slots to continue.')
+                .setRequired(true)
+                .addChoices(
+                    {name: 'Mainhand', value: 'Mainhand'},
+                    {name: 'Offhand', value: 'Offhand'},
+                    {name: 'Helmet', value: 'Headslot'},
+                    {name: 'Chestpiece', value: 'Chestslot'},
+                    {name: 'Leggings', value: 'Legslot'},
+                )
+            )
+            .addStringOption(option =>
+                option
+                .setName('item-group')
+                .setDescription('Select one of the following item groups to continue.')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('item-type')
+                .setDescription('Select one of the following item types to continue.')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('imbued-mat-1')
+                .setDescription('1st Optional PURE material to imbue item with')
+                .setAutocomplete(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('imbued-mat-2')
+                .setDescription('2nd Optional PURE material to imbue item with')
+                .setAutocomplete(true)
+            )
         ),
     async autocomplete(interaction){
         const focusedOption = interaction.options.getFocused(true);
@@ -248,6 +316,127 @@ module.exports = {
                 }
             }
         }
+        if (interaction.options.getSubcommand() === 'test-select'){
+            await interaction.deferReply();
+
+            const materialChoices = [];
+            for (let i = 0; i < 4; i++){
+                const matFile = require(matListRefs[i].file);
+                matFile.sort((a, b) => a.Rar_id - b.Rar_id);
+                for (const mat of matFile){
+                    // Load each material, into option
+                    if (i === 3 && mat.Rar_id === 0){
+                        materialChoices.push(mat.Name);
+                        break;
+                    }
+                    if (i < 3 && mat.Rar_id === ~~interaction.options.getString('item-rarity')){
+                        materialChoices.push(mat.Name);
+                    }   
+                }   
+            }
+
+            const waitCraftEmbed = new EmbedBuilder()
+            .setTitle('Crafting IN PROGRESS')
+            .setColor('DarkGreen')
+            .setDescription('Please hold while the item is crafted!!');
+
+            const followUpCrafting = await interaction.followUp({embeds: [waitCraftEmbed]});
+            
+            // materialChoices should be filled by this point
+            const materialList = [];
+            const materialAmounts = [15, 10, 5, 0];
+            let curPos = 0, matTotal = 0, rarValPairs = [];
+            for (const matName of materialChoices){
+                // Obtain material ref from associated file ref
+                const matFile = require(matListRefs[curPos].file);
+                const matRef = matFile.filter(mat => mat.Name === matName);
+                
+                //console.log(matRef[0]);
+
+                // Create rarValPairs for value generation later
+                if (curPos === 3){
+                    rarValPairs.push({rar: matRef[0].Rar_id, val: 0});
+                } else {
+                    rarValPairs.push({rar: matRef[0].Rar_id, val: matRef[0].Value});
+                    // acc total material amount for damage generation
+                    matTotal += materialAmounts[curPos]; 
+                }
+                
+                // Create material Object for use with Rarity generation
+                // Required props {rarity: number, amount: number}
+                const matObj = {
+                    name: matName,
+                    rarity: matRef[0].Rar_id,
+                    amount: materialAmounts[curPos]
+                };
+                materialList.push(matObj); // Push final object to material list
+                curPos++;
+            }
+
+            const rarPicked = rarityGenConstant(materialList[0], materialList[1], materialList[2], materialList[3]);
+            const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteObj.totalTypes, casteObj.hands, matTotal);
+            const itemMaxTypeDefence = (casteObj.slot !== "Mainhand") ? itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal) : 0;
+
+            casteObj.rarity = rarPicked;
+            casteObj.maxSingleTypeDamage = itemMaxTypeDamage;
+            casteObj.maxSingleTypeDefence = itemMaxTypeDefence;
+            casteObj.totalMatsUsed = matTotal;
+            casteObj.rarValPairs = rarValPairs;
+
+            const totalDamage = (casteObj.hands > 0) ? dmgTypeAmountGen(casteObj) : 0;
+            const totalDefence = (casteObj.slot === 'Offhand' || casteObj.hands === 0) ? defTypeAmountGen(casteObj) : 0;
+            const totalValue = itemValueGenConstant(casteObj);
+
+            //console.log('Total Item Damage: %d', totalDamage);
+            //console.log('Total Item Value: %d', totalValue);
+
+            const finalItemCode = uni_CreateCompleteItemCode(casteObj);
+            extractName(casteObj);
+
+            console.log(casteObj);
+            benchmarkQualification(casteObj);
+            console.log(chlkPreset.sInfoTwo(finalItemCode));
+
+            const finalFields = [];
+            finalFields.push({name: 'Name:', value: `**${casteObj.name}**`});
+            finalFields.push({name: 'Slot:', value: `**${checkingSlot(finalItemCode)}**`});
+            finalFields.push({name: 'Rarity:', value: `**${checkingRar(finalItemCode)}**`});
+            if (casteObj.hands > 0){
+                finalFields.push({name: 'Hands Needed:', value: `**${casteObj.hands}**`});
+            }
+            if (totalDamage > 0) {
+                finalFields.push({name: 'Total Item Damage:', value: `**${totalDamage}**`});
+            }
+            if (totalDefence > 0){
+                finalFields.push({name: 'Total Item Defence:', value: `**${totalDefence}**`});
+            }
+            finalFields.push({name: 'Total Item Value:', value: `**${totalValue}**`});
+            if (totalDamage > 0){
+                finalFields.push({name: '**Damage Types:**', value: ` `});
+                for (const dmgObj of casteObj.dmgTypePairs){
+                    finalFields.push({name: `${dmgObj.type}`, value: `${dmgObj.dmg}`, inline: true});
+                }
+            }
+            if (totalDefence > 0){
+                finalFields.push({name: '**Defence Types:**', value: ` `});
+                for (const defObj of casteObj.defTypePairs){
+                    finalFields.push({name: `${defObj.type}`, value: `${defObj.def}`, inline: true});
+                }
+            }
+
+            const embedColour = grabColour(casteObj.rarity);
+
+            // UPDATE EMBED HERE ONCE ITEM HAS BEEN CRAFTED
+            const itemCraftedEmbed = new EmbedBuilder()
+            .setTitle('== **Item Crafted** ==')
+            .setColor(embedColour)
+            .setDescription(`You crafted a **${userInputChoices.castePicked}** successfully!`)
+            .addFields(finalFields);
+
+            return await followUpCrafting.edit({embeds: [itemCraftedEmbed]}).then(() => setTimeout(() => {
+                followUpCrafting.delete();
+            }, 120000)).catch(e => console.error(e));
+        }
 
         // Create Display Embed
         const selectMenuEmbed = new EmbedBuilder()
@@ -360,7 +549,7 @@ module.exports = {
 
             const rarPicked = rarityGenConstant(materialList[0], materialList[1], materialList[2], materialList[3]);
             const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteObj.totalTypes, casteObj.hands, matTotal);
-            const itemMaxTypeDefence = itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal);
+            const itemMaxTypeDefence = (casteObj.slot !== "Mainhand") ? itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal) : 0;
 
             casteObj.rarity = rarPicked;
             casteObj.maxSingleTypeDamage = itemMaxTypeDamage;
@@ -408,7 +597,7 @@ module.exports = {
                 }
             }
 
-            const embedColour = await grabColour(casteObj.rarity);
+            const embedColour = grabColour(casteObj.rarity);
 
             // UPDATE EMBED HERE ONCE ITEM HAS BEEN CRAFTED
             const itemCraftedEmbed = new EmbedBuilder()
