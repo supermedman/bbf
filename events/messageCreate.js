@@ -34,7 +34,10 @@ module.exports = {
                     'You have the most aweinspiring eyes!',
                     'This chair.. mmmmmmhmmmmm <3',
                     'I love how smart you are!',
-                    'You are the absolute coolest person ;)'
+                    'You are the absolute coolest person ;)',
+                    'Your essay\'s are da bomba!! <3',
+                    'Watching hours of memes in bed is a future I\'d want with you!',
+                    'I would do it all for you, all you need do is ask!!'
                 ];
 
                 const theOutcome = Math.floor(Math.random() * choices.length);

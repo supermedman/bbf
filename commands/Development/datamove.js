@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 
 const { ItemLootPool, ItemStrings, LootStore } = require('../../dbObjects');
 const { createSingleUniItem } = require('./Export/itemStringCore');
+const { createBigTile } = require('../Game/exported/createTile');
 const newItemList = require('./Export/Json/uniItemStore.json');
 
 module.exports = {
@@ -15,6 +16,10 @@ module.exports = {
         .addSubcommand(subcommand =>
 			subcommand
 				.setName('inventory-db')
+				.setDescription('Loadup the user item storage table.'))
+        .addSubcommand(subcommand =>
+			subcommand
+				.setName('town-tiles')
 				.setDescription('Loadup the user item storage table.')),
 	async execute(interaction) { 
         if (interaction.user.id !== "501177494137995264") return interaction.reply("Not gonna happen! :)");
@@ -69,6 +74,17 @@ module.exports = {
                     if (curRun >= breakAt) break;
                 }
 
+                endTime = new Date().getTime();
+            break;
+            case "town-tiles":
+                console.log('Loading World Tiles!');
+
+                try {
+                    await createBigTile();
+                } catch(e) {    
+                    console.error(e);
+                }
+                
                 endTime = new Date().getTime();
             break;
         }

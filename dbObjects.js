@@ -39,6 +39,7 @@ const TownMaterial = require('./events/Models/TownMaterial')(sequelize, Sequeliz
 const TownPlots = require('./events/Models/TownPlots')(sequelize, Sequelize.DataTypes);
 const PlayerBuilding = require('./events/Models/PlayerBuilding')(sequelize, Sequelize.DataTypes);
 const CoreBuilding = require('./events/Models/CoreBuilding')(sequelize, Sequelize.DataTypes);
+const InstalledBuild = require('./events/Models/InstalledBuild')(sequelize, Sequelize.DataTypes);
 
 const EarlyAccess = require('./events/Models/EarlyAccess')(sequelize, Sequelize.DataTypes);
 
@@ -80,6 +81,7 @@ module.exports = {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
+	InstalledBuild,
 	EarlyAccess,
 	LocationData,
 	UserTasks,

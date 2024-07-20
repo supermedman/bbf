@@ -261,9 +261,9 @@ module.exports = {
         );
     },
 	async execute(interaction) { 
-        if (interaction.user.id === '501177494137995264' || interaction.user.id === '544114963346620417') {} else{
-            return await interaction.reply({content: 'This command is not for you!', ephemeral: true});
-        }
+        const {betaTester} = interaction.client;
+        if (!betaTester.has(interaction.user.id)) return await interaction.reply('Sorry, this command is being tested and is unavailable.');
+
         const startTime = new Date().getTime();
         let endTime;
 
@@ -317,6 +317,7 @@ module.exports = {
             }
         }
         if (interaction.options.getSubcommand() === 'test-select'){
+            if (interaction.user.id !== '501177494137995264') return await interaction.reply('This section is for dev testing only!!!');
             await interaction.deferReply();
 
             const materialChoices = [];

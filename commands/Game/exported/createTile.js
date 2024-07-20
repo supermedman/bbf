@@ -9,9 +9,9 @@ const randArrPos = (arr) => {
 const findAllignment = (rolledChance) => {
     const allignment = ['Normal', 'Evil', 'Phase'];
     const allignmentChance = {
-        Normal: 0.9994,
-        Evil: 0.0006,
-        Phase: 0.0003
+        Normal: 0.9894,
+        Evil: 0.0106,
+        Phase: 0.0023
     };
 
     let picked = '';

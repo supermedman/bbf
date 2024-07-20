@@ -68,9 +68,10 @@ module.exports = {
         .setDescription('Final Testing Grounds for Combat V3'),
 
 	async execute(interaction) { 
-        if (interaction.user.id !== '501177494137995264' && interaction.user.id !== '544114963346620417') return await interaction.reply('Sorry, this command is being tested and is unavailable.');
 
-        const { enemies, combatInstance } = interaction.client; 
+        const { enemies, combatInstance, betaTester } = interaction.client; 
+
+        if (!betaTester.has(interaction.user.id)) return await interaction.reply('Sorry, this command is being tested and is unavailable.');
 
         let startTime, endTime, displayStartTime, displayEndTime;
         async function preloadCombat(){
@@ -92,6 +93,9 @@ module.exports = {
             const loadObj = thePlayer.loadout;
             thePlayer.staticDamage = loadDamageItems(loadObj.mainhand, loadObj.offhand);
             thePlayer.staticDefence = loadDefenceItems(loadObj);
+
+            //console.log(thePlayer);
+
             combatLooper(thePlayer, theEnemy);
         }
 

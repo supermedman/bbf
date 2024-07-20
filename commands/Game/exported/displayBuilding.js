@@ -137,8 +137,12 @@ const preLoadArray = (loadingGroup) => {
 const preLoadImages = async (loadingGroup) => {
     let returnArr = [];
     for (const item of loadingGroup) {
-        const loadedImg = await Canvas.loadImage(item);
-        returnArr.push(loadedImg);
+        try {
+            const loadedImg = await Canvas.loadImage(item);
+            returnArr.push(loadedImg);
+        } catch (e){
+            console.error(e);
+        }
     }
     return returnArr;
 };

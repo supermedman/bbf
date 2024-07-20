@@ -106,10 +106,10 @@ function checkAddDupeTypes(returnArr) {
 const loadDamageItems = (mainhand, offhand) => {
     const emptyDmg = {Type: "True", DMG: 0};
     let returnDamage = [], mainhandDMG, offhandDMG;
-    if (mainhand === 'None' && offhand === 'None') return [emptyDmg];
+    if (mainhand === 'NONE' && offhand === 'NONE') return [emptyDmg];
 
-    mainhandDMG = (mainhand !== 'None') ? checkingDamage(mainhand): [emptyDmg];
-    offhandDMG = (offhand !== 'None') ? checkingDamage(offhand): [emptyDmg];
+    mainhandDMG = (mainhand !== 'NONE') ? checkingDamage(mainhand): [emptyDmg];
+    offhandDMG = (offhand !== 'NONE') ? checkingDamage(offhand): [emptyDmg];
     
     returnDamage = mainhandDMG.concat(offhandDMG);
     returnDamage = checkAddDupeTypes(returnDamage);
@@ -119,13 +119,13 @@ const loadDamageItems = (mainhand, offhand) => {
 const loadDefenceItems = (loadout) => {
     const emptyDef = {Type: "True", DEF: 0};
     let returnDefence = [], offhandDEF, helmDEF, chestDEF, legsDEF;
-    if (loadout.offhand === 'None' && loadout.headslot === 'None' && loadout.chestslot === 'None' && loadout.legslot === 'None') {
+    if (loadout.offhand === 'NONE' && loadout.headslot === 'NONE' && loadout.chestslot === 'NONE' && loadout.legslot === 'NONE') {
         return [emptyDef];
     }
-    offhandDEF = (loadout.offhand === 'None') ? [emptyDef] : checkingDefence(loadout.offhand);
-    helmDEF = (loadout.headslot === 'None') ? [emptyDef] : checkingDefence(loadout.headslot);
-    chestDEF = (loadout.chestslot === 'None') ? [emptyDef] : checkingDefence(loadout.chestslot);
-    legsDEF = (loadout.legslot === 'None') ? [emptyDef] : checkingDefence(loadout.legslot);
+    offhandDEF = (loadout.offhand === 'NONE') ? [emptyDef] : checkingDefence(loadout.offhand);
+    helmDEF = (loadout.headslot === 'NONE') ? [emptyDef] : checkingDefence(loadout.headslot);
+    chestDEF = (loadout.chestslot === 'NONE') ? [emptyDef] : checkingDefence(loadout.chestslot);
+    legsDEF = (loadout.legslot === 'NONE') ? [emptyDef] : checkingDefence(loadout.legslot);
 
     returnDefence = offhandDEF.concat(helmDEF, chestDEF, legsDEF);
     returnDefence = checkAddDupeTypes(returnDefence);

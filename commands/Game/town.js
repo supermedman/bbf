@@ -454,6 +454,7 @@ module.exports = {
 				can_edit: interaction.user.id,
 				name: townName,
 				population: 1,
+				npc_population: 0
 			});
 			console.log(newTown.dataValues);
 

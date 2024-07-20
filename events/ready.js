@@ -30,6 +30,7 @@ const {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
+    InstalledBuild,
     EarlyAccess,
     LocationData,
     UserTasks,
@@ -107,6 +108,7 @@ module.exports = {
 	    TownPlots.sync();
 	    PlayerBuilding.sync();
 	    CoreBuilding.sync();
+        InstalledBuild.sync();
 
         EarlyAccess.sync();
 
