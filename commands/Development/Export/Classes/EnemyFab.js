@@ -182,7 +182,13 @@ const dmgOutputRange = (level) => {
  */
 class EnemyFab {
     constructor(eFab) {
-        const {Level, Body, Armor, Shield, Name, Description, UniqueItem} = eFab;
+        const {Level, Body, Armor, Shield, Name, Description, UniqueItem, ConstKey} = eFab;
+        this.imageCheck = {
+            checkKey: ConstKey,
+            hasPng: false,
+            pngRef: ''
+        };
+        
         this.name = Name;
         this.description = Description;
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);

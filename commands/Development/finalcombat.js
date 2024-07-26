@@ -5,6 +5,8 @@ const {chlkPreset} = require('../../chalkPresets');
 const { CombatInstance } = require('./Export/Classes/CombatLoader');
 const { EnemyFab } = require('./Export/Classes/EnemyFab');
 
+const { createNewEnemyImage } = require('../Game/exported/displayEnemy');
+
 const { attackEnemy, enemyAttack, handleActiveStatus, applyActiveStatus } = require('./Export/combatContainer');
 
 const {
@@ -106,8 +108,6 @@ module.exports = {
          */
         async function combatLooper(player, enemy){
             await player.reloadInternals();
-            const tempCombEmbed = genEnemyEmbed(enemy);
-
             // const enemyEmbedFields = genEnemyHPFields(enemy);
 
             // const tempCombEmbed = new EmbedBuilder()
@@ -116,9 +116,22 @@ module.exports = {
             // .setColor('DarkButNotBlack')
             // .addFields(enemyEmbedFields);
 
+            const useImageDisplay = true;
+            const replyType = {};
+
+            if (useImageDisplay){
+                const eFile = await createNewEnemyImage(enemy);
+                replyType.files = [eFile];
+            } else {
+                const combEmbed = genEnemyEmbed(enemy);
+                replyType.embeds = [combEmbed];
+            }
+
             const buttRow = new ActionRowBuilder().addComponents(loadCombButts());
 
-            const combatMessage = await interaction.followUp({embeds: [tempCombEmbed], components: [buttRow]});
+            replyType.components = [buttRow];
+
+            const combatMessage = await interaction.followUp(replyType);
 
             const filter = (i) => i.user.id === interaction.user.id;
 
