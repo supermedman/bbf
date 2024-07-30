@@ -544,9 +544,10 @@ const {EnemyFab} = require('./Classes/EnemyFab');
  * @param {object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
  * @param {object} condition Condition object containing {Crit: 1|0, DH: 1|0}
+ * @param {number} totDmgBoost Additional damage to be added evenly across dmg types
  * @returns {object}  {outcome: string, dmgDealt: number, dmgCheck?: object[]}
  */
-function attackEnemy(dmgList, enemy, condition){
+function attackEnemy(dmgList, enemy, condition, totDmgBoost){
     let finalTotalDamage = 0;
     let shieldDMG = [], armorDMG = [], fleshDMG = [];
     const hpREF = [enemy.shield.Type, enemy.armor.Type, enemy.flesh.Type];
@@ -573,9 +574,25 @@ function attackEnemy(dmgList, enemy, condition){
         return 0;
     };
 
+    // Adding additional damage from flat bonuses in a way that does not allow 
+    // damage values to stack endlessly once per attack
+    const shallowDmgList = [];
+    const dmgDistCheck = dmgList.filter(dmgObj => dmgObj.DMG > 0);
+    const flatBoost = totDmgBoost / dmgDistCheck.length;
+    // LOG
+    //console.log('Flat dmg Boost after evened: %d', flatBoost);
+    //console.log('Total dmg Boost: %d', totDmgBoost);
+
+    for (const dmgObj of dmgList){
+        if (dmgObj.DMG === 0) continue;
+        shallowDmgList.push({Type: dmgObj.Type, DMG: dmgObj.DMG + flatBoost});
+    }
+    // LOG
+    //console.log(shallowDmgList);
+
     //Shield = 0, Armor = 1, Flesh = 2
     for (let i = 0; i < 3; i++){
-        for (const dmgObj of dmgList){
+        for (const dmgObj of shallowDmgList){
             // Lookup damage x hp type match with table ref
             const yLookup = rowMatch.indexOf(dmgObj.Type);
             const xLookup = columnMatch.indexOf(hpREF[i]);

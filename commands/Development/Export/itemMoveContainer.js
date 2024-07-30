@@ -40,12 +40,12 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
     // If item was created and not found
     if (theItem[1]) {
         await theUser.increment('totitem').then(async user => {return await user.reload();});
-        await theItem.save().then(async item => {return await item.reload();});
+        await theItem[0].save().then(async item => {return await item.reload();});
     } else {
-        await theItem.increment('amount', {by: amount}).then(async item => {return await item.reload();});
+        await theItem[0].increment('amount', {by: amount}).then(async item => {return await item.reload();});
     }
 
-    return theItem;
+    return theItem[0];
 }
 
 /**
@@ -97,7 +97,7 @@ async function moveItem(userGive, userTake, itemid, amount=1, craftedI){
  * This function trashes a given item and updates a given users total items.
  * @param {object} itemRef ItemStrings DB Reference
  * @param {object} theUser UserData DB Reference
- * @returns {promise}
+ * @returns {promise<void>} 
  */
 async function trashItem(itemRef, theUser){
     await itemRef.destroy();

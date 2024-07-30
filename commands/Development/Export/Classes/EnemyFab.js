@@ -15,7 +15,7 @@ const hitChance = (chance) => {
 };
 
 const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-const staticFleshMods = [0.4, 0.25, 0.2];
+const staticFleshMods = [0.4, 0.25, 0.2, 0.5];
 // Flesh based on Material Drop Order: [0[1st], 1[2nd], 2[3rd]];
 // MULT = 1 + (lvl * TYPE)
 /** == Flesh ==

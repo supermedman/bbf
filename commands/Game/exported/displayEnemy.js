@@ -221,7 +221,7 @@ function createHealthBar(enemy) {
     // 383, 275, 213, 14
 
     const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-    const fleshColours = ["#B56B57", "#8C6E7E", "#47598B"];
+    const fleshColours = ["#B56B57", "#8C6E7E", "#47598B", "black"];
     const fleshColour = fleshColours[fleshTypes.indexOf(enemy.flesh.Type)];
 
     const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
@@ -292,8 +292,13 @@ async function createNewEnemyImage(enemy){
 
     // const enemyRef = loadEnemyFab(enemy); // TEMP Change Variable names
     // const hasImage = (interaction) ? pngCheck(enemy) : crossRefPngCheck(enemy);
+    // TIME LOG
+    //const totStart = new Date().getTime();
 
     const hasImage = crossRefPngCheck(enemy);
+    
+    // TIME LOG
+    //const bLoadStart = new Date().getTime();
 
     const background = await Canvas.loadImage('./events/Models/json_prefabs/weapon_png/Background.jpg');
     let enemyPng;
@@ -302,6 +307,10 @@ async function createNewEnemyImage(enemy){
     // DRAW
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     if (hasImage) ctx.drawImage(enemyPng, 410, 65, 190, 190);
+
+    // TIME LOG
+    //const bLoadEnd = new Date().getTime();
+    //console.log(`Background/Enemy Load + Draw Time: ${bLoadEnd - bLoadStart}ms`);
 
     ctx.fillStyle = 'white';
 
@@ -415,47 +424,6 @@ async function createNewEnemyImage(enemy){
     if (statusTxt === "No Status Effects!") ctx.fillText(statusTxt, 25, descBottom);
 
     // HEALTH
-    // Replace With Healthbar!!
-    // // TEMP SECTION ====
-    // /**
-    //  *  " " = Shown
-    //  *  { } = Variable Replace
-    //  * 
-    //  *      Flesh: 
-    //  *      "{FleshType}: {HP}"
-    //  * 
-    //  *      Armor:
-    //  *      "{ArmorType}: {HP}"     
-    //  *      IF (HP === 0 || ArmorType === 'NONE')     
-    //  *      "No Armor!"     
-    //  * 
-    //  *      Shield:
-    //  *      "{ShieldType}: {HP}"
-    //  *      IF (HP === 0 || ShieldType === 'NONE')     
-    //  *      "No Shield!"  
-    //  * 
-    //  *   Displays as => Flesh: 00 || Armor: 00 || Shield: 00
-    //  * 
-    //  *   Postion Text using:
-    //  *      segmentLength = (CanvasWidth - TotalTextWidth) / 2;
-    //  *      x1 = segmentLength;
-    //  */
-    // const fleshTxt = `${enemy.flesh.Type}: ${enemy.flesh.HP}`;
-    // const armorTxt = (enemy.armor.Type === 'None' || enemy.armor.HP === 0) 
-    // ? "No Armor!" 
-    // : `${enemy.armor.Type}: ${enemy.armor.HP}`;
-    // const shieldTxt = (enemy.shield.Type === 'None' || enemy.shield.HP === 0) 
-    // ? "No Shield!" 
-    // : `${enemy.shield.Type}: ${enemy.shield.HP}`;
-
-    // // Join Text
-    // const healthTxt = [fleshTxt, armorTxt, shieldTxt].join(" || ");
-    // // Measure Text Width
-    // const segmentLength = (canvas.width - ctx.measureText(healthTxt).width) / 1.2;
-    // // Draw Text
-    // ctx.fillText(healthTxt, segmentLength, 285);
-    // // ==== TEMP SECTION 
-
     ctx.drawImage(await Canvas.loadImage(healthBarPng), 375, 200, 225, 160);
     const hpBar = createHealthBar(enemy);
 
@@ -468,7 +436,18 @@ async function createNewEnemyImage(enemy){
     ctx.fillStyle = hpBar.shield.colour;
     ctx.fillRect(hpBar.shield.start, 275, hpBar.shield.width, 14);
 
+    // TIME LOG
+    //const encodeStart = new Date().getTime();
+
     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'enemy-display.png' });
+    
+    // TIME LOG
+    //const encodeEnd = new Date().getTime();
+    //console.log(`Canvas Encoding Time: ${encodeEnd - encodeStart}ms`);
+
+    // TIME LOG
+    //const totEnd = new Date().getTime();
+    //console.log(`Total Load + Draw Time: ${totEnd - totStart}ms`);
     return attachment;
 }
 

@@ -1,5 +1,7 @@
 const chalk = require('chalk');
 
+//chalk.Level = 3;
+
 const warnedForm = chalk.bold.yellowBright;
 //console.log(warnedForm('Testing warning here!'));
 const errorForm = chalk.bold.redBright.bgWhite;

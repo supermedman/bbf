@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const {chlkPreset} = require('../../chalkPresets');
+const {chlkPreset, chalk} = require('../../chalkPresets');
 
 const { CombatInstance } = require('./Export/Classes/CombatLoader');
 const { EnemyFab } = require('./Export/Classes/EnemyFab');
@@ -15,8 +15,10 @@ const {
     loadDamageItems,
     loadDefenceItems
 } = require('./Export/finalCombatExtras');
+const { checkInboundItem } = require('./Export/itemMoveContainer');
+const { uni_displayItem } = require('./Export/itemStringCore');
 
-const loadCombButts = () => {
+const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
     .setCustomId('attack')
     .setLabel('Strike')
@@ -40,10 +42,22 @@ const loadCombButts = () => {
     .setDisabled(true)
     .setStyle(ButtonStyle.Secondary);
 
+    let buttLabel, usePot = false;
+    if (player.potion.name !== ""){
+        if (player.potion.amount <= 0){
+            buttLabel = `0 ${player.potion.name} Remain`;
+        } else if (player.potion.isCooling){
+            buttLabel = `CoolDown: ${player.potion.cCount}`;
+        } else {
+            buttLabel = `${player.potion.amount} ${player.potion.name}`;
+            usePot = true;
+        }
+    } else buttLabel = "No Potion";
+
     const potButton = new ButtonBuilder()
     .setCustomId('potion')
-    .setLabel('Potion')
-    .setDisabled(true)
+    .setLabel(buttLabel)
+    .setDisabled(usePot)
     .setStyle(ButtonStyle.Secondary);
 
     return [hideButton, attackButton, stealButton, blockButton, potButton];
@@ -64,6 +78,42 @@ const statusColourMatch = new Map([
     ["MagiWeak", {rank: 5, colour: 0xF1C232}]
 ]);
 
+const randArrPos = (arr) => {
+    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+};
+
+/**
+ * This method handles styling timers based on time difference found, and then
+ * handles logging the output accordingly.
+ * @param {number} startTime Start Time for measurement
+ * @param {string} measureName Display String for measurement
+ */
+const endTimer = (startTime, measureName) => {
+    const endTime = new Date().getTime();
+    const timeDiff = endTime - startTime;
+    let preStyle;
+    if (timeDiff === 0){
+        preStyle = chalk.blueBright.bgGrey;
+    } else if (timeDiff >= 25000){
+        preStyle = chlkPreset.err;
+    } else if (timeDiff >= 10000){
+        preStyle = chalk.red.bgGrey;
+    } else if (timeDiff >= 5000){
+        preStyle = chalk.redBright.bgGrey;
+    } else if (timeDiff >= 2500){
+        preStyle = chalk.yellowBright.bgGrey;
+    } else if (timeDiff >= 1000){
+        preStyle = chalk.yellow.bgGrey;
+    } else if (timeDiff >= 500){
+        preStyle = chalk.green.dim.bgGrey;
+    } else if (timeDiff >= 150){
+        preStyle = chalk.greenBright.bgGrey;
+    } else {
+        preStyle = chalk.blueBright.bgGrey;
+    }
+    console.log(preStyle(`${measureName} Duration: ${timeDiff}ms`));
+}
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('finalcombat')
@@ -79,7 +129,7 @@ module.exports = {
         async function preloadCombat(){
             await interaction.deferReply();
 
-            displayStartTime = new Date().getTime();
+            const preLoadStart = new Date().getTime();
 
             const thePlayer = loadPlayer(interaction.user.id, combatInstance);
             if (!thePlayer.staticStats) await thePlayer.retrieveBasicStats();
@@ -96,7 +146,7 @@ module.exports = {
             thePlayer.staticDamage = loadDamageItems(loadObj.mainhand, loadObj.offhand);
             thePlayer.staticDefence = loadDefenceItems(loadObj);
 
-            //console.log(thePlayer);
+            endTimer(preLoadStart, "Combat Preload");
 
             combatLooper(thePlayer, theEnemy);
         }
@@ -108,16 +158,11 @@ module.exports = {
          */
         async function combatLooper(player, enemy){
             await player.reloadInternals();
-            // const enemyEmbedFields = genEnemyHPFields(enemy);
 
-            // const tempCombEmbed = new EmbedBuilder()
-            // .setTitle(`Level ${enemy.level}: **${enemy.name}**`)
-            // .setDescription(`Description: *${enemy.description}*`)
-            // .setColor('DarkButNotBlack')
-            // .addFields(enemyEmbedFields);
-
-            const useImageDisplay = true;
+            const useImageDisplay = true; // Used for display testing
             const replyType = {};
+
+            displayStartTime = new Date().getTime();
 
             if (useImageDisplay){
                 const eFile = await createNewEnemyImage(enemy);
@@ -127,12 +172,18 @@ module.exports = {
                 replyType.embeds = [combEmbed];
             }
 
-            const buttRow = new ActionRowBuilder().addComponents(loadCombButts());
-
+            endTimer(displayStartTime, "Final Display");
+            
+            const buttRow = new ActionRowBuilder().addComponents(loadCombButts(player));
+            
             replyType.components = [buttRow];
-
+            
+            // REPLY TIME LOG
+            const msgStart = new Date().getTime();
             const combatMessage = await interaction.followUp(replyType);
 
+            // REPLY TIME LOG
+            endTimer(msgStart, "Final Interaction Reply");
             const filter = (i) => i.user.id === interaction.user.id;
 
             const combCollector = combatMessage.createMessageComponentCollector({
@@ -140,9 +191,6 @@ module.exports = {
                 filter,
                 time: 60000,
             });
-
-            displayEndTime = new Date().getTime();
-            console.log(chlkPreset.bInfoTwo(`Final Display Time: ${displayEndTime - displayStartTime}ms`));
 
             combCollector.on('collect', async c => {
                 await c.deferUpdate().then(async () => {
@@ -193,15 +241,6 @@ module.exports = {
                     case "RELOAD":
                     return combatLooper(player, enemy);
                 }
-
-                // ====================
-                // COLLECTER.ON {END}
-                // reason === 'PDEAD'
-                //  Handle player death here
-                // reason === 'EDEAD'
-                //  Handle enemy death here
-                // reason === 'RELOAD'
-                //  Prepare next combat turn. return combatLooper(player, enemy);
             });
         }
 
@@ -217,7 +256,7 @@ module.exports = {
                 DH: player.rollDH(),
                 Crit: player.rollCrit()
             };
-            const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition);
+            const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player.staticDamageBoost);
             if (combatResult.outcome === 'Dead'){
                 console.log(chlkPreset.bInfoOne('Enemy dies to first strike'));
                 // Handle Dead Enemy
@@ -249,14 +288,6 @@ module.exports = {
             const dmgDealtEmbed = genAttackTurnEmbed(combatResult, wasStatusChecked?.DamagedType, rolledCondition);
             playerCombEmbeds.push(dmgDealtEmbed);
 
-            // STATUS CHECKED EMBED?
-            // if (wasStatusChecked !== "Status Not Checked"){
-            //     const statusCheckedEmbed = new EmbedBuilder()
-            //     .setTitle(`${wasStatusChecked.DamagedType}`);
-
-            //     //playerCombEmbeds.push(statusCheckedEmbed);
-            // }
-
             // STATUS EFFECTS/DAMAGE EMBED?
             if (returnedStatus !== "None"){
                 if (returnedStatus.totalAcc > 0 || returnedStatus.newEffects.length > 0){
@@ -270,21 +301,15 @@ module.exports = {
                 embedMsg.delete();
             }, 45000)).catch(e => console.error(e));
 
-            //console.log(combatResult);
-            //console.log(wasStatusChecked);
-            //console.log(returnedStatus);
             console.log(enemy);
-            console.log(player);
+            //console.log(player);
             if (enemyDead) {
                 // =================== TIMER END
-                endTime = new Date().getTime();
-                console.log(chlkPreset.bInfoTwo(`Final Time: ${endTime - startTime}ms`));
+                endTimer(startTime, "Final Combat");
                 // =================== TIMER END
                 console.log("Enemy is dead!");
                 return "EDEAD";
             }
-            //(enemyDead) ? console.log("enemy is dead") : console.log('Enemy is alive');
-            // ENEMY DEAD ? true .stop('EDEAD') : false "Continue";
 
             const enemyAttacks = enemy.attack();
             if (enemyAttacks === "MISS"){
@@ -297,17 +322,15 @@ module.exports = {
                     embedMsg.delete();
                 }, 45000)).catch(e => console.error(e));
                 // =================== TIMER END
-                endTime = new Date().getTime();
-                console.log(chlkPreset.bInfoTwo(`Final Time: ${endTime - startTime}ms`));
+                endTimer(startTime, "Final Combat");
                 // =================== TIMER END
                 return "RELOAD";
             }
             // Enemy Attack
             const enemyAttackOutcome = enemyAttack(player.staticDefence, enemyAttacks);
-            //console.log(enemyAttackOutcome);
+
             // =================== TIMER END
-            endTime = new Date().getTime();
-            console.log(chlkPreset.bInfoTwo(`Final Time: ${endTime - startTime}ms`));
+            endTimer(startTime, "Final Combat");
             // =================== TIMER END
 
             const enemyAttacksEmbed = new EmbedBuilder()
@@ -324,11 +347,29 @@ module.exports = {
         }
 
 
+        /**
+         * This function handles all updates, payouts, and progress from the completed
+         * combat turn.
+         * @param {CombatInstance} player Combat Instance Object
+         * @param {EnemyFab} enemy Enemy Instance Object
+         */
         async function handleEnemyDead(player, enemy){
             // ==========================
             // SETUP DB UPDATE QUE SYSTEM
             // ==========================
+            
+            // Handle potions used
+            await player.checkPotionUse();
+            // Handle potion durations/cooldowns
+            await player.handlePotionCounters();
+            // Handle health updates
+            await player.checkHealth();
+            
+            
+            // Spawn New Enemy Access
             let newAccess = true;
+
+
             
             // =============
             // Enemy Payouts
@@ -339,6 +380,29 @@ module.exports = {
 
             if (enemy.payouts.item){
                 // Generate Item
+                const rar = await player.rollItemRar(enemy);
+
+                const { gearDrops } = interaction.client;
+
+                let choices = [];
+                for (const [key, value] of gearDrops) {
+                    if (value === rar) choices.push(key);
+                }
+
+                const picked = randArrPos(choices);
+                const theItem = await checkInboundItem(player.userId, picked);
+
+                const itemEmbed = new EmbedBuilder()
+                .setTitle('Loot Dropped');
+
+                const grabbedValues = uni_displayItem(theItem, "Single");
+                itemEmbed
+                .setColor(grabbedValues.color)
+                .addFields(grabbedValues.fields);
+
+                await interaction.channel.send({embeds: [itemEmbed]}).then(dropEmbed => setTimeout(() => {
+                    dropEmbed.delete();
+                }, 60000)).catch(e => console.error(e));
             }
 
             // =============
@@ -453,6 +517,16 @@ module.exports = {
                     }
                 });
             });
+        }
+
+        /**
+         * This function handles the effects of the held potion being used.
+         * @param {CombatInstance} player CombatInstance Object
+         * @param {EnemyFab} enemy EnemyFab Object
+         */
+        async function handlePotionUsed(player, enemy){
+            const outcome = await player.potionUsed();
+            // Handle active potion status entry
         }
 
         /**
@@ -618,18 +692,33 @@ module.exports = {
             } else theOutcome = "Kills!";
             turnReturnEmbed.setTitle(`Attack: ${theOutcome}`);
 
+            let damageFields = [], condStr = [];
+
             turnReturnEmbed.setColor('DarkOrange');
-            if (condition.DH) turnReturnEmbed.setColor('Aqua');
-            if (condition.Crit) turnReturnEmbed.setColor('LuminousVividPink');
+            if (condition.DH) {
+                turnReturnEmbed.setColor('Aqua');
+                condStr.push("Double", "Hit!");
+            }
+            if (condition.Crit) {
+                turnReturnEmbed.setColor('LuminousVividPink');
+                if (condStr.length > 0){
+                    condStr[1] = "Crit!";
+                } else condStr.push("Critical Hit!");
+            }
+
+            if (condStr.length > 0) {
+                condStr = condStr.join(" ");
+                damageFields.push({name: condStr.toString(), value: "\u0020"});
+            }
 
             if (!dmgDTo) dmgDTo = "Flesh";
 
-            // turnReturnEmbed.setDescription(`Damage Dealt To **${dmgDTo}**: **${combOutcome.dmgDealt}**\nTotal Damage Dealt: **${combOutcome.finTot}**`);
-
-            turnReturnEmbed.addFields(
-                {name: `Damage Dealt To **${dmgDTo}**:`, value: `**${combOutcome.dmgDealt}**`},
-                {name: `Total Damage Dealt:`, value: `**${combOutcome.finTot}**`}
+            damageFields.push(
+                {name: `Damage Dealt To **${dmgDTo}**:`, value: `**${Math.round(combOutcome.dmgDealt)}**`},
+                {name: `Total Damage Dealt:`, value: `**${Math.round(combOutcome.finTot)}**`}
             );
+
+            turnReturnEmbed.addFields(damageFields);
 
             return turnReturnEmbed;
         }

@@ -869,9 +869,9 @@
         "Name": "Krelya, The Soulreaper",
         "Description": "Krelya is the second hand to Wadon, God of Souls.. \nThis fight will not be easy.",
         "Level": 25,
-        "Body": "Flesh",
-        "Armor": "None",
-        "Shield": "None",
+        "Body": "Boss",
+        "Armor": "Armor",
+        "Shield": "Phase Aura",
         "DropTypes": [
             "fleshy",
             "silky"
@@ -2629,9 +2629,9 @@
         "Name": "Voxon",
         "Description": "Not enough is yet known about this creature!",
         "Level": 32,
-        "Body": "Specter",
-        "Armor": "None",
-        "Shield": "None",
+        "Body": "Magical Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
         "DropTypes": [
             "silky"
         ],
@@ -2673,8 +2673,8 @@
         "Name": "Grazer of History",
         "Description": "Not enough is yet known about this creature!",
         "Level": 33,
-        "Body": "Specter",
-        "Armor": "None",
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
         "Shield": "None",
         "DropTypes": [
             "silky"
@@ -3705,8 +3705,8 @@
         "Description": "Not enough is yet known about this creature!",
         "Level": 53,
         "Body": "Flesh",
-        "Armor": "None",
-        "Shield": "None",
+        "Armor": "Armor",
+        "Shield": "Phase Demon",
         "DropTypes": [
             "silky",
             "skinny",
@@ -3720,9 +3720,9 @@
         "Name": "Forsaken Forgesmith Allfather",
         "Description": "Not enough is yet known about this creature!",
         "Level": 98,
-        "Body": "Flesh",
+        "Body": "Boss",
         "Armor": "Armor",
-        "Shield": "None",
+        "Shield": "Phase Demon",
         "DropTypes": [
             "metalic",
             "gemy"
@@ -4159,7 +4159,7 @@
         "Level": 70,
         "Body": "Magical Flesh",
         "Armor": "Armor",
-        "Shield": "None",
+        "Shield": "Phase Demon",
         "DropTypes": [
             "magical",
             "woody",
@@ -4203,9 +4203,9 @@
         "Name": "Demon, Arkhen",
         "Description": "You sought, and fought.. Now crumble and cry..",
         "Level": 100,
-        "Body": "Flesh",
+        "Body": "Boss",
         "Armor": "Demon",
-        "Shield": "Phase Aura",
+        "Shield": "Phase Demon",
         "DropTypes": [
             "tooly",
             "fleshy",
@@ -4708,6 +4708,181 @@
         "UniqueType": "None",
         "UniqueItem": false,
         "ConstKey": 311
+    },
+    {
+        "Name": "Glass Hellhound",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 75,
+        "Body": "Flesh",
+        "Armor": "Demon",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "gemy",
+            "fleshy",
+            "magical"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 312
+    },
+    {
+        "Name": "Crowned Kader",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 76,
+        "Body": "Magical Flesh",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "magical"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 313
+    },
+    {
+        "Name": "Venom Segnit",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 77,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "fleshy",
+            "metalic"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 314
+    },
+    {
+        "Name": "Bhicmoth",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 78,
+        "Body": "Flesh",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "fleshy",
+            "silky"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 315
+    },
+    {
+        "Name": "Snow Segnit",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 79,
+        "Body": "Magical Flesh",
+        "Armor": "Armor",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "magical",
+            "fleshy",
+            "metalic"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 316
+    },
+    {
+        "Name": "Treeguard Soldier",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 80,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "herby"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 317
+    },
+    {
+        "Name": "Treeguard Brute",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 81,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "herby"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 318
+    },
+    {
+        "Name": "Treeguard Menace",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 82,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "None",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "herby"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 319
+    },
+    {
+        "Name": "Treeguard Elite",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 83,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Demon",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "herby"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 320
+    },
+    {
+        "Name": "Treeguard Yutlid",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 84,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "herby",
+            "tooly"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 321
+    },
+    {
+        "Name": "Treeguard Yutlid Elite",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 85,
+        "Body": "Magical Flesh",
+        "Armor": "Bark",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "magical",
+            "woody",
+            "herby",
+            "tooly"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 322
     },
     {
         "Name": "COPY",
