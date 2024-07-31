@@ -17,6 +17,7 @@ const {
 } = require('./Export/finalCombatExtras');
 const { checkInboundItem } = require('./Export/itemMoveContainer');
 const { uni_displayItem } = require('./Export/itemStringCore');
+const { handleEnemyMat } = require('./Export/materialFactory');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -26,14 +27,14 @@ const loadCombButts = (player) => {
 
     const hideButton = new ButtonBuilder()
     .setCustomId('hide')
-    .setLabel('Try to hide')
-    .setDisabled(true)
+    .setLabel(player.buttonState.hide.txt)
+    .setDisabled(player.buttonState.hide.disable)
     .setStyle(ButtonStyle.Secondary);
 
     const stealButton = new ButtonBuilder()
     .setCustomId('steal')
-    .setLabel('Steal Item')
-    .setDisabled(true)
+    .setLabel(player.buttonState.steal.txt)
+    .setDisabled(player.buttonState.steal.disable)
     .setStyle(ButtonStyle.Secondary);
 
     const blockButton = new ButtonBuilder()
@@ -42,7 +43,7 @@ const loadCombButts = (player) => {
     .setDisabled(true)
     .setStyle(ButtonStyle.Secondary);
 
-    let buttLabel, usePot = false;
+    let buttLabel, usePot = true;
     if (player.potion.name !== ""){
         if (player.potion.amount <= 0){
             buttLabel = `0 ${player.potion.name} Remain`;
@@ -50,7 +51,7 @@ const loadCombButts = (player) => {
             buttLabel = `CoolDown: ${player.potion.cCount}`;
         } else {
             buttLabel = `${player.potion.amount} ${player.potion.name}`;
-            usePot = true;
+            usePot = false;
         }
     } else buttLabel = "No Potion";
 
@@ -125,7 +126,7 @@ module.exports = {
 
         if (!betaTester.has(interaction.user.id)) return await interaction.reply('Sorry, this command is being tested and is unavailable.');
 
-        let startTime, endTime, displayStartTime, displayEndTime;
+        let startTime, displayStartTime;
         async function preloadCombat(){
             await interaction.deferReply();
 
@@ -204,13 +205,13 @@ module.exports = {
                             // NOT IN USE
                         break;
                         case "hide":
-                            // NOT IN USE
+                            await combCollector.stop(await handleHiding(player, enemy));
                         break;
                         case "steal":
-                            // NOT IN USE
+                            await combCollector.stop(await handleStealing(player, enemy));
                         break;
                         case "potion":
-                            // NOT IN USE
+                            await combCollector.stop(await handlePotionUsed(player, enemy));
                         break;
                     }
                 }).catch(e => console.error(e));
@@ -248,7 +249,7 @@ module.exports = {
          * This function contains the core functionality of all attacking related code
          * @param {CombatInstance} player Combat Instance Object
          * @param {EnemyFab} enemy Enemy Instance Object
-         * @returns {string} string: Action to take when ending collector
+         * @returns {promise <string>} string: Action to take when ending collector
          */
         async function handleCombatTurn(player, enemy){
             let enemyDead = false, playerCombEmbeds = [];
@@ -299,7 +300,7 @@ module.exports = {
             
             await interaction.channel.send({embeds: playerCombEmbeds}).then(embedMsg => setTimeout(() => {
                 embedMsg.delete();
-            }, 45000)).catch(e => console.error(e));
+            }, 35000)).catch(e => console.error(e));
 
             console.log(enemy);
             //console.log(player);
@@ -311,41 +312,9 @@ module.exports = {
                 return "EDEAD";
             }
 
-            const enemyAttacks = enemy.attack();
-            if (enemyAttacks === "MISS"){
-                // Enemy Miss, combat turn ends .stop('RELOAD');
-                const enemyMissEmbed = new EmbedBuilder()
-                .setTitle('Enemy Misses Attack!!')
-                .setDescription('You take no damage!');
-
-                await interaction.followUp({embeds: [enemyMissEmbed]}).then(embedMsg => setTimeout(() => {
-                    embedMsg.delete();
-                }, 45000)).catch(e => console.error(e));
-                // =================== TIMER END
-                endTimer(startTime, "Final Combat");
-                // =================== TIMER END
-                return "RELOAD";
-            }
-            // Enemy Attack
-            const enemyAttackOutcome = enemyAttack(player.staticDefence, enemyAttacks);
-
-            // =================== TIMER END
-            endTimer(startTime, "Final Combat");
-            // =================== TIMER END
-
-            const enemyAttacksEmbed = new EmbedBuilder()
-            .setTitle('Enemy Attacks!!')
-            .setColor('DarkRed')
-            .setDescription(`${enemyAttackOutcome.outcome}: ${enemyAttackOutcome.dmgTaken}`);
-
-            await interaction.channel.send({embeds: [enemyAttacksEmbed]}).then(embedMsg => setTimeout(() => {
-                embedMsg.delete();
-            }, 45000)).catch(e => console.error(e));
-            
-            return "RELOAD"; // TEMP
-            // PLAYER DEAD ? true .stop('PDEAD') : false .stop('RELOAD');
+            const eTurnOutcome = await handleEnemyAttack(player, enemy);
+            return eTurnOutcome;
         }
-
 
         /**
          * This function handles all updates, payouts, and progress from the completed
@@ -377,30 +346,20 @@ module.exports = {
             let xpGain = enemy.rollXP();
             let coinGain = xpGain + Math.floor(xpGain * 0.10);
 
+            
+            // Material Drops
+            const { materialFiles } = interaction.client;
 
+            const matDropReplyObj = await handleEnemyMat(enemy, player.userId, materialFiles, interaction);
+            await interaction.channel.send(matDropReplyObj).then(matMsg => setTimeout(() => {
+                matMsg.delete();
+            }, 60000)).catch(e=>console.error(e));
+
+
+            // Item Drops
             if (enemy.payouts.item){
-                // Generate Item
-                const rar = await player.rollItemRar(enemy);
-
-                const { gearDrops } = interaction.client;
-
-                let choices = [];
-                for (const [key, value] of gearDrops) {
-                    if (value === rar) choices.push(key);
-                }
-
-                const picked = randArrPos(choices);
-                const theItem = await checkInboundItem(player.userId, picked);
-
-                const itemEmbed = new EmbedBuilder()
-                .setTitle('Loot Dropped');
-
-                const grabbedValues = uni_displayItem(theItem, "Single");
-                itemEmbed
-                .setColor(grabbedValues.color)
-                .addFields(grabbedValues.fields);
-
-                await interaction.channel.send({embeds: [itemEmbed]}).then(dropEmbed => setTimeout(() => {
+                const iE = await dropItem(player, enemy);
+                await interaction.channel.send({embeds: [iE]}).then(dropEmbed => setTimeout(() => {
                     dropEmbed.delete();
                 }, 60000)).catch(e => console.error(e));
             }
@@ -443,7 +402,7 @@ module.exports = {
                 const newCollector = embedMsg.createMessageComponentCollector({
                     componentType: ComponentType.Button,
                     filter,
-                    time: 40000
+                    time: 80000
                 });
 
                 newCollector.on('collect', async c => {
@@ -527,6 +486,167 @@ module.exports = {
         async function handlePotionUsed(player, enemy){
             const outcome = await player.potionUsed();
             // Handle active potion status entry
+            
+            const potEmbed = new EmbedBuilder()
+            .setTitle('Potion')
+            .setDescription(outcome);
+
+            await interaction.channel.send({embeds: [potEmbed]}).then(potMsg => setTimeout(() => {
+                potMsg.delete();
+            }, 35000)).catch(e=>console.error(e));
+            return "RELOAD";
+        }
+
+        /**
+         * This function handles stealing and its outcomes.
+         * @param {CombatInstance} player CombatInstance Object
+         * @param {EnemyFab} enemy EnemyFab Object
+         * @returns {promise <string>}"RELOAD"
+         */
+        async function handleStealing(player, enemy){
+            let stealEmbed = new EmbedBuilder(), fail = false;
+
+            const outcome = await enemy.steal(player);
+            switch(outcome){
+                case "Unique":
+                    // Not possible yet
+                    stealEmbed
+                    .setTitle('Uni Item Text');
+                break;
+                case "No Item":
+                    // Disable Stealing
+                    stealEmbed
+                    .setTitle('Nothing to steal!')
+                    .setColor('NotQuiteBlack')
+                    .addFields({name: "No really..", value: "There isnt anything here!"});
+                    player.buttonState.steal.disable = true;
+                break;
+                case "Fail":
+                    // Take Damage
+                    stealEmbed
+                    .setTitle('Failed!')
+                    .setColor('DarkRed')
+                    .addFields({name: "OH NO!", value: "You got caught redhanded!"});
+                    fail = true;
+                break;
+                default:
+                    // Item stolen
+                    stealEmbed = await dropItem(player, enemy, outcome);
+                    player.buttonState.steal.disable = true;
+                break;
+            }
+
+            await interaction.channel.send({embeds: [stealEmbed]}).then(stealMsg => setTimeout(() => {
+                stealMsg.delete();
+            }, 45000)).catch(e=>console.error(e));
+            return (fail) ? await handleEnemyAttack(player, enemy) : 'RELOAD';
+        }
+
+        /**
+         * This function handles hiding and its outcomes.
+         * @param {CombatInstance} player CombatInstance Object
+         * @param {EnemyFab} enemy EnemyFab Object
+         * @returns {promise <string>}"RELOAD"
+         */
+        async function handleHiding(player, enemy){
+            const hideEmbed = new EmbedBuilder();
+            let fail = false;
+
+            const outcome = player.hiding(enemy);
+            if (!outcome){
+                // Hiding fail
+                hideEmbed
+                .setTitle('Failed!')
+                .setColor('DarkRed')
+                .addFields({name: "OH NO!", value: "You failed to hide!"});
+                fail = true;
+            } else {
+                hideEmbed
+                .setTitle('Success!')
+                .setColor('LuminousVividPink')
+                .addFields({name: "Well Done!", value: "You managed to hide!"});
+                player.buttonState.hide.txt = "Escape!";
+            }
+
+            await interaction.channel.send({embeds: [hideEmbed]}).then(hideMsg => setTimeout(() => {
+                hideMsg.delete();
+            }, 45000)).catch(e=>console.error(e));
+            return (fail) ? await handleEnemyAttack(player, enemy) : "RELOAD";
+        }
+
+        /**
+         * This function fully handles an item being dropped, stored, saved, and displayed!
+         * @param {CombatInstance} player CombatINstance Object
+         * @param {EnemyFab} enemy EnemyFab Object
+         * @param {(number|undefined)} forcedRar Forced rarity picked || Undefined
+         * @returns {promise <EmbedBuilder>}
+         */
+        async function dropItem(player, enemy, forcedRar){
+            // Generate Item
+            const rar = forcedRar ?? await player.rollItemRar(enemy);
+
+            const { gearDrops } = interaction.client;
+
+            let choices = [];
+            for (const [key, value] of gearDrops) {
+                if (value === rar) choices.push(key);
+            }
+
+            const picked = randArrPos(choices);
+            const theItem = await checkInboundItem(player.userId, picked);
+
+            const itemEmbed = new EmbedBuilder()
+            .setTitle('Loot Dropped');
+
+            const grabbedValues = uni_displayItem(theItem, "Single");
+            itemEmbed
+            .setColor(grabbedValues.color)
+            .addFields(grabbedValues.fields);
+
+            return itemEmbed;
+        }
+
+        /**
+         * This function handles the enemy attacking the player, this allows for an attack
+         * to be called from anywhere as needed.
+         * @param {CombatInstance} player CombatInstance Object
+         * @param {EnemyFab} enemy EnemyFab Object
+         * @returns {promise <string>} "RELOAD"
+         */
+        async function handleEnemyAttack(player, enemy){
+            const enemyAttacks = enemy.attack();
+            if (enemyAttacks === "MISS"){
+                // Enemy Miss, combat turn ends .stop('RELOAD');
+                const enemyMissEmbed = new EmbedBuilder()
+                .setTitle('Enemy Misses Attack!!')
+                .setDescription('You take no damage!');
+
+                await interaction.followUp({embeds: [enemyMissEmbed]}).then(embedMsg => setTimeout(() => {
+                    embedMsg.delete();
+                }, 35000)).catch(e => console.error(e));
+                // =================== TIMER END
+                endTimer(startTime, "Final Combat");
+                // =================== TIMER END
+                return "RELOAD";
+            }
+            // Enemy Attack
+            const enemyAttackOutcome = enemyAttack(player.staticDefence, enemyAttacks);
+
+            // =================== TIMER END
+            endTimer(startTime, "Final Combat");
+            // =================== TIMER END
+
+            const enemyAttacksEmbed = new EmbedBuilder()
+            .setTitle('Enemy Attacks!!')
+            .setColor('DarkRed')
+            .setDescription(`${enemyAttackOutcome.outcome}: ${enemyAttackOutcome.dmgTaken}`);
+
+            await interaction.channel.send({embeds: [enemyAttacksEmbed]}).then(embedMsg => setTimeout(() => {
+                embedMsg.delete();
+            }, 35000)).catch(e => console.error(e));
+            
+            return "RELOAD"; // TEMP
+            // PLAYER DEAD ? true .stop('PDEAD') : false .stop('RELOAD');
         }
 
         /**

@@ -103,6 +103,17 @@ class CombatInstance {
         };
         this.pigmy;
         
+        this.buttonState = {
+            steal: {
+                txt: "Steal",
+                disable: false
+            },
+            hide: {
+                txt: "Try to hide",
+                disable: false
+            }
+        };
+
         this.staticDamage = [];
         this.staticDefence = [];
 
@@ -122,6 +133,7 @@ class CombatInstance {
                 this.health = this.maxHealth;
             } else this.health += this.potion.effectApplied;
             this.potion.amount -= 1;
+            this.drinkPotion();
             this.onCooldown();
             return `Healed for ${this.potion.effectApplied}`;
         }
@@ -200,6 +212,7 @@ class CombatInstance {
         // Recalculate basic stat outcomes
         await this.#loadBasicStats();
         this.potion.amount -= 1;
+        this.drinkPotion();
         this.onCooldown();
         return `${potObj.cat} potion used!`;
     }
@@ -285,6 +298,21 @@ class CombatInstance {
                 if (dec) await potMatch.save();
             }
         }
+    }
+
+    async drinkPotion(){
+        const p = await OwnedPotions.findOne({
+            where: {
+                spec_id: this.userId, 
+                potion_id: this.potion.id
+            }
+        });
+
+        await p.decrement('amount', {by: 1}).then(async pot => {return await pot.reload();});
+        
+        if (p.amount <= 0) await p.destroy();
+
+        return;
     }
 
     async handlePotionCounters(){

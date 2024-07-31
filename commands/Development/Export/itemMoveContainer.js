@@ -1,7 +1,7 @@
 // This script handles all item transfers between inventories. 
 // This includes, Item creation, Item trade, and Item selling/dismantling
 
-const { ItemStrings, ItemLootPool, UserData } = require("../../../dbObjects");
+const { ItemStrings, ItemLootPool, UserData, MaterialStore } = require("../../../dbObjects");
 
 /**
  * This function checks for an item in the given users ItemStrings storage,
@@ -49,6 +49,40 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
 }
 
 /**
+ * This function handles creating/updating materials that are inbound for a users,
+ * inventory, it then returns the updated material.
+ * @param {string} userid User ID string
+ * @param {object} matRef Material Prefab Object
+ * @param {string} matType Material type string
+ * @param {number} amount Material amount, defaults 1
+ * @returns {object} Material Instance of MaterialStore 
+ */
+async function checkInboundMat(userid, matRef, matType, amount=1){
+    const theMat = await MaterialStore.findOrCreate({
+        where: {
+            spec_id: userid,
+            mat_id: matRef.Mat_id,
+            mattype: matType
+        },
+        defaults: {
+            name: matRef.Name,
+            value: matRef.Value,
+            rarity: matRef.Rarity,
+            rar_id: matRef.Rar_id,
+            amount: amount
+        }
+    });
+
+    if (theMat[1]){
+        await theMat[0].save().then(async mat => {return await mat.reload();});
+    } else {
+        await theMat[0].increment('amount', {by: amount}).then(async mat => {return await mat.reload();});
+    }
+
+    return theMat[0];
+}
+
+/**
  * This function checks for a given item in the given users ItemStrings storage,
  * it then attempts to remove from it the amount give, if this amount reduces total 
  * amount to or below zero, it removes the item entry and decreases the users total
@@ -76,6 +110,27 @@ async function checkOutboundItem(userid, itemid, amount=1){
 }
 
 /**
+ * This function attempts to remove the given amount from the given material,
+ * if this takes it to 0 the material entry is removed.
+ * @param {string} userid Users ID
+ * @param {object} matRef Material Prefab object
+ * @param {string} matType Material type string
+ * @param {number} amount Amount to remove, default 1
+ * @returns {promise <string>} 'Material Not Found' || 'Material Updated'
+ */
+async function checkOutboundMat(userid, matRef, matType, amount=1){
+    const theMat = await MaterialStore.findOne({
+        where: {spec_id: userid, mat_id: matRef.Mat_id, mattype: matType}
+    });
+    if (!theMat) return 'Material Not Found';
+    await theMat.decrement('amount', {by: amount}).then(async mat => {
+        await mat.reload();
+        if (mat.amount <= 0) await trashMaterial(mat);
+    });
+    return 'Material Updated';
+}
+
+/**
  * This function handles the transfer of an item between two users. It is handled
  * through checkInboundItem() and checkOutboundItem() respectively.
  * @param {string} userGive User giving ID
@@ -94,6 +149,24 @@ async function moveItem(userGive, userTake, itemid, amount=1, craftedI){
 }
 
 /**
+ * This function handles the transfer of a material between two users. It is handled
+ * through checkInboundMat() and checkOutboundMat() respectively.
+ * @param {string} userGive User giving ID
+ * @param {string} userTake User taking ID
+ * @param {object} matRef Material Prefab reference object
+ * @param {string} matType Material type string
+ * @param {number} amount amount to be moved, default 1
+ * @returns {promise<object|string>} MaterialStore db entry object on resolve, string on reject
+ */
+async function moveMaterial(userGive, userTake, matRef, matType, amount=1){
+    const outboundCheck = await checkOutboundMat(userGive, matRef, matType, amount);
+    if (outboundCheck === 'Material Not Found') return 'Material Error';
+    const theMat = await checkInboundMat(userTake, matRef, matType, amount);
+
+    return theMat;
+}
+
+/**
  * This function trashes a given item and updates a given users total items.
  * @param {object} itemRef ItemStrings DB Reference
  * @param {object} theUser UserData DB Reference
@@ -105,10 +178,23 @@ async function trashItem(itemRef, theUser){
     return;
 }
 
+/**
+ * This function destroys the given material instance from the database.
+ * @param {object} mat MaterialStore Instance
+ * @returns {promise <void>}
+ */
+async function trashMaterial(mat){
+    await mat.destroy();
+    return;
+}
+
 
 module.exports = {
     moveItem, 
+    moveMaterial,
     checkInboundItem,
+    checkInboundMat,
     checkOutboundItem,
+    checkOutboundMat,
     trashItem
 };
