@@ -1,5 +1,5 @@
 // Used for any external methods, calls, filtering related to combat itself. 
-const {ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType} = require('discord.js');
+const {inclusiveRandNum, randArrPos} = require('../../../uniHelperFunctions');
 
 // ===============================
 //       COMBAT/ITEM KEYS
@@ -522,18 +522,6 @@ function applyActiveStatus(result, enemy){
 }
 
 // ===============================
-//       HELPER METHODS
-// ===============================
-
-const inclusiveRandNum = (max, min) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};
-
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
-
-// ===============================
 //       CORE ATTACK CODE
 // ===============================
 
@@ -821,73 +809,5 @@ function singleLookup(dmgObj, ...extraMod) {
 
     return dmgObj;
 }
-
-// ===============================
-//     CORE INTERACTIVE CODE
-// ===============================
-
-const {Combat} = require('./Classes/Combat');
-
-// Generate combat instance
-async function combatStartedTEMP(interaction, weaponCode){
-    const buttonObject = {
-        attackButton: new ButtonBuilder()
-        .setCustomId(`attack-${interaction.user.id}`)
-        .setLabel('Strike')
-        .setStyle(ButtonStyle.Primary)
-    };
-
-    const actionRow = new ActionRowBuilder().addComponents(buttonObject.attackButton);
-
-    const combatMessage = await interaction.followUp({content: 'Combat Started', components: [actionRow]});
-
-    const filter = (i) => i.user.id === interaction.user.id;
-
-    const combCollecter = combatMessage.createMessageComponentCollecter({
-        ComponentType: ComponentType.Button,
-        filter,
-        time: 900000,
-    });
-
-    const combatInstance = new Combat(interaction.user, weaponCode/*, buttonObject, actionRow, combCollecter*/);
-
-
-
-    combCollecter.on('collect', (COI) => {
-        if (COI.customId === buttonObject.attackButton.customId){
-            combatInstance.setActive();
-
-            attackEnemy(weaponDamage, enemy);
-        }
-    });
-}
-// Setup Universal Button Handles
-
-
-const combatLog = {
-    title: "Enemy",
-    color: 0o0,
-    description: "Enemy Info Here",
-    fields: [
-        {name: "Shield", value: 10},
-        {name: "Armor", value: 150},
-        {name: "Flesh", value: 300},
-    ]
-};
-
-
-// Display +-00-+
-/*
-const { AttachmentBuilder } = require('discord.js');
-
-const Canvas = require('@napi-rs/canvas');
-
-const canvas = Canvas.createCanvas(700, 300);
-const ctx = canvas.getContext('2d');
-
-ctx.fillStyle = 0x1d1f20;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-*/
-
 
 module.exports = {attackEnemy, enemyAttack, checkingDamage, handleActiveStatus, applyActiveStatus, genGearPiece};

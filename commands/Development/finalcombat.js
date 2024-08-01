@@ -7,17 +7,21 @@ const { EnemyFab } = require('./Export/Classes/EnemyFab');
 
 const { createNewEnemyImage } = require('../Game/exported/displayEnemy');
 
-const { attackEnemy, enemyAttack, handleActiveStatus, applyActiveStatus } = require('./Export/combatContainer');
+const { attackEnemy, handleActiveStatus, applyActiveStatus } = require('./Export/combatContainer');
 
 const {
     loadPlayer,
     loadEnemy,
     loadDamageItems,
-    loadDefenceItems
+    loadDefenceItems,
+    genAttackTurnEmbed,
+    genStatusResultEmbed,
+    handleEnemyAttack,
+    dropItem
 } = require('./Export/finalCombatExtras');
-const { checkInboundItem } = require('./Export/itemMoveContainer');
-const { uni_displayItem } = require('./Export/itemStringCore');
 const { handleEnemyMat } = require('./Export/materialFactory');
+
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage} = require('../../uniHelperFunctions');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -79,42 +83,6 @@ const statusColourMatch = new Map([
     ["MagiWeak", {rank: 5, colour: 0xF1C232}]
 ]);
 
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
-
-/**
- * This method handles styling timers based on time difference found, and then
- * handles logging the output accordingly.
- * @param {number} startTime Start Time for measurement
- * @param {string} measureName Display String for measurement
- */
-const endTimer = (startTime, measureName) => {
-    const endTime = new Date().getTime();
-    const timeDiff = endTime - startTime;
-    let preStyle;
-    if (timeDiff === 0){
-        preStyle = chalk.blueBright.bgGrey;
-    } else if (timeDiff >= 25000){
-        preStyle = chlkPreset.err;
-    } else if (timeDiff >= 10000){
-        preStyle = chalk.red.bgGrey;
-    } else if (timeDiff >= 5000){
-        preStyle = chalk.redBright.bgGrey;
-    } else if (timeDiff >= 2500){
-        preStyle = chalk.yellowBright.bgGrey;
-    } else if (timeDiff >= 1000){
-        preStyle = chalk.yellow.bgGrey;
-    } else if (timeDiff >= 500){
-        preStyle = chalk.green.dim.bgGrey;
-    } else if (timeDiff >= 150){
-        preStyle = chalk.greenBright.bgGrey;
-    } else {
-        preStyle = chalk.blueBright.bgGrey;
-    }
-    console.log(preStyle(`${measureName} Duration: ${timeDiff}ms`));
-}
-
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('finalcombat')
@@ -122,7 +90,7 @@ module.exports = {
 
 	async execute(interaction) { 
 
-        const { enemies, combatInstance, betaTester } = interaction.client; 
+        const { enemies, combatInstance, betaTester, gearDrops } = interaction.client; 
 
         if (!betaTester.has(interaction.user.id)) return await interaction.reply('Sorry, this command is being tested and is unavailable.');
 
@@ -181,21 +149,15 @@ module.exports = {
             
             // REPLY TIME LOG
             const msgStart = new Date().getTime();
-            const combatMessage = await interaction.followUp(replyType);
+
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 60000, replyType, "FollowUp");
+            const combatMessage = anchorMsg, combCollector = collector;
 
             // REPLY TIME LOG
             endTimer(msgStart, "Final Interaction Reply");
-            const filter = (i) => i.user.id === interaction.user.id;
-
-            const combCollector = combatMessage.createMessageComponentCollector({
-                componentType: ComponentType.Button,
-                filter,
-                time: 60000,
-            });
 
             combCollector.on('collect', async c => {
                 await c.deferUpdate().then(async () => {
-                    // let collectorReason = "None";
                     startTime = new Date().getTime();
                     switch(c.customId){
                         case "attack":
@@ -297,10 +259,8 @@ module.exports = {
                     playerCombEmbeds.push(statusEmbed);
                 }
             }
-            
-            await interaction.channel.send({embeds: playerCombEmbeds}).then(embedMsg => setTimeout(() => {
-                embedMsg.delete();
-            }, 35000)).catch(e => console.error(e));
+            const replyObj = {embeds: playerCombEmbeds};
+            await sendTimedChannelMessage(interaction, 35000, replyObj);
 
             console.log(enemy);
             //console.log(player);
@@ -313,7 +273,11 @@ module.exports = {
             }
 
             const eTurnOutcome = await handleEnemyAttack(player, enemy);
-            return eTurnOutcome;
+            await sendTimedChannelMessage(interaction, 35000, eTurnOutcome.replyObj);
+            // =================== TIMER END
+            endTimer(startTime, "Final Combat");
+            // =================== TIMER END
+            return eTurnOutcome.outcome;
         }
 
         /**
@@ -326,42 +290,31 @@ module.exports = {
             // ==========================
             // SETUP DB UPDATE QUE SYSTEM
             // ==========================
-            
             // Handle potions used
             await player.checkPotionUse();
             // Handle potion durations/cooldowns
             await player.handlePotionCounters();
             // Handle health updates
             await player.checkHealth();
-            
-            
+            // Handle kill counts/combat tasks
+            await player.handleCombatWin(enemy, interaction);
             // Spawn New Enemy Access
             let newAccess = true;
 
-
-            
             // =============
             // Enemy Payouts
             // =============
             let xpGain = enemy.rollXP();
             let coinGain = xpGain + Math.floor(xpGain * 0.10);
 
-            
             // Material Drops
             const { materialFiles } = interaction.client;
-
             const matDropReplyObj = await handleEnemyMat(enemy, player.userId, materialFiles, interaction);
-            await interaction.channel.send(matDropReplyObj).then(matMsg => setTimeout(() => {
-                matMsg.delete();
-            }, 60000)).catch(e=>console.error(e));
-
-
+            await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
             // Item Drops
             if (enemy.payouts.item){
-                const iE = await dropItem(player, enemy);
-                await interaction.channel.send({embeds: [iE]}).then(dropEmbed => setTimeout(() => {
-                    dropEmbed.delete();
-                }, 60000)).catch(e => console.error(e));
+                const iE = await dropItem(gearDrops, player, enemy);
+                await sendTimedChannelMessage(interaction, 60000, iE);
             }
 
             // =============
@@ -391,31 +344,22 @@ module.exports = {
             );
 
             if (!newAccess){
-                await interaction.channel.send({embeds: [killedEmbed]}).then(embedMsg => setTimeout(() => {
-                    embedMsg.delete();
-                }, 30000)).catch(e => console.error(e));
+                await sendTimedChannelMessage(interaction, 35000, killedEmbed);
             } else {
-                const embedMsg = await interaction.channel.send({embeds: [killedEmbed], components: [eRow]});
+                const combReplyObj = {embeds: [killedEmbed], components: [eRow]};
+                const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj);
 
-                const filter = (i) => i.user.id === interaction.user.id;
-
-                const newCollector = embedMsg.createMessageComponentCollector({
-                    componentType: ComponentType.Button,
-                    filter,
-                    time: 80000
-                });
-
-                newCollector.on('collect', async c => {
+                collector.on('collect', async c => {
                     await c.deferUpdate().then(async () => {
                         if (c.customId === 'spawn-new'){
-                            newCollector.stop();
+                            collector.stop();
                             return combatLooper(player, loadEnemy(player.level, enemies));
                         }
                     }).catch(e => console.error(e));
                 });
 
-                newCollector.on('end', (c, r) => {
-                    embedMsg.delete().catch(error => {
+                collector.on('end', (c, r) => {
+                    anchorMsg.delete().catch(error => {
                         if (error.code !== 10008) {
                             console.error('Failed to delete the message:', error);
                         }
@@ -424,7 +368,11 @@ module.exports = {
             }
         }
 
-
+        /**
+         * This function handles all updates due to the player dying.
+         * @param {CombatInstance} player Combat Instance Object
+         * @param {EnemyFab} enemy Enemy Instance Object
+         */
         async function handlePlayerDead(player, enemy){
             // ==========================
             // SETUP DB UPDATE QUE SYSTEM
@@ -448,15 +396,9 @@ module.exports = {
                 { name: `Obituary`, value: "You have fallen in combat!!", inline: true }
             );
 
-            const embedMsg = await interaction.channel.send({ embeds: [deadEmbed], components: [grief]});
-            
-            const filter = (i) => i.user.id === interaction.user.id;
-
-            const collector = embedMsg.createMessageComponentCollector({
-                componentType: ComponentType.Button,
-                filter,
-                time: 40000,
-            });
+            const combReplyObj = {embeds: [deadEmbed], components: [grief]};
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj);
+            const embedMsg = anchorMsg;
             
             // =============
             //    Revive
@@ -464,6 +406,7 @@ module.exports = {
             collector.on('collect', async c => {
                 await c.deferUpdate().then(async () => {
                     if (c.customId === 'revive'){
+                        await player.revive(enemy);
                         return collector.stop();
                     }
                 }).catch(e => console.error(e));
@@ -489,11 +432,10 @@ module.exports = {
             
             const potEmbed = new EmbedBuilder()
             .setTitle('Potion')
-            .setDescription(outcome);
+            .setDescription(outcome)
+            .addFields({name: "Your Health: ", value: `${player.health}`});
 
-            await interaction.channel.send({embeds: [potEmbed]}).then(potMsg => setTimeout(() => {
-                potMsg.delete();
-            }, 35000)).catch(e=>console.error(e));
+            await sendTimedChannelMessage(interaction, 35000, potEmbed);
             return "RELOAD";
         }
 
@@ -531,14 +473,12 @@ module.exports = {
                 break;
                 default:
                     // Item stolen
-                    stealEmbed = await dropItem(player, enemy, outcome);
+                    stealEmbed = await dropItem(gearDrops, player, enemy, outcome);
                     player.buttonState.steal.disable = true;
                 break;
             }
 
-            await interaction.channel.send({embeds: [stealEmbed]}).then(stealMsg => setTimeout(() => {
-                stealMsg.delete();
-            }, 45000)).catch(e=>console.error(e));
+            await sendTimedChannelMessage(interaction, 45000, stealEmbed);
             return (fail) ? await handleEnemyAttack(player, enemy) : 'RELOAD';
         }
 
@@ -568,85 +508,8 @@ module.exports = {
                 player.buttonState.hide.txt = "Escape!";
             }
 
-            await interaction.channel.send({embeds: [hideEmbed]}).then(hideMsg => setTimeout(() => {
-                hideMsg.delete();
-            }, 45000)).catch(e=>console.error(e));
+            await sendTimedChannelMessage(interaction, 45000, hideEmbed);
             return (fail) ? await handleEnemyAttack(player, enemy) : "RELOAD";
-        }
-
-        /**
-         * This function fully handles an item being dropped, stored, saved, and displayed!
-         * @param {CombatInstance} player CombatINstance Object
-         * @param {EnemyFab} enemy EnemyFab Object
-         * @param {(number|undefined)} forcedRar Forced rarity picked || Undefined
-         * @returns {promise <EmbedBuilder>}
-         */
-        async function dropItem(player, enemy, forcedRar){
-            // Generate Item
-            const rar = forcedRar ?? await player.rollItemRar(enemy);
-
-            const { gearDrops } = interaction.client;
-
-            let choices = [];
-            for (const [key, value] of gearDrops) {
-                if (value === rar) choices.push(key);
-            }
-
-            const picked = randArrPos(choices);
-            const theItem = await checkInboundItem(player.userId, picked);
-
-            const itemEmbed = new EmbedBuilder()
-            .setTitle('Loot Dropped');
-
-            const grabbedValues = uni_displayItem(theItem, "Single");
-            itemEmbed
-            .setColor(grabbedValues.color)
-            .addFields(grabbedValues.fields);
-
-            return itemEmbed;
-        }
-
-        /**
-         * This function handles the enemy attacking the player, this allows for an attack
-         * to be called from anywhere as needed.
-         * @param {CombatInstance} player CombatInstance Object
-         * @param {EnemyFab} enemy EnemyFab Object
-         * @returns {promise <string>} "RELOAD"
-         */
-        async function handleEnemyAttack(player, enemy){
-            const enemyAttacks = enemy.attack();
-            if (enemyAttacks === "MISS"){
-                // Enemy Miss, combat turn ends .stop('RELOAD');
-                const enemyMissEmbed = new EmbedBuilder()
-                .setTitle('Enemy Misses Attack!!')
-                .setDescription('You take no damage!');
-
-                await interaction.followUp({embeds: [enemyMissEmbed]}).then(embedMsg => setTimeout(() => {
-                    embedMsg.delete();
-                }, 35000)).catch(e => console.error(e));
-                // =================== TIMER END
-                endTimer(startTime, "Final Combat");
-                // =================== TIMER END
-                return "RELOAD";
-            }
-            // Enemy Attack
-            const enemyAttackOutcome = enemyAttack(player.staticDefence, enemyAttacks);
-
-            // =================== TIMER END
-            endTimer(startTime, "Final Combat");
-            // =================== TIMER END
-
-            const enemyAttacksEmbed = new EmbedBuilder()
-            .setTitle('Enemy Attacks!!')
-            .setColor('DarkRed')
-            .setDescription(`${enemyAttackOutcome.outcome}: ${enemyAttackOutcome.dmgTaken}`);
-
-            await interaction.channel.send({embeds: [enemyAttacksEmbed]}).then(embedMsg => setTimeout(() => {
-                embedMsg.delete();
-            }, 35000)).catch(e => console.error(e));
-            
-            return "RELOAD"; // TEMP
-            // PLAYER DEAD ? true .stop('PDEAD') : false .stop('RELOAD');
         }
 
         /**
@@ -743,104 +606,6 @@ module.exports = {
                 hpFields.push(fieldObj);
             }
             return hpFields;
-        }
-
-        /**
-         * This function generates an embed to display all status effect damage and 
-         * details for the current combat turn.
-         * @param {object} statObj Contains all status effect details
-         * @returns {EmbedBuilder} Constructed display embed for status effect details 
-         */
-        function genStatusResultEmbed(statObj){
-            const statEmbed = new EmbedBuilder()
-            .setTitle(`__**Status Effects**__`)
-            .setColor('DarkBlue');
-
-            let descStr = "", finalFields = [];
-            if (statObj.totalAcc > 0){
-                descStr += "Status effect damage Dealt! ";
-
-                finalFields.push({name: "Total Status Damage:", value: `${Math.round(statObj.totalAcc)}`});
-
-                if (statObj.physAcc > 0){
-                    finalFields.push(
-                        {name: "Physical Damage:", value: `${Math.round(statObj.physAcc)}`}
-                    );
-                }
-                if (statObj.magiAcc > 0){
-                    finalFields.push(
-                        {name: "Magical Damage:", value: `${Math.round(statObj.magiAcc)}`}
-                    );
-                }
-                if (statObj.blastAcc > 0){
-                    finalFields.push(
-                        {name: "Blast Damage:", value: `${Math.round(statObj.blastAcc)}`}
-                    );
-                }
-            }
-
-            if (statObj.newEffects.length > 0){
-                descStr += (statObj.newEffects.length > 1) ? "New status effects applied! " : "New status effect applied! ";
-
-                let fieldObj;
-                for (const effect of statObj.newEffects){
-                    fieldObj = {name: "Effect:", value: `${effect.Effect}`, inline: true};
-                    finalFields.push(fieldObj);
-                }
-            }
-
-            statEmbed.setDescription(descStr);
-            statEmbed.addFields(finalFields);
-            return statEmbed;
-        }
-
-        /**
-         * This function generates an embed for the current combat turn, it displays
-         * damage dealt, whether the enemy was killed, and to what the last amount of 
-         * damage was dealt to.
-         * @param {object} combOutcome Combat Outcome Object
-         * @param {string} dmgDTo Damaged Type String
-         * @param {object} condition Crit and Double Hit outcome object
-         * @returns {EmbedBuilder} Display embed for the current combat turn
-         */
-        function genAttackTurnEmbed(combOutcome, dmgDTo, condition){
-            const turnReturnEmbed = new EmbedBuilder();
-
-            let theOutcome = combOutcome.outcome;
-            if (theOutcome !== 'Dead') {
-                theOutcome = theOutcome.split(" ")[0] + " Damaged!";
-            } else theOutcome = "Kills!";
-            turnReturnEmbed.setTitle(`Attack: ${theOutcome}`);
-
-            let damageFields = [], condStr = [];
-
-            turnReturnEmbed.setColor('DarkOrange');
-            if (condition.DH) {
-                turnReturnEmbed.setColor('Aqua');
-                condStr.push("Double", "Hit!");
-            }
-            if (condition.Crit) {
-                turnReturnEmbed.setColor('LuminousVividPink');
-                if (condStr.length > 0){
-                    condStr[1] = "Crit!";
-                } else condStr.push("Critical Hit!");
-            }
-
-            if (condStr.length > 0) {
-                condStr = condStr.join(" ");
-                damageFields.push({name: condStr.toString(), value: "\u0020"});
-            }
-
-            if (!dmgDTo) dmgDTo = "Flesh";
-
-            damageFields.push(
-                {name: `Damage Dealt To **${dmgDTo}**:`, value: `**${Math.round(combOutcome.dmgDealt)}**`},
-                {name: `Total Damage Dealt:`, value: `**${Math.round(combOutcome.finTot)}**`}
-            );
-
-            turnReturnEmbed.addFields(damageFields);
-
-            return turnReturnEmbed;
         }
 
         preloadCombat();

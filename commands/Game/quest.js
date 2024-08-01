@@ -12,12 +12,7 @@ const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const questList = require('../../events/Models/json_prefabs/questList.json');
 const loreList = require('../../events/Models/json_prefabs/loreList.json');
 
-
-const randArrPos = (arr) => {
-	let returnIndex = 0;
-	if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
-	return arr[returnIndex];
-};
+const {randArrPos} = require('../../uniHelperFunctions.js');
 
 /** This method returns the static loot rar upgrade chance
 	 * 
@@ -65,52 +60,33 @@ module.exports = {
 			}
 
 			const maxQLvl = Math.floor(user.level / 5);
-			let userMilestone = await Milestones.findOne({ where: { userid: user.userid } });
-
-			if (!userMilestone) {
-				await Milestones.create({
-					userid: user.userid,
+			let userMilestone = await Milestones.findOrCreate({
+				where: { 
+					userid: user.userid 
+				},
+				defaults: {
 					currentquestline: 'Souls',
 					nextstoryquest: 5,
-					questlinedungeon: 1,
-				});
+					questlinedungeon: 1
+				} 
+			});
 
-				userMilestone = await Milestones.findOne({ where: { userid: user.userid } });
+			if (userMilestone[1]){
+				await userMilestone[0].save().then(async u => {return await u.reload()});
 			}
+
+			userMilestone = userMilestone[0];
 
 			const userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: user.userid }, { dungeonid: userMilestone.questlinedungeon }] });
 			// If dungeon is completed update milestones to reflect that
 			if (!userDungeon) { } else if (userDungeon.completed) {
 				const storyLine = userMilestone.currentquestline;
-				let chosenStory;
-				let nxtLine;
-				if (storyLine === 'Souls') {
-					chosenStory = 1;
-					nxtLine = 'Dark';
-				} else if (storyLine === 'Dark') {
-					chosenStory = 2;
-					nxtLine = 'Torture';
-				} else if (storyLine === 'Torture') {
-					chosenStory = 3;
-					nxtLine = 'Chaos';
-				} else if (storyLine === 'Chaos') {
-					chosenStory = 4;
-					nxtLine = 'Law';
-				} else if (storyLine === 'Law') {
-					chosenStory = 5;
-					nxtLine = 'Hate';
-				} else if (storyLine === 'Hate') {
-					chosenStory = 6;
-					nxtLine = 'Myst';
-				} else if (storyLine === 'Myst') {
-					chosenStory = 7;
-					nxtLine = 'Secret';
-				} else if (storyLine === 'Secret') {
-					chosenStory = 8;
-					nxtLine = 'Dream';
-				} else if (storyLine === 'Dream') {
-					chosenStory = 9;
-				}
+
+				const lineList = ["None", "Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
+				let chosenStory, nxtLine;
+
+				chosenStory = lineList.indexOf(storyLine);
+				nxtLine = lineList[chosenStory + 1];
 
 				const nxtDung = chosenStory + 1;
 				const nxtStory = loreList.filter(lore => lore.StoryLine === nxtDung)
@@ -421,35 +397,8 @@ module.exports = {
 			if (storyCheck.length <= 0) { } else {
 				await checkHintStoryQuest(user, interaction);
 				const storyLine = userMilestone.currentquestline;
-				let chosenStory;
-				//let nxtLine;
-				if (storyLine === 'Souls') {
-					chosenStory = 1;
-					//nxtLine = 'Dark';
-				} else if (storyLine === 'Dark') {
-					chosenStory = 2;
-					//nxtLine = 'Torture';
-				} else if (storyLine === 'Torture') {
-					chosenStory = 3;
-					//nxtLine = 'Chaos';
-				} else if (storyLine === 'Chaos') {
-					chosenStory = 4;
-					//nxtLine = 'Law';
-				} else if (storyLine === 'Law') {
-					chosenStory = 5;
-					//nxtLine = 'Hate';
-				} else if (storyLine === 'Hate') {
-					chosenStory = 6;
-					//nxtLine = 'Myst';
-				} else if (storyLine === 'Myst') {
-					chosenStory = 7;
-					//nxtLine = 'Secret';
-				} else if (storyLine === 'Secret') {
-					chosenStory = 8;
-					//nxtLine = 'Dream';
-				} else if (storyLine === 'Dream') {
-					chosenStory = 9;
-				}
+				const lineList = ["None", "Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
+				let chosenStory = lineList.indexOf(storyLine);
 
 				//// If dungeon is completed update milestones to reflect that
 				//if (dungeonComplete) {

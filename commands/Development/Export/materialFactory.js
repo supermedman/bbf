@@ -7,9 +7,7 @@ const newEList = require('./Json/newEnemyList.json');
 const { Town } = require('../../../dbObjects');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
+const {randArrPos} = require('../../../uniHelperFunctions');
 
 // Materials from enemy kills
 /**

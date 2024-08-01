@@ -2,17 +2,8 @@
 
 const { grabRar } = require("../../../Game/exported/grabRar");
 
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
-
-const inclusiveRandNum = (max, min) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};
-
-const hitChance = (chance) => {
-    return (Math.random() <= chance) ? true : false;
-};
+const {randArrPos, inclusiveRandNum, rollChance} = require('../../../../uniHelperFunctions');
+const hitChance = rollChance;
 
 const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
 const staticFleshMods = [0.4, 0.25, 0.2, 0.5];
@@ -381,4 +372,4 @@ class EnemyFab {
     }
 }
 
-module.exports = {EnemyFab};
+module.exports = {EnemyFab, xpPayoutScale};

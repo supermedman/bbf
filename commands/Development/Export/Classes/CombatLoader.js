@@ -1,61 +1,12 @@
-const { Loadout, ItemStrings, UserData, OwnedPotions, Pigmy, ActiveStatus } = require('../../../../dbObjects');
+const { Loadout, ItemStrings, UserData, OwnedPotions, Pigmy, ActiveStatus, UserTasks } = require('../../../../dbObjects');
 
-//const { Op } = require('sequelize');
 const {PigmyInstance} = require('./PigCaste');
 
 const potCatEffects = require('../../../../events/Models/json_prefabs/activeCategoryEffects.json');
 const bpList = require('../../../../events/Models/json_prefabs/blueprintList.json');
 const { grabRar } = require('../../../Game/exported/grabRar');
-
-const rollChance = (chance) => {
-    return (Math.random() <= chance) ? true : false;
-};
-
-// const userTestObj = {
-//     level: 25,
-//     pclass: "Thief",
-//     health: 97,
-//     speed: 4,
-//     dexterity: 3,
-//     intelligence: 2,
-//     strength: 1
-// };
-
-// const userLoadoutTestObj = {
-//     mainhand: "24",
-//     offhand: "112",
-//     headslot: "137",
-//     chestslot: "144",
-//     legslot: "125"
-// };
-
-// const userOwnedItemsObjList = [
-//     {
-//         user_id: "501177494137995264",
-//         item_code: "TYP_SLph:28_typ-r03-DIS_ME-SK_dis-MAslo",
-//         item_id: "24"
-//     },
-//     {
-//         user_id: "501177494137995264",
-//         item_code: "TYP_BLph:6_typ-TYPD_BLph:6_typd-r01-DIS_ME-SK_dis-OFslo",
-//         item_id: "112"
-//     },
-//     {
-//         user_id: "501177494137995264",
-//         item_code: "TYPD_BLph:18_typd-r03-DIS_ME-SK_dis-HEslo",
-//         item_id: "137"
-//     },
-//     {
-//         user_id: "501177494137995264",
-//         item_code: "TYPD_SLph:8_typd-r00-DIS_SK_dis-CHslo",
-//         item_id: "144"
-//     },
-//     {
-//         user_id: "501177494137995264",
-//         item_code: "TYPD_DAma:15_typd-r03-DIS_GE-FL-MA_dis-LEslo",
-//         item_id: "125"
-//     }
-// ];
+const { checkHintStats } = require('../../../Game/exported/handleHints');
+const {rollChance} = require('../../../../uniHelperFunctions');
 
 class CombatInstance {
     constructor(user){
@@ -334,6 +285,34 @@ class CombatInstance {
         return;
     }
 
+    async handleCombatWin(enemy, interaction){
+        const u = await UserData.findOne({where: {userid: this.userId}}); 
+        const activeFilterCT = await UserTasks.findAll({
+            where: {
+                userid: this.userId,
+                task_type: "Combat",
+                complete: false,
+                failed: false
+            }
+        }).then(aCT => {
+            return aCT.filter(task => task.condition <= enemy.level);
+        });
+
+        if (activeFilterCT.length > 0){
+            for (const task of activeFilterCT){
+                await task.increment('amount').then(async t => {return await t.reload()});
+            }
+        }
+
+        await u.increment(['totalkills', 'killsthislife'], {by: 1}).then(async nU => {return await nU.reload()});
+        
+        if (u.totalkills > 10){
+            await checkHintStats(u, interaction);
+        }
+
+        return;
+    }
+
     async #loadBasicStats(){
         await this.#handleCombStats();
         
@@ -426,6 +405,32 @@ class CombatInstance {
             u.health = this.health;
             await u.save();
         }
+        return;
+    }
+
+    takeDamage(dmg){
+        this.health -= dmg;
+        let dmgCondition = "RELOAD"
+        if (this.health <= 0) dmgCondition = "PDEAD";
+        return {health: this.health, outcome: dmgCondition};
+    }
+
+    async revive(enemy){
+        const u = await UserData.findOne({where: {userid: this.userId}});
+        let newHighest = u.highestkills;
+        if (u.highestkills < u.killsthislife){
+            newHighest = u.killsthislife;
+        }
+        
+        await u.update({
+            health: this.maxHealth, 
+            highestkills: newHighest, 
+            killsthislife: 0,
+            lastdeath: enemy.name
+        })
+        .then(async nU => {return await nU.reload()})
+        .then(nU => this.health = nU.health);
+        
         return;
     }
 
