@@ -51,6 +51,8 @@ const NPCTable = require('./events/Models/NPCTable')(sequelize, Sequelize.DataTy
 const ItemStrings = require('./events/Models/ItemStrings')(sequelize, Sequelize.DataTypes);
 const ItemLootPool = require('./events/Models/ItemLootPool')(sequelize, Sequelize.DataTypes);
 
+const BasicShoppe = require('./events/Models/BasicShoppe')(sequelize, Sequelize.DataTypes);
+
 module.exports = {
 	//Equipped,
 	LootStore,
@@ -87,5 +89,6 @@ module.exports = {
 	UserTasks,
 	NPCTable,
 	ItemStrings,
-	ItemLootPool
+	ItemLootPool,
+	BasicShoppe
 };

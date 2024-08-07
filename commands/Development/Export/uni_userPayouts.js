@@ -141,6 +141,16 @@ async function updateUserCoins(coin, user){
 }
 
 /**
+ * This function decrements the given users coins by the amount of coins spent.
+ * @param {number} cost Amount of coins spent
+ * @param {object} user UserData Instance Object
+ * @returns {Promise<void>}
+ */
+async function spendUserCoins(cost, user){
+    return await user.decrement('coins', {by: cost}).then(async u => await u.save()).then(async u => {return await u.reload()});
+}
+
+/**
  * This function handles/displays all pigmy related payouts where/when needed.
  * @param {number} xp Gained XP
  * @param {object} pigmy Pigmy DB Instance Entry Object
@@ -219,4 +229,4 @@ async function updatePigmyValues(xp, level, pigmy, claimed){
     return;
 }
 
-module.exports = {handleUserPayout, handlePigmyPayouts, updateUserCoins};
+module.exports = {handleUserPayout, handlePigmyPayouts, updateUserCoins, spendUserCoins};
