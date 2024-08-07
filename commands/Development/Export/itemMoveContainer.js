@@ -174,7 +174,7 @@ async function moveMaterial(userGive, userTake, matRef, matType, amount=1){
  */
 async function trashItem(itemRef, theUser){
     await itemRef.destroy();
-    await theUser.increment('totitem').then(async user => {return await user.reload();});
+    await theUser.decrement('totitem').then(async user => {return await user.reload();});
     return;
 }
 
