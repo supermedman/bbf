@@ -266,7 +266,7 @@ function checkingSlot(TEST_CODE){
 /**
  * This function extracts a matching caste type for the caste ID given.
  * @param {number} casteID Caste ID of item to be checked
- * @returns object {Caste: string, Hands: number, Type: string}
+ * @returns {{Caste: string, Hands: number, Type: string}}
  */
 function checkingCaste(casteID){
     let casteData;
@@ -1271,6 +1271,7 @@ module.exports = {
     checkingRar,
     checkingRarID,
     checkingSlot,
+    checkingCaste,
     convertToUniItem,
     uni_displayItem,
     uni_CreateCompleteItemCode

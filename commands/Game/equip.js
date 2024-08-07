@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { errorForm, basicInfoForm } = require('../../chalkPresets.js');
-const { LootStore, Loadout, UniqueCrafted, OwnedPotions } = require('../../dbObjects.js');
+const { LootStore, Loadout, UniqueCrafted, OwnedPotions, ItemStrings } = require('../../dbObjects.js');
+const { checkingSlot, checkingCaste } = require('../Development/Export/itemStringCore.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -41,50 +42,25 @@ module.exports = {
 
             let items;
 
-            if (gearType === 'Mainhand') {
-                items = await LootStore.findAll({
-                    where: [
-                        { spec_id: interaction.user.id },
-                        { slot: 'Mainhand' }]
+            if (gearType === "Potion" || gearType === "Unique"){
+                if (gearType === "Unique"){
+                    // Not Working yet!
+                    items = await UniqueCrafted.findAll({
+                        where: { spec_id: interaction.user.id }
+                    });
+                } else {
+                    items = await OwnedPotions.findAll({
+                        where: { spec_id: interaction.user.id }
+                    });
+                }                
+            } else {
+                const fullItemList = await ItemStrings.findAll({
+                    where: {
+                        user_id: interaction.user.id
+                    }
                 });
-            }
-            if (gearType === 'Offhand') {
-                items = await LootStore.findAll({
-                    where: [
-                        { spec_id: interaction.user.id },
-                        { slot: 'Offhand' }]
-                });
-            }
-            if (gearType === 'Headslot') {
-                items = await LootStore.findAll({
-                    where: [
-                        { spec_id: interaction.user.id },
-                        { slot: 'Headslot' }]
-                });
-            }
-            if (gearType === 'Chestslot') {
-                items = await LootStore.findAll({
-                    where: [
-                        { spec_id: interaction.user.id },
-                        { slot: 'Chestslot' }]
-                });
-            }
-            if (gearType === 'Legslot') {
-                items = await LootStore.findAll({
-                    where: [
-                        { spec_id: interaction.user.id },
-                        { slot: 'Legslot' }]
-                });
-            }
-            if (gearType === 'Potion') {
-                items = await OwnedPotions.findAll({
-                    where: { spec_id: interaction.user.id }
-                });
-            }
-            if (gearType === 'Unique') {
-                items = await UniqueCrafted.findAll({
-                    where: { spec_id: interaction.user.id }
-                });
+
+                items = fullItemList.filter(item => checkingSlot(item.item_code) === gearType);
             }
 
             choices = items.map(item => item.name);
@@ -98,6 +74,95 @@ module.exports = {
         }
 	},
     async execute(interaction) {
+
+        await interaction.deferReply();
+
+        const slotType = interaction.options.getString('slot');
+        const itemName = interaction.options.getString('gear') ?? "None";
+        if (itemName === 'None') return interaction.followUp('You did not select an item to equip!');
+        
+        let userLoad = await Loadout.findOrCreate({
+            where: {
+                spec_id: interaction.user.id
+            }
+        });
+
+        if (userLoad[1]){
+            await userLoad[0].save().then(async u => {return await u.reload()});
+        }
+
+        userLoad = userLoad[0];
+
+        let theItem;
+        if (slotType !== "Potion" && slotType !== "Unique"){
+            // Normal Gear picked!
+            const fullItemList = await ItemStrings.findAll({
+                where: {
+                    user_id: interaction.user.id
+                }
+            });
+
+            const filteredItemList = fullItemList.filter(item => checkingSlot(item.item_code) === slotType);
+            theItem = filteredItemList.filter(item => item.name === itemName)[0];
+        } else {
+            if (slotType === 'Unique') return interaction.followUp('This is not yet possible! Please check back later!');
+            theItem = await OwnedPotions.findOne({where: {
+                spec_id: interaction.user.id,
+                name: itemName
+            }});
+
+            await userLoad.update({
+                potionone: theItem.potion_id
+            }).then(async u => await u.save()).then(async u => {return await u.reload()});
+
+            return await interaction.followUp(`Potion Updated! ${theItem.name} equipped!`);
+        }
+
+        if (!theItem) return await interaction.followUp('Looks like that didnt work! Try starting the items name with a *Capital Letter*, then select from the options provided!!');
+
+        switch(slotType){
+            case "Mainhand":
+                // Check for hands needed to hold weapon
+                const handCheck = checkingCaste(theItem.caste_id);
+                if (handCheck.Hands === 2){
+                    // 2 handed weapon
+                    let overwriteCheck = false;
+                    if (userLoad.offhand !== 0 && userLoad.offhand !== userLoad.mainhand) overwriteCheck = true;
+                    
+                    await userLoad.update({
+                        mainhand: theItem.item_id,
+                        offhand: theItem.item_id
+                    }).then(async u => await u.save()).then(async u => {return await u.reload()});
+                    
+                    const replyMsg = (overwriteCheck) ? "Mainhand equipped, offhand replaced and unavailable.": "Mainhand equipped, offhand unavailable.";
+
+                    return await interaction.followUp(replyMsg);
+                } 
+                // 1 handed weapon
+                let offhandEmpty = false;
+                if (userLoad.offhand === 0 || userLoad.offhand === userLoad.mainhand) offhandEmpty = true;
+
+                await userLoad.update({
+                    mainhand: theItem.item_id,
+                    offhand: (offhandEmpty) ? 0 : userLoad.offhand
+                }).then(async u => await u.save()).then(async u => {return await u.reload()});
+
+                const replyMsg = (offhandEmpty) ? "Mainhand equipped, offhand available.": "Mainhand equipped.";
+            return await interaction.followUp(replyMsg);
+            case "Offhand":
+                if (userLoad.offhand === userLoad.mainhand) return await interaction.followUp('Offhand slot taking up by Mainhand weapon!');
+                await userLoad.update({
+                    offhand: theItem.item_id
+                }).then(async u => await u.save()).then(async u => {return await u.reload()});
+            return await interaction.followUp("Offhand equipped.");
+            default:
+                await userLoad.update({
+                    [`${slotType.toLowerCase()}`]: theItem.item_id
+                }).then(async u => await u.save()).then(async u => {return await u.reload()});
+            return await interaction.followUp(`${slotType} equipped.`);
+        }
+
+        /*
         const startTime = new Date().getTime();
         await interaction.deferReply().then(async () => {
             if (interaction.options.getSubcommand() === 'something') {
@@ -218,6 +283,7 @@ module.exports = {
         }).catch(error => {
             console.log(errorForm('Interaction error:', error));
         });
+        */
 	},
 
 };

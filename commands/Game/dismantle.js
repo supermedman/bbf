@@ -156,7 +156,7 @@ module.exports = {
                         spec_id: interaction.user.id
                     }
                 });
-                let equipped = (loadCheck) ? [loadCheck.headslot, loadCheck.chestslot, loadCheck.legslot, loadCheck.offhand, loadCheck.mainhand] : [];
+                let equipped = (loadCheck) ? [`${loadCheck.headslot}`, `${loadCheck.chestslot}`, `${loadCheck.legslot}`, `${loadCheck.offhand}`, `${loadCheck.mainhand}`] : [];
 
                 const rarItemMatchList = [];
                 for (const item of fullItemList){
@@ -171,6 +171,8 @@ module.exports = {
 
                 const totItemDis = rarItemMatchList.reduce((acc, item) => acc + item.disAmount, 0);
                 const totDisValue = rarItemMatchList.reduce((acc, item) => acc + (item.item.value * item.disAmount), 0);
+
+                if (totItemDis === 0) return await interaction.followUp(`You have no ${rarPicked} items!!`);
 
                 const acceptButt = new ButtonBuilder()
                 .setLabel("Yes")
