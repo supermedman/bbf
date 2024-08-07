@@ -1,18 +1,11 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
-const {
-    warnedForm,
-    errorForm,
-    successResult,
-    failureResult,
-    basicInfoForm,
-    specialInfoForm
-} = require('../../chalkPresets.js');
+const { Loadout, ItemStrings } = require('../../dbObjects.js');
 
-const { MaterialStore, UserData, LootStore, Loadout } = require('../../dbObjects.js');
-
-const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const { grabColour } = require('./exported/grabRar.js');
+const { createInteractiveChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
+const { checkingDismantle, checkingRar, checkingRarID } = require('../Development/Export/itemStringCore.js');
+const { checkInboundMat, checkOutboundItem } = require('../Development/Export/itemMoveContainer.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -47,23 +40,10 @@ module.exports = {
         if (focusedOption.name === 'item') {
             const focusedValue = interaction.options.getFocused(false);
 
-            const items = await LootStore.findAll({ where: [{ spec_id: interaction.user.id }] });
+            const userItems = await ItemStrings.findAll({where: {user_id: interaction.user.id}});
 
             if (focusedValue) {
-                let first = focusedValue.charAt();
-
-                for (var n = 0; n < items.length; n++) {
-                    if (items[n].name.charAt() === first) {//Check for item starting with the letter provided
-                        var picked = items[n].name;//assign picked to item name at postion n in the items list found
-                        //prevent any type errors			
-                        choices.push(picked.toString());//push each name one by one into the choices array
-                    } else {
-                        //Item name does not match keep looking
-                    }
-
-                }
-                console.log(choices);
-                console.log(focusedValue);
+                choices = userItems.map(item => item.name);
 
                 //Mapping the complete list of options for discord to handle and present to the user
                 const filtered = choices.filter(choice => choice.startsWith(focusedValue));
@@ -89,6 +69,360 @@ module.exports = {
 	async execute(interaction) { 
         //if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction! Please try again later.');
 
+        const {materialFiles} = interaction.client;
+
+        await interaction.deferReply();
+
+        const subCom = interaction.options.getSubcommand();
+
+        const finalButts = new ActionRowBuilder();
+        const finalEmbed = new EmbedBuilder();
+        let someItemRef, loadCheck, allItemList;
+
+        const cancelButt = new ButtonBuilder()
+        .setLabel("Cancel")
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji('❌')
+        .setCustomId('cancel');
+
+        switch(subCom){
+            case "some":
+                const amount = interaction.options.getInteger('amount') ?? 1;
+                const theItem = await ItemStrings.findOne({
+                    where: {
+                        user_id: interaction.user.id, 
+                        name: interaction.options.getString('item')
+                    }
+                });
+                if (!theItem) return interaction.followUp('That item was not found in your inventory!!');
+                someItemRef = theItem;
+                let disOne = false, disAll = false;
+                
+                loadCheck = await Loadout.findOne({
+                    where: {
+                        spec_id: interaction.user.id
+                    }
+                });
+
+                if (loadCheck){
+                    const equipped = [loadCheck.headslot, loadCheck.chestslot, loadCheck.legslot, loadCheck.offhand, loadCheck.mainhand];
+                    if (equipped.includes(theItem.item_id)) disAll = true;
+                    if (theItem.amount === 1) disOne = true;
+                }
+
+                const disOneButt = new ButtonBuilder()
+                .setLabel("Dismantle ONE")
+                .setStyle(ButtonStyle.Success)
+                .setEmoji('⚒')
+                .setDisabled(disOne)
+                .setCustomId('dismantle-one');
+
+                const leaveOneButt = new ButtonBuilder()
+                .setLabel("Leave ONE")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji('⚒')
+                .setCustomId('leave-one');
+
+                const disAllButt = new ButtonBuilder()
+                .setLabel("Dismantle ALL")
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('⚒')
+                .setDisabled(disAll)
+                .setCustomId('dismantle-all');
+
+                finalButts.addComponents(cancelButt, disOneButt, leaveOneButt, disAllButt);
+
+                finalEmbed
+                .setTitle('== Dismantle Options ==')
+                .setColor(0o0)
+                .addFields({
+                    name: `${theItem.name}`, value: `You have ${theItem.amount}`
+                });
+
+            break;
+            case "all":
+                const rarPicked = interaction.options.getString('rarity') ?? 'None';
+                const rarList = ["common", "uncommon", "rare", "very rare", "epic", "mystic", "?", "??", "???", "????"];
+                if (rarPicked.toLowerCase() === 'forgotten') return interaction.followUp('Hmmm nope! You cannot dismantle these items that easily!! Use ``/dismantle some`` instead');
+                if (!rarList.includes(rarPicked)) return interaction.followUp('That was not a valid Rarity!', rarPicked);
+
+                const pickedRarID = rarList.indexOf(rarPicked);
+
+                const fullItemList = await ItemStrings.findAll({
+                    where: {user_id: interaction.user.id}
+                });
+                loadCheck = await Loadout.findOne({
+                    where: {
+                        spec_id: interaction.user.id
+                    }
+                });
+                let equipped = (loadCheck) ? [loadCheck.headslot, loadCheck.chestslot, loadCheck.legslot, loadCheck.offhand, loadCheck.mainhand] : [];
+
+                const rarItemMatchList = [];
+                for (const item of fullItemList){
+                    if (checkingRarID(checkingRar(item.item_code)) === pickedRarID){
+                        if (equipped.length > 0 && equipped.includes(item.item_id)){
+                            rarItemMatchList.push({item: item, disAmount: item.amount - 1});
+                        } else rarItemMatchList.push({item: item, disAmount: item.amount});
+                    }
+                }
+
+                if (rarItemMatchList.length === 0) return await interaction.followUp(`You have no ${rarPicked} items!!`);
+
+                const totItemDis = rarItemMatchList.reduce((acc, item) => acc + item.disAmount, 0);
+                const totDisValue = rarItemMatchList.reduce((acc, item) => acc + (item.item.value * item.disAmount), 0);
+
+                const acceptButt = new ButtonBuilder()
+                .setLabel("Yes")
+                .setStyle(ButtonStyle.Success)
+                .setEmoji('✅')
+                .setCustomId('accept');
+
+                finalButts.addComponents(acceptButt, cancelButt);
+
+                finalEmbed
+                .setTitle(`== Dismantle **ALL** ${rarPicked} ==`)
+                .setColor('Blurple')
+                .addFields(
+                    {name: 'Total Items to dismantle: ', value: `**${totItemDis}**`},
+                    {name: 'Total Material value from dismantle: ', value: `**${totDisValue}**c`}
+                );
+
+                allItemList = rarItemMatchList;
+
+            break;
+        }
+
+        const replyObj = {embeds: [finalEmbed], components: [finalButts]};
+
+        const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, replyObj, "FollowUp");
+
+        collector.on('collect', async c => {
+            await c.deferUpdate().then(async () => {
+                let finalReply;
+                switch(c.customId){
+                    case "dismantle-one":
+                        finalReply = await handleDismantle(someItemRef, 1, await grabUser(interaction.user.id));
+                    break;
+                    case "leave-one":
+                        finalReply = await handleDismantle(someItemRef, someItemRef.amount - 1, await grabUser(interaction.user.id));
+                    break;
+                    case "dismantle-all":
+                        finalReply = await handleDismantle(someItemRef, someItemRef.amount, await grabUser(interaction.user.id));
+                    break;
+                    case "accept":
+                        finalReply = await handleDismantleAll(allItemList, await grabUser(interaction.user.id));
+                    break;
+                    case "cancel":
+                    return await collector.stop('Cancel');
+                }
+                await collector.stop('Finished');
+                return await handleMatPages(finalReply);
+            }).catch(e => console.error(e));
+        });
+
+        collector.on('end', (c, r) => {
+            anchorMsg.delete().catch(error => {
+                if (error.code !== 10008) {
+                    console.error('Failed to delete the message:', error);
+                }
+            });
+        });
+
+        /**
+         * This function handles pagination for all dropped materials.
+         * @param {EmbedBuilder[]} embeds Array of embed pages for display
+         */
+        async function handleMatPages(embeds){
+            const finalPages = embeds;
+
+            const backButton = new ButtonBuilder()
+            .setLabel("Back")
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('◀️')
+            .setCustomId('back-page');
+
+            const finishButton = new ButtonBuilder()
+            .setLabel("Finish")
+            .setStyle(ButtonStyle.Success)
+            .setEmoji('*️⃣')
+            .setCustomId('delete-page');
+
+            const forwardButton = new ButtonBuilder()
+            .setLabel("Forward")
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('▶️')
+            .setCustomId('next-page');
+
+            const pageButtonRow = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
+            const finalReply = {embeds: [finalPages[0]], components: [pageButtonRow]};
+
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 300000, finalReply, "FollowUp");
+
+            let curPage = 0;
+
+            collector.on('collect', async c => {
+                await c.deferUpdate().then(async () => {
+                    switch(c.customId){
+                        case "next-page":
+                            curPage = (curPage === finalPages.length - 1) ? 0 : curPage + 1;
+                        break;
+                        case "back-page":
+                            curPage = (curPage === 0) ? curPage = finalPages.length - 1 : curPage - 1;
+                        break;
+                        case "delete-page":
+                        return collector.stop('Canceled');
+                    }
+                    await anchorMsg.edit({ components: [pageButtonRow], embeds: [finalPages[curPage]]});
+                }).catch(e => {
+                    console.error(e);
+                });
+            });
+
+            collector.on('end', (c, r) => {
+                anchorMsg.delete().catch(e => {
+                    if (e.code !== 10008) {
+                        console.error('Failed to delete the message:', e);
+                    }
+                });
+            });
+        }
+
+        /**
+         * This function handles dismantling a single item. It takes the number given
+         * and calculates the total material value available before locating the mats
+         * needed. It then drops the materials evenly based on value, stores/saves them
+         * then updates the item entry. Returning the display embeds of all materials
+         * dropped.
+         * @param {object} item Item Object obtained from ItemStrings
+         * @param {number} amount Amount to be dismantled
+         * @param {object} user UserData Instance Object
+         * @param {boolean} combCheck Flag set to change return value
+         * @returns {Promise<EmbedBuilder[]>}
+         */
+        async function handleDismantle(item, amount, user, combCheck){
+            const totalValue = item.value * amount;
+            const matTypeList = checkingDismantle(item.item_code);
+            const baseRar = checkingRarID(checkingRar(item.item_code));
+            
+            // Filter Needed Material files
+            const fileList = [];
+            for (const matType of matTypeList){
+                for (const [key, value] of materialFiles){
+                    if (key === matType.toLowerCase()) {
+                        fileList.push(value);
+                        break;
+                    }
+                }
+            }
+
+            // Filter for needed material types from files and then by rarity
+            const matList = [];
+            for (const file of fileList){
+                const matFile = require(file);
+                let matMatch, checkRar = baseRar;
+                while (!matMatch || matMatch.length === 0 || checkRar >= 0){
+                    matMatch = matFile.filter(mat => mat.Rar_id === checkRar);
+                    if (matMatch.length > 0) break;
+                    checkRar--;
+                }
+                matList.push(matMatch[0]);
+            }
+
+            // Even total value across material type amount
+            const evenValue = totalValue / matList.length;
+
+            // Drop materials according to value available
+            const matDropList = [];
+            let posCount = 0;
+            for (const mat of matList){
+                let dropAmount = Math.ceil(evenValue / mat.Value);
+                if (dropAmount <= 0) dropAmount = 1;
+                matDropList.push({ref: mat, type: matTypeList[posCount].toLowerCase(), amount: dropAmount});
+                posCount++;
+            }
+
+            // Store material and create embed display
+            let finalEmbeds = [];
+            if (!combCheck){
+                for (const matObj of matDropList){
+                    const nMat = await checkInboundMat(user.userid, matObj.ref, matObj.type, matObj.amount);
+                    const matColour = grabColour(nMat.rar_id);
+    
+                    const embedFields = `Material Type: **${matObj.type}**\nValue: **${nMat.value}**c\nRarity: **${nMat.rarity}**\nAmount Dropped: **${matObj.amount}**`;
+    
+                    const matEmbed = new EmbedBuilder()
+                    .setTitle('== Material Dropped ==')
+                    .setColor(matColour)
+                    .addFields({
+                        name: `${nMat.name}`,
+                        value: embedFields
+                    });
+    
+                    finalEmbeds.push(matEmbed);
+                }
+            }
+            
+            // Handle Item removal
+            await checkOutboundItem(user.userid, item.item_id, amount);
+
+            return (combCheck) ? matDropList : finalEmbeds;
+        }
+
+        /**
+         * This function loops through all items provided and concats the 
+         * returned arrays for each. It then combines all duplicate materials, totalling
+         * the amounts before submitting and using the final result for display.
+         * @param {object[]} itemList List of item objects: {item: object, disAmount: number}
+         * @param {object} user UserData Instance Object
+         * @returns {Promise<EmbedBuilder[]>}
+         */
+        async function handleDismantleAll(itemList, user){
+            let fullMatList = [];
+            for (const item of itemList){
+                fullMatList = fullMatList.concat(await handleDismantle(item.item, item.disAmount, user, true));
+            }
+            
+            // Ability to combine Duplicate materials before creating embeds!!
+            const typeArr = [];
+            for (const obj of fullMatList){
+                if (!typeArr.includes(obj.type)) typeArr.push(obj.type);
+            }
+
+            const combArr = [];
+            for (const type of typeArr){
+                const totalCount = fullMatList.filter(obj => obj.type === type).reduce((acc, obj) => {
+                    return (acc > 0) ? acc + obj.amount : obj.amount;
+                }, 0);
+                combArr.push({
+                    ref: fullMatList.filter(obj => obj.type === type)[0].ref,
+                    type: type,
+                    amount: totalCount
+                });
+            }
+
+            let finalEmbedList = [];
+            for (const matObj of combArr){
+                const nMat = await checkInboundMat(user.userid, matObj.ref, matObj.type, matObj.amount);
+                const matColour = grabColour(nMat.rar_id);
+
+                const embedFields = `Material Type: **${matObj.type}**\nValue: **${nMat.value}**c\nRarity: **${nMat.rarity}**\nAmount Dropped: **${matObj.amount}**`;
+
+                const matEmbed = new EmbedBuilder()
+                .setTitle('== Material Dropped ==')
+                .setColor(matColour)
+                .addFields({
+                    name: `${nMat.name}`,
+                    value: embedFields
+                });
+
+                finalEmbedList.push(matEmbed);
+            }
+
+            return finalEmbedList;
+        }
+
+        /*
         if (interaction.options.getSubcommand() === 'some') {
             await interaction.deferReply();
             const itemName = interaction.options.getString('item');
@@ -1101,5 +1435,6 @@ module.exports = {
             const theUser = await UserData.findOne({ where: { userid: interaction.user.id } });
             if (theUser) return theUser;
         }
+        */
 	},
 };
