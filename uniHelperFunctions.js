@@ -1,5 +1,6 @@
 const {chalk, chlkPreset} = require('./chalkPresets');
 const {ComponentType} = require('discord.js');
+const { UserData, Pigmy } = require('./dbObjects');
 
 /**
  * This method randomly returns an element from a given array, if the array has a
@@ -20,6 +21,41 @@ const inclusiveRandNum = (max, min) => {
 };
 
 const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1) };
+
+const checkLootDrop = (pigmy, user) => {
+    let chanceToBeat = 0.850;
+    if (user.pClass === 'Thief') chanceToBeat -= 0.10;
+
+    if (user.level >= 31) {
+        if ((Math.floor(user.level / 4) * 0.01) > 0.25) {
+            chanceToBeat -= 0.25;
+        } else chanceToBeat -= (Math.floor(user.level / 4) * 0.01);
+    }
+
+    if (pigmy) {
+        if ((Math.floor(pigmy.level / 3) * 0.02) > 0.25) {
+            chanceToBeat -= 0.25;
+        } else chanceToBeat -= (Math.floor(pigmy.level / 3) * 0.02);
+    }
+
+    return chanceToBeat;
+};
+
+const checkLootUP = (pigmy, user) => {
+    let chanceToBeat = 1;
+	if (user.pclass === 'Thief') chanceToBeat -= 0.05;
+	if (user.level >= 31) {
+		if ((Math.floor(user.level / 5) * 0.01) > 0.10) {
+			chanceToBeat -= 0.10;
+		} else chanceToBeat -= (Math.floor(user.level / 5) * 0.01);
+	}
+	if (pigmy) {
+		if ((Math.floor(pigmy.level / 5) * 0.01) > 0.05) {
+			chanceToBeat -= 0.05;
+		} else chanceToBeat -= (Math.floor(pigmy.level / 5) * 0.01);
+	}
+	return chanceToBeat;
+};
 
 /**
  * This method handles styling timers based on time difference found, and then
@@ -52,6 +88,24 @@ const endTimer = (startTime, measureName) => {
     }
     console.log(preStyle(`${measureName} Duration: ${timeDiff}ms`));
 };
+
+/**
+ * This function retrieves and returns the UserData entry for the given id.
+ * @param {string} id User ID
+ * @returns {promise <object>} ```(object | undefined)```
+ */
+async function grabUser(id){
+    return await UserData.findOne({where: {userid: id}});
+}
+
+/**
+ * This function retrieves and returns the Pigmy Entry for the give User id.
+ * @param {string} id User ID
+ * @returns {promise <object>} ```(object | undefined)```
+ */
+async function grabActivePigmy(id){
+    return await Pigmy.findOne({where: {spec_id: id}});
+}
 
 function getTypeof(t){
     if (t === null) return "null";
@@ -96,6 +150,15 @@ function handleContentType(contents){
     return replyObj;
 }
 
+/**
+ * This function handles sending a message using the given values, with a self-destruct
+ * timer set as per the given timeLimit.
+ * @param {object} interaction Discord Interaction Object
+ * @param {number} timeLimit Amount in ms to be used with setTimeout()
+ * @param {any} contents One of many types, handled internally
+ * @param {string} replyType One of: "FollowUp", "Reply", undefined
+ * @returns {promise <void>}
+ */
 async function sendTimedChannelMessage(interaction, timeLimit, contents, replyType){
     const replyObject = handleContentType(contents);
     switch(replyType){
@@ -114,6 +177,15 @@ async function sendTimedChannelMessage(interaction, timeLimit, contents, replyTy
     }
 }
 
+/**
+ * This function creates and stores a sent message as an anchor, which it then uses
+ * to attach a messageComponentCollector for use with Discords buttons.
+ * @param {object} interaction Discord Interaction Object
+ * @param {number} timeLimit Amount in ms to be used with setTimeout()
+ * @param {any} contents  One of many types, handled internally
+ * @param {string} replyType One of: "FollowUp", "Reply", undefined
+ * @returns {Promise<{anchorMsg: object, collector: object}>}
+ */
 async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType){
     const replyObject = handleContentType(contents);
     let anchorMsg;
@@ -151,7 +223,11 @@ module.exports = {
     inclusiveRandNum,
     rollChance,
     makeCapital,
+    checkLootDrop,
+    checkLootUP,
     endTimer,
+    grabUser,
+    grabActivePigmy,
     sendTimedChannelMessage,
     createInteractiveChannelMessage
 }

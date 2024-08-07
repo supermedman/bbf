@@ -596,7 +596,8 @@ function generateItemEmbedField(item, itemExtra, showAmount, makeInline){
     fieldName = `>>__**${item.name}**__<<`;
 
     fieldValue = `Value: **${item.value}c**\nRarity: **${itemExtra.iRar}**\nHands: **${itemExtra.iCaste.Hands}**\nSlot: **${itemExtra.iSlot}**\n`;
-    if (showAmount) fieldValue += `Amount: **${item.amount}**\n`;
+    if (typeof showAmount === 'boolean' && showAmount === true) fieldValue += `Amount: **${item.amount}**\n`;
+    else if (typeof showAmount === 'number' && showAmount >= 1) fieldValue += `Amount: **${showAmount}**\n`;
     switch(itemExtra.iSlot){
         case "Mainhand":
             fieldValue += genDMGMap(item);
@@ -622,7 +623,7 @@ function generateItemEmbedField(item, itemExtra, showAmount, makeInline){
  * @param {string} styleType Defines Return Object Format
  * @returns object as defined by styleType
  */
-function uni_displayItem(item, styleType){
+function uni_displayItem(item, styleType, extraOptions){
     let returnObject;
     const itemExtras = {
         iRar: checkingRar(item.item_code),
@@ -644,6 +645,12 @@ function uni_displayItem(item, styleType){
             returnObject = {
                 color: grabColour(checkingRarID(itemExtras.iRar)),
                 fields: generateItemEmbedField(item, itemExtras, false, false)
+            };
+        break;
+        case "Single-Quest":
+            returnObject = {
+                color: grabColour(checkingRarID(itemExtras.iRar)),
+                fields: generateItemEmbedField(item, itemExtras, extraOptions, false)
             };
         break;
         case "List":
@@ -1262,6 +1269,7 @@ module.exports = {
     checkingDefence,
     checkingDismantle,
     checkingRar,
+    checkingRarID,
     checkingSlot,
     convertToUniItem,
     uni_displayItem,

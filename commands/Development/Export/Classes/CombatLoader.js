@@ -444,6 +444,12 @@ class CombatInstance {
         }
 
         // Pigmy Check here
+        if (this.pigmy){
+            if ((Math.floor(this.pigmy.level / 3) * 0.02) > 0.25) {
+                chanceToBeat -= 0.25;
+            } else chanceToBeat -= (Math.floor(this.pigmy.level / 3) * 0.02);
+        }
+
         return chanceToBeat;
     }
 
@@ -457,6 +463,12 @@ class CombatInstance {
         }
 
         // Pigmy Check here
+        if (this.pigmy){
+            if ((Math.floor(this.pigmy.level / 5) * 0.01) > 0.05){
+                chanceToBeat -= 0.05;
+            } else chanceToBeat -= Math.floor(this.pigmy.level / 5) * 0.01;
+        }
+
         return chanceToBeat;
     }
 

@@ -12,7 +12,8 @@ const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const questList = require('../../events/Models/json_prefabs/questList.json');
 const loreList = require('../../events/Models/json_prefabs/loreList.json');
 
-const {randArrPos} = require('../../uniHelperFunctions.js');
+const {randArrPos, createInteractiveChannelMessage, inclusiveRandNum, grabUser} = require('../../uniHelperFunctions.js');
+const { handleMilestones, handleEnemyKills } = require('../Development/Export/questUpdate.js');
 
 /** This method returns the static loot rar upgrade chance
 	 * 
@@ -48,6 +49,123 @@ module.exports = {
 				.setName('claim')
 				.setDescription('Claim quest rewards')),
 	async execute(interaction) {
+
+		const { gearDrops } = interaction.client;
+
+		await interaction.deferReply();
+
+		const subCom = interaction.options.getSubcommand();
+
+		const user = await grabUser(interaction.user.id);
+		if (user.level < 5) return await interaction.followUp('You must reach level 5 before you can begin quests. Use the command ``/startcombat`` to get some levels!!');
+
+		const activeQuest = await Questing.findOne({where: {user_id: user.userid}});
+
+		const backButton = new ButtonBuilder()
+		.setLabel("Back")
+		.setStyle(ButtonStyle.Secondary)
+		.setEmoji('◀️')
+		.setCustomId('back-page'); 
+
+		const actionButton = new ButtonBuilder();
+
+		const forwardButton = new ButtonBuilder()
+		.setLabel("Forward")
+		.setStyle(ButtonStyle.Secondary)
+		.setEmoji('▶️')
+		.setCustomId('next-page');
+
+		let finalPages = [], shownQuests = [];
+
+		switch(subCom){
+			case "start":
+				if (activeQuest) {
+					await checkHintQuest(user, interaction);
+					return interaction.followUp('You already have a quest in progress! You can check/claim it by using ``/quest claim``.');
+				}
+				const milestoneObj = await handleMilestones(user, interaction, "Start");
+				shownQuests = milestoneObj.quests, finalPages = milestoneObj.embeds;
+
+				actionButton
+				.setLabel('Select')
+				.setStyle(ButtonStyle.Success)
+				.setCustomId('select-quest')
+				.setEmoji('*️⃣');
+			break;
+			case "claim":
+				if (!activeQuest) return interaction.followUp('You have no active quest! Start one using ``/quest start``.');
+				
+				const then = new Date(activeQuest.createdAt).getTime(),
+				now = new Date().getTime();
+
+				const diffTime = Math.abs(now - then);
+				const timeLeft = Math.round(activeQuest.qlength - diffTime);
+				const shownTime = Math.round((now + timeLeft) / 1000);
+				if (timeLeft > 0) return await interaction.followUp(`Quest in progress! You can claim it, <t:${shownTime}:R>!`);
+
+				await handleMilestones(user, interaction, "Claim");
+
+				finalPages = await handleEnemyKills(activeQuest, gearDrops, user.userid, interaction);
+
+				actionButton
+				.setLabel('Finish')
+				.setStyle(ButtonStyle.Success)
+				.setCustomId('delete-page')
+				.setEmoji('*️⃣');
+
+				await activeQuest.destroy();
+			break;
+		}
+
+		const buttRow = new ActionRowBuilder().addComponents(backButton, actionButton, forwardButton);
+		const replyObj = {embeds: [finalPages[0]], components: [buttRow]};
+
+		const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "FollowUp");
+
+		let curPage = 0;
+		collector.on('collect', async c => {
+			await c.deferUpdate().then(async () => {
+				switch(c.customId){
+					case "back-page":
+						curPage = (curPage === 0) ? curPage = finalPages.length - 1 : curPage - 1;
+					break;
+					case "next-page":
+						curPage = (curPage === finalPages.length - 1) ? 0 : curPage + 1;
+					break;
+					case "delete-page":
+					return collector.stop('Canceled');
+					case "select-quest":
+						const quest = shownQuests[curPage];
+
+						await Questing.create({
+							user_id: user.userid,
+							qlength: quest.Length,
+							qlevel: quest.Level,
+							qname: quest.Name,
+							qid: quest.ID,
+							qstory: quest.Story,
+						});
+
+						await interaction.followUp(`Quest started: ${quest.Name}!`);
+					return await collector.stop('Quest-Start');
+				}
+				await anchorMsg.edit({components: [buttRow], embeds: [finalPages[curPage]]});
+			}).catch(e => {
+                console.error(e);
+            });
+		});
+
+		collector.on('end', (c, r) => {
+			console.log(`Collecter ended with reason: ${r}`);
+			anchorMsg.delete().catch(e => {
+                if (e.code !== 10008) {
+                    console.error('Failed to delete the message:', e);
+                }
+            });
+		});
+
+		/**
+
 		if (interaction.options.getSubcommand() === 'start') {
 			const activeQuest = await Questing.findOne({ where: { user_id: interaction.user.id } });
 			const user = await grabU();
@@ -214,6 +332,8 @@ module.exports = {
 
 
 		if (interaction.options.getSubcommand() === 'claim') {
+			await interaction.deferReply();
+
 			const activeQuest = await Questing.findOne({ where: { user_id: interaction.user.id } });
 			const user = await grabU();
 			if (!user) return await interaction.reply('No User Data.. Please use the ``/start`` command to select a class and begin your adventure!!')
@@ -229,7 +349,7 @@ module.exports = {
 			shownTime = Math.round(shownTime / 1000);
 			if (timeLeft > 0) return await interaction.reply(`Your quest is still in progress! You can claim it, <t:${shownTime}:R>!`);
 
-			const { enemies, gearDrops } = interaction.client;
+			
 
 			const hrs = await Math.floor(activeQuest.qlength / (1000 * 60 * 60));
 
@@ -445,7 +565,7 @@ module.exports = {
 						name: 'Adventure', value: theAdventure,
 					});
 
-				await interaction.reply({ embeds: [storyEmbed] }).then(embedMsg => setTimeout(() => {
+				await interaction.followUp({ embeds: [storyEmbed] }).then(embedMsg => setTimeout(() => {
 					embedMsg.delete();
 				}, 300000)).catch(error => console.error(error));
 			}
@@ -502,11 +622,7 @@ module.exports = {
 
 			const interactiveButtons = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
 
-			let embedMsg;
-			if (interaction.replied || interaction.deferred) {
-				embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
-			} else embedMsg = await interaction.reply({ components: [interactiveButtons], embeds: [embedPages[0]] });
-			
+			const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
 			// ==== SPAWNING NPC SETUP ====
 			const rollNeeded = 0.33, npcRoll = Math.random();
 			if (npcRoll >= rollNeeded) spawnNpc(user, interaction);
@@ -606,6 +722,7 @@ module.exports = {
 
 			return itemText;
 		}
+		*/
 	},
 
 };

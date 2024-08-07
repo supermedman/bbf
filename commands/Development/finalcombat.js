@@ -21,7 +21,8 @@ const {
 } = require('./Export/finalCombatExtras');
 const { handleEnemyMat } = require('./Export/materialFactory');
 
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage} = require('../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser} = require('../../uniHelperFunctions');
+const { handleUserPayout } = require('./Export/uni_userPayouts');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -306,6 +307,8 @@ module.exports = {
             // =============
             let xpGain = enemy.rollXP();
             let coinGain = xpGain + Math.floor(xpGain * 0.10);
+
+            await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
 
             // Material Drops
             const { materialFiles } = interaction.client;

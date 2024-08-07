@@ -66,7 +66,7 @@ const xpPayoutScale = (lvl) => {
         nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
     }
 
-    let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
+    let XpMax = Math.floor((nxtLvl / (15 + (lvl / 2.5)) ) + (0.2 * (100 - lvl)));
     let XpMin = XpMax - Math.floor(XpMax * 0.25);
 
     return {max: XpMax, min: XpMin};
