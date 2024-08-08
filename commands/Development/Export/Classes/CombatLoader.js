@@ -1,4 +1,4 @@
-const { Loadout, ItemStrings, UserData, OwnedPotions, Pigmy, ActiveStatus, UserTasks } = require('../../../../dbObjects');
+const { Loadout, ItemStrings, UserData, OwnedPotions, Pigmy, ActiveStatus, UserTasks, ItemLootPool } = require('../../../../dbObjects');
 
 const {PigmyInstance} = require('./PigCaste');
 
@@ -547,7 +547,15 @@ class CombatInstance {
             }
             if (!itemMatch) {
                 console.log(`${slotMatch[curSlotIdx]} Not Found!!`);
-                itemMatch = {item_code: "NONE"};
+                console.log('Attempting to load from Static loot pool!!');
+                const backUpMatch = await ItemLootPool.findOne({where: {creation_offset_id: id}});
+                if (backUpMatch) {
+                    console.log('Backup FOUND!');
+                    itemMatch = {item_code: backUpMatch.item_code};
+                } else {
+                    console.log('Backup NOT FOUND!');
+                    itemMatch = {item_code: "NONE"};
+                }
             }
             this.loadout[`${slotMatch[curSlotIdx]}`] = itemMatch.item_code;
             curSlotIdx++;

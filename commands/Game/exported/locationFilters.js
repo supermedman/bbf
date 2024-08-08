@@ -1,5 +1,7 @@
 const enemyList = require('../../../events/Models/json_prefabs/enemyList.json');
 
+const newEList = require('../../Development/Export/Json/newEnemyList.json');
+
 const biomeList = ['Wilds', 'Forest', 'Grassland', 'Swamp', 'Plains', 'Desert', 'Mountain'];
 const huntingGrounds = ['None', 'woody', 'herby', 'slimy', 'skinny', 'gemy', 'metalic'];
 
@@ -28,6 +30,30 @@ function filterHunting(matWanted, maxLevel){
         }
     }
     return buildList;
+}
+
+function handleHunting(user){
+    const huntingFor = huntingGrounds[biomeList.indexOf(user.current_location ?? 'Wilds')];
+    if (huntingFor === 'None') return [];
+
+    const returnList = fillHuntingList(huntingFor);
+    return returnList;
+}
+
+/**
+ * This function filters all enemies that meet the material criteria
+ * @param {string} matMatch Material type to search for
+ * @returns {Map}
+ */
+function fillHuntingList(matMatch){
+    let matchList = new Map();
+    for (const enemy of newEList){
+        if (enemy.DropTypes.includes(matMatch)){
+            matchList.set(enemy.ConstKey, enemy.Level);
+        }
+    }
+
+    return matchList;
 }
 
 /**
@@ -66,4 +92,4 @@ function checkSelectedBiome(biomeName){
     return returnIndex;
 }
 
-module.exports = { checkSpawnBiome, checkUnlockedBiome, checkSelectedBiome, NPCcheckMaterialFav };
+module.exports = { checkSpawnBiome, checkUnlockedBiome, checkSelectedBiome, NPCcheckMaterialFav, handleHunting };

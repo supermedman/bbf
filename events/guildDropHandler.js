@@ -1,6 +1,7 @@
 const { ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { GuildData, UserData } = require('../dbObjects.js');
 const { loadEnemy } = require('../commands/Game/exported/loadEnemy.js');
+const { grabUser } = require('../uniHelperFunctions.js');
 const wait = require('node:timers/promises').setTimeout;
 
 //Refrence from messageCreate event Allowing smooth handling of enemies!
@@ -73,6 +74,63 @@ async function grabUC(collectedUser, channel) {
 async function enemyGrabbed(interaction, user) {
 	await loadEnemy(interaction, user);
 }
+
+
+async function handleXPSpawn(message, spawnChannelID){
+	const spawnLocation = (spawnChannelID === '0') ? message.channel : await message.guild.channels.fetch(spawnChannelID);
+
+	const fightButton = new ButtonBuilder()
+	.setLabel("Fight!")
+	.setStyle(ButtonStyle.Success)
+	.setEmoji('⚔')
+	.setCustomId('accept');
+
+	const buttRow = new ActionRowBuilder().addComponents(fightButton);
+
+	const spawnEmbed = new EmbedBuilder()
+	.setColor('DarkButNotBlack')
+	.setTitle('An enemy appears!')
+	.addFields({
+		name: `Who dares?`,
+		value: `Select fight to test your might!`,
+	});
+
+	const anchorMsg = await spawnLocation.send({embeds: [spawnEmbed], components: [buttRow]});
+
+	const collector = anchorMsg.createMessageComponentCollector({
+		componentType: ComponentType.Button,
+		time: 120000,
+	});
+
+
+	collector.on('collect', async c => {
+		await c.deferUpdate().then(async () => {
+			if (c.customId === 'accept'){
+				const userID = c.user.id;
+				const interaction = c;
+
+				const user = await grabUser(userID);
+				if (!user) return await c.channel.followUp('No user found! Please use ``/start`` to create a profile!');
+				buttRow.components[0].setDisabled(true);
+				await anchorMsg.edit({components: [buttRow]});
+
+				await handleExterCombat(interaction); // combatDisplay.js
+
+				await collector.stop('Fight');
+			}
+		}).catch(e => console.error(e));	
+	});
+
+	collector.on('end', (c, r) => {
+		anchorMsg.delete().catch(error => {
+			if (error.code !== 10008) {
+				console.error('Failed to delete the message:', error);
+			}
+		});
+	});
+
+}
+
 
 /**
  * 
@@ -198,4 +256,4 @@ async function handleSpawn(message) {
 	}
 }
 
-module.exports = { enemyGrabbed, handleSpawn };
+module.exports = { enemyGrabbed, handleSpawn, handleXPSpawn };

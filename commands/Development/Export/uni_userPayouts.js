@@ -3,6 +3,7 @@ const { sendTimedChannelMessage } = require("../../../uniHelperFunctions");
 const { checkHintLevelOneHundred, checkHintLevelThirty, checkHintLevelFive } = require("../../Game/exported/handleHints");
 const { checkUnlockedBluey } = require("../../Game/exported/createBlueprint");
 const { Pighouse } = require("../../../dbObjects");
+const {chlkPreset} = require('../../../chalkPresets');
 
 /**
  * This method uses the given level to output the required xp needed to reach the next
@@ -81,17 +82,22 @@ async function handleUserPayout(xp, coin, interaction, user){
 function handleLevelCheck(totXP, user){
     let reqXP = lvlScaleCheck(user.level);
 
+    console.log(`XP for next Level/Current XP: ${chlkPreset.bInfoOne(`${reqXP} / ${totXP}`)}`);
+
     let newLvl = user.level;
     // Check for level up
     if (reqXP <= totXP){
         // User Levels UP!!
         let lvlCount = 0;
         do {
+            console.log(`Level Up! ${chlkPreset.bInfoTwo(newLvl)}`);
             totXP -= reqXP;
             newLvl++;
             reqXP = lvlScaleCheck(newLvl);
             lvlCount++;
         } while (reqXP <= totXP);
+
+        console.log(`XP for next Level/Current XP: ${chlkPreset.bInfoOne(`${reqXP} / ${totXP}`)}`);
 
         let embedDesc = (lvlCount > 1) ? `You leveled up ${lvlCount} times!` : `You leveled up!`;
         embedDesc += '\nUse the command ``/addpoint`` to spend your new points!!';

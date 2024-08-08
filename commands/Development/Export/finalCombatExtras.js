@@ -68,6 +68,7 @@ function* objectEntries(obj) {
 function checkAddDupeTypes(returnArr) {
     let typeArr = []; 
     let valueConst;
+    // Collect all Type values and set current DMG||DEF type
     for (const Obj of returnArr) {
         for (let [key, value] of objectEntries(Obj)) {
             if (key === 'Type') typeArr.push(value);
@@ -75,33 +76,24 @@ function checkAddDupeTypes(returnArr) {
         }
     }
 
-    let dupeCheck = [], tmpArr = [];
+    // Filter empty type values
+    typeArr = typeArr.filter(t => typeof t !== 'undefined');
+
+    // Filter to one of each type
+    const singleTypeArr = [];
     for (const type of typeArr){
-        if (tmpArr.indexOf(type) !== -1 && dupeCheck.indexOf(type) === -1){
-            dupeCheck.push(type);
-            continue;
-        }
-        tmpArr.push(type);
+        if (singleTypeArr.indexOf(type) === -1) singleTypeArr.push(type);
     }
 
-    let addedValues = [];
-    if (dupeCheck.length > 0){
-        for (const type of dupeCheck){
-            const addValue = returnArr.filter(obj => obj.Type === type).reduce((acc, obj) => {
-                return (acc > 0) ? acc + obj[`${valueConst}`] : obj[`${valueConst}`];
-            }, 0);
-            if (valueConst === 'DMG') addedValues.push({Type: type, DMG: addValue});
-            if (valueConst === 'DEF') addedValues.push({Type: type, DEF: addValue});
-        }
+    const combArr = [];
+    for (const type of singleTypeArr){
+        const combVal = returnArr.filter(obj => obj.Type === type).reduce((acc, obj) => {
+            return (acc > 0) ? acc + obj[`${valueConst}`] : obj[`${valueConst}`];
+        }, 0);
+        combArr.push({Type: type, [`${valueConst}`]: combVal});
     }
 
-    if (addedValues.length > 0){
-        returnArr = returnArr.filter(obj => addedValues.some(moddedVal => obj.Type !== moddedVal.Type));
-        returnArr = returnArr.concat(addedValues);
-        //returnDamage.sort((a,b) => b.DMG - a.DMG);
-    }
-
-    return returnArr;
+    return combArr;
 }
 
 const loadDamageItems = (mainhand, offhand) => {
@@ -110,7 +102,7 @@ const loadDamageItems = (mainhand, offhand) => {
     if (mainhand === 'NONE' && offhand === 'NONE') return [emptyDmg];
 
     mainhandDMG = (mainhand !== 'NONE') ? checkingDamage(mainhand): [emptyDmg];
-    offhandDMG = (offhand !== 'NONE') ? checkingDamage(offhand): [emptyDmg];
+    offhandDMG = (offhand !== 'NONE' && offhand !== mainhand) ? checkingDamage(offhand): [emptyDmg];
     
     returnDamage = mainhandDMG.concat(offhandDMG);
     returnDamage = checkAddDupeTypes(returnDamage);
@@ -118,9 +110,11 @@ const loadDamageItems = (mainhand, offhand) => {
 };
 
 const loadDefenceItems = (loadout) => {
+    console.log('Loading defence items!');
     const emptyDef = {Type: "True", DEF: 0};
     let returnDefence = [], offhandDEF, helmDEF, chestDEF, legsDEF;
     if (loadout.offhand === 'NONE' && loadout.headslot === 'NONE' && loadout.chestslot === 'NONE' && loadout.legslot === 'NONE') {
+        console.log('Defence Loadout Empty!');
         return [emptyDef];
     }
     offhandDEF = (loadout.offhand === 'NONE') ? [emptyDef] : checkingDefence(loadout.offhand);
