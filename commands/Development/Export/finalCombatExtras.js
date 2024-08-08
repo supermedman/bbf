@@ -99,7 +99,7 @@ function checkAddDupeTypes(returnArr) {
 const loadDamageItems = (mainhand, offhand) => {
     const emptyDmg = {Type: "True", DMG: 0};
     let returnDamage = [], mainhandDMG, offhandDMG;
-    if (mainhand === 'NONE' && offhand === 'NONE') return [emptyDmg];
+    if (mainhand === 'NONE' && offhand === 'NONE') return [{Type: "True", DMG: 1}];
 
     mainhandDMG = (mainhand !== 'NONE') ? checkingDamage(mainhand): [emptyDmg];
     offhandDMG = (offhand !== 'NONE' && offhand !== mainhand) ? checkingDamage(offhand): [emptyDmg];

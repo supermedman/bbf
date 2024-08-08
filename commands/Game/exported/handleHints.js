@@ -253,7 +253,7 @@ async function checkHintViewBluey(user, interaction) {
 
     if (userHints.viewbluey_hint === true) return;
 
-    await interaction.channel.send('WOAH WHAT WAS THAT!?!? A blueprint??? So cooool! Wanna see it? Use ``/blueprint view``!!\nBlueprints you can craft will have a craft button, blueprints you cannot craft will have a cancel button, materials required will be shown when viewing blueprints, as well as how many you have');
+    await interaction.channel.send('WOAH WHAT WAS THAT!?!? A blueprint??? So cooool! Wanna see it? Use ``/blueprint view`` to see it!!\nUse ``/blueprint available`` to see any blueprints you are able to craft, first check what kind of blueprint it is so you know where to look when trying to craft.');
     await UserHints.update({ viewbluey_hint: true }, { where: { spec_id: user.userid } });
     return;
 }

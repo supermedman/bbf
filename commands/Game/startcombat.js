@@ -15,7 +15,7 @@ const aCATE = require('../../events/Models/json_prefabs/activeCategoryEffects.js
 const { isLvlUp, isUniqueLevelUp } = require('./exported/levelup.js');
 const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
 const { grabMat } = require('./exported/materialDropper.js');
-const { checkHintStats } = require('./exported/handleHints.js');
+const { checkHintStats, checkHintLootView } = require('./exported/handleHints.js');
 
 const { Player } = require('./exported/MadeClasses/Player.js');
 const { Enemy } = require('./exported/MadeClasses/Enemy.js');
@@ -338,6 +338,11 @@ module.exports = {
                     }
                 });
 
+                if (typeof r !== 'string'){
+                    await sendTimedChannelMessage(interaction, 35000, r.replyObj);
+                    r = r.outcome;
+                }
+
                 switch(r){
                     case "EDEAD":
                     return handleEnemyDead(player, enemy); // Handle Dead Enemy
@@ -398,7 +403,7 @@ module.exports = {
             await sendTimedChannelMessage(interaction, 35000, replyObj);
 
             //console.log(enemy);
-            //console.log(player);
+            console.log(player);
             if (enemyDead) {
                 // =================== TIMER END
                 endTimer(startTime, "Final Combat");
@@ -442,7 +447,9 @@ module.exports = {
             let xpGain = enemy.rollXP();
             let coinGain = xpGain + Math.floor(xpGain * 0.10);
 
-            await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
+            const user = await grabUser(player.userId);
+
+            await handleUserPayout(xpGain, coinGain, interaction, user);
 
             // Material Drops
             const { materialFiles } = interaction.client;
@@ -450,8 +457,22 @@ module.exports = {
             await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
             // Item Drops
             if (enemy.payouts.item){
+                await checkHintLootView(user, interaction);
                 const iE = await dropItem(gearDrops, player, enemy);
                 await sendTimedChannelMessage(interaction, 60000, iE);
+            }
+
+            // Check combat tasks!
+
+            const activeCombatTasks = await UserTasks.findAll({where: {userid: user.userid, task_type: "Combat", complete: false, failed: false}});
+            if (activeCombatTasks.length > 0){
+                //Combat tasks found, check if conditions met
+                const filterTasks = activeCombatTasks.filter(task => task.condition <= enemy.level);
+                if (filterTasks.length > 0){
+                    for (const task of filterTasks){
+                        await task.increment('amount').save().then(async t => {return await t.reload()});
+                    }
+                }
             }
 
             // =============

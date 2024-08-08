@@ -82,7 +82,7 @@ async function handleUserPayout(xp, coin, interaction, user){
 function handleLevelCheck(totXP, user){
     let reqXP = lvlScaleCheck(user.level);
 
-    console.log(`XP for next Level/Current XP: ${chlkPreset.bInfoOne(`${reqXP} / ${totXP}`)}`);
+    console.log(`XP for next Level/Current XP: ${chlkPreset.bInfoOne(`${totXP} / ${reqXP}`)}`);
 
     let newLvl = user.level;
     // Check for level up
@@ -97,7 +97,7 @@ function handleLevelCheck(totXP, user){
             lvlCount++;
         } while (reqXP <= totXP);
 
-        console.log(`XP for next Level/Current XP: ${chlkPreset.bInfoOne(`${reqXP} / ${totXP}`)}`);
+        console.log(`XP for next Level/Current XP: ${chlkPreset.bInfoOne(`${totXP} / ${reqXP}`)}`);
 
         let embedDesc = (lvlCount > 1) ? `You leveled up ${lvlCount} times!` : `You leveled up!`;
         embedDesc += '\nUse the command ``/addpoint`` to spend your new points!!';

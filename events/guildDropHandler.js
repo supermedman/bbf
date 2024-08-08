@@ -3,6 +3,7 @@ const { GuildData, UserData } = require('../dbObjects.js');
 const { loadEnemy } = require('../commands/Game/exported/loadEnemy.js');
 const { grabUser } = require('../uniHelperFunctions.js');
 const wait = require('node:timers/promises').setTimeout;
+const {handleExterCombat} = require('../commands/Game/exported/combatDisplay.js');
 
 //Refrence from messageCreate event Allowing smooth handling of enemies!
 

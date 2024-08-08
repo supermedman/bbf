@@ -300,6 +300,11 @@ async function handleExterCombat(interaction){
                 }
             });
 
+            if (typeof r !== 'string'){
+                await sendTimedChannelMessage(interaction, 35000, r.replyObj);
+                r = r.outcome;
+            }
+
             switch(r){
                 case "EDEAD":
                 return handleEnemyDead(player, enemy); // Handle Dead Enemy

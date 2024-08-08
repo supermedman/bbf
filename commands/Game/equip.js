@@ -150,7 +150,7 @@ module.exports = {
                 const replyMsg = (offhandEmpty) ? "Mainhand equipped, offhand available.": "Mainhand equipped.";
             return await interaction.followUp(replyMsg);
             case "Offhand":
-                if (userLoad.offhand === userLoad.mainhand) return await interaction.followUp('Offhand slot taking up by Mainhand weapon!');
+                if (userLoad.offhand === userLoad.mainhand) return await interaction.followUp('Offhand slot taken up by Mainhand weapon!');
                 await userLoad.update({
                     offhand: theItem.item_id
                 }).then(async u => await u.save()).then(async u => {return await u.reload()});

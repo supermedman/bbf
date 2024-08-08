@@ -2,7 +2,7 @@
 
 const { grabRar } = require("../../../Game/exported/grabRar");
 
-const {randArrPos, inclusiveRandNum, rollChance} = require('../../../../uniHelperFunctions');
+const {randArrPos, inclusiveRandNum, rollChance, dropChance} = require('../../../../uniHelperFunctions');
 const hitChance = rollChance;
 
 const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
@@ -251,7 +251,7 @@ class EnemyFab {
     }
 
     loadItems(player){
-        this.payouts.item = hitChance(player.dropChance);
+        this.payouts.item = dropChance(player.dropChance);
     }
 
     rollXP(){

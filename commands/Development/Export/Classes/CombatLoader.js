@@ -6,7 +6,7 @@ const potCatEffects = require('../../../../events/Models/json_prefabs/activeCate
 const bpList = require('../../../../events/Models/json_prefabs/blueprintList.json');
 const { grabRar } = require('../../../Game/exported/grabRar');
 const { checkHintStats } = require('../../../Game/exported/handleHints');
-const {rollChance} = require('../../../../uniHelperFunctions');
+const {rollChance, dropChance} = require('../../../../uniHelperFunctions');
 
 class CombatInstance {
     constructor(user){
@@ -236,7 +236,9 @@ class CombatInstance {
     }
 
     async checkPotionUse(){
+        if (this.potion.id === 0) return;
         const potMatch = await OwnedPotions.findOne({where: {spec_id: this.userId, potion_id: this.potion.id}});
+        if (!potMatch) return;
         if (this.potion.amount !== potMatch.amount){
             if (this.potion.amount === 0){
                 //Destroy potion entry
@@ -343,7 +345,7 @@ class CombatInstance {
         spdUP = (this.pigmy?.spd ?? 0) + this.internalEffects.upStat.spd, 
         dexUP = (this.pigmy?.dex ?? 0) + this.internalEffects.upStat.dex;
 
-        this.internalEffects.upDmg = this.pigmy?.dmg;
+        this.internalEffects.upDmg = this.pigmy?.dmg ?? 0;
 
         this.totalStats = {
             int: this.staticStats.int + intUP,
@@ -485,7 +487,18 @@ class CombatInstance {
     }
 
     async retrieveLoadout(){
-        const loadoutMatch = await Loadout.findOne({where: {spec_id: this.userId}});
+        let loadoutMatch = await Loadout.findOrCreate({
+            where: {
+                spec_id: this.userId
+            }
+        });
+
+        if (loadoutMatch[1]){
+            await loadoutMatch[0].save().then(async l => {return await l.reload()});
+        }
+
+        loadoutMatch = loadoutMatch[0];
+
         // const loadoutMatch = userLoadoutTestObj; // TEMPORARY
         if (this.loadout.ids.length === 0 && !loadoutMatch) {
             this.loadout.ids = [0, 0, 0, 0, 0];
@@ -599,7 +612,7 @@ class CombatInstance {
 
     async rollItemRar(enemy){
         let baseRar = await grabRar(enemy.level);
-        if (baseRar < 10 && rollChance(this.upChance)) baseRar++;
+        if (baseRar < 10 && dropChance(this.upChance)) baseRar++;
         return baseRar;
     }
 

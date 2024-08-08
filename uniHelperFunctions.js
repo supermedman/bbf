@@ -16,6 +16,10 @@ const rollChance = (chance) => {
     return (Math.random() <= chance) ? true : false;
 };
 
+const dropChance = (chance) => {
+    return (Math.random() >= chance) ? true : false;
+};
+
 const inclusiveRandNum = (max, min) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
@@ -222,6 +226,7 @@ module.exports = {
     randArrPos,
     inclusiveRandNum,
     rollChance,
+    dropChance,
     makeCapital,
     checkLootDrop,
     checkLootUP,
