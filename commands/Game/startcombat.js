@@ -227,7 +227,7 @@ module.exports = {
         .setDescription('The basic combat initiation!'),
 
     async execute(interaction) {
-        if (interaction.user.id !== '501177494137995264') return await interaction.reply('Sorry, this command is being tested and is unavailable.');
+        // if (interaction.user.id !== '501177494137995264') return await interaction.reply('Sorry, this command is being tested and is unavailable.');
         
         const { enemies, combatInstance, gearDrops, newEnemy } = interaction.client;
 
