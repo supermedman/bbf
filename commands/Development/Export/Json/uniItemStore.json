@@ -1,0 +1,3855 @@
+[
+    {
+        "name": "Axe",
+        "value": 10,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 3
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 1,
+        "itemStringCode": "TYP_SLph:3_typ-r00-DIS_ME-WO_dis-MAslo"
+    },
+    {
+        "name": "Rock",
+        "value": 1,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 3
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Rocky"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 2,
+        "itemStringCode": "TYP_BLph:3_typ-r00-DIS_RO_dis-MAslo"
+    },
+    {
+        "name": "Shield",
+        "value": 15,
+        "rarity": 0,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 3
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 2
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Skinny"
+        ],
+        "casteName": "Heavy Shield",
+        "casteID": 16,
+        "crafted_id": 3,
+        "itemStringCode": "TYP_BLph:3_typ-TYPD_BLph:2_typd-r00-DIS_WO-SK_dis-OFslo"
+    },
+    {
+        "name": "Big Sword",
+        "value": 35,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 3
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 4,
+        "itemStringCode": "TYP_SLph:3_typ-r00-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Mercenary Bronze Skewer",
+        "value": 10,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 3
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 5,
+        "itemStringCode": "TYP_SLph:3_typ-r00-DIS_ME_dis-MAslo"
+    },
+    {
+        "name": "War-Forged Steel Blade",
+        "value": 35,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 7
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 6,
+        "itemStringCode": "TYP_SLph:7_typ-r01-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Flimsy Skeletal Doomblade",
+        "value": 20,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 5
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 7,
+        "itemStringCode": "TYP_BLph:5_typ-r00-DIS_ME_dis-MAslo"
+    },
+    {
+        "name": "Reforged Gold Blade",
+        "value": 40,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 8
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 8,
+        "itemStringCode": "TYP_SLph:8_typ-r01-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Toothpick",
+        "value": 5,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 2
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Woody"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 9,
+        "itemStringCode": "TYP_SLph:2_typ-r00-DIS_WO_dis-MAslo"
+    },
+    {
+        "name": "Winterthorn",
+        "value": 55,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Frost",
+                "dmg": 14
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 10,
+        "itemStringCode": "TYP_FRma:14_typ-r02-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "Shiverspine",
+        "value": 60,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Frost",
+                "dmg": 15
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 11,
+        "itemStringCode": "TYP_FRma:15_typ-r02-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "Blinkstrike",
+        "value": 150,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Light",
+                "dmg": 36
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 12,
+        "itemStringCode": "TYP_LIma:36_typ-r03-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "The Facelifter",
+        "value": 260,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 45
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 13,
+        "itemStringCode": "TYP_SLph:45_typ-r04-DIS_ME-MA_dis-MAslo"
+    },
+    {
+        "name": "Destroyer of Lost Voices",
+        "value": 450,
+        "rarity": 5,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 60
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 14,
+        "itemStringCode": "TYP_DAma:60_typ-r05-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "Silverlight, Etcher of the Dead",
+        "value": 1400,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Light",
+                "dmg": 80
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 15,
+        "itemStringCode": "TYP_LIma:80_typ-r06-DIS_ME-MA_dis-MAslo"
+    },
+    {
+        "name": "Nightcrackle, Terror of the Covenant",
+        "value": 2400,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 120
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 16,
+        "itemStringCode": "TYP_DAma:120_typ-r07-DIS_ME-MA_dis-MAslo"
+    },
+    {
+        "name": "Reaper's Toll, Blade of Broken Families",
+        "value": 4050,
+        "rarity": 8,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 140
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 17,
+        "itemStringCode": "TYP_DAma:140_typ-r08-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Silence, Annihilation of the Setting Sun",
+        "value": 8000,
+        "rarity": 9,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 170
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Gemy"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 18,
+        "itemStringCode": "TYP_FIma:170_typ-r09-DIS_MA-GE_dis-MAslo"
+    },
+    {
+        "name": "Seism, Warblade of Delusions",
+        "value": 160500,
+        "rarity": 10,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Null",
+                "dmg": 355
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Gemy"
+        ],
+        "casteName": "Mage Blade",
+        "casteID": 18,
+        "crafted_id": 19,
+        "itemStringCode": "TYP_NUsp:355_typ-r10-DIS_ME-MA-GE_dis-MAslo"
+    },
+    {
+        "name": "Party Pooper",
+        "value": 10000,
+        "rarity": 9,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 250
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Magical",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 20,
+        "itemStringCode": "TYP_BLph:250_typ-r09-DIS_WO-MA-GE-SI_dis-MAslo"
+    },
+    {
+        "name": "Deserted Polearm",
+        "value": 15,
+        "rarity": 0,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 5
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 21,
+        "itemStringCode": "TYP_BLph:5_typ-r00-DIS_ME-WO_dis-MAslo"
+    },
+    {
+        "name": "Orenmir, Might of Fools",
+        "value": 150000,
+        "rarity": 10,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Null",
+                "dmg": 320
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Skinny",
+            "Silky"
+        ],
+        "casteName": "Eye Stone",
+        "casteID": 17,
+        "crafted_id": 22,
+        "itemStringCode": "TYP_NUsp:320_typ-r10-DIS_ME-MA-SK-SI_dis-MAslo"
+    },
+    {
+        "name": "Dawn, Heirloom of the Sun",
+        "value": 9000,
+        "rarity": 9,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 200
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 23,
+        "itemStringCode": "TYP_FIma:200_typ-r09-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "Kinslayer",
+        "value": 130,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 28
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 24,
+        "itemStringCode": "TYP_SLph:28_typ-r03-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Rune-Forged Skeletal Broadsword",
+        "value": 100,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 20
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny",
+            "Gemy"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 25,
+        "itemStringCode": "TYP_SLph:20_typ-r03-DIS_ME-SK-GE_dis-MAslo"
+    },
+    {
+        "name": "Reckoning, Pledge of Wraiths",
+        "value": 2000,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 113
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny",
+            "Magical"
+        ],
+        "casteName": "Focus",
+        "casteID": 4,
+        "crafted_id": 26,
+        "itemStringCode": "TYP_MAma:113_typ-r07-DIS_ME-SK-MA_dis-MAslo"
+    },
+    {
+        "name": "Lament",
+        "value": 225,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 40
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 27,
+        "itemStringCode": "TYP_BLph:40_typ-r04-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Venom",
+        "value": 145,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 30
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Woody"
+        ],
+        "casteName": "Focus",
+        "casteID": 4,
+        "crafted_id": 28,
+        "itemStringCode": "TYP_MAma:30_typ-r03-DIS_MA-WO_dis-MAslo"
+    },
+    {
+        "name": "Gutrender, Sword of Broken Dreams",
+        "value": 1500,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 87
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 29,
+        "itemStringCode": "TYP_SLph:87_typ-r06-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Oathkeeper's Glass Blade",
+        "value": 55,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 13
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Gemy"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 30,
+        "itemStringCode": "TYP_BLph:13_typ-r02-DIS_GE_dis-MAslo"
+    },
+    {
+        "name": "Nightbane, Dawn of Trembling Hands",
+        "value": 1600,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 96
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 31,
+        "itemStringCode": "TYP_DAma:96_typ-r06-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Firesoul Guardian",
+        "value": 50,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 11
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 32,
+        "itemStringCode": "TYP_FIma:11_typ-r02-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "Worldbreaker",
+        "value": 265,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 47
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Magical"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 33,
+        "itemStringCode": "TYP_BLph:47_typ-r04-DIS_WO-MA_dis-MAslo"
+    },
+    {
+        "name": "Fleshrender",
+        "value": 480,
+        "rarity": 5,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 68
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 34,
+        "itemStringCode": "TYP_SLph:68_typ-r05-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Mournblade, Cry of Hate",
+        "value": 3500,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 121
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 35,
+        "itemStringCode": "TYP_DAma:121_typ-r07-DIS_ME-MA_dis-MAslo"
+    },
+    {
+        "name": "Tyrhung",
+        "value": 160000,
+        "rarity": 10,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Null",
+                "dmg": 350
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Gemy",
+            "Skinny"
+        ],
+        "casteName": "Mage Blade",
+        "casteID": 18,
+        "crafted_id": 36,
+        "itemStringCode": "TYP_NUsp:350_typ-r10-DIS_ME-MA-GE-SK_dis-MAslo"
+    },
+    {
+        "name": "Anduril, Runed Blade of the Dreadlord",
+        "value": 145500,
+        "rarity": 10,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Null",
+                "dmg": 310
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Gemy",
+            "Skinny",
+            "Silky"
+        ],
+        "casteName": "Eye Stone",
+        "casteID": 17,
+        "crafted_id": 37,
+        "itemStringCode": "TYP_NUsp:310_typ-r10-DIS_ME-GE-SK-SI_dis-MAslo"
+    },
+    {
+        "name": "Hot Dog",
+        "value": 45,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 7
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Fleshy"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 38,
+        "itemStringCode": "TYP_BLph:7_typ-r01-DIS_FL_dis-MAslo"
+    },
+    {
+        "name": "Hero's Oak Harpoon",
+        "value": 150,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 31
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 39,
+        "itemStringCode": "TYP_SLph:31_typ-r03-DIS_WO-SK_dis-MAslo"
+    },
+    {
+        "name": "Windsong Lance",
+        "value": 270,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 50
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody"
+        ],
+        "casteName": "Focus",
+        "casteID": 4,
+        "crafted_id": 40,
+        "itemStringCode": "TYP_MAma:50_typ-r04-DIS_ME-WO_dis-MAslo"
+    },
+    {
+        "name": "The Oracle",
+        "value": 500,
+        "rarity": 5,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 80
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny"
+        ],
+        "casteName": "Tome",
+        "casteID": 2,
+        "crafted_id": 41,
+        "itemStringCode": "TYP_MAma:80_typ-r05-DIS_MA-SK_dis-MAslo"
+    },
+    {
+        "name": "Rune-Forged Spear",
+        "value": 145,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 30
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody",
+            "Magical",
+            "Gemy"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 42,
+        "itemStringCode": "TYP_SLph:30_typ-r03-DIS_ME-WO-MA-GE_dis-MAslo"
+    },
+    {
+        "name": "Fury, Promise of the Stars",
+        "value": 2300,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 103
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 43,
+        "itemStringCode": "TYP_FIma:103_typ-r07-DIS_ME-MA-GE-SI_dis-MAslo"
+    },
+    {
+        "name": "Devourer",
+        "value": 140,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 29
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 44,
+        "itemStringCode": "TYP_SLph:29_typ-r03-DIS_ME_dis-MAslo"
+    },
+    {
+        "name": "Crimson, Dawn of Dark Souls",
+        "value": 6000,
+        "rarity": 8,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 140
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny",
+            "Silky"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 45,
+        "itemStringCode": "TYP_DAma:140_typ-r08-DIS_MA-SK-SI_dis-MAslo"
+    },
+    {
+        "name": "Laser Pointer",
+        "value": 140000,
+        "rarity": 10,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Null",
+                "dmg": 300
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Gemy"
+        ],
+        "casteName": "Eye Stone",
+        "casteID": 17,
+        "crafted_id": 46,
+        "itemStringCode": "TYP_NUsp:300_typ-r10-DIS_ME-MA-GE_dis-MAslo"
+    },
+    {
+        "name": "Fleshshaper",
+        "value": 55,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 12
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 47,
+        "itemStringCode": "TYP_SLph:12_typ-r02-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Defiled Razor",
+        "value": 30,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 6
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 48,
+        "itemStringCode": "TYP_SLph:6_typ-r01-DIS_ME_dis-MAslo"
+    },
+    {
+        "name": "Rattleshake",
+        "value": 35,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 8
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 49,
+        "itemStringCode": "TYP_BLph:8_typ-r01-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Ghostwalker",
+        "value": 275,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 50
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Magical"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 50,
+        "itemStringCode": "TYP_DAma:50_typ-r04-DIS_MA_dis-MAslo"
+    },
+    {
+        "name": "Bone Warden",
+        "value": 450,
+        "rarity": 5,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 60
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Skinny",
+            "Magical"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 51,
+        "itemStringCode": "TYP_BLph:60_typ-r05-DIS_SK-MA_dis-MAslo"
+    },
+    {
+        "name": "Wind-Forged Longsword",
+        "value": 60,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 13
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 52,
+        "itemStringCode": "TYP_SLph:13_typ-r02-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Bloodlord's Ender",
+        "value": 475,
+        "rarity": 5,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 65
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 53,
+        "itemStringCode": "TYP_DAma:65_typ-r05-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Glass Pact",
+        "value": 40,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Light",
+                "dmg": 9
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light"
+            }
+        ],
+        "mats": [
+            "Gemy"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 54,
+        "itemStringCode": "TYP_LIma:9_typ-r01-DIS_GE_dis-MAslo"
+    },
+    {
+        "name": "Bloodfury",
+        "value": 3850,
+        "rarity": 8,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 135
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Silky"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 55,
+        "itemStringCode": "TYP_DAma:135_typ-r08-DIS_ME-SI_dis-MAslo"
+    },
+    {
+        "name": "Edge of Time",
+        "value": 2000,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 115
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Focus",
+        "casteID": 4,
+        "crafted_id": 56,
+        "itemStringCode": "TYP_MAma:115_typ-r07-DIS_MA-GE-SI_dis-MAslo"
+    },
+    {
+        "name": "Rain Maker",
+        "value": 260,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 45
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Focus",
+        "casteID": 4,
+        "crafted_id": 57,
+        "itemStringCode": "TYP_MAma:45_typ-r04-DIS_MA-GE-SI_dis-MAslo"
+    },
+    {
+        "name": "Dragon's Tongue",
+        "value": 1450,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 85
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 58,
+        "itemStringCode": "TYP_FIma:85_typ-r06-DIS_ME-MA_dis-MAslo"
+    },
+    {
+        "name": "Moonsight",
+        "value": 495,
+        "rarity": 5,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 75
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 59,
+        "itemStringCode": "TYP_DAma:75_typ-r05-DIS_ME-MA-GE-SI_dis-MAslo"
+    },
+    {
+        "name": "Blood-Forged Bringer",
+        "value": 1650,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 90
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 60,
+        "itemStringCode": "TYP_BLph:90_typ-r06-DIS_ME-WO_dis-MAslo"
+    },
+    {
+        "name": "Ghost-Forged Mace",
+        "value": 1500,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 87
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody",
+            "Magical"
+        ],
+        "casteName": "Mace",
+        "casteID": 6,
+        "crafted_id": 61,
+        "itemStringCode": "TYP_BLph:87_typ-r06-DIS_ME-WO-MA_dis-MAslo"
+    },
+    {
+        "name": "Steel Dagger",
+        "value": 40,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 8
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 62,
+        "itemStringCode": "TYP_SLph:8_typ-r01-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Grieving Blade",
+        "value": 35,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 7
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Blade",
+        "casteID": 5,
+        "crafted_id": 63,
+        "itemStringCode": "TYP_SLph:7_typ-r01-DIS_ME-SK_dis-MAslo"
+    },
+    {
+        "name": "Ebon Maul",
+        "value": 70,
+        "rarity": 2,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 15
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody",
+            "Skinny"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 64,
+        "itemStringCode": "TYP_BLph:15_typ-r02-DIS_ME-WO-SK_dis-MAslo"
+    },
+    {
+        "name": "The Mighty Spine",
+        "value": 2400,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 120
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Fleshy",
+            "Magical"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 65,
+        "itemStringCode": "TYP_SLph:120_typ-r07-DIS_FL-MA_dis-MAslo"
+    },
+    {
+        "name": "Leather Helmet",
+        "value": 10,
+        "rarity": 0,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 1
+            }
+        ],
+        "mats": [
+            "Skinny"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 66,
+        "itemStringCode": "TYPD_BLph:1_typd-r00-DIS_SK_dis-HEslo"
+    },
+    {
+        "name": "Plate Helmet",
+        "value": 25,
+        "rarity": 1,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 2
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 67,
+        "itemStringCode": "TYPD_BLph:2_typd-r01-DIS_ME_dis-HEslo"
+    },
+    {
+        "name": "Leather Chestpiece",
+        "value": 10,
+        "rarity": 0,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 1
+            }
+        ],
+        "mats": [
+            "Skinny"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 68,
+        "itemStringCode": "TYPD_BLph:1_typd-r00-DIS_SK_dis-CHslo"
+    },
+    {
+        "name": "Plate Chestpiece",
+        "value": 25,
+        "rarity": 1,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 3
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 69,
+        "itemStringCode": "TYPD_BLph:3_typd-r01-DIS_ME_dis-CHslo"
+    },
+    {
+        "name": "Leather Leggings",
+        "value": 10,
+        "rarity": 0,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 1
+            }
+        ],
+        "mats": [
+            "Skinny"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 70,
+        "itemStringCode": "TYPD_BLph:1_typd-r00-DIS_SK_dis-LEslo"
+    },
+    {
+        "name": "Plate Leggings",
+        "value": 25,
+        "rarity": 1,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 2
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 71,
+        "itemStringCode": "TYPD_BLph:2_typd-r01-DIS_ME_dis-LEslo"
+    },
+    {
+        "name": "Nessys Cat Ears",
+        "value": 150000,
+        "rarity": 10,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null",
+                "def": 35
+            }
+        ],
+        "mats": [
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Phased Helm",
+        "casteID": 21,
+        "crafted_id": 72,
+        "itemStringCode": "TYPD_NUsp:35_typd-r10-DIS_GE-SI_dis-HEslo"
+    },
+    {
+        "name": "Nessys Maids Outfit",
+        "value": 300000,
+        "rarity": 10,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null",
+                "def": 70
+            }
+        ],
+        "mats": [
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Phased Garments",
+        "casteID": 22,
+        "crafted_id": 73,
+        "itemStringCode": "TYPD_NUsp:70_typd-r10-DIS_GE-SI_dis-CHslo"
+    },
+    {
+        "name": "Nessys Pantyhose",
+        "value": 150000,
+        "rarity": 10,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null",
+                "def": 35
+            }
+        ],
+        "mats": [
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Phased Leggings",
+        "casteID": 23,
+        "crafted_id": 74,
+        "itemStringCode": "TYPD_NUsp:35_typd-r10-DIS_GE-SI_dis-LEslo"
+    },
+    {
+        "name": "Oathkeeper's Crystal Helm",
+        "value": 55,
+        "rarity": 2,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 2
+            }
+        ],
+        "mats": [
+            "Gemy"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 75,
+        "itemStringCode": "TYPD_SLph:2_typd-r02-DIS_GE_dis-HEslo"
+    },
+    {
+        "name": "Oathkeeper's Crystal Cuirass",
+        "value": 110,
+        "rarity": 2,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 4
+            }
+        ],
+        "mats": [
+            "Gemy"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 76,
+        "itemStringCode": "TYPD_SLph:4_typd-r02-DIS_GE_dis-CHslo"
+    },
+    {
+        "name": "Oathkeeper's Crystal Greaves",
+        "value": 55,
+        "rarity": 2,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 2
+            }
+        ],
+        "mats": [
+            "Gemy"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 77,
+        "itemStringCode": "TYPD_SLph:2_typd-r02-DIS_GE_dis-LEslo"
+    },
+    {
+        "name": "Hero's Gilded Crown",
+        "value": 150,
+        "rarity": 3,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 3
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 78,
+        "itemStringCode": "TYPD_SLph:3_typd-r03-DIS_ME_dis-HEslo"
+    },
+    {
+        "name": "Hero's Gilded Aegis",
+        "value": 300,
+        "rarity": 3,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 6
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 79,
+        "itemStringCode": "TYPD_SLph:6_typd-r03-DIS_ME_dis-CHslo"
+    },
+    {
+        "name": "Hero's Gilded Sabatons",
+        "value": 150,
+        "rarity": 3,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 3
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 80,
+        "itemStringCode": "TYPD_SLph:3_typd-r03-DIS_ME_dis-LEslo"
+    },
+    {
+        "name": "Ghostwalker's Darkwoven Beret",
+        "value": 275,
+        "rarity": 4,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 4
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 81,
+        "itemStringCode": "TYPD_DAma:4_typd-r04-DIS_MA-SI_dis-HEslo"
+    },
+    {
+        "name": "Ghostwalker's Darkwoven Hauberk",
+        "value": 550,
+        "rarity": 4,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 8
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 82,
+        "itemStringCode": "TYPD_DAma:8_typd-r04-DIS_MA-SI_dis-CHslo"
+    },
+    {
+        "name": "Ghostwalker's Darkwoven Mail-Skirt",
+        "value": 275,
+        "rarity": 4,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 4
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 83,
+        "itemStringCode": "TYPD_DAma:4_typd-r04-DIS_MA-SI_dis-LEslo"
+    },
+    {
+        "name": "Bloodlord's Gold-Stained Visage",
+        "value": 475,
+        "rarity": 5,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 5
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 84,
+        "itemStringCode": "TYPD_MAma:5_typd-r05-DIS_ME_dis-HEslo"
+    },
+    {
+        "name": "Bloodlord's Gold-Stained Battleplate",
+        "value": 950,
+        "rarity": 5,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 10
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 85,
+        "itemStringCode": "TYPD_MAma:10_typd-r05-DIS_ME_dis-CHslo"
+    },
+    {
+        "name": "Bloodlord's Gold-Stained Legplates",
+        "value": 475,
+        "rarity": 5,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 5
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 86,
+        "itemStringCode": "TYPD_MAma:5_typd-r05-DIS_ME_dis-LEslo"
+    },
+    {
+        "name": "Dragon's Obsidian Gaze",
+        "value": 1450,
+        "rarity": 6,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 6
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 87,
+        "itemStringCode": "TYPD_FIma:6_typd-r06-DIS_ME-MA_dis-HEslo"
+    },
+    {
+        "name": "Dragon's Scaled Breastplate",
+        "value": 2900,
+        "rarity": 6,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 12
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 88,
+        "itemStringCode": "TYPD_FIma:12_typd-r06-DIS_ME-MA_dis-CHslo"
+    },
+    {
+        "name": "Dragon's Wrathful Bone Platelegs",
+        "value": 1450,
+        "rarity": 6,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 6
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 89,
+        "itemStringCode": "TYPD_FIma:6_typd-r06-DIS_ME-MA_dis-LEslo"
+    },
+    {
+        "name": "TimeEdge, Crown of Ending Magic",
+        "value": 2000,
+        "rarity": 7,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 8
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 90,
+        "itemStringCode": "TYPD_MAma:8_typd-r07-DIS_MA-SI_dis-HEslo"
+    },
+    {
+        "name": "TimeEdge, Raiment of Lost Worlds",
+        "value": 4000,
+        "rarity": 7,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 16
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 91,
+        "itemStringCode": "TYPD_MAma:16_typd-r07-DIS_MA-SI_dis-CHslo"
+    },
+    {
+        "name": "TimeEdge, Exile Cloth Legwraps",
+        "value": 2000,
+        "rarity": 7,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 8
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 92,
+        "itemStringCode": "TYPD_MAma:8_typd-r07-DIS_MA-SI_dis-LEslo"
+    },
+    {
+        "name": "Wadira's Insanity, Fetish of Corruption",
+        "value": 3950,
+        "rarity": 8,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 140
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Woody",
+            "Skinny"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 93,
+        "itemStringCode": "TYP_DAma:140_typ-r08-DIS_MA-WO-SK_dis-MAslo"
+    },
+    {
+        "name": "Wadira's Deflector of Illusions",
+        "value": 3950,
+        "rarity": 8,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 10
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 94,
+        "itemStringCode": "TYPD_DAma:10_typd-r08-DIS_MA-SI_dis-HEslo"
+    },
+    {
+        "name": "Wadira's Token of Regrets",
+        "value": 4900,
+        "rarity": 8,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 20
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 95,
+        "itemStringCode": "TYPD_DAma:20_typd-r08-DIS_MA-SI_dis-CHslo"
+    },
+    {
+        "name": "Wadira's Emissary of Ashes",
+        "value": 3950,
+        "rarity": 8,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 10
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 96,
+        "itemStringCode": "TYPD_DAma:10_typd-r08-DIS_MA-SI_dis-LEslo"
+    },
+    {
+        "name": "Dusk, Crown of Burning Lands",
+        "value": 9000,
+        "rarity": 9,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 14
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 97,
+        "itemStringCode": "TYPD_FIma:14_typd-r09-DIS_ME-MA_dis-HEslo"
+    },
+    {
+        "name": "Midnight, Terror of the Nightend",
+        "value": 18000,
+        "rarity": 9,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 28
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Gemy",
+            "Magical"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 98,
+        "itemStringCode": "TYPD_FIma:28_typd-r09-DIS_ME-GE-MA_dis-CHslo"
+    },
+    {
+        "name": "Twilight, Legguards of Fire",
+        "value": 9000,
+        "rarity": 9,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 14
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Gemy",
+            "Magical"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 99,
+        "itemStringCode": "TYPD_FIma:14_typd-r09-DIS_ME-GE-MA_dis-LEslo"
+    },
+    {
+        "name": "Silver Spoon",
+        "value": 1000000,
+        "rarity": 9,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Rad",
+                "dmg": 150
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Rad"
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 101,
+        "itemStringCode": "TYP_RAma:150_typ-r09-DIS_ME_dis-MAslo"
+    },
+    {
+        "name": "Bingle",
+        "value": 15000000,
+        "rarity": 10,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 300
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 300
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Metalic"
+        ],
+        "casteName": "Light Buckler",
+        "casteID": 15,
+        "crafted_id": 102,
+        "itemStringCode": "TYP_FIma:300_typ-TYPD_FIma:300_typd-r10-DIS_WO-ME_dis-OFslo"
+    },
+    {
+        "name": "The Void, Favor of Mountains",
+        "value": 1348039,
+        "rarity": 9,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Frost",
+                "dmg": 671
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost"
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Gemy"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 103,
+        "itemStringCode": "TYP_FRma:671_typ-r09-DIS_SL-GE_dis-MAslo"
+    },
+    {
+        "name": "Infused Phasesteel Impaler",
+        "value": 68800,
+        "rarity": 4,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 86
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Metalic"
+        ],
+        "casteName": "Polearm",
+        "casteID": 7,
+        "crafted_id": 104,
+        "itemStringCode": "TYP_BLph:86_typ-r04-DIS_MA-ME_dis-MAslo"
+    },
+    {
+        "name": "Ghost-Forged Razors",
+        "value": 34200,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Light",
+                "dmg": 57
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Gemy"
+        ],
+        "casteName": "Staff",
+        "casteID": 3,
+        "crafted_id": 105,
+        "itemStringCode": "TYP_LIma:57_typ-r03-DIS_ME-GE_dis-MAslo"
+    },
+    {
+        "name": "Bloodquench, Voice of the Corrupted",
+        "value": 614448,
+        "rarity": 8,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 306
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Fleshy"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 106,
+        "itemStringCode": "TYP_FIma:306_typ-r08-DIS_SL-FL_dis-MAslo"
+    },
+    {
+        "name": "Tome o Blackfire",
+        "value": 734928,
+        "rarity": 8,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Magic",
+                "dmg": 366
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Skinny",
+            "Magical"
+        ],
+        "casteName": "Tome",
+        "casteID": 2,
+        "crafted_id": 107,
+        "itemStringCode": "TYP_MAma:366_typ-r08-DIS_SL-SK-MA_dis-MAslo"
+    },
+    {
+        "name": "Bandit's Baton",
+        "value": 302906,
+        "rarity": 6,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 151
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Rocky",
+            "Silky"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 108,
+        "itemStringCode": "TYP_DAma:151_typ-r06-DIS_ME-RO-SI_dis-MAslo"
+    },
+    {
+        "name": "Skullforge Sabre",
+        "value": 35400,
+        "rarity": 3,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Fire",
+                "dmg": 59
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Wand",
+        "casteID": 1,
+        "crafted_id": 109,
+        "itemStringCode": "TYP_FIma:59_typ-r03-DIS_WO-MA-SI_dis-MAslo"
+    },
+    {
+        "name": "Wrathful Ranseur",
+        "value": 5000,
+        "rarity": 1,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 25
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Skinny",
+            "Metalic"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 110,
+        "itemStringCode": "TYP_SLph:25_typ-r01-DIS_SK-ME_dis-MAslo"
+    },
+    {
+        "name": "Pure Glass Greathammer",
+        "value": 465624,
+        "rarity": 7,
+        "slot": "Mainhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 232
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "mats": [
+            "Gemy"
+        ],
+        "casteName": "Heavy Blade",
+        "casteID": 8,
+        "crafted_id": 111,
+        "itemStringCode": "TYP_SLph:232_typ-r07-DIS_GE_dis-MAslo"
+    },
+    {
+        "name": "The Blockade",
+        "value": 1200,
+        "rarity": 1,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 6
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 6
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Shield",
+        "casteID": 16,
+        "crafted_id": 112,
+        "itemStringCode": "TYP_BLph:6_typ-TYPD_BLph:6_typd-r01-DIS_ME-SK_dis-OFslo"
+    },
+    {
+        "name": "Battleworn Ashwood Shield Wall",
+        "value": 10400,
+        "rarity": 2,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 13
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 13
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Fleshy"
+        ],
+        "casteName": "Heavy Shield",
+        "casteID": 16,
+        "crafted_id": 113,
+        "itemStringCode": "TYP_BLph:13_typ-TYPD_BLph:13_typd-r02-DIS_WO-FL_dis-OFslo"
+    },
+    {
+        "name": "Cursed Titanium Carapace",
+        "value": 12000,
+        "rarity": 3,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Slash",
+                "dmg": 15
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 15
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Rocky"
+        ],
+        "casteName": "Heavy Shield",
+        "casteID": 16,
+        "crafted_id": 114,
+        "itemStringCode": "TYP_SLph:15_typ-TYPD_SLph:15_typd-r03-DIS_ME-RO_dis-OFslo"
+    },
+    {
+        "name": "The Black Hole, Barricade of Timeless Battles",
+        "value": 11305650,
+        "rarity": 10,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Spirit",
+                "dmg": 126
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Spirit",
+                "def": 245
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Rocky",
+            "Silky"
+        ],
+        "casteName": "Phased Carapace",
+        "casteID": 24,
+        "crafted_id": 115,
+        "itemStringCode": "TYP_SPsp:126_typ-TYPD_SPsp:245_typd-r10-DIS_WO-RO-SI_dis-OFslo"
+    },
+    {
+        "name": "Champion Oak Barrier",
+        "value": 31200,
+        "rarity": 4,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Dark",
+                "dmg": 19
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 19
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Woody"
+        ],
+        "casteName": "Light Buckler",
+        "casteID": 15,
+        "crafted_id": 116,
+        "itemStringCode": "TYP_DAma:19_typ-TYPD_DAma:19_typd-r04-DIS_ME-MA-WO_dis-OFslo"
+    },
+    {
+        "name": "Peacekeeper Barrier",
+        "value": 82000,
+        "rarity": 5,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 25
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 43
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Gemy",
+            "Magical"
+        ],
+        "casteName": "Heavy Shield",
+        "casteID": 16,
+        "crafted_id": 117,
+        "itemStringCode": "TYP_BLph:25_typ-TYPD_BLph:43_typd-r05-DIS_SL-GE-MA_dis-OFslo"
+    },
+    {
+        "name": "Voice of Pride",
+        "value": 292876,
+        "rarity": 6,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt",
+                "dmg": 49
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 70
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Rocky"
+        ],
+        "casteName": "Heavy Shield",
+        "casteID": 16,
+        "crafted_id": 118,
+        "itemStringCode": "TYP_BLph:49_typ-TYPD_BLph:70_typd-r06-DIS_ME-RO_dis-OFslo"
+    },
+    {
+        "name": "Firesoul Warpwood Guardian",
+        "value": 455589,
+        "rarity": 7,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Light",
+                "dmg": 145
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light",
+                "def": 78
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Woody"
+        ],
+        "casteName": "Light Buckler",
+        "casteID": 15,
+        "crafted_id": 119,
+        "itemStringCode": "TYP_LIma:145_typ-TYPD_LIma:78_typd-r07-DIS_ME-WO_dis-OFslo"
+    },
+    {
+        "name": "The Sentinel",
+        "value": 574288,
+        "rarity": 8,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Rad",
+                "dmg": 85
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Rad",
+                "def": 143
+            }
+        ],
+        "mats": [
+            "Herby",
+            "Rocky"
+        ],
+        "casteName": "Light Buckler",
+        "casteID": 15,
+        "crafted_id": 120,
+        "itemStringCode": "TYP_RAma:85_typ-TYPD_RAma:143_typd-r08-DIS_HE-RO_dis-OFslo"
+    },
+    {
+        "name": "The Shadow, Shield of Silence",
+        "value": 851816,
+        "rarity": 9,
+        "slot": "Offhand",
+        "dmgTypePairs": [
+            {
+                "type": "Frost",
+                "dmg": 100
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost",
+                "def": 185
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Skinny",
+            "Magical"
+        ],
+        "casteName": "Light Buckler",
+        "casteID": 15,
+        "crafted_id": 121,
+        "itemStringCode": "TYP_FRma:100_typ-TYPD_FRma:185_typd-r09-DIS_WO-SK-MA_dis-OFslo"
+    },
+    {
+        "name": "Liar's Linen Skirt",
+        "value": 600,
+        "rarity": 0,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 3
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 122,
+        "itemStringCode": "TYPD_SLph:3_typd-r00-DIS_ME-MA-SI_dis-LEslo"
+    },
+    {
+        "name": "Chainmail Stompers",
+        "value": 1600,
+        "rarity": 1,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 8
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny",
+            "Silky"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 123,
+        "itemStringCode": "TYPD_BLph:8_typd-r01-DIS_ME-SK-SI_dis-LEslo"
+    },
+    {
+        "name": "Hollow Embroided Walkers",
+        "value": 4000,
+        "rarity": 2,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 10
+            }
+        ],
+        "mats": [
+            "Silky",
+            "Skinny"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 124,
+        "itemStringCode": "TYPD_FIma:10_typd-r02-DIS_SI-SK_dis-LEslo"
+    },
+    {
+        "name": "Ruby Infused Skeletal Warboots",
+        "value": 9000,
+        "rarity": 3,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 15
+            }
+        ],
+        "mats": [
+            "Gemy",
+            "Fleshy",
+            "Magical"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 125,
+        "itemStringCode": "TYPD_DAma:15_typd-r03-DIS_GE-FL-MA_dis-LEslo"
+    },
+    {
+        "name": "Sentinel Steel Greaves",
+        "value": 25600,
+        "rarity": 4,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 24
+            }
+        ],
+        "mats": [
+            "Skinny",
+            "Gemy",
+            "Metalic"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 126,
+        "itemStringCode": "TYPD_SLph:24_typd-r04-DIS_SK-GE-ME_dis-LEslo"
+    },
+    {
+        "name": "Demon Platelegs of Infernal Fires",
+        "value": 26000,
+        "rarity": 5,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 31
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 127,
+        "itemStringCode": "TYPD_DAma:31_typd-r05-DIS_ME-MA_dis-LEslo"
+    },
+    {
+        "name": "Corrupted Skirt of Duels",
+        "value": 90270,
+        "rarity": 6,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Frost"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost",
+                "def": 42
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Gemy",
+            "Magical"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 128,
+        "itemStringCode": "TYPD_FRma:42_typd-r06-DIS_SL-GE-MA_dis-LEslo"
+    },
+    {
+        "name": "Greaves of Lost Warlords",
+        "value": 128448,
+        "rarity": 7,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 58
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Greaves",
+        "casteID": 14,
+        "crafted_id": 129,
+        "itemStringCode": "TYPD_SLph:58_typd-r07-DIS_ME-SK_dis-LEslo"
+    },
+    {
+        "name": "Dragon Skirt of the Prince",
+        "value": 140560,
+        "rarity": 8,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Light"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light",
+                "def": 70
+            }
+        ],
+        "mats": [
+            "Fleshy",
+            "Metalic"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 130,
+        "itemStringCode": "TYPD_LIma:70_typd-r08-DIS_FL-ME_dis-LEslo"
+    },
+    {
+        "name": "Skirt of Ominous Punishment",
+        "value": 206927,
+        "rarity": 9,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 84
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Light Leggings",
+        "casteID": 13,
+        "crafted_id": 131,
+        "itemStringCode": "TYPD_DAma:84_typd-r09-DIS_ME-GE-SI_dis-LEslo"
+    },
+    {
+        "name": "Edge of the Insane",
+        "value": 28801440,
+        "rarity": 10,
+        "slot": "Legslot",
+        "dmgTypePairs": [
+            {
+                "type": "Spirit"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Spirit",
+                "def": 115
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Phased Leggings",
+        "casteID": 23,
+        "crafted_id": 132,
+        "itemStringCode": "TYPD_SPsp:115_typd-r10-DIS_ME_dis-LEslo"
+    },
+    {
+        "name": "Hide Bandana",
+        "value": 1000,
+        "rarity": 0,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 5
+            }
+        ],
+        "mats": [
+            "Herby",
+            "Skinny",
+            "Fleshy"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 133,
+        "itemStringCode": "TYPD_SLph:5_typd-r00-DIS_HE-SK-FL_dis-HEslo"
+    },
+    {
+        "name": "Honed Leather Coif",
+        "value": 1600,
+        "rarity": 1,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 8
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Skinny"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 134,
+        "itemStringCode": "TYPD_BLph:8_typd-r01-DIS_SL-SK_dis-HEslo"
+    },
+    {
+        "name": "Mask of the Summoner",
+        "value": 172774,
+        "rarity": 9,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Frost"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost",
+                "def": 82
+            }
+        ],
+        "mats": [
+            "Silky",
+            "Gemy"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 135,
+        "itemStringCode": "TYPD_FRma:82_typd-r09-DIS_SI-GE_dis-HEslo"
+    },
+    {
+        "name": "Shadow Linen Cowl",
+        "value": 4000,
+        "rarity": 2,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 10
+            }
+        ],
+        "mats": [
+            "Silky"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 136,
+        "itemStringCode": "TYPD_BLph:10_typd-r02-DIS_SI_dis-HEslo"
+    },
+    {
+        "name": "Iron Greathelm",
+        "value": 10800,
+        "rarity": 3,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 18
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 137,
+        "itemStringCode": "TYPD_BLph:18_typd-r03-DIS_ME-SK_dis-HEslo"
+    },
+    {
+        "name": "Worn Phasemetal Helmet",
+        "value": 21600,
+        "rarity": 4,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Fire"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Fire",
+                "def": 23
+            }
+        ],
+        "mats": [
+            "Herby",
+            "Magical"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 138,
+        "itemStringCode": "TYPD_FIma:23_typd-r04-DIS_HE-MA_dis-HEslo"
+    },
+    {
+        "name": "Ruby Infused Obsidian Greathelm",
+        "value": 37000,
+        "rarity": 5,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Frost"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Frost",
+                "def": 35
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Gemy"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 139,
+        "itemStringCode": "TYPD_FRma:35_typd-r05-DIS_ME-MA-GE_dis-HEslo"
+    },
+    {
+        "name": "Warped Phasemetal Jaws",
+        "value": 80240,
+        "rarity": 6,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 40
+            }
+        ],
+        "mats": [
+            "Magical",
+            "Skinny",
+            "Metalic"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 140,
+        "itemStringCode": "TYPD_DAma:40_typd-r06-DIS_MA-SK-ME_dis-HEslo"
+    },
+    {
+        "name": "Glory of the Nightstalker",
+        "value": 120420,
+        "rarity": 7,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 52
+            }
+        ],
+        "mats": [
+            "Fleshy",
+            "Metalic"
+        ],
+        "casteName": "Light Cap",
+        "casteID": 9,
+        "crafted_id": 141,
+        "itemStringCode": "TYPD_MAma:52_typd-r07-DIS_FL-ME_dis-HEslo"
+    },
+    {
+        "name": "Cold-Forged Helm of the Scourge",
+        "value": 152608,
+        "rarity": 8,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 63
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Heavy Helm",
+        "casteID": 10,
+        "crafted_id": 142,
+        "itemStringCode": "TYPD_BLph:63_typd-r08-DIS_ME-SK_dis-HEslo"
+    },
+    {
+        "name": "Frost Jaws of the Oracle",
+        "value": 25001250,
+        "rarity": 10,
+        "slot": "Headslot",
+        "dmgTypePairs": [
+            {
+                "type": "Null"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Null",
+                "def": 125
+            }
+        ],
+        "mats": [
+            "Woody",
+            "Fleshy",
+            "Magical"
+        ],
+        "casteName": "Phased Helm",
+        "casteID": 21,
+        "crafted_id": 143,
+        "itemStringCode": "TYPD_NUsp:125_typd-r10-DIS_WO-FL-MA_dis-HEslo"
+    },
+    {
+        "name": "Heavy Hide Vest",
+        "value": 600,
+        "rarity": 0,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 8
+            }
+        ],
+        "mats": [
+            "Skinny"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 144,
+        "itemStringCode": "TYPD_SLph:8_typd-r00-DIS_SK_dis-CHslo"
+    },
+    {
+        "name": "Vest of the Bear",
+        "value": 134469,
+        "rarity": 7,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Magic"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Magic",
+                "def": 88
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Skinny"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 145,
+        "itemStringCode": "TYPD_MAma:88_typd-r07-DIS_ME-SK_dis-CHslo"
+    },
+    {
+        "name": "Frozen Wool Vest",
+        "value": 2000,
+        "rarity": 1,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Blunt"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Blunt",
+                "def": 10
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 146,
+        "itemStringCode": "TYPD_BLph:10_typd-r01-DIS_SL-MA-SI_dis-CHslo"
+    },
+    {
+        "name": "Chainmail Chestpiece",
+        "value": 4800,
+        "rarity": 2,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 24
+            }
+        ],
+        "mats": [
+            "Metalic"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 147,
+        "itemStringCode": "TYPD_SLph:24_typd-r02-DIS_ME_dis-CHslo"
+    },
+    {
+        "name": "Twilight Mail Cuirass",
+        "value": 12000,
+        "rarity": 3,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 40
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Rocky"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 148,
+        "itemStringCode": "TYPD_DAma:40_typd-r03-DIS_ME-RO_dis-CHslo"
+    },
+    {
+        "name": "Ghost-Forged Chain Chestguard",
+        "value": 17600,
+        "rarity": 4,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 49
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 149,
+        "itemStringCode": "TYPD_SLph:49_typd-r04-DIS_ME-MA-SI_dis-CHslo"
+    },
+    {
+        "name": "Crying Greatplate of Agony",
+        "value": 36000,
+        "rarity": 5,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Light"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Light",
+                "def": 67
+            }
+        ],
+        "mats": [
+            "Gemy",
+            "Metalic"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 150,
+        "itemStringCode": "TYPD_LIma:67_typd-r05-DIS_GE-ME_dis-CHslo"
+    },
+    {
+        "name": "Infused Vest of Smite",
+        "value": 88264,
+        "rarity": 6,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Slash"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Slash",
+                "def": 72
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Gemy",
+            "Silky"
+        ],
+        "casteName": "Heavy Chestplate",
+        "casteID": 12,
+        "crafted_id": 151,
+        "itemStringCode": "TYPD_SLph:72_typd-r06-DIS_SL-GE-SI_dis-CHslo"
+    },
+    {
+        "name": "Tunic of Tears",
+        "value": 140560,
+        "rarity": 8,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Dark"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Dark",
+                "def": 120
+            }
+        ],
+        "mats": [
+            "Slimy",
+            "Magical",
+            "Silky"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 152,
+        "itemStringCode": "TYPD_DAma:120_typd-r08-DIS_SL-MA-SI_dis-CHslo"
+    },
+    {
+        "name": "Bloodcursed Phasemetal Chestpiece",
+        "value": 184738,
+        "rarity": 9,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Rad"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Rad",
+                "def": 145
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Fleshy"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 153,
+        "itemStringCode": "TYPD_RAma:145_typd-r09-DIS_ME-FL_dis-CHslo"
+    },
+    {
+        "name": "Zelrath, End of the Beast",
+        "value": 25801290,
+        "rarity": 10,
+        "slot": "Chestslot",
+        "dmgTypePairs": [
+            {
+                "type": "Rad"
+            }
+        ],
+        "defTypePairs": [
+            {
+                "type": "Rad",
+                "def": 258
+            }
+        ],
+        "mats": [
+            "Metalic",
+            "Gemy"
+        ],
+        "casteName": "Light Robe",
+        "casteID": 11,
+        "crafted_id": 154,
+        "itemStringCode": "TYPD_RAma:258_typd-r10-DIS_ME-GE_dis-CHslo"
+    }
+]

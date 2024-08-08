@@ -1,6 +1,7 @@
 const { Events, Collection } = require('discord.js');
 const { GuildData } = require('../dbObjects.js');
-const { handleSpawn } = require('./guildDropHandler.js');
+const { handleXPSpawn } = require('./guildDropHandler.js');
+const { inclusiveRandNum } = require('../uniHelperFunctions.js');
 
 module.exports = {
     name: Events.MessageCreate,
@@ -34,7 +35,10 @@ module.exports = {
                     'You have the most aweinspiring eyes!',
                     'This chair.. mmmmmmhmmmmm <3',
                     'I love how smart you are!',
-                    'You are the absolute coolest person ;)'
+                    'You are the absolute coolest person ;)',
+                    'Your essay\'s are da bomba!! <3',
+                    'Watching hours of memes in bed is a future I\'d want with you!',
+                    'I would do it all for you, all you need do is ask!!'
                 ];
 
                 const theOutcome = Math.floor(Math.random() * choices.length);
@@ -51,41 +55,71 @@ module.exports = {
             }
         }
 
-
-        const guildForXP = message.guild.id;
-        const guildCheck = await GuildData.findOne({ where: { guildid: guildForXP } });
-        
-        let guildFound = {};
-        if (!guildCheck) {
-            guildFound = await GuildData.create({
-                guildid: guildForXP,    
-            });
-        } else {
-            guildFound = guildCheck;
-        }
-        
-        const xpGain = Math.floor(Math.random() * 25 + 1);
-
-        let spawned = false;
-        if (xpGain + guildFound.guildxp >= 300){
-            spawned = true;
-            handleSpawn(message);
-        }
-
-        let newTotalXp = xpGain + guildFound.guildxp;
-        if (spawned) {
-            newTotalXp -= 300;
-            const inc = guildFound.increment('total_spawns', {by: 1});
-            if (inc) {
-                await guildFound.save();
-                console.log('Total Enemies spawned: ', guildFound.total_spawns);
+        let theGuild = await GuildData.findOrCreate({
+            where: {
+                guildid: message.guild.id
             }
+        });
+
+        if (theGuild[1]){
+            await theGuild[0].save().then(async g => {return await g.reload()});
         }
 
-        console.log(`Xp changed, current total: ${newTotalXp}`);
+        theGuild = theGuild[0];
 
-        const tableUpdate = await guildFound.update({guildxp: newTotalXp});
-        if (tableUpdate > 0) return await guildFound.save();
+        const xpUp = inclusiveRandNum(25, 1);
+
+        let spawnEnemy = false;
+        if ((xpUp + theGuild.guildxp) >= 300) spawnEnemy = true;
+
+        let totXP = xpUp + theGuild.guildxp;
+        if (spawnEnemy){
+            totXP -= 300;
+            await theGuild.increment('total_spawns').then(async g => await g.save()).then(async g => {return await g.reload()});
+            console.log('Guild spawning new enemy, total spawns: %d', theGuild.total_spawns);
+            handleXPSpawn(message, theGuild.spawnchannel);
+        }
+
+        console.log('XP increase, current total: %d', totXP);
+        return await theGuild.update({guildxp: totXP}).then(async g => await g.save()).then(async g => {return await g.reload()});
+
+
+
+
+        // const guildForXP = message.guild.id;
+        // const guildCheck = await GuildData.findOne({ where: { guildid: guildForXP } });
+        
+        // let guildFound = {};
+        // if (!guildCheck) {
+        //     guildFound = await GuildData.create({
+        //         guildid: guildForXP,    
+        //     });
+        // } else {
+        //     guildFound = guildCheck;
+        // }
+        
+        // const xpGain = Math.floor(Math.random() * 25 + 1);
+
+        // let spawned = false;
+        // if (xpGain + guildFound.guildxp >= 300){
+        //     spawned = true;
+        //     handleSpawn(message);
+        // }
+
+        // let newTotalXp = xpGain + guildFound.guildxp;
+        // if (spawned) {
+        //     newTotalXp -= 300;
+        //     const inc = guildFound.increment('total_spawns', {by: 1});
+        //     if (inc) {
+        //         await guildFound.save();
+        //         console.log('Total Enemies spawned: ', guildFound.total_spawns);
+        //     }
+        // }
+
+        // console.log(`Xp changed, current total: ${newTotalXp}`);
+
+        // const tableUpdate = await guildFound.update({guildxp: newTotalXp});
+        // if (tableUpdate > 0) return await guildFound.save();
 
         //Guild found, check for cooldown!
         //Add cooldown here

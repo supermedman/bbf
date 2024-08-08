@@ -30,10 +30,14 @@ const {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
+    InstalledBuild,
     EarlyAccess,
     LocationData,
     UserTasks,
-    NPCTable
+    NPCTable,
+    ItemStrings,
+	ItemLootPool,
+    BasicShoppe
 } = require('../dbObjects.js');
 
 async function loadEarlyAccess(client){
@@ -56,6 +60,28 @@ async function loadEarlyAccess(client){
     //console.log(...newEnemy);
 	//console.log(...betaTester);
     console.log("Finished Applying Access Permissions!");
+}
+
+const { checkingRarID, checkingRar } = require("../commands/Development/Export/itemStringCore");
+
+
+/**
+ * This function creates and fills a new "Map()"/Discord.js Collection()  with the full droppable item list as stored
+ * in the ItemLootPool DB table.
+ * @param {object} client Application Proccess
+ * @returns {Promise<Map<{itemID: (number|string), rarID: number}>>}
+ */
+async function preloadItemList(client){
+    const {gearDrops} = client;
+
+    const fullItemPool = await ItemLootPool.findAll();
+
+    for (const item of fullItemPool){
+        const rarMatch = checkingRarID(checkingRar(item.item_code));
+        if (!gearDrops.get(item.creation_offset_id)) gearDrops.set(item.creation_offset_id, rarMatch);
+    }
+
+    return gearDrops;
 }
 
 module.exports = {
@@ -105,6 +131,7 @@ module.exports = {
 	    TownPlots.sync();
 	    PlayerBuilding.sync();
 	    CoreBuilding.sync();
+        InstalledBuild.sync();
 
         EarlyAccess.sync();
 
@@ -113,8 +140,14 @@ module.exports = {
         UserTasks.sync();
         NPCTable.sync();
 
+        ItemStrings.sync();
+        ItemLootPool.sync();
+
+        BasicShoppe.sync();
+
         try {
             loadEarlyAccess(client);
+            preloadItemList(client);
         } catch (e){
             console.error(e);
         }

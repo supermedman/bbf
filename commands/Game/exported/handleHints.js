@@ -1,5 +1,5 @@
 const { errorForm } = require('../../../chalkPresets.js');
-const { UserHints } = require('../../../dbObjects.js');
+const { UserHints, UserData } = require('../../../dbObjects.js');
 
 async function createNewHints(user) {
     try {
@@ -11,6 +11,11 @@ async function createNewHints(user) {
     } catch (error) {
         console.log(errorForm('Error during hint profile creation:', error));
     }
+}
+
+async function checkUser(userid){
+    const theUser = await UserData.findOne({where: {userid: userid}});
+    return theUser;
 }
 
 //DONE
@@ -338,6 +343,7 @@ async function checkHintTempCopy(user, interaction) {
 }
 
 module.exports = {
+    checkUser,
     checkHintMaterialView,
     checkHintMaterialCombine,
     checkHintMaterialDismantle,

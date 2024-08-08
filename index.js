@@ -113,6 +113,8 @@ for (const matFile of foundMatFiles){
 client.newEnemy = new Collection();
 client.betaTester = new Collection();
 
+client.combatInstance = new Collection();
+
 //client.on('unhandledRejection', error => {
 //	console.error('Unhandled promise rejection:', error);
 //});

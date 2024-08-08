@@ -196,5 +196,96 @@
 
         "DungeonID": 6,
         "DungeonSpecID": 0
+    },
+    {
+        "Name": "Dungeon of Myst",
+        "Boss": "Mien",
+
+        "Floors": 15,
+        "BossFloor": 15,
+        "SavePoints": 3,
+
+        "DungeonHint": "Goddess of ``Myst``",
+
+        "RequiredQuestID": 45,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 317 ],
+        "Floor2": [ 317, 318, 317 ],
+        "Floor3": [ 319, 319 ],
+        "Floor4": [ 317, 317, 317, 317 ],
+
+        "Floor5": [ 321 ],
+
+        "Floor6": [ 317, 320, 317 ],
+        "Floor7": [ 318, 319, 319, 318 ],
+        "Floor8": [ 320, 320 ],
+        "Floor9": [ 321 ],
+
+        "Floor10": [ 322 ],
+
+        "Floor11": [ 321 ],
+        "Floor12": [ 321, 322, 321 ],
+        "Floor13": [ 318, 318 ],
+        "Floor14": [ 322, 322, 322, 322 ],
+
+        "DungeonID": 7,
+        "DungeonSpecID": 0
+    },
+    {
+        "Name": "Dungeon of Secrecy",
+        "Boss": "Nizdea",
+
+        "Floors": 10,
+        "BossFloor": 10,
+        "SavePoints": 2,
+
+        "DungeonHint": "Goddess of ``Secrecy``",
+
+        "RequiredQuestID": 52,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 197 ],
+        "Floor2": [ 197, 197, 198 ],
+        "Floor3": [ 198, 198 ],
+        "Floor4": [ 200, 201, 201, 200 ],
+
+        "Floor5": [ 202 ],
+
+        "Floor6": [ 244, 244, 244 ],
+        "Floor7": [ 240, 239, 238, 238 ],
+        "Floor8": [ 247, 247 ],
+        "Floor9": [ 100 ],
+
+        "DungeonID": 8,
+        "DungeonSpecID": 0
+    },
+    {
+        "Name": "The Dream",
+        "Boss": "Fayrn",
+
+        "Floors": 5,
+        "BossFloor": 6,
+        "SavePoints": 1,
+
+        "DungeonHint": "Goddess of ``Dreams``",
+
+        "RequiredQuestID": 57,
+
+        "DungeonBackground": "./events/Models/json_prefabs/weapon_png/Dungeon-background.jpeg",
+        "Image": "attachment://Dungeon-background.jpeg",
+
+        "Floor1": [ 275 ],
+        "Floor2": [ 276 ],
+        "Floor3": [ 277 ],
+        "Floor4": [ 278 ],
+        "Floor5": [ 279 ],
+
+        "DungeonID": 9,
+        "DungeonSpecID": 0
     }
 ]

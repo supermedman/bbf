@@ -483,7 +483,11 @@ module.exports = {
         async function attemptTaskFill(taskObj){
             //console.log(taskObj);
             const dupeFillCheck = await UserTasks.findOne({where: {taskid: taskObj.taskid}});
+
+            // if (dupeFillCheck.complete) return {status: "Dupe"};
+
             if (dupeFillCheck.complete === 1) return {status: "Dupe"};
+
 
             if (taskObj.name === 'None') return (taskObj.total_amount <= taskObj.amount) ? {status: "Complete"}:{status: "Incomplete"};
 

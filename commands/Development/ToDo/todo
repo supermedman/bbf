@@ -1,0 +1,50 @@
+
+#1 Item Handling
+    #1.1 Item String Code Construct/Destruct Functionality
+        - Create and test all current item formats for
+            - Uniform prop. overlaps
+            - Consistant coercion
+            - Reliable & valid ItemStrCode return Values
+
+    #1.2 New Crafted Items Display For Inventory
+
+#2 New Rarity Colours & Names For 13-20
+    - Wadon @lvl 35: Unlock Rar 13
+    - Dyvulla @lvl 45: Unlock Rar 14
+    - Ados @lvl 50: (Unlock Crafting?!?!)
+    - Zimmir @lvl 55: Unlock Rar 15
+    - Phamnera @lvl 65: Unlock Rar 16
+    - Xogdia @lvl 75: Unlock Rar 17
+    - Mien @lvl 85: Unlock Rar 18
+    - Nizdea @lvl 95: Unlock Rar 19
+    - Fayrn @lvl 100: Unlock Rar 20
+
+#3 Upgrade Styling of Existing Embeds
+
+#4 Player Stats Rework Testing
+    - Health
+        - HP = (lvl * 2) * class mod
+        - Class mods
+            - Mage: 1.1
+            - Thief: 1.2
+            - Warrior: 1.5
+            - Paladin: 2
+        - Base 100 @ lvl 1
+        - Base 300 @ lvl 100
+    - Strength
+        - +5 Health, +3 Damage
+    - Intelligence
+        - +10 Damage, (% chance to reroll status effect check?)
+    - Speed
+        - Chance to DH
+    - Dexterity
+        - Chance to Crit
+    - Hidden
+        - Luck
+            - Effects
+                - Rarity Upgrades
+                - Material/Item Drop rates/amounts
+            - Increased by
+                - Boss Kills
+                - Level Milestones?
+                - Quest Milestones?

@@ -39,6 +39,7 @@ const TownMaterial = require('./events/Models/TownMaterial')(sequelize, Sequeliz
 const TownPlots = require('./events/Models/TownPlots')(sequelize, Sequelize.DataTypes);
 const PlayerBuilding = require('./events/Models/PlayerBuilding')(sequelize, Sequelize.DataTypes);
 const CoreBuilding = require('./events/Models/CoreBuilding')(sequelize, Sequelize.DataTypes);
+const InstalledBuild = require('./events/Models/InstalledBuild')(sequelize, Sequelize.DataTypes);
 
 const EarlyAccess = require('./events/Models/EarlyAccess')(sequelize, Sequelize.DataTypes);
 
@@ -46,6 +47,11 @@ const LocationData = require('./events/Models/LocationData')(sequelize, Sequeliz
 
 const UserTasks = require('./events/Models/UserTasks')(sequelize, Sequelize.DataTypes);
 const NPCTable = require('./events/Models/NPCTable')(sequelize, Sequelize.DataTypes);
+
+const ItemStrings = require('./events/Models/ItemStrings')(sequelize, Sequelize.DataTypes);
+const ItemLootPool = require('./events/Models/ItemLootPool')(sequelize, Sequelize.DataTypes);
+
+const BasicShoppe = require('./events/Models/BasicShoppe')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	//Equipped,
@@ -77,8 +83,12 @@ module.exports = {
 	TownPlots,
 	PlayerBuilding,
 	CoreBuilding,
+	InstalledBuild,
 	EarlyAccess,
 	LocationData,
 	UserTasks,
-	NPCTable
+	NPCTable,
+	ItemStrings,
+	ItemLootPool,
+	BasicShoppe
 };
