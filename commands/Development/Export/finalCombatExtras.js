@@ -251,7 +251,7 @@ async function handleEnemyAttack(player, enemy){
         .setTitle('Enemy Misses Attack!')
         .setDescription('You take no damage!');
     } else {
-        const eAttackOutcome = enemyAttack(player.staticDefence, enemyAttacks);
+        const eAttackOutcome = enemyAttack(player.staticDefence, enemyAttacks, player);
 
         eAttackEmbed
         .setTitle('Enemy Attacks!')
