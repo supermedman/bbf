@@ -526,16 +526,20 @@ function applyActiveStatus(result, enemy){
 // ===============================
 
 const {EnemyFab} = require('./Classes/EnemyFab');
+const { CombatInstance } = require('./Classes/CombatLoader');
 
 /**
  * 
  * @param {object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
  * @param {object} condition Condition object containing {Crit: 1|0, DH: 1|0}
- * @param {number} totDmgBoost Additional damage to be added evenly across dmg types
+ * @param {CombatInstance} player Player Instance Object
  * @returns {object}  {outcome: string, dmgDealt: number, dmgCheck?: object[]}
  */
-function attackEnemy(dmgList, enemy, condition, totDmgBoost){
+function attackEnemy(dmgList, enemy, condition, player){
+    const totDmgBoost = player.staticDamageBoost;
+    const classDmgMult = player.internalEffects.modDmg;
+
     let finalTotalDamage = 0;
     let shieldDMG = [], armorDMG = [], fleshDMG = [];
     const hpREF = [enemy.shield.Type, enemy.armor.Type, enemy.flesh.Type];
@@ -573,7 +577,7 @@ function attackEnemy(dmgList, enemy, condition, totDmgBoost){
 
     for (const dmgObj of dmgList){
         if (dmgObj.DMG === 0) continue;
-        shallowDmgList.push({Type: dmgObj.Type, DMG: dmgObj.DMG + flatBoost});
+        shallowDmgList.push({Type: dmgObj.Type, DMG: (dmgObj.DMG * classDmgMult) + flatBoost});
     }
     // LOG
     //console.log(shallowDmgList);
@@ -784,11 +788,13 @@ function attackEnemy(dmgList, enemy, condition, totDmgBoost){
  * This function handles being attacked by an enemy
  * @param {object[]} defList Array of TYPE/DEF objects
  * @param {number} enemyDmg Base damage dealt by enemy
+ * @param {CombatInstance} player Player Instance Object
  * @returns {object} outcome: string, dmgTaken: number
  */
-function enemyAttack(defList, enemyDmg){
+function enemyAttack(defList, enemyDmg, player){
+    const classDefMult = player.internalEffects.modDef;
     const defenceTotal = defList.reduce((acc, defObj) => { 
-        return (acc > 0) ? acc + defObj.DEF : defObj.DEF;
+        return (acc > 0) ? acc + (defObj.DEF * classDefMult) : (defObj.DEF * classDefMult);
     }, 0);
     if (defenceTotal >= enemyDmg) return {outcome: "No Damage Taken", dmgTaken: 0};
     return {outcome: "Damage Taken", dmgTaken: (enemyDmg - defenceTotal)};

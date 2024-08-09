@@ -1,6 +1,6 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { UserData, ActiveEnemy } = require('../../dbObjects.js');
-const { initialDisplay } = require('./exported/combatDisplay.js');
+const { handleExterCombat } = require('./exported/combatDisplay.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -34,15 +34,15 @@ module.exports = {
 		const row = new ActionRowBuilder().addComponents(warriorButton, mageButton, thiefButton, paladinButton);
 
 		const embed = new EmbedBuilder()
-			.setTitle("~Welcome to Black Blade~")
-			.setColor(0x39acf3)
-			.setDescription("This is the start of the journey.. Select one of the options to continue!")
-			.addFields(
-				{ name: 'Warrior 🪓', value: 'Allrounder: \n5% reduction on damage taken \n5% increase on damage dealt', inline: true },
-				{ name: 'Mage 🪄', value: 'GlassCannon: \n5% increase on damage taken \n15% increase on damage dealt', inline: true },
-				{ name: 'Thief 🗡️', value: 'Striker: \n10% base chance of double hit \n10% base chance of crit', inline: true },
-				{ name: 'Paladin 🛡️', value: 'Unshakeable: \n15% reduction on damage taken \n5% reduction on damage dealt', inline: true },
-			);
+		.setTitle("~Welcome to Black Blade~")
+		.setColor(0x39acf3)
+		.setDescription("This is the start of the journey.. Select one of the options to continue! The choice you make will be unchangable, make this choice wisely.\n\n**Notice**: by selecting a class you are agreeing to the terms of Black Blades [Privacy Policy](<https://docs.google.com/document/d/1M-Ymfu2TZGdQ9tUFX0h7wivS2bIdewlsdnum7lOuI8o/edit?usp=sharing>) & [Terms of Service](<https://#>)")
+		.addFields(
+			{ name: 'Warrior 🪓', value: 'Allrounder: \n5% reduction on damage taken \n5% increase on damage dealt\nx1.5 HP increase', inline: true },
+			{ name: 'Mage 🪄', value: 'GlassCannon: \n5% increase on damage taken \n15% increase on damage dealt\nx1.1 HP increase', inline: true },
+			{ name: 'Thief 🗡️', value: 'Striker: \n10% base chance of double hit \n10% base chance of crit\nx1.2 HP increase', inline: true },
+			{ name: 'Paladin 🛡️', value: 'Unshakeable: \n15% reduction on damage taken \n5% reduction on damage dealt\nx2.0 HP increase', inline: true },
+		);
 
 		const embedMsg = await interaction.reply({ content: 'Make your choice below.', ephemeral: true, embeds: [embed], components: [row] });
 
@@ -59,7 +59,7 @@ module.exports = {
 				await generateNewPlayer(classP);
 				const enemy = await generateNewEnemy();
 				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
+				return handleExterCombat(interaction, enemy.specid);
 			}
 
 			if (COI.customId === 'slot2') {
@@ -67,7 +67,7 @@ module.exports = {
 				await generateNewPlayer(classP);
 				const enemy = await generateNewEnemy();
 				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
+				return handleExterCombat(interaction, enemy.specid);
 			}
 
 			if (COI.customId === 'slot3') {
@@ -75,7 +75,7 @@ module.exports = {
 				await generateNewPlayer(classP);
 				const enemy = await generateNewEnemy();
 				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
+				return handleExterCombat(interaction, enemy.specid);
 			}
 
 			if (COI.customId === 'slot4') {
@@ -83,7 +83,7 @@ module.exports = {
 				await generateNewPlayer(classP);
 				const enemy = await generateNewEnemy();
 				collector.stop();
-				return initialDisplay(enemy.specid, interaction, enemy);
+				return handleExterCombat(interaction, enemy.specid);
 			}
 		});
 

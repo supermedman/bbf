@@ -190,7 +190,7 @@ const loadCombButts = (player) => {
 };
 
 
-async function handleExterCombat(interaction){
+async function handleExterCombat(interaction, forcedKey){
     const { enemies, combatInstance, gearDrops/*, newEnemy*/ } = interaction.client;
 
     let startTime, displayStartTime;
@@ -210,7 +210,7 @@ async function handleExterCombat(interaction){
         }
 
         const huntingCheck = handleHunting(await grabUser(interaction.user.id));
-        const theEnemy = loadEnemy(thePlayer.level, (huntingCheck.length > 0) ? huntingCheck : enemies);
+        const theEnemy = loadEnemy(thePlayer.level, (huntingCheck.length > 0) ? huntingCheck : enemies, forcedKey);
         theEnemy.loadItems(thePlayer);
 
         const loadObj = thePlayer.loadout;
@@ -328,7 +328,7 @@ async function handleExterCombat(interaction){
             DH: player.rollDH(),
             Crit: player.rollCrit()
         };
-        const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player.staticDamageBoost);
+        const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player);
         if (combatResult.outcome === 'Dead') enemyDead = true;
 
         let wasStatusChecked = "Status Not Checked";
@@ -403,13 +403,15 @@ async function handleExterCombat(interaction){
         // Spawn New Enemy Access
         //let newAccess = true;
 
+        const user = await grabUser(player.userId);
+
         // =============
         // Enemy Payouts
         // =============
         let xpGain = enemy.rollXP();
         let coinGain = xpGain + Math.floor(xpGain * 0.10);
 
-        await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
+        await handleUserPayout(xpGain, coinGain, interaction, user);
 
         // Material Drops
         const { materialFiles } = interaction.client;
@@ -417,6 +419,7 @@ async function handleExterCombat(interaction){
         await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
         // Item Drops
         if (enemy.payouts.item){
+            await checkHintLootView(user, interaction);
             const iE = await dropItem(gearDrops, player, enemy);
             await sendTimedChannelMessage(interaction, 60000, iE);
         }
@@ -624,7 +627,6 @@ async function handleExterCombat(interaction){
 // =====================
 //   CODE NEEDS REMOVAL
 // EFFECTED SCRIPTS:
-// - /start
 // - loadEnemy.js
 // =====================
 

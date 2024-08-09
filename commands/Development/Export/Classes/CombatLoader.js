@@ -25,8 +25,10 @@ class CombatInstance {
                 spd: 0
             }, // Stats modded from active potions
             upDmg: 0, // Damage addition from effects
+            modDmg: 1, // Damage Multiply from effects
             pigUpMult: 1, // Pigmy Damage multiplied from effects
             upDef: 0, // Defence addition from effects
+            modDef: 1, // Defence Multiply from effects
             upExp: 1, // EXP modifier, base 1x
             upCoin: 1 // Coin modifier, base 1x
         };
@@ -315,6 +317,22 @@ class CombatInstance {
         return;
     }
 
+    #applyClassDMGBuff(){
+        const dmgModC = ["Mage", "Thief", "Warrior", "Paladin"];
+        const dmgModM = [0.15, 0, 0.05, -0.05];
+        const modBy = 1 + dmgModM[dmgModC.indexOf(this.staticStats.pClass)];
+        this.internalEffects.modDmg = modBy;
+        return;
+    }
+
+    #applyClassDEFBuff(){
+        const defModC = ["Mage", "Thief", "Warrior", "Paladin"];
+        const defModM = [-0.05, 0, 0.05, 0.15];
+        const modBy = 1 + defModM[defModC.indexOf(this.staticStats.pClass)];
+        this.internalEffects.modDef = modBy;
+        return;
+    }
+
     async #loadBasicStats(){
         await this.#handleCombStats();
         
@@ -339,6 +357,9 @@ class CombatInstance {
                 this.#handlePigmyStats(pigCheck);
             }
         }
+
+        this.#applyClassDMGBuff();
+        this.#applyClassDEFBuff();
 
         let intUP = (this.pigmy?.int ?? 0) + this.internalEffects.upStat.int,
         strUP = (this.pigmy?.str ?? 0) + this.internalEffects.upStat.str,

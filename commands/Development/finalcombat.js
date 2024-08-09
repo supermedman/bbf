@@ -225,7 +225,7 @@ module.exports = {
                 DH: player.rollDH(),
                 Crit: player.rollCrit()
             };
-            const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player.staticDamageBoost);
+            const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player);
             if (combatResult.outcome === 'Dead'){
                 console.log(chlkPreset.bInfoOne('Enemy dies to first strike'));
                 // Handle Dead Enemy

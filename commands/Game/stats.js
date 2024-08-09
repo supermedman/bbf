@@ -5,6 +5,7 @@ const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../../chalkPresets.js');
 
 const { checkHintLootBuy } = require('./exported/handleHints.js');
+const { sendTimedChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stats')
@@ -39,7 +40,7 @@ module.exports = {
         if (focusedOption.name === 'stat') {
             const focusedValue = interaction.options.getFocused(false);
 
-            choices = ['speed', 'strength', 'dexterity', 'intelligence'];
+            choices = ['speed', 'strength', 'dexterity', 'intelligence', 'health'];
 
             const filtered = choices.filter(choice => choice.startsWith(focusedValue));
             await interaction.respond(
@@ -256,37 +257,50 @@ module.exports = {
 
         if (interaction.options.getSubcommand() === 'info') {
             await interaction.deferReply();
-            const skill = interaction.options.getString('stat');
-            //'speed', 'strength', 'dexterity', 'intelligence'
-            if (skill) {
-                let list;
+            const skill = interaction.options.getString('stat') ?? "None";
+            if (skill === "None") return interaction.followUp('Invalid option, please choose from the options provided!');
 
-                if (skill === 'speed') {
-                    list = ('2% Increased chance per skillpoint to land 2 hits before enemy attacks');
-                } else if (skill === 'strength') {
-                    list = ('Increases base health by 10 & base attack by 2');
-                } else if (skill === 'dexterity') {
-                    list = ('2% Increased chance per skillpoint to land a critical hit');
-                } else if (skill === 'intelligence') {
-                    list = ('Increases base attack by 8');
-                }
-                const skillDisplayEmbed = new EmbedBuilder()
-                    .setTitle(`Specific stat info`)
-                    .setColor(0o0)
-                    .addFields(
-                        {
-                            name: (`=== ${skill} ===`),
-                            value: list
+            const user = await grabUser(interaction.user.id);
 
-                        }
-                    )
-                interaction.followUp({ embeds: [skillDisplayEmbed] }).then(async skillEmbed => setTimeout(() => {
-                    skillEmbed.delete();
-                }, 40000)).catch(console.error);
+            const healthModC = ["Mage", "Thief", "Warrior", "Paladin"];
+            const healthModM = [1.1, 1.2, 1.5, 2];
 
-            } else {
-                interaction.followUp('You have not selected a valid option, please try again using one of the options provided.');
+            let list;
+            switch(skill){
+                case "speed":
+                    list = '**2**% Increased chance per skillpoint to land 2 hits before enemy attacks.\n+**2**% Chance to succeed when hiding or stealing from an enemy.';
+                    list += `\n\nYour current Double Hit Chance: **${(user.speed * 0.02) * 100}**%`;
+                break;
+                case "strength":
+                    list = 'Increases base Health by **5** & base Damage by **3**';
+                    list += `\n\nYour Health increase from strength: +**${user.strength * 5}** HP`;
+                    list += `\nYour Damage increase from strength: +**${user.strength * 3}** DMG`;
+                break;
+                case "dexterity":
+                    list = '**2**% Increased chance per skillpoint to land a critical hit.\n+**2**% Chance to succeed when hiding or stealing from an enemy.';
+                    list += `\n\nYour current Critical Hit Chance: **${(user.dexterity * 0.02) * 100}**%`;
+                break;
+                case "intelligence":
+                    list = 'Increases base attack by **10**';
+                    list += `\n\nYour Damage increase from intelligence: +**${user.intelligence * 10}** DMG`;
+                break;
+                case "health":
+                    list = `Base health starts at **100** increasing by **2 every level**.\nYour base health: ${100 + (user.level * 2)} HP`;
+                    list += `\nBase Health after Strength: **${100 + (user.level * 2) + (user.strength * 5)}** HP`;
+                    list += '\n\nThis total is modified based on your Class: \nMage x1.1, Thief x1.2, Warrior x1.5, Paladin x2.0';
+                    list += `\n\nYour current Max Health: **${Math.round((100 + (user.level * 2) + (user.strength * 5)) * healthModM[healthModC.indexOf(user.pclass)])}** HP`;
+                break;
             }
+
+            const skillDisplayEmbed = new EmbedBuilder()
+            .setTitle(`Specific stat info`)
+            .setColor(0o0)
+            .addFields({
+                name: (`=== ${skill} ===`),
+                value: list
+            });
+            const replyObj = {embeds: [skillDisplayEmbed]};
+            await sendTimedChannelMessage(interaction, 40000, replyObj, "FollowUp");
         }
 
 

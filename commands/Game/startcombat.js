@@ -366,7 +366,7 @@ module.exports = {
                 DH: player.rollDH(),
                 Crit: player.rollCrit()
             };
-            const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player.staticDamageBoost);
+            const combatResult = attackEnemy(player.staticDamage, enemy, rolledCondition, player);
             if (combatResult.outcome === 'Dead') enemyDead = true;
 
             let wasStatusChecked = "Status Not Checked";
@@ -460,19 +460,6 @@ module.exports = {
                 await checkHintLootView(user, interaction);
                 const iE = await dropItem(gearDrops, player, enemy);
                 await sendTimedChannelMessage(interaction, 60000, iE);
-            }
-
-            // Check combat tasks!
-
-            const activeCombatTasks = await UserTasks.findAll({where: {userid: user.userid, task_type: "Combat", complete: false, failed: false}});
-            if (activeCombatTasks.length > 0){
-                //Combat tasks found, check if conditions met
-                const filterTasks = activeCombatTasks.filter(task => task.condition <= enemy.level);
-                if (filterTasks.length > 0){
-                    for (const task of filterTasks){
-                        await task.increment('amount').save().then(async t => {return await t.reload()});
-                    }
-                }
             }
 
             // =============
