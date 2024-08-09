@@ -797,7 +797,7 @@ function enemyAttack(defList, enemyDmg, player){
         return (acc > 0) ? acc + (defObj.DEF * classDefMult) : (defObj.DEF * classDefMult);
     }, 0);
     if (defenceTotal >= enemyDmg) return {outcome: "No Damage Taken", dmgTaken: 0};
-    return {outcome: "Damage Taken", dmgTaken: (enemyDmg - defenceTotal)};
+    return {outcome: "Damage Taken", dmgTaken: Math.round(enemyDmg - defenceTotal)};
 }
 
 /**
