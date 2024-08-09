@@ -17,11 +17,12 @@ const {
     genAttackTurnEmbed,
     genStatusResultEmbed,
     handleEnemyAttack,
-    dropItem
+    dropItem,
+    enemyPayoutDisplay
 } = require('./Export/finalCombatExtras');
 const { handleEnemyMat } = require('./Export/materialFactory');
 
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser} = require('../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, getTypeof} = require('../../uniHelperFunctions');
 const { handleUserPayout } = require('./Export/uni_userPayouts');
 
 const loadCombButts = (player) => {
@@ -316,14 +317,23 @@ module.exports = {
             await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
 
             // Material Drops
+            const payoutEmbeds = [];
+
             const { materialFiles } = interaction.client;
             const matDropReplyObj = await handleEnemyMat(enemy, player.userId, materialFiles, interaction);
-            await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
+            payoutEmbeds.push(matDropReplyObj);
+            //await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
             // Item Drops
             if (enemy.payouts.item){
                 const iE = await dropItem(gearDrops, player, enemy);
-                await sendTimedChannelMessage(interaction, 60000, iE);
+                payoutEmbeds.push(iE);
+                //await sendTimedChannelMessage(interaction, 60000, iE);
             }
+
+            const testDropsEmbed = await enemyPayoutDisplay(payoutEmbeds);
+            const testRepObj = {embeds: [testDropsEmbed]};
+            await sendTimedChannelMessage(interaction, 70000, testRepObj);
+
 
             // =============
             //   New Enemy 
@@ -405,7 +415,7 @@ module.exports = {
             );
 
             const combReplyObj = {embeds: [deadEmbed], components: [grief]};
-            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj);
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 60000, combReplyObj);
             const embedMsg = anchorMsg;
             
             // =============
@@ -415,17 +425,19 @@ module.exports = {
                 await c.deferUpdate().then(async () => {
                     if (c.customId === 'revive'){
                         await player.revive(enemy);
-                        return collector.stop();
+                        return collector.stop('Revived');
                     }
                 }).catch(e => console.error(e));
             });
 
-            collector.on('end', (c, r) => {
+            collector.on('end', async (c, r) => {
                 embedMsg.delete().catch(error => {
                     if (error.code !== 10008) {
                         console.error('Failed to delete the message:', error);
                     }
                 });
+
+                if (r !== 'Revived') await player.revive(enemy);
             });
         }
 
@@ -461,7 +473,7 @@ module.exports = {
                 case "Unique":
                     // Not possible yet
                     stealEmbed
-                    .setTitle('Uni Item Text');
+                    .setTitle('Work In Progress!');
                 break;
                 case "No Item":
                     // Disable Stealing

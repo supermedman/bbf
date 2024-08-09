@@ -1,4 +1,4 @@
-const { Events, Collection } = require('discord.js');
+const { Events, Collection, EmbedBuilder } = require('discord.js');
 const { warnedForm } = require('../chalkPresets');
 
 const {EarlyAccess, UserData} = require('../dbObjects.js');
@@ -128,6 +128,42 @@ module.exports = {
 			// interaction.customId === 'buttonid'
 
 
+		} else if (interaction.isModalSubmit()){
+			const filterBy = interaction.customId;
+
+			let guild = await interaction.client.guilds.fetch("892659101878849576"); // returns a Guild or undefined
+			let channel;
+			if (guild) {
+				channel = await guild.channels.fetch("1193639127766282240");
+			}
+
+			const replyEmbed = new EmbedBuilder();
+
+			let responseType;
+			switch(filterBy){
+				case "modal-report":
+					replyEmbed
+					.setTitle('== Report ==')
+					.addFields(
+						{name: "Command: ", value: `**${interaction.fields.getTextInputValue('com-location')}**`},
+						{name: "Issue: ", value: `**${interaction.fields.getTextInputValue('issue')}**`}
+					);
+					responseType = "Report"
+				break;
+				default:
+					replyEmbed
+					.setTitle('== Modal ==');
+
+					responseType = "Modal";
+				break;
+			}
+
+			const replyObj = {embeds: [replyEmbed]};
+
+			if (channel){
+				await interaction.reply({content: `${responseType} Submitted Successfully!`, ephemeral: true});
+				return await channel.send(replyObj);
+			}
 		} else if (interaction.isAutocomplete()) {
 			const command = interaction.client.commands.get(interaction.commandName);
 

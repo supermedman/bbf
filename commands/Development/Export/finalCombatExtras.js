@@ -2,7 +2,7 @@ const { Collection, EmbedBuilder } = require('discord.js');
 const { CombatInstance } = require('./Classes/CombatLoader');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
-const {randArrPos} = require('../../../uniHelperFunctions');
+const {randArrPos, getTypeof} = require('../../../uniHelperFunctions');
 
 const { checkingDamage, checkingDefence, uni_displayItem } = require('./itemStringCore');
 const { checkInboundItem } = require('./itemMoveContainer');
@@ -298,6 +298,42 @@ async function dropItem(gearDrops, player, enemy, forcedRar){
     return itemEmbed;
 }
 
+/**
+ * This function handles compressing all enemy payout rewards into a single embed for 
+ * a faster display time and reduces overall combat clutter.
+ * @param {object[]} payoutList List of enemy reward embed/reply objects
+ * @returns {Promise<EmbedBuilder>}
+ */
+async function enemyPayoutDisplay(payoutList){
+    const embedList = [];
+    for (const payObj of payoutList){
+        if (getTypeof(payObj) === 'EmbedBuilder') {
+            embedList.push(payObj);
+            continue;
+        }
+        for (const embed of payObj.embeds){
+            embedList.push(embed);
+        }
+    }
+    // Order of embeds: [0: Unique Material, 1: Normal Material, 2: Item Dropped];
+
+   const colourOrder = [0xdddddd, 0xc4c4c4, 0xffe8a4, 0xf9cda0, 0x72a3ad, 0x8d7bc3, 0xa64c78, 0x81200d, 0xe69036, 0xff0707, 0xff06ff, 0xffffff, 0x0000ff];
+
+    const combEmbed = new EmbedBuilder()
+    .setTitle('== **Enemy Drops** ==');
+
+    let cPriority = 0;
+    for (const embed of embedList){
+        combEmbed.addFields({name: `${embed.data.title}\n${embed.data.fields[0].name}: `, value: `\n\n${embed.data.fields[0].value}`, inline: true});
+        if (colourOrder.indexOf(embed.data.color) > cPriority) cPriority = colourOrder.indexOf(embed.data.color);
+    }
+
+    const embedColour = colourOrder[cPriority];
+    combEmbed.setColor(embedColour);
+
+    return combEmbed;
+}
+
 module.exports = {
     loadPlayer,
     loadEnemy,
@@ -306,5 +342,6 @@ module.exports = {
     genAttackTurnEmbed,
     genStatusResultEmbed,
     handleEnemyAttack,
-    dropItem
+    dropItem,
+    enemyPayoutDisplay
 }

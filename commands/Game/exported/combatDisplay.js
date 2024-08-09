@@ -14,7 +14,7 @@ const aCATE = require('../../../events/Models/json_prefabs/activeCategoryEffects
 const { isLvlUp, isUniqueLevelUp } = require('./levelup.js');
 const { dropRandomBlueprint } = require('./createBlueprint.js');
 const { grabMat } = require('./materialDropper.js');
-const { checkHintStats } = require('./handleHints.js');
+const { checkHintStats, checkHintLootView } = require('./handleHints.js');
 
 const { Player } = require('./MadeClasses/Player.js');
 const { Enemy } = require('./MadeClasses/Enemy.js');
@@ -133,7 +133,8 @@ const {
     genAttackTurnEmbed,
     genStatusResultEmbed,
     handleEnemyAttack,
-    dropItem
+    dropItem,
+    enemyPayoutDisplay
 } = require('../../Development/Export/finalCombatExtras');
 const {handleHunting} = require('../exported/locationFilters.js');
 
@@ -413,16 +414,25 @@ async function handleExterCombat(interaction, forcedKey){
 
         await handleUserPayout(xpGain, coinGain, interaction, user);
 
+        const payoutEmbeds = [];
+
         // Material Drops
         const { materialFiles } = interaction.client;
         const matDropReplyObj = await handleEnemyMat(enemy, player.userId, materialFiles, interaction);
-        await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
+        payoutEmbeds.push(matDropReplyObj);
+        // await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
+        
         // Item Drops
         if (enemy.payouts.item){
             await checkHintLootView(user, interaction);
             const iE = await dropItem(gearDrops, player, enemy);
-            await sendTimedChannelMessage(interaction, 60000, iE);
+            payoutEmbeds.push(iE);
+            //await sendTimedChannelMessage(interaction, 60000, iE);
         }
+
+        const compDropEmbed = await enemyPayoutDisplay(payoutEmbeds);
+        const RepObj = {embeds: [compDropEmbed]};
+        await sendTimedChannelMessage(interaction, 70000, RepObj);
 
         // =============
         //   New Enemy 
@@ -441,8 +451,10 @@ async function handleExterCombat(interaction, forcedKey){
         //     .setEmoji('💀')
         // );
 
+        const embedTitle = (user.totalkills === 1) ? "Enemy Killed! ``/startcombat`` to continue!": "Enemy Killed!";
+
         const killedEmbed = new EmbedBuilder()
-        .setTitle("Enemy Killed!")
+        .setTitle(embedTitle)
         .setColor(0o0)
         .setDescription("Your rewards: ")
         .addFields(
@@ -562,7 +574,7 @@ async function handleExterCombat(interaction, forcedKey){
             case "Unique":
                 // Not possible yet
                 stealEmbed
-                .setTitle('Uni Item Text');
+                .setTitle('Work In Progress!');
             break;
             case "No Item":
                 // Disable Stealing

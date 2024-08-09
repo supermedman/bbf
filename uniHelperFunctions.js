@@ -233,6 +233,7 @@ module.exports = {
     endTimer,
     grabUser,
     grabActivePigmy,
+    getTypeof,
     sendTimedChannelMessage,
     createInteractiveChannelMessage
 }

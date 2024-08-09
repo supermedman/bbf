@@ -164,7 +164,8 @@ const {
     genAttackTurnEmbed,
     genStatusResultEmbed,
     handleEnemyAttack,
-    dropItem
+    dropItem,
+    enemyPayoutDisplay
 } = require('../Development/Export/finalCombatExtras');
 const {handleHunting} = require('./exported/locationFilters.js');
 
@@ -403,7 +404,7 @@ module.exports = {
             await sendTimedChannelMessage(interaction, 35000, replyObj);
 
             //console.log(enemy);
-            console.log(player);
+            //console.log(player);
             if (enemyDead) {
                 // =================== TIMER END
                 endTimer(startTime, "Final Combat");
@@ -439,7 +440,7 @@ module.exports = {
             // Handle kill counts/combat tasks
             await player.handleCombatWin(enemy, interaction);
             // Spawn New Enemy Access
-            let newAccess = true;
+            // let newAccess = true;
 
             // =============
             // Enemy Payouts
@@ -451,16 +452,25 @@ module.exports = {
 
             await handleUserPayout(xpGain, coinGain, interaction, user);
 
+            const payoutEmbeds = [];
+
             // Material Drops
             const { materialFiles } = interaction.client;
             const matDropReplyObj = await handleEnemyMat(enemy, player.userId, materialFiles, interaction);
-            await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
+            payoutEmbeds.push(matDropReplyObj);
+            // await sendTimedChannelMessage(interaction, 60000, matDropReplyObj);
             // Item Drops
             if (enemy.payouts.item){
                 await checkHintLootView(user, interaction);
                 const iE = await dropItem(gearDrops, player, enemy);
-                await sendTimedChannelMessage(interaction, 60000, iE);
+                payoutEmbeds.push(iE);
+                //await sendTimedChannelMessage(interaction, 60000, iE);
             }
+
+            const compDropEmbed = await enemyPayoutDisplay(payoutEmbeds);
+            const RepObj = {embeds: [compDropEmbed]};
+            await sendTimedChannelMessage(interaction, 70000, RepObj);
+
 
             // =============
             //   New Enemy 
@@ -479,8 +489,10 @@ module.exports = {
                 .setEmoji('💀')
             );
 
+            const embedTitle = (!newEnemy.has(player.userId)) ? "Enemy Killed! ``/startcombat`` to continue!": "Enemy Killed!";
+
             const killedEmbed = new EmbedBuilder()
-            .setTitle("Enemy Killed!")
+            .setTitle(embedTitle)
             .setColor(0o0)
             .setDescription("Your rewards: ")
             .addFields(
@@ -598,7 +610,7 @@ module.exports = {
                 case "Unique":
                     // Not possible yet
                     stealEmbed
-                    .setTitle('Uni Item Text');
+                    .setTitle('Work In Progress!');
                 break;
                 case "No Item":
                     // Disable Stealing

@@ -8,7 +8,7 @@ const { Town } = require('../../../dbObjects');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
 const {randArrPos} = require('../../../uniHelperFunctions');
-
+ 
 // Materials from enemy kills
 /**
  * This function handles dropping materials from the enemy given, accounting for
@@ -18,7 +18,7 @@ const {randArrPos} = require('../../../uniHelperFunctions');
  * @param {string} userid Users userid
  * @param {Map} matFiles Discord.js Collection Object
  * @param {object} interaction Command Interaction Object
- * @returns {object} Reply Object: {embeds: [], files: []}
+ * @returns {Promise<({embeds: EmbedBuilder[], files: blob[]})>} Reply Object: {embeds: [], files: []}
  */
 async function handleEnemyMat(enemy, userid, matFiles, interaction){
     const enemyRef = newEList.filter(e => e.ConstKey === enemy.imageCheck.checkKey)[0];
