@@ -435,6 +435,7 @@ class CombatInstance {
         this.health -= dmg;
         let dmgCondition = "RELOAD"
         if (this.health <= 0) dmgCondition = "PDEAD";
+        this.health = Math.ceil(this.health);
         return {health: this.health, outcome: dmgCondition};
     }
 
