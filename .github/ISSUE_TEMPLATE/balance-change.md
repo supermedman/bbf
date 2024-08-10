@@ -15,3 +15,6 @@ Describe in detail the foundation of the change(s)
 
 **How will this introduce balance?**
 Describe the resulting balances made from this proposition.
+
+**Additional context**
+Any additional context that may be useful.
