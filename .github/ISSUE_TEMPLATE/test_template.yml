@@ -6,8 +6,8 @@ assignees:
   - supermedman
 body:
   - type: markdown
-  attributes:
-    value: Testing text here!
+  - - attributes:
+  - - - value: Testing text here!
   - type: textarea
     id: what-issue
     attributes:
