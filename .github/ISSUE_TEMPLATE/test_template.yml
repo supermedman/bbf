@@ -1,0 +1,36 @@
+name: Test Issue
+about: File an issue.
+title: "[TEST ISSUE]: "
+labels: ["test", "issue"]
+assignees:
+  - supermedman
+body:
+  - type: markdown
+  attributes:
+    value: |
+      Testing text here!
+  - type: textarea
+    id: what-issue
+    attributes:
+      label: Current issue?
+      description: What made it an issue?
+      placeholder: Describe the issue here!
+    validations:
+      required: true
+  - type: dropdown
+    id: plat-type
+    attributes:
+      label: Which platform did the issue occur on?
+      multiple: false
+      options:
+        - Pc
+        - Mobile
+        - Other
+  - type: checkboxes
+    id: terms
+    attributes: 
+      label: Code of Conduct
+      description: By submitting this form, you agree to follow our [Code of Conduct](https://github.com/supermedman/bbf/blob/main/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this projects Code of Conduct
+          required: true
