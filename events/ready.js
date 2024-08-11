@@ -37,7 +37,8 @@ const {
     NPCTable,
     ItemStrings,
 	ItemLootPool,
-    BasicShoppe
+    BasicShoppe,
+    GameEvents
 } = require('../dbObjects.js');
 
 async function loadEarlyAccess(client){
@@ -144,6 +145,8 @@ module.exports = {
         ItemLootPool.sync();
 
         BasicShoppe.sync();
+
+        GameEvents.sync();
 
         try {
             loadEarlyAccess(client);
