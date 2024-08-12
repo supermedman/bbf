@@ -39,7 +39,8 @@ const {
 	ItemLootPool,
     BasicShoppe,
     GameEvents,
-    GuildEvents
+    GuildEvents,
+    CraftControllers
 } = require('../dbObjects.js');
 
 async function loadEarlyAccess(client){
@@ -149,6 +150,8 @@ module.exports = {
 
         GameEvents.sync();
         GuildEvents.sync();
+
+        CraftControllers.sync();
 
         try {
             loadEarlyAccess(client);

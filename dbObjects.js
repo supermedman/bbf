@@ -56,6 +56,8 @@ const BasicShoppe = require('./events/Models/BasicShoppe')(sequelize, Sequelize.
 const GameEvents = require('./events/Models/GameEvents')(sequelize, Sequelize.DataTypes);
 const GuildEvents = require('./events/Models/GuildEvents')(sequelize, Sequelize.DataTypes);
 
+const CraftControllers = require('./events/Models/CraftControllers')(sequelize, Sequelize.DataTypes);
+
 module.exports = {
 	//Equipped,
 	LootStore,
@@ -95,5 +97,6 @@ module.exports = {
 	ItemLootPool,
 	BasicShoppe,
 	GameEvents,
-	GuildEvents
+	GuildEvents,
+	CraftControllers
 };
