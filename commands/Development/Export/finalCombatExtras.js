@@ -2,7 +2,7 @@ const { Collection, EmbedBuilder } = require('discord.js');
 const { CombatInstance } = require('./Classes/CombatLoader');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
-const {randArrPos, getTypeof} = require('../../../uniHelperFunctions');
+const {randArrPos, getTypeof, objectEntries} = require('../../../uniHelperFunctions');
 
 const { checkingDamage, checkingDefence, uni_displayItem } = require('./itemStringCore');
 const { checkInboundItem } = require('./itemMoveContainer');
@@ -58,12 +58,6 @@ const loadEnemy = (pLvl, enemies, eID=false) => {
     else theEnemy = loadRandomEnemy(pLvl, enemies);
     return theEnemy;
 };
-
-function* objectEntries(obj) {
-    for (let key of Object.keys(obj)) {
-        yield [key, obj[key]];
-    }
-}
 
 function checkAddDupeTypes(returnArr) {
     let typeArr = []; 

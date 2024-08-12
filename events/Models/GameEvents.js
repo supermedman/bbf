@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         event_details: {
             type: DataTypes.STRING,
-            defaultValue: '{"Effect": "EXP", "Value": 0.15}'
+            defaultValue: '{"Effect": ["EXP"], "Value": [0.15]}'
         }
     });
 };

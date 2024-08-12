@@ -111,6 +111,18 @@ async function grabActivePigmy(id){
     return await Pigmy.findOne({where: {spec_id: id}});
 }
 
+/**
+ * This function yields ``[key, value]`` pairs of a given object where:
+ * 
+ * {`key` Property: `value` Value}
+ * @param {object} obj Object to be destructed into key: value pairs
+ */
+function* objectEntries(obj) {
+    for (let key of Object.keys(obj)) {
+        yield [key, obj[key]];
+    }
+}
+
 function getTypeof(t){
     if (t === null) return "null";
     const baseType = typeof t;
@@ -183,14 +195,16 @@ async function sendTimedChannelMessage(interaction, timeLimit, contents, replyTy
 
 /**
  * This function creates and stores a sent message as an anchor, which it then uses
- * to attach a messageComponentCollector for use with Discords buttons.
+ * to attach a messageComponentCollector for use with Discords interactive components.
+ * Component Type is specified by ``compType`` which if left empty defaults to Button.
  * @param {object} interaction Discord Interaction Object
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {any} contents  One of many types, handled internally
  * @param {string} replyType One of: "FollowUp", "Reply", undefined
+ * @param {string} compType One of: "Button", "String", undefined
  * @returns {Promise<{anchorMsg: object, collector: object}>}
  */
-async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType){
+async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType, compType){
     const replyObject = handleContentType(contents);
     let anchorMsg;
     switch(replyType){
@@ -205,16 +219,39 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
         break;
     }
     
-    const collector = createButtonCollector(interaction, timeLimit, anchorMsg);
+    const collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType);
 
     return {anchorMsg, collector};
 }
 
-function createButtonCollector(interaction, timeLimit, anchorMsg){
+/**
+ * This function attatches a component collector to the provided anchorMsg object,
+ * the type of components collected is specified by compType which if not provided 
+ * defaults to type ``Button``.
+ * @param {object} interaction Discord Interaction Object
+ * @param {number} timeLimit Amount in ms to be used with setTimeout()
+ * @param {object} anchorMsg Discord message object used as an anchor
+ * @param {string} compType One of: "Button", "String", undefined
+ * @returns {object}
+ */
+function createComponentCollector(interaction, timeLimit, anchorMsg, compType){
     const filter = (i) => i.user.id === interaction.user.id;
 
+    let theType;
+    switch(compType){
+        case "Button":
+            theType = ComponentType.Button;
+        break;
+        case "String":
+            theType = ComponentType.StringSelect;
+        break;
+        default:
+            theType = ComponentType.Button;
+        break;
+    }
+
     const collector = anchorMsg.createMessageComponentCollector({
-        componentType: ComponentType.Button,
+        componentType: theType,
         filter,
         time: timeLimit
     });
@@ -231,6 +268,7 @@ module.exports = {
     checkLootDrop,
     checkLootUP,
     endTimer,
+    objectEntries,
     grabUser,
     grabActivePigmy,
     getTypeof,

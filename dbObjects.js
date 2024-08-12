@@ -54,6 +54,7 @@ const ItemLootPool = require('./events/Models/ItemLootPool')(sequelize, Sequeliz
 const BasicShoppe = require('./events/Models/BasicShoppe')(sequelize, Sequelize.DataTypes);
 
 const GameEvents = require('./events/Models/GameEvents')(sequelize, Sequelize.DataTypes);
+const GuildEvents = require('./events/Models/GuildEvents')(sequelize, Sequelize.DataTypes);
 
 module.exports = {
 	//Equipped,
@@ -93,5 +94,6 @@ module.exports = {
 	ItemStrings,
 	ItemLootPool,
 	BasicShoppe,
-	GameEvents
+	GameEvents,
+	GuildEvents
 };
