@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
-const { UserData, UniqueCrafted, Loadout, Pigmy } = require('../../dbObjects.js');
+const { UserData, UniqueCrafted, Loadout, Pigmy, ItemStrings, ItemLootPool } = require('../../dbObjects.js');
 
 const {findChestSlot, findHelmSlot, findLegSlot, findMainHand, findOffHand, findPotion} = require('../Game/exported/findLoadout.js');
 const {userDamageLoadout} = require('../Game/exported/dealDamage.js');
@@ -12,6 +12,10 @@ const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
 
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
+const potCatEffects = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
+const { createSingleUniItem, uni_displayItem } = require('../Development/Export/itemStringCore.js');
+const { loadDamageItems, loadDefenceItems } = require('../Development/Export/finalCombatExtras.js');
+const { sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
 
 const UI = [
 	'./events/Models/json_prefabs/image_extras/user-inspect/gold-frame-menu.png',
@@ -56,22 +60,113 @@ const loadLoadout = async (userID, gear) => {
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('inspect')
-        .setDescription('What exactly are you swinging around?')
-        .addStringOption(option =>
-            option.setName('style')
-                .setDescription('Old or New Inspect?')
-                .setRequired(true)
-                .setChoices(
-                    {name: "Old", value: "oldView"},
-                    {name: "New", value: "newView"}))
-        .addUserOption(option => option.setName('player').setDescription('The user')),
+    .setName('inspect')
+    .setDescription('What exactly are you swinging around?')
+    .addStringOption(option =>
+        option.setName('style')
+            .setDescription('Old or New Inspect?')
+            .setRequired(true)
+            .setChoices(
+                {name: "Old", value: "oldView"},
+                {name: "New", value: "newView"},
+                {name: "Updated", value: 'sCode'}
+            )
+        )
+    .addUserOption(option => option.setName('player').setDescription('The user')),
 
     async execute(interaction) {
-        //Turn this into an image
-        // Show loadout as character with plugnplay equipment
+        if (interaction.options.getString('style') === 'sCode'){
+            await interaction.deferReply();
+            const givenUser = interaction.options.getUser('player') ?? interaction.user;
 
-        if (interaction.options.getString('style') === 'newView'){
+            const load = await Loadout.findOne({where: {spec_id: givenUser.id}});
+            if (!load) return await interaction.followUp('This user does not have a loadout!');
+
+            const loadoutIDs = [load.mainhand, load.offhand, load.headslot, load.chestslot, load.legslot, load.potionone];
+            const slotMatch = ["Mainhand", "Offhand", "Headslot", "Chestslot", "Legslot", "Potion"];
+
+            const embedList = [], stringCodeList = [];
+            let idxSlot = 0;
+            for (const id of loadoutIDs){
+                const embed = new EmbedBuilder();
+
+                if (id === 0){
+                    embed
+                    .setTitle(`${slotMatch[idxSlot]} Empty`)
+                    .setDescription('No item equipped!');
+                } else {
+                    if (idxSlot !== 5){
+                        let itemMatch = await ItemStrings.findOne({where: {user_id: givenUser, item_id: id}});
+                        if (!itemMatch){
+                            // Backup Check
+                            const backupCheck = await ItemLootPool.findOne({where: {creation_offset_id: id}});
+                            if (!backupCheck){
+                                // Last Check, JSON Loot List
+                                // const staticCheck = lootList.filter(item => item.Loot_id === id)[0];
+                                // itemMatch = createSingleUniItem(staticCheck);
+                                embed
+                                .setTitle(`${slotMatch[idxSlot]} Empty`)
+                                .setDescription('Item could not be found!');
+                            } else itemMatch = backupCheck;
+                        } 
+    
+                        if (itemMatch){
+                            stringCodeList.push({item_code: itemMatch.item_code});
+                            const itemDetails = uni_displayItem(itemMatch, "Single");
+                            embed
+                            .setTitle('Currently Equipped')
+                            .setColor(itemDetails.color)
+                            .addFields(itemDetails.fields);
+                        } else stringCodeList.push({item_code: "None"});
+                    } else {
+                        const potMatch = await OwnedPotions.findOne({where: {spec_id: givenUser.id, potion_id: id}});
+                        const potEffect = potCatEffects.filter(effect => effect.Name === potMatch.activecategory)[0][`${potMatch.name}`];
+                        const list = `Value: ${potMatch.value}\nType: ${potMatch.activecategory}\nDuration: ${potMatch.duration}\nCooldown: ${potMatch.cooldown}\nCurrent Amount: ${potMatch.amount}\nEffect Strength: ${potEffect}`;
+                        embed
+                        .setTitle('Currently Equipped')
+                        .addFields(
+                            {name: `${potMatch.name}`, value: list}
+                        );
+                    }
+                }
+
+                idxSlot++;
+                embedList.push(embed);
+            }
+
+            const finalDamageList = loadDamageItems(stringCodeList[0], stringCodeList[1]);
+            const loadComp = {
+                offhand: stringCodeList[1],
+                headslot: stringCodeList[2],
+                chestslot: stringCodeList[3],
+                legslot: stringCodeList[4]
+            };
+            const finalDefenceList = loadDefenceItems(loadComp);
+
+            const totalDamage = finalDamageList.reduce((acc, obj) => {
+                return (acc > 0) ? acc + obj.DMG : obj.DMG;
+            }, 0);
+            const totalDefence = finalDefenceList.reduce((acc, obj) => {
+                return (acc > 0) ? acc + obj.DEF : obj.DEF;
+            }, 0);
+
+            const dmgEmbed = new EmbedBuilder()
+            .setTitle('Total Damage')
+            .addFields(
+                {name: "Damage: ", value: `${totalDamage}`}
+            );
+            const defEmbed = new EmbedBuilder()
+            .setTitle('Total Defence')
+            .addFields(
+                {name: "Defence: ", value: `${totalDefence}`}
+            );
+
+            embedList.push(defEmbed, dmgEmbed);
+
+            return await sendTimedChannelMessage(interaction, 360000, {embeds: [embedList]}, "FollowUp");
+        } else if (interaction.options.getString('style') === 'newView'){
+            //Turn this into an image
+            // Show loadout as character with plugnplay equipment
             const theUser = interaction.options.getUser('player') ?? interaction.user;
 
             const canvas = Canvas.createCanvas(1000, 1000);
@@ -205,16 +300,18 @@ module.exports = {
         } else if (interaction.options.getString('style') === 'oldView'){
             await interaction.deferReply();
 
-            const currentLoadout = await Loadout.findOne({ where: { spec_id: interaction.user.id } });
+            const theUser = interaction.options.getUser('player') ?? interaction.user;
+
+            const currentLoadout = await Loadout.findOne({ where: { spec_id: theUser.id } });
             if (!currentLoadout) return interaction.followUp('You have not equipped anything yet! Use ``/equip < Loadout-Slot > < Item-Name >`` to equip something, dont forget to start the word with a CAPITAL LETTER!');
 
             //User has items equipped
-            var headSlotItem = await findHelmSlot(currentLoadout.headslot, interaction.user.id);
-            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, interaction.user.id);
-            var legSlotItem = await findLegSlot(currentLoadout.legslot, interaction.user.id);
-            var mainHandItem = await findMainHand(currentLoadout.mainhand, interaction.user.id);
-            var offHandItem = await findOffHand(currentLoadout.offhand, interaction.user.id);
-            var equippedPotion = await findPotion(currentLoadout.potionone, interaction.user.id);
+            var headSlotItem = await findHelmSlot(currentLoadout.headslot, theUser.id);
+            var chestSlotItem = await findChestSlot(currentLoadout.chestslot, theUser.id);
+            var legSlotItem = await findLegSlot(currentLoadout.legslot, theUser.id);
+            var mainHandItem = await findMainHand(currentLoadout.mainhand, theUser.id);
+            var offHandItem = await findOffHand(currentLoadout.offhand, theUser.id);
+            var equippedPotion = await findPotion(currentLoadout.potionone, theUser.id);
 
             let headUnique = true;
             if (headSlotItem.Value) headUnique = false;
@@ -505,7 +602,7 @@ module.exports = {
 
                         });
 
-                const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+                const uData = await UserData.findOne({ where: { userid: theUser.id } });
 
                 let offHandComp;
                 if (offHandItem !== 'NONE') offHandComp = offHandItem;

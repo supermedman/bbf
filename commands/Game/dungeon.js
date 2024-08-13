@@ -98,7 +98,7 @@ module.exports = {
 	),
 
 	async execute(interaction) { 
-		if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
+		// if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
 
 		const { dungeonInstance, gearDrops } = interaction.client;
 
