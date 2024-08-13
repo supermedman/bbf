@@ -175,13 +175,13 @@ class EnemyFab {
     constructor(eFab) {
         const {Level, Body, Armor, Shield, Name, Description, UniqueItem, ConstKey} = eFab;
         this.imageCheck = {
-            checkKey: ConstKey,
+            checkKey: ConstKey ?? 0,
             hasPng: false,
             pngRef: ''
         };
         
-        this.name = Name;
-        this.description = Description;
+        this.name = Name ?? "None";
+        this.description = Description ?? "";
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
         //const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
         this.level = (Level) ? Level : Math.floor(Math.random() * (100 - 1 + 1) + 1);
