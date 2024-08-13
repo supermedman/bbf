@@ -5,8 +5,8 @@ const { grabRar } = require("../../../Game/exported/grabRar");
 const {randArrPos, inclusiveRandNum, rollChance, dropChance} = require('../../../../uniHelperFunctions');
 const hitChance = rollChance;
 
-const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-const staticFleshMods = [0.4, 0.25, 0.2, 0.5];
+const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Hellion", "Boss"];
+const staticFleshMods = [0.4, 0.25, 0.2, 0.25, 0.5];
 // Flesh based on Material Drop Order: [0[1st], 1[2nd], 2[3rd]];
 // MULT = 1 + (lvl * TYPE)
 /** == Flesh ==

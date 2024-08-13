@@ -205,6 +205,7 @@ function createHealthBar(enemy) {
      *  Flesh - muddy red #B56B57
      *  Magical Flesh - blueish red #8C6E7E
      *  Specter - light blue + red #47598B
+     *  Hellion - red grey #CC4125
      * 
      *  == Armor ==
      *  Armor - lighter dark grey #7E7C7C
@@ -220,8 +221,8 @@ function createHealthBar(enemy) {
      */
     // 383, 275, 213, 14
 
-    const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-    const fleshColours = ["#B56B57", "#8C6E7E", "#47598B", "black"];
+    const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Hellion", "Boss"];
+    const fleshColours = ["#B56B57", "#8C6E7E", "#47598B", "#CC4125", "black"];
     const fleshColour = fleshColours[fleshTypes.indexOf(enemy.flesh.Type)];
 
     const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];

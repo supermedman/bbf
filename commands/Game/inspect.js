@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
-const { UserData, UniqueCrafted, Loadout, Pigmy, ItemStrings, ItemLootPool } = require('../../dbObjects.js');
+const { UserData, UniqueCrafted, Loadout, Pigmy, ItemStrings, ItemLootPool, OwnedPotions } = require('../../dbObjects.js');
 
 const {findChestSlot, findHelmSlot, findLegSlot, findMainHand, findOffHand, findPotion} = require('../Game/exported/findLoadout.js');
 const {userDamageLoadout} = require('../Game/exported/dealDamage.js');
@@ -15,7 +15,7 @@ const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.
 const potCatEffects = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
 const { createSingleUniItem, uni_displayItem } = require('../Development/Export/itemStringCore.js');
 const { loadDamageItems, loadDefenceItems } = require('../Development/Export/finalCombatExtras.js');
-const { sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
+const { sendTimedChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
 
 const UI = [
 	'./events/Models/json_prefabs/image_extras/user-inspect/gold-frame-menu.png',
@@ -82,6 +82,12 @@ module.exports = {
             const load = await Loadout.findOne({where: {spec_id: givenUser.id}});
             if (!load) return await interaction.followUp('This user does not have a loadout!');
 
+            const theUser = await grabUser(givenUser.id);
+
+            // Implement standard playerInstance loading object values
+            // Generate display from stored values
+
+
             const loadoutIDs = [load.mainhand, load.offhand, load.headslot, load.chestslot, load.legslot, load.potionone];
             const slotMatch = ["Mainhand", "Offhand", "Headslot", "Chestslot", "Legslot", "Potion"];
 
@@ -96,17 +102,34 @@ module.exports = {
                     .setDescription('No item equipped!');
                 } else {
                     if (idxSlot !== 5){
-                        let itemMatch = await ItemStrings.findOne({where: {user_id: givenUser, item_id: id}});
+                        let itemMatch = await ItemStrings.findOne({where: {user_id: givenUser.id, item_id: id}});
                         if (!itemMatch){
                             // Backup Check
                             const backupCheck = await ItemLootPool.findOne({where: {creation_offset_id: id}});
                             if (!backupCheck){
                                 // Last Check, JSON Loot List
-                                // const staticCheck = lootList.filter(item => item.Loot_id === id)[0];
-                                // itemMatch = createSingleUniItem(staticCheck);
+                                const staticCheck = lootList.filter(item => item.Loot_id === id)[0];
+                                let formatItem = createSingleUniItem(staticCheck);
+
+                                formatItem = {
+                                    name: formatItem.name,
+                                    item_code: formatItem.itemStringCode,
+                                    value: formatItem.value,
+                                    caste_id: formatItem.casteID
+                                };
+
+                                const formItemDets = uni_displayItem(formatItem, "Single");
                                 embed
-                                .setTitle(`${slotMatch[idxSlot]} Empty`)
-                                .setDescription('Item could not be found!');
+                                .setTitle(`${slotMatch[idxSlot]} Currently Equipped`)
+                                .setColor(formItemDets.color)
+                                .addFields(formItemDets.fields);
+                                
+                                stringCodeList.push({item_code: formatItem.item_code});
+                                
+                                idxSlot++;
+                                embedList.push(embed);
+                                
+                                continue;
                             } else itemMatch = backupCheck;
                         } 
     
@@ -114,7 +137,7 @@ module.exports = {
                             stringCodeList.push({item_code: itemMatch.item_code});
                             const itemDetails = uni_displayItem(itemMatch, "Single");
                             embed
-                            .setTitle('Currently Equipped')
+                            .setTitle(`${slotMatch[idxSlot]} Currently Equipped`)
                             .setColor(itemDetails.color)
                             .addFields(itemDetails.fields);
                         } else stringCodeList.push({item_code: "None"});
@@ -134,16 +157,37 @@ module.exports = {
                 embedList.push(embed);
             }
 
-            const finalDamageList = loadDamageItems(stringCodeList[0], stringCodeList[1]);
+            const finalDamageList = loadDamageItems(stringCodeList[0].item_code, stringCodeList[1].item_code);
             const loadComp = {
-                offhand: stringCodeList[1],
-                headslot: stringCodeList[2],
-                chestslot: stringCodeList[3],
-                legslot: stringCodeList[4]
+                offhand: stringCodeList[1].item_code,
+                headslot: stringCodeList[2].item_code,
+                chestslot: stringCodeList[3].item_code,
+                legslot: stringCodeList[4].item_code
             };
             const finalDefenceList = loadDefenceItems(loadComp);
 
-            const totalDamage = finalDamageList.reduce((acc, obj) => {
+
+            function handleDamageMods(){
+                const dmgModC = ["Mage", "Thief", "Warrior", "Paladin"];
+                const dmgModM = [0.15, 0, 0.05, -0.05];
+                const modBy = 1 + dmgModM[dmgModC.indexOf(theUser.pclass)];
+
+                const totDmgBoost = (theUser.strength * 3) + (theUser.intelligence * 10);
+                const classDmgMult = modBy;
+
+                const shallowDmgList = [];
+                const dmgDistCheck = finalDamageList.filter(dmgObj => dmgObj.DMG > 0);
+                const flatBoost = totDmgBoost / dmgDistCheck.length;
+
+                for (const dmgObj of finalDamageList){
+                    if (dmgObj.DMG === 0) continue;
+                    shallowDmgList.push({Type: dmgObj.Type, DMG: (dmgObj.DMG * classDmgMult) + flatBoost});
+                }
+
+                return shallowDmgList;
+            }
+
+            const totalDamage = handleDamageMods().reduce((acc, obj) => {
                 return (acc > 0) ? acc + obj.DMG : obj.DMG;
             }, 0);
             const totalDefence = finalDefenceList.reduce((acc, obj) => {
@@ -163,7 +207,7 @@ module.exports = {
 
             embedList.push(defEmbed, dmgEmbed);
 
-            return await sendTimedChannelMessage(interaction, 360000, {embeds: [embedList]}, "FollowUp");
+            return await sendTimedChannelMessage(interaction, 360000, {embeds: embedList}, "FollowUp");
         } else if (interaction.options.getString('style') === 'newView'){
             //Turn this into an image
             // Show loadout as character with plugnplay equipment

@@ -39,6 +39,7 @@ const { attackEnemy, handleActiveStatus, applyActiveStatus } = require('../Devel
 const { EnemyFab, xpPayoutScale } = require('../Development/Export/Classes/EnemyFab.js');
 const { handleLootDrops } = require('../Development/Export/questUpdate.js');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts.js');
+const { createNewBlueprint } = require('./exported/createBlueprint.js');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -444,6 +445,11 @@ module.exports = {
 						return nextEnemy;
 					}
 				}
+
+				if (bossStage === 3){
+					// Boss killed, handle payouts here
+					return handleBossPayouts(dungeonRef.Boss);
+				}
 				
 				// Do boss floor stuff here
 				bossStage++;
@@ -522,6 +528,45 @@ module.exports = {
 				return {bossEmbeds, thumbFile};
 			}
 
+			/**
+			 * This function handles giving boss kill rewards. This includes blueprints
+			 * coins, xp, and achievements. It also sets the dungeon as completed allowing
+			 * for storyline progress to continue!
+			 * @param {string} boss The name of the boss to use as a reference
+			 */
+			async function handleBossPayouts(boss){
+				await dungeon.update({completed: true}).then(async d => await d.save()).then(async d => {return await d.reload()});
+
+				const bossRef = bossList.filter(b => b.NameRef === boss && b.Stage === 3)[0];
+				const bossXP = inclusiveRandNum(bossRef.XpMax, bossRef.XpMin);
+				const bossCoin = bossXP * 1.3;
+
+				await handleUserPayout(bossXP, bossCoin, interaction, await grabUser(player.userId));
+
+				const bossDrops = {
+					bpName: bossRef.Blueprint,
+					bpID: bossRef.BlueprintID,
+					sbpID: bossRef.SecretBPID,
+					achive: bossRef.AchievementGet
+				};
+
+				await createNewBlueprint(bossDrops.bpID, player.userId);
+				await createNewBlueprint(bossDrops.sbpID, player.userId);
+
+				const bossDefeatedEmbed = new EmbedBuilder()
+				.setTitle('BOSS DEFEATED')
+				.setColor('DarkAqua')
+				.addFields(
+					{name: 'XP Gained: ', value: `${bossXP}`, inline: true},
+					{name: 'Coins Gained: ', value: `${bossCoin}`, inline: true}
+				)
+				.addFields(
+					{name: 'BLUEPRINT UNLOCKED: ', value: `${bossDrops.bpName}`},
+					{name: 'ACHIEVEMENT UNLOCKED: ', value: `${bossDrops.achive}`}
+				);
+
+				await sendTimedChannelMessage(interaction, 120000, bossDefeatedEmbed);
+			}
 
 			/**
 			 * This function handles payouts, healing, and dungeon updates upon reaching
@@ -835,9 +880,6 @@ module.exports = {
 		}
 
 		startDungeonHandle();
-
-
-
 
 		// ===========================
 		// 			OLD CODE
