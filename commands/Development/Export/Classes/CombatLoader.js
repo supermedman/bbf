@@ -385,7 +385,7 @@ class CombatInstance {
         return;
     }
 
-    async retrieveBasicStats(){
+    async retrieveBasicStats(dungeonLoad=false){
         const uData = await UserData.findOne({where: {userid: this.userId}});
 
         this.level = uData.level;
@@ -403,7 +403,9 @@ class CombatInstance {
         await this.#loadBasicStats();
 
         this.health = this.#setFullHealth();
-        if (this.health > uData.health) this.health = uData.health;
+        if (!dungeonLoad){
+            if (this.health > uData.health) this.health = uData.health;
+        }
         return;
     }
 
@@ -496,9 +498,9 @@ class CombatInstance {
         return chanceToBeat;
     }
 
-    async reloadInternals(){
+    async reloadInternals(dungeonLoad=false){
         const leveled = await UserData.findOne({where: {userid: this.userId}});
-        if (leveled.level !== this.level) await this.retrieveBasicStats();
+        if (leveled.level !== this.level) await this.retrieveBasicStats(dungeonLoad);
 
         const needUpdated = await this.#checkLoadoutChanges();
         if (needUpdated !== "No Update"){

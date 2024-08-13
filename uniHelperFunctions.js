@@ -12,10 +12,20 @@ const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
+/**
+ * This function rolls Math.random() and checks if ``chance >= roll``
+ * @param {number} chance Chance to roll against
+ * @returns {boolean}
+ */
 const rollChance = (chance) => {
     return (Math.random() <= chance) ? true : false;
 };
 
+/**
+ * This function rolls Math.random() and checks if ``chance <= roll``
+ * @param {number} chance Chance to roll against
+ * @returns {boolean}
+ */
 const dropChance = (chance) => {
     return (Math.random() >= chance) ? true : false;
 };
@@ -65,7 +75,7 @@ const checkLootUP = (pigmy, user) => {
  * This method handles styling timers based on time difference found, and then
  * handles logging the output accordingly.
  * @param {number} startTime Start Time for measurement
- * @param {string} measureName Display String for measurement
+ * @param {string} measureName Display String, shown as ``${measureName} Duration: ``
  */
 const endTimer = (startTime, measureName) => {
     const endTime = new Date().getTime();
@@ -259,6 +269,14 @@ function createComponentCollector(interaction, timeLimit, anchorMsg, compType){
     return collector;
 }
 
+async function handleCatchDelete(anchorMsg){
+    return await anchorMsg.delete().catch(error => {
+        if (error.code !== 10008) {
+            console.error('Failed to delete the message:', error);
+        }
+    });
+}
+
 module.exports = {
     randArrPos,
     inclusiveRandNum,
@@ -273,5 +291,6 @@ module.exports = {
     grabActivePigmy,
     getTypeof,
     sendTimedChannelMessage,
-    createInteractiveChannelMessage
+    createInteractiveChannelMessage,
+    handleCatchDelete
 }

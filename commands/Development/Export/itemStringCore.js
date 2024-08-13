@@ -17,7 +17,8 @@ const dmgKeys = new Map([
     ["NUsp", "Null"],
     ["PAsp", "Pain"],
     ["SPsp", "Spirit"],
-    ["CHsp", "Chaos"]
+    ["CHsp", "Chaos"],
+    ["NEsp", "Nessy"]
 ]);
 
 const rarKeys = new Map([

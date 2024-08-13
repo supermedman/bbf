@@ -46,9 +46,11 @@ module.exports = {
 				}
 			}
 
-			timestamps.set(interaction.user.id, now);
-			setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
-
+			if (interaction.user.id !== '501177494137995264'){
+				timestamps.set(interaction.user.id, now);
+				setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+			}
+			
 			try {
 				await command.execute(interaction);
 			} catch (error) {
