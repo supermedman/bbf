@@ -98,6 +98,10 @@ module.exports = {
 					if (!betaTester.has(interaction.user.id)){
 						betaTester.set(interaction.user.id, true);
 					}
+
+					if (hasButtonPerm && !newEnemy.has(interaction.user.id)){
+						newEnemy.set(interaction.user.id, true);
+					}
 					
 					// if (collectionRunOnce === false){
 					// 	collectionRunOnce = true;

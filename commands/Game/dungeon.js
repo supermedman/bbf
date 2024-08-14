@@ -126,13 +126,17 @@ module.exports = {
 			const lineList = ["None", "Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
 			const nameList = ["None", "wadon", "dyvulla", "ados", "zimmir", "phamnera", "xogdia", "mien", "nizdea", "fayrn"];
 			
+			console.log(theDungeon);
+
 			const maxStoryLine = lineList.indexOf(storyData.currentquestline);
 			const activeStory = (nameList.includes(nameGiven)) ? nameList.indexOf(nameGiven) : lineList.indexOf(storyData.currentquestline);
 			if (activeStory > maxStoryLine) return await interaction.followUp(`You must defeat ${Math.abs(activeStory - maxStoryLine)} bosses before this one!!`);
 
 			let lineFilter = loreList.filter(lore => lore.StoryLine === activeStory);
 			lineFilter = lineFilter[lineFilter.length - 1];
+			console.log(lineFilter);
 			const reqQuestID = lineFilter.QuestID;
+			console.log(reqQuestID);
 
 			if (storyData.laststoryquest < reqQuestID) return await interaction.followUp('This dungeon is still unknown to you! Keep questing!');
 
@@ -154,33 +158,51 @@ module.exports = {
 			}
 
 			// Check for existing dungeons
-			let userDungeon, loadReady = false, overwrite = false, needUpdate = false;
-			const existingDungeon = await ActiveDungeon.findOne({where: {dungeonspecid: user.userid}});
-			if (existingDungeon){
-				// Dungeon exists
-				if (existingDungeon.dungeonid === theDungeon.DungeonID){
-					// Dungeon match found
-					loadReady = true;
-					userDungeon = existingDungeon;
-				} else if (existingDungeon.completed) {
-					// Dungeon completed, overwrite has no effect
-					needUpdate = true;
-					userDungeon = existingDungeon;
-				} else {
-					// Dungeon will be overwritten
-					overwrite = true;
+			let dungMatch, loadDung = false;
+			const foundMatch = await ActiveDungeon.findOne({
+				where: {
+					dungeonspecid: user.userid,
+					dungeonid: theDungeon.DungeonID
 				}
+			});
+
+			if (foundMatch){
+				loadDung = true;
+				dungMatch = foundMatch;
+			} else {
+				console.log('CREATING NEW DUNGEON ENTRY');
+				dungMatch = await handleDungeonLoad(theDungeon);
 			}
 
-			if (loadReady){
+			if (loadDung){
 				// Enter the dungeon
-				return beginDungeon(userDungeon);
+				console.log('DUNGEON FOUND, LOADING DUNGEON NOW');
+				return beginDungeon(dungMatch);
 			}
 
-			if (!existingDungeon){
-				// Create new dungeon
-				userDungeon = await handleDungeonLoad(theDungeon);
-			}
+			// let userDungeon, loadReady = false, overwrite = false, needUpdate = false;
+			// const existingDungeon = await ActiveDungeon.findOne({where: {dungeonspecid: user.userid, dungeonid: theDungeon.DungeonID}});
+			// if (existingDungeon){
+			// 	// Dungeon exists
+			// 	if (existingDungeon.dungeonid === theDungeon.DungeonID){
+			// 		// Dungeon match found
+			// 		loadReady = true;
+			// 		userDungeon = existingDungeon;
+			// 	} else if (existingDungeon.completed) {
+			// 		// Dungeon completed, overwrite has no effect
+			// 		needUpdate = true;
+			// 		userDungeon = existingDungeon;
+			// 	} else {
+			// 		// Dungeon will be overwritten
+			// 		overwrite = true;
+			// 	}
+			// }
+
+			// if (!existingDungeon){
+			// 	// Create new dungeon
+				
+			// 	userDungeon = await handleDungeonLoad(theDungeon);
+			// }
 
 			const acceptLabel = (overwrite) ? "Overwrite existing dungeon?": "Begin";
 
@@ -278,10 +300,10 @@ module.exports = {
 
 				let finalDungeon = await ActiveDungeon.findOrCreate({
 					where: {
-						dungeonspecid: user.userid
+						dungeonspecid: user.userid,
+						dungeonid: dungeon.DungeonID,
 					},
 					defaults: {
-						dungeonid: dungeon.DungeonID,
 						currentfloor: 1,
 						lastsave: 1,
 						currenthealth: healthCalc,
