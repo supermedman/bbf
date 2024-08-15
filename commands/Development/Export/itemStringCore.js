@@ -8,6 +8,7 @@
 const dmgKeys = new Map([
     ["BLph", "Blunt"],
     ["SLph", "Slash"],
+    ["PIph", "Pierce"],
     ["MAma", "Magic"],
     ["RAma", "Rad"],
     ["FRma", "Frost"],
@@ -206,6 +207,19 @@ function checkingRar(TEST_CODE) {
     const rarCode = TEST_CODE.slice(rarStarts + 1, rarStarts + 4);
     const foundRar = rarKeys.get(rarCode);
     
+    return foundRar;
+}
+
+/**
+ * This function takes a rar id and returns the matching string name.
+ * @param {number} rarID Rarity as ID number
+ * @returns {string}
+ */
+function baseCheckRarName(rarID){
+    const rarKey = (rarID > 9) ? "r" + rarID : "r0" + rarID;
+
+    const foundRar = rarKeys.get(rarKey);
+
     return foundRar;
 }
 
@@ -1271,6 +1285,7 @@ module.exports = {
     checkingDismantle,
     checkingRar,
     checkingRarID,
+    baseCheckRarName,
     checkingSlot,
     checkingCaste,
     convertToUniItem,

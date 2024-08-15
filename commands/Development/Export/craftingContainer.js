@@ -1,5 +1,7 @@
 // Used for any external methods, calls, filtering related to crafting/item generation.
 
+const { baseCheckRarName } = require('./itemStringCore');
+
 // ===============================
 //       HELPER METHODS
 // ===============================
@@ -67,7 +69,7 @@ const itemGenDefConstant = (rarity, defAmount, slotType, matAmount) => {
  * casteObj is the base Object for the final item.
  * @param {string} type The specific caste type name picked for use by user
  * @param {string} slot The slot of the item
- * @returns Object {name: string, hands: number, dmgCat: string, mats: string[]}
+ * @returns {({name: string, hands: number, dmgCat: string, mats: string[]})}
  */
 const itemCasteFilter = (type, slot) => {
     let casteObj = {
@@ -228,13 +230,46 @@ const itemGenDmgTypes = (casteObj) => {
     let dmgTypeChoices = [];
     switch(casteObj.dmgCat){
         case "Magic":
-            dmgTypeChoices = ["Magic", "Fire", "Frost", "Dark", "Light"];
+            switch(casteObj.slot){
+                case "Mainhand":
+                    dmgTypeChoices.push("Magic");
+                    if (["Wand", "Focus", "Staff"].includes(casteObj.name)){
+                        dmgTypeChoices.push("Fire", "Frost");
+                    }
+                    if (["Wand", "Tome", "Focus"].includes(casteObj.name)){
+                        dmgTypeChoices.push("Dark", "Light");
+                    }
+                break;
+                case "Offhand":
+                    dmgTypeChoices.push("Magic");
+                break;
+                default:
+                    dmgTypeChoices = ["Magic", "Fire", "Frost", "Dark", "Light"];
+                break;
+            }
         break;
         case "Melee":
-            dmgTypeChoices = ["Blunt", "Slash"];
+            switch(casteObj.slot){
+                case "Mainhand":
+                    if (["Polearm", "Mace"].includes(casteObj.name)){
+                        // Can have Blunt damage type
+                        dmgTypeChoices.push("Blunt");
+                    } 
+                    if (["Polearm", "Heavy Blade", "Light Blade"].includes(casteObj.name)){
+                        // Can have Slash and Pierce damage types
+                        dmgTypeChoices.push("Slash", "Pierce");
+                    }
+                break;
+                case "Offhand":
+                    dmgTypeChoices.push("Blunt");
+                break;
+                default:
+                    dmgTypeChoices = ["Blunt", "Slash", "Pierce"];
+                break;
+            }
         break;
         case "Special":
-            dmgTypeChoices = ["Spirit", "Pain", "Chaos", "Rad", "Null"]
+            dmgTypeChoices = ["Spirit", "Pain", "Chaos", "Rad", "Null"];
         break;
     }
     return dmgTypeChoices;
@@ -247,7 +282,24 @@ const itemGenDmgTypes = (casteObj) => {
  * @returns {string[]} of picked damage types
  */
 const itemGenPickDmgTypes = (casteObj) => {
-    const maxTypeAmount = inclusiveRandNum(5 - casteObj.dmgTypes.length, 1);
+    // Rarity is defined, determine max types from rarity.
+    let maxTNum = (casteObj.rarity || casteObj.rarity === 0) ? 0 : 5;
+    if (casteObj.rarity || casteObj.rarity === 0){
+        // console.log('Checking max type amount from rarity');
+        if (casteObj.rarity > 6){
+            maxTNum = 5;
+        } else if (casteObj.rarity > 5){
+            maxTNum = 4;
+        } else if (casteObj.rarity >= 4){
+            maxTNum = 3;
+        } else if (casteObj.rarity <= 3){
+            maxTNum = 2;
+        }
+    }
+
+    // console.log('Max Set @: %d', maxTNum);
+    
+    const maxTypeAmount = inclusiveRandNum(maxTNum - casteObj.dmgTypes.length, 1);
     const dmgTypeOptions = casteObj.dmgOptions;
 
     // Preventing Imbued Pure types from being double selected
@@ -283,7 +335,7 @@ const itemGenPickDmgTypes = (casteObj) => {
  * @param {object} matTwo Basic Material Object: {rarity: number, amount: number}
  * @param {object} matThree Basic Material Object: {rarity: number, amount: number}
  * @param {object} matFour Basic Material Object: {rarity: number, amount: number}
- * @returns Number for Final Rarity
+ * @returns {number} Final Rarity
  */
 const rarityGenConstant = (matOne, matTwo, matThree, matFour) => {
     const m1 = matOne, m2 = matTwo, m3 = matThree, m4 = matFour;
@@ -352,12 +404,13 @@ const rarityGenConstant = (matOne, matTwo, matThree, matFour) => {
 /**
  * This method calculates and creates type:dmg pairs for use with item value and item string creation.
  * @param {object} casteObj Base Item Object
- * @returns Number: Total Item Damage
+ * @returns {number} Total Item Damage
  */
 const dmgTypeAmountGen = (casteObj) => {
     let totalDamage = 0;
     let dmgTypePairs = [];
 
+    // Retain overflow value for offhand edge case
     const overflowPlaceholder = ~~casteObj.typeOverflow;
 
     // Spread overflow evenly across all existing dmgtypes
@@ -381,13 +434,18 @@ const dmgTypeAmountGen = (casteObj) => {
         dmgTypePairs.push({type: type, dmg: typeValue});
     }
 
+    // Reassign overflow value for offhand edge case
     if (casteObj.slot === 'Offhand') casteObj.typeOverflow = overflowPlaceholder;
     casteObj.totalDamage = totalDamage;
     casteObj.dmgTypePairs = dmgTypePairs;
     return totalDamage;
 };
 
-
+/**
+ * This method calculates and creates type:def pairs for use with item value and item string creation.
+ * @param {object} casteObj Base Item Object
+ * @returns {number} Total Item Defence
+ */
 const defTypeAmountGen = (casteObj) => {
     let totalDefence = 0;
     let defTypePairs = [];
@@ -420,7 +478,7 @@ const defTypeAmountGen = (casteObj) => {
 /**
  * This method calculates and assigns the items total value based off damage, materials, hands, and rarity
  * @param {object} casteObj Base Item Object
- * @returns Number: Total Item Value
+ * @returns {number} Total Item Value
  */
 const itemValueGenConstant = (casteObj) => {
     let totalValue = 0;
@@ -443,7 +501,7 @@ const itemValueGenConstant = (casteObj) => {
 
     const totDmg = casteObj.totalDamage ?? 0;
     const totDef = casteObj.totalDefence ?? 0;
-    totalValue = (1 + casteObj.rarity) * (totDmg + (totDef * (3 + (casteObj.rarity/3))));
+    totalValue = (1 + casteObj.rarity) * (totDmg + (totDef * (3 + (casteObj.rarity / 3))));
 
     if (casteObj.hands === 0) {
         totalValue *= (casteObj.slot !== "Chestslot") ? 1.75 : 2.2;
@@ -469,6 +527,16 @@ const itemValueGenConstant = (casteObj) => {
 //         ITEM FUNCTIONS
 // ===============================
 
+/**
+ * This function is 
+ * # **F\*!#ING HUGE DAMN BRO SWITCH CASE GO 200 LINE CRAZY**
+ * 
+ * ``True``: Add to database static loot pool
+ * 
+ * ``False``: Dont do this ^
+ * @param {object} casteObj Complete Item Caste Object
+ * @returns {boolean}
+ */
 function benchmarkQualification(casteObj){
     const qualObj = {
         dmg: {
@@ -786,17 +854,110 @@ function benchmarkQualification(casteObj){
 
     const itemQualifies = switchCheckUni(casteObj);
     console.log('Item Qualifies for becoming a permanent Loot Drop Option: ', itemQualifies);
+
+    return itemQualifies;
 }
 
 
 
 function extractName(item){
-    const nameCaste = require('./Json/nameCaste.json');
+    /**  === Reworking Name Scheme ===
+     *
+     * Name Layout: Prefix + Desc_1 + Dom_Mat_Type? + Caste_Type_Suffix
+     * 
+     *       Prefix  Desc       Common, Woody   Caste_Suffix
+     * EX_1: Worn    Engraved   Sturdy Branch   Wand
+     * Item_1: Uncommon Wand
+     * 
+     *       Prefix      Desc   Epic, Metalic  Caste_Suffix 
+     * EX_2: Exquisitely Formed Raw Phasemetal Light Blade
+     * Item_2: Epic Light Blade
+     * 
+     *       Frost  Desc   Mystic, Metalic  Caste_Suffix
+     * EX_3: Shiver Bourne Phasemetal Scrap Mace
+     * Item_3: Mystic Mace (Imbued Frost)
+     * 
+     *       Fire      Blunt    ???, Skinny          Desc    ???, Woody  Caste_Suffix
+     * EX_4: Brimstone Battery, Worked Phase-Leather Wrapped Phaseflower Polearm
+     * Item_4: ??? Polearm (Imbued Fire, Blunt)
+     * 
+     * 
+     *  Name Construct:
+     * 
+     *  NO IMBUE: ``Prefix + Desc + Dom_Mat_Name + Caste_Type``
+     * 
+     *  ONE IMBUE: ``Imbue + Desc + Dom_Mat_Name + Caste_Type``
+     * 
+     *  TWO IMBUE: ``Imbue_1 + Imbue_2 + (Mat_2 || Mat_3) + Desc + Caste_Type``
+     */
+    const nameFormConstruction = require('./Json/craftNameForm.json');
+    let filterTmpBy;
+    if (item.imbuedTypes.length === 0){
+        filterTmpBy = "No_Imbue";
+    } else if (item.imbuedTypes.length === 1){
+        filterTmpBy = "One_Imbue";
+    } else if (item.imbuedTypes.length === 2){
+        filterTmpBy = "Two_Imbue";
+    }
 
-    const casteFiltered = nameCaste.filter(ele => ele.Caste_Type === item.name);
-    const name = randArrPos(casteFiltered[0].Caste_Forms);
+    const baseNameTemplate = nameFormConstruction.filter(tmp => tmp.Name === "Name_Template")[0].Templates[`${filterTmpBy}`];
+
+    let newName;
+    switch(filterTmpBy){
+        case "No_Imbue":
+            // NO IMBUE
+            // Prefix Filter by: item.rarity item.mats[0]
+            baseNameTemplate.Prefix = randArrPos(nameFormConstruction
+                .filter(tmp => tmp.Name === "Prefix")[0]
+                .Filter.filter(rar => rar.Rarity === baseCheckRarName(item.rarity))[0]
+                .Base_Mat.filter(matT => matT.Type === item.mats[0])[0].Options
+            );
+
+            // Norm_Desc Filter by: item.rarity item.mats[0]
+            baseNameTemplate.Norm_Desc = randArrPos(nameFormConstruction
+                .filter(tmp => tmp.Name === "Norm_Desc")[0]
+                .Filter.filter(rar => rar.Rarity === baseCheckRarName(item.rarity))[0]
+                .Base_Mat.filter(matT => matT.Type === item.mats[0])[0].Options
+            );
+
+            if (item.rarity < 2){
+                const excludeType = randArrPos(["Prefix", "Norm_Desc"]);
+                switch(excludeType){
+                    case "Prefix":
+                        baseNameTemplate.Prefix = "";
+                    break;
+                    case "Norm_Desc":
+                        baseNameTemplate.Norm_Desc = "";
+                    break;
+                }
+            }
+
+            // Dom_Mat_Name
+            baseNameTemplate.Dom_Mat_Name = item.domMat.name;
+
+            // Caste_Type
+            baseNameTemplate.Caste_Type = item.name;
+
+            newName = [baseNameTemplate.Prefix, baseNameTemplate.Norm_Desc, baseNameTemplate.Dom_Mat_Name, baseNameTemplate.Caste_Type].join(" ");
+        break;
+        case "One_Imbue":
+            
+        break;
+        case "Two_Imbue":
+
+        break;
+    }
+
+    // console.log(baseNameTemplate);
+    
+     
+
+    // const nameCaste = require('./Json/nameCaste.json');
+
+    // const casteFiltered = nameCaste.filter(ele => ele.Caste_Type === item.name);
+    // const name = randArrPos(casteFiltered[0].Caste_Forms);
     item.casteType = item.name;
-    item.name = name;
+    item.name = newName;
     return;
 }
 

@@ -266,6 +266,8 @@ async function handleClaimMilestone(user, interaction, userMilestone){
 
         const theAdventure = thisQuest[0].Lore;
 
+        // PUT CHECK IN PLACE FOR WHEN LORE LENGTH EXCEEDS 3000 CHARACTERS
+
         const storyEmbed = new EmbedBuilder()
         .setTitle('Quest Progress')
         .setDescription(embedDesc)

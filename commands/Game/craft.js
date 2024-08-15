@@ -1,6 +1,9 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder } = require('discord.js');
-const { grabUser, endTimer, createInteractiveChannelMessage, handleCatchDelete } = require('../../uniHelperFunctions');
-const { CraftControllers, Milestones, ActiveDungeon } = require('../../dbObjects');
+const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder, ButtonBuilder, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { grabUser, endTimer, createInteractiveChannelMessage, handleCatchDelete, makeCapital, sendTimedChannelMessage, editTimedChannelMessage } = require('../../uniHelperFunctions');
+const { CraftControllers, Milestones, ActiveDungeon, MaterialStore } = require('../../dbObjects');
+const { itemCasteFilter, itemGenDmgTypes, itemGenPickDmgTypes, rarityGenConstant, itemGenDmgConstant, itemGenDefConstant, dmgTypeAmountGen, defTypeAmountGen, itemValueGenConstant, extractName, benchmarkQualification } = require('../Development/Export/craftingContainer');
+const { uni_CreateCompleteItemCode, checkingSlot, checkingRar } = require('../Development/Export/itemStringCore');
+const { grabColour } = require('./exported/grabRar');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -197,8 +200,8 @@ module.exports = {
             break;
         }
 
-        console.log('Final Caste Options for user: ');
-        console.log(finalCasteTypes);
+        // console.log('Final Caste Options for user: ');
+        // console.log(finalCasteTypes);
 
         /**     === PAGE MENUS ===
          * 
@@ -239,6 +242,7 @@ module.exports = {
         const slotCheckList = ["mainhand", "offhand", "headslot", "chestslot", "legslot"];
         const groupCheckList = ["ma1h-gp", "ma2h-gp", "me1h-gp", "me2h-gp", "mas-gp", "mes-gp", "mah-gp", "meh-gp", "mac-gp", "mec-gp", "mal-gp", "mel-gp"];
         const typeCheckList = ["wand-type", "tome-type", "staff-type", "focus-type", "light-blade-type", "mace-type", "polearm-type", "heavy-blade-type", "light-buckler-type", "heavy-shield-type", "light-cap-type", "heavy-helm-type", "light-robe-type", "heavy-chest-type", "light-legs-type", "heavy-legs-type"];
+        const typeMatchList = ["Wand", "Tome", "Staff", "Focus", "Light Blade", "Mace", "Polearm", "Heavy Blade", "Light Buckler", "Heavy Shield", "Light Cap", "Heavy Helm", "Light Robe", "Heavy Chestplate", "Light Leggings", "Heavy Greaves"];
 
         const optionTracker = {
             slot: "",
@@ -273,7 +277,7 @@ module.exports = {
                         } else if (typeCheckList.includes(c.customId)){
                             // Third check: type picked
                             optionTracker.type = c.customId;
-                            editWith = {embeds: [new EmbedBuilder().setTitle('Place Holder').setDescription(`Final Picked Caste Options:\nSlot: ${optionTracker.slot}\nGroup: ${optionTracker.group}\nType: ${optionTracker.type}`)]};
+                            editWith = {embeds: [new EmbedBuilder().setTitle('Place Holder').setDescription(`Final Picked Caste Options:\nSlot: ${makeCapital(optionTracker.slot)}\nGroup: ${optionTracker.group}\nType: ${optionTracker.type}\nType Matched: ${typeMatchList[typeCheckList.indexOf(optionTracker.type)]}`)]};
                             casteFinished = true;
                         }
                     break;
@@ -287,7 +291,306 @@ module.exports = {
             if (!r || r !== "Caste Picked"){
                 await handleCatchDelete(anchorMsg);
             }
+
+            if (r === "Caste Picked"){
+                optionTracker.slot = makeCapital(optionTracker.slot);
+                optionTracker.type = typeMatchList[typeCheckList.indexOf(optionTracker.type)];
+
+                await handleCatchDelete(anchorMsg);
+
+                handleCraftInterface(optionTracker);
+            }
         });
+
+        /**
+         * This function handles all specific crafting interface options for the 
+         * selected Item Caste.  
+         * @param {object} pickedObj User selected options: ``{slot: string, group: string, type: string}``
+         * @returns {Promise<void>}
+         */
+        async function handleCraftInterface(pickedObj){
+            // Handle Imbue options here
+            // =========================
+            const startMatOptionTime = new Date().getTime();
+
+            const casteObj = itemCasteFilter(pickedObj.type, pickedObj.slot);
+
+            if (!controller.use_tooly) casteObj.mats.splice(3,1);
+
+            const {materialFiles} = interaction.client;
+            const matRefList = [];
+            for (const matRef of casteObj.mats){
+                for (const [key, value] of materialFiles){
+                    if (key === matRef.toLowerCase()){
+                        matRefList.push({matKey: matRef, file: value});
+                        break;
+                    }
+                }
+            }
+
+            // Check materials needed and filter out mats with amounts below required.
+            // Filter mats above controller.max_rar
+            const matFabRefList = new Array(matRefList.length);
+            let idxCount = 0;
+            for (const matCheck of matRefList){
+                const matFile = require(matCheck.file);
+                const canUseMatList = [];
+                for (const mat of matFile){
+                    if (mat.Rar_id <= controller.max_rar){
+                        // Rar can be used
+                        canUseMatList.push(mat);
+                        continue;
+                    }
+                }
+                // Fill array section with all matching rar mats
+                matFabRefList[idxCount] = new Array().concat(canUseMatList);
+                idxCount++;
+            }
+
+            // List of materials to be checked, Array[][]
+            // console.log(...matFabRefList);
+            const orderedAmounts = [15, 10, 5, controller.max_tooly];
+            const ownedMatRefList = [];
+            idxCount = 0;
+            let breakOnMat = false;
+            for (const matArr of matFabRefList){
+                let innerCount = 0, singleTypeMatList = [];
+                for (const mat of matArr){
+                    const uMat = await MaterialStore.findOne({
+                        where: {
+                            spec_id: user.userid, 
+                            mattype: casteObj.mats[idxCount].toLowerCase(),
+                            mat_id: mat.Mat_id
+                        }
+                    });
+
+                    // if (uMat) console.log(uMat.dataValues);
+
+                    // Material not owned || Material amount too low
+                    if (!uMat || uMat.amount < orderedAmounts[idxCount]){
+                        matFabRefList[idxCount].splice(innerCount, 1);
+                        innerCount++;
+                        continue;
+                    }
+
+                    singleTypeMatList.push(uMat);
+                    innerCount++;
+                }
+
+                // Material list exhausted!!
+                if (matArr.length === 0) {
+                    breakOnMat = true;
+                    break;
+                }
+
+                ownedMatRefList.push(singleTypeMatList);
+                idxCount++;
+            }
+
+            // Final remaining materials after being checked
+            // console.log(...matFabRefList);
+            // console.log(...ownedMatRefList);
+
+            if (breakOnMat){
+                const noMatEmbed = new EmbedBuilder()
+                .setTitle(`No Valid ${casteObj.mats[idxCount]} Materials`)
+                .setColor('DarkRed')
+                .setDescription(`To craft this item type you need at least ${orderedAmounts[idxCount]} ${casteObj.mats[idxCount]} materials of a single rarity!`);
+
+                endTimer(startMatOptionTime, "Mat Load (INCOMPLETE)");
+
+                return await sendTimedChannelMessage(interaction, 45000, noMatEmbed);
+            }
+
+            // Add more material info here, ex: 1st mat amount 15, 2nd mat amount 10, ect...
+            const matSelectEmbed = new EmbedBuilder()
+            .setTitle('Material Selection Menu')
+            .setColor('Blue')
+            .setDescription('Please select materials in each catagory to craft an item with them!');
+
+            // Preload Checked materials
+            const selectMenuActionRows = [];
+            for (let i = 0; i < ownedMatRefList.length; i++){
+                const stringSelectOptionList = [];
+                ownedMatRefList[i].sort((a,b) => a.rar_id - b.rar_id);
+                for (const mat of ownedMatRefList[i]){
+                    const option = new StringSelectMenuOptionBuilder()
+                    .setLabel(mat.name)
+                    .setDescription(`Rarity: ${mat.rarity}, Owned/Need: ${mat.amount}/${orderedAmounts[i]}`)
+                    .setValue(mat.name);
+                    stringSelectOptionList.push(option);
+                }
+                const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(`material-${i}`)
+                .setPlaceholder('Select a material!')
+                .addOptions(stringSelectOptionList);
+
+                const selectRow = new ActionRowBuilder().addComponents(selectMenu);
+                selectMenuActionRows.push(selectRow);
+            }
+
+            endTimer(startMatOptionTime, "Mat Load (COMPLETE)");
+
+            const replyObj = {embeds: [matSelectEmbed], components: [selectMenuActionRows[0]]};
+
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 240000, replyObj, "FollowUp", "String");
+
+            const materialChoices = [];
+            let materialStep = 0;
+            collector.on('collect', async c => {
+                await c.deferUpdate().then(async () => {
+                    materialStep++;
+                    materialChoices.push(c.values[0]);
+
+                    if (materialStep === selectMenuActionRows.length) return collector.stop('Done');
+
+                    await anchorMsg.edit({components: [selectMenuActionRows[materialStep]]});
+                }).catch(e => console.error(e));
+            });
+
+            collector.on('end', async (c, r) => {
+                if (!r || r !== 'Done'){
+                    await handleCatchDelete(anchorMsg);
+                }
+
+                await handleCatchDelete(anchorMsg);
+
+                const startCraftTime = new Date().getTime();
+
+                const waitCraftEmbed = new EmbedBuilder()
+                .setTitle('Crafting IN PROGRESS')
+                .setColor('DarkGreen')
+                .setDescription('Please hold while the item is crafted!!');
+
+                const followUpCrafting = await interaction.followUp({embeds: [waitCraftEmbed]});
+
+                // ============================
+                // HANDLE MATERIAL REMOVAL HERE
+                // ============================
+
+
+                const materialList = [];
+                const toolNumPicked = 0; // UPDATE TO NUMBER PICKED BY USER
+                const matAmounts = [15, 10, 5, toolNumPicked];
+                let listPos = 0, matTotal = 0, rarValPairs = [];
+                for (const matName of materialChoices){
+                    const theMat = ownedMatRefList[listPos].filter(mat => mat.name === matName)[0];
+
+                    rarValPairs.push({rar: theMat.rar_id, val: theMat.value});
+                    matTotal += matAmounts[listPos];
+
+                    const matObj = {
+                        name: matName,
+                        rarity: theMat.rar_id,
+                        amount: matAmounts[listPos]
+                    };
+                    materialList.push(matObj);
+                    listPos++;
+                }
+
+                if (materialList.length === 3) {
+                    materialList.push({name: "", rarity: 0, amount: 0});
+                    rarValPairs.push({rar: 0, val: 0});
+                }
+                
+                const rarPicked = rarityGenConstant(materialList[0], materialList[1], materialList[2], materialList[3]);
+                casteObj.rarity = rarPicked;
+                casteObj.totalMatsUsed = matTotal;
+                casteObj.rarValPairs = rarValPairs;
+
+                casteObj.dmgOptions = itemGenDmgTypes(casteObj);
+
+                casteObj.domMat = materialList[0];
+
+                casteObj.imbuedTypes = [];
+                // casteObj.dmgTypes = pickedImbuedTypes;
+                casteObj.dmgTypes = [];
+
+                casteObj.dmgTypes = casteObj.dmgTypes.concat(itemGenPickDmgTypes(casteObj));
+
+                casteObj.totalTypes = casteObj.dmgTypes.length + casteObj.typeOverflow;
+                delete casteObj.dmgOptions;
+                
+                const dmgTotField = [], defTotField = [], dmgValFields = [], defValFields = [];
+                const wepMatch = ["Mainhand", "Offhand"], armMatch = ["Offhand", "Headslot", "Chestslot", "Legslot"];
+                if (wepMatch.includes(pickedObj.slot)){
+                    // Handle all damage related calculations
+                    const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteObj.totalTypes, casteObj.hands, matTotal);
+                    casteObj.maxSingleTypeDamage = itemMaxTypeDamage;
+
+                    const totalDamage = dmgTypeAmountGen(casteObj);
+                    dmgTotField.push({name: 'Total Item Damage:', value: `**${totalDamage}**`});
+
+                    dmgValFields.push({name: '**Damage Types:**', value: ` `});
+                    for (const dmgObj of casteObj.dmgTypePairs){
+                        dmgValFields.push({name: `${dmgObj.type}`, value: `${dmgObj.dmg}`, inline: true});
+                    }
+                }
+
+                if (armMatch.includes(pickedObj.slot)){
+                    // Handle all defence related calculations
+                    const itemMaxTypeDefence = itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal);
+                    casteObj.maxSingleTypeDefence = itemMaxTypeDefence;
+
+                    const totalDefence = defTypeAmountGen(casteObj);
+                    defTotField.push({name: 'Total Item Defence:', value: `**${totalDefence}**`});
+                    
+                    defValFields.push({name: '**Defence Types:**', value: ` `});
+                    for (const defObj of casteObj.defTypePairs){
+                        defValFields.push({name: `${defObj.type}`, value: `${defObj.def}`, inline: true});
+                    }
+                }
+
+                const totalValue = itemValueGenConstant(casteObj);
+
+                const finalItemCode = uni_CreateCompleteItemCode(casteObj);
+                extractName(casteObj);
+
+                // =============================
+                //  HANDLE ITEM BENCHMARKS HERE
+                // =============================
+                const benchmarkStart = new Date().getTime();
+                const benchPass = benchmarkQualification(casteObj);
+                endTimer(benchmarkStart, "Benchmarking");
+                // ============================
+                //   HANDLE ITEM STORAGE HERE
+                // ============================
+
+                let finalFields = [];
+                finalFields.push({name: 'Name:', value: `**${casteObj.name}**`}); // Name
+                finalFields.push({name: 'Slot:', value: `**${checkingSlot(finalItemCode)}**`}); // Slot
+                finalFields.push({name: 'Rarity:', value: `**${checkingRar(finalItemCode)}**`}); // Rarity
+                if (casteObj.hands > 0){
+                    finalFields.push({name: 'Hands Needed:', value: `**${casteObj.hands}**`}); // Hands
+                }
+                if (dmgTotField.length === 1){
+                    finalFields = finalFields.concat(dmgTotField); // Tot DMG
+                }
+                if (defTotField.length === 1){
+                    finalFields = finalFields.concat(defTotField); // Tot DEF
+                }
+                finalFields.push({name: 'Total Item Value:', value: `**${totalValue}**`}); // Tot Value
+                if (dmgValFields.length > 0){
+                    finalFields = finalFields.concat(dmgValFields);
+                }
+                if (defValFields.length > 0){
+                    finalFields = finalFields.concat(defValFields);
+                }
+
+                const embedColour = grabColour(casteObj.rarity);
+
+                const itemCraftedEmbed = new EmbedBuilder()
+                .setTitle('== **Item Crafted** ==')
+                .setColor(embedColour)
+                .setDescription(`You crafted a **${pickedObj.type}** successfully!`)
+                .addFields(finalFields);
+
+                console.log(casteObj);
+                endTimer(startCraftTime, "FULL Crafting Proccess");
+
+                return await editTimedChannelMessage(followUpCrafting, 120000, itemCraftedEmbed);
+            });
+        }
 
         //   =======================
         // MOVE CODE TO craftingExtras.js

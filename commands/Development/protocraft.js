@@ -377,6 +377,9 @@ module.exports = {
             const rarPicked = rarityGenConstant(materialList[0], materialList[1], materialList[2], materialList[3]);
             const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteObj.totalTypes, casteObj.hands, matTotal);
             const itemMaxTypeDefence = (casteObj.slot !== "Mainhand") ? itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal) : 0;
+            
+            casteObj.domMat = materialList[0];
+            casteObj.imbuedTypes = [];
 
             casteObj.rarity = rarPicked;
             casteObj.maxSingleTypeDamage = itemMaxTypeDamage;
@@ -551,6 +554,8 @@ module.exports = {
             const rarPicked = rarityGenConstant(materialList[0], materialList[1], materialList[2], materialList[3]);
             const itemMaxTypeDamage = itemGenDmgConstant(rarPicked, casteObj.totalTypes, casteObj.hands, matTotal);
             const itemMaxTypeDefence = (casteObj.slot !== "Mainhand") ? itemGenDefConstant(rarPicked, casteObj.totalTypes, casteObj.slot, matTotal) : 0;
+            casteObj.domMat = materialList[0];
+            casteObj.imbuedTypes = [];
 
             casteObj.rarity = rarPicked;
             casteObj.maxSingleTypeDamage = itemMaxTypeDamage;

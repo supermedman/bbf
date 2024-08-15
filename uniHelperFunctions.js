@@ -204,6 +204,21 @@ async function sendTimedChannelMessage(interaction, timeLimit, contents, replyTy
 }
 
 /**
+ * This function handles updating the given ``anchorMsg`` with the provided ``editWith`` contents
+ * It then wraps the resulting response in a setTimeout() self-destruct waiting ``timeLimit``ms
+ * @param {object} anchorMsg Interaction Message Reference
+ * @param {number} timeLimit Amount in ms to be used with setTimeout()
+ * @param {object} editWith Contents to edit anchorMsg with
+ * @returns {Promise<void>}
+ */
+async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
+    const replyObject = handleContentType(editWith);
+    return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
+        anchorMsg.delete();
+    }, timeLimit)).catch(e => console.error(e));
+}
+
+/**
  * This function creates and stores a sent message as an anchor, which it then uses
  * to attach a messageComponentCollector for use with Discords interactive components.
  * Component Type is specified by ``compType`` which if left empty defaults to Button.
@@ -291,6 +306,7 @@ module.exports = {
     grabActivePigmy,
     getTypeof,
     sendTimedChannelMessage,
+    editTimedChannelMessage,
     createInteractiveChannelMessage,
     handleCatchDelete
 }
