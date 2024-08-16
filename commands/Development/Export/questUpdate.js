@@ -289,7 +289,7 @@ async function handleClaimMilestone(user, interaction, userMilestone){
         });
 
         if (userLocation[1]){
-            await userLocation.save(async u => {return await u.reload()});
+            await userLocation[0].save(async u => {return await u.reload()});
         }
 
         userLocation = userLocation[0];

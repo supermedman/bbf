@@ -2,8 +2,9 @@ const { SlashCommandBuilder, EmbedBuilder, ButtonStyle, ActionRowBuilder, Button
 const { grabUser, endTimer, createInteractiveChannelMessage, handleCatchDelete, makeCapital, sendTimedChannelMessage, editTimedChannelMessage } = require('../../uniHelperFunctions');
 const { CraftControllers, Milestones, ActiveDungeon, MaterialStore } = require('../../dbObjects');
 const { itemCasteFilter, itemGenDmgTypes, itemGenPickDmgTypes, rarityGenConstant, itemGenDmgConstant, itemGenDefConstant, dmgTypeAmountGen, defTypeAmountGen, itemValueGenConstant, extractName, benchmarkQualification } = require('../Development/Export/craftingContainer');
-const { uni_CreateCompleteItemCode, checkingSlot, checkingRar } = require('../Development/Export/itemStringCore');
+const { uni_CreateCompleteItemCode, checkingSlot, checkingRar, checkingCasteID } = require('../Development/Export/itemStringCore');
 const { grabColour } = require('./exported/grabRar');
+const { checkInboundItem } = require('../Development/Export/itemMoveContainer');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -11,7 +12,7 @@ module.exports = {
         .setDescription('Enter the forge, bring fury from the flames!'),
 
 	async execute(interaction) { 
-        const allowedUsers = ['501177494137995264', '951980834469060629'];
+        const allowedUsers = ['501177494137995264', '951980834469060629', '544114963346620417'];
         if (!allowedUsers.includes(interaction.user.id)) return await interaction.reply('This command is under construction! Check back later!');
         
         const user = await grabUser(interaction.user.id);
@@ -544,17 +545,43 @@ module.exports = {
                 const totalValue = itemValueGenConstant(casteObj);
 
                 const finalItemCode = uni_CreateCompleteItemCode(casteObj);
-                extractName(casteObj);
 
                 // =============================
                 //  HANDLE ITEM BENCHMARKS HERE
                 // =============================
                 const benchmarkStart = new Date().getTime();
-                const benchPass = benchmarkQualification(casteObj);
+                const benchOutcomeObj = benchmarkQualification(casteObj);
+                const benchPass = benchOutcomeObj.passCheck;
                 endTimer(benchmarkStart, "Benchmarking");
+
+                extractName(casteObj, benchOutcomeObj);
+                if (benchPass){
+                    // Handle adding item to ItemLootPool DB Table
+
+                    // Check name for dupes
+
+                    // Check for other dupes?
+
+                    // Grab full loot pool list
+
+                    // Find current highest id
+
+                    // Increase id by 1 and add crafted item with id
+                }
+
                 // ============================
                 //   HANDLE ITEM STORAGE HERE
                 // ============================
+                const finalItemObject = {
+                    name: casteObj.name,
+                    value: casteObj.value,
+                    item_code: finalItemCode,
+                    caste_id: checkingCasteID(casteObj.casteType)
+                };
+
+                // console.log(finalItemObject);
+
+                await checkInboundItem(user.userid, "", 1, finalItemObject);
 
                 let finalFields = [];
                 finalFields.push({name: 'Name:', value: `**${casteObj.name}**`}); // Name
@@ -569,7 +596,7 @@ module.exports = {
                 if (defTotField.length === 1){
                     finalFields = finalFields.concat(defTotField); // Tot DEF
                 }
-                finalFields.push({name: 'Total Item Value:', value: `**${totalValue}**`}); // Tot Value
+                finalFields.push({name: 'Total Item Value:', value: `**${totalValue}**c`}); // Tot Value
                 if (dmgValFields.length > 0){
                     finalFields = finalFields.concat(dmgValFields);
                 }

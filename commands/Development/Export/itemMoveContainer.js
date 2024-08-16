@@ -2,6 +2,7 @@
 // This includes, Item creation, Item trade, and Item selling/dismantling
 
 const { ItemStrings, ItemLootPool, UserData, MaterialStore } = require("../../../dbObjects");
+const { getTypeof } = require("../../../uniHelperFunctions");
 
 /**
  * This function checks for an item in the given users ItemStrings storage,
@@ -22,7 +23,17 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
         where: {creation_offset_id: itemid}
     });
 
-    const theItem = await ItemStrings.findOrCreate({
+    let theItem = (craftedI) 
+    ? await ItemStrings.create({
+        user_id: userid,
+        name: itemMatch.name,
+        value: itemMatch.value,
+        amount: amount,
+        item_code: itemMatch.item_code,
+        caste_id: itemMatch.caste_id,
+        creation_id: 2
+    }) 
+    : await ItemStrings.findOrCreate({
         where: {
             user_id: userid,
             item_id: itemid
@@ -36,6 +47,12 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
             creation_id: itemMatch.creation_offset_id
         }
     });
+
+    // Item was just crafted, set item_id to unique_gen_id
+    if (getTypeof(theItem) !== 'Array'){
+        await theItem.update({item_id: theItem.unique_gen_id});
+        theItem = [theItem, true];
+    }
 
     // If item was created and not found
     if (theItem[1]) {
