@@ -203,8 +203,8 @@ module.exports = {
 				
 			// 	userDungeon = await handleDungeonLoad(theDungeon);
 			// }
-
-			const acceptLabel = (overwrite) ? "Overwrite existing dungeon?": "Begin";
+			// (overwrite) ? "Overwrite existing dungeon?":
+			const acceptLabel = "Begin";
 
 			const acceptButt = new ButtonBuilder()
 			.setCustomId('accept')
@@ -220,10 +220,10 @@ module.exports = {
 
 			const buttRow = new ActionRowBuilder().addComponents(acceptButt, cancelButt);
 
-			const overWriteEmbed = new EmbedBuilder()
-			.setTitle("Overwrite Dungeon")
-			.setColor('DarkRed')
-			.setDescription("Clear current dungeon progress and load new dungeon?");
+			// const overWriteEmbed = new EmbedBuilder()
+			// .setTitle("Overwrite Dungeon")
+			// .setColor('DarkRed')
+			// .setDescription("Clear current dungeon progress and load new dungeon?");
 
 			const dungeonEmbed = new EmbedBuilder()
 			.setTitle(`${theDungeon.Name}`)
@@ -240,8 +240,8 @@ module.exports = {
 			.setTitle('Dungeon Rules')
 			.setColor('White')
 			.setDescription(theRules);
-
-			const embedList = (overwrite) ? [overWriteEmbed, dungeonEmbed, rulesEmbed] : [dungeonEmbed, rulesEmbed];
+			//(overwrite) ? [overWriteEmbed, dungeonEmbed, rulesEmbed] :
+			const embedList = [dungeonEmbed, rulesEmbed];
 			const replyObj = {embeds: [embedList[0]], components: [buttRow]};
 
 			const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "FollowUp");
@@ -251,21 +251,22 @@ module.exports = {
 				await c.deferUpdate().then(async () => {
 					switch(c.customId){
 						case "accept":
-							if (overwrite){
-								// Dungeon needs to be overwritten
-								userDungeon = await handleDungeonLoad(theDungeon, needUpdate);
-								embedPage++;
-								overwrite = false;
-								acceptButt.setLabel('Begin');
+							if (embedPage + 1 === embedList.length){
+								// Last page
+								// Start dungeon
+								return collector.stop('Loaded');
 							} else {
-								if (embedPage + 1 === embedList.length){
-									// Last page
-									// Start dungeon
-									return collector.stop('Loaded');
-								} else {
-									embedPage++;
-								}
+								embedPage++;
 							}
+							// if (overwrite){
+							// 	// Dungeon needs to be overwritten
+							// 	userDungeon = await handleDungeonLoad(theDungeon, needUpdate);
+							// 	embedPage++;
+							// 	overwrite = false;
+							// 	acceptButt.setLabel('Begin');
+							// } else {
+								
+							// }
 						break;
 						case "cancel":
 						return collector.stop('Canceled');

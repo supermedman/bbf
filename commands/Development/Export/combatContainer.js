@@ -248,7 +248,7 @@ const {statusContainer} = require('./statusEffect');
  * @param {Object} dmgObj Damage object used to check for status effect
  * @param {Object} enemy EnemyFab object type
  * @param {Object} condition Condition object containing {Crit: 1|0, DH: 1|0}
- * @returns false | {Type: String}
+ * @returns {{Type: string, Strength: string} | boolean}
  */
 function statusCheck(dmgObj, enemy, condition){
     const flesh = enemy.flesh;
@@ -322,6 +322,14 @@ function statusCheck(dmgObj, enemy, condition){
     return returnOutcome;
 }
 
+/**
+ * This function handles checking if status effects need to be handled, resolves with the 
+ * last HP type to be damaged
+ * @param {object} result If {dmgCheck} is present, used for damage combos such as Blast damage
+ * @param {EnemyFab} enemy EnemyFab enemy object
+ * @param {object} condition DH/Crit checking object
+ * @returns {({DamagedType: string})}
+ */
 function handleActiveStatus(result, enemy, condition){
     const statusBrain = /Active: Check Status/;
     const indexedResult = (result) ? result.outcome.search(statusBrain) : 'None';
@@ -373,6 +381,12 @@ function handleActiveStatus(result, enemy, condition){
     return {DamagedType: hpTypeSlice};
 }
 
+/**
+ * This function handles checking and/or applying status effects to the given enemy object
+ * @param {object} result If {dmgCheck} is present, used for damage combos such as Blast damage
+ * @param {EnemyFab} enemy EnemyFab enemy object
+ * @returns {({totalAcc: number, physAcc: number, magiAcc: number, blastAcc: number, newEffects: object[]})}
+ */
 function applyActiveStatus(result, enemy){
     const damageReturnObj = {
         totalAcc: 0,
@@ -538,12 +552,13 @@ const {EnemyFab} = require('./Classes/EnemyFab');
 const { CombatInstance } = require('./Classes/CombatLoader');
 
 /**
- * 
+ * This function handles the core bulk combat logic, handling damage mods, checking 
+ * applicable break points, and resolving to a single outcome.
  * @param {object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
  * @param {object} condition Condition object containing {Crit: 1|0, DH: 1|0}
  * @param {CombatInstance} player Player Instance Object
- * @returns {object}  {outcome: string, dmgDealt: number, dmgCheck?: object[]}
+ * @returns {({outcome: string, dmgDealt: number, finTot: number, dmgCheck?: object[]})}
  */
 function attackEnemy(dmgList, enemy, condition, player){
     const totDmgBoost = player.staticDamageBoost;

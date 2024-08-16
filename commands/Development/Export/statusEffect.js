@@ -1,7 +1,7 @@
 // ===============================
 //       STATUS EFFECTS
 // ===============================
-
+ 
 const statusContainer = {
     /**
      * This method checks if the Cuncusion status effect should be applied
@@ -10,10 +10,10 @@ const statusContainer = {
      * @param {Number} blunt Blunt damage being dealt
      * @param {Object} condition Attack Conditions: {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Boolean
+     * @returns {boolean}
      */
     Concussion: (armor, flesh, blunt, condition, curEffects) => {
-        if (flesh.Type === 'Flesh' && armor.HP > 0 || flesh.Type === 'Specter' || flesh.Type === 'Magical Flesh' && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
+        if (flesh.Type === 'Specter' || flesh.Type === 'Magical Flesh' && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
         
         if (armor.HP > 0){
             switch(armor.Type){
@@ -37,14 +37,16 @@ const statusContainer = {
         switch(flesh.Type){
             case "Flesh":
                 // Crit & 0 armor = true
-                if (condition.Crit) return true;
+                if (armor.HP === 0 && condition.Crit) return true;
             return false;
             case "Magical Flesh":
                 // MagiWeak = true
                 if (curEffects.findIndex(eff => eff.Type === 'MagiWeak') !== -1) return true;
             return false;
+            default:
+                // Immune || Not Checked
+            return false;
         }
-        return false;
     },
     /**
      * This method checks if the Bleed status effect should be applied
@@ -53,7 +55,7 @@ const statusContainer = {
      * @param {Number} slash Slash Dmg being dealt
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Object: { status_Strength: boolean } || false
+     * @returns {({Strength: string}) | boolean}
      */
     Bleed: (armor, flesh, slash, condition, curEffects) => {
         if (flesh.Type === "Flesh" && armor.HP > 0 || flesh.Type === "Magical Flesh" && curEffects.findIndex(eff => eff.Type === 'MagiWeak') === -1) return false;
@@ -116,7 +118,7 @@ const statusContainer = {
      * @param {Object} flesh Flesh HP Obj
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Boolean
+     * @returns {boolean}
      */
     Magic_Weakness: (armor, flesh, magic, condition, curEffects) => {
         if (armor.HP === 0 && flesh.Type === 'Specter') return false;
@@ -158,7 +160,7 @@ const statusContainer = {
      * @param {Number} rad Radiation damage
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Boolean
+     * @returns {boolean}
      */
     Confusion: (armor, flesh, rad, condition, curEffects) => {
         if (armor.HP === 0 && flesh.Type === 'Specter') return false;
@@ -198,7 +200,7 @@ const statusContainer = {
      * @param {Number} frost Frost damage being dealt
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Boolean
+     * @returns {boolean}
      */
     Slow: (armor, flesh, frost, condition, curEffects) => {
 
@@ -239,7 +241,7 @@ const statusContainer = {
      * @param {Number} fire Fire damage being dealt
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Object: { status_Strength: boolean } || false
+     * @returns {({Strength: string}) | boolean}
      */
     Burn: (armor, flesh, fire, condition, curEffects) => {
 
@@ -289,8 +291,10 @@ const statusContainer = {
             case "Specter":
                 // Immune
             return false;
+            default:
+                // Immune || Not Checked
+            return false;
         }
-        return false;
     },
     /**
      * This method checks if the Blind status effect should be applied
@@ -299,7 +303,7 @@ const statusContainer = {
      * @param {Number} dark Dark damage being dealt
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Boolean
+     * @returns {boolean}
      */
     Blind: (armor, flesh, dark, condition, curEffects) => {
 
@@ -340,7 +344,7 @@ const statusContainer = {
      * @param {Number} light Light damage being dealt
      * @param {Object} condition Contains {Crit: boolean, DH: boolean}
      * @param {Object[]} curEffects Object array of any and all currently applied status effects
-     * @returns Boolean
+     * @returns {boolean}
      */
     Flash: (armor, flesh, light, condition, curEffects) => {
 
@@ -423,6 +427,9 @@ const statusContainer = {
                 break;
                 case "Specter":
                     blastDamage = 0;
+                break;
+                case "Hellion":
+                    blastDamage = blastCalc(fireDamage, frostDamage, weakness.Magical, 0.25, magiAcc);
                 break;
                 case "Boss":
                     blastDamage = blastCalc(fireDamage, frostDamage, weakness.Magical, 0.50, magiAcc);

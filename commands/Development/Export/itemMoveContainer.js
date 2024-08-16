@@ -100,6 +100,29 @@ async function checkInboundMat(userid, matRef, matType, amount=1){
 }
 
 /**
+ * This function handles adding the given item to the ``ItemLootPool`` database 
+ * table, resolving to the created items reference within the database.
+ * @param {object} statItem Newly crafted item qualified for static dropping
+ * @param {string} userid Userid of items creator
+ * @returns {Promise<object>}
+ */
+async function handleNewStaticItem(statItem, userid){
+    const theItem = await ItemLootPool.create({
+        name: statItem.name,
+        value: statItem.value,
+        item_code: statItem.item_code,
+        caste_id: statItem.caste_id,
+        creation_offset_id: statItem.item_id,
+        user_created: true,
+        crafted_by: userid
+    }).then(async i => await i.save()).then(async i => {return await i.reload()});
+
+    console.log(`\n\n=== NEW ITEM CREATED ===\n\nName: ${theItem.name}\nUserid: ${userid}\n\n`);
+
+    return theItem;
+}
+
+/**
  * This function checks for a given item in the given users ItemStrings storage,
  * it then attempts to remove from it the amount give, if this amount reduces total 
  * amount to or below zero, it removes the item entry and decreases the users total
@@ -141,8 +164,10 @@ async function checkOutboundMat(userid, matRef, matType, amount=1){
     });
     if (!theMat) return 'Material Not Found';
     await theMat.decrement('amount', {by: amount}).then(async mat => {
-        await mat.reload();
-        if (mat.amount <= 0) await trashMaterial(mat);
+        await mat.save().then(async mat => {
+            await mat.reload();
+            if (mat.amount <= 0) await trashMaterial(mat);
+        });
     });
     return 'Material Updated';
 }
@@ -211,6 +236,7 @@ module.exports = {
     moveMaterial,
     checkInboundItem,
     checkInboundMat,
+    handleNewStaticItem,
     checkOutboundItem,
     checkOutboundMat,
     trashItem

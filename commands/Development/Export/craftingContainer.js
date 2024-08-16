@@ -961,7 +961,7 @@ function benchmarkQualification(casteObj){
 
     handleFinalStandard(modCheckObj);
 
-    //console.log(modCheckObj);
+    console.log(modCheckObj);
 
     return modCheckObj;
 }
@@ -1224,15 +1224,15 @@ function loadDescOptions(prefix, item, benchObj){
 function handleExtraNameStuff(item, benchObj){
     // Load Prefix Options
     const prefixChoices = loadPrefixOptions(item, benchObj);
-    console.log(prefixChoices);
+    //console.log(prefixChoices);
     const prefixPicked = randArrPos(prefixChoices);
-    console.log('Prefix Picked: ', prefixPicked);
+    //console.log('Prefix Picked: ', prefixPicked);
 
     // Load Desc Options
     const descChoices = loadDescOptions(prefixPicked, item, benchObj);
-    console.log(descChoices);
+    //console.log(descChoices);
     const descPicked = randArrPos(descChoices);
-    console.log('Descriptor Picked: ', descPicked);
+    //console.log('Descriptor Picked: ', descPicked);
 
     // if (item.rarity < 4){
     //     // Remove 2 Name Pieces
@@ -1256,7 +1256,7 @@ function handleExtraNameStuff(item, benchObj){
     // Silly Caste Wording:
     // Switch Light/Heavy Blade to ``Light/Heavy`` ``DOM_MAT_NAME`` ``Caste Type``
     let moddedCasteType = item.name;
-    const heavyCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Shield", "Heavy Chestpiece"];
+    const heavyCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Shield", "Heavy Chestplate"];
     if (heavyCheck.includes(item.name)){
         const heavyRegEx = /Heavy /;
         const heavyStarts = item.name.search(heavyRegEx);
@@ -1274,12 +1274,34 @@ function handleExtraNameStuff(item, benchObj){
         moddedCasteType = nameSec;
     }
 
+    const reorderCheck = ["Light Blade", "Heavy Blade"];
+    if (reorderCheck.includes(item.name)){
+        const orderPos = newNameArr.length;
+
+        const firstSec = item.name.slice(0, 5);
+        const secondSec = item.name.slice(6,);
+        if (orderPos === 1){
+            // No prefix or desc
+            newNameArr.unshift(firstSec);
+        } else if (orderPos === 2){
+            // Prefix or desc
+            const removedSec = newNameArr.splice(1, 1, firstSec);
+            newNameArr.push(removedSec);
+        } else if (orderPos === 3){
+            // Prefix and desc
+            const removedSec = newNameArr.splice(2, 1, firstSec);
+            newNameArr.push(removedSec);
+        }
+
+        moddedCasteType = secondSec;
+    }
+
     newNameArr.push(moddedCasteType);
 
     // Handle Suffix logic here
 
     const newItemName = newNameArr.join(" ");
-    console.log(newItemName);
+    //console.log(newItemName);
     
     return newItemName;
 }
