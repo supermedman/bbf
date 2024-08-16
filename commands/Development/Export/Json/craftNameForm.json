@@ -1,0 +1,972 @@
+[
+    {
+        "Name": "Name_Template",
+        "Templates": {
+            "No_Imbue": {
+                "Prefix": "",
+                "Norm_Desc": "",
+                "Dom_Mat_Name": "",
+                "Caste_Type": ""
+            },
+            "One_Imbue": {
+                "Imbue_1": "",
+                "Imbue_Desc": "",
+                "Dom_Mat_Name": "",
+                "Caste_Type": ""
+            },
+            "Two_Imbue": {
+                "Imbue_1": "",
+                "Imbue_2": "",
+                "Alt_Mat_Name": "",
+                "Alt_Desc": "",
+                "Caste_Type": ""
+            }
+        }
+    },
+    {
+        "Name": "Prefix",
+        "Filter": [
+            {
+                "Rarity": "Common",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Faulty",
+                            "Broken"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Rusty",
+                            "Cracked"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Thread Bare",
+                            "Torn"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Cracked",
+                            "Rotten"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Uncommon",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Weak",
+                            "Faded"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Dented",
+                            "Misshapen"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Thin",
+                            "Worn"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Thin",
+                            "Misshapen"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Rare",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Glowing",
+                            "Standard"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Dull",
+                            "Well"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Well",
+                            "Well"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Standard",
+                            "Well"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Very Rare",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Shining",
+                            "Finely"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Strong",
+                            "Finely"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Finely",
+                            "Finely"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Finely",
+                            "Sturdy"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Epic",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Exquisitely",
+                            "Bright"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Sharp",
+                            "Exquisitely"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Seamless",
+                            "Exquisitely"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Exquisitely",
+                            "Strong"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Mystic",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Powerful",
+                            "Perfectly"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Dangerous",
+                            "Perfectly"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Perfectly",
+                            "Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Perfectly",
+                            "Heavy"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "?",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Flowing",
+                            "Dangerous"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Blood Thirsty",
+                            "Bone Breaking"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Gleaming",
+                            "Robust"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Riveted",
+                            "Powerful"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "??",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Overflowing",
+                            "Deadly"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Really Sharp",
+                            "Really Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Strong Cloth",
+                            "Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Strong Wood",
+                            "Deadly Wood"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "???",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Strong Magic",
+                            "Powerful Magic"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Really Very Sharp",
+                            "Really Very Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Very Strong Cloth",
+                            "Very Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Really Strong Wood",
+                            "Really Deadly Wood"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "????",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Really Strong Magic",
+                            "Really Powerful Magic"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Really Very Extra Sharp",
+                            "Really Very Extra Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Really Very Strong Cloth",
+                            "Really Very Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Really Very Strong Wood",
+                            "Really Very Deadly Wood"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Forgotten",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Really Very Strong Magic",
+                            "Really Very Powerful Magic"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Careful its Sarp",
+                            "Stronk"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Really Very Extra Strong Cloth",
+                            "Really Very Extra Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Really Very Extra Strong Wood",
+                            "Really Very Extra Deadly Wood"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Norm_Desc",
+        "Filter": [
+            {
+                "Rarity": "Common",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Smelly",
+                            "Floppy"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Boring",
+                            "Plain"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Ratty",
+                            "Smelly"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Boring",
+                            "Plain"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Uncommon",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Etched",
+                            "Crafted"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Plain",
+                            "Etched"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Clean",
+                            "Normal"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Etched",
+                            "Plain"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Rare",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Engraved",
+                            "Designed"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Clean",
+                            "Formed"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Woven",
+                            "Stitched"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Clean",
+                            "Carved"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Very Rare",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Engraved",
+                            "Carved"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "Polished",
+                            "Tempered"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Woven",
+                            "Stitched"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Carved",
+                            "Designed"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Epic",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "Carved",
+                            "tmp-Bright"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Sharp",
+                            "Tempered"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "tmp-Seamless",
+                            "Woven"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Carved",
+                            "tmp-Strong"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Mystic",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "tmp-Powerful",
+                            "Carved"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Dangerous",
+                            "Tempered"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "Woven",
+                            "tmp-Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "Carved",
+                            "tmp-Heavy"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "?",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "tmp-Flowing",
+                            "tmp-Dangerous"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Blood Thirsty",
+                            "tmp-Bone Breaking"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "tmp-Gleaming",
+                            "tmp-Robust"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "tmp-Riveted",
+                            "tmp-Powerful"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "??",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "tmp-Overflowing",
+                            "tmp-Deadly"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Really Sharp",
+                            "tmp-Really Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "tmp-Strong Cloth",
+                            "tmp-Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "tmp-Strong Wood",
+                            "tmp-Deadly Wood"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "???",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "tmp-Strong Magic",
+                            "tmp-Powerful Magic"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Really Very Sharp",
+                            "tmp-Really Very Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "tmp-Very Strong Cloth",
+                            "tmp-Very Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "tmp-Really Strong Wood",
+                            "tmp-Really Deadly Wood"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "????",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "tmp-Really Strong Magic",
+                            "tmp-Really Powerful Magic"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Really Very Extra Sharp",
+                            "tmp-Really Very Extra Strong"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "tmp-Really Very Strong Cloth",
+                            "tmp-Really Very Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "tmp-Really Very Strong Wood",
+                            "tmp-Really Very Deadly Wood"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Rarity": "Forgotten",
+                "Base_Mat": [
+                    {
+                        "Type": "Magical",
+                        "Options": [
+                            "tmp-Really Very Strong Magic",
+                            "tmp-Really Very Powerful Magic"
+                        ]
+                    },
+                    {
+                        "Type": "Metalic",
+                        "Options": [
+                            "tmp-Careful its Sarp",
+                            "tmp-Stronk"
+                        ]
+                    },
+                    {
+                        "Type": "Silky",
+                        "Options": [
+                            "tmp-Really Very Extra Strong Cloth",
+                            "tmp-Really Very Extra Powerful Cloth"
+                        ]
+                    },
+                    {
+                        "Type": "Woody",
+                        "Options": [
+                            "tmp-Really Very Extra Strong Wood",
+                            "tmp-Really Very Extra Deadly Wood"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Imbue_1",
+        "Filter": [
+            {
+                "Imbue_Type": "Fire",
+                "Options": [
+                    "Fire One",
+                    "Fire Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Frost",
+                "Options": [
+                    "Frost One",
+                    "Frost Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Light",
+                "Options": [
+                    "Light One",
+                    "Light Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Dark",
+                "Options": [
+                    "Dark One",
+                    "Dark Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Null",
+                "Options": [
+                    "Null One",
+                    "Null Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Magic",
+                "Options": [
+                    "Magic One",
+                    "Magic Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Slash",
+                "Options": [
+                    "Slash One",
+                    "Slash Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Blunt",
+                "Options": [
+                    "Blunt One",
+                    "Blunt Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Nessy",
+                "Options": [
+                    "Nessy One",
+                    "Nessy Two"
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Imbue_Desc",
+        "Filter": [
+            {
+                "Imbue_Type": "Fire",
+                "Options": [
+                    "Fire Desc One",
+                    "Fire Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Frost",
+                "Options": [
+                    "Frost Desc One",
+                    "Frost Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Light",
+                "Options": [
+                    "Light Desc One",
+                    "Light Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Dark",
+                "Options": [
+                    "Dark Desc One",
+                    "Dark Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Null",
+                "Options": [
+                    "Null Desc One",
+                    "Null Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Magic",
+                "Options": [
+                    "Magic Desc One",
+                    "Magic Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Slash",
+                "Options": [
+                    "Slash Desc One",
+                    "Slash Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Blunt",
+                "Options": [
+                    "Blunt Desc One",
+                    "Blunt Desc Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Nessy",
+                "Options": [
+                    "Nessy Desc One",
+                    "Nessy Desc Two"
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Imbue_2",
+        "Filter": [
+            {
+                "Imbue_Type": "Fire",
+                "Options": [
+                    "Fire One",
+                    "Fire Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Frost",
+                "Options": [
+                    "Frost One",
+                    "Frost Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Light",
+                "Options": [
+                    "Light One",
+                    "Light Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Dark",
+                "Options": [
+                    "Dark One",
+                    "Dark Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Null",
+                "Options": [
+                    "Null One",
+                    "Null Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Magic",
+                "Options": [
+                    "Magic One",
+                    "Magic Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Slash",
+                "Options": [
+                    "Slash One",
+                    "Slash Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Blunt",
+                "Options": [
+                    "Blunt One",
+                    "Blunt Two"
+                ]
+            },
+            {
+                "Imbue_Type": "Nessy",
+                "Options": [
+                    "Nessy One",
+                    "Nessy Two"
+                ]
+            }
+        ]
+    },
+    {
+        "Name": "Alt_Desc",
+        "Filter": [
+
+        ]
+    }
+]

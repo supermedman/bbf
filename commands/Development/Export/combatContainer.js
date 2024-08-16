@@ -202,30 +202,39 @@ function genGearPiece(){
 //       LOOKUP TABLES
 // ===============================
 
-const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
+const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Hellion", "Boss"];
 const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
 const shieldTypes = ["Phase Demon", "Phase Aura", /*"Plot Armor"*/];
 
 const damageModifier = [-0.75, -0.50, -0.25, 0, 0.25, 0.50, 0.75];
 const damageKeyIndexer = ["---", "--", "-", "=", "+", "++", "+++"];
 
-const columnMatch = ["Flesh", "Armor", "Bark", "Fossil", "Magical Flesh", "Specter", "Demon", "Phase Demon", "Phase Aura", "Boss", "Plot Armor"];
-const rowMatch = ["Blunt", "Slash", "Magic", "Rad", "Frost", "Fire", "Dark", "Light", "Null", "Pain", "Spirit", "Chaos", "True"];
+const columnMatch = ["Flesh", "Armor", "Bark", "Fossil", "Magical Flesh", "Specter", "Hellion", "Demon", "Phase Demon", "Phase Aura", "Boss", "Plot Armor"];
+const rowMatch = ["Blunt", "Slash", "Pierce", "Magic", "Rad", "Frost", "Fire", "Dark", "Light", "Null", "Pain", "Spirit", "Chaos", "Nessy", "True"];
 
+/**
+ *      Column = Enemy HP Type
+ *      
+ *      Row = Player DMG Type
+ */
 const damageMatchTable = [
-    ["+", "+++", "+", "++", "-", "---", "=", "=", "---", "-", "---",],
-    ["++", "-", "+", "-", "+", "---", "=", "=", "---", "-", "---"],
-    ["=","=","=","=","--","++","+","-","-","-", "---"],
-    ["+++","+","=","=","++","--","+","+","++","+", "---"],
-    ["+","++","++","-","-","-","++","--","-","-", "---"],
-    ["++", "-", "+++", "-", "-", "-", "-", "-", "-", "-", "---"],
-    ["=","=","+","=","-","--","--","+++","-","-", "---"],
-    ["=","=","--","=","-","+++","+++","--","-","-", "---"],
-    ["=","=","=","=","+++","=","+","++","+++","++", "---"],
-    ["++","+","+","+","+","+","+","+","+","++", "---"],
-    ["+","+","+","+","++","+","+","+","+","++", "---"],
-    ["++","+","+","+","+","+","+","+","+","++", "---"],
-    ["=", "=", "=", "=", "=", "=", "=", "=", "=", "--", "---",]
+    //0     1      2      3      4      5      6      7      8      9      10     11
+    //fle,  arm,   bark,  foss,  m-fle, spec,  hell,  dem,   p-dem, p-aur, boss,  plot
+    ["+",   "+++", "+",   "++",  "-",   "---", "-",   "=",   "=",   "---", "-",   "---"], // 00 Blunt
+    ["++",  "-",   "+",   "-",   "+",   "---", "=",   "=",   "=",   "---", "-",   "---"], // 01 Slash
+    ["+",   "-",   "=",   "--",  "+",   "--",  "++",  "-",   "++",  "++",  "-",   "---"], // 02 Pierce
+    ["=",   "=",   "=",   "=",   "--",  "++",  "-",   "+",   "-",   "-",   "-",   "---"], // 03 Magic
+    ["+++", "+",   "=",   "=",   "++",  "--",  "--",  "+",   "+",   "++",  "+",   "---"], // 04 Rad
+    ["+",   "++",  "++",  "-",   "-",   "-",   "+++", "++",  "--",  "-",   "-",   "---"], // 05 Frost
+    ["++",  "-",   "+++", "-",   "-",   "-",   "---", "-",   "-",   "-",   "-",   "---"], // 06 Fire
+    ["=",   "=",   "+",   "=",   "-",   "--",  "--",  "--",  "+++", "-",   "-",   "---"], // 07 Dark
+    ["=",   "=",   "--",  "=",   "-",   "+++", "++",  "+++", "--",  "-",   "-",   "---"], // 08 Light
+    ["=",   "=",   "=",   "=",   "+++", "=",   "+",   "+",   "++",  "+++", "++",  "---"], // 09 Null
+    ["++",  "+",   "+",   "+",   "+",   "+",   "-",   "+",   "+",   "+",   "++",  "---"], // 10 Pain
+    ["+",   "+",   "+",   "+",   "++",  "+",   "+",   "+",   "+",   "+",   "++",  "---"], // 11 Spirit
+    ["++",  "+",   "+",   "+",   "+",   "+",   "-",   "+",   "+",   "+",   "++",  "---"], // 12 Chaos
+    ["=",   "=",   "=",   "=",   "=",   "+",   "+",   "+",   "+",   "+",   "++",  "---"], // 13 Nessy
+    ["=",   "=",   "=",   "=",   "=",   "=",   "=",   "=",   "=",   "=",   "--",  "---"]  // 14 True
 ];
 
 // ===============================
@@ -239,7 +248,7 @@ const {statusContainer} = require('./statusEffect');
  * @param {Object} dmgObj Damage object used to check for status effect
  * @param {Object} enemy EnemyFab object type
  * @param {Object} condition Condition object containing {Crit: 1|0, DH: 1|0}
- * @returns false | {Type: String}
+ * @returns {{Type: string, Strength: string} | boolean}
  */
 function statusCheck(dmgObj, enemy, condition){
     const flesh = enemy.flesh;
@@ -313,6 +322,14 @@ function statusCheck(dmgObj, enemy, condition){
     return returnOutcome;
 }
 
+/**
+ * This function handles checking if status effects need to be handled, resolves with the 
+ * last HP type to be damaged
+ * @param {object} result If {dmgCheck} is present, used for damage combos such as Blast damage
+ * @param {EnemyFab} enemy EnemyFab enemy object
+ * @param {object} condition DH/Crit checking object
+ * @returns {({DamagedType: string})}
+ */
 function handleActiveStatus(result, enemy, condition){
     const statusBrain = /Active: Check Status/;
     const indexedResult = (result) ? result.outcome.search(statusBrain) : 'None';
@@ -364,6 +381,12 @@ function handleActiveStatus(result, enemy, condition){
     return {DamagedType: hpTypeSlice};
 }
 
+/**
+ * This function handles checking and/or applying status effects to the given enemy object
+ * @param {object} result If {dmgCheck} is present, used for damage combos such as Blast damage
+ * @param {EnemyFab} enemy EnemyFab enemy object
+ * @returns {({totalAcc: number, physAcc: number, magiAcc: number, blastAcc: number, newEffects: object[]})}
+ */
 function applyActiveStatus(result, enemy){
     const damageReturnObj = {
         totalAcc: 0,
@@ -529,12 +552,13 @@ const {EnemyFab} = require('./Classes/EnemyFab');
 const { CombatInstance } = require('./Classes/CombatLoader');
 
 /**
- * 
+ * This function handles the core bulk combat logic, handling damage mods, checking 
+ * applicable break points, and resolving to a single outcome.
  * @param {object[]} dmgList Array of DMG Objects ready to be modified
  * @param {EnemyFab} enemy Enemy Class Object
  * @param {object} condition Condition object containing {Crit: 1|0, DH: 1|0}
  * @param {CombatInstance} player Player Instance Object
- * @returns {object}  {outcome: string, dmgDealt: number, dmgCheck?: object[]}
+ * @returns {({outcome: string, dmgDealt: number, finTot: number, dmgCheck?: object[]})}
  */
 function attackEnemy(dmgList, enemy, condition, player){
     const totDmgBoost = player.staticDamageBoost;

@@ -205,6 +205,7 @@ function createHealthBar(enemy) {
      *  Flesh - muddy red #B56B57
      *  Magical Flesh - blueish red #8C6E7E
      *  Specter - light blue + red #47598B
+     *  Hellion - red grey #CC4125
      * 
      *  == Armor ==
      *  Armor - lighter dark grey #7E7C7C
@@ -220,8 +221,8 @@ function createHealthBar(enemy) {
      */
     // 383, 275, 213, 14
 
-    const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-    const fleshColours = ["#B56B57", "#8C6E7E", "#47598B", "black"];
+    const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Hellion", "Boss"];
+    const fleshColours = ["#B56B57", "#8C6E7E", "#47598B", "#CC4125", "black"];
     const fleshColour = fleshColours[fleshTypes.indexOf(enemy.flesh.Type)];
 
     const armorTypes = ["Armor", "Bark", "Fossil", "Demon"];
@@ -284,7 +285,7 @@ function createHealthBar(enemy) {
 /**
  * This function creates a canvas and generates the provided enemy onto it.
  * @param {EnemyFab} enemy 
- * @returns {AttachmentBuilder}
+ * @returns {Promise<AttachmentBuilder>}
  */
 async function createNewEnemyImage(enemy){
     const canvas = Canvas.createCanvas(700, 300);
@@ -380,13 +381,14 @@ async function createNewEnemyImage(enemy){
     // STATUS EFFECTS
     /**
      *      == Arange in a grid ==
-     * 
+     * ```
      *      Status Effects:
      *      J____________________
      *      |_Type_|_Type_|_Type_|
      *      |_Type_|_Type_|_Type_|
      *      |_Type_|_Type_|_Type_|
-     *                           => I
+     *                           => I 
+     * ```
      *      Colour type text 
      */
     const loadEffectText = (effects) => {
@@ -843,53 +845,103 @@ async function createNewEnemyImage(enemy){
 //    }
 //}
 
+/**
+ * This function generates the image display for the provided boss.
+ * @param {EnemyFab} enemy Boss Type EnemyFab
+ * @returns {Promise<AttachmentBuilder>}
+ */
 async function displayBossPic(enemy) {
     const canvas = Canvas.createCanvas(700, 300);
-    const context = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
 
     const background = await Canvas.loadImage('./events/Models/json_prefabs/weapon_png/Dungeon-background.jpg');
 
     // This uses the canvas dimensions to stretch the image onto the entire canvas
-    context.drawImage(background, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     console.log('Background Added!');
 
-    const foundBoss = bossList.filter(boss => boss.ConstKey === enemy.constkey);
-    const bossRef = foundBoss[0];
+    //const foundBoss = bossList.filter(boss => boss.ConstKey === enemy.imageCheck.checkKey);
+    //const bossRef = foundBoss[0];
 
-    const enemyPic = await Canvas.loadImage(bossRef.PngRef);
+    const enemyPic = await Canvas.loadImage(enemy.imageCheck.pngRef);
 
-    // Displays Enemy name
-    context.font = '25px sans-serif';
-    context.fillStyle = 'white';
-    context.fillText(`Name: ${bossRef.Name}`, 25, 75);
+    ctx.fillStyle = 'white';
 
-    // Displays Enemy Defence
-    context.font = '20px sans-serif';
-    context.fillStyle = 'white';
-    context.fillText(`Defence: ${enemy.defence}`, 25, 250);
+    // NAME
+    ctx.font = '25px sans-serif';
+    ctx.fillText(`${enemy.name}`, 25, 75);
 
-    // Displays Enemy Weakness
-    context.font = '20px sans-serif';
-    context.fillStyle = 'white';
-    context.fillText(`Weak To: ${bossRef.WeakTo}`, 25, 275);
+    // LEVEL
+    ctx.fillText(`Level ${enemy.level}`, 460, 35);
 
-    // Displays Enemy Level
-    context.font = '25px sans-serif';
-    context.fillStyle = 'white';
-    context.fillText(`Level ${enemy.level}`, 460, 70);
+    let descBottom = 135;
+    ctx.font = '20px sans-serif';
 
-    // Displays Enemy Health
-    context.font = '25px sans-serif';
-    context.fillStyle = 'white';
-    context.fillText(`HP ${enemy.health}`, 460, 295);
+    /**
+     *      == Arange in a grid ==
+     * ```
+     *      Status Effects:
+     *      J____________________
+     *      |_Type_|_Type_|_Type_|
+     *      |_Type_|_Type_|_Type_|
+     *      |_Type_|_Type_|_Type_|
+     *                           => I
+     * ```
+     *      Colour type text 
+     */
+    const loadEffectText = (effects) => {
+        ctx.fillText('Active Effects: ', 25, descBottom);
 
-    // Move the image downwards vertically and constrain its height to 200, so that it's square
-    context.drawImage(enemyPic, 410, 75, 215, 200);
+        const maxRows = Math.ceil(effects.length / 3);
+
+        let lines = new Array(maxRows);
+
+        let effectPos = 0;
+        for (let i = 0; i < maxRows; i++){
+            let curLineWidth = 25, curLine = "";
+            lines[i] = new Array((effects.length - effectPos > 3) ? 3 : effects.length - effectPos);
+            for (let j = 0; j < 3; j++){
+                // Measure current row length
+                curLine = (lines[i]?.length > 0) ? lines[i].join(" | ") : "";
+                curLineWidth += (curLine === "") ? 0 : ctx.measureText(curLine + " | ").width;
+
+                const colourObj = statusColourMatch.get(effects[effectPos].Type);
+                ctx.fillStyle = colourObj.colour;
+                ctx.fillText(effects[effectPos].Type, curLineWidth, (descBottom + 25) + (i * 25));
+
+                lines[i][j] = effects[effectPos].Type;
+                effectPos++;
+                if (effectPos === effects.length) break;
+            }
+        }
+    };
+
+    const statusTxt = (enemy.activeEffects.length > 0) 
+    ? loadEffectText(enemy.activeEffects) : "No Status Effects!";
+
+    ctx.font = '20px sans-serif';
+    ctx.fillStyle = 'white';
+    if (statusTxt === "No Status Effects!") ctx.fillText(statusTxt, 25, descBottom);
+
+    // ctx.drawImage(enemyPng, 410, 65, 190, 190);
+    ctx.drawImage(enemyPic, 375, 30, 260, 255);
+
+    // HEALTH
+    ctx.drawImage(await Canvas.loadImage(healthBarPng), 375, 200, 225, 160);
+    const hpBar = createHealthBar(enemy);
+
+    ctx.fillStyle = hpBar.flesh.colour;
+    ctx.fillRect(hpBar.flesh.start, 275, hpBar.flesh.width, 14);
+
+    ctx.fillStyle = hpBar.armor.colour;
+    ctx.fillRect(hpBar.armor.start, 275, hpBar.armor.width, 14);
+
+    ctx.fillStyle = hpBar.shield.colour;
+    ctx.fillRect(hpBar.shield.start, 275, hpBar.shield.width, 14);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'enemy-display.png' });
 
     return attachment;
-    
 }
 
 module.exports = {  displayBossPic, createEnemyDisplay, createNewEnemyImage };

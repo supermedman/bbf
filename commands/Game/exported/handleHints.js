@@ -331,6 +331,20 @@ async function checkHintUniqueEquip(user, interaction) {
     return;
 }
 
+// Implement universal checks to reduce duplicate code
+/**
+ *      NEW HINTS NEEDED
+ *      
+ *    - LEVEL 10 (CRAFTING)
+ *    - Crafting Details
+ */
+
+/**
+ * This function handles logic for hints
+ * @param {object} user UserData Object
+ * @param {object} interaction Discord Interaction Object
+ * @returns {Promise<void>}
+ */
 async function checkHintTempCopy(user, interaction) {
     let userHints = await UserHints.findOne({ where: { spec_id: user.userid } });
     if (!userHints) userHints = await createNewHints(user);

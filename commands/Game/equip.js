@@ -1,7 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { errorForm, basicInfoForm } = require('../../chalkPresets.js');
 const { LootStore, Loadout, UniqueCrafted, OwnedPotions, ItemStrings } = require('../../dbObjects.js');
-const { checkingSlot, checkingCaste } = require('../Development/Export/itemStringCore.js');
+const { checkingSlot, checkingCaste, checkingDamage, checkingDefence } = require('../Development/Export/itemStringCore.js');
+const { checkHintInspect } = require('./exported/handleHints.js');
+const { grabUser } = require('../../uniHelperFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -53,6 +55,8 @@ module.exports = {
                         where: { spec_id: interaction.user.id }
                     });
                 }                
+
+                choices = items.map(item => item.name);
             } else {
                 const fullItemList = await ItemStrings.findAll({
                     where: {
@@ -60,17 +64,172 @@ module.exports = {
                     }
                 });
 
+                // Filter Items for picked slot type
                 items = fullItemList.filter(item => checkingSlot(item.item_code) === gearType);
+                
+                // ====================
+                // HANDLE CRAFTED ITEMS
+                // ====================
+                // Check for dupe names
+                const checkStrongest = [];
+                for (const i of items){
+                    if (!checkStrongest.includes(i.name)) checkStrongest.push(i.name);
+                }
+
+                const strongestRef = [], singlesRef = [];
+                if (checkStrongest.length !== items.length){
+                    // DUPE ITEMS FOUND
+                    for (const name of checkStrongest){
+                        const singleNameCheck = items.filter(item => item.name === name);
+                        // If name contains only one entry
+                        if (singleNameCheck.length === 1){
+                            // Shorten display for .splice() position
+                            const updatedOffset = checkStrongest.indexOf(singleNameCheck[0].name);
+                            // Remove from "Dupe" checking array, Add to singles list
+                            checkStrongest.splice(updatedOffset, 1, "");
+                            singlesRef.push(singleNameCheck[0]);
+                            // console.log(singlesRef);
+                            continue;
+                        }
+                        
+                        let theStrongest;
+                        // Loop through dupes
+                        let curStrongDMG = 0, curStrongDEF = 0, curStrongTot = 0;
+                        for (const dupe of singleNameCheck){
+                            let checkStrongDMG = 0, checkStrongDEF = 0, checkStrongTot = 0;
+                            //if (!theStrongest) {theStrongest = dupe; continue;}
+                            switch(gearType){
+                                case "Mainhand":
+                                    if (!theStrongest){
+                                        theStrongest = dupe;
+                                        curStrongDMG = checkingDamage(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DMG : obj.DMG;
+                                        }, 0);
+                                    } else {
+                                        checkStrongDMG = checkingDamage(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DMG : obj.DMG;
+                                        }, 0);
+                                        if (checkStrongDMG > curStrongDMG) theStrongest = dupe;
+                                    }
+                                break;
+                                case "Offhand":
+                                    if (!theStrongest){
+                                        theStrongest = dupe;
+                                        curStrongDMG = checkingDamage(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DMG : obj.DMG;
+                                        }, 0);
+                                        curStrongDEF = checkingDefence(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DEF : obj.DEF;
+                                        }, 0);
+                                        curStrongTot = curStrongDMG + curStrongDEF;
+                                    } else {
+                                        checkStrongDMG = checkingDamage(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DMG : obj.DMG;
+                                        }, 0);
+                                        checkStrongDEF = checkingDefence(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DEF : obj.DEF;
+                                        }, 0);
+                                        checkStrongTot = checkStrongDMG + checkStrongDEF;
+                                        if (checkStrongTot > curStrongTot) theStrongest = dupe;
+                                    }
+                                break;
+                                default:
+                                    if (!theStrongest){
+                                        theStrongest = dupe;
+                                        curStrongDEF = checkingDefence(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DEF : obj.DEF;
+                                        }, 0);
+                                    } else {
+                                        checkStrongDEF = checkingDefence(dupe.item_code).reduce((acc, obj) => {
+                                            return (acc > 0) ? acc + obj.DEF : obj.DEF;
+                                        }, 0);
+                                        if (checkStrongDEF > curStrongDEF) theStrongest = dupe;
+                                    }
+                                break;
+                            }
+                        }
+
+                        // Push item ref and Value used to determine strength
+                        strongestRef.push({
+                            item: theStrongest.dataValues,
+                            showStrong: true,
+                            totValue: (curStrongTot !== 0) ? `${curStrongTot} DMG/DEF` 
+                            : (curStrongDMG !== 0) 
+                            ? `${curStrongDMG} DMG` : `${curStrongDEF} DEF`
+                        });
+                    }
+                } else choices = items.map(item => item.name);
+
+                // If no choices exist yet, create them
+                if (choices.length === 0){
+                    // Set default choices to non-dupe name items
+                    let finalItemsList = singlesRef.map(i => ({item: i.dataValues, showStrong: false}));
+                    finalItemsList.sort((a, b) => a.item.name - b.item.name);
+                    // Sorted alphabetically
+                    checkStrongest.sort((a, b) => a - b);
+                    // Filter out empty names
+                    const finalStrongest = checkStrongest.filter(n => n !== '');
+
+                    // console.log(finalStrongest);
+                    // console.log(strongestRef);
+
+                    for (const name of finalStrongest){
+                        const strongForName = strongestRef.filter(refObj => refObj.item.name === name)[0];
+                        const nameMatches = items.filter(item => item.name === name);
+                        let curNameList = [];
+                        for (const i of nameMatches){
+                            if (i.item_id === strongForName.item.item_id){
+                                // Strongest Matched, Append to start of array
+                                curNameList.unshift({item: i, showStrong: true, totValue: strongForName.totValue});
+                            } else curNameList.push({item: i, showStrong: false});
+                        }
+                        finalItemsList = finalItemsList.concat(curNameList);
+                    }
+
+                    const displayStrongItems = (ele) => {
+                        if (ele.showStrong) {
+                            // name used for user indicating strongest, and DMG/DEF tot value
+                            // nValue used for passing into ``execute()``
+                            choices.push({name: ele.item.name, nValue: ele.item.name, strongest: ele.showStrong, strength: ele.totValue});
+                            // console.log(ele);
+                        }
+                        if (!ele.showStrong) {
+                            // name used for user indicating strongest, and DMG/DEF tot value
+                            // nValue used for passing into ``execute()``
+                            choices.push({name: ele.item.name, nValue: ele.item.name, strongest: ele.showStrong});
+                            // console.log('Standard Display: ', ele.item.name);
+                        }
+                    };
+
+                    finalItemsList.forEach(displayStrongItems);
+                }                
             }
 
-            choices = items.map(item => item.name);
+            // Check if choice list has been modded
+            if (!choices[0].name){
+                // Standard choice list, display normally
+                // console.log(basicInfoForm(`Current Choices: ${choices} for ${gearType}s`));
+                console.log('Standard Choice List');
 
-            console.log(basicInfoForm(`Current Choices: ${choices} for ${gearType}s`));
+                const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+                await interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice })),
+                );
+            } else {
+                // Modded choice list, handle special display
+                // console.log(basicInfoForm(`Current Choices: \n${choices.map(obj => `Name: ${obj.name}, Value: ${obj.nValue}, Strongest?: ${obj.strongest} ${(obj.strength) ? `Strength: ${obj.strength}\n`: "\n"}`).join("")}`));
+                console.log('Modded Choice List');
 
-            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-            await interaction.respond(
-                filtered.map(choice => ({ name: choice, value: choice })),
-            );
+                const filtered = choices.filter(choice => choice.nValue.startsWith(focusedValue));
+                await interaction.respond(
+                    filtered.map(choice => (
+                        {
+                            name: (choice.strongest) ? `${choice.name} == STRONGEST == ${choice.strength}`: `${choice.name}`,
+                            value: choice.nValue
+                        }
+                    )),
+                );
+            }
         }
 	},
     async execute(interaction) {
@@ -120,6 +279,8 @@ module.exports = {
 
         if (!theItem) return await interaction.followUp('Looks like that didnt work! Try starting the items name with a *Capital Letter*, then select from the options provided!!');
 
+        await checkHintInspect(await grabUser(interaction.user.id), interaction);
+
         switch(slotType){
             case "Mainhand":
                 // Check for hands needed to hold weapon
@@ -161,129 +322,6 @@ module.exports = {
                 }).then(async u => await u.save()).then(async u => {return await u.reload()});
             return await interaction.followUp(`${slotType} equipped.`);
         }
-
-        /*
-        const startTime = new Date().getTime();
-        await interaction.deferReply().then(async () => {
-            if (interaction.options.getSubcommand() === 'something') {
-                let slotType = interaction.options.getString('slot');
-                const itemName = interaction.options.getString('gear') ?? 'NONE';
-                if (itemName === 'NONE') return interaction.followUp('You did not select an item to equip!');
-
-                const userID = interaction.user.id;
-
-                let item;
-                if (slotType !== 'Potion' && slotType !== 'Unique') {
-                    console.log('NORMAL');
-                    item = await LootStore.findOne({
-                        where: [
-                            { spec_id: userID },
-                            { name: itemName }]
-                    });
-                } else if (slotType === 'Unique') {
-                    console.log('UNIQUE');
-                    item = await UniqueCrafted.findOne({
-                        where: [
-                            { spec_id: userID },
-                            { name: itemName }]
-                    });
-                } else {
-                    console.log('POTION');
-                    item = await OwnedPotions.findOne({
-                        where: [
-                            { spec_id: userID },
-                            { name: itemName }]
-                    });
-                }
-
-                let userLoadout = await Loadout.findOne({ where: { spec_id: userID } });
-                if (!userLoadout) {
-                    userLoadout = await Loadout.create({
-                        spec_id: userID
-                    });
-                }
-
-                if (!item) return interaction.followUp('Looks like that didnt work! Try starting the name with a ***CAPITAL LETTER***');
-
-                if (slotType === 'Unique') slotType = item.slot;
-
-                if (slotType === 'Mainhand') {
-                    //MAINHAND EQUIPPED
-                    console.log(item);
-                    if (!item.hands) return interaction.followUp('That item has an invalid hands value!!');
-                    let offhandReplaced = false;
-                    if (item.hands === 'Two') {
-                        //TWO HANDED WEAPON EQUIPPED
-                        if (userLoadout.offhand !== 0) offhandReplaced = true;
-                        const tableUpdate = await Loadout.update({
-                            mainhand: item.loot_id,
-                            offhand: item.loot_id,
-                        }, { where: { spec_id: userID } });
-                        if (tableUpdate > 0 && offhandReplaced === true) return interaction.followUp('Mainhand equipped! Offhand replaced!');
-                        if (tableUpdate > 0) return interaction.followUp('Mainhand equipped!');
-                    } else {
-                        //ONE HANDED WEAPON EQUIPPED
-                        if (userLoadout.mainhand === userLoadout.offhand) offhandReplaced = true;
-                        let tableUpdate;
-                        if (offhandReplaced === true) {
-                            tableUpdate = await Loadout.update({
-                                mainhand: item.loot_id,
-                                offhand: 0
-                            }, { where: { spec_id: userID } });
-                            if (tableUpdate > 0) return interaction.followUp('Mainhand equipped! Offhand available!');
-                        } 
-                        tableUpdate = await Loadout.update({
-                            mainhand: item.loot_id
-                        }, { where: { spec_id: userID } });
-                        if (tableUpdate > 0) return interaction.followUp('Mainhand equipped!');
-                    }
-                } else if (slotType === 'Offhand') {
-                    //OFFHAND EQUIPPED
-                    console.log(item);
-                    if (!item.hands) return interaction.followUp('That item has an invalid hands value!!');
-                    let canEquipOff = false;
-                    if (userLoadout.mainhand !== userLoadout.offhand) canEquipOff = true;
-                    if (canEquipOff === false) return interaction.followUp('You cannot equip an Offhand as your weapon takes up two hands');
-                    const tableUpdate = await Loadout.update({
-                        offhand: item.loot_id
-                    }, { where: { spec_id: userID } });
-                    if (tableUpdate > 0) return interaction.followUp('Offhand Equipped!');
-                } else if (slotType === 'Potion') {
-                    //POTION EQUIPPED
-                    console.log(item);
-                    const tableUpdate = await Loadout.update({
-                        potionone: item.potion_id
-                    }, { where: { spec_id: userID } });
-                    if (tableUpdate > 0) return interaction.followUp('Potion Equipped Successfully!');
-                } else {
-                    //ARMOR EQUIPPED
-                    console.log(item);
-                    let tableUpdate;
-                    if (slotType === 'Headslot') {
-                        tableUpdate = await Loadout.update({
-                            headslot: item.loot_id
-                        }, { where: { spec_id: userID } });
-                    }
-                    if (slotType === 'Chestslot') {
-                        tableUpdate = await Loadout.update({
-                            chestslot: item.loot_id
-                        }, { where: { spec_id: userID } });
-                    }
-                    if (slotType === 'Legslot') {
-                        tableUpdate = await Loadout.update({
-                            legslot: item.loot_id
-                        }, { where: { spec_id: userID } });
-                    }
-                    if (tableUpdate > 0) return interaction.followUp(`${slotType} Equipped!!`);
-                }
-
-                const endTime = new Date().getTime();
-                console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
-            }            
-        }).catch(error => {
-            console.log(errorForm('Interaction error:', error));
-        });
-        */
 	},
 
 };

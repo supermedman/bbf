@@ -8,6 +8,7 @@
 const dmgKeys = new Map([
     ["BLph", "Blunt"],
     ["SLph", "Slash"],
+    ["PIph", "Pierce"],
     ["MAma", "Magic"],
     ["RAma", "Rad"],
     ["FRma", "Frost"],
@@ -17,7 +18,8 @@ const dmgKeys = new Map([
     ["NUsp", "Null"],
     ["PAsp", "Pain"],
     ["SPsp", "Spirit"],
-    ["CHsp", "Chaos"]
+    ["CHsp", "Chaos"],
+    ["NEsp", "Nessy"]
 ]);
 
 const rarKeys = new Map([
@@ -209,6 +211,19 @@ function checkingRar(TEST_CODE) {
 }
 
 /**
+ * This function takes a rar id and returns the matching string name.
+ * @param {number} rarID Rarity as ID number
+ * @returns {string}
+ */
+function baseCheckRarName(rarID){
+    const rarKey = (rarID > 9) ? "r" + rarID : "r0" + rarID;
+
+    const foundRar = rarKeys.get(rarKey);
+
+    return foundRar;
+}
+
+/**
  * This function takes a given rarity and converts it into its rarID equivalent.
  * @param {string} rarity rarKeys String Matched Rarity 
  * @returns number as RarID
@@ -276,6 +291,31 @@ function checkingCaste(casteID){
         }
     }
     return casteData;
+}
+
+/**
+ * This function takes a given caste type name and returns the corisponding key value
+ * @param {string} casteName Name of the caste to search for
+ * @returns {number}
+ */
+function checkingCasteID(casteName){
+    let casteID, casteDataList = [];
+    for (const [key, value] of casteKeys){
+        if (JSON.parse(value).Caste === casteName){
+            casteID = ~~key;
+            break;
+        }
+        // casteDataList.push({key: ~~key, caste: JSON.parse(value).Caste});
+    }
+
+    // for (const casteObj of casteDataList){
+    //     if (casteObj.caste === casteName){
+    //         casteID = casteObj.key;
+    //         break;
+    //     }
+    // }
+    
+    return casteID;
 }
 
 // ===============================
@@ -567,13 +607,13 @@ const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1)
 
 const genDMGMap = (item) => {
     let dmgStr = '\nDamage Values:';
-    dmgStr += checkingDamage(item.item_code).map(dmgObj => `\n**${dmgObj.Type}**: **${dmgObj.DMG}** Atk\n`).toString();
+    dmgStr += "\n" + checkingDamage(item.item_code).map(dmgObj => `**${dmgObj.Type}**: **${dmgObj.DMG}** Atk`).join("\n") + "\n";
     return dmgStr;
 };
 
 const genDEFMap = (item) => {
     let defStr = '\nDefence Values:';
-    defStr += checkingDefence(item.item_code).map(defObj => `\n**${defObj.Type}**: **${defObj.DEF}** Def\n`).toString();
+    defStr += "\n" + checkingDefence(item.item_code).map(defObj => `**${defObj.Type}**: **${defObj.DEF}** Def`).join("\n") + "\n";
     return defStr;
 };
 
@@ -581,7 +621,7 @@ const genDDMap = (item) => {
     let headerStr = '\nDamage/Defence:';
     const dmgPairs = checkingDamage(item.item_code), defPairs = checkingDefence(item.item_code);
     const typePairs = dmgPairs.concat(defPairs);
-    const pairStr = typePairs.map(pairObj => `\n**${pairObj.Type}**: **${pairObj.DMG ?? pairObj.DEF}** ${(pairObj.DMG) ? 'Atk' : 'Def\n'}`).toString();
+    const pairStr = typePairs.map(pairObj => `\n**${pairObj.Type}**: **${pairObj.DMG ?? pairObj.DEF}** ${(pairObj.DMG) ? 'Atk' : 'Def\n'}`).join(" ");
     return headerStr + pairStr;
 }
 
@@ -1270,8 +1310,10 @@ module.exports = {
     checkingDismantle,
     checkingRar,
     checkingRarID,
+    baseCheckRarName,
     checkingSlot,
     checkingCaste,
+    checkingCasteID,
     convertToUniItem,
     uni_displayItem,
     uni_CreateCompleteItemCode

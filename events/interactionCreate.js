@@ -46,9 +46,11 @@ module.exports = {
 				}
 			}
 
-			timestamps.set(interaction.user.id, now);
-			setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
-
+			if (interaction.user.id !== '501177494137995264'){
+				timestamps.set(interaction.user.id, now);
+				setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
+			}
+			
 			try {
 				await command.execute(interaction);
 			} catch (error) {
@@ -95,6 +97,10 @@ module.exports = {
 
 					if (!betaTester.has(interaction.user.id)){
 						betaTester.set(interaction.user.id, true);
+					}
+
+					if (hasButtonPerm && !newEnemy.has(interaction.user.id)){
+						newEnemy.set(interaction.user.id, true);
 					}
 					
 					// if (collectionRunOnce === false){

@@ -5,8 +5,8 @@ const { grabRar } = require("../../../Game/exported/grabRar");
 const {randArrPos, inclusiveRandNum, rollChance, dropChance} = require('../../../../uniHelperFunctions');
 const hitChance = rollChance;
 
-const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Boss"];
-const staticFleshMods = [0.4, 0.25, 0.2, 0.5];
+const fleshTypes = ["Flesh", "Magical Flesh", "Specter", "Hellion", "Boss"];
+const staticFleshMods = [0.4, 0.25, 0.2, 0.25, 0.5];
 // Flesh based on Material Drop Order: [0[1st], 1[2nd], 2[3rd]];
 // MULT = 1 + (lvl * TYPE)
 /** == Flesh ==
@@ -175,13 +175,13 @@ class EnemyFab {
     constructor(eFab) {
         const {Level, Body, Armor, Shield, Name, Description, UniqueItem, ConstKey} = eFab;
         this.imageCheck = {
-            checkKey: ConstKey,
+            checkKey: ConstKey ?? 0,
             hasPng: false,
             pngRef: ''
         };
         
-        this.name = Name;
-        this.description = Description;
+        this.name = Name ?? "None";
+        this.description = Description ?? "";
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
         //const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
         this.level = (Level) ? Level : Math.floor(Math.random() * (100 - 1 + 1) + 1);

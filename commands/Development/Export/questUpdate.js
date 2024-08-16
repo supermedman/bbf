@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const { ItemLootPool, Milestones, ActiveDungeon, Questing, LocationData, ActiveStatus } = require('../../../dbObjects');
-const { randArrPos, inclusiveRandNum, rollChance, sendTimedChannelMessage, checkLootUP, grabUser, grabActivePigmy } = require('../../../uniHelperFunctions');
+const { randArrPos, inclusiveRandNum, rollChance, sendTimedChannelMessage, checkLootUP, grabUser, grabActivePigmy, dropChance } = require('../../../uniHelperFunctions');
 const { grabRar } = require('../../Game/exported/grabRar');
 const {xpPayoutScale} = require('./Classes/EnemyFab');
 const { checkInboundItem } = require('./itemMoveContainer');
@@ -57,7 +57,7 @@ async function handleEnemyKills(activeQuest, gearDrops, userid, interaction){
     let totalXP = 0, totalCoins = 0, itemCount = 0;
     for (let i = 0; i < maxE; i++){
         const eLvl = randArrPos(choices);
-        if (rollChance(lootChance)) itemCount++;
+        if (dropChance(lootChance)) itemCount++;
         const payoutRange = xpPayoutScale(eLvl);
         totalXP += inclusiveRandNum(payoutRange.max, payoutRange.min);
     }
@@ -109,9 +109,10 @@ async function handleEnemyKills(activeQuest, gearDrops, userid, interaction){
  * @param {number} itemCount Amount of items to be generated
  * @param {Map} gearDrops Discord.js Collection Object
  * @param {string} userid Users ID
+ * @param {boolean} [dungDrop=false] Set to true if calling function from dungeon
  * @returns {promise <EmbedBuilder[]>}
  */
-async function handleLootDrops(midLevel, itemCount, gearDrops, userid){
+async function handleLootDrops(midLevel, itemCount, gearDrops, userid, dungDrop=false){
     const user = await grabUser(userid);
     const pigmy = await grabActivePigmy(userid);
     const upgradeChance = checkLootUP(pigmy, user);
@@ -119,7 +120,7 @@ async function handleLootDrops(midLevel, itemCount, gearDrops, userid){
     let dupeCheck = [], tmpArr = [];
     for (let i = 0; i < itemCount; i++){
         let rar = await grabRar(midLevel);
-        if (rar < 10 && rollChance(upgradeChance)) rar++;
+        if (rar < 10 && dropChance(upgradeChance)) rar++;
         if (tmpArr.indexOf(rar) !== -1 && dupeCheck.indexOf(rar) === -1){
             dupeCheck.push(rar);
             continue;
@@ -166,20 +167,24 @@ async function handleLootDrops(midLevel, itemCount, gearDrops, userid){
     const itemList = [];
     for (const itemPicked of itemKeyList){
         const theItem = await checkInboundItem(userid, itemPicked.key, itemPicked.amount);
-        const itemEmbed = new EmbedBuilder()
-        .setTitle('~LOOT GAINED~')
-        .setDescription(`Page ${pageTracker}/${itemKeyList.length + 1}`);
+        if (!dungDrop){
+            const itemEmbed = new EmbedBuilder()
+            .setTitle('~LOOT GAINED~')
+            .setDescription(`Page ${pageTracker}/${itemKeyList.length + 1}`);
 
-        const grabbedValues = uni_displayItem(theItem, "Single-Quest", itemPicked.amount);
-        itemEmbed
-        .setColor(grabbedValues.color)
-        .addFields(grabbedValues.fields);
+            const grabbedValues = uni_displayItem(theItem, "Single-Quest", itemPicked.amount);
+            itemEmbed
+            .setColor(grabbedValues.color)
+            .addFields(grabbedValues.fields);
 
-        pageTracker++;
-        itemList.push(itemEmbed);
+            pageTracker++;
+            itemList.push(itemEmbed);
+        }
     }
 
-    return itemList;
+    const respondWith = (dungDrop) ? "Finished" : itemList;
+
+    return respondWith;
 }
 
 /**
@@ -261,6 +266,8 @@ async function handleClaimMilestone(user, interaction, userMilestone){
 
         const theAdventure = thisQuest[0].Lore;
 
+        // PUT CHECK IN PLACE FOR WHEN LORE LENGTH EXCEEDS 3000 CHARACTERS
+
         const storyEmbed = new EmbedBuilder()
         .setTitle('Quest Progress')
         .setDescription(embedDesc)
@@ -282,7 +289,7 @@ async function handleClaimMilestone(user, interaction, userMilestone){
         });
 
         if (userLocation[1]){
-            await userLocation.save(async u => {return await u.reload()});
+            await userLocation[0].save(async u => {return await u.reload()});
         }
 
         userLocation = userLocation[0];
@@ -373,5 +380,6 @@ async function handleStartMilestone(user, userMilestone){
 
 module.exports = {
     handleEnemyKills,
+    handleLootDrops,
     handleMilestones
 }

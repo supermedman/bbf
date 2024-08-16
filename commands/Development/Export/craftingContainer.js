@@ -1,5 +1,8 @@
 // Used for any external methods, calls, filtering related to crafting/item generation.
 
+const { rollChance } = require('../../../uniHelperFunctions');
+const { baseCheckRarName } = require('./itemStringCore');
+
 // ===============================
 //       HELPER METHODS
 // ===============================
@@ -67,7 +70,7 @@ const itemGenDefConstant = (rarity, defAmount, slotType, matAmount) => {
  * casteObj is the base Object for the final item.
  * @param {string} type The specific caste type name picked for use by user
  * @param {string} slot The slot of the item
- * @returns Object {name: string, hands: number, dmgCat: string, mats: string[]}
+ * @returns {({name: string, hands: number, dmgCat: string, mats: string[]})}
  */
 const itemCasteFilter = (type, slot) => {
     let casteObj = {
@@ -228,13 +231,46 @@ const itemGenDmgTypes = (casteObj) => {
     let dmgTypeChoices = [];
     switch(casteObj.dmgCat){
         case "Magic":
-            dmgTypeChoices = ["Magic", "Fire", "Frost", "Dark", "Light"];
+            switch(casteObj.slot){
+                case "Mainhand":
+                    dmgTypeChoices.push("Magic");
+                    if (["Wand", "Focus", "Staff"].includes(casteObj.name)){
+                        dmgTypeChoices.push("Fire", "Frost");
+                    }
+                    if (["Wand", "Tome", "Focus"].includes(casteObj.name)){
+                        dmgTypeChoices.push("Dark", "Light");
+                    }
+                break;
+                case "Offhand":
+                    dmgTypeChoices.push("Magic");
+                break;
+                default:
+                    dmgTypeChoices = ["Magic", "Fire", "Frost", "Dark", "Light"];
+                break;
+            }
         break;
         case "Melee":
-            dmgTypeChoices = ["Blunt", "Slash"];
+            switch(casteObj.slot){
+                case "Mainhand":
+                    if (["Polearm", "Mace"].includes(casteObj.name)){
+                        // Can have Blunt damage type
+                        dmgTypeChoices.push("Blunt");
+                    } 
+                    if (["Polearm", "Heavy Blade", "Light Blade"].includes(casteObj.name)){
+                        // Can have Slash and Pierce damage types
+                        dmgTypeChoices.push("Slash", "Pierce");
+                    }
+                break;
+                case "Offhand":
+                    dmgTypeChoices.push("Blunt");
+                break;
+                default:
+                    dmgTypeChoices = ["Blunt", "Slash", "Pierce"];
+                break;
+            }
         break;
         case "Special":
-            dmgTypeChoices = ["Spirit", "Pain", "Chaos", "Rad", "Null"]
+            dmgTypeChoices = ["Spirit", "Pain", "Chaos", "Rad", "Null"];
         break;
     }
     return dmgTypeChoices;
@@ -247,7 +283,24 @@ const itemGenDmgTypes = (casteObj) => {
  * @returns {string[]} of picked damage types
  */
 const itemGenPickDmgTypes = (casteObj) => {
-    const maxTypeAmount = inclusiveRandNum(5 - casteObj.dmgTypes.length, 1);
+    // Rarity is defined, determine max types from rarity.
+    let maxTNum = (casteObj.rarity || casteObj.rarity === 0) ? 0 : 5;
+    if (casteObj.rarity || casteObj.rarity === 0){
+        // console.log('Checking max type amount from rarity');
+        if (casteObj.rarity > 6){
+            maxTNum = 5;
+        } else if (casteObj.rarity > 5){
+            maxTNum = 4;
+        } else if (casteObj.rarity >= 4){
+            maxTNum = 3;
+        } else if (casteObj.rarity <= 3){
+            maxTNum = 2;
+        }
+    }
+
+    // console.log('Max Set @: %d', maxTNum);
+    
+    const maxTypeAmount = inclusiveRandNum(maxTNum - casteObj.dmgTypes.length, 1);
     const dmgTypeOptions = casteObj.dmgOptions;
 
     // Preventing Imbued Pure types from being double selected
@@ -283,7 +336,7 @@ const itemGenPickDmgTypes = (casteObj) => {
  * @param {object} matTwo Basic Material Object: {rarity: number, amount: number}
  * @param {object} matThree Basic Material Object: {rarity: number, amount: number}
  * @param {object} matFour Basic Material Object: {rarity: number, amount: number}
- * @returns Number for Final Rarity
+ * @returns {number} Final Rarity
  */
 const rarityGenConstant = (matOne, matTwo, matThree, matFour) => {
     const m1 = matOne, m2 = matTwo, m3 = matThree, m4 = matFour;
@@ -352,12 +405,13 @@ const rarityGenConstant = (matOne, matTwo, matThree, matFour) => {
 /**
  * This method calculates and creates type:dmg pairs for use with item value and item string creation.
  * @param {object} casteObj Base Item Object
- * @returns Number: Total Item Damage
+ * @returns {number} Total Item Damage
  */
 const dmgTypeAmountGen = (casteObj) => {
     let totalDamage = 0;
     let dmgTypePairs = [];
 
+    // Retain overflow value for offhand edge case
     const overflowPlaceholder = ~~casteObj.typeOverflow;
 
     // Spread overflow evenly across all existing dmgtypes
@@ -381,13 +435,18 @@ const dmgTypeAmountGen = (casteObj) => {
         dmgTypePairs.push({type: type, dmg: typeValue});
     }
 
+    // Reassign overflow value for offhand edge case
     if (casteObj.slot === 'Offhand') casteObj.typeOverflow = overflowPlaceholder;
     casteObj.totalDamage = totalDamage;
     casteObj.dmgTypePairs = dmgTypePairs;
     return totalDamage;
 };
 
-
+/**
+ * This method calculates and creates type:def pairs for use with item value and item string creation.
+ * @param {object} casteObj Base Item Object
+ * @returns {number} Total Item Defence
+ */
 const defTypeAmountGen = (casteObj) => {
     let totalDefence = 0;
     let defTypePairs = [];
@@ -420,7 +479,7 @@ const defTypeAmountGen = (casteObj) => {
 /**
  * This method calculates and assigns the items total value based off damage, materials, hands, and rarity
  * @param {object} casteObj Base Item Object
- * @returns Number: Total Item Value
+ * @returns {number} Total Item Value
  */
 const itemValueGenConstant = (casteObj) => {
     let totalValue = 0;
@@ -443,7 +502,7 @@ const itemValueGenConstant = (casteObj) => {
 
     const totDmg = casteObj.totalDamage ?? 0;
     const totDef = casteObj.totalDefence ?? 0;
-    totalValue = (1 + casteObj.rarity) * (totDmg + (totDef * (3 + (casteObj.rarity/3))));
+    totalValue = (1 + casteObj.rarity) * (totDmg + (totDef * (3 + (casteObj.rarity / 3))));
 
     if (casteObj.hands === 0) {
         totalValue *= (casteObj.slot !== "Chestslot") ? 1.75 : 2.2;
@@ -469,6 +528,16 @@ const itemValueGenConstant = (casteObj) => {
 //         ITEM FUNCTIONS
 // ===============================
 
+/**
+ * This function is 
+ * # **F\*!#ING HUGE DAMN BRO SWITCH CASE GO 200 LINE CRAZY**
+ * 
+ * ``True``: Add to database static loot pool
+ * 
+ * ``False``: Dont do this ^
+ * @param {object} casteObj Complete Item Caste Object
+ * @returns {boolean}
+ */
 function benchmarkQualification(casteObj){
     const qualObj = {
         dmg: {
@@ -700,12 +769,52 @@ function benchmarkQualification(casteObj){
         break;
     }
 
+    const modCheckObj = {
+        passCheck: false,
+        standard: "Standard",
+        totalDiff: 0,
+        dmg: {
+            single: {
+                check: false,
+                diff: 0
+            },
+            total: {
+                check: false,
+                diff: 0
+            }
+        },
+        def: {
+            single: {
+                check: false,
+                diff: 0
+            },
+            total: {
+                check: false,
+                diff: 0
+            }
+        },
+        types: {
+            total: {
+                check: false,
+                diff: 0
+            }
+        },
+        value: {
+            check: false,
+            diff: 0
+        }
+    };
+
     const checkSingleMaxDamageCap = (dmgArr) => {
         let underCap = true;
         for (const dmgObj of dmgArr){
             if (dmgObj.dmg <= qualObj.dmg.single) continue;
             if (dmgObj.dmg > qualObj.dmg.single) {
                 underCap = false;
+
+                modCheckObj.dmg.single.check = true;
+                modCheckObj.dmg.single.diff = qualObj.dmg.single - dmgObj.dmg;
+
                 console.log('Break on Single Damage Type! %d', dmgObj.dmg);
                 break;
             }
@@ -719,6 +828,10 @@ function benchmarkQualification(casteObj){
             if (defObj.def <= qualObj.def.single) continue;
             if (defObj.def > qualObj.def.single) {
                 underCap = false;
+
+                modCheckObj.def.single.check = true;
+                modCheckObj.def.single.diff = qualObj.def.single - defObj.def;
+
                 console.log('Break on Single Defence Type! %d', defObj.def);
                 break;
             }
@@ -727,28 +840,60 @@ function benchmarkQualification(casteObj){
     };
 
     const checkDamageCondition = (casteObj) => {
-        if (casteObj.totalDamage > qualObj.dmg.max) return false;
-        if (casteObj.totalDamage < qualObj.dmg.min) return false;
+        if (casteObj.totalDamage > qualObj.dmg.max) {
+            modCheckObj.dmg.total.check = true;
+            modCheckObj.dmg.total.diff = qualObj.dmg.max - casteObj.totalDamage;
+            return false;
+        }
+        if (casteObj.totalDamage < qualObj.dmg.min) {
+            modCheckObj.dmg.total.check = true;
+            modCheckObj.dmg.total.diff = qualObj.dmg.max - casteObj.totalDamage;
+            return false;
+        }
         const finalCheck = checkSingleMaxDamageCap(casteObj.dmgTypePairs);
         return finalCheck;
     };
 
     const checkDefenceCondition = (casteObj) => {
-        if (casteObj.totalDefence > qualObj.def.max) return false;
-        if (casteObj.totalDefence < qualObj.def.min) return false;
+        if (casteObj.totalDefence > qualObj.def.max){ 
+            modCheckObj.def.total.check = true;
+            modCheckObj.def.total.diff = qualObj.def.max - casteObj.totalDefence;
+            return false;
+        }
+        if (casteObj.totalDefence < qualObj.def.min){
+            modCheckObj.def.total.check = true;
+            modCheckObj.def.total.diff = qualObj.def.max - casteObj.totalDefence;
+            return false;
+        }
         const finalCheck = checkSingleMaxDefenceCap(casteObj.defTypePairs);
         return finalCheck;
     };
 
     const checkTotalTypeCondition = (casteObj) => {
-        if (casteObj.totalTypes > qualObj.typeAmount.max) return false;
-        if (casteObj.totalTypes < qualObj.typeAmount.min) return false;
+        if (casteObj.totalTypes > qualObj.typeAmount.max) {
+            modCheckObj.types.check = true;
+            modCheckObj.types.diff = qualObj.typeAmount.max - casteObj.totalTypes;
+            return false;
+        }
+        if (casteObj.totalTypes < qualObj.typeAmount.min) {
+            modCheckObj.types.check = true;
+            modCheckObj.types.diff = qualObj.typeAmount.min - casteObj.totalTypes;
+            return false;
+        }
         return true;
     }
 
     const checkValueCondition = (casteObj) => {
-        if (casteObj.value > qualObj.value.max) return false;
-        if (casteObj.value < qualObj.value.min) return false;
+        if (casteObj.value > qualObj.value.max) {
+            modCheckObj.value.check = true;
+            modCheckObj.value.diff = qualObj.value.max - casteObj.value;
+            return false;
+        }
+        if (casteObj.value < qualObj.value.min) {
+            modCheckObj.value.check = true;
+            modCheckObj.value.diff = qualObj.value.min - casteObj.value;
+            return false;
+        }
         return true;
     }
 
@@ -782,21 +927,529 @@ function benchmarkQualification(casteObj){
         if (damageChecked && defenceChecked && typesChecked && valueChecked) return true;
         return false;
     }
-    
 
     const itemQualifies = switchCheckUni(casteObj);
+    modCheckObj.passCheck = itemQualifies;
     console.log('Item Qualifies for becoming a permanent Loot Drop Option: ', itemQualifies);
+
+    const handleFinalStandard = (standObj) => {
+        let runningTotal = 0;
+        runningTotal += standObj.dmg.single.diff;
+        runningTotal += standObj.dmg.total.diff;
+
+        runningTotal += standObj.def.single.diff;
+        runningTotal += standObj.def.total.diff;
+
+        runningTotal += (standObj.types.total.diff * 50);
+
+        runningTotal += standObj.value.diff;
+
+        const finalDiff = Math.sign(runningTotal);
+
+        if (finalDiff > 0){
+            // Below Standard
+            standObj.standard = "Below";
+        } else if (finalDiff === 0){
+            // At Standard
+        } else {
+            // Above Standard
+            standObj.standard = "Above";
+        }
+
+        standObj.totalDiff = runningTotal;
+    }
+
+    handleFinalStandard(modCheckObj);
+
+    console.log(modCheckObj);
+
+    return modCheckObj;
+}
+
+/**
+ * This function handles logically managing the possible ``Prefix`` options for the given
+ * ``item`` and respective ``benchObj``
+ * @param {object} item Crafted Item Object
+ * @param {object} benchObj Benchmark outcome tracking object
+ * @returns {string[]}
+ */
+function loadPrefixOptions(item, benchObj){
+    let baseDiffChance = 0, changeRar = "", changeMag = "";
+
+    if (Math.abs(benchObj.totalDiff) < 250) benchObj.standard = "Standard";
+
+    switch(benchObj.standard){
+        case "Above":
+            // -value
+            changeRar = "UP";
+            changeMag = "None";
+            if (benchObj.totalDiff < -5000){
+                // Highly above
+                changeMag = "Large";
+                baseDiffChance = 1;
+            } else if (benchObj.totalDiff < -2500){
+                // Above
+                changeMag = "Normal";
+                baseDiffChance = 0.5;
+            } else if (benchObj.totalDiff < -1000){
+                // Slightly Above
+                changeMag = "Small";
+                baseDiffChance = 0.25;
+            } else baseDiffChance = 0.15;
+        break;
+        case "Below":
+            // +value
+            changeRar = "DOWN";
+            changeMag = "None";
+            if (benchObj.totalDiff > 5000){
+                // Very Below
+                changeMag = "Large";
+                baseDiffChance = 1;
+            } else if (benchObj.totalDiff > 2500){
+                // Below
+                changeMag = "Normal";
+                baseDiffChance = 0.5;
+            } else if (benchObj.totalDiff > 1000){
+                // Slightly Below
+                changeMag = "Small";
+                baseDiffChance = 0.25;
+            } else baseDiffChance = 0.15;
+        break;
+        case "Standard":
+            // 0 Change
+            changeRar = (rollChance(0.5)) ? "UP": "DOWN";
+            changeMag = "None";
+            baseDiffChance = 0.01;
+        break;
+    }
+
+    //console.log('Base chance to mod rar: %d', baseDiffChance);
+    //console.log('Direction of Rarity change: ', changeRar);
+    //console.log('Magnitude of change: ', changeMag);
+
+    const changeRarCheck = rollChance(baseDiffChance);
+
+    let normChoices = [];
+    if (changeRarCheck) {
+        switch(changeRar){
+            case "UP":
+                switch(changeMag){
+                    case "None":
+                        normChoices.push("Well");
+                    break;
+                    case "Small":
+                        normChoices.push("Finely");
+                    break;
+                    case "Normal":
+                        normChoices.push("Exquisitely");
+                    break;
+                    case "Large":
+                        normChoices.push("Perfectly");
+                    break;
+                }
+            break;
+            case "DOWN":
+                switch(changeMag){
+                    case "None":
+                        normChoices.push("Poorly");
+                    break;
+                    case "Small":
+                        normChoices.push("Badly");
+                    break;
+                    case "Normal":
+                        normChoices.push("Horribly");
+                    break;
+                    case "Large":
+                        normChoices.push("Awfully");
+                    break;
+                }
+            break;
+        }
+    } else changeRar = "NONE";
+
+    benchObj.prefix = {
+        changeRar,
+        changeMag
+    };
+
+    const domMatType = item.mats[0];
+
+    switch(changeRar){
+        case "UP":
+            normChoices.push("Neat");
+            switch(domMatType){
+                case "Magical":
+                    normChoices.push("Glowing", "Powerful");
+                break;
+                case "Metalic":
+                    switch(item.slot){
+                        case "Mainhand":
+                            normChoices.push("Sharp", "Unfettered");
+                        break;
+                        case "Offhand":
+                            normChoices.push("Sturdy", "Solid");
+                        break;
+                        default:
+                            normChoices.push("Sturdy", "Solid");
+                        break;
+                    }
+                break;
+                case "Silky":
+                    normChoices.push("Tough", "Robust");
+                break;
+                case "Woody":
+                    normChoices.push("Sturdy", "Solid");
+                break;
+            }
+        break;
+        case "DOWN":
+            normChoices.push("Boring")
+            switch(domMatType){
+                case "Magical":
+                    normChoices.push("Faulty", "Broken");
+                break;
+                case "Metalic":
+                    normChoices.push("Rusty", "Cracked");
+                break;
+                case "Silky":
+                    normChoices.push("Torn", "Rotten");
+                break;
+                case "Woody":
+                    normChoices.push("Rotten", "Broken");
+                break;
+            }
+        break;
+        default:
+            normChoices.push("Plain", "Clean", "Normal", "Basic", "None");
+        break;
+    }
+
+    return normChoices;
+}
+
+/**
+ * This function handles follow up string options per the given prefix.
+ * @param {string} prefix Prefix choice picked
+ * @param {object} item Crafted Item Object
+ * @param {object} benchObj Benchmark Outcome tracking object
+ * @returns {string[]}
+ */
+function loadDescOptions(prefix, item, benchObj){
+    const descChoices = [];
+
+    // First check for double up prefix match
+    //const preUPMatchList = ["Well", "Finely", "Exquisitely", "Perfectly"];
+    //const preDNMatchList = ["Poorly", "Badly", "Horribly", "Awfully"];
+    const preFullMatchList = ["Well", "Finely", "Exquisitely", "Perfectly", "Poorly", "Badly", "Horribly", "Awfully"];
+
+    if (preFullMatchList.includes(prefix)){
+        descChoices.push("Crafted", "Designed", "Put-Together");
+        switch(item.mats[0]){
+            case "Magical":
+                descChoices.push("Enchanted", "Designed");
+            break;
+            case "Metalic":
+                switch(item.slot){
+                    case "Mainhand":
+                        descChoices.push("Sharpened", "Tempered");
+                    break;
+                    case "Offhand":
+                        descChoices.push("Polished", "Tempered");
+                    break;
+                    default:
+                        descChoices.push("Polished", "Formed");
+                    break;
+                }
+            break;
+            case "Silky":
+                descChoices.push("Woven", "Stitched", "Hemmed");
+            break;
+            case "Woody":
+                descChoices.push("Carved", "Bound", "Weighted");
+            break;
+        }
+        return descChoices;
+    }
+
+    // Second check if prefix is "None"
+    if (prefix === "None"){
+        descChoices.push("Plain", "Clean", "Normal", "Basic", "None");
+        return descChoices;
+    }
+
+    switch(benchObj.prefix.changeRar){
+        case "UP":
+            descChoices.push("None");
+            switch(benchObj.prefix.changeMag){
+                case "None":
+
+                break;
+                case "Small":
+
+                break;
+                case "Normal":
+
+                break;
+                case "Large":
+
+                break;
+            }
+        break;
+        case "DOWN":
+            descChoices.push("None");
+            switch(benchObj.prefix.changeMag){
+                case "None":
+
+                break;
+                case "Small":
+
+                break;
+                case "Normal":
+
+                break;
+                case "Large":
+
+                break;
+            }
+        break;
+        default:
+            descChoices.push("None");
+        break;
+    }
+
+    return descChoices;
 }
 
 
+function handleExtraNameStuff(item, benchObj){
+    // Load Prefix Options
+    const prefixChoices = loadPrefixOptions(item, benchObj);
+    //console.log(prefixChoices);
+    const prefixPicked = randArrPos(prefixChoices);
+    //console.log('Prefix Picked: ', prefixPicked);
 
-function extractName(item){
-    const nameCaste = require('./Json/nameCaste.json');
+    // Load Desc Options
+    const descChoices = loadDescOptions(prefixPicked, item, benchObj);
+    //console.log(descChoices);
+    const descPicked = randArrPos(descChoices);
+    //console.log('Descriptor Picked: ', descPicked);
 
-    const casteFiltered = nameCaste.filter(ele => ele.Caste_Type === item.name);
-    const name = randArrPos(casteFiltered[0].Caste_Forms);
+    // if (item.rarity < 4){
+    //     // Remove 2 Name Pieces
+    // } else if (item.rarity < 7){
+    //     // Remove 1 Name Piece
+    // }
+    //const extraNameSection = prefixPicked + (descPicked === 'None') ?  " " : ` ${descPicked}`;
+
+    let newNameArr = [];
+    if (prefixPicked !== "None") newNameArr.push(prefixPicked);
+    if (descPicked !== "None") newNameArr.push(descPicked);
+
+    // Handle Material conditionals here
+    // Silly Mat Names:
+    // Raw Ore
+
+    newNameArr.push(item.domMat.name);
+
+
+    // Handle Caste Type conditionals here
+    // Silly Caste Wording:
+    // Switch Light/Heavy Blade to ``Light/Heavy`` ``DOM_MAT_NAME`` ``Caste Type``
+    let moddedCasteType = item.name;
+    const heavyCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Shield", "Heavy Chestplate"];
+    if (heavyCheck.includes(item.name)){
+        const heavyRegEx = /Heavy /;
+        const heavyStarts = item.name.search(heavyRegEx);
+        const nameSec = item.name.slice(heavyStarts + 6,);
+
+        moddedCasteType = nameSec;
+    }
+
+    const lightCheck = ["Light Leggings", "Light Robe", "Light Cap", "Light Shield"];
+    if (lightCheck.includes(item.name)){
+        const lightRegEx = /Light /;
+        const lightStarts = item.name.search(lightRegEx);
+        const nameSec = item.name.slice(lightStarts + 6,);
+
+        moddedCasteType = nameSec;
+    }
+
+    const reorderCheck = ["Light Blade", "Heavy Blade"];
+    if (reorderCheck.includes(item.name)){
+        const orderPos = newNameArr.length;
+
+        const firstSec = item.name.slice(0, 5);
+        const secondSec = item.name.slice(6,);
+        if (orderPos === 1){
+            // No prefix or desc
+            newNameArr.unshift(firstSec);
+        } else if (orderPos === 2){
+            // Prefix or desc
+            const removedSec = newNameArr.splice(1, 1, firstSec);
+            newNameArr.push(removedSec);
+        } else if (orderPos === 3){
+            // Prefix and desc
+            const removedSec = newNameArr.splice(2, 1, firstSec);
+            newNameArr.push(removedSec);
+        }
+
+        moddedCasteType = secondSec;
+    }
+
+    newNameArr.push(moddedCasteType);
+
+    // Handle Suffix logic here
+
+    const newItemName = newNameArr.join(" ");
+    //console.log(newItemName);
+    
+    return newItemName;
+}
+
+
+function extractName(item, benchObj){
+    let newName;
+    if (benchObj) {
+        newName = handleExtraNameStuff(item, benchObj);
+    } else {
+        // ==========
+        // PREFIX
+
+        // Above Standard
+        // Use "Upwards" Prefix
+        // Pull from rar + 1 List
+        // EX: Common item pulls from this list
+        // const uncomPrefix = ["Weak", "Misshapen", "Thin", "Worn"];
+
+        // Below Standard
+        // Use "Downwards" Prefix
+        // Pull from rar - 1 List
+        // EX: Uncommon item pulls from this list
+        // const comPrefix = ["Broken", "Rusty", "Torn", "Rotten"];
+
+        // Two parter specific `Above Standard`
+        // const doubleUPPrefix = ["Well", "Finely", "Exquisitely", "Perfectly"];
+
+        // Two parter specific `Below Standard`
+        // const doubleDWNPrefix = ["Awfully", "Horribly", "Badly", "Poorly"];
+
+        // ==========
+        // DESC
+
+        // First check PREFIX value for specific describer
+        // const doubleDesc = ["Designed", "Formed", "Crafted", "Woven", "Stitched", "Carved", "Tempered", "Polished"];
+        
+        // Add second descriptor
+        
+        // IF Value above Standard
+        // const valUPDesc = ["Etched", "Engraved", "Embroidered", "Guilded"];
+
+        // IF Total/Single DMG above Standard
+        // const dmgUPDesc = ["Deadly", "Dangerous", "Powerful"];
+
+        // IF Total/Single DEF above Standard
+        // const defUPDesc = ["Sturdy", "Rivited", "Robust"];
+
+
+        /**  === Reworking Name Scheme ===
+         *
+         * Name Layout: Prefix + Desc_1 + Dom_Mat_Type? + Caste_Type_Suffix
+         * 
+         *       Prefix  Desc       Common, Woody   Caste_Suffix
+         * EX_1: Worn    Engraved   Sturdy Branch   Wand
+         * Item_1: Uncommon Wand
+         * 
+         *       Prefix      Desc   Epic, Metalic  Caste_Suffix 
+         * EX_2: Exquisitely Formed Raw Phasemetal Light Blade
+         * Item_2: Epic Light Blade
+         * 
+         *       Frost  Desc   Mystic, Metalic  Caste_Suffix
+         * EX_3: Shiver Bourne Phasemetal Scrap Mace
+         * Item_3: Mystic Mace (Imbued Frost)
+         * 
+         *       Fire      Blunt    ???, Skinny          Desc    ???, Woody  Caste_Suffix
+         * EX_4: Brimstone Battery, Worked Phase-Leather Wrapped Phaseflower Polearm
+         * Item_4: ??? Polearm (Imbued Fire, Blunt)
+         * 
+         * 
+         *  Name Construct:
+         * 
+         *  NO IMBUE: ``Prefix + Desc + Dom_Mat_Name + Caste_Type``
+         * 
+         *  ONE IMBUE: ``Imbue + Desc + Dom_Mat_Name + Caste_Type``
+         * 
+         *  TWO IMBUE: ``Imbue_1 + Imbue_2 + (Mat_2 || Mat_3) + Desc + Caste_Type``
+         */
+        const nameFormConstruction = require('./Json/craftNameForm.json');
+        let filterTmpBy;
+        if (item.imbuedTypes.length === 0){
+            filterTmpBy = "No_Imbue";
+        } else if (item.imbuedTypes.length === 1){
+            filterTmpBy = "One_Imbue";
+        } else if (item.imbuedTypes.length === 2){
+            filterTmpBy = "Two_Imbue";
+        }
+
+        const baseNameTemplate = nameFormConstruction.filter(tmp => tmp.Name === "Name_Template")[0].Templates[`${filterTmpBy}`];
+
+        
+        switch(filterTmpBy){
+            case "No_Imbue":
+                // NO IMBUE
+                // Prefix Filter by: item.rarity item.mats[0]
+                baseNameTemplate.Prefix = randArrPos(nameFormConstruction
+                    .filter(tmp => tmp.Name === "Prefix")[0]
+                    .Filter.filter(rar => rar.Rarity === baseCheckRarName(item.rarity))[0]
+                    .Base_Mat.filter(matT => matT.Type === item.mats[0])[0].Options
+                );
+
+                // Norm_Desc Filter by: item.rarity item.mats[0]
+                baseNameTemplate.Norm_Desc = randArrPos(nameFormConstruction
+                    .filter(tmp => tmp.Name === "Norm_Desc")[0]
+                    .Filter.filter(rar => rar.Rarity === baseCheckRarName(item.rarity))[0]
+                    .Base_Mat.filter(matT => matT.Type === item.mats[0])[0].Options
+                );
+
+                if (item.rarity < 2){
+                    const excludeType = randArrPos(["Prefix", "Norm_Desc"]);
+                    switch(excludeType){
+                        case "Prefix":
+                            baseNameTemplate.Prefix = "";
+                        break;
+                        case "Norm_Desc":
+                            baseNameTemplate.Norm_Desc = "";
+                        break;
+                    }
+                }
+
+                // Dom_Mat_Name
+                baseNameTemplate.Dom_Mat_Name = item.domMat.name;
+
+                // Caste_Type
+                baseNameTemplate.Caste_Type = item.name;
+
+                newName = [baseNameTemplate.Prefix, baseNameTemplate.Norm_Desc, baseNameTemplate.Dom_Mat_Name, baseNameTemplate.Caste_Type].join(" ");
+            break;
+            case "One_Imbue":
+                
+            break;
+            case "Two_Imbue":
+
+            break;
+        }
+
+        // console.log(baseNameTemplate);
+        
+        
+
+        // const nameCaste = require('./Json/nameCaste.json');
+
+        // const casteFiltered = nameCaste.filter(ele => ele.Caste_Type === item.name);
+        // const name = randArrPos(casteFiltered[0].Caste_Forms);
+    }
+    
     item.casteType = item.name;
-    item.name = name;
+    item.name = newName;
     return;
 }
 

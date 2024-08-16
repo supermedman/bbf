@@ -53,6 +53,11 @@ const ItemLootPool = require('./events/Models/ItemLootPool')(sequelize, Sequeliz
 
 const BasicShoppe = require('./events/Models/BasicShoppe')(sequelize, Sequelize.DataTypes);
 
+const GameEvents = require('./events/Models/GameEvents')(sequelize, Sequelize.DataTypes);
+const GuildEvents = require('./events/Models/GuildEvents')(sequelize, Sequelize.DataTypes);
+
+const CraftControllers = require('./events/Models/CraftControllers')(sequelize, Sequelize.DataTypes);
+
 module.exports = {
 	//Equipped,
 	LootStore,
@@ -90,5 +95,8 @@ module.exports = {
 	NPCTable,
 	ItemStrings,
 	ItemLootPool,
-	BasicShoppe
+	BasicShoppe,
+	GameEvents,
+	GuildEvents,
+	CraftControllers
 };

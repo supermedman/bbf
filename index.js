@@ -114,6 +114,7 @@ client.newEnemy = new Collection();
 client.betaTester = new Collection();
 
 client.combatInstance = new Collection();
+client.dungeonInstance = new Collection();
 
 //client.on('unhandledRejection', error => {
 //	console.error('Unhandled promise rejection:', error);

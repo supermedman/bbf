@@ -2,6 +2,7 @@
 // This includes, Item creation, Item trade, and Item selling/dismantling
 
 const { ItemStrings, ItemLootPool, UserData, MaterialStore } = require("../../../dbObjects");
+const { getTypeof } = require("../../../uniHelperFunctions");
 
 /**
  * This function checks for an item in the given users ItemStrings storage,
@@ -22,7 +23,17 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
         where: {creation_offset_id: itemid}
     });
 
-    const theItem = await ItemStrings.findOrCreate({
+    let theItem = (craftedI) 
+    ? await ItemStrings.create({
+        user_id: userid,
+        name: itemMatch.name,
+        value: itemMatch.value,
+        amount: amount,
+        item_code: itemMatch.item_code,
+        caste_id: itemMatch.caste_id,
+        creation_id: 2
+    }) 
+    : await ItemStrings.findOrCreate({
         where: {
             user_id: userid,
             item_id: itemid
@@ -36,6 +47,12 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
             creation_id: itemMatch.creation_offset_id
         }
     });
+
+    // Item was just crafted, set item_id to unique_gen_id
+    if (getTypeof(theItem) !== 'Array'){
+        await theItem.update({item_id: theItem.unique_gen_id});
+        theItem = [theItem, true];
+    }
 
     // If item was created and not found
     if (theItem[1]) {
@@ -83,6 +100,29 @@ async function checkInboundMat(userid, matRef, matType, amount=1){
 }
 
 /**
+ * This function handles adding the given item to the ``ItemLootPool`` database 
+ * table, resolving to the created items reference within the database.
+ * @param {object} statItem Newly crafted item qualified for static dropping
+ * @param {string} userid Userid of items creator
+ * @returns {Promise<object>}
+ */
+async function handleNewStaticItem(statItem, userid){
+    const theItem = await ItemLootPool.create({
+        name: statItem.name,
+        value: statItem.value,
+        item_code: statItem.item_code,
+        caste_id: statItem.caste_id,
+        creation_offset_id: statItem.item_id,
+        user_created: true,
+        crafted_by: userid
+    }).then(async i => await i.save()).then(async i => {return await i.reload()});
+
+    console.log(`\n\n=== NEW ITEM CREATED ===\n\nName: ${theItem.name}\nUserid: ${userid}\n\n`);
+
+    return theItem;
+}
+
+/**
  * This function checks for a given item in the given users ItemStrings storage,
  * it then attempts to remove from it the amount give, if this amount reduces total 
  * amount to or below zero, it removes the item entry and decreases the users total
@@ -124,8 +164,10 @@ async function checkOutboundMat(userid, matRef, matType, amount=1){
     });
     if (!theMat) return 'Material Not Found';
     await theMat.decrement('amount', {by: amount}).then(async mat => {
-        await mat.reload();
-        if (mat.amount <= 0) await trashMaterial(mat);
+        await mat.save().then(async mat => {
+            await mat.reload();
+            if (mat.amount <= 0) await trashMaterial(mat);
+        });
     });
     return 'Material Updated';
 }
@@ -194,6 +236,7 @@ module.exports = {
     moveMaterial,
     checkInboundItem,
     checkInboundMat,
+    handleNewStaticItem,
     checkOutboundItem,
     checkOutboundMat,
     trashItem

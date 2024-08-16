@@ -37,7 +37,10 @@ const {
     NPCTable,
     ItemStrings,
 	ItemLootPool,
-    BasicShoppe
+    BasicShoppe,
+    GameEvents,
+    GuildEvents,
+    CraftControllers
 } = require('../dbObjects.js');
 
 async function loadEarlyAccess(client){
@@ -144,6 +147,11 @@ module.exports = {
         ItemLootPool.sync();
 
         BasicShoppe.sync();
+
+        GameEvents.sync();
+        GuildEvents.sync();
+
+        CraftControllers.sync();
 
         try {
             loadEarlyAccess(client);

@@ -12,10 +12,20 @@ const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
+/**
+ * This function rolls Math.random() and checks if ``chance >= roll``
+ * @param {number} chance Chance to roll against
+ * @returns {boolean}
+ */
 const rollChance = (chance) => {
     return (Math.random() <= chance) ? true : false;
 };
 
+/**
+ * This function rolls Math.random() and checks if ``chance <= roll``
+ * @param {number} chance Chance to roll against
+ * @returns {boolean}
+ */
 const dropChance = (chance) => {
     return (Math.random() >= chance) ? true : false;
 };
@@ -65,7 +75,7 @@ const checkLootUP = (pigmy, user) => {
  * This method handles styling timers based on time difference found, and then
  * handles logging the output accordingly.
  * @param {number} startTime Start Time for measurement
- * @param {string} measureName Display String for measurement
+ * @param {string} measureName Display String, shown as ``${measureName} Duration: ``
  */
 const endTimer = (startTime, measureName) => {
     const endTime = new Date().getTime();
@@ -109,6 +119,18 @@ async function grabUser(id){
  */
 async function grabActivePigmy(id){
     return await Pigmy.findOne({where: {spec_id: id}});
+}
+
+/**
+ * This function yields ``[key, value]`` pairs of a given object where:
+ * 
+ * {`key` Property: `value` Value}
+ * @param {object} obj Object to be destructed into key: value pairs
+ */
+function* objectEntries(obj) {
+    for (let key of Object.keys(obj)) {
+        yield [key, obj[key]];
+    }
 }
 
 function getTypeof(t){
@@ -182,15 +204,32 @@ async function sendTimedChannelMessage(interaction, timeLimit, contents, replyTy
 }
 
 /**
+ * This function handles updating the given ``anchorMsg`` with the provided ``editWith`` contents
+ * It then wraps the resulting response in a setTimeout() self-destruct waiting ``timeLimit``ms
+ * @param {object} anchorMsg Interaction Message Reference
+ * @param {number} timeLimit Amount in ms to be used with setTimeout()
+ * @param {object} editWith Contents to edit anchorMsg with
+ * @returns {Promise<void>}
+ */
+async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
+    const replyObject = handleContentType(editWith);
+    return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
+        anchorMsg.delete();
+    }, timeLimit)).catch(e => console.error(e));
+}
+
+/**
  * This function creates and stores a sent message as an anchor, which it then uses
- * to attach a messageComponentCollector for use with Discords buttons.
+ * to attach a messageComponentCollector for use with Discords interactive components.
+ * Component Type is specified by ``compType`` which if left empty defaults to Button.
  * @param {object} interaction Discord Interaction Object
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {any} contents  One of many types, handled internally
  * @param {string} replyType One of: "FollowUp", "Reply", undefined
+ * @param {string} compType One of: "Button", "String", undefined
  * @returns {Promise<{anchorMsg: object, collector: object}>}
  */
-async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType){
+async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType, compType){
     const replyObject = handleContentType(contents);
     let anchorMsg;
     switch(replyType){
@@ -205,21 +244,52 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
         break;
     }
     
-    const collector = createButtonCollector(interaction, timeLimit, anchorMsg);
+    const collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType);
 
     return {anchorMsg, collector};
 }
 
-function createButtonCollector(interaction, timeLimit, anchorMsg){
+/**
+ * This function attatches a component collector to the provided anchorMsg object,
+ * the type of components collected is specified by compType which if not provided 
+ * defaults to type ``Button``.
+ * @param {object} interaction Discord Interaction Object
+ * @param {number} timeLimit Amount in ms to be used with setTimeout()
+ * @param {object} anchorMsg Discord message object used as an anchor
+ * @param {string} compType One of: "Button", "String", undefined
+ * @returns {object}
+ */
+function createComponentCollector(interaction, timeLimit, anchorMsg, compType){
     const filter = (i) => i.user.id === interaction.user.id;
 
+    let theType;
+    switch(compType){
+        case "Button":
+            theType = ComponentType.Button;
+        break;
+        case "String":
+            theType = ComponentType.StringSelect;
+        break;
+        default:
+            theType = ComponentType.Button;
+        break;
+    }
+
     const collector = anchorMsg.createMessageComponentCollector({
-        componentType: ComponentType.Button,
+        componentType: theType,
         filter,
         time: timeLimit
     });
 
     return collector;
+}
+
+async function handleCatchDelete(anchorMsg){
+    return await anchorMsg.delete().catch(error => {
+        if (error.code !== 10008) {
+            console.error('Failed to delete the message:', error);
+        }
+    });
 }
 
 module.exports = {
@@ -231,9 +301,12 @@ module.exports = {
     checkLootDrop,
     checkLootUP,
     endTimer,
+    objectEntries,
     grabUser,
     grabActivePigmy,
     getTypeof,
     sendTimedChannelMessage,
-    createInteractiveChannelMessage
+    editTimedChannelMessage,
+    createInteractiveChannelMessage,
+    handleCatchDelete
 }

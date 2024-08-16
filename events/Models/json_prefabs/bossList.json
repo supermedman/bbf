@@ -13,13 +13,18 @@
 		"Line_TwoC": "DarkRed",
 
 		"Level": 35,
+
 		"MinDmg": 75,
 		"MaxDmg": 100,
-		"Health": 7500,
-		"StageHealth": 3000,
-		"Defence": 45,
 
-		"WeakTo": "NULL",
+		"Body": "Boss",
+		"Body_HP": 3000,
+		"Armor": "Armor",
+		"Armor_HP": 1150,
+		"Shield": "Phase Aura",
+		"Shield_HP": 250,
+
+		"Health": 7500,"StageHealth": 3000,"Defence": 45,"WeakTo": "NULL",
 
 		"ConstKey": 1001,
 		"Stage": 1,
@@ -48,11 +53,15 @@
 		"Level": 35,
 		"MinDmg": 100,
 		"MaxDmg": 250,
-		"Health": 3000,
-		"StageHealth": 1,
-		"Defence": 40,
 
-		"WeakTo": "NONE",
+		"Body": "Boss",
+		"Body_HP": 1500,
+		"Armor": "Armor",
+		"Armor_HP": 1500,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 3000,"StageHealth": 1,"Defence": 40,"WeakTo": "NONE",
 
 		"ConstKey": 1002,
 		"Stage": 2,
@@ -81,11 +90,15 @@
 		"Level": 35,
 		"MinDmg": 0,
 		"MaxDmg": 1,
-		"Health": 1,
-		"StageHealth": 0,
-		"Defence": 0,
 
-		"WeakTo": "NULL",
+		"Body": "Boss",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1,"StageHealth": 0,"Defence": 0,"WeakTo": "NULL",
 
 		"Dead": false,
 		"XpMin": 15000,
@@ -125,11 +138,15 @@
 		"Level": 45,
 		"MinDmg": 100,
 		"MaxDmg": 175,
-		"Health": 10000,
-		"StageHealth": 5000,
-		"Defence": 50,
 
-		"WeakTo": "Light",
+		"Body": "Boss",
+		"Body_HP": 1500,
+		"Armor": "Armor",
+		"Armor_HP": 2000,
+		"Shield": "Phase Aura",
+		"Shield_HP": 1500,
+
+		"Health": 10000, "StageHealth": 5000, "Defence": 50, "WeakTo": "Light",
 
 		"ConstKey": 1004,
 		"Stage": 1,
@@ -158,11 +175,15 @@
 		"Level": 45,
 		"MinDmg": 175,
 		"MaxDmg": 280,
-		"Health": 5000,
-		"StageHealth": 1,
-		"Defence": 35,
 
-		"WeakTo": "NONE",
+		"Body": "Boss",
+		"Body_HP": 2000,
+		"Armor": "Armor",
+		"Armor_HP": 3000,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 5000, "StageHealth": 1, "Defence": 35, "WeakTo": "NONE",
 
 		"ConstKey": 1005,
 		"Stage": 2,
@@ -191,11 +212,15 @@
 		"Level": 45,
 		"MinDmg": 0,
 		"MaxDmg": 1,
-		"Health": 1,
-		"StageHealth": 0,
-		"Defence": 0,
 
-		"WeakTo": "Light",
+		"Body": "Boss",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1, "StageHealth": 0, "Defence": 0, "WeakTo": "Light",
 
 		"Dead": false,
 		"XpMin": 25000,
@@ -235,11 +260,15 @@
 		"Level": 50,
 		"MinDmg": 120,
 		"MaxDmg": 175,
-		"Health": 13000,
-		"StageHealth": 5000,
-		"Defence": 50,
 
-		"WeakTo": "Slash",
+		"Body": "Flesh",
+		"Body_HP": 1000,
+		"Armor": "Demon",
+		"Armor_HP": 3500,
+		"Shield": "Phase Demon",
+		"Shield_HP": 1500,
+
+		"Health": 13000, "StageHealth": 5000, "Defence": 50, "WeakTo": "Slash",
 
 		"ConstKey": 1007,
 		"Stage": 1,
@@ -268,11 +297,15 @@
 		"Level": 50,
 		"MinDmg": 180,
 		"MaxDmg": 280,
-		"Health": 5000,
-		"StageHealth": 1,
-		"Defence": 60,
 
-		"WeakTo": "NONE",
+		"Body": "Flesh",
+		"Body_HP": 1000,
+		"Armor": "Demon",
+		"Armor_HP": 4000,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 5000, "StageHealth": 1, "Defence": 60, "WeakTo": "NONE",
 
 		"ConstKey": 1008,
 		"Stage": 2,
@@ -301,11 +334,15 @@
 		"Level": 50,
 		"MinDmg": 0,
 		"MaxDmg": 1,
-		"Health": 1,
-		"StageHealth": 0,
-		"Defence": 0,
 
-		"WeakTo": "Slash",
+		"Body": "Flesh",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1, "StageHealth": 0, "Defence": 0, "WeakTo": "Slash",
 
 		"Dead": false,
 		"XpMin": 35000,
@@ -345,11 +382,15 @@
 		"Level": 55,
 		"MinDmg": 200,
 		"MaxDmg": 210,
-		"Health": 25000,
-		"StageHealth": 8000,
-		"Defence": 15,
 
-		"WeakTo": "Blunt",
+		"Body": "Boss",
+		"Body_HP": 5000,
+		"Armor": "Fossil",
+		"Armor_HP": 5000,
+		"Shield": "Phase Aura",
+		"Shield_HP": 7000,
+
+		"Health": 25000,"StageHealth": 8000,"Defence": 15,"WeakTo": "Blunt",
 
 		"ConstKey": 1010,
 		"Stage": 1,
@@ -378,11 +419,15 @@
 		"Level": 55,
 		"MinDmg": 250,
 		"MaxDmg": 300,
-		"Health": 8000,
-		"StageHealth": 1,
-		"Defence": 0,
 
-		"WeakTo": "Blunt",
+		"Body": "Magical Flesh",
+		"Body_HP": 4000,
+		"Armor": "Bark",
+		"Armor_HP": 4000,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 8000,"StageHealth": 1,"Defence": 0,"WeakTo": "Blunt",
 
 		"ConstKey": 1011,
 		"Stage": 2,
@@ -411,11 +456,15 @@
 		"Level": 55,
 		"MinDmg": 0,
 		"MaxDmg": 1,
-		"Health": 1,
-		"StageHealth": 0,
-		"Defence": 0,
 
-		"WeakTo": "Blunt",
+		"Body": "Boss",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1,"StageHealth": 0,"Defence": 0,"WeakTo": "Blunt",
 
 		"Dead": false,
 		"XpMin": 60000,
@@ -455,11 +504,15 @@
 		"Level": 65,
 		"MinDmg": 260,
 		"MaxDmg": 350,
-		"Health": 35000,
-		"StageHealth": 10000,
-		"Defence": 75,
 
-		"WeakTo": "Rad",
+		"Body": "Boss",
+		"Body_HP": 10000,
+		"Armor": "Armor",
+		"Armor_HP": 10000,
+		"Shield": "Phase Aura",
+		"Shield_HP": 5000,
+
+		"Health": 35000,"StageHealth": 10000,"Defence": 75,"WeakTo": "Rad",
 
 		"ConstKey": 1013,
 		"Stage": 1,
@@ -488,11 +541,15 @@
 		"Level": 65,
 		"MinDmg": 325,
 		"MaxDmg": 425,
-		"Health": 10000,
-		"StageHealth": 1,
-		"Defence": 25,
 
-		"WeakTo": "None",
+		"Body": "Specter",
+		"Body_HP": 1000,
+		"Armor": "Demon",
+		"Armor_HP": 9000,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 10000,"StageHealth": 1,"Defence": 25,"WeakTo": "None",
 
 		"ConstKey": 1014,
 		"Stage": 2,
@@ -521,11 +578,15 @@
 		"Level": 65,
 		"MinDmg": 0,
 		"MaxDmg": 1,
-		"Health": 1,
-		"StageHealth": 0,
-		"Defence": 0,
 
-		"WeakTo": "Blunt",
+		"Body": "Boss",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1,"StageHealth": 0,"Defence": 0,"WeakTo": "Blunt",
 
 		"Dead": false,
 		"XpMin": 85000,
@@ -565,11 +626,15 @@
 		"Level": 75,
 		"MinDmg": 350,
 		"MaxDmg": 500,
-		"Health": 35000,
-		"StageHealth": 10000,
-		"Defence": 75,
 
-		"WeakTo": "Magic",
+		"Body": "Magical Flesh",
+		"Body_HP": 5000,
+		"Armor": "Demon",
+		"Armor_HP": 10000,
+		"Shield": "Phase Demon",
+		"Shield_HP": 10000,
+
+		"Health": 35000,"StageHealth": 10000,"Defence": 75,"WeakTo": "Magic",
 
 		"ConstKey": 1016,
 		"Stage": 1,
@@ -598,11 +663,15 @@
 		"Level": 75,
 		"MinDmg": 550,
 		"MaxDmg": 643,
-		"Health": 10000,
-		"StageHealth": 1,
-		"Defence": 45,
 
-		"WeakTo": "Slash",
+		"Body": "Boss",
+		"Body_HP": 3000,
+		"Armor": "Demon",
+		"Armor_HP": 7000,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 10000,"StageHealth": 1,"Defence": 45,"WeakTo": "Slash",
 
 		"ConstKey": 1017,
 		"Stage": 2,
@@ -631,11 +700,15 @@
 		"Level": 75,
 		"MinDmg": 0,
 		"MaxDmg": 1,
-		"Health": 1,
-		"StageHealth": 0,
-		"Defence": 0,
 
-		"WeakTo": "Magic",
+		"Body": "Boss",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1,"StageHealth": 0,"Defence": 0,"WeakTo": "Magic",
 
 		"Dead": false,
 		"XpMin": 150000,
