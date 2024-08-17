@@ -5,8 +5,9 @@ const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../../chalkPresets.js');
 
 const { checkHintLootBuy } = require('./exported/handleHints.js');
-const { sendTimedChannelMessage, grabUser, makeCapital, createInteractiveChannelMessage } = require('../../uniHelperFunctions.js');
+const { sendTimedChannelMessage, grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, objectEntries } = require('../../uniHelperFunctions.js');
 const { lvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
+const { baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stats')
@@ -91,17 +92,27 @@ module.exports = {
                 //  EMBEDS
                 // ========
                 const userPageEmbed = createBasicUserPage(user);
+                usersEmbedList.push(userPageEmbed);
 
                 const userStatusOutcome = await createUserStatusPage(user);
+                if (userStatusOutcome === "No Status") {
+                    usersEmbedList.push("No Embed");
+                } else usersEmbedList.push(new EmbedBuilder().setTitle("Placeholder Status Embed"));
 
                 const userTownEmbed = await createUserTownPage(user);
+                if (userTownEmbed === "No Town") {
+                    usersEmbedList.push("No Embed");
+                } else usersEmbedList.push(userTownEmbed);
 
                 const userCraftsEmbed = await createUserCraftsPage(user);
+                if (userCraftsEmbed === "No Crafts") {
+                    usersEmbedList.push("No Embed");
+                } else usersEmbedList.push(userCraftsEmbed);
 
                 const userTasksEmbed = await createUserTasksPage(user);
-
-                // TEMP CODE
-                usersEmbedList.push(userPageEmbed);
+                if (userTasksEmbed === "No Tasks") {
+                    usersEmbedList.push("No Embed");
+                } else usersEmbedList.push(userTasksEmbed);
 
                 // =========
                 //  BUTTONS
@@ -149,6 +160,105 @@ module.exports = {
                 // ================
                 // HANDLE COLLECTOR
                 // ================
+
+                const disableTracker = {
+                    lastShown: 'basic',
+                    basic: {
+                        perm: false,
+                        shown: true
+                    },
+                    status: {
+                        perm: showStatus,
+                        shown: false
+                    },
+                    town: {
+                        perm: showTown,
+                        shown: false
+                    },
+                    craft: {
+                        perm: showCrafts,
+                        shown: false
+                    },
+                    task: {
+                        perm: showTasks,
+                        shown: false
+                    }
+                };
+
+                collector.on('collect', async c => {
+                    await c.deferUpdate().then(async () => {
+                        disableTracker[`${disableTracker.lastShown}`].shown = false;
+                        let editWith;
+                        switch(c.customId){
+                            case "basic-page":
+                                disableTracker.basic.shown = true;
+                                disableTracker.lastShown = 'basic';
+                                editWith = {embeds: [usersEmbedList[0]], components: [basicButtRow]};
+                            break;
+                            case "status-page":
+                                disableTracker.status.shown = true;
+                                disableTracker.lastShown = 'status';
+                                editWith = {embeds: [usersEmbedList[1]], components: [basicButtRow]};
+                            break;
+                            case "town-page":
+                                disableTracker.town.shown = true;
+                                disableTracker.lastShown = 'town';
+                                editWith = {embeds: [usersEmbedList[2]], components: [basicButtRow]};
+                            break;
+                            case "craft-page":
+                                disableTracker.craft.shown = true;
+                                disableTracker.lastShown = 'craft';
+                                editWith = {embeds: [usersEmbedList[3]], components: [basicButtRow]};
+                            break;
+                            case "task-page":
+                                disableTracker.task.shown = true;
+                                disableTracker.lastShown = 'task';
+                                editWith = {embeds: [usersEmbedList[4]], components: [basicButtRow]};
+                            break;
+                        }
+
+                        basicPageButt.setDisabled(
+                            (disableTracker.basic.perm) 
+                            ? true : (disableTracker.basic.shown) 
+                            ? true : false
+                        );
+
+                        statusPageButt.setDisabled(
+                            (disableTracker.status.perm) 
+                            ? true : (disableTracker.status.shown) 
+                            ? true : false
+                        );
+
+                        townPageButt.setDisabled(
+                            (disableTracker.town.perm) 
+                            ? true : (disableTracker.town.shown) 
+                            ? true : false
+                        );
+
+                        craftsPageButt.setDisabled(
+                            (disableTracker.craft.perm) 
+                            ? true : (disableTracker.craft.shown) 
+                            ? true : false
+                        );
+
+                        tasksPageButt.setDisabled(
+                            (disableTracker.task.perm) 
+                            ? true : (disableTracker.task.shown) 
+                            ? true : false
+                        );
+
+                        await anchorMsg.edit(editWith);
+                    }).catch(e => console.error(e));
+                });
+
+                collector.on('end', async (c, r) => {
+                    if (!r || r === 'Time'){
+                        await handleCatchDelete(anchorMsg);
+                    }
+
+                    await handleCatchDelete(anchorMsg);
+                });
+
             } else {
                 // OLD CODE 
                 await interaction.deferReply().then(async () => {
@@ -567,22 +677,149 @@ module.exports = {
         /**
          * This function handles generating the users town info embed.
          * If no user town is found, returns ``"No Town"``
-         * @param {object} user 
-         * @returns {Promise <(EmbedBuilder)> | string}
+         * @param {object} user UserData Instance Object
+         * @returns {Promise <EmbedBuilder> | string}
          */
         async function createUserTownPage(user){
             const town = (user.townid === '0') ? 'None': await Town.findOne({where: {townid: user.townid}});
             if (town === 'None') return "No Town";
+            
+            const townEmbed = new EmbedBuilder()
+            .setTitle(`== Town of ${makeCapital(town.name)} ==`);
+
+            // Basic Info
+            // ==========
+            // Level, Coins, Location, Population
+            const locationSwitch = town.local_biome.split("-");
+            const basicField = {
+                name: '== Basic Info ==',
+                value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population - town.npc_population}**\nNPC Population: **${town.npc_population}**`
+            };
+
+            // Mayor Info
+            // ==========
+            // Cur-User?
+            const theMayor = await grabUser(town.mayorid);
+            const mayorField = {
+                name: '== The Mayor ==',
+                value: `**${makeCapital(theMayor.username)}**`
+            };
+
+            // Build Info
+            // ==========
+            // Tot-Plots, Open, Closed, Built
+            const buildFields = {
+                name: '== Plot Info ==',
+                value: `Total Plots: **${town.buildlimit}**\nOpen Plots: **${town.openplots}**\nClosed Plots: **${town.closedplots}**\nOwned Plots: **${town.ownedplots}**\nDeveloped Plots: **${town.buildcount}**`
+            };
+
+            // Core Info
+            // =========
+            // Grandhall, Bank, Market, Tavern, Clergy
+            const coreFields = {
+                name: '== Core-Building Info ==',
+                value: `Grandhall Status: **${(town.grandhall_status === "None") ? "Not Built" : town.grandhall_status}**\nBank Status: **${(town.bank_status === "None") ? "Not Built" : town.bank_status}**\nMarket Status: **${(town.market_status === "None") ? "Not Built" : town.market_status}**\nTavern Status: **${(town.tavern_status === "None") ? "Not Built" : town.tavern_status}**\nClergy Status: **${(town.clergy_status === "None") ? "Not Built" : town.clergy_status}**`
+            };
+
+            // Band Info?
+            // ==========
+            // Band 1, Band 2
+            // TBD
+
+            townEmbed.addFields([basicField, mayorField, buildFields, coreFields]);
+
+            return townEmbed;
         }
 
+        /**
+         * This function handles generating the users crafting info embed.
+         * If no ``CraftController`` is found, returns ``"No Crafts"``
+         * @param {object} user UserData Instance Object
+         * @returns {Promise <EmbedBuilder> | string}
+         */
         async function createUserCraftsPage(user){
             const controller = await CraftControllers.findOne({where: {user_id: user.userid}});
             if (!controller) return "No Crafts";
+
+            const craftEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Crafting Ledger ==`);
+
+            // Progress Info
+            // =============
+            // max_rar, drop_rar, use_tooly, rar_tooly, max_tooly, imbue1, imbue2
+            const unlockField = {
+                name: '== Crafting Ability ==',
+                value: `Strongest Material Useable: **${baseCheckRarName(controller.max_rar)}**\nHighest Droppable Material: **${baseCheckRarName(controller.drop_rar)}**`
+            };
+            unlockField.value += (controller.use_tooly) ? `\nCraft Using Tooly: **Available**\nStrongest Tooly Useable: **${baseCheckRarName(controller.rar_tooly)}**\nMax Amount of Tooly: **${controller.max_tooly}**` : "\nCraft Using Tooly: **Unavailable**";
+            unlockField.value += (controller.imbue_one) ? "\nImbue While Crafting: **Available**": "\nImbue While Crafting: **Unavailable**";
+            unlockField.value += (controller.imbue_two) ? "\nSecond Imbue Slot: **Available**": "\nSecond Imbue Slot: **Unavailable**";
+            
+            // Crafted Stats
+            // =============
+            // tot_crafted, value_crafted, times_imbued, highest_rarity, highest_value, benchmark_crafts
+            const basicField = {
+                name: '== Basic Crafting Stats ==',
+                value: `Total Items Crafted: **${controller.tot_crafted}**\nTotal Value Crafted: **${controller.value_crafted}**c\nItems Imbued: **${controller.times_imbued}**\nHighest Rarity Crafted: **${baseCheckRarName(controller.highest_rarity)}**\nHighest Value Craft: **${controller.highest_value}**c\nItems Added to Loot Pool: **${controller.benchmark_crafts}**`
+            };
+            
+            // Extra Stats
+            // ===========
+            // crafts above rar 10
+            const highCraftData = JSON.parse(controller.rarity_tracker);
+            const kvPairs = objectEntries(highCraftData);
+            const pairObjList = [];
+            for (const [key, value] of kvPairs){
+                pairObjList.push({key: key, value: value});
+            }
+            const totalHighCrafts = pairObjList.reduce((acc, obj) => {
+                return (acc > 0) ? acc + obj.value : obj.value;
+            }, 0);
+            const extraField = {
+                name: `== ${baseCheckRarName(13)} and Stronger Crafts ==`,
+                value: ''
+            };
+            extraField.value += (totalHighCrafts > 0) ? `${pairObjList.map(obj => `${baseCheckRarName(obj.key)}: **${obj.value}**\n`)}`: "No Items Crafted!";
+
+            // Strongest Item Pages
+            // ====================
+            // Page 1: Weapon
+            // Page 2: Armor
+            // Page 3: Offhand
+            // Page 4: Highest Value Item
+
+            craftEmbed.addFields([unlockField, basicField, extraField]);
+            
+            return craftEmbed;
         }
 
         async function createUserTasksPage(user){
             const userTasks = await UserTasks.findAll({where: {userid: user.userid}});
             if (userTasks.length === 0) return "No Tasks";
+
+            const taskEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Task Overview ==`);
+
+            const cTaskList = userTasks.filter(task => task.complete);
+            const fTaskList = userTasks.filter(task => task.failed);
+            const aTaskList = userTasks.filter(task => !task.complete && !task.failed);
+
+            // Basic Info
+            // ==========
+            // Completed, Failed, Active
+            const basicField = {
+                name: '== Task History ==',
+                value: `Completed Tasks: **${cTaskList.length}**\nFailed Tasks: **${fTaskList.length}**\nActive Tasks: **${aTaskList.length}**`
+            };
+
+            // Extra Info
+            // ==========
+            // Completed Amount @ Difficulty For:
+            // Fetch, Combat, Gather, Craft?
+            const tList = ["Fetch", "Gather", "Combat"]
+
+            
+            return taskEmbed;
         }
 
         function makeListStr(uData, nxtLvl, userTown) {
