@@ -1274,7 +1274,7 @@ function handleExtraNameStuff(item, benchObj){
         moddedCasteType = nameSec;
     }
 
-    const reorderCheck = ["Light Blade", "Heavy Blade"];
+    const reorderCheck = ["Light Blade", "Heavy Blade", "Light Buckler", "Heavy Shield"];
     if (reorderCheck.includes(item.name)){
         const orderPos = newNameArr.length;
 

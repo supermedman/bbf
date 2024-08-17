@@ -42,7 +42,7 @@ async function handleControllerUpdateCheck(controller, user){
     let maxBoss;
     if (questData){
         const curLine = qLineList.indexOf(questData.currentquestline);
-        maxBoss = 1 - curLine;
+        maxBoss = curLine - 1;
 
         // Check if current storyline boss has been defeated. Will fail if dungeon has been overwritten!!
         const dungCheck = await ActiveDungeon.findOne({where: {dungeonspecid: user.userid, dungeonid: curLine, completed: true}});
