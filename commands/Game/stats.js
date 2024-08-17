@@ -5,7 +5,8 @@ const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../../chalkPresets.js');
 
 const { checkHintLootBuy } = require('./exported/handleHints.js');
-const { sendTimedChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
+const { sendTimedChannelMessage, grabUser, makeCapital } = require('../../uniHelperFunctions.js');
+const { lvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stats')
@@ -76,6 +77,28 @@ module.exports = {
         if (!interaction) return;
 
         if (interaction.options.getSubcommand() === 'user') {
+            await interaction.deferReply();
+
+            const theUser = interaction.options.getUser('player') ?? interaction.user;
+
+            const user = await grabUser(theUser.id);
+            if (!user) return await interaction.followUp(`${theUser.username} does not have a profile!`);
+
+            const uTown = (user.townid === '0') ? 'None': await Town.findOne({where: {townid: user.townid}});       
+
+            const userPageEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Stats ==`);
+
+            const userStatusEmbed = new EmbedBuilder();
+
+            const userTownEmbed = new EmbedBuilder();
+
+            const userCraftsEmbed = new EmbedBuilder();
+
+            const userTasksEmbed = new EmbedBuilder();
+
+
+
             await interaction.deferReply().then(async () => {
                 const user = interaction.options.getUser('player');
 
@@ -303,6 +326,67 @@ module.exports = {
             await sendTimedChannelMessage(interaction, 40000, replyObj, "FollowUp");
         }
 
+        /**
+         * This function handles calculating the given users max possible health.
+         * @param {object} user UserData Instance Object
+         * @returns {number} Max Health for given user
+         */
+        function handleHealthMod(user){
+            const healthModC = ["Mage", "Thief", "Warrior", "Paladin"];
+            const healthModM = [1.1, 1.2, 1.5, 2];
+            const baseHealth = 100;
+
+            const maxUserHP = (baseHealth + (user.level * 2) + (user.strength * 5)) * healthModM[healthModC.indexOf(user.pclass)];
+            
+            return Math.round(maxUserHP);
+        }
+
+        function createBasicUserPage(user){
+            // Basic Stats
+            // ===========
+            // Class, Spd, Str, Int, Dex, Cur-HP, Max-HP
+            const basicField = {
+                name: '== Basic Stats ==', 
+                value: `Class: **${user.pclass}**\nSpeed: **${user.speed}**\nStrength: **${user.strength}**\nIntelligence: **${user.intelligence}**\nDexterity: **${user.dexterity}**\nCurrent Health: **${user.health}** HP\nMax Health: **${handleHealthMod(user)}** HP`
+            };
+
+            // Level Stats
+            // ===========
+            // Level, Cur-XP/Need-XP, Perk Points
+            const levelField = {
+                name: '== Level Stats ==',
+                value: `Level: **${user.level}**\nProgress to next level: **${user.xp}**/${lvlScaleCheck(user.level)}\nPerk Points: **${user.points}**`
+            };
+
+            // Quest Stats
+            // ===========
+            // Hours Quested, QTS, Locations?, Story Progress?
+            const questField = {
+                name: '== Quest Stats ==',
+                value: `Aprox. Hours Spent Questing: **${user.qt - Math.floor(user.qt/4)}**`
+            };
+
+
+            // Combat Stats
+            // ============
+            // Tot-Kills, One-Life-Max, Last-Death, Kills-Since
+        }
+
+        function createUserStatusPage(){
+
+        }
+
+        function createUserTownPage(){
+
+        }
+
+        function createUserCraftsPage(){
+
+        }
+
+        function createUserTasksPage(){
+
+        }
 
         function makeListStr(uData, nxtLvl, userTown) {
              const list = `Class: ${uData.pclass}\n

@@ -300,7 +300,7 @@ async function handleControllerCrafting(controller, casteObj, finalObj){
     // ============================
     if (finalObj.passedBenching) await controller.increment('benchmark_crafts').then(async c => await c.save()).then(async c => {return await c.reload()});
 
-    console.log(controller.dataValues);
+    // console.log(controller.dataValues);
 
     endTimer(craftedUpdatingStart, "Post-Crafting: Controller Update Cycle");
 }
