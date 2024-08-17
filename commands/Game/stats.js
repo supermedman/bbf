@@ -1,11 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveStatus, Town } = require('../../dbObjects.js');
+const { UserData, ActiveStatus, Town, CraftControllers, UserTasks } = require('../../dbObjects.js');
 const { createEnemyDisplay } = require('./exported/displayEnemy.js');
 const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../../chalkPresets.js');
 
 const { checkHintLootBuy } = require('./exported/handleHints.js');
-const { sendTimedChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
+const { sendTimedChannelMessage, grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, objectEntries, endTimer } = require('../../uniHelperFunctions.js');
+const { lvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
+const { baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('stats')
@@ -76,171 +78,442 @@ module.exports = {
         if (!interaction) return;
 
         if (interaction.options.getSubcommand() === 'user') {
-            await interaction.deferReply().then(async () => {
-                const user = interaction.options.getUser('player');
+            // if (interaction.user.id === '501177494137995264'){
+            await interaction.deferReply();
 
-                const hasDataCheck = await UserData.findOne({ where: { userid: interaction.user.id } });
-                if (!hasDataCheck) return await interaction.followUp('You do not have a game profile yet! Please use ``/start`` to begin!!');
+            const theUser = interaction.options.getUser('player') ?? interaction.user;
 
-                if (user) {
-                    const uData = await UserData.findOne({ where: { userid: user.id } });
-                    if (!uData) return await interaction.followUp('No game profile found!');
+            const user = await grabUser(theUser.id);
+            if (!user) return await interaction.followUp(`${makeCapital(theUser.username)} does not have a profile!`);
 
-                    let userTown = 'None';
-                    if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
-   
-                    const nxtLvl = calcNextLevel(uData);
-                    const list = makeListStr(uData, nxtLvl, userTown);
+            const usersEmbedList = [];
 
+            // ========
+            //  EMBEDS
+            // ========
+            const userPageEmbed = await createBasicUserPage(user);
+            usersEmbedList.push(userPageEmbed);
 
-                    const userDisplayEmbed = new EmbedBuilder()
-                        .setTitle(`Requested Stats for:`)
-                        .setColor(0o0)
-                        .addFields(
-                            {
-                                name: (`${uData.username}`),
-                                value: list
+            const userStatusOutcome = await createUserStatusPage(user);
+            if (userStatusOutcome === "No Status") {
+                usersEmbedList.push("No Embed");
+            } else usersEmbedList.push(userStatusOutcome.embed);
 
-                            }
-                        )
-                    return await interaction.followUp({ embeds: [userDisplayEmbed] });
+            const userTownEmbed = await createUserTownPage(user);
+            if (userTownEmbed === "No Town") {
+                usersEmbedList.push("No Embed");
+            } else usersEmbedList.push(userTownEmbed);
+
+            const userCraftsEmbed = await createUserCraftsPage(user);
+            if (userCraftsEmbed === "No Crafts") {
+                usersEmbedList.push("No Embed");
+            } else usersEmbedList.push(userCraftsEmbed);
+
+            const userTasksEmbed = await createUserTasksPage(user);
+            if (userTasksEmbed === "No Tasks") {
+                usersEmbedList.push("No Embed");
+            } else usersEmbedList.push(userTasksEmbed);
+
+            // =========
+            //  BUTTONS
+            // =========
+            const basicPageButt = new ButtonBuilder()
+            .setCustomId('basic-page')
+            .setDisabled(true)
+            .setStyle(ButtonStyle.Primary)
+            .setLabel('Basic Stats');
+
+            const showStatus = (userStatusOutcome === 'No Status') ? true : false;
+            const statusPageButt = new ButtonBuilder()
+            .setCustomId('status-page')
+            .setDisabled(showStatus)
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel('Potion Effects');
+
+            const showTown = (userTownEmbed === 'No Town') ? true : false;
+            const townPageButt = new ButtonBuilder()
+            .setCustomId('town-page')
+            .setDisabled(showTown)
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel('Town Info');
+
+            const showCrafts = (userCraftsEmbed === 'No Crafts') ? true : false;
+            const craftsPageButt = new ButtonBuilder()
+            .setCustomId('craft-page')
+            .setDisabled(showCrafts)
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel('Crafting Stats');
+
+            const showTasks = (userTasksEmbed === 'No Tasks') ? true : false;
+            const tasksPageButt = new ButtonBuilder()
+            .setCustomId('task-page')
+            .setDisabled(showTasks)
+            .setStyle(ButtonStyle.Secondary)
+            .setLabel('Task Stats');
+
+            const baseButtList = [basicPageButt, statusPageButt, townPageButt, craftsPageButt, tasksPageButt];
+
+            const basicButtRow = new ActionRowBuilder().addComponents(baseButtList);
+
+            const replyObj = {embeds: [usersEmbedList[0]], components: [basicButtRow]};
+
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 240000, replyObj, "FollowUp");
+        
+            // ================
+            // HANDLE COLLECTOR
+            // ================
+
+            const disableTracker = {
+                lastShown: 'basic',
+                basic: {
+                    perm: false,
+                    shown: true
+                },
+                status: {
+                    perm: showStatus,
+                    shown: false
+                },
+                town: {
+                    perm: showTown,
+                    shown: false
+                },
+                craft: {
+                    perm: showCrafts,
+                    shown: false
+                },
+                task: {
+                    perm: showTasks,
+                    shown: false
+                }
+            };
+
+            const statusPageTracker = {
+                curPage: 0,
+                usePages: false,
+                shownMenu: "",
+                menuEmbeds: [],
+                buttonsUsed: [],
+                baseEmbed: "",
+                baseButtons: ""
+            };
+
+            const craftingPageTracker = {
+                curPage: 0,
+                usePages: false,
+                shownMenu: "",
+                menuEmbeds: [],
+                buttonsUsed: [],
+                baseEmbed: "",
+                baseButtons: ""
+            };
+
+            const buildingPageTracker = {
+                curPage: 0,
+                usePages: false,
+                shownMenu: "",
+                menuEmbeds: [],
+                buttonsUsed: [],
+                baseEmbed: "",
+                baseButtons: ""
+            };
+
+            // let curTrackerName;
+            let currentPageTracker;
+
+            collector.on('collect', async c => {
+                await c.deferUpdate().then(async () => {
+                    const navMenuHandleStart = new Date().getTime();
+                    let editWith;
+                    if (["basic-page", "status-page", "town-page", "craft-page", "task-page", "status-return"].includes(c.customId)){
+                        disableTracker[`${disableTracker.lastShown}`].shown = false;
+                        switch(c.customId){
+                            case "basic-page":
+                                disableTracker.basic.shown = true;
+                                disableTracker.lastShown = 'basic';
+                                editWith = {embeds: [usersEmbedList[0]], components: [basicButtRow]};
+                            break;
+                            case "status-page":
+                                disableTracker.status.shown = true;
+                                disableTracker.lastShown = 'status';
+                                editWith = {embeds: [usersEmbedList[1]], components: [loadStatusButtonRow(userStatusOutcome), basicButtRow]};
+                            break;
+                            case "status-return":
+                                disableTracker.status.shown = true;
+                                disableTracker.lastShown = 'status';
+                                // Reset StatusPageTracking
+                                statusPageTracker.curPage = 0;
+                                statusPageTracker.shownMenu = '';
+                                statusPageTracker.menuEmbeds = [];
+                                statusPageTracker.usePages = false;
+
+                                editWith = {embeds: [usersEmbedList[1]], components: [loadStatusButtonRow(userStatusOutcome), basicButtRow]};
+                            break;
+                            case "town-page":
+                                disableTracker.town.shown = true;
+                                disableTracker.lastShown = 'town';
+                                editWith = {embeds: [usersEmbedList[2]], components: [basicButtRow]};
+                            break;
+                            case "craft-page":
+                                disableTracker.craft.shown = true;
+                                disableTracker.lastShown = 'craft';
+                                editWith = {embeds: [usersEmbedList[3]], components: [basicButtRow]};
+                            break;
+                            case "task-page":
+                                disableTracker.task.shown = true;
+                                disableTracker.lastShown = 'task';
+                                editWith = {embeds: [usersEmbedList[4]], components: [basicButtRow]};
+                            break;
+                        }
+
+                        const orderedButtProps = ['basic', 'status', 'town', 'craft', 'task'];
+                        let orderedButtIdx = 0;
+                        for (const butt of baseButtList){
+                            butt.setDisabled(
+                                (disableTracker[`${orderedButtProps[orderedButtIdx]}`].perm)
+                                ? true : (disableTracker[`${orderedButtProps[orderedButtIdx]}`].shown)
+                                ? true : false
+                            );
+                            orderedButtIdx++;
+                        }
+                    } else if (['as-menu', 'cd-menu'].includes(c.customId)){
+                        // Navigating Potion Effect Menu
+                        switch(c.customId){
+                            case "as-menu":
+                                statusPageTracker.shownMenu = 'as-menu';
+                                statusPageTracker.menuEmbeds = userStatusOutcome.active.embeds;
+                                statusPageTracker.usePages = userStatusOutcome.active.useButtons;
+                            break;
+                            case "cd-menu":
+                                statusPageTracker.shownMenu = 'cd-menu';
+                                statusPageTracker.menuEmbeds = userStatusOutcome.cooling.embeds;
+                                statusPageTracker.usePages = userStatusOutcome.cooling.useButtons;
+                            break;
+                        }
+
+                        const potNavButts = (statusPageTracker.usePages) ? [loadBasicPagingButts(), loadStatusButtonRow(userStatusOutcome, statusPageTracker.shownMenu), basicButtRow]: [loadStatusButtonRow(userStatusOutcome, statusPageTracker.shownMenu), basicButtRow];
+                        
+                        statusPageTracker.buttonsUsed = potNavButts;
+                        statusPageTracker.baseEmbed = usersEmbedList[1];
+                        statusPageTracker.baseButtons = [loadStatusButtonRow(userStatusOutcome), basicButtRow];
+
+                        editWith = {embeds: [statusPageTracker.menuEmbeds[0]], components: potNavButts};
+                    } else if (['back-page', 'delete-page', 'next-page'].includes(c.customId)){
+                        // Page Nav Button Handling
+                        if (statusPageTracker.shownMenu !== ''){
+                            //curTrackerName = 'statusPageTracker';
+                            currentPageTracker = statusPageTracker;
+                        } else if (craftingPageTracker.shownMenu !== ''){
+                            //curTrackerName = 'statusPageTracker';
+                            currentPageTracker = craftingPageTracker;
+                        } else if (buildingPageTracker.shownMenu !== ''){
+                            //curTrackerName = 'statusPageTracker';
+                            currentPageTracker = buildingPageTracker;
+                        }
+
+                        switch(c.customId){
+                            case "next-page":
+                                currentPageTracker.curPage = (currentPageTracker.curPage === currentPageTracker.menuEmbeds.length - 1) ? 0 : currentPageTracker.curPage + 1;
+                            break;
+                            case "back-page":
+                                currentPageTracker.curPage = (currentPageTracker.curPage === 0) ? currentPageTracker.menuEmbeds.length - 1 : currentPageTracker.curPage - 1;
+                            break;
+                            case "delete-page":
+                                // Return to previous menu base
+                                currentPageTracker.curPage = 0;
+                                currentPageTracker.shownMenu = '';
+                                currentPageTracker.menuEmbeds = [];
+                                currentPageTracker.usePages = false;
+                            break;
+                        }
+
+                        if (c.customId === 'delete-page'){
+                            editWith = {embeds: [currentPageTracker.baseEmbed], components: currentPageTracker.baseButtons};
+                        } else {
+                            editWith = {embeds: [currentPageTracker.menuEmbeds[currentPageTracker.curPage]], components: currentPageTracker.buttonsUsed};
+                        }
+                    }
+                    
+                    await anchorMsg.edit(editWith);
+                    endTimer(navMenuHandleStart, "Stats Nav Button Handle");
+                }).catch(e => console.error(e));
+            });
+
+            collector.on('end', async (c, r) => {
+                if (!r || r === 'time'){
+                    await handleCatchDelete(anchorMsg);
                 }
 
-                const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
-                if (!uData) return await interaction.followUp('No user data found!');
-
-                const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
-
-                if (uData.coins > 100) await checkHintLootBuy(uData, interaction);
-
-                let userTown = 'None';
-                if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
-
-                const nxtLvl = calcNextLevel(uData);
-                const list = makeListStr(uData, nxtLvl, userTown);
-
-                let embedPages = [];
-
-                const userDisplayEmbed = {
-                    title: `Requested Stats for: `,
-                    color: 0o0,
-                    fields: [{
-                        name: `${uData.username}`,
-                        value: list,
-                    }],
-                };
-                if (activeUserStatus.length <= 0) return await interaction.followUp({ embeds: [userDisplayEmbed] });
-                embedPages.push(userDisplayEmbed);
-
-                let curRun = 0;
-                do {
-                    let finalFields = [];
-                    let breakPoint = 0;
-                    for (const status of activeUserStatus) {
-                        let embedFieldsName = ``;
-                        let embedFieldsValue = ``;
-                        let embedFieldsObj;
-
-                        embedFieldsName = `Active effect: ${status.name}`;
-                        if (status.duration <= 0) {
-                            if (status.curreffect === 0) {
-                                embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
-                            } else {
-                                embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
-                            }
-                        } else {
-                            if (status.curreffect === 0) {
-                                embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
-                            } else {
-                                embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
-                            }
-                        }
-
-                        embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
-                        finalFields.push(embedFieldsObj);
-
-                        breakPoint++;
-                        if (breakPoint === 5) break;
-                    }
-
-                    const embed = {
-                        title: `Active Status Effects: Page ${(curRun + 1)}`,
-                        color: 0o0,
-                        fields: finalFields,
-                    };
-
-                    embedPages.push(embed);
-                    curRun++;
-                } while (curRun < (activeUserStatus.length / 5))
-
-                const backButton = new ButtonBuilder()
-                    .setLabel("Back")
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('◀️')
-                    .setCustomId('back-page');
-
-                const cancelButton = new ButtonBuilder()
-                    .setLabel("Cancel")
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('*️⃣')
-                    .setCustomId('delete-page');
-
-                const forwardButton = new ButtonBuilder()
-                    .setLabel("Forward")
-                    .setStyle(ButtonStyle.Secondary)
-                    .setEmoji('▶️')
-                    .setCustomId('next-page');
-
-                const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
-
-                const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
-
-                const filter = (ID) => ID.user.id === interaction.user.id;
-
-                const collector = embedMsg.createMessageComponentCollector({
-                    componentType: ComponentType.Button,
-                    filter,
-                    time: 300000,
-                });
-
-                let currentPage = 0;
-
-                collector.on('collect', async (collInteract) => {
-                    if (collInteract.customId === 'next-page') {
-                        await collInteract.deferUpdate();
-                        if (currentPage === embedPages.length - 1) {
-                            currentPage = 0;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        } else {
-                            currentPage += 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        }
-                    }
-                    if (collInteract.customId === 'back-page') {
-                        await collInteract.deferUpdate();
-                        if (currentPage === 0) {
-                            currentPage = embedPages.length - 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        } else {
-                            currentPage -= 1;
-                            await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-                        }
-                    }
-                    if (collInteract.customId === 'delete-page') {
-                        await collInteract.deferUpdate();
-                        await collector.stop();
-                    }
-                });
-
-                collector.on('end', () => {
-                    if (embedMsg) {
-                        embedMsg.delete();
-                    }
-                });
-                    
-            }).catch(error => {
-                console.log(errorForm(error));
+                await handleCatchDelete(anchorMsg);
             });
+
+            // } else {
+            //     // OLD CODE 
+            //     await interaction.deferReply().then(async () => {
+            //         const user = interaction.options.getUser('player');
+
+            //         const hasDataCheck = await UserData.findOne({ where: { userid: interaction.user.id } });
+            //         if (!hasDataCheck) return await interaction.followUp('You do not have a game profile yet! Please use ``/start`` to begin!!');
+
+            //         if (user) {
+            //             const uData = await UserData.findOne({ where: { userid: user.id } });
+            //             if (!uData) return await interaction.followUp('No game profile found!');
+
+            //             let userTown = 'None';
+            //             if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
+    
+            //             const nxtLvl = calcNextLevel(uData);
+            //             const list = makeListStr(uData, nxtLvl, userTown);
+
+
+            //             const userDisplayEmbed = new EmbedBuilder()
+            //                 .setTitle(`Requested Stats for:`)
+            //                 .setColor(0o0)
+            //                 .addFields(
+            //                     {
+            //                         name: (`${uData.username}`),
+            //                         value: list
+
+            //                     }
+            //                 )
+            //             return await interaction.followUp({ embeds: [userDisplayEmbed] });
+            //         }
+
+            //         const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
+            //         if (!uData) return await interaction.followUp('No user data found!');
+
+            //         const activeUserStatus = await ActiveStatus.findAll({ where: { spec_id: interaction.user.id } });
+
+            //         if (uData.coins > 100) await checkHintLootBuy(uData, interaction);
+
+            //         let userTown = 'None';
+            //         if (uData.townid !== '0') userTown = await Town.findOne({ where: { townid: uData.townid } });
+
+            //         const nxtLvl = calcNextLevel(uData);
+            //         const list = makeListStr(uData, nxtLvl, userTown);
+
+            //         let embedPages = [];
+
+            //         const userDisplayEmbed = {
+            //             title: `Requested Stats for: `,
+            //             color: 0o0,
+            //             fields: [{
+            //                 name: `${uData.username}`,
+            //                 value: list,
+            //             }],
+            //         };
+            //         if (activeUserStatus.length <= 0) return await interaction.followUp({ embeds: [userDisplayEmbed] });
+            //         embedPages.push(userDisplayEmbed);
+
+            //         let curRun = 0;
+            //         do {
+            //             let finalFields = [];
+            //             let breakPoint = 0;
+            //             for (const status of activeUserStatus) {
+            //                 let embedFieldsName = ``;
+            //                 let embedFieldsValue = ``;
+            //                 let embedFieldsObj;
+
+            //                 embedFieldsName = `Active effect: ${status.name}`;
+            //                 if (status.duration <= 0) {
+            //                     if (status.curreffect === 0) {
+            //                         embedFieldsValue = `Cooldown remaining: ${status.cooldown}`;
+            //                     } else {
+            //                         embedFieldsValue = `Cooldown remaining: ${status.cooldown}\n${status.activec}: ${status.curreffect}`;
+            //                     }
+            //                 } else {
+            //                     if (status.curreffect === 0) {
+            //                         embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown}`;
+            //                     } else {
+            //                         embedFieldsValue = `Duration remaining: ${status.duration} \nCooldown remaining: ${status.cooldown} \n${status.activec}: ${status.curreffect}`;
+            //                     }
+            //                 }
+
+            //                 embedFieldsObj = { name: embedFieldsName.toString(), value: embedFieldsValue.toString(), };
+            //                 finalFields.push(embedFieldsObj);
+
+            //                 breakPoint++;
+            //                 if (breakPoint === 5) break;
+            //             }
+
+            //             const embed = {
+            //                 title: `Active Status Effects: Page ${(curRun + 1)}`,
+            //                 color: 0o0,
+            //                 fields: finalFields,
+            //             };
+
+            //             embedPages.push(embed);
+            //             curRun++;
+            //         } while (curRun < (activeUserStatus.length / 5))
+
+            //         const backButton = new ButtonBuilder()
+            //             .setLabel("Back")
+            //             .setStyle(ButtonStyle.Secondary)
+            //             .setEmoji('◀️')
+            //             .setCustomId('back-page');
+
+            //         const cancelButton = new ButtonBuilder()
+            //             .setLabel("Cancel")
+            //             .setStyle(ButtonStyle.Secondary)
+            //             .setEmoji('*️⃣')
+            //             .setCustomId('delete-page');
+
+            //         const forwardButton = new ButtonBuilder()
+            //             .setLabel("Forward")
+            //             .setStyle(ButtonStyle.Secondary)
+            //             .setEmoji('▶️')
+            //             .setCustomId('next-page');
+
+            //         const interactiveButtons = new ActionRowBuilder().addComponents(backButton, cancelButton, forwardButton);
+
+            //         const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+            //         const filter = (ID) => ID.user.id === interaction.user.id;
+
+            //         const collector = embedMsg.createMessageComponentCollector({
+            //             componentType: ComponentType.Button,
+            //             filter,
+            //             time: 300000,
+            //         });
+
+            //         let currentPage = 0;
+
+            //         collector.on('collect', async (collInteract) => {
+            //             if (collInteract.customId === 'next-page') {
+            //                 await collInteract.deferUpdate();
+            //                 if (currentPage === embedPages.length - 1) {
+            //                     currentPage = 0;
+            //                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+            //                 } else {
+            //                     currentPage += 1;
+            //                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+            //                 }
+            //             }
+            //             if (collInteract.customId === 'back-page') {
+            //                 await collInteract.deferUpdate();
+            //                 if (currentPage === 0) {
+            //                     currentPage = embedPages.length - 1;
+            //                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+            //                 } else {
+            //                     currentPage -= 1;
+            //                     await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+            //                 }
+            //             }
+            //             if (collInteract.customId === 'delete-page') {
+            //                 await collInteract.deferUpdate();
+            //                 await collector.stop();
+            //             }
+            //         });
+
+            //         collector.on('end', () => {
+            //             if (embedMsg) {
+            //                 embedMsg.delete();
+            //             }
+            //         });
+                        
+            //     }).catch(error => {
+            //         console.log(errorForm(error));
+            //     });
+            //}
         }
 
         if (interaction.options.getSubcommand() === 'enemy') {
@@ -303,46 +576,543 @@ module.exports = {
             await sendTimedChannelMessage(interaction, 40000, replyObj, "FollowUp");
         }
 
+        /**
+         * This function handles button generation for the status effect menu,
+         * it will disable empty effect lists when needed. ``ID``'s are as follows:
+         * 
+         * asButt: ``as-menu``
+         * cdButt: ``cd-menu``
+         * @param {object} statusObj Status Object Containing display data
+         * @param {string} activeMenu The menu currently active: ``Default: 'None'``
+         * @returns {ActionRowBuilder}
+         */
+        function loadStatusButtonRow(statusObj, activeMenu='None'){
+            const asOFF = (activeMenu === 'as-menu') 
+            ? true : (statusObj.active.embeds.length === 0) 
+            ? true : false;
+            const asButt = new ButtonBuilder()
+            .setCustomId('as-menu')
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(asOFF)
+            .setLabel('Active Effects');
 
-        function makeListStr(uData, nxtLvl, userTown) {
-             const list = `Class: ${uData.pclass}\n
-Speed: ${uData.speed}
-Strength: ${uData.strength}
-Dexterity: ${uData.dexterity}
-Intelligence: ${uData.intelligence}
-Current Health: ${uData.health}\n
-Perk Points: ${uData.points}
-\nLevel: ${uData.level}
-\nXP to next level: ${uData.xp}/${nxtLvl}
-\nCoins: ${uData.coins}\n
-Quest Tokens (Qts): ${uData.qt}\n
-Current Location: ${uData.current_location}
-Current Town: ${userTown.name ?? userTown}\n
-\nTotal Enemies Killed: ${uData.totalkills}
-Most Kills In One Life: ${uData.highestkills}
-\nLast Death: ${uData.lastdeath}
-Enemies Killed Since: ${uData.killsthislife}`;
-            return list;
+            const cdOFF = (activeMenu === 'cd-menu') 
+            ? true : (statusObj.cooling.embeds.length === 0) 
+            ? true : false;
+            const cdButt = new ButtonBuilder()
+            .setCustomId('cd-menu')
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(cdOFF)
+            .setLabel('On Cooldown');
+
+            let finalStatusButtRow = [asButt, cdButt];
+            if (activeMenu !== 'None'){
+                const backButton = new ButtonBuilder()
+                .setCustomId('status-return')
+                .setStyle(ButtonStyle.Secondary)
+                .setLabel('Main Status Page');
+
+                if (activeMenu === 'as-menu' && !statusObj.active.useButtons){
+                    finalStatusButtRow.unshift(backButton);
+                } else if (activeMenu === 'cd-menu' && !statusObj.cooling.useButtons){
+                    finalStatusButtRow.unshift(backButton);
+                }
+            }
+
+
+            const primeButtRow = new ActionRowBuilder().addComponents(finalStatusButtRow);
+
+            return primeButtRow;
         }
 
-        function calcNextLevel(uData) {
-            let nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
-            //Adding temp xp needed change at level 20 to slow proggress for now
-            if (uData.level === 20) {
-                //Adding level scale to further restrict leveling		
-                nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
-            } else if (uData.level >= 100) {
-                //Adding level scale to further restrict leveling
-                const lvlScale = 10 * (Math.floor(uData.level / 3));
-                nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
-            } else if (uData.level > 20) {
-                //Adding level scale to further restrict leveling
-                const lvlScale = 1.5 * (Math.floor(uData.level / 5));
-                nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
-            } else {/*DO NOTHING*/ }
+        /**
+         * This function loads standard pagination buttons, ``ID``'s as follows:
+         * 
+         * backPage: ``back-page``
+         * returnButton: ``delete-page``
+         * nextPage: ``next-page``
+         * @returns {ActionRowBuilder}
+         */
+        function loadBasicPagingButts(){
+            const backPage = new ButtonBuilder()
+            .setLabel("Back")
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('◀️')
+            .setCustomId('back-page');
 
-            return nxtLvl;
+            const returnButton = new ButtonBuilder()
+            .setLabel("Return")
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('*️⃣')
+            .setCustomId('delete-page');
+
+            const nextPage = new ButtonBuilder()
+            .setLabel("Forward")
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji('▶️')
+            .setCustomId('next-page');
+
+            const pageButtRow = new ActionRowBuilder().addComponents(backPage, returnButton, nextPage);
+        
+            return pageButtRow;
         }
+
+        /**
+         * This function handles calculating the given users max possible health.
+         * @param {object} user UserData Instance Object
+         * @returns {number} Max Health for given user
+         */
+        function handleHealthMod(user){
+            const healthModC = ["Mage", "Thief", "Warrior", "Paladin"];
+            const healthModM = [1.1, 1.2, 1.5, 2];
+            const baseHealth = 100;
+
+            const maxUserHP = (baseHealth + (user.level * 2) + (user.strength * 5)) * healthModM[healthModC.indexOf(user.pclass)];
+            
+            return Math.round(maxUserHP);
+        }
+
+        /**
+         * This function generates the basic user stats embed page
+         * @param {object} user UserData Instance Object
+         * @returns {Promise <EmbedBuilder>}
+         */
+        async function createBasicUserPage(user){
+            if (user.coins > 100) await checkHintLootBuy(user, interaction);
+
+            const embed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Stats ==`);
+
+            // Basic Stats
+            // ===========
+            // Class, Spd, Str, Int, Dex, Cur-HP, Max-HP
+            const basicField = {
+                name: '== Basic Stats ==', 
+                value: `Class: **${user.pclass}**\nSpeed: **${user.speed}**\nStrength: **${user.strength}**\nIntelligence: **${user.intelligence}**\nDexterity: **${user.dexterity}**\nCurrent Health: **${user.health}** HP\nMax Health: **${handleHealthMod(user)}** HP`
+            };
+
+            // Progress Stats
+            // ===========
+            // Level, Cur-XP/Need-XP, Perk Points, Coins
+            const levelField = {
+                name: '== Progress Stats ==',
+                value: `Level: **${user.level}**\nProgress to next level: **${user.xp}**/${lvlScaleCheck(user.level)}\nPerk Points: **${user.points}**\nCoins: **${user.coins}**c`
+            };
+
+            // Quest Stats
+            // ===========
+            // Hours Quested, QTS, Locations?, Story Progress?
+            const questField = {
+                name: '== Quest Stats ==',
+                value: `Aprox. Hours Spent Questing: **${user.qt - Math.floor(user.qt/4)}**\nQuest Tokens: **${user.qt}** QT\n`
+            };
+
+
+            // Combat Stats
+            // ============
+            // Tot-Kills, One-Life-Max, Last-Death, Kills-Since
+            const combatField = {
+                name: '== Combat Stats ==',
+                value: `Total Kills: **${user.totalkills}**\nMost Kills in One Life: **${user.highestkills}**\nLast Defeated by: **${user.lastdeath}**\nKills Since Last Death: **${user.killsthislife}**`
+            };
+
+            embed.addFields([basicField, levelField, questField, combatField]);
+
+            return embed;
+        }
+
+        /**
+         * This function handles any active or on cooldown status effects applied from potion use
+         * for the given user. If no statuses returns ``"No Status"``
+         * @param {object} user UserData Instance Object
+         * @returns {Promise <{embed: EmbedBuilder, active: {useButtons: boolean, embeds: EmbedBuilder[]}, cooling: {useButtons: boolean, embeds: EmbedBuilder[]}}> | string}
+         */
+        async function createUserStatusPage(user){
+            const activeStatuses = await ActiveStatus.findAll({where: {spec_id: user.userid}});
+            if (activeStatuses.length === 0) return "No Status";
+
+            // Active Effects
+            // ==============
+            const activeEffObj = {
+                useButtons: false,
+                embeds: []
+            };
+            const stillActiveList = activeStatuses.filter(eff => eff.duration > 0);
+            if (stillActiveList.length > 0){
+                // Effects found
+                const usePagination = (stillActiveList.length > 4) ? true : false;
+                let curRun = 0, maxRun = 4, lastMaxRun = 4, pageRun;
+                pageRun = Math.ceil(stillActiveList.length/4);
+                if (stillActiveList.length % 4 !== 0){
+                    lastMaxRun = stillActiveList.length % 4;
+                }
+
+                for (let i = 0; i < pageRun; i++){
+                    const finalFields = [];
+                    const curEffSection = stillActiveList.slice(curRun, (i + 1 === pageRun) ? curRun + lastMaxRun : curRun + maxRun);
+                
+                    for (const eff of curEffSection){
+                        finalFields.push({
+                            name: `= **${eff.name}** =`,
+                            value: handleEffectStatusFields(eff)
+                        });
+                        curRun++;
+                    }
+
+                    const embedPage = new EmbedBuilder()
+                    .setTitle('== Active Effects ==')
+                    .setDescription(`Page ${i + 1}/${pageRun}`)
+                    .addFields(finalFields);
+
+                    activeEffObj.embeds.push(embedPage);
+                }
+
+                if (usePagination) activeEffObj.useButtons = true;
+            }
+
+            // Cooldown Active
+            // ===============
+            const onCooldownObj = {
+                useButtons: false,
+                embeds: []
+            };
+            const onCooldownList = activeStatuses.filter(eff => eff.duration === 0 && eff.cooldown > 0);
+            if (onCooldownList.length > 0){
+                // Cooldowns found
+                const usePagination = (onCooldownList.length > 4) ? true : false;
+                let curRun = 0, maxRun = 4, lastMaxRun = 4, pageRun;
+                pageRun = Math.ceil(onCooldownList.length/4);
+                if (onCooldownList.length % 4 !== 0){
+                    lastMaxRun = onCooldownList.length % 4;
+                }
+
+                for (let i = 0; i < pageRun; i++){
+                    const finalFields = [];
+                    const curEffSection = onCooldownList.slice(curRun, (i + 1 === pageRun) ? curRun + lastMaxRun : curRun + maxRun);
+                
+                    for (const eff of curEffSection){
+                        finalFields.push({
+                            name: `= **${eff.name}** =`,
+                            value: handleEffectStatusFields(eff, true)
+                        });
+                        curRun++;
+                    }
+
+                    const embedPage = new EmbedBuilder()
+                    .setTitle('== Effects on Cooldown ==')
+                    .setDescription(`Page ${i + 1}/${pageRun}`)
+                    .addFields(finalFields);
+
+                    onCooldownObj.embeds.push(embedPage);
+                }
+
+                if (usePagination) onCooldownObj.useButtons = true;
+            }
+
+            const baseEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Potion Info ==`)
+            .addFields(
+                {
+                    name: '== Basic Info ==',
+                    value: `Active Effects: **${stillActiveList.length}**\nPotions on Cooldown: **${onCooldownList.length}**`
+                }
+            );
+
+            return {embed: baseEmbed, active: activeEffObj, cooling: onCooldownObj};
+        }
+
+        /**
+         * This function constructs an embed field value property which it returns
+         * @param {object} effectObj ActiveStatus Instance Object   
+         * @param {boolean} cooling default false, true if duration = 0
+         * @returns {string}
+         */
+        function handleEffectStatusFields(effectObj, cooling=false){
+            if (!cooling){
+                switch(effectObj.activec){
+                    case "Reinforce":
+                    return `Defence Increased by: ${effectObj.curreffect}\nDuration Remaining: ${effectObj.duration}\nCooldown: ${effectObj.cooldown}`;
+                    case "EXP":
+                    return `EXP Gain Increased by: x${effectObj.curreffect}\nDuration Remaining: ${effectObj.duration}\nCooldown: ${effectObj.cooldown}`;
+                    case "Tons":
+                    return `Stats Increased by: +${effectObj.curreffect}\nDuration Remaining: ${effectObj.duration}\nCooldown: ${effectObj.cooldown}`;
+                    default:
+                    return `Effect: ${effectObj.activec}\nDuration Remaining: ${effectObj.duration}\nCooldown: ${effectObj.cooldown}`;
+                }
+            }
+            
+            switch(effectObj.activec){
+                case "Reinforce":
+                return `Defence Increased by: ${effectObj.curreffect}\nCooldown: ${effectObj.cooldown}`;
+                case "EXP":
+                return `EXP Gain Increased by: x${effectObj.curreffect}\nCooldown: ${effectObj.cooldown}`;
+                case "Tons":
+                return `Stats Increased by: +${effectObj.curreffect}\nCooldown: ${effectObj.cooldown}`;
+                default:
+                return `Effect: ${effectObj.activec}\nCooldown: ${effectObj.cooldown}`;
+            }
+        }
+
+        /**
+         * This function handles generating the users town info embed.
+         * If no user town is found, returns ``"No Town"``
+         * @param {object} user UserData Instance Object
+         * @returns {Promise <EmbedBuilder> | string}
+         */
+        async function createUserTownPage(user){
+            const town = (user.townid === '0') ? 'None': await Town.findOne({where: {townid: user.townid}});
+            if (town === 'None') return "No Town";
+            
+            const townEmbed = new EmbedBuilder()
+            .setTitle(`== Town of ${makeCapital(town.name)} ==`);
+
+            // Basic Info
+            // ==========
+            // Level, Coins, Location, Population
+            const locationSwitch = town.local_biome.split("-");
+            const basicField = {
+                name: '== Basic Info ==',
+                value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population - town.npc_population}**\nNPC Population: **${town.npc_population}**`
+            };
+
+            // Mayor Info
+            // ==========
+            // Cur-User?
+            const theMayor = await grabUser(town.mayorid);
+            const mayorField = {
+                name: '== The Mayor ==',
+                value: `**${makeCapital(theMayor.username)}**`
+            };
+
+            // Build Info
+            // ==========
+            // Tot-Plots, Open, Closed, Built
+            const buildFields = {
+                name: '== Plot Info ==',
+                value: `Total Plots: **${town.buildlimit}**\nOpen Plots: **${town.openplots}**\nClosed Plots: **${town.closedplots}**\nOwned Plots: **${town.ownedplots}**\nDeveloped Plots: **${town.buildcount}**`
+            };
+
+            // Core Info
+            // =========
+            // Grandhall, Bank, Market, Tavern, Clergy
+            const coreFields = {
+                name: '== Core-Building Info ==',
+                value: `Grandhall Status: **${(town.grandhall_status === "None") ? "Not Built" : town.grandhall_status}**\nBank Status: **${(town.bank_status === "None") ? "Not Built" : town.bank_status}**\nMarket Status: **${(town.market_status === "None") ? "Not Built" : town.market_status}**\nTavern Status: **${(town.tavern_status === "None") ? "Not Built" : town.tavern_status}**\nClergy Status: **${(town.clergy_status === "None") ? "Not Built" : town.clergy_status}**`
+            };
+
+            // Band Info?
+            // ==========
+            // Band 1, Band 2
+            // TBD
+
+            townEmbed.addFields([mayorField, basicField, buildFields, coreFields]);
+
+            return townEmbed;
+        }
+
+        /**
+         * This function handles generating the users crafting info embed.
+         * If no ``CraftController`` is found, returns ``"No Crafts"``
+         * @param {object} user UserData Instance Object
+         * @returns {Promise <EmbedBuilder> | string}
+         */
+        async function createUserCraftsPage(user){
+            const controller = await CraftControllers.findOne({where: {user_id: user.userid}});
+            if (!controller) return "No Crafts";
+
+            const craftEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Crafting Ledger ==`);
+
+            // Progress Info
+            // =============
+            // max_rar, drop_rar, use_tooly, rar_tooly, max_tooly, imbue1, imbue2
+            const unlockField = {
+                name: '== Crafting Ability ==',
+                value: `Strongest Material Useable: **${baseCheckRarName(controller.max_rar)}**\nHighest Droppable Material: **${baseCheckRarName(controller.drop_rar)}**`
+            };
+            unlockField.value += (controller.use_tooly) ? `\nCraft Using Tooly: **Available**\nStrongest Tooly Useable: **${baseCheckRarName(controller.rar_tooly)}**\nMax Amount of Tooly: **${controller.max_tooly}**` : "\nCraft Using Tooly: **Unavailable**";
+            unlockField.value += (controller.imbue_one) ? "\nImbue While Crafting: **Available**": "\nImbue While Crafting: **Unavailable**";
+            unlockField.value += (controller.imbue_two) ? "\nSecond Imbue Slot: **Available**": "\nSecond Imbue Slot: **Unavailable**";
+            
+            // Crafted Stats
+            // =============
+            // tot_crafted, value_crafted, times_imbued, highest_rarity, highest_value, benchmark_crafts
+            const basicField = {
+                name: '== Basic Crafting Stats ==',
+                value: `Total Items Crafted: **${controller.tot_crafted}**\nTotal Value Crafted: **${controller.value_crafted}**c\nItems Imbued: **${controller.times_imbued}**\nHighest Rarity Crafted: **${baseCheckRarName(controller.highest_rarity)}**\nHighest Value Craft: **${controller.highest_value}**c\nItems Added to Loot Pool: **${controller.benchmark_crafts}**`
+            };
+            
+            // Extra Stats
+            // ===========
+            // crafts above rar 10
+            const highCraftData = JSON.parse(controller.rarity_tracker);
+            const kvPairs = objectEntries(highCraftData);
+            const pairObjList = [];
+            for (const [key, value] of kvPairs){
+                pairObjList.push({key: key, value: value});
+            }
+            const totalHighCrafts = pairObjList.reduce((acc, obj) => {
+                return (acc > 0) ? acc + obj.value : obj.value;
+            }, 0);
+            const extraField = {
+                name: `== ${baseCheckRarName(13)} and Stronger Crafts ==`,
+                value: ''
+            };
+            extraField.value += (totalHighCrafts > 0) ? `${pairObjList.map(obj => `${baseCheckRarName(obj.key)}: **${obj.value}**\n`)}`: "No Items Crafted!";
+
+            // Strongest Item Pages
+            // ====================
+            // Page 1: Weapon
+            // Page 2: Armor
+            // Page 3: Offhand
+            // Page 4: Highest Value Item
+
+            craftEmbed.addFields([unlockField, basicField, extraField]);
+            
+            return craftEmbed;
+        }
+
+        /**
+         * This function handles generating the users task info embed.
+         * If no ``UserTasks`` are found, returns ``"No Tasks"``
+         * @param {object} user 
+         * @returns {Promise <EmbedBuilder> | string}
+         */
+        async function createUserTasksPage(user){
+            const userTasks = await UserTasks.findAll({where: {userid: user.userid}});
+            if (userTasks.length === 0) return "No Tasks";
+
+            const taskEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(user.username)}'s Task Overview ==`);
+
+            const cTaskList = userTasks.filter(task => task.complete);
+            const fTaskList = userTasks.filter(task => task.failed);
+            const aTaskList = userTasks.filter(task => !task.complete && !task.failed);
+
+            // Basic Info
+            // ==========
+            // Completed, Failed, Active
+            const basicField = {
+                name: '== Task History ==',
+                value: `Completed Tasks: **${cTaskList.length}**\nFailed Tasks: **${fTaskList.length}**\nActive Tasks: **${aTaskList.length}**`
+            };
+
+            // Extra Info
+            // ==========
+            // Completed Amount @ Difficulty For:
+            // Fetch, Combat, Gather, Craft?
+            const tList = ["Fetch", "Gather", "Combat"]; // "Craft"
+            const diffOrderList = ["Baby", "Easy", "Medium", "Hard", "GodGiven"];
+
+            const taskTypeObjTotalList = [];
+            for (const type of tList){
+                const pushObj = {
+                    tType: type,
+                    hardest: "Baby",
+                    easiest: "GodGiven",
+                    total: {
+                        complete: 0,
+                        failed: 0,
+                        active: 0
+                    }
+                };
+                const typeMatchList = userTasks.filter(task => task.task_type === type);
+                if (typeMatchList.length === 0) {
+                    pushObj.hardest = "None";
+                    pushObj.easiest = "None";
+                    taskTypeObjTotalList.push(pushObj);
+                    continue;
+                }
+
+                const cMatchList = typeMatchList.filter(task => task.complete);
+                if (cMatchList.length > 0){
+                    for (const t of cMatchList){
+                        // Check if new Highest Difficulty
+                        if (diffOrderList.indexOf(t.task_difficulty) > diffOrderList.indexOf(pushObj.hardest))
+                            pushObj.hardest = t.task_difficulty;
+
+                        // Check if new Lowest Difficulty
+                        if (diffOrderList.indexOf(t.task_difficulty) < diffOrderList.indexOf(pushObj.easiest))
+                            pushObj.easiest = t.task_difficulty;
+
+                        // Inc total.complete
+                        pushObj.total.complete++;
+                    }
+                } else {
+                    pushObj.hardest = "None";
+                    pushObj.easiest = "None";
+                }
+
+                const fMatchList = typeMatchList.filter(task => task.failed);
+                pushObj.total.failed = fMatchList.length;
+
+                const aMatchList = typeMatchList.filter(task => !task.complete && !task.failed);
+                pushObj.total.active = aMatchList.length;
+
+                taskTypeObjTotalList.push(pushObj);
+            }
+
+            /**
+             * const pushObj = {
+                    tType: type,
+                    hardest: "Baby",
+                    easiest: "GodGiven",
+                    total: {
+                        complete: 0,
+                        failed: 0,
+                        active: 0
+                    }
+                };
+             */
+            const taskDetailField = {
+                name: '== Task Details ==',
+                value: `${taskTypeObjTotalList.map(obj => `\n\n== **${obj.tType}** ==\nHardest Completed: **${obj.hardest}**\nEasiest Completed: **${obj.easiest}**\nTotal Completed: **${obj.total.complete}**\nTotal Failed: **${obj.total.failed}**\nTotal Active: **${obj.total.active}**`).join("")}`
+            };
+
+            taskEmbed.addFields([basicField, taskDetailField]);
+            
+            return taskEmbed;
+        }
+
+//         function makeListStr(uData, nxtLvl, userTown) {
+//              const list = `Class: ${uData.pclass}\n
+// Speed: ${uData.speed}
+// Strength: ${uData.strength}
+// Dexterity: ${uData.dexterity}
+// Intelligence: ${uData.intelligence}
+// Current Health: ${uData.health}\n
+// Perk Points: ${uData.points}
+// \nLevel: ${uData.level}
+// \nXP to next level: ${uData.xp}/${nxtLvl}
+// \nCoins: ${uData.coins}\n
+// Quest Tokens (Qts): ${uData.qt}\n
+// Current Location: ${uData.current_location}
+// Current Town: ${userTown.name ?? userTown}\n
+// \nTotal Enemies Killed: ${uData.totalkills}
+// Most Kills In One Life: ${uData.highestkills}
+// \nLast Death: ${uData.lastdeath}
+// Enemies Killed Since: ${uData.killsthislife}`;
+//             return list;
+//         }
+
+//         function calcNextLevel(uData) {
+//             let nxtLvl = 50 * (Math.pow(uData.level, 2) - 1);
+//             //Adding temp xp needed change at level 20 to slow proggress for now
+//             if (uData.level === 20) {
+//                 //Adding level scale to further restrict leveling		
+//                 nxtLvl = 75 * (Math.pow(uData.level, 2) - 1);
+//             } else if (uData.level >= 100) {
+//                 //Adding level scale to further restrict leveling
+//                 const lvlScale = 10 * (Math.floor(uData.level / 3));
+//                 nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+//             } else if (uData.level > 20) {
+//                 //Adding level scale to further restrict leveling
+//                 const lvlScale = 1.5 * (Math.floor(uData.level / 5));
+//                 nxtLvl = (75 + lvlScale) * (Math.pow(uData.level, 2) - 1);
+//             } else {/*DO NOTHING*/ }
+
+//             return nxtLvl;
+//         }
 	},
 
 };

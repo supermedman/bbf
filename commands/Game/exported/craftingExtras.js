@@ -42,7 +42,7 @@ async function handleControllerUpdateCheck(controller, user){
     let maxBoss;
     if (questData){
         const curLine = qLineList.indexOf(questData.currentquestline);
-        maxBoss = 1 - curLine;
+        maxBoss = curLine - 1;
 
         // Check if current storyline boss has been defeated. Will fail if dungeon has been overwritten!!
         const dungCheck = await ActiveDungeon.findOne({where: {dungeonspecid: user.userid, dungeonid: curLine, completed: true}});
@@ -300,7 +300,7 @@ async function handleControllerCrafting(controller, casteObj, finalObj){
     // ============================
     if (finalObj.passedBenching) await controller.increment('benchmark_crafts').then(async c => await c.save()).then(async c => {return await c.reload()});
 
-    console.log(controller.dataValues);
+    // console.log(controller.dataValues);
 
     endTimer(craftedUpdatingStart, "Post-Crafting: Controller Update Cycle");
 }
