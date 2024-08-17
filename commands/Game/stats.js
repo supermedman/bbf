@@ -816,8 +816,73 @@ module.exports = {
             // ==========
             // Completed Amount @ Difficulty For:
             // Fetch, Combat, Gather, Craft?
-            const tList = ["Fetch", "Gather", "Combat"]
+            const tList = ["Fetch", "Gather", "Combat"]; // "Craft"
+            const diffOrderList = ["Baby", "Easy", "Medium", "Hard", "GodGiven"];
 
+            const taskTypeObjTotalList = [];
+            for (const type of tList){
+                const pushObj = {
+                    tType: type,
+                    hardest: "Baby",
+                    easiest: "GodGiven",
+                    total: {
+                        complete: 0,
+                        failed: 0,
+                        active: 0
+                    }
+                };
+                const typeMatchList = userTasks.filter(task => task.task_type === type);
+                if (typeMatchList.length === 0) {
+                    pushObj.hardest = "None";
+                    pushObj.easiest = "None";
+                    taskTypeObjTotalList.push(pushObj);
+                    continue;
+                }
+
+                const cMatchList = typeMatchList.filter(task => task.complete);
+                if (cMatchList.length > 0){
+                    for (const t of cMatchList){
+                        // Check if new Highest Difficulty
+                        if (diffOrderList.indexOf(t.task_difficulty) > diffOrderList.indexOf(pushObj.hardest))
+                            pushObj.hardest = t.task_difficulty;
+
+                        // Check if new Lowest Difficulty
+                        if (diffOrderList.indexOf(t.task_difficulty) < diffOrderList.indexOf(pushObj.easiest))
+                            pushObj.easiest = t.task_difficulty;
+
+                        // Inc total.complete
+                        pushObj.total.complete++;
+                    }
+                } else {
+                    pushObj.hardest = "None";
+                    pushObj.easiest = "None";
+                }
+
+                const fMatchList = typeMatchList.filter(task => task.failed);
+                pushObj.total.failed = fMatchList.length;
+
+                const aMatchList = typeMatchList.filter(task => !task.complete && !task.failed);
+                pushObj.total.active = aMatchList.length;
+
+                taskTypeObjTotalList.push(pushObj);
+            }
+
+            /**
+             * const pushObj = {
+                    tType: type,
+                    hardest: "Baby",
+                    easiest: "GodGiven",
+                    total: {
+                        complete: 0,
+                        failed: 0,
+                        active: 0
+                    }
+                };
+             */
+            const taskDetailField = {
+                name: '== Task Details ==',
+                value: `${taskTypeObjTotalList.map(obj => `== **${obj.tType}** ==\nHardest Completed: **${obj.hardest}**\nEasiest Completed: **${obj.easiest}**\nTotal Completed: **${obj.total.complete}**\nTotal Failed: **${obj.total.failed}**\nTotal Active: **${obj.total.active}**`)}`
+            };
             
             return taskEmbed;
         }
