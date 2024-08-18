@@ -13,6 +13,7 @@ module.exports = {
             .setName('title')
             .setDescription('Title of the exploit.')
             .setRequired(true)
+            .setMaxLength(45)
         )
     )
     .addSubcommand(subcommand => 
@@ -24,6 +25,7 @@ module.exports = {
             .setName('title')
             .setDescription('Title of the bug.')
             .setRequired(true)
+            .setMaxLength(45)
         )
     )
     .addSubcommand(subcommand => 
@@ -35,6 +37,7 @@ module.exports = {
             .setName('title')
             .setDescription('Title for the spelling error.')
             .setRequired(true)
+            .setMaxLength(45)
         )
     )
     .addSubcommand(subcommand => 
@@ -46,6 +49,7 @@ module.exports = {
             .setName('title')
             .setDescription('Title of the issue.')
             .setRequired(true)
+            .setMaxLength(45)
         )
     ),
 	async execute(interaction) { 
