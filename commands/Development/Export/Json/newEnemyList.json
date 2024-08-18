@@ -4885,6 +4885,144 @@
         "ConstKey": 322
     },
     {
+        "Name": "Plains Beast",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 86,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "fleshy"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 323
+    },
+    {
+        "Name": "Plains Beast Rider",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 87,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "gemy",
+            "fleshy",
+            "magical"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 324
+    },
+    {
+        "Name": "Elite Plains Rider",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 88,
+        "Body": "Specter",
+        "Armor": "Demon",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "tooly",
+            "gemy",
+            "fleshy",
+            "magical"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 325
+    },
+    {
+        "Name": "Phasewarped Critter",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 89,
+        "Body": "Flesh",
+        "Armor": "Armor",
+        "Shield": "None",
+        "DropTypes": [
+            "skinny",
+            "fleshy",
+            "metalic"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 326
+    },
+    {
+        "Name": "Adolescent Slag Crab",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 91,
+        "Body": "Hellion",
+        "Armor": "Fossil",
+        "Shield": "None",
+        "DropTypes": [
+            "rocky",
+            "gemy",
+            "tooly"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 327
+    },
+    {
+        "Name": "Adult Slag Crab",
+        "Description": "Not enough is yet known about this creature!",
+        "Level": 92,
+        "Body": "Hellion",
+        "Armor": "Fossil",
+        "Shield": "Phase Aura",
+        "DropTypes": [
+            "rocky",
+            "gemy",
+            "tooly"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 328
+    },
+    {
+        "Name": "Society",
+        "Description": "They will never understand you...",
+        "Level": 93,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 329
+    },
+    {
+        "Name": "It waits..",
+        "Description": "Just out of your reach..",
+        "Level": 94,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 330
+    },
+    {
+        "Name": "To Form..",
+        "Description": "Never fully taking shape..",
+        "Level": 95,
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "None",
+        "DropTypes": [
+            "fleshy"
+        ],
+        "UniqueType": "None",
+        "UniqueItem": false,
+        "ConstKey": 331
+    },
+    {
         "Name": "COPY",
         "Description": "Not enough is yet known about this creature!",
         "Level": 1000,
@@ -4902,9 +5040,9 @@
         "Name": "NULL",
         "Description": "You shouldnt be here, I think its time you left >:)",
         "Level": 100,
-        "Body": "Magical Flesh",
-        "Armor": "Armor",
-        "Shield": "None",
+        "Body": "Specter",
+        "Armor": "None",
+        "Shield": "Plot Armor",
         "DropTypes": [
             "slimy",
             "rocky",

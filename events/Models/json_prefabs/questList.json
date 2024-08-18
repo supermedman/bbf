@@ -407,6 +407,136 @@
         "ID": 39
     },
     {
+        "Name": "Take a nice long break",
+        "Story": true,
+        "Length": 1.728e+8,
+        "Time": "48hr",
+        "Level": 15,
+        "ELevel": "70-75",
+        "IsLockedBy": 105,
+        "ID": 40
+    },
+    {
+        "Name": "Travel to the Great Forests",
+        "Story": true,
+        "Length": 4.32e+7,
+        "Time": "12hr",
+        "Level": 16,
+        "ELevel": "75-80",
+        "IsLockedBy": 40,
+        "ID": 41
+    },
+    {
+        "Name": "Setout into the Great Forest",
+        "Story": true,
+        "Length": 4.32e+7,
+        "Time": "12hr",
+        "Level": 16,
+        "ELevel": "75-80",
+        "IsLockedBy": 41,
+        "ID": 42
+    },
+    {
+        "Name": "Continue deeper into the Great Forest",
+        "Story": true,
+        "Length": 4.32e+7,
+        "Time": "12hr",
+        "Level": 16,
+        "ELevel": "75-80",
+        "IsLockedBy": 42,
+        "ID": 43
+    },
+    {
+        "Name": "Travel to The Great Tree",
+        "Story": true,
+        "Length": 4.32e+7,
+        "Time": "12hr",
+        "Level": 17,
+        "ELevel": "80-85",
+        "IsLockedBy": 43,
+        "ID": 44
+    },
+    {
+        "Name": "Climb The Great Tree",
+        "Story": true,
+        "Length": 2.16e+7,
+        "Time": "6hr",
+        "Level": 17,
+        "ELevel": "80-85",
+        "IsLockedBy": 44,
+        "ID": 45
+    },
+    {
+        "Name": "Prepare for The Final War",
+        "Story": true,
+        "Length": 1.728e+8,
+        "Time": "48hr",
+        "Level": 17,
+        "ELevel": "80-85",
+        "IsLockedBy": 106,
+        "ID": 46
+    },
+    {
+        "Name": "March upon the Forges",
+        "Story": true,
+        "Length": 4.32e+7,
+        "Time": "12hr",
+        "Level": 18,
+        "ELevel": "85-90",
+        "IsLockedBy": 46,
+        "ID": 47
+    },
+    {
+        "Name": "Trek towards the Forge Gate",
+        "Story": true,
+        "Length": 7.2e+6,
+        "Time": "2hr",
+        "Level": 18,
+        "ELevel": "85-90",
+        "IsLockedBy": 47,
+        "ID": 48
+    },
+    {
+        "Name": "Infiltrate the Forge Gate",
+        "Story": true,
+        "Length": 1.44e+7,
+        "Time": "4hr",
+        "Level": 18,
+        "ELevel": "85-90",
+        "IsLockedBy": 48,
+        "ID": 49
+    },
+    {
+        "Name": "Into the fray",
+        "Story": true,
+        "Length": 1.44e+7,
+        "Time": "4hr",
+        "Level": 19,
+        "ELevel": "90-95",
+        "IsLockedBy": 49,
+        "ID": 50
+    },
+    {
+        "Name": "Last Stand",
+        "Story": true,
+        "Length": 1.44e+7,
+        "Time": "4hr",
+        "Level": 19,
+        "ELevel": "90-95",
+        "IsLockedBy": 50,
+        "ID": 51
+    },
+    {
+        "Name": "Beginning of the END",
+        "Story": true,
+        "Length": 2.16e+7,
+        "Time": "6hr",
+        "Level": 19,
+        "ELevel": "90-95",
+        "IsLockedBy": 51,
+        "ID": 52
+    },
+    {
         "Name": "Free Whitepool Woods from Bandits",
         "Story": false,
         "Hunting": true,
