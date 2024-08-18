@@ -552,10 +552,13 @@ async function handleExterCombat(interaction, forcedKey){
         // Handle active potion status entry
         
         const potEmbed = new EmbedBuilder()
-        .setTitle('Potion')
-        .setDescription(outcome)
-        .addFields({name: "Your Health: ", value: `${player.health}`});
+        .setTitle(outcome.title)
+        .setDescription(outcome.desc);
 
+        if (outcome.type === 'Heal'){
+            potEmbed.addFields({name: "Your Health: ", value: `${player.health}`});
+        }
+        
         await sendTimedChannelMessage(interaction, 35000, potEmbed);
         return "RELOAD";
     }

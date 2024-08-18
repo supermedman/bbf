@@ -77,18 +77,21 @@ class CombatInstance {
         this.removePending = false;
     }
 
-    
+    /**
+     * This method handles the effect of using the currently equipped potion
+     * @returns {Promise <{title: string, desc: string, type: string}>}
+     */
     async potionUsed(){
         // Create new potion effect entry internally.
         if (this.potion.activeCat === "Healing"){
-            if (this.health === this.maxHealth) return "Full Health";
+            if (this.health === this.maxHealth) return {title: "Potion Not Used", desc: "Full Health", type: "Heal"};
             if ((this.health + this.potion.effectApplied) > this.maxHealth){
                 this.health = this.maxHealth;
             } else this.health += this.potion.effectApplied;
             this.potion.amount -= 1;
             this.drinkPotion();
             this.onCooldown();
-            return `Healed for ${this.potion.effectApplied}`;
+            return {title: "Potion Used", desc: `Healed for ${this.potion.effectApplied}`, type: "Heal"};
         }
 
         /**
@@ -110,7 +113,7 @@ class CombatInstance {
          * @prop {string} cat Effect category/target for modifying
          */
         const potObj = {d: this.potion.duration, e: this.potion.effectApplied, cat: this.potion.activeCat, expired: false};
-        
+        let effectDisplay;
         // Create type filter
         const statModList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
         const physModList = ["Reinforce", "Attack"];
@@ -123,18 +126,23 @@ class CombatInstance {
                     this.internalEffects.upStat.spd += potObj.e;
                     this.internalEffects.upStat.dex += potObj.e;
                     this.internalEffects.upStat.int += potObj.e;
+                    effectDisplay = `All Stats: +**${potObj.e}**`;
                 break;
                 case "Strength":
                     this.internalEffects.upStat.str += potObj.e;
+                    effectDisplay = `Strength: +**${potObj.e}**`;
                 break;
                 case "Speed":
                     this.internalEffects.upStat.spd += potObj.e;
+                    effectDisplay = `Speed: +**${potObj.e}**`;
                 break;
                 case "Dexterity":
                     this.internalEffects.upStat.dex += potObj.e;
+                    effectDisplay = `Dexterity: +**${potObj.e}**`;
                 break;
                 case "Intelligence":
                     this.internalEffects.upStat.int += potObj.e;
+                    effectDisplay = `Intelligence: +**${potObj.e}**`;
                 break;
             }
         }
@@ -143,9 +151,11 @@ class CombatInstance {
             switch(potObj.cat){
                 case "Reinforce":
                     this.internalEffects.upDef += potObj.e;
+                    effectDisplay = `Base Defence: +**${potObj.e}** DEF`;
                 break;
                 case "Attack":
                     this.internalEffects.upDmg += potObj.e;
+                    effectDisplay = `Base Damage: +**${potObj.e}** DMG`;
                 break;
             }
         }
@@ -154,9 +164,11 @@ class CombatInstance {
             switch(potObj.cat){
                 case "EXP":
                     this.internalEffects.upExp += potObj.e;
+                    effectDisplay = `XP Gained: x**${1 + potObj.e}**`;
                 break;
                 case "COIN":
                     this.internalEffects.upCoin += potObj.e;
+                    effectDisplay = `Coins Gained: x**${1 + potObj.e}**`;
                 break;
             }
         }
@@ -167,7 +179,7 @@ class CombatInstance {
         this.potion.amount -= 1;
         this.drinkPotion();
         this.onCooldown();
-        return `${potObj.cat} potion used!`;
+        return {title: "Potion Used", desc: `${effectDisplay}!`, type: potObj.cat};
     }
 
     potionExpired(){
