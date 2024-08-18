@@ -112,7 +112,7 @@ class CombatInstance {
          * @prop {number} e Effect Strength
          * @prop {string} cat Effect category/target for modifying
          */
-        const potObj = {d: this.potion.duration, e: this.potion.effectApplied, cat: this.potion.activeCat, expired: false};
+        const potObj = {name: this.potion.name, d: this.potion.duration, e: this.potion.effectApplied, cat: this.potion.activeCat, expired: false};
         let effectDisplay;
         // Create type filter
         const statModList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
@@ -274,6 +274,17 @@ class CombatInstance {
                 potion_id: this.potion.id
             }
         });
+
+        // Handle creating status effect.
+        await ActiveStatus.create({
+            name: p.name,
+            curreffect: this.potion.effectApplied,
+            activec: p.activecategory,
+            duration: p.duration,
+            cooldown: p.cooldown,
+            potionid: this.potion.id,
+            spec_id: this.userId
+        }).then(async s => await s.save()).then(async s => {return await s.reload()});
 
         await p.decrement('amount', {by: 1}).then(async pot => {return await pot.reload();});
         
