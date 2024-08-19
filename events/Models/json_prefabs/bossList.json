@@ -731,5 +731,249 @@
 		"Image_Closeup": "attachment://Xogdia-goddess-of-hate-closeup.png",
 
 		"SpecId": 0
+	},
+	{
+		"Name": "Mien, Goddess of Mystery",
+		"NameRef": "Mien",
+
+		"Intro": "I have heard a great deal of things...",
+		"IntroC": "DarkGreen",
+
+		"Line_One": "Some call you **Slayer**, some call you *Friend*",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "I would like to see for myself!!",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 85,
+		"MinDmg": 500,
+		"MaxDmg": 750,
+
+		"Body": "Boss",
+		"Body_HP": 25000,
+		"Armor": "Bark",
+		"Armor_HP": 25000,
+		"Shield": "Phase Aura",
+		"Shield_HP": 10000,
+
+		"Health": 60000,"StageHealth": 10000,"Defence": 75,"WeakTo": "Magic",
+
+		"ConstKey": 1019,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Mien-goddess-of-mystery.png",
+		"Image": "attachment://Mien-goddess-of-mystery.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Mien-goddess-of-mystery-closeup.png",
+		"Image_Closeup": "attachment://Mien-goddess-of-mystery-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Shapeshifter, Mien",
+		"NameRef": "Mien",
+
+		"Intro": "So glad to find you are **NOT** incompetent, I am however not convinced",
+		"IntroC": "DarkBlue",
+
+		"Line_One": "Are you valuble as a *Friend*?",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "Or a true **Slayer** as they claim!!",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 85,
+		"MinDmg": 550,
+		"MaxDmg": 850,
+
+		"Body": "Flesh",
+		"Body_HP": 60000,
+		"Armor": "Demon",
+		"Armor_HP": 30000,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 90000,"StageHealth": 1,"Defence": 45,"WeakTo": "Slash",
+
+		"ConstKey": 1020,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Mien-goddess-of-mystery.png",
+		"Image": "attachment://Mien-goddess-of-mystery.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Mien-goddess-of-mystery-closeup.png",
+		"Image_Closeup": "attachment://Mien-goddess-of-mystery-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Mien, The Unwavering",
+		"NameRef": "Mien",
+
+		"Intro": "You have certainly proven your worth!",
+		"IntroC": "DarkBlue",
+
+		"Line_One": "It would truly be shameful to see you corrupted.",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "Join me! We shall bring true peace to these *forsaken* lands!!",
+		"Line_TwoC": "DarkGold",
+
+		"Level": 85,
+		"MinDmg": 100000,
+		"MaxDmg": 100000,
+
+		"Body": "Boss",
+		"Body_HP": 1,
+		"Armor": "Demon",
+		"Armor_HP": 1,
+		"Shield": "Plot Armor",
+		"Shield_HP": 1000000,
+
+		"Health": 1000002,"StageHealth": 0,"Defence": 0,"WeakTo": "Magic",
+
+		"Dead": false,
+		"XpMin": 150000,
+		"XpMax": 250000,
+
+		"Blueprint": "<Forge Upgrade BP>",
+		"BlueprintID": 1000,
+
+		"SecretBPID": 1000,
+
+		"AchievementGet": "FRIEND OF MIEN",
+
+		"ConstKey": 1021,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Mien-goddess-of-mystery.png",
+		"Image": "attachment://Mien-goddess-of-mystery.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Mien-goddess-of-mystery-closeup.png",
+		"Image_Closeup": "attachment://Mien-goddess-of-mystery-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Nizdea, Goddess of $ecrecy",
+		"NameRef": "Nizdea",
+
+		"Intro": "Your travels have been long and fruitful",
+		"IntroC": "DarkGreen",
+
+		"Line_One": "You managed even to make allies",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "It would be an honor, to be **your final** dance partner!",
+		"Line_TwoC": "DarkRed",
+
+		"Level": 95,
+		"MinDmg": 750,
+		"MaxDmg": 1000,
+
+		"Body": "Boss",
+		"Body_HP": 35000,
+		"Armor": "Demon",
+		"Armor_HP": 35000,
+		"Shield": "Phase Demon",
+		"Shield_HP": 15000,
+
+		"Health": 85000,"StageHealth": 10000,"Defence": 75,"WeakTo": "Magic",
+
+		"ConstKey": 1022,
+		"Stage": 1,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Nizdea-goddess-of-secrecy.png",
+		"Image": "attachment://Nizdea-goddess-of-secrecy.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Nizdea-goddess-of-secrecy-closeup.png",
+		"Image_Closeup": "attachment://Nizdea-goddess-of-secrecy-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Secret Keeper, Nizdea",
+		"NameRef": "Nizdea",
+
+		"Intro": "Ahh well, I guess it wouldn't hurt to share a secret now..",
+		"IntroC": "DarkGreen",
+
+		"Line_One": "I'm sure you've already guessed, I'm not *supposed* to kill you..",
+		"Line_OneC": "DarkGreen",
+
+		"Line_Two": "*Fayrn* is waiting, she's just *soooo* excited to have you *home* again!!",
+		"Line_TwoC": "DarkGold",
+
+		"Level": 95,
+		"MinDmg": 800,
+		"MaxDmg": 1100,
+
+		"Body": "Boss",
+		"Body_HP": 60000,
+		"Armor": "Demon",
+		"Armor_HP": 30000,
+		"Shield": "Phase Demon",
+		"Shield_HP": 1500,
+
+		"Health": 91500,"StageHealth": 1,"Defence": 45,"WeakTo": "Slash",
+
+		"ConstKey": 1023,
+		"Stage": 2,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Nizdea-goddess-of-secrecy.png",
+		"Image": "attachment://Nizdea-goddess-of-secrecy.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Nizdea-goddess-of-secrecy-closeup.png",
+		"Image_Closeup": "attachment://Nizdea-goddess-of-secrecy-closeup.png",
+
+		"SpecId": 0
+	},
+	{
+		"Name": "Nizdea",
+		"NameRef": "Nizdea",
+
+		"Intro": "Time is sadly up..",
+		"IntroC": "DarkGold",
+
+		"Line_One": "You went the distance, we knew you would.",
+		"Line_OneC": "DarkGold",
+
+		"Line_Two": "**THE END HAS ALREADY BEGUN**",
+		"Line_TwoC": "White",
+
+		"Level": 95,
+		"MinDmg": 0,
+		"MaxDmg": 1,
+
+		"Body": "Flesh",
+		"Body_HP": 1,
+		"Armor": "None",
+		"Armor_HP": 0,
+		"Shield": "None",
+		"Shield_HP": 0,
+
+		"Health": 1,"StageHealth": 0,"Defence": 0,"WeakTo": "Magic",
+
+		"Dead": false,
+		"XpMin": 150000,
+		"XpMax": 250000,
+
+		"Blueprint": "<TBD>",
+		"BlueprintID": 1000,
+
+		"SecretBPID": 1000,
+
+		"AchievementGet": "NIZDEA",
+
+		"ConstKey": 1024,
+		"Stage": 3,
+
+		"PngRef": "./events/Models/json_prefabs/boss-list-png/Nizdea-goddess-of-secrecy.png",
+		"Image": "attachment://Nizdea-goddess-of-secrecy.png",
+
+		"PngRef_Closeup": "./events/Models/json_prefabs/boss-list-png/Nizdea-goddess-of-secrecy-closeup.png",
+		"Image_Closeup": "attachment://Nizdea-goddess-of-secrecy-closeup.png",
+
+		"SpecId": 0
 	}
 ]
