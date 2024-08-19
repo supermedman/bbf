@@ -227,9 +227,10 @@ async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
  * @param {any} contents  One of many types, handled internally
  * @param {string} replyType One of: "FollowUp", "Reply", undefined
  * @param {string} compType One of: "Button", "String", undefined
+ * @param {string} filterID One of: user.id, undefined
  * @returns {Promise<{anchorMsg: object, collector: object}>}
  */
-async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType, compType){
+async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType, compType, filterID){
     const replyObject = handleContentType(contents);
     let anchorMsg;
     switch(replyType){
@@ -244,7 +245,7 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
         break;
     }
     
-    const collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType);
+    const collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
 
     return {anchorMsg, collector};
 }
@@ -257,10 +258,12 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {object} anchorMsg Discord message object used as an anchor
  * @param {string} compType One of: "Button", "String", undefined
+ * @param {string} filterID One of: user.id, undefined
  * @returns {object}
  */
-function createComponentCollector(interaction, timeLimit, anchorMsg, compType){
-    const filter = (i) => i.user.id === interaction.user.id;
+function createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID){
+    const filterBY = (filterID) ? filterID : interaction.user.id;
+    const filter = (i) => i.user.id === filterBY;
 
     let theType;
     switch(compType){

@@ -58,6 +58,9 @@ const GuildEvents = require('./events/Models/GuildEvents')(sequelize, Sequelize.
 
 const CraftControllers = require('./events/Models/CraftControllers')(sequelize, Sequelize.DataTypes);
 
+const LocalMarkets = require('./events/Models/LocalMarkets')(sequelize, Sequelize.DataTypes);
+
+
 module.exports = {
 	//Equipped,
 	LootStore,
@@ -98,5 +101,6 @@ module.exports = {
 	BasicShoppe,
 	GameEvents,
 	GuildEvents,
-	CraftControllers
+	CraftControllers,
+	LocalMarkets
 };

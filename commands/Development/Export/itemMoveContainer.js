@@ -50,7 +50,7 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
 
     // Item was just crafted, set item_id to unique_gen_id
     if (getTypeof(theItem) !== 'Array'){
-        await theItem.update({item_id: theItem.unique_gen_id});
+        await theItem.update({item_id: theItem.unique_gen_id, unique_gen_id: theItem.unique_gen_id});
         theItem = [theItem, true];
     }
 
@@ -78,14 +78,14 @@ async function checkInboundMat(userid, matRef, matType, amount=1){
     const theMat = await MaterialStore.findOrCreate({
         where: {
             spec_id: userid,
-            mat_id: matRef.Mat_id,
+            mat_id: matRef.Mat_id ?? matRef.mat_id,
             mattype: matType
         },
         defaults: {
-            name: matRef.Name,
-            value: matRef.Value,
-            rarity: matRef.Rarity,
-            rar_id: matRef.Rar_id,
+            name: matRef.Name ?? matRef.name,
+            value: matRef.Value ?? matRef.value,
+            rarity: matRef.Rarity ?? matRef.rarity,
+            rar_id: matRef.Rar_id ?? matRef.rar_id,
             amount: amount
         }
     });
@@ -160,7 +160,7 @@ async function checkOutboundItem(userid, itemid, amount=1){
  */
 async function checkOutboundMat(userid, matRef, matType, amount=1){
     const theMat = await MaterialStore.findOne({
-        where: {spec_id: userid, mat_id: matRef.Mat_id, mattype: matType}
+        where: {spec_id: userid, mat_id: matRef.Mat_id ?? matRef.mat_id, mattype: matType}
     });
     if (!theMat) return 'Material Not Found';
     await theMat.decrement('amount', {by: amount}).then(async mat => {
@@ -180,7 +180,7 @@ async function checkOutboundMat(userid, matRef, matType, amount=1){
  * @param {(number|string)} itemid Items ID
  * @param {number} amount Amount of items, defaults to 1
  * @param {(object|undefined)} craftedI Crafted item reference if given
- * @returns {promise<(object|string)>} object on resolve, string on reject
+ * @returns {promise<object | string>} object on resolve, string on reject
  */
 async function moveItem(userGive, userTake, itemid, amount=1, craftedI){
     const outboundCheck = await checkOutboundItem(userGive, itemid, amount);

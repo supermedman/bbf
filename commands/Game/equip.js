@@ -163,7 +163,7 @@ module.exports = {
                 // If no choices exist yet, create them
                 if (choices.length === 0){
                     // Set default choices to non-dupe name items
-                    let finalItemsList = singlesRef.map(i => ({item: i.dataValues, showStrong: false}));
+                    let finalItemsList = singlesRef.map(i => ({item: i.dataValues, showStrong: false, dupeValue: false}));
                     finalItemsList.sort((a, b) => a.item.name - b.item.name);
                     // Sorted alphabetically
                     checkStrongest.sort((a, b) => a - b);
@@ -180,8 +180,8 @@ module.exports = {
                         for (const i of nameMatches){
                             if (i.item_id === strongForName.item.item_id){
                                 // Strongest Matched, Append to start of array
-                                curNameList.unshift({item: i, showStrong: true, totValue: strongForName.totValue});
-                            } else curNameList.push({item: i, showStrong: false});
+                                curNameList.unshift({item: i, showStrong: true, dupeValue: true, totValue: strongForName.totValue});
+                            } else curNameList.push({item: i, showStrong: false, dupeValue: true,});
                         }
                         finalItemsList = finalItemsList.concat(curNameList);
                     }
@@ -190,14 +190,17 @@ module.exports = {
                         if (ele.showStrong) {
                             // name used for user indicating strongest, and DMG/DEF tot value
                             // nValue used for passing into ``execute()``
-                            choices.push({name: ele.item.name, nValue: ele.item.name, strongest: ele.showStrong, strength: ele.totValue});
+                            choices.push({name: ele.item.name, nValue: ele.item.name, passValue: `{"name": "${ele.item.name}", "id": "${ele.item.item_id}"}`, strongest: ele.showStrong, strength: ele.totValue});
                             // console.log(ele);
                         }
-                        if (!ele.showStrong) {
+                        if (!ele.showStrong && ele.dupeValue) {
                             // name used for user indicating strongest, and DMG/DEF tot value
                             // nValue used for passing into ``execute()``
-                            choices.push({name: ele.item.name, nValue: ele.item.name, strongest: ele.showStrong});
+                            choices.push({name: ele.item.name, nValue: ele.item.name, passValue: `{"name": "${ele.item.name}", "id": "${ele.item.item_id}"}`, strongest: ele.showStrong});
                             // console.log('Standard Display: ', ele.item.name);
+                        }
+                        if (!ele.showStrong && !ele.dupeValue) {
+                            choices.push({name: ele.item.name, nValue: ele.item.name, passValue: ele.item.name, strongest: ele.showStrong});
                         }
                     };
 
@@ -225,7 +228,7 @@ module.exports = {
                     filtered.map(choice => (
                         {
                             name: (choice.strongest) ? `${choice.name} == STRONGEST == ${choice.strength}`: `${choice.name}`,
-                            value: choice.nValue
+                            value: choice.passValue
                         }
                     )),
                 );
@@ -237,7 +240,18 @@ module.exports = {
         await interaction.deferReply();
 
         const slotType = interaction.options.getString('slot');
-        const itemName = interaction.options.getString('gear') ?? "None";
+        //const itemName = interaction.options.getString('gear') ?? "None";
+        let itemCheck = interaction.options.getString('gear');
+        // Try catch to handle invalid JSON when passed value is correct string
+        try {
+            itemCheck = JSON.parse(itemCheck);
+        } catch (e){}
+
+        let itemName, checkForID = false;
+        if (typeof itemCheck !== 'string'){
+            itemName = itemCheck.name;
+            checkForID = itemCheck.id;
+        } else itemName = itemCheck;
         if (itemName === 'None') return interaction.followUp('You did not select an item to equip!');
         
         let userLoad = await Loadout.findOrCreate({
@@ -262,7 +276,8 @@ module.exports = {
             });
 
             const filteredItemList = fullItemList.filter(item => checkingSlot(item.item_code) === slotType);
-            theItem = filteredItemList.filter(item => item.name === itemName)[0];
+            theItem = (checkForID) 
+            ? filteredItemList.filter(item => item.name === itemName && item.item_id === checkForID)[0] : filteredItemList.filter(item => item.name === itemName)[0];
         } else {
             if (slotType === 'Unique') return interaction.followUp('This is not yet possible! Please check back later!');
             theItem = await OwnedPotions.findOne({where: {
