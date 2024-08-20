@@ -612,42 +612,6 @@ module.exports = {
 					}
 				});
 			}
-
-			/**
-			 * This function loads confirm/cancel buttons for the given trade.
-			 * ID's as follows:
-			 * 
-			 * ``direction = give``
-			 * confirmButt: ``confirm-give``
-			 * cancelButt: ``cancel-give``
-			 * 
-			 * ``direction = take``
-			 * confirmButt: ``confirm-take``
-			 * cancelButt: ``cancel-take``
-			 * @param {string} direction User Confirming: ``give`` || ``take``
-			 * @returns {ActionRowBuilder<ButtonBuilder>}
-			 */
-			function loadConfirmButts(direction){
-				const confirmButt = new ButtonBuilder()
-				.setCustomId(`confirm-${direction}`)
-				.setStyle(ButtonStyle.Primary)
-				.setLabel('Confirm Trade!')
-				.setEmoji('✅');
-
-				const cancelButt = new ButtonBuilder()
-				.setCustomId(`cancel-${direction}`)
-				.setStyle(ButtonStyle.Secondary)
-				.setLabel("Cancel Trade!")
-				.setEmoji('❌');
-
-				// ADD "MORE INFO" Button
-				// This button will send an ephemeral message, 
-				// containing an embed with additional info on the item being traded
-
-				const confirmButtRow = new ActionRowBuilder().addComponents(confirmButt, cancelButt);
-
-				return confirmButtRow;
-			}
 		}
 
 		if (interaction.options.getSubcommand() === 'local-buy'){
@@ -945,6 +909,42 @@ module.exports = {
 			const stringActionRow = new ActionRowBuilder().addComponents(selectMenu);
 
 			return stringActionRow;
+		}
+
+		/**
+		 * This function loads confirm/cancel buttons for the given trade.
+		 * ID's as follows:
+		 * 
+		 * ``direction = give``
+		 * confirmButt: ``confirm-give``
+		 * cancelButt: ``cancel-give``
+		 * 
+		 * ``direction = take``
+		 * confirmButt: ``confirm-take``
+		 * cancelButt: ``cancel-take``
+		 * @param {string} direction User Confirming: ``give`` || ``take``
+		 * @returns {ActionRowBuilder<ButtonBuilder>}
+		 */
+		function loadConfirmButts(direction){
+			const confirmButt = new ButtonBuilder()
+			.setCustomId(`confirm-${direction}`)
+			.setStyle(ButtonStyle.Primary)
+			.setLabel('Confirm Trade!')
+			.setEmoji('✅');
+
+			const cancelButt = new ButtonBuilder()
+			.setCustomId(`cancel-${direction}`)
+			.setStyle(ButtonStyle.Secondary)
+			.setLabel("Cancel Trade!")
+			.setEmoji('❌');
+
+			// ADD "MORE INFO" Button
+			// This button will send an ephemeral message, 
+			// containing an embed with additional info on the item being traded
+
+			const confirmButtRow = new ActionRowBuilder().addComponents(confirmButt, cancelButt);
+
+			return confirmButtRow;
 		}
 
 
