@@ -616,7 +616,8 @@ module.exports = {
 
 		if (interaction.options.getSubcommand() === 'local-buy'){
 			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
-
+			if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
+			
 			await interaction.deferReply();
 		}
 
