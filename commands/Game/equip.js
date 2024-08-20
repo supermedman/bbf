@@ -303,7 +303,7 @@ module.exports = {
                 if (handCheck.Hands === 2){
                     // 2 handed weapon
                     let overwriteCheck = false;
-                    if (userLoad.offhand !== 0 && userLoad.offhand !== userLoad.mainhand) overwriteCheck = true;
+                    if (userLoad.offhand !== '0' && userLoad.offhand !== userLoad.mainhand) overwriteCheck = true;
                     
                     await userLoad.update({
                         mainhand: theItem.item_id,
@@ -316,7 +316,7 @@ module.exports = {
                 } 
                 // 1 handed weapon
                 let offhandEmpty = false;
-                if (userLoad.offhand === 0 || userLoad.offhand === userLoad.mainhand) offhandEmpty = true;
+                if (userLoad.offhand === '0' || userLoad.offhand === userLoad.mainhand) offhandEmpty = true;
 
                 await userLoad.update({
                     mainhand: theItem.item_id,
@@ -326,7 +326,7 @@ module.exports = {
                 const replyMsg = (offhandEmpty) ? "Mainhand equipped, offhand available.": "Mainhand equipped.";
             return await interaction.followUp(replyMsg);
             case "Offhand":
-                if (userLoad.offhand === userLoad.mainhand) return await interaction.followUp('Offhand slot taken up by Mainhand weapon!');
+                if (userLoad.offhand === userLoad.mainhand && userLoad.mainhand !== 0) return await interaction.followUp('Offhand slot taken up by Mainhand weapon!');
                 await userLoad.update({
                     offhand: theItem.item_id
                 }).then(async u => await u.save()).then(async u => {return await u.reload()});

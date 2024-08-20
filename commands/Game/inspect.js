@@ -100,6 +100,7 @@ module.exports = {
                     embed
                     .setTitle(`${slotMatch[idxSlot]} Empty`)
                     .setDescription('No item equipped!');
+                    stringCodeList.push({item_code: "NONE"});
                 } else {
                     if (idxSlot !== 5){
                         let itemMatch = await ItemStrings.findOne({where: {user_id: givenUser.id, item_id: id}});
@@ -157,17 +158,47 @@ module.exports = {
                 embedList.push(embed);
             }
 
-            const finalDamageList = loadDamageItems(stringCodeList[0].item_code, stringCodeList[1].item_code);
-            const loadComp = {
-                offhand: stringCodeList[1].item_code,
-                headslot: stringCodeList[2].item_code,
-                chestslot: stringCodeList[3].item_code,
-                legslot: stringCodeList[4].item_code
-            };
-            const finalDefenceList = loadDefenceItems(loadComp);
+            const dmgEmbed = new EmbedBuilder();
+            if (loadoutIDs[0] === '0' && loadoutIDs[1] === '0'){
+                // No Damage Items
+                const {totDmgBoost, classDmgMult} = handleClassDMGMods();
+                const totalDamage = (1 * classDmgMult) + totDmgBoost;
+                dmgEmbed
+                .setTitle('Total Damage')
+                .addFields(
+                    {name: "Damage: ", value: `${totalDamage}`}
+                );
+            } else {
+                // DAMAGE
+                const finalDamageList = loadDamageItems(stringCodeList[0].item_code, stringCodeList[1].item_code);
 
+                function handleDamageMods(){
+                    const {totDmgBoost, classDmgMult} = handleClassDMGMods();
 
-            function handleDamageMods(){
+                    const shallowDmgList = [];
+                    const dmgDistCheck = finalDamageList.filter(dmgObj => dmgObj.DMG > 0);
+                    const flatBoost = totDmgBoost / dmgDistCheck.length;
+
+                    for (const dmgObj of finalDamageList){
+                        if (dmgObj.DMG === 0) continue;
+                        shallowDmgList.push({Type: dmgObj.Type, DMG: (dmgObj.DMG * classDmgMult) + flatBoost});
+                    }
+
+                    return shallowDmgList;
+                }
+
+                const totalDamage = handleDamageMods().reduce((acc, obj) => {
+                    return (acc > 0) ? acc + obj.DMG : obj.DMG;
+                }, 0);
+
+                dmgEmbed
+                .setTitle('Total Damage')
+                .addFields(
+                    {name: "Damage: ", value: `${totalDamage}`}
+                );
+            }
+
+            function handleClassDMGMods(){
                 const dmgModC = ["Mage", "Thief", "Warrior", "Paladin"];
                 const dmgModM = [0.15, 0, 0.05, -0.05];
                 const modBy = 1 + dmgModM[dmgModC.indexOf(theUser.pclass)];
@@ -175,36 +206,38 @@ module.exports = {
                 const totDmgBoost = (theUser.strength * 3) + (theUser.intelligence * 10);
                 const classDmgMult = modBy;
 
-                const shallowDmgList = [];
-                const dmgDistCheck = finalDamageList.filter(dmgObj => dmgObj.DMG > 0);
-                const flatBoost = totDmgBoost / dmgDistCheck.length;
-
-                for (const dmgObj of finalDamageList){
-                    if (dmgObj.DMG === 0) continue;
-                    shallowDmgList.push({Type: dmgObj.Type, DMG: (dmgObj.DMG * classDmgMult) + flatBoost});
-                }
-
-                return shallowDmgList;
+                return {totDmgBoost, classDmgMult};
             }
+            
+            const defEmbed = new EmbedBuilder();
+            if (loadoutIDs[1] === '0' && loadoutIDs[2] === '0' && loadoutIDs[3] === '0' && loadoutIDs[4] === '0'){
+                // No Defence Items
+                defEmbed
+                .setTitle('No Current Defence')
+                .addFields(
+                    {name: "Defence: ", value: `0`}
+                );
+            } else {
+                // DEFENCE
+                const loadComp = {
+                    offhand: stringCodeList[1].item_code,
+                    headslot: stringCodeList[2].item_code,
+                    chestslot: stringCodeList[3].item_code,
+                    legslot: stringCodeList[4].item_code
+                };
+                const finalDefenceList = loadDefenceItems(loadComp);
 
-            const totalDamage = handleDamageMods().reduce((acc, obj) => {
-                return (acc > 0) ? acc + obj.DMG : obj.DMG;
-            }, 0);
-            const totalDefence = finalDefenceList.reduce((acc, obj) => {
-                return (acc > 0) ? acc + obj.DEF : obj.DEF;
-            }, 0);
+                const totalDefence = finalDefenceList.reduce((acc, obj) => {
+                    return (acc > 0) ? acc + obj.DEF : obj.DEF;
+                }, 0);
 
-            const dmgEmbed = new EmbedBuilder()
-            .setTitle('Total Damage')
-            .addFields(
-                {name: "Damage: ", value: `${totalDamage}`}
-            );
-            const defEmbed = new EmbedBuilder()
-            .setTitle('Total Defence')
-            .addFields(
-                {name: "Defence: ", value: `${totalDefence}`}
-            );
-
+                defEmbed
+                .setTitle('Total Defence')
+                .addFields(
+                    {name: "Defence: ", value: `${totalDefence}`}
+                );
+            }
+            
             embedList.push(defEmbed, dmgEmbed);
 
             return await sendTimedChannelMessage(interaction, 360000, {embeds: embedList}, "FollowUp");

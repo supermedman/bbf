@@ -1,7 +1,7 @@
 // This script handles all item transfers between inventories. 
 // This includes, Item creation, Item trade, and Item selling/dismantling
 
-const { ItemStrings, ItemLootPool, UserData, MaterialStore } = require("../../../dbObjects");
+const { ItemStrings, ItemLootPool, UserData, MaterialStore, TownMaterial } = require("../../../dbObjects");
 const { getTypeof } = require("../../../uniHelperFunctions");
 
 /**
@@ -100,6 +100,40 @@ async function checkInboundMat(userid, matRef, matType, amount=1){
 }
 
 /**
+ * This function handles creating/updating materials that are inbound for a towns,
+ * inventory, it then returns the updated material.
+ * @param {string} townid User ID string
+ * @param {object} matRef Material Prefab Object
+ * @param {string} matType Material type string
+ * @param {number} amount Material amount, defaults 1
+ * @returns {object} Material Instance of TownMaterial 
+ */
+async function checkInboundTownMat(townid, matRef, matType, amount=1){
+    const theMat = await TownMaterial.findOrCreate({
+        where: {
+            townid: townid,
+            mat_id: matRef.Mat_id ?? matRef.mat_id,
+            mattype: matType
+        },
+        defaults: {
+            name: matRef.Name ?? matRef.name,
+            value: matRef.Value ?? matRef.value,
+            rarity: matRef.Rarity ?? matRef.rarity,
+            rar_id: matRef.Rar_id ?? matRef.rar_id,
+            amount: amount
+        }
+    });
+
+    if (theMat[1]){
+        await theMat[0].save().then(async mat => {return await mat.reload();});
+    } else {
+        await theMat[0].increment('amount', {by: amount}).then(async mat => {return await mat.reload();});
+    }
+
+    return theMat[0];
+}
+
+/**
  * This function handles adding the given item to the ``ItemLootPool`` database 
  * table, resolving to the created items reference within the database.
  * @param {object} statItem Newly crafted item qualified for static dropping
@@ -161,6 +195,29 @@ async function checkOutboundItem(userid, itemid, amount=1){
 async function checkOutboundMat(userid, matRef, matType, amount=1){
     const theMat = await MaterialStore.findOne({
         where: {spec_id: userid, mat_id: matRef.Mat_id ?? matRef.mat_id, mattype: matType}
+    });
+    if (!theMat) return 'Material Not Found';
+    await theMat.decrement('amount', {by: amount}).then(async mat => {
+        await mat.save().then(async mat => {
+            await mat.reload();
+            if (mat.amount <= 0) await trashMaterial(mat);
+        });
+    });
+    return 'Material Updated';
+}
+
+/**
+ * This function attempts to remove the given amount from the given material,
+ * if this takes it to 0 the material entry is removed.
+ * @param {string} townid Towns ID
+ * @param {object} matRef Material Prefab object
+ * @param {string} matType Material type string
+ * @param {number} amount Amount to remove, default 1
+ * @returns {promise <string>} 'Material Not Found' || 'Material Updated'
+ */
+async function checkOutboundTownMat(townid, matRef, matType, amount=1){
+    const theMat = await TownMaterial.findOne({
+        where: {townid: townid, mat_id: matRef.Mat_id ?? matRef.mat_id, mattype: matType}
     });
     if (!theMat) return 'Material Not Found';
     await theMat.decrement('amount', {by: amount}).then(async mat => {
@@ -236,8 +293,10 @@ module.exports = {
     moveMaterial,
     checkInboundItem,
     checkInboundMat,
+    checkInboundTownMat,
     handleNewStaticItem,
     checkOutboundItem,
     checkOutboundMat,
+    checkOutboundTownMat,
     trashItem
 };

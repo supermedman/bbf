@@ -8,5 +8,6 @@ module.exports = (sequelize, DataTypes) => {
         item_id: DataTypes.STRING,
         listed_value: DataTypes.INTEGER,
         amount_left: DataTypes.INTEGER,
+        expires_at: DataTypes.INTEGER
     });
 };

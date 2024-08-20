@@ -8,7 +8,7 @@ const { checkOwned } = require('./exported/createGear.js');
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const { checkingSlot } = require('../Development/Export/itemStringCore.js');
 const { grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
-const { moveItem, moveMaterial } = require('../Development/Export/itemMoveContainer.js');
+const { moveItem, moveMaterial, checkOutboundItem, checkOutboundTownMat, checkOutboundMat } = require('../Development/Export/itemMoveContainer.js');
 const { spendUserCoins, updateUserCoins } = require('../Development/Export/uni_userPayouts.js');
 
 module.exports = {
@@ -49,52 +49,48 @@ module.exports = {
 		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('local')
-				.setDescription('Trade locally, within a single server.')
-				.addStringOption(option =>
-					option
-					.setName('saletype')
-					.setDescription('Would you like to Buy or Sell?')
-					.setRequired(true)
-					.addChoices(
-						{ name: 'Buy', value: 'buy' },
-						{ name: 'Sell', value: 'sell' }
-					)
-				)
-				.addStringOption(option =>
-					option
-					.setName('trade-as')
-					.setDescription('What inventory would you like to use during this trade?')
-					.setRequired(true)
-					.addChoices(
-						{ name: 'Personal Inventory', value: 'user' },
-						{ name: 'Town Inventory', value: 'town' }
-					)
-				)
-				.addStringOption(option =>
-					option
-					.setName('local-type')
-					.setDescription('Which category would you like to trade from?')
-					.setRequired(true)
-					.setAutocomplete(true)
-				)
-				.addStringOption(option =>
-					option
-					.setName('item')
-					.setDescription('Which item would you like to trade?')
-					.setRequired(true)
-					.setAutocomplete(true)
-				)
-				.addIntegerOption(option =>
-					option
-					.setName('amount')
-					.setDescription('The amount of items to trade')
-				)
-			)
+			.setName('local-buy')
+			.setDescription('Buy locally, within a single server.')
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('global')
-				.setDescription('Trade globally, across the entire bb tradehub!')),
+			.setName('local-sell')
+			.setDescription('Sell locally, within a single server.')
+			.addStringOption(option =>
+				option
+				.setName('trade-as')
+				.setDescription('What inventory would you like to use during this trade?')
+				.setRequired(true)
+				.addChoices(
+					{ name: 'Personal Inventory', value: 'user' },
+					{ name: 'Town Inventory', value: 'town' }
+				)
+			)
+			.addStringOption(option =>
+				option
+				.setName('local-type')
+				.setDescription('Which category would you like to trade from?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+			.addStringOption(option =>
+				option
+				.setName('item')
+				.setDescription('Which item would you like to trade?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+			.addIntegerOption(option =>
+				option
+				.setName('amount')
+				.setDescription('The amount of items to trade')
+			)
+		)
+		.addSubcommand(subcommand =>
+			subcommand
+			.setName('global')
+			.setDescription('Trade globally, across the entire bb tradehub!')
+		),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -151,7 +147,7 @@ module.exports = {
 		}
 
 		// Sell order creation
-		if (interaction.options.getSubcommand() === 'local' && interaction.options.getString('saletype') === 'sell'){
+		if (interaction.options.getSubcommand() === 'local-sell'){
 			const focusedValue = interaction.options.getFocused(false);
 			const tradeInventory = interaction.options.getString('trade-as');
 
@@ -160,6 +156,7 @@ module.exports = {
 					choices = ["Material"];
 				} else choices = ["Mainhand", "Offhand", "Headslot", "Chestslot", "Legslot", "Material"];
 			} else if (focusedOption.name === 'item'){
+				const pickedType = interaction.options.getString('local-type');
 				if (tradeInventory === 'town'){
 					const user = await grabUser(interaction.user.id);
 					if (user.townid !== '0'){
@@ -198,7 +195,7 @@ module.exports = {
 
                 const filtered = choices.filter(choice => choice.startsWith(focusedValue));
                 await interaction.respond(
-                    filtered.map(choice => ({ name: choice, value: choice })),
+                    handleLimitOnOptions(filtered).map(choice => ({ name: choice, value: choice })),
                 );
             } else {
                 // Modded choice list, handle special display
@@ -207,7 +204,7 @@ module.exports = {
 
                 const filtered = choices.filter(choice => choice.nValue.startsWith(focusedValue));
                 await interaction.respond(
-                    filtered.map(choice => (
+                    handleLimitOnOptions(filtered).map(choice => (
                         {
                             name: (choice.valuable) ? `${choice.name} == HIGHEST VALUE == ${choice.highValue}`: `${choice.name}`,
                             value: choice.passValue
@@ -216,7 +213,6 @@ module.exports = {
                 );
             }
 		}
-
 
 		/**
 		 * This function handles checking the value of items with duped names, 
@@ -430,16 +426,7 @@ module.exports = {
 			const itemType = interaction.options.getString('type');
 
 			let itemCheck = interaction.options.getString('item');
-			// Try catch to handle invalid JSON when passed value is correct string
-			try {
-				itemCheck = JSON.parse(itemCheck);
-			} catch (e){}
-
-			let itemName, checkForID = false;
-			if (typeof itemCheck !== 'string'){
-				itemName = itemCheck.name;
-				checkForID = itemCheck.id;
-			} else itemName = itemCheck;
+			let {itemName, checkForID} = handleItemObjCheck(itemCheck);
 			if (itemName === "No Items") return await interaction.followUp(`No ${itemType} items found!`);
 
 			let theItem;
@@ -661,40 +648,307 @@ module.exports = {
 
 				return confirmButtRow;
 			}
+		}
+
+		if (interaction.options.getSubcommand() === 'local-buy'){
+			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
+
+			await interaction.deferReply();
+		}
+
+		if (interaction.options.getSubcommand() === 'local-sell'){
+			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
+
+			await interaction.deferReply();
+
+			//const saleType = interaction.options.getString('saletype'); // buy || sell
+			const itemType = interaction.options.getString('local-type'); // Mainhand | Offhand | Headslot | Chestslot | Legslot | Material
+			const tradeAs = interaction.options.getString('trade-as'); // town || user
+			const moveAmount = interaction.options.getInteger('amount') ?? 1;
+
+			const user = await grabUser(interaction.user.id);
+
+			let itemCheck = interaction.options.getString('item');
+			let {itemName, checkForID} = handleItemObjCheck(itemCheck);
+			if (itemName === "No Items") return await interaction.followUp(`No ${itemType} items found!`);
+
+			let theTown = 'None';
+			if (tradeAs === 'town'){
+				if (user.townid === '0') return await interaction.followUp('User has no town!');
+				const townRef = await Town.findOne({where: {townid: user.townid}});
+				const theMayor = await grabUser(townRef.mayorid);
+				const townPermList = townRef.can_edit.split(',');
+				if (!townPermList.includes(user.userid)) return interaction.followUp(`Missing Required Access! You do not have permission to manage your towns items. Speak with your mayor ${makeCapital(theMayor.username)} about getting access.`);
+				theTown = townRef;
+			}
+
+			let theItem;
+			switch(itemType){
+				case "Material":
+					theItem = (tradeAs === 'town') 
+					? await TownMaterial.findOne({where: {townid: user.townid, name: itemName}})
+					: await MaterialStore.findOne({where: {spec_id: user.userid, name: itemName}});
+				break;
+				default:
+					const fullItemList = await ItemStrings.findAll({where: {user_id: user.userid}});
+					// Handle conditional filters
+					theItem = (fullItemList.length === 0) 
+					? "No Item" : (checkForID) 
+					? fullItemList.filter(item => item.name === itemName && item.item_id === checkForID)[0] 
+					: fullItemList.filter(item => item.name === itemName)[0] ;
+
+					// Loadout check
+					const uLoad = await Loadout.findOne({where: {spec_id: user.userid}});
+					if (uLoad){
+						const matchSlots = ['mainhand', 'offhand', 'headslot', 'chestslot', 'legslot'];
+						const loadIDS = [];
+						for (const slot of matchSlots){
+							loadIDS.push(uLoad[`${slot}`]);
+						}
+						if (loadIDS.includes(theItem.item_id)){
+							if (theItem.amount <= moveAmount) theItem = "Loadout";
+						}
+					}
+				break;
+			}
+			if (!theItem || theItem === "No Item") return await interaction.followUp(`${itemName} could not be found!!`);
+			if (theItem === "Loadout") return await interaction.followUp(`${itemName} is currently equipped, you would trade your last one!`);
+			if (moveAmount > theItem.amount) return await interaction.followUp(`You only have ${theItem.amount} ${itemName}, you cannot trade ${moveAmount} of them!`);
+
+			const staticValue = theItem.value; // * moveAmount;
+			let listedValue = staticValue;
+
+			let dynDesc = '';
+			dynDesc = 'The following select menu provides pricing options for the item in question. All values shown represent the cost per item, and not the combined total. ';
+			dynDesc += `Currently trading as ${makeCapital(tradeAs)}. `;
+			dynDesc += 'Upon an item being sold, the appropriate amount of coins will be transfered to your inventory. ';
+			dynDesc += 'Should the order timeout, all items/coins will be returned to the appropriate inventories, and the order will be removed. ';
+			dynDesc += 'If the item you are making a sale for already has an order locally, and the price matches yours, then a transaction will automatically be completed.';
+
+			const localTowns = await Town.findAll({where: {guildid: interaction.guild.id}});
+			if (localTowns.length === 0) return await interaction.followUp('There are no local towns to trade within!');
+
+			const priceMenuEmbed = new EmbedBuilder()
+			.setTitle('== Price Menu ==')
+			.setDescription(dynDesc)
+			.addFields({
+				name: "Local Towns: ",
+				value: `${localTowns.map(town => `${makeCapital(town.name)}`).join()}`
+			});
+
+			// Load Price Options
+			const stringPriceMenu = loadStringPriceMenu(staticValue);
+
+			const replyObj = {embeds: [priceMenuEmbed], components: [stringPriceMenu]};
+
+			const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "FollowUp", "String");
+
+			collector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+					listedValue = ~~c.values[0];
+					collector.stop('Value Picked');
+				}).catch(e=>console.error(e));
+			});	
+
+			collector.on('end', async (c, r) => {
+				if (!r || r === 'time'){
+					await handleCatchDelete(anchorMsg);
+				}
+				
+				if (r === 'Value Picked'){
+					handleSellOrderConfirm(anchorMsg);
+				}
+			});
 
 			/**
-			 * This function generates the available price ranges as a string select menu,
-			 * ID: ``price-range``
-			 * @param {number} staticValue Default Item Value
-			 * @returns {ActionRowBuilder<StringSelectMenuBuilder>}
+			 * This function contains the confirm/cancel interface 
+			 * for the current sell order being created
+			 * @param {object} msg AnchorMsg Reference Object
 			 */
-			function loadStringPriceMenu(staticValue){
-				const selectMenu = new StringSelectMenuBuilder()
-				.setCustomId('price-range')
-				.setPlaceholder('Select a value for your item');
-				const optionModObjList = [
-					{label: "25% Above", mod: 0.25},
-					{label: "10% Above", mod: 0.10},
-					{label: "Base Value", mod: 0},
-					{label: "10% Below", mod: -0.10},
-					{label: "25% Below", mod: -0.25}
-				];
-				const stringOptions = [];
-				for (const obj of optionModObjList){
-					const option = new StringSelectMenuOptionBuilder()
-					.setLabel(obj.label)
-					.setDescription(`Listed Value: ${staticValue + (staticValue * obj.mod)}`)
-					.setValue(`${staticValue + (staticValue * obj.mod)}`);
-					stringOptions.push(option);
-				}	
+			async function handleSellOrderConfirm(msg){
+				const confirmEmbed = new EmbedBuilder()
+				.setTitle('== **Create Sell Order** ==')
+				.setDescription(`Confirm your order details here!`)
+				.addFields(
+					{
+						name: "Your current sell order: ", 
+						value: `**${moveAmount} ${itemName}** selling at: **${listedValue}**c per unit.\nTotal estimated sale value: **${listedValue * moveAmount}**c`
+					}
+				);
 
-				selectMenu.addOptions(stringOptions);
+				const replyObj = {embeds: [confirmEmbed], components: [loadConfirmButts('give')]};
 
-				const stringActionRow = new ActionRowBuilder().addComponents(selectMenu);
+				await handleCatchDelete(msg);
 
-				return stringActionRow;
+				const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "FollowUp");
+
+				collector.on('collect', async c => {
+					await c.deferUpdate().then(async () => {
+						switch(c.customId){
+							case "confirm-give":
+								collector.stop('Confirmed');
+							break;
+							case "cancel-give":
+							return collector.stop('Canceled');
+						}
+					}).catch(e=>console.error(e));
+				});
+
+				collector.on('end', async (c, r) => {
+					if (!r || r === 'time' || r === 'Canceled'){
+						await handleCatchDelete(anchorMsg);
+					}
+
+					if (r === "Confirmed"){
+						await handleCatchDelete(anchorMsg);
+
+						const sellOrderObject = {
+							perUnitPrice: listedValue,
+							orderType: 'Sell',
+							targetType: tradeAs,
+							targetID: (tradeAs === 'town') ? theTown.townid : user.userid,
+							target: (tradeAs === 'town') ? theTown : user,
+							itemType: (itemType === 'Material') ? theItem.mattype : "Gear",
+							itemID: (itemType === 'Material') ? theItem.mat_id : theItem.item_id,
+							item: theItem,
+							amount: moveAmount
+						};
+
+						// Handle Sell Order Setup
+						handleSellOrderSetup(sellOrderObject);
+					}
+				});
 			}
 		}
+
+
+		/**
+		 * This function handles creating a new sell order, updating the applicable item amounts owned,
+		 * and then displays the order created upon completion.
+		 * @param {object} sellOrderObject Complete Order Detail Object
+		 * @returns {Promise <void>}
+		 */
+		async function handleSellOrderSetup(sellOrderObject){
+			// const orderObj = await generateNewOrder(sellOrderObject);
+			await generateNewOrder(sellOrderObject);
+
+			// Handle item transfers
+			switch(sellOrderObject.itemType){
+				case "Gear":
+					// OutboundItem
+					await checkOutboundItem(sellOrderObject.targetID, sellOrderObject.itemID, sellOrderObject.amount);
+				break;
+				default:
+					// OutboundMaterial
+					if (sellOrderObject.targetType === 'town'){
+						await checkOutboundTownMat(sellOrderObject.targetID, sellOrderObject.item, sellOrderObject.itemType, sellOrderObject.amount);
+					} else await checkOutboundMat(sellOrderObject.targetID, sellOrderObject.item, sellOrderObject.itemType, sellOrderObject.amount);
+				break;
+			}
+
+			// Handle matching buy orders?
+
+			// Handle display embed
+			const sellOrderEmbed = new EmbedBuilder()
+			.setTitle('== Sell Order Created ==')
+			.setDescription(`Your sell order for **${sellOrderObject.amount}** **${sellOrderObject.item.name}** at **${sellOrderObject.perUnitPrice}**c was successfully added!`);
+
+			return await sendTimedChannelMessage(interaction, 60000, sellOrderEmbed, "FollowUp");
+		}
+
+		/**
+		 * This function handles creating a new sale order in the LocalMarkets table,
+		 * based on the data provided with ``tradeObj``
+		 * @param {object} tradeObj Trade Order Detail Object
+		 * @returns {Promise <object>} Newly created Order Object
+		 */
+		async function generateNewOrder(tradeObj){
+			const newOrder = await LocalMarkets.create({
+				guildid: interaction.guild.id,
+				target_type: tradeObj.targetType,
+				target_id: tradeObj.targetID,
+				sale_type: tradeObj.orderType,
+				item_type: tradeObj.itemType,
+				item_id: tradeObj.itemID,
+				listed_value: tradeObj.perUnitPrice,
+				amount_left: tradeObj.amount
+			}).then(async o => await o.save()).then(async o => {return await o.reload()});
+
+			await updateOrderExpireTime(newOrder);
+
+			return newOrder;
+		}
+
+		/**
+		 * This function handles updating the expiry date for the given order,
+		 * based on the most recently made update.
+		 * @param {object} order LocalMarkets DB Instance Object
+		 * @returns {Promise <void>}
+		 */
+		async function updateOrderExpireTime(order){
+			const lastUpdate = new Date(order.updatedAt);
+			const expires = lastUpdate.setDate(lastUpdate.getDate() + 25);
+			await order.update({expires_at: expires}).then(async o => await o.save()).then(async o => {return await o.reload()});
+			return;
+		}
+
+		/**
+		 * This function handles checking a string interaction output through JSON.parse(), 
+		 * if this fails returns ``itemCheck`` as ``itemName`` and ``checkForID`` as ``false``
+		 * if this does not fail, returns: ``itemCheck.name`` as ``itemName`` and ``itemCheck.id`` as ``checkForID``
+		 * @param {string} itemCheck Item Name | JSON Object String ``{"name": string, "id": string}``
+		 * @returns {{itemName: string, checkForID: (string | boolean)}}
+		 */
+		function handleItemObjCheck(itemCheck){
+			// Try catch to handle invalid JSON when passed value is correct string
+			try {
+				itemCheck = JSON.parse(itemCheck);
+			} catch (e){}
+
+			let itemName, checkForID = false;
+			if (typeof itemCheck !== 'string'){
+				itemName = itemCheck.name;
+				checkForID = itemCheck.id;
+			} else itemName = itemCheck;
+
+			return {itemName, checkForID};
+		}
+
+		/**
+		 * This function generates the available price ranges as a string select menu,
+		 * ID: ``price-range``
+		 * @param {number} staticValue Default Item Value
+		 * @returns {ActionRowBuilder<StringSelectMenuBuilder>}
+		 */
+		function loadStringPriceMenu(staticValue){
+			const selectMenu = new StringSelectMenuBuilder()
+			.setCustomId('price-range')
+			.setPlaceholder('Select a value for your item');
+			const optionModObjList = [
+				{label: "25% Above", mod: 0.25},
+				{label: "10% Above", mod: 0.10},
+				{label: "Base Value", mod: 0},
+				{label: "10% Below", mod: -0.10},
+				{label: "25% Below", mod: -0.25}
+			];
+			const stringOptions = [];
+			for (const obj of optionModObjList){
+				const option = new StringSelectMenuOptionBuilder()
+				.setLabel(obj.label)
+				.setDescription(`Listed Value: ${Math.floor(staticValue + (staticValue * obj.mod))}`)
+				.setValue(`${Math.floor(staticValue + (staticValue * obj.mod))}`);
+				stringOptions.push(option);
+			}	
+
+			selectMenu.addOptions(stringOptions);
+
+			const stringActionRow = new ActionRowBuilder().addComponents(selectMenu);
+
+			return stringActionRow;
+		}
+
+
+
 
 		if (interaction.options.getSubcommand() === 'local') {
 			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
