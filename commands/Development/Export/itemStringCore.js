@@ -241,6 +241,24 @@ function checkingRarID(rarity){
 }
 
 /**
+ * This function loads all existing Rarity names into an array.
+ * The array does not include r11 ``Tmp`` or r12 ``Unique``
+ * @param {number} [stopRar=19] Set this to the last desired rar id.
+ * @returns {string[]}
+ */
+function loadFullRarNameList(stopRar=19){
+    const rarList = [];
+    let rCount = 0;
+    for (const [key, value] of rarKeys){
+        if (key === 'r11' || key === 'r12') continue;
+        rarList.push(value);
+        rCount++;
+        if (rCount === stopRar + 1) break;
+    }
+    return rarList;
+}
+
+/**
  * 
  * @param {String} TEST_CODE ITEM_CODE used for deconstruction
  * @returns String[]: Useable dismantled types list
@@ -1311,6 +1329,7 @@ module.exports = {
     checkingRar,
     checkingRarID,
     baseCheckRarName,
+    loadFullRarNameList,
     checkingSlot,
     checkingCaste,
     checkingCasteID,

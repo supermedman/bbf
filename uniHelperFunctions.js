@@ -222,13 +222,16 @@ async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
  * This function creates and stores a sent message as an anchor, which it then uses
  * to attach a messageComponentCollector for use with Discords interactive components.
  * Component Type is specified by ``compType`` which if left empty defaults to Button.
+ * 
+ * ``sCollector`` Will be undefined unless ``compType`` is ``"Both"``, 
+ * ``sCollector`` can collect only ``StringSelect`` components
  * @param {object} interaction Discord Interaction Object
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {any} contents  One of many types, handled internally
  * @param {string} replyType One of: "FollowUp", "Reply", undefined
- * @param {string} compType One of: "Button", "String", undefined
+ * @param {string} compType One of: "Button", "String", "Both", undefined
  * @param {string} filterID One of: user.id, undefined
- * @returns {Promise<{anchorMsg: object, collector: object}>}
+ * @returns {Promise<{anchorMsg: object, collector: object, sCollector: (object | undefined)}>}
  */
 async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType, compType, filterID){
     const replyObject = handleContentType(contents);
@@ -244,10 +247,15 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
             anchorMsg = await interaction.channel.send(replyObject);
         break;
     }
-    
-    const collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
 
-    return {anchorMsg, collector};
+    let collector, sCollector;
+    if (compType === 'Both'){
+        const collectorPair = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
+        collector = collectorPair[0];
+        sCollector = collectorPair[1];
+    } else collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
+
+    return {anchorMsg, collector, sCollector};
 }
 
 /**
@@ -257,7 +265,7 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
  * @param {object} interaction Discord Interaction Object
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {object} anchorMsg Discord message object used as an anchor
- * @param {string} compType One of: "Button", "String", undefined
+ * @param {string} compType One of: "Button", "String", "Both", undefined
  * @param {string} filterID One of: user.id, undefined
  * @returns {object}
  */
@@ -273,16 +281,29 @@ function createComponentCollector(interaction, timeLimit, anchorMsg, compType, f
         case "String":
             theType = ComponentType.StringSelect;
         break;
+        case "Both":
+            theType = [ComponentType.Button, ComponentType.StringSelect];
+        break;
         default:
             theType = ComponentType.Button;
         break;
     }
 
     const collector = anchorMsg.createMessageComponentCollector({
-        componentType: theType,
+        componentType: (compType !== "Both") ? theType : theType[0],
         filter,
         time: timeLimit
     });
+
+    if (compType === "Both"){
+        const sCollector = anchorMsg.createMessageComponentCollector({
+            componentType: theType[1],
+            filter,
+            time: timeLimit
+        });
+
+        return [collector, sCollector];
+    }
 
     return collector;
 }

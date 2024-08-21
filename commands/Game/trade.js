@@ -1,15 +1,30 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
-const { errorForm, specialInfoForm, basicInfoForm, specialInfoForm2, successResult } = require('../../chalkPresets.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+const { errorForm } = require('../../chalkPresets.js');
 
-const { Loadout, UserData, LootStore, MaterialStore, TownMaterial, Town, LocalMarkets, ItemStrings } = require('../../dbObjects.js');
+const { Loadout, MaterialStore, TownMaterial, Town, ItemStrings } = require('../../dbObjects.js');
 
-const { checkOwned } = require('./exported/createGear.js');
+//const { checkOwned } = require('./exported/createGear.js');
 
-const lootList = require('../../events/Models/json_prefabs/lootList.json');
+//const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const { checkingSlot } = require('../Development/Export/itemStringCore.js');
 const { grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
-const { moveItem, moveMaterial, checkOutboundItem, checkOutboundTownMat, checkOutboundMat } = require('../Development/Export/itemMoveContainer.js');
+const { moveItem, moveMaterial } = require('../Development/Export/itemMoveContainer.js');
 const { spendUserCoins, updateUserCoins } = require('../Development/Export/uni_userPayouts.js');
+
+const {
+	handleBuyOrderSetup,
+    handleSellOrderSetup,
+    loadAsButts,
+    loadTypeButts,
+    loadRarStringMenu,
+    loadConfirmButts,
+    loadNameStringMenu,
+    handleMatNameFilter,
+    handleItemNameFilter,
+    loadAmountButts,
+    loadPriceButts,
+    handlePriceButtPicked
+} = require('./exported/tradeExtras.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -88,8 +103,18 @@ module.exports = {
 		)
 		.addSubcommand(subcommand =>
 			subcommand
+			.setName('view-local')
+			.setDescription('View local trade orders!')
+		)
+		.addSubcommand(subcommand =>
+			subcommand
 			.setName('global')
 			.setDescription('Trade globally, across the entire bb tradehub!')
+		)
+		.addSubcommand(subcommand =>
+			subcommand
+			.setName('view-global')
+			.setDescription('View global trade orders!')
 		),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
@@ -321,94 +346,6 @@ module.exports = {
 
 			return optionsList;
 		}
-
-
-		// OLD CODE
-		// if (focusedOption.name === 'local-type') {
-		// 	const focusedValue = interaction.options.getFocused(false);
-		// 	let tradeAs = interaction.options.getString('trade-as') ?? 'NONE';
-
-		// 	if (tradeAs === 'user') {
-		// 		choices = ['Weapon', 'Offhand', 'Armor', 'Material'];
-		// 	} else if (tradeAs === 'town') {
-		// 		choices = ['Material'];
-		// 	} else choices = ['NONE'];
-
-		// 	const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-		// 	await interaction.respond(
-		// 		filtered.map(choice => ({ name: choice, value: choice })),
-		// 	);
-        // }
-
-		// if (focusedOption.name === 'item') {
-		// 	const focusedValue = interaction.options.getFocused(false);
-		// 	let tradeType, tradeFrom = 'NONE', theTown = 'NONE';
-		// 	if (interaction.options.getSubcommand() === 'with') tradeType = interaction.options.getString('type') ?? 'NONE';
-
-		// 	let exists = false;
-		// 	if (interaction.options.getSubcommand() === 'local') {
-		// 		tradeType = interaction.options.getString('local-type') ?? 'NONE';
-		// 		tradeFrom = interaction.options.getString('trade-as') ?? 'NONE';
-
-		// 		const user = await UserData.findOne({ where: { userid: interaction.user.id } });
-		// 		if (user && tradeFrom === 'town') theTown = await Town.findOne({ where: { townid: user.townid } });
-		// 		if (theTown !== 'NONE') {
-		// 			const currentEditList = theTown.can_edit.split(',');
-		// 			for (const id of currentEditList) {
-		// 				if (user.userid === id) {
-		// 					exists = true;
-		// 					break;
-		// 				}
-		// 			}
-        //         }
-		// 	} 
-
-		// 	let items;
-		// 	if (tradeType === 'Mainhand' || tradeType === 'Weapon') {
-		// 		items = await LootStore.findAll({
-		// 			where: [
-		// 				{ spec_id: interaction.user.id },
-		// 				{ slot: 'Mainhand' }]
-		// 		});
-		// 	}
-		// 	if (tradeType === 'Offhand') {
-		// 		items = await LootStore.findAll({
-		// 			where: [
-		// 				{ spec_id: interaction.user.id },
-		// 				{ slot: 'Offhand' }]
-		// 		});
-		// 	}
-		// 	if (tradeType === 'Armor') {
-		// 		items = await LootStore.findAll({
-		// 			where: [
-		// 				{ spec_id: interaction.user.id },
-		// 				{ attack: 0 }]
-		// 		});
-		// 	}
-		// 	if (tradeType === 'Material') {
-		// 		if (tradeFrom === 'NONE' || tradeFrom === 'user') {
-		// 			items = await MaterialStore.findAll({
-		// 				where: [
-		// 					{ spec_id: interaction.user.id }]
-		// 			});
-		// 		} else if (tradeFrom === 'town' && exists === true) {
-		// 			items = await TownMaterial.findAll({
-		// 				where: [
-		// 					{ townid: theTown.townid }]
-		// 			});
-        //         }
-		// 	}
-
-		// 	choices = items.map(item => item.name);
-
-		// 	console.log(basicInfoForm(`Current Choices: ${choices} for ${tradeType}s`));
-
-		// 	const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-		// 	await interaction.respond(
-		// 		filtered.map(choice => ({ name: choice, value: choice })),
-		// 	);
-		// }
-
     },
 	async execute(interaction) { 
 		const { betaTester, materialFiles } = interaction.client;
@@ -616,9 +553,223 @@ module.exports = {
 
 		if (interaction.options.getSubcommand() === 'local-buy'){
 			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
-			if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
+			//if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
 			
 			await interaction.deferReply();
+
+			const user = await grabUser(interaction.user.id)
+
+			const tradingAsEmbed = new EmbedBuilder()
+			.setTitle('== Trading AS? ==');
+
+			const tradingTypeEmbed = new EmbedBuilder()
+			.setTitle('== Item Type? ==');
+
+			const tradingRarityEmbed = new EmbedBuilder()
+			.setTitle('== Rarity? ==');
+
+			const tradingNameEmbed = new EmbedBuilder()
+			.setTitle('== Item Name? ==');
+
+			// Other Buy Menu Embeds Here
+			// ==========================
+
+			const moveAmountEmbed = new EmbedBuilder()
+			.setTitle('== Amount to Buy ==')
+			.setDescription('Current Amount Selected: 0');
+
+			const askPriceEmbed = new EmbedBuilder()
+			.setTitle('== Price to Buy at ==')
+			.setDescription('Current Price Selected: 0c');
+
+			const replyObj = {embeds: [tradingAsEmbed], components: [await loadAsButts(user)]};
+
+			const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, replyObj, "FollowUp", "Both");
+
+			const trackingObj = {
+				tradingAs: "",
+				tradeEntity: "",
+				itemType: "",
+				rarity: "",
+				itemPointer: "",
+				itemRef: "",
+				baseValue: 0,
+				amount: 0,
+				price: 0
+			};
+
+			const priceIDList = [
+				"add-one-c", 'add-ten-c', "add-25-c", "add-100-c", "add-1k-c", "add-10k-c", 
+				"minus-one-c", 'minus-ten-c', "minus-25-c", "minus-100-c", "minus-1k-c", "minus-10k-c",
+				"mult-ten-c", "mult-100-c", "mult-1k-c"
+			];
+
+			// STRING SELECT COLLECTOR
+			sCollector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+					let editWith;
+					if (['rar-picked'].includes(c.customId)){
+						trackingObj.rarity = c.values[0];
+						editWith = {embeds: [tradingNameEmbed], components: await loadNameStringMenu(trackingObj, materialFiles)};
+					} else if (['item-name'].includes(c.customId)){
+						const itemObj = JSON.parse(c.values[0]);
+						trackingObj.itemPointer = itemObj.name;
+						trackingObj.baseValue = itemObj.value;
+						if (trackingObj.itemType === 'material'){
+							trackingObj.itemRef = handleMatNameFilter(trackingObj.itemPointer, materialFiles);
+						} else trackingObj.itemRef = await handleItemNameFilter(trackingObj.itemPointer);
+						editWith = {embeds: [moveAmountEmbed], components: loadAmountButts()};
+					}
+					await anchorMsg.edit(editWith);
+				}).catch(e => console.error(e));
+			});
+
+			// BUTTON COLLECTOR
+			collector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+					// console.log(c);
+					let editWith;
+					if (['as-town', 'as-user'].includes(c.customId)){
+						trackingObj.tradingAs = c.customId.split('-')[1];
+						trackingObj.tradeEntity = (trackingObj.tradingAs === 'town') ? await Town.findOne({where: {townid: user.townid}}) : user;
+
+						editWith = {embeds: [tradingTypeEmbed], components: loadTypeButts(trackingObj.tradingAs)};
+					} else if (['mainhand', 'offhand', 'headslot', 'chestslot', 'legslot', 'material'].includes(c.customId)){
+						trackingObj.itemType = c.customId;
+						editWith = {embeds: [tradingRarityEmbed], components: loadRarStringMenu()};
+					} else if (['add-five', 'add-one', 'minus-five', 'minus-one'].includes(c.customId)){
+						// Handle special counting logic here
+						switch(c.customId){
+							case "add-five":
+								trackingObj.amount += 5;
+							break;
+							case "add-one":
+								trackingObj.amount += 1;
+							break;
+							case "minus-one":
+								trackingObj.amount -= 1;
+							break;
+							case "minus-five":
+								trackingObj.amount -= 5;
+							break;
+						}
+						if (trackingObj.amount < 0) trackingObj.amount = 0;
+						moveAmountEmbed.setDescription(`Current Amount Selected: ${trackingObj.amount}`);
+
+						editWith = {embeds: [moveAmountEmbed], components: loadAmountButts()};
+					} else if (priceIDList.includes(c.customId) || c.customId === 'reset-price'){
+						
+						if (c.customId === 'reset-price'){
+							trackingObj.price = 0;
+						} else if (["mult-ten-c", "mult-100-c", "mult-1k-c"].includes(c.customId)){
+							trackingObj.price *= handlePriceButtPicked(c.customId);
+						} else {
+							trackingObj.price += handlePriceButtPicked(c.customId);
+						}
+
+						if (trackingObj.price * trackingObj.amount > trackingObj.tradeEntity.coins) {
+							// Value would excced traders coin limit
+							trackingObj.price = Math.floor(trackingObj.tradeEntity.coins / trackingObj.amount);
+							await c.followUp({content: "You cannot increase the value further as you would lack the funding required!", ephemeral: true});
+						}
+						if (trackingObj.price < 0) trackingObj.price = 0;
+						askPriceEmbed.setDescription(`Base Value of **${trackingObj.itemPointer}**: **${trackingObj.baseValue}**c\nPrice per item: **${trackingObj.price}**c\nCurrent Total Cost: **${trackingObj.price * trackingObj.amount}**c`);
+
+						editWith = {embeds: [askPriceEmbed], components: loadPriceButts()};
+					} else if (['confirm-num', 'confirm-price', 'confirm-take'].includes(c.customId)){
+						switch(c.customId){
+							case "confirm-num":
+								if (trackingObj.amount === 0) {
+									await c.followUp({content: "You must select to buy at least **1** item!", ephemeral: true});
+									editWith = {embeds: [moveAmountEmbed], components: loadAmountButts()};
+								} else if (trackingObj.amount > 9999) {
+									await c.followUp({content: "You buy more than **9999** items at a time!", ephemeral: true});
+									editWith = {embeds: [moveAmountEmbed], components: loadAmountButts()};
+							    } else {
+									editWith = {embeds: [askPriceEmbed], components: loadPriceButts()};
+								}
+							break;
+							case "confirm-price":
+								if (trackingObj.price === 0){
+									await c.followUp({content: "You cannot buy items for less than **1**c!", ephemeral: true});
+									editWith = {embeds: [askPriceEmbed], components: loadPriceButts()};
+								} else {
+									const finalConfirmEmbed = new EmbedBuilder()
+									.setTitle('== Create Buy Order ==')
+									.setDescription(`Confirm the details for this buy order!\nTrading As: ${trackingObj.tradingAs}\nAsking for **${trackingObj.rarity} ${trackingObj.itemType}**: **${trackingObj.itemPointer}**\nAsking Price per item: **${trackingObj.price}**c\nTotal Price for **${trackingObj.amount}**: **${trackingObj.price * trackingObj.amount}**c\n\nYou will pay **${trackingObj.price * trackingObj.amount}**c upfront. Should this order expire you will receive any amount remaining from items not purchased, the same as if you cancel this order.`);
+									editWith = {embeds: [finalConfirmEmbed], components: [loadConfirmButts('take')]};
+								}
+							break;
+							case "confirm-take":
+								sCollector.stop('Complete');
+							return collector.stop('Complete');
+						}
+
+					} else if (['back-type', 'back-rar', 'back-num', 'back-price', 'back-name', 'cancel-take'].includes(c.customId)){
+						switch(c.customId){
+							case "back-type":
+								trackingObj.tradingAs = "";
+								trackingObj.tradeEntity = "";
+								editWith = {embeds: [tradingAsEmbed], components: [await loadAsButts(user)]};
+							break;
+							case "back-rar":
+								trackingObj.itemType = "";
+								editWith = {embeds: [tradingTypeEmbed], components: loadTypeButts(trackingObj.tradingAs)};
+							break;
+							case "back-name":
+								trackingObj.rarity = "";
+								editWith = {embeds: [tradingRarityEmbed], components: loadRarStringMenu()};
+							break;
+							case "back-num":
+								trackingObj.itemPointer = "";
+								trackingObj.itemRef = "";
+								trackingObj.baseValue = 0;
+								trackingObj.amount = 0;
+								moveAmountEmbed.setDescription(`Current Amount Selected: ${trackingObj.amount}`);
+
+								editWith = {embeds: [tradingNameEmbed], components: await loadNameStringMenu(trackingObj, materialFiles)};
+							break;
+							case "back-price":
+								trackingObj.price = 0;
+
+								editWith = {embeds: [moveAmountEmbed], components: loadAmountButts()};
+							break;
+							case "cancel-take":
+								editWith = {embeds: [askPriceEmbed], components: loadPriceButts()};
+							break;
+						}
+					}
+					await anchorMsg.edit(editWith);
+				}).catch(e => console.error(e));
+			});
+
+			sCollector.on('end', async (c, r) => {
+				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+			});
+
+			collector.on('end', async (c, r) => {
+				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+
+				if (r === 'Complete'){
+					// Handle Buy order create here.
+					const buyOrderObject = {
+						interRef: interaction,
+						perUnitPrice: trackingObj.price,
+						orderType: 'Buy',
+						targetType: trackingObj.tradingAs,
+						targetID: (trackingObj.tradingAs === 'town') ? trackingObj.tradeEntity.townid : trackingObj.tradeEntity.userid,
+						target: trackingObj.tradeEntity,
+						itemType: (trackingObj.itemType === 'material') ? trackingObj.itemRef.MatType : "Gear",
+						itemID: (trackingObj.itemType === 'material') ? trackingObj.itemRef.Mat_id : trackingObj.itemRef.item_id,
+						item: trackingObj.itemRef,
+						amount: trackingObj.amount
+					};
+
+					await handleCatchDelete(anchorMsg);
+
+					return await sendTimedChannelMessage(interaction, 60000, await handleBuyOrderSetup(buyOrderObject), "FollowUp");
+				}
+			});
 		}
 
 		if (interaction.options.getSubcommand() === 'local-sell'){
@@ -768,6 +919,7 @@ module.exports = {
 						await handleCatchDelete(anchorMsg);
 
 						const sellOrderObject = {
+							interRef: interaction,
 							perUnitPrice: listedValue,
 							orderType: 'Sell',
 							targetType: tradeAs,
@@ -780,81 +932,20 @@ module.exports = {
 						};
 
 						// Handle Sell Order Setup
-						handleSellOrderSetup(sellOrderObject);
+						return await sendTimedChannelMessage(interaction, 60000, await handleSellOrderSetup(sellOrderObject), "FollowUp");
 					}
 				});
 			}
 		}
 
-
-		/**
-		 * This function handles creating a new sell order, updating the applicable item amounts owned,
-		 * and then displays the order created upon completion.
-		 * @param {object} sellOrderObject Complete Order Detail Object
-		 * @returns {Promise <void>}
-		 */
-		async function handleSellOrderSetup(sellOrderObject){
-			// const orderObj = await generateNewOrder(sellOrderObject);
-			await generateNewOrder(sellOrderObject);
-
-			// Handle item transfers
-			switch(sellOrderObject.itemType){
-				case "Gear":
-					// OutboundItem
-					await checkOutboundItem(sellOrderObject.targetID, sellOrderObject.itemID, sellOrderObject.amount);
-				break;
-				default:
-					// OutboundMaterial
-					if (sellOrderObject.targetType === 'town'){
-						await checkOutboundTownMat(sellOrderObject.targetID, sellOrderObject.item, sellOrderObject.itemType, sellOrderObject.amount);
-					} else await checkOutboundMat(sellOrderObject.targetID, sellOrderObject.item, sellOrderObject.itemType, sellOrderObject.amount);
-				break;
-			}
-
-			// Handle matching buy orders?
-
-			// Handle display embed
-			const sellOrderEmbed = new EmbedBuilder()
-			.setTitle('== Sell Order Created ==')
-			.setDescription(`Your sell order for **${sellOrderObject.amount}** **${sellOrderObject.item.name}** at **${sellOrderObject.perUnitPrice}**c was successfully added!`);
-
-			return await sendTimedChannelMessage(interaction, 60000, sellOrderEmbed, "FollowUp");
+		if (interaction.options.getSubcommand() === 'view-local'){
+			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
+			if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
 		}
 
-		/**
-		 * This function handles creating a new sale order in the LocalMarkets table,
-		 * based on the data provided with ``tradeObj``
-		 * @param {object} tradeObj Trade Order Detail Object
-		 * @returns {Promise <object>} Newly created Order Object
-		 */
-		async function generateNewOrder(tradeObj){
-			const newOrder = await LocalMarkets.create({
-				guildid: interaction.guild.id,
-				target_type: tradeObj.targetType,
-				target_id: tradeObj.targetID,
-				sale_type: tradeObj.orderType,
-				item_type: tradeObj.itemType,
-				item_id: tradeObj.itemID,
-				listed_value: tradeObj.perUnitPrice,
-				amount_left: tradeObj.amount
-			}).then(async o => await o.save()).then(async o => {return await o.reload()});
-
-			await updateOrderExpireTime(newOrder);
-
-			return newOrder;
-		}
-
-		/**
-		 * This function handles updating the expiry date for the given order,
-		 * based on the most recently made update.
-		 * @param {object} order LocalMarkets DB Instance Object
-		 * @returns {Promise <void>}
-		 */
-		async function updateOrderExpireTime(order){
-			const lastUpdate = new Date(order.updatedAt);
-			const expires = lastUpdate.setDate(lastUpdate.getDate() + 25);
-			await order.update({expires_at: expires}).then(async o => await o.save()).then(async o => {return await o.reload()});
-			return;
+		if (interaction.options.getSubcommand() === 'view-global'){
+			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
+			if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
 		}
 
 		/**
@@ -912,836 +1003,797 @@ module.exports = {
 			return stringActionRow;
 		}
 
-		/**
-		 * This function loads confirm/cancel buttons for the given trade.
-		 * ID's as follows:
-		 * 
-		 * ``direction = give``
-		 * confirmButt: ``confirm-give``
-		 * cancelButt: ``cancel-give``
-		 * 
-		 * ``direction = take``
-		 * confirmButt: ``confirm-take``
-		 * cancelButt: ``cancel-take``
-		 * @param {string} direction User Confirming: ``give`` || ``take``
-		 * @returns {ActionRowBuilder<ButtonBuilder>}
-		 */
-		function loadConfirmButts(direction){
-			const confirmButt = new ButtonBuilder()
-			.setCustomId(`confirm-${direction}`)
-			.setStyle(ButtonStyle.Primary)
-			.setLabel('Confirm Trade!')
-			.setEmoji('✅');
-
-			const cancelButt = new ButtonBuilder()
-			.setCustomId(`cancel-${direction}`)
-			.setStyle(ButtonStyle.Secondary)
-			.setLabel("Cancel Trade!")
-			.setEmoji('❌');
-
-			// ADD "MORE INFO" Button
-			// This button will send an ephemeral message, 
-			// containing an embed with additional info on the item being traded
-
-			const confirmButtRow = new ActionRowBuilder().addComponents(confirmButt, cancelButt);
-
-			return confirmButtRow;
-		}
-
-
-
-
-		if (interaction.options.getSubcommand() === 'local') {
-			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
-
-			const startTime = new Date().getTime();
-			await interaction.deferReply().then(async () => {
-				const tradeType = interaction.options.getString('local-type') ?? 'NONE'; // Weapon, Offhand, Armor, Material
-				const tradeAs = interaction.options.getString('trade-as') ?? 'NONE'; // town, user
-				const saleType = interaction.options.getString('saletype') ?? 'NONE'; // buy, sell
-				const amount = interaction.options.getInteger('amount') ?? 1;
-
-				const itemName = interaction.options.getString('item') ?? 'NONE';
-
-				if (itemName === 'NONE') return await interaction.followUp('No item provided!');
-
-				const user = await UserData.findOne({ where: { userid: interaction.user.id } });
-				if (!user) return await interaction.followUp('No user found!');
-
-				let theTown = 'None';
-				let exists = false;
-				if (tradeAs === 'town' && user.townid !== '0') theTown = await Town.findOne({ where: { townid: user.townid } });
-				if (theTown !== 'None') {
-					const currentEditList = theTown.can_edit.split(',');
-					for (const id of currentEditList) {
-						if (user.userid === id) {
-							exists = true;
-							break;
-						}
-					}
-				}
-				if (tradeAs === 'town') {
-					if (theTown === 'None') return await interaction.followUp('Your town was not located!!');
-					if (exists === false) return await interaction.followUp('You do not have permission to access your towns items!');
-                }
-
-				let item = '';
-				if (tradeType === 'Material') {
-					if (tradeAs === 'user') {
-						item = await MaterialStore.findOne({ where: [{ spec_id: user.userid }, { name: itemName }] });
-					} else if (tradeAs === 'town') {
-						item = await TownMaterial.findOne({ where: [{ townid: user.townid }, { name: itemName }] });
-                    }
-				} else {
-					if (tradeAs === 'town') return await interaction.followUp('Trade Type was invalid, current valid options are ``Material`` for ``local-type``');
-					item = await LootStore.findOne({ where: [{ spec_id: user.userid }, { name: itemName }] });
-					const userLoadout = await Loadout.findOne({ where: { spec_id: user.userid } });
-					if (userLoadout && item !== '' && saleType === 'sell') {
-						let id1 = userLoadout.headslot,
-						id2 = userLoadout.chestslot,
-						id3 = userLoadout.legslot,
-						id4 = userLoadout.mainhand,
-						id5 = userLoadout.offhand;
-						if (item.loot_id === id1 || item.loot_id === id2 || item.loot_id === id3 || item.loot_id === id4 || item.loot_id === id5) {
-							//Item trading is equipped
-							if (item.amount === amount) return interaction.followUp(`You cannot sell that many ${item.name}, you currently have it equipped!`);
-						}
-                    }
-                }
-
-				if (item === '') return await interaction.followUp('Item not found!');
-				if (saleType === 'sell' && item.amount < amount) return interaction.followUp(`You cannot sell that many ${item.name}, you only have ${item.amount}!`);
-
-
-				console.log(` tradeType: ${tradeType}\n tradeAs: ${tradeAs}\n saleType: ${saleType}\n amount: ${amount}\n itemName: ${itemName}\n\n Item Found:`);
-				console.log(item.dataValues);
-
-				const actualValue = item.value;
-				let listedValue = actualValue;
-
-				const above25 = actualValue + Math.floor(actualValue * 0.25);
-				const above10 = actualValue + Math.floor(actualValue * 0.10);
-
-				const below10 = actualValue - Math.floor(actualValue * 0.10);
-				const below25 = actualValue - Math.floor(actualValue * 0.25);
-
-				let embedColour = 'DarkButNotQuiteBlack';
-				if (saleType === 'buy') embedColour = 'Green';
-				if (saleType === 'sell') embedColour = 'DarkRed';
-
-				let dynDesc = '';
-				dynDesc = 'The following select menu provides pricing options for the item in question. All values shown represent the cost per item, and not the combined total. ';
-				dynDesc += `Currently trading as ${tradeAs}. `;
-
-				if (saleType === 'buy') dynDesc += 'Upon a requested item being bought, items will automatically be transfered to your inventory. ';
-				if (saleType === 'sell') dynDesc += 'Upon an item being sold, the appropriate amount of coins will be transfered to your inventory. ';
-
-				dynDesc += 'Should the order timeout, all items/coins will be returned to the appropriate inventories, and the order will be removed.';
-
-				dynDesc += 'If the item you are making a sale for already has an order locally, and the price matches yours, then a transaction will automatically be completed.';
-
-				let fieldName = '';
-				let fieldValue = '';
-				let fieldObj = {};
-				let finalFields = [];
-
-				fieldName = `Item to be listed: ${item.name}`;
-
-				// THIS NEEDS REVISION, CATCH CASE NO TOWNS BUT NOT TOWN TYPE TRADEAS
-				//============================================
-				/*if (theTown === 'None') theTown = await Town.findOne({ where: { townid: user.townid } });*/
-				const localTowns = await Town.findAll({ where: { guildid: interaction.guild.id } });
-				let twoTowns = false;
-				if (localTowns.length === 2) twoTowns = true;
-
-				if (twoTowns) {
-					fieldValue = `Local Towns: **${localTowns[0].name}**, **${localTowns[1].name}**`;
-				} else fieldValue = `Local Towns: **${localTowns[0].name}**`
-				//============================================
-
-				fieldObj = { name: fieldName, value: fieldValue };
-				finalFields.push(fieldObj);
-
-				const priceSelectEmbed = new EmbedBuilder()
-					.setTitle(`Creating ${saleType} Order`)
-					.setColor(embedColour)
-					.setDescription(dynDesc)
-					.addFields(finalFields);
-
-				const askPriceSelect = new StringSelectMenuBuilder()
-					.setCustomId('pricemark-perunit')
-					.setPlaceholder('Choose an option! Value shown is price of one!')
-					.addOptions(
-						new StringSelectMenuOptionBuilder()
-							.setLabel('25% Above')
-							.setDescription(`Listed Value: ${above25}`)
-							.setValue(`${above25}`),
-						new StringSelectMenuOptionBuilder()
-							.setLabel('10% Above')
-							.setDescription(`Listed Value: ${above10}`)
-							.setValue(`${above10}`),
-						new StringSelectMenuOptionBuilder()
-							.setLabel('Item Value')
-							.setDescription(`Listed Value: ${actualValue}`)
-							.setValue(`${actualValue}`),
-						new StringSelectMenuOptionBuilder()
-							.setLabel('10% Below')
-							.setDescription(`Listed Value: ${below10}`)
-							.setValue(`${below10}`),
-						new StringSelectMenuOptionBuilder()
-							.setLabel('25% Below')
-							.setDescription(`Listed Value: ${below25}`)
-							.setValue(`${below25}`),
-					);
-
-				const selectRow = new ActionRowBuilder()
-					.addComponents(askPriceSelect);
-
-				const selectMenu = await interaction.followUp({
-					embeds: [priceSelectEmbed],
-					components: [selectRow],
-				});
-
-				const filter = (i) => i.user.id === interaction.user.id;
-
-				const selectCollector = selectMenu.createMessageComponentCollector({
-					componentType: ComponentType.StringSelect,
-					filter,
-					time: 120000
-				});
-
-				let sentFollowUp = 'No reply yet.';
-				selectCollector.on('collect', async iCS => {
-					listedValue = iCS.values[0];
-					sentFollowUp = 'Value found!';
-					await iCS.deferUpdate();
-					await selectCollector.stop();
-				});
-
-				selectCollector.once('end', async () => {
-					if (sentFollowUp === 'No reply yet.') {
-						return selectMenu.delete().catch(error => {
-							if (error.code !== 10008) {
-								console.error('Failed to delete the message:', error);
-							}
-						});
-					}
-
-					selectMenu.delete().catch(error => {
-						if (error.code !== 10008) {
-							console.error('Failed to delete the message:', error);
-						}
-					});
-
-					let target, targetID;
-					if (tradeAs === 'town') target = theTown, targetID = theTown.townid;
-					if (tradeAs === 'user') target = user, targetID = user.userid;
-
-					// Check total coin balance to see if buy order can be completed!
-					if (saleType === 'buy') {
-						const totalCoins = target.coins;
-						const totalCost = listedValue * amount;
-						if (totalCoins < totalCost) return await interaction.followUp(`You do not have enough coin to create that buy order!\nTotal Cost: ${totalCost}\nYour Coins: ${totalCoins}`);
-                    }
-
-					let tradeCheck, itemID;
-					if (tradeType !== 'Material') tradeCheck = 'Gear', itemID = item.loot_id;
-					if (tradeType === 'Material') tradeCheck = item.mattype, itemID = item.mat_id;
-
-					/** Condensed Object containing all needed variables to create new sale order */
-					const infoObject = {
-						value: listedValue,
-						sale: saleType,
-						targetType: tradeAs,
-						targetID,
-						target,
-						itemType: tradeCheck,
-						itemID,
-						item,
-						amount,
-					};
-					const theOrder = await createNewOrder(infoObject);
-					if (theOrder instanceof String) return await interaction.followUp('Something went wrong while creating that order!');
-					if (!theOrder) return await interaction.followUp('Something went wrong while locating your order!');
-
-					let setupResult = '';
-					if (saleType === 'buy') setupResult = await handleBuyOrder(infoObject);
-					if (saleType === 'sell') setupResult = await handleSellOrder(infoObject);
-					if (setupResult === '') return await interaction.followUp('Something went wrong while setting up that order!');
-
-
-					const orderMatchObj = {
-						itemsMoved: 0,
-						coinINC: 0,
-					};
-
-					let orderMatchCheck = '';
-					if (saleType === 'buy') orderMatchCheck = await handleBuyReadyCheck(infoObject, theOrder, orderMatchObj);
-					if (saleType === 'sell') orderMatchCheck = await handleSellReadyCheck(infoObject, theOrder, orderMatchObj);
-					if (orderMatchCheck === 'None') console.log('No order matches found!');
-					if (orderMatchCheck !== 'None') console.log(orderMatchCheck);
-
-
-					const now = new Date().getTime();
-
-					const diffTime = Math.abs(now - theOrder.expires_at);
-					const timeLeft = Math.round(now + diffTime);
-					let shownTime = Math.round(timeLeft / 1000);
-
-					const endTime = new Date().getTime();
-					console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
-
-					if (orderMatchCheck === 'Exact' || orderMatchCheck === 'Filled') {
-						// Destroy Order, and display item/coin transfers
-						let embedDesc = ``;
-						if (saleType === 'buy') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\n`;
-						if (saleType === 'sell') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\nCoins Gained: ${orderMatchObj.coinINC}c`;
-
-						if (orderMatchObj.coinINC > 0 && saleType === 'buy') embedDesc += `Coins Refunded: ${orderMatchObj.coinINC}c`;
-
-						const destOrder = await handleOrderRemoval(theOrder);
-						if (destOrder !== 1) return await interaction.followUp('Something went wrong while removing a completed order!');
-
-						const filledEmbed = new EmbedBuilder()
-							.setTitle(`${saleType} Order Filled!`)
-							.setColor('DarkGreen')
-							.setDescription(embedDesc);
-
-						return await interaction.followUp({ embeds: [filledEmbed] });
-					} else if (orderMatchCheck === 'Partial') {
-						let embedDesc = ``;
-						if (saleType === 'buy') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\nItems Remaining: ${theOrder.amount_left - orderMatchObj.itemsMoved}`;
-						if (saleType === 'sell') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\nItems Remaining: ${theOrder.amount_left - orderMatchObj.itemsMoved}\nCoins Gained: ${orderMatchObj.coinINC}c`;
-
-
-						const filledEmbed = new EmbedBuilder()
-							.setTitle(`${saleType} Order Partially Filled!`)
-							.setColor('DarkGreen')
-							.setDescription(embedDesc);
-
-						return await interaction.followUp({ embeds: [filledEmbed] });
-
-					} else return await interaction.followUp(`${saleType} order created! This order will expire <t:${shownTime}:R>`);
-				});
-
-
-
-				/** This function creates and then updates a sale order,
-				 *		returns resolved or rejected outcomes to be used for user feedback
-				 * 
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 */
-				async function createNewOrder(infoObject) {
-					const newOrder = await LocalMarkets.create({
-						guildid: interaction.guild.id,
-						target_type: infoObject.targetType,
-						target_id: infoObject.targetID,
-						sale_type: infoObject.sale,
-						item_type: infoObject.itemType,
-						item_id: infoObject.itemID,
-						listed_value: infoObject.value,
-						amount_left: infoObject.amount,
-					});
-
-					if (newOrder) {
-						const expireChangeResult = await updateExpireTime(newOrder);
-						if (expireChangeResult === 'Date Update') {
-							await newOrder.save();
-							return newOrder;
-						} else return expireChangeResult;
-					} else return 'Failure: 0.1';
-                }
-
-
-				/** This function gets and sets the date of expiration for the sale order created.
-				 * 
-				 * @param {any} saleOrder DB Instance Object
-				 */
-				async function updateExpireTime(saleOrder) {
-					const createDate = new Date(saleOrder.createdAt);
-					const expireDate = createDate.setDate(createDate.getDate() + 25);
-					const tableUpdate = await saleOrder.update({ expires_at: expireDate });
-					if (tableUpdate) return 'Date Update';
-					return 'Failure: 0.2';
-                }
-
-
-				/** This function handles the removal of coins from the appropriate inventory
-				 * 
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 */
-				async function handleBuyOrder(infoObject) {
-					const totalCost = infoObject.value * infoObject.amount;
-					const theTarget = infoObject.target;
-					const dec = await theTarget.decrement('coins', { by: totalCost });
-					if (dec) await theTarget.save();
-					return 'Complete';
-				}
-
-
-				/** This function handles the removal of items * amount from the appropriate inventory
-				 * 
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 */
-				async function handleSellOrder(infoObject) {
-					console.log('Item Amount Before: ', infoObject.item.amount);
-					const dec = await infoObject.item.decrement('amount', {by: infoObject.amount});
-					if (dec) await infoObject.item.save();
-					console.log('Item Amount After: ', infoObject.item.amount);
-					return 'Complete';
-				}
-
-
-				/** This function handles checking against existing sell orders to try to complete the newly created order
-				 * 
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any} orderMatchObj Callback Object to use for display
-				 */
-				async function handleBuyReadyCheck(infoObject, theOrder, orderMatchObj) {
-					const activeOrders = await LocalMarkets.findAll({ where: [{ guildid: interaction.guild.id }, { sale_type: 'sell' }] });
-					if (activeOrders.length <= 0) return 'None';
-
-					let filteredOrders = activeOrders.filter(order => order.target_id !== infoObject.targetID)
-						.filter(order => order.item_type === infoObject.itemType)
-						.filter(order => order.item_id === infoObject.itemID);
-					if (filteredOrders.length <= 0) return 'None';
-
-					let orderFilled = false, filledExact = false;
-					filteredOrders = filteredOrders.filter(order => order.listed_value <= infoObject.value);
-					if (filteredOrders.length <= 0) return 'None';
-
-					filteredOrders.sort((lowest, order) => {
-						if (lowest.listed_value > order.listed_value) return 1;
-						if (lowest.listed_value < order.listed_value) return -1;
-						return 0;
-					});
-
-					const totalItemCount = filteredOrders.reduce((acc, order) => acc + order.amount_left, 0);
-					if (totalItemCount > infoObject.amount) orderFilled = true;
-					if (totalItemCount === infoObject.amount) filledExact = true;
-
-					let fillOutcome = '';
-					if (filledExact) {
-						fillOutcome = await handleExactFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj);
-					} else if (orderFilled) {
-						fillOutcome = await handleFilledBuy(infoObject, theOrder, filteredOrders, orderMatchObj);
-					} else {
-						fillOutcome = await handlePartialFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj);
-					}
-					if (fillOutcome !== '') return fillOutcome;
-				}
-
-
-
-				async function handleSellReadyCheck(infoObject, theOrder, orderMatchObj) {
-					const activeOrders = await LocalMarkets.findAll({ where: [{ guildid: interaction.guild.id }, { sale_type: 'buy' }] });
-					if (activeOrders.length <= 0) return 'None';
-				}
-
-
-				/** This function handles all sell and buy order conditions and payouts according to:
-				 *	 Prices given
-				 *	 Total Items
-				 *	 Type of Item
-				 *	 Type of Trade Target
-				 * 
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any[]} filteredOrders DB Instance Object Array
-				 * @param {any} orderMatchObj Callback Object to use for display
-				 */
-				async function handleExactFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj) {
-					const totalOrderValue = theOrder.listed_value * theOrder.amount_left;
-					const totalExpectedFilled = filteredOrders.length;
-
-					let itemRef = '';
-					if (infoObject.itemType === 'Gear') itemRef = grabGearRef(infoObject.itemID);
-					if (infoObject.itemType !== 'Gear') itemRef = grabMatRef(infoObject.itemType, infoObject.itemID);
-					if (itemRef === '') return 'Failure: 1.1';
-
-					// Payout coins to each order filled
-					let totalSpent = 0;
-					let ordersHandled = 0;
-					for (const order of filteredOrders) {
-						// Handle Payout
-						totalSpent += await sellAllOrderPayout(order);
-						// Handle amount removal
-						ordersHandled += await handleOrderRemoval(order);
-					}
-					console.log(`Total Coins Spent: ${totalSpent}\nTotal Coins in Order: ${totalOrderValue}`);
-					console.log(`Total Orders Filled: ${ordersHandled}\nTotal Orders Expected: ${totalExpectedFilled}`);
-
-					let coinRefund = 0;
-					if (totalSpent < totalOrderValue) coinRefund = totalOrderValue - totalSpent;
-					if (coinRefund > 0) {
-						orderMatchObj.coinINC = coinRefund;
-						await handleRefund(theOrder, coinRefund);
-					} 
-
-					// Payout items to order filled
-					const orderComplete = await buyAllOrderPayout(theOrder, itemRef, infoObject);
-					if (orderComplete !== 'Complete') return 'Failure: 1.1.1';
-
-					orderMatchObj.itemsMoved = theOrder.amount_left;
-					return 'Exact';
-				}
-
-
-				/** This function handles payouts to sell orders until filling the created buy order.
-				 * 
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any[]} filteredOrders DB Instance Object Array
-				 * @param {any} orderMatchObj Callback Object to use for display
-				 */
-				async function handleFilledBuy(infoObject, theOrder, filteredOrders, orderMatchObj) {
-					const totalOrderValue = theOrder.listed_value * theOrder.amount_left;
-					const totalOrderItems = theOrder.amount_left;
-
-					let itemRef = '';
-					if (infoObject.itemType === 'Gear') itemRef = grabGearRef(infoObject.itemID);
-					if (infoObject.itemType !== 'Gear') itemRef = grabMatRef(infoObject.itemType, infoObject.itemID);
-					if (itemRef === '') return 'Failure: 1.1';
-
-					// Payout coins to each order filled
-					const orderHandler = {
-						totalSpent: 0,
-						totalRemaining: totalOrderItems,
-						totalBought: 0,
-						ordersHandled: 0,
-					};
-
-					let result = '';
-					for (const order of filteredOrders) {
-						// Handle Payout
-						result = '';
-						result = await sellPartialOrderPayout(order, orderHandler);
-						if (result === 'Finished') orderHandler.ordersHandled++;
-					}
-					console.log(`Total Coins Spent: ${orderHandler.totalSpent}\nTotal Coins in Order: ${totalOrderValue}`);
-					console.log(`Total Items Bought: ${orderHandler.totalBought}\nTotal Items Remaining: ${orderHandler.totalRemaining}`);
-
-
-					let coinRefund = 0;
-					if (orderHandler.totalSpent < totalOrderValue) coinRefund = totalOrderValue - orderHandler.totalSpent;
-					if (coinRefund > 0) {
-						orderMatchObj.coinINC = coinRefund;
-						await handleRefund(theOrder, coinRefund);
-					}
-
-					// Payout items to order filled
-					const orderComplete = await buyAllOrderPayout(theOrder, itemRef, infoObject);
-					if (orderComplete !== 'Complete') return 'Failure: 1.1.1';
-
-
-					orderMatchObj.itemsMoved = orderHandler.totalBought;
-
-					return 'Filled';
-				}
-
-
-				/** This function handles payouts to sell orders for all that exist.
-				 *
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any[]} filteredOrders DB Instance Object Array
-				 * @param {any} orderMatchObj Callback Object to use for display
-				 */
-				async function handlePartialFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj) {
-					console.log(infoObject);
-					console.log(...filteredOrders);
-
-					const totalOrderValue = theOrder.listed_value * theOrder.amount_left;
-					const totalOrderItems = theOrder.amount_left;
-
-					let itemRef = '';
-					if (infoObject.itemType === 'Gear') itemRef = grabGearRef(infoObject.itemID);
-					if (infoObject.itemType !== 'Gear') itemRef = grabMatRef(infoObject.itemType, infoObject.itemID);
-					if (itemRef === '') return 'Failure: 1.1';
-
-					// Payout coins to each order filled
-					const orderHandler = {
-						totalSpent: 0,
-						totalRemaining: totalOrderItems,
-						totalBought: 0,
-						ordersHandled: 0,
-					};
-
-					let result = '';
-					for (const order of filteredOrders) {
-						// Handle Payout
-						result = '';
-						result = await sellPartialOrderPayout(order, orderHandler);
-						if (result === 'Finished') orderHandler.ordersHandled++;
-					}
-					console.log(`Total Coins Spent: ${orderHandler.totalSpent}\nTotal Coins in Order: ${totalOrderValue}`);
-					console.log(`Total Items Bought: ${orderHandler.totalBought}\nTotal Items Remaining: ${orderHandler.totalRemaining}`);
-
-					let coinRefund = 0;
-					if (orderHandler.totalSpent < totalOrderValue) coinRefund = totalOrderValue - orderHandler.totalSpent;
-					if (coinRefund > 0) {
-						orderMatchObj.coinINC = coinRefund;
-						await handleRefund(theOrder, coinRefund);
-					}
-
-					// Payout items to order filled
-					const orderComplete = await buyPartialOrderPayout(theOrder, itemRef, infoObject, orderHandler);
-					if (orderComplete !== 'Complete') return 'Failure: 1.1.1';
-
-					const orderUpdated = await handleOrderUpdate(theOrder, orderHandler.totalBought);
-					if (orderUpdated === 1) await theOrder.save();
-
-					orderMatchObj.itemsMoved = orderHandler.totalBought;
-
-					return 'Partial';
-				}
-
-
-				/** This function locates the proper materialList.json and returns the specific material from that list
-				* 
-				* @param {string} matType "passtype" === file name/path
-				* @param {number} matID Mat_id
-				*/
-				function grabMatRef(matType, matID) {
-					let matList;
-					for (const [key, value] of materialFiles) {
-						if (key === matType) {
-							matList = require(value);
-							break;
-						}
-					}
-
-					let matRef = matList.filter(mat => mat.Mat_id === matID);
-					matRef = matRef[0];
-					return matRef;
-				}
-
-
-				/** This function returns an item ref using the provided loot_id.
-				* 
-				* @param {number} lootID Loot_id
-				*/
-				function grabGearRef(lootID) {
-					let gearRef = lootList.filter(item => item.Loot_id === lootID);
-					gearRef = gearRef[0];
-					return gearRef;
-				}
-
-
-				/** This function adds any coins refunded to the order's creator
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 * @param {number} coinRefund Amount of coins to refund
-				 */
-				async function handleRefund(theOrder, coinRefund) {
-					let target = 'None', type = theOrder.target_type;
-					if (type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
-					if (type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
-					if (target === 'None') return 'Failure: 2.1';
-
-					const inc = await target.increment('coins', { by: coinRefund });
-					if (inc) return await target.save();
-                }
-
-
-				/** This function calculates the total value of items being sold,
-				 *	 then updates the correct users coins with that value.
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 */
-				async function sellAllOrderPayout(theOrder) {
-					let totalValue = theOrder.listed_value * theOrder.amount_left;
-					let target = 'None';
-					if (theOrder.target_type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
-					if (theOrder.target_type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
-					if (target === 'None') return 'Failure: 1.2';
-
-					const inc = await target.increment('coins', { by: totalValue });
-					if (inc) await target.save();
-
-					return totalValue;
-				}
-
-
-				/** This function handles the function path needed for the given target and item type,
-				 *   then awaits the success results to be returned
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any} itemRef Json Item Reference Object
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 */
-				async function buyAllOrderPayout(theOrder, itemRef, infoObject) {
-					let target = 'None', type = theOrder.target_type;
-					if (type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
-					if (type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
-					if (target === 'None') return 'Failure: 1.3';
-
-					let itemAdded = '';
-					if (theOrder.item_type === 'Gear') itemAdded = await handleGearAdd(target, itemRef, theOrder.amount_left);
-					if (theOrder.item_type !== 'Gear') itemAdded = await handleMatAdd(target, itemRef, theOrder.amount_left, type, infoObject.itemType);
-					if (itemAdded !== 'Added') return 'Failure: 1.4';
-
-					return 'Complete';
-				}
-
-
-				/** This function handles the function path needed for the given target, item type, and amount,
-				 *   then awaits the success results to be returned
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any} itemRef Json Item Reference Object
-				 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
-				 */
-				async function buyPartialOrderPayout(theOrder, itemRef, infoObject, orderHandler) {
-					let target = 'None', type = theOrder.target_type;
-					if (type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
-					if (type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
-					if (target === 'None') return 'Failure: 1.3';
-
-					let itemAdded = '';
-					if (theOrder.item_type === 'Gear') itemAdded = await handleGearAdd(target, itemRef, orderHandler.totalBought);
-					if (theOrder.item_type !== 'Gear') itemAdded = await handleMatAdd(target, itemRef, orderHandler.totalBought, type, infoObject.itemType);
-					if (itemAdded !== 'Added') return 'Failure: 1.4';
-
-					return 'Complete';
-				}
-
-
-				/** This function is handled through the checkOwned() script for consistant item creation
-				 * 
-				 * @param {any} target DB Instance Object: User
-				 * @param {any} itemRef Json Item Reference Object
-				 * @param {number} amount Amount needed
-				 */
-				async function handleGearAdd(target, itemRef, amount) {
-					const addResult = await checkOwned(target, itemRef, amount);
-					if (addResult !== 'Finished') return 'Failure';
-					return 'Added';
-                }
-
-
-				/** This function handles Updating/Creating a material entry in the appropeate DB
-				 * 
-				 * @param {any} target DB Instance Object: User || Town
-				 * @param {any} itemRef Json Item Reference Object
-				 * @param {number} amount Amount needed
-				 * @param {string} type 'town' || 'user' 
-				 * @param {string} matType mattype Reference 
-				 */
-				async function handleMatAdd(target, itemRef, amount, type, matType) {
-					let matStore;
-					if (type === 'town') {
-						matStore = await TownMaterial.findOne({
-							where: [{ townid: target.townid }, { mat_id: itemRef.Mat_id }, { mattype: matType }]
-						});
-					}
-					if (type === 'user') {
-						matStore = await MaterialStore.findOne({
-							where: [{ spec_id: target.userid }, { mat_id: itemRef.Mat_id }, { mattype: matType }]
-						});
-					}
-
-					if (matStore) {
-						const inc = await matStore.increment('amount', { by: amount });
-						if (inc) await matStore.save();
-						return 'Added';
-					}
-
-					let newMat;
-					try {
-						if (type === 'town') newMat = await TownMaterial.create({ townid: target.townid, amount: amount });
-						if (type === 'user') newMat = await MaterialStore.create({ spec_id: target.userid, amount: amount });
-
-						if (newMat) {
-							await newMat.update({
-								name: itemRef.Name,
-								value: itemRef.Value,
-								mattype: matType,
-								mat_id: itemRef.Mat_id,
-								rarity: itemRef.Rarity,
-								rar_id: itemRef.Rar_id,
-							});
-
-							await newMat.save();
-							return 'Added';
-						}
-					} catch (error) {
-						console.error(error);
-					}
-				}
-
-
-				/** This function removes Completed Orders
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 */
-				async function handleOrderRemoval(theOrder) {
-					const destroyed = await theOrder.destroy();
-					if (destroyed) return 1;
-					return 0;
-                }
-
-
-				/** This function handles decreasing remaining items while increasing items moved from appropreate orders.
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 * @param {number} amountRemoved Amount to change by
-				 */
-				async function handleOrderUpdate(theOrder, amountRemoved) {
-					const dec = await theOrder.decrement('amount_left', { by: amountRemoved });
-					const inc = await theOrder.increment('amount_moved', { by: amountRemoved });
-					if (inc && dec) {
-						await theOrder.save();
-						return 1;
-					} else return 0;
-                }
-
-
-				/** This function handles order updates according to remaining items being bought.
-				 * 
-				 * @param {any} theOrder DB Instance Object
-				 * @param {any} orderHandler Object used as callback 
-				 */
-				async function sellPartialOrderPayout(theOrder, orderHandler) {
-					const itemsToMove = orderHandler.totalRemaining;
-					const itemsInOrder = theOrder.amount_left;
-
-					let itemDiff = itemsInOrder - itemsToMove, destOrder = false;
-					console.log('itemDiff Before: ', itemDiff);
-
-					if (itemDiff <= 0) {
-						itemDiff = itemsInOrder, destOrder = true;
-					} else if (itemDiff > 0) itemDiff = itemsToMove;
-					console.log('itemDiff After: ', itemDiff);
-
-					let totalValue = theOrder.listed_value * itemDiff;
-					console.log('Total Value: ', totalValue);
-					let target = 'None';
-					if (theOrder.target_type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
-					if (theOrder.target_type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
-					if (target === 'None') return 'Failure: 1.2';
-
-					const inc = await target.increment('coins', { by: totalValue });
-					if (inc) await target.save();
-
-					let orderDone;
-					if (destOrder) {
-						orderDone = await handleOrderRemoval(theOrder);
-					} else orderDone = await handleOrderUpdate(theOrder, itemDiff);
-
-					orderHandler.totalSpent += totalValue;
-					orderHandler.totalRemaining -= itemDiff;
-					orderHandler.totalBought += itemDiff;
-
-					if (orderDone === 1) return 'Finished';
-					return 'Failure: 1.3';
-				}
-
-			}).catch(error => {
-				console.error(errorForm('Interaction error @ Trade local:', error));
-			});
-		}
+		// if (interaction.options.getSubcommand() === 'local') {
+		// 	if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
+
+		// 	const startTime = new Date().getTime();
+		// 	await interaction.deferReply().then(async () => {
+		// 		const tradeType = interaction.options.getString('local-type') ?? 'NONE'; // Weapon, Offhand, Armor, Material
+		// 		const tradeAs = interaction.options.getString('trade-as') ?? 'NONE'; // town, user
+		// 		const saleType = interaction.options.getString('saletype') ?? 'NONE'; // buy, sell
+		// 		const amount = interaction.options.getInteger('amount') ?? 1;
+
+		// 		const itemName = interaction.options.getString('item') ?? 'NONE';
+
+		// 		if (itemName === 'NONE') return await interaction.followUp('No item provided!');
+
+		// 		const user = await UserData.findOne({ where: { userid: interaction.user.id } });
+		// 		if (!user) return await interaction.followUp('No user found!');
+
+		// 		let theTown = 'None';
+		// 		let exists = false;
+		// 		if (tradeAs === 'town' && user.townid !== '0') theTown = await Town.findOne({ where: { townid: user.townid } });
+		// 		if (theTown !== 'None') {
+		// 			const currentEditList = theTown.can_edit.split(',');
+		// 			for (const id of currentEditList) {
+		// 				if (user.userid === id) {
+		// 					exists = true;
+		// 					break;
+		// 				}
+		// 			}
+		// 		}
+		// 		if (tradeAs === 'town') {
+		// 			if (theTown === 'None') return await interaction.followUp('Your town was not located!!');
+		// 			if (exists === false) return await interaction.followUp('You do not have permission to access your towns items!');
+        //         }
+
+		// 		let item = '';
+		// 		if (tradeType === 'Material') {
+		// 			if (tradeAs === 'user') {
+		// 				item = await MaterialStore.findOne({ where: [{ spec_id: user.userid }, { name: itemName }] });
+		// 			} else if (tradeAs === 'town') {
+		// 				item = await TownMaterial.findOne({ where: [{ townid: user.townid }, { name: itemName }] });
+        //             }
+		// 		} else {
+		// 			if (tradeAs === 'town') return await interaction.followUp('Trade Type was invalid, current valid options are ``Material`` for ``local-type``');
+		// 			item = await LootStore.findOne({ where: [{ spec_id: user.userid }, { name: itemName }] });
+		// 			const userLoadout = await Loadout.findOne({ where: { spec_id: user.userid } });
+		// 			if (userLoadout && item !== '' && saleType === 'sell') {
+		// 				let id1 = userLoadout.headslot,
+		// 				id2 = userLoadout.chestslot,
+		// 				id3 = userLoadout.legslot,
+		// 				id4 = userLoadout.mainhand,
+		// 				id5 = userLoadout.offhand;
+		// 				if (item.loot_id === id1 || item.loot_id === id2 || item.loot_id === id3 || item.loot_id === id4 || item.loot_id === id5) {
+		// 					//Item trading is equipped
+		// 					if (item.amount === amount) return interaction.followUp(`You cannot sell that many ${item.name}, you currently have it equipped!`);
+		// 				}
+        //             }
+        //         }
+
+		// 		if (item === '') return await interaction.followUp('Item not found!');
+		// 		if (saleType === 'sell' && item.amount < amount) return interaction.followUp(`You cannot sell that many ${item.name}, you only have ${item.amount}!`);
+
+
+		// 		console.log(` tradeType: ${tradeType}\n tradeAs: ${tradeAs}\n saleType: ${saleType}\n amount: ${amount}\n itemName: ${itemName}\n\n Item Found:`);
+		// 		console.log(item.dataValues);
+
+		// 		const actualValue = item.value;
+		// 		let listedValue = actualValue;
+
+		// 		const above25 = actualValue + Math.floor(actualValue * 0.25);
+		// 		const above10 = actualValue + Math.floor(actualValue * 0.10);
+
+		// 		const below10 = actualValue - Math.floor(actualValue * 0.10);
+		// 		const below25 = actualValue - Math.floor(actualValue * 0.25);
+
+		// 		let embedColour = 'DarkButNotQuiteBlack';
+		// 		if (saleType === 'buy') embedColour = 'Green';
+		// 		if (saleType === 'sell') embedColour = 'DarkRed';
+
+		// 		let dynDesc = '';
+		// 		dynDesc = 'The following select menu provides pricing options for the item in question. All values shown represent the cost per item, and not the combined total. ';
+		// 		dynDesc += `Currently trading as ${tradeAs}. `;
+
+		// 		if (saleType === 'buy') dynDesc += 'Upon a requested item being bought, items will automatically be transfered to your inventory. ';
+		// 		if (saleType === 'sell') dynDesc += 'Upon an item being sold, the appropriate amount of coins will be transfered to your inventory. ';
+
+		// 		dynDesc += 'Should the order timeout, all items/coins will be returned to the appropriate inventories, and the order will be removed.';
+
+		// 		dynDesc += 'If the item you are making a sale for already has an order locally, and the price matches yours, then a transaction will automatically be completed.';
+
+		// 		let fieldName = '';
+		// 		let fieldValue = '';
+		// 		let fieldObj = {};
+		// 		let finalFields = [];
+
+		// 		fieldName = `Item to be listed: ${item.name}`;
+
+		// 		// THIS NEEDS REVISION, CATCH CASE NO TOWNS BUT NOT TOWN TYPE TRADEAS
+		// 		//============================================
+		// 		/*if (theTown === 'None') theTown = await Town.findOne({ where: { townid: user.townid } });*/
+		// 		const localTowns = await Town.findAll({ where: { guildid: interaction.guild.id } });
+		// 		let twoTowns = false;
+		// 		if (localTowns.length === 2) twoTowns = true;
+
+		// 		if (twoTowns) {
+		// 			fieldValue = `Local Towns: **${localTowns[0].name}**, **${localTowns[1].name}**`;
+		// 		} else fieldValue = `Local Towns: **${localTowns[0].name}**`
+		// 		//============================================
+
+		// 		fieldObj = { name: fieldName, value: fieldValue };
+		// 		finalFields.push(fieldObj);
+
+		// 		const priceSelectEmbed = new EmbedBuilder()
+		// 			.setTitle(`Creating ${saleType} Order`)
+		// 			.setColor(embedColour)
+		// 			.setDescription(dynDesc)
+		// 			.addFields(finalFields);
+
+		// 		const askPriceSelect = new StringSelectMenuBuilder()
+		// 			.setCustomId('pricemark-perunit')
+		// 			.setPlaceholder('Choose an option! Value shown is price of one!')
+		// 			.addOptions(
+		// 				new StringSelectMenuOptionBuilder()
+		// 					.setLabel('25% Above')
+		// 					.setDescription(`Listed Value: ${above25}`)
+		// 					.setValue(`${above25}`),
+		// 				new StringSelectMenuOptionBuilder()
+		// 					.setLabel('10% Above')
+		// 					.setDescription(`Listed Value: ${above10}`)
+		// 					.setValue(`${above10}`),
+		// 				new StringSelectMenuOptionBuilder()
+		// 					.setLabel('Item Value')
+		// 					.setDescription(`Listed Value: ${actualValue}`)
+		// 					.setValue(`${actualValue}`),
+		// 				new StringSelectMenuOptionBuilder()
+		// 					.setLabel('10% Below')
+		// 					.setDescription(`Listed Value: ${below10}`)
+		// 					.setValue(`${below10}`),
+		// 				new StringSelectMenuOptionBuilder()
+		// 					.setLabel('25% Below')
+		// 					.setDescription(`Listed Value: ${below25}`)
+		// 					.setValue(`${below25}`),
+		// 			);
+
+		// 		const selectRow = new ActionRowBuilder()
+		// 			.addComponents(askPriceSelect);
+
+		// 		const selectMenu = await interaction.followUp({
+		// 			embeds: [priceSelectEmbed],
+		// 			components: [selectRow],
+		// 		});
+
+		// 		const filter = (i) => i.user.id === interaction.user.id;
+
+		// 		const selectCollector = selectMenu.createMessageComponentCollector({
+		// 			componentType: ComponentType.StringSelect,
+		// 			filter,
+		// 			time: 120000
+		// 		});
+
+		// 		let sentFollowUp = 'No reply yet.';
+		// 		selectCollector.on('collect', async iCS => {
+		// 			listedValue = iCS.values[0];
+		// 			sentFollowUp = 'Value found!';
+		// 			await iCS.deferUpdate();
+		// 			await selectCollector.stop();
+		// 		});
+
+		// 		selectCollector.once('end', async () => {
+		// 			if (sentFollowUp === 'No reply yet.') {
+		// 				return selectMenu.delete().catch(error => {
+		// 					if (error.code !== 10008) {
+		// 						console.error('Failed to delete the message:', error);
+		// 					}
+		// 				});
+		// 			}
+
+		// 			selectMenu.delete().catch(error => {
+		// 				if (error.code !== 10008) {
+		// 					console.error('Failed to delete the message:', error);
+		// 				}
+		// 			});
+
+		// 			let target, targetID;
+		// 			if (tradeAs === 'town') target = theTown, targetID = theTown.townid;
+		// 			if (tradeAs === 'user') target = user, targetID = user.userid;
+
+		// 			// Check total coin balance to see if buy order can be completed!
+		// 			if (saleType === 'buy') {
+		// 				const totalCoins = target.coins;
+		// 				const totalCost = listedValue * amount;
+		// 				if (totalCoins < totalCost) return await interaction.followUp(`You do not have enough coin to create that buy order!\nTotal Cost: ${totalCost}\nYour Coins: ${totalCoins}`);
+        //             }
+
+		// 			let tradeCheck, itemID;
+		// 			if (tradeType !== 'Material') tradeCheck = 'Gear', itemID = item.loot_id;
+		// 			if (tradeType === 'Material') tradeCheck = item.mattype, itemID = item.mat_id;
+
+		// 			/** Condensed Object containing all needed variables to create new sale order */
+		// 			const infoObject = {
+		// 				value: listedValue,
+		// 				sale: saleType,
+		// 				targetType: tradeAs,
+		// 				targetID,
+		// 				target,
+		// 				itemType: tradeCheck,
+		// 				itemID,
+		// 				item,
+		// 				amount,
+		// 			};
+		// 			const theOrder = await createNewOrder(infoObject);
+		// 			if (theOrder instanceof String) return await interaction.followUp('Something went wrong while creating that order!');
+		// 			if (!theOrder) return await interaction.followUp('Something went wrong while locating your order!');
+
+		// 			let setupResult = '';
+		// 			if (saleType === 'buy') setupResult = await handleBuyOrder(infoObject);
+		// 			if (saleType === 'sell') setupResult = await handleSellOrder(infoObject);
+		// 			if (setupResult === '') return await interaction.followUp('Something went wrong while setting up that order!');
+
+
+		// 			const orderMatchObj = {
+		// 				itemsMoved: 0,
+		// 				coinINC: 0,
+		// 			};
+
+		// 			let orderMatchCheck = '';
+		// 			if (saleType === 'buy') orderMatchCheck = await handleBuyReadyCheck(infoObject, theOrder, orderMatchObj);
+		// 			if (saleType === 'sell') orderMatchCheck = await handleSellReadyCheck(infoObject, theOrder, orderMatchObj);
+		// 			if (orderMatchCheck === 'None') console.log('No order matches found!');
+		// 			if (orderMatchCheck !== 'None') console.log(orderMatchCheck);
+
+
+		// 			const now = new Date().getTime();
+
+		// 			const diffTime = Math.abs(now - theOrder.expires_at);
+		// 			const timeLeft = Math.round(now + diffTime);
+		// 			let shownTime = Math.round(timeLeft / 1000);
+
+		// 			const endTime = new Date().getTime();
+		// 			console.log(`Diff between start: ${startTime}/${endTime} :End..\n   ${(startTime - endTime)}`);
+
+		// 			if (orderMatchCheck === 'Exact' || orderMatchCheck === 'Filled') {
+		// 				// Destroy Order, and display item/coin transfers
+		// 				let embedDesc = ``;
+		// 				if (saleType === 'buy') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\n`;
+		// 				if (saleType === 'sell') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\nCoins Gained: ${orderMatchObj.coinINC}c`;
+
+		// 				if (orderMatchObj.coinINC > 0 && saleType === 'buy') embedDesc += `Coins Refunded: ${orderMatchObj.coinINC}c`;
+
+		// 				const destOrder = await handleOrderRemoval(theOrder);
+		// 				if (destOrder !== 1) return await interaction.followUp('Something went wrong while removing a completed order!');
+
+		// 				const filledEmbed = new EmbedBuilder()
+		// 					.setTitle(`${saleType} Order Filled!`)
+		// 					.setColor('DarkGreen')
+		// 					.setDescription(embedDesc);
+
+		// 				return await interaction.followUp({ embeds: [filledEmbed] });
+		// 			} else if (orderMatchCheck === 'Partial') {
+		// 				let embedDesc = ``;
+		// 				if (saleType === 'buy') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\nItems Remaining: ${theOrder.amount_left - orderMatchObj.itemsMoved}`;
+		// 				if (saleType === 'sell') embedDesc = `Items Transfered: ${orderMatchObj.itemsMoved}\nItems Remaining: ${theOrder.amount_left - orderMatchObj.itemsMoved}\nCoins Gained: ${orderMatchObj.coinINC}c`;
+
+
+		// 				const filledEmbed = new EmbedBuilder()
+		// 					.setTitle(`${saleType} Order Partially Filled!`)
+		// 					.setColor('DarkGreen')
+		// 					.setDescription(embedDesc);
+
+		// 				return await interaction.followUp({ embeds: [filledEmbed] });
+
+		// 			} else return await interaction.followUp(`${saleType} order created! This order will expire <t:${shownTime}:R>`);
+		// 		});
+
+
+
+		// 		/** This function creates and then updates a sale order,
+		// 		 *		returns resolved or rejected outcomes to be used for user feedback
+		// 		 * 
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 */
+		// 		async function createNewOrder(infoObject) {
+		// 			const newOrder = await LocalMarkets.create({
+		// 				guildid: interaction.guild.id,
+		// 				target_type: infoObject.targetType,
+		// 				target_id: infoObject.targetID,
+		// 				sale_type: infoObject.sale,
+		// 				item_type: infoObject.itemType,
+		// 				item_id: infoObject.itemID,
+		// 				listed_value: infoObject.value,
+		// 				amount_left: infoObject.amount,
+		// 			});
+
+		// 			if (newOrder) {
+		// 				const expireChangeResult = await updateExpireTime(newOrder);
+		// 				if (expireChangeResult === 'Date Update') {
+		// 					await newOrder.save();
+		// 					return newOrder;
+		// 				} else return expireChangeResult;
+		// 			} else return 'Failure: 0.1';
+        //         }
+
+
+		// 		/** This function gets and sets the date of expiration for the sale order created.
+		// 		 * 
+		// 		 * @param {any} saleOrder DB Instance Object
+		// 		 */
+		// 		async function updateExpireTime(saleOrder) {
+		// 			const createDate = new Date(saleOrder.createdAt);
+		// 			const expireDate = createDate.setDate(createDate.getDate() + 25);
+		// 			const tableUpdate = await saleOrder.update({ expires_at: expireDate });
+		// 			if (tableUpdate) return 'Date Update';
+		// 			return 'Failure: 0.2';
+        //         }
+
+
+		// 		/** This function handles the removal of coins from the appropriate inventory
+		// 		 * 
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 */
+		// 		async function handleBuyOrder(infoObject) {
+		// 			const totalCost = infoObject.value * infoObject.amount;
+		// 			const theTarget = infoObject.target;
+		// 			const dec = await theTarget.decrement('coins', { by: totalCost });
+		// 			if (dec) await theTarget.save();
+		// 			return 'Complete';
+		// 		}
+
+
+		// 		/** This function handles the removal of items * amount from the appropriate inventory
+		// 		 * 
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 */
+		// 		async function handleSellOrder(infoObject) {
+		// 			console.log('Item Amount Before: ', infoObject.item.amount);
+		// 			const dec = await infoObject.item.decrement('amount', {by: infoObject.amount});
+		// 			if (dec) await infoObject.item.save();
+		// 			console.log('Item Amount After: ', infoObject.item.amount);
+		// 			return 'Complete';
+		// 		}
+
+
+		// 		/** This function handles checking against existing sell orders to try to complete the newly created order
+		// 		 * 
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any} orderMatchObj Callback Object to use for display
+		// 		 */
+		// 		async function handleBuyReadyCheck(infoObject, theOrder, orderMatchObj) {
+		// 			const activeOrders = await LocalMarkets.findAll({ where: [{ guildid: interaction.guild.id }, { sale_type: 'sell' }] });
+		// 			if (activeOrders.length <= 0) return 'None';
+
+		// 			let filteredOrders = activeOrders.filter(order => order.target_id !== infoObject.targetID)
+		// 				.filter(order => order.item_type === infoObject.itemType)
+		// 				.filter(order => order.item_id === infoObject.itemID);
+		// 			if (filteredOrders.length <= 0) return 'None';
+
+		// 			let orderFilled = false, filledExact = false;
+		// 			filteredOrders = filteredOrders.filter(order => order.listed_value <= infoObject.value);
+		// 			if (filteredOrders.length <= 0) return 'None';
+
+		// 			filteredOrders.sort((lowest, order) => {
+		// 				if (lowest.listed_value > order.listed_value) return 1;
+		// 				if (lowest.listed_value < order.listed_value) return -1;
+		// 				return 0;
+		// 			});
+
+		// 			const totalItemCount = filteredOrders.reduce((acc, order) => acc + order.amount_left, 0);
+		// 			if (totalItemCount > infoObject.amount) orderFilled = true;
+		// 			if (totalItemCount === infoObject.amount) filledExact = true;
+
+		// 			let fillOutcome = '';
+		// 			if (filledExact) {
+		// 				fillOutcome = await handleExactFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj);
+		// 			} else if (orderFilled) {
+		// 				fillOutcome = await handleFilledBuy(infoObject, theOrder, filteredOrders, orderMatchObj);
+		// 			} else {
+		// 				fillOutcome = await handlePartialFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj);
+		// 			}
+		// 			if (fillOutcome !== '') return fillOutcome;
+		// 		}
+
+
+
+		// 		async function handleSellReadyCheck(infoObject, theOrder, orderMatchObj) {
+		// 			const activeOrders = await LocalMarkets.findAll({ where: [{ guildid: interaction.guild.id }, { sale_type: 'buy' }] });
+		// 			if (activeOrders.length <= 0) return 'None';
+		// 		}
+
+
+		// 		/** This function handles all sell and buy order conditions and payouts according to:
+		// 		 *	 Prices given
+		// 		 *	 Total Items
+		// 		 *	 Type of Item
+		// 		 *	 Type of Trade Target
+		// 		 * 
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any[]} filteredOrders DB Instance Object Array
+		// 		 * @param {any} orderMatchObj Callback Object to use for display
+		// 		 */
+		// 		async function handleExactFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj) {
+		// 			const totalOrderValue = theOrder.listed_value * theOrder.amount_left;
+		// 			const totalExpectedFilled = filteredOrders.length;
+
+		// 			let itemRef = '';
+		// 			if (infoObject.itemType === 'Gear') itemRef = grabGearRef(infoObject.itemID);
+		// 			if (infoObject.itemType !== 'Gear') itemRef = grabMatRef(infoObject.itemType, infoObject.itemID);
+		// 			if (itemRef === '') return 'Failure: 1.1';
+
+		// 			// Payout coins to each order filled
+		// 			let totalSpent = 0;
+		// 			let ordersHandled = 0;
+		// 			for (const order of filteredOrders) {
+		// 				// Handle Payout
+		// 				totalSpent += await sellAllOrderPayout(order);
+		// 				// Handle amount removal
+		// 				ordersHandled += await handleOrderRemoval(order);
+		// 			}
+		// 			console.log(`Total Coins Spent: ${totalSpent}\nTotal Coins in Order: ${totalOrderValue}`);
+		// 			console.log(`Total Orders Filled: ${ordersHandled}\nTotal Orders Expected: ${totalExpectedFilled}`);
+
+		// 			let coinRefund = 0;
+		// 			if (totalSpent < totalOrderValue) coinRefund = totalOrderValue - totalSpent;
+		// 			if (coinRefund > 0) {
+		// 				orderMatchObj.coinINC = coinRefund;
+		// 				await handleRefund(theOrder, coinRefund);
+		// 			} 
+
+		// 			// Payout items to order filled
+		// 			const orderComplete = await buyAllOrderPayout(theOrder, itemRef, infoObject);
+		// 			if (orderComplete !== 'Complete') return 'Failure: 1.1.1';
+
+		// 			orderMatchObj.itemsMoved = theOrder.amount_left;
+		// 			return 'Exact';
+		// 		}
+
+
+		// 		/** This function handles payouts to sell orders until filling the created buy order.
+		// 		 * 
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any[]} filteredOrders DB Instance Object Array
+		// 		 * @param {any} orderMatchObj Callback Object to use for display
+		// 		 */
+		// 		async function handleFilledBuy(infoObject, theOrder, filteredOrders, orderMatchObj) {
+		// 			const totalOrderValue = theOrder.listed_value * theOrder.amount_left;
+		// 			const totalOrderItems = theOrder.amount_left;
+
+		// 			let itemRef = '';
+		// 			if (infoObject.itemType === 'Gear') itemRef = grabGearRef(infoObject.itemID);
+		// 			if (infoObject.itemType !== 'Gear') itemRef = grabMatRef(infoObject.itemType, infoObject.itemID);
+		// 			if (itemRef === '') return 'Failure: 1.1';
+
+		// 			// Payout coins to each order filled
+		// 			const orderHandler = {
+		// 				totalSpent: 0,
+		// 				totalRemaining: totalOrderItems,
+		// 				totalBought: 0,
+		// 				ordersHandled: 0,
+		// 			};
+
+		// 			let result = '';
+		// 			for (const order of filteredOrders) {
+		// 				// Handle Payout
+		// 				result = '';
+		// 				result = await sellPartialOrderPayout(order, orderHandler);
+		// 				if (result === 'Finished') orderHandler.ordersHandled++;
+		// 			}
+		// 			console.log(`Total Coins Spent: ${orderHandler.totalSpent}\nTotal Coins in Order: ${totalOrderValue}`);
+		// 			console.log(`Total Items Bought: ${orderHandler.totalBought}\nTotal Items Remaining: ${orderHandler.totalRemaining}`);
+
+
+		// 			let coinRefund = 0;
+		// 			if (orderHandler.totalSpent < totalOrderValue) coinRefund = totalOrderValue - orderHandler.totalSpent;
+		// 			if (coinRefund > 0) {
+		// 				orderMatchObj.coinINC = coinRefund;
+		// 				await handleRefund(theOrder, coinRefund);
+		// 			}
+
+		// 			// Payout items to order filled
+		// 			const orderComplete = await buyAllOrderPayout(theOrder, itemRef, infoObject);
+		// 			if (orderComplete !== 'Complete') return 'Failure: 1.1.1';
+
+
+		// 			orderMatchObj.itemsMoved = orderHandler.totalBought;
+
+		// 			return 'Filled';
+		// 		}
+
+
+		// 		/** This function handles payouts to sell orders for all that exist.
+		// 		 *
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any[]} filteredOrders DB Instance Object Array
+		// 		 * @param {any} orderMatchObj Callback Object to use for display
+		// 		 */
+		// 		async function handlePartialFillBuy(infoObject, theOrder, filteredOrders, orderMatchObj) {
+		// 			console.log(infoObject);
+		// 			console.log(...filteredOrders);
+
+		// 			const totalOrderValue = theOrder.listed_value * theOrder.amount_left;
+		// 			const totalOrderItems = theOrder.amount_left;
+
+		// 			let itemRef = '';
+		// 			if (infoObject.itemType === 'Gear') itemRef = grabGearRef(infoObject.itemID);
+		// 			if (infoObject.itemType !== 'Gear') itemRef = grabMatRef(infoObject.itemType, infoObject.itemID);
+		// 			if (itemRef === '') return 'Failure: 1.1';
+
+		// 			// Payout coins to each order filled
+		// 			const orderHandler = {
+		// 				totalSpent: 0,
+		// 				totalRemaining: totalOrderItems,
+		// 				totalBought: 0,
+		// 				ordersHandled: 0,
+		// 			};
+
+		// 			let result = '';
+		// 			for (const order of filteredOrders) {
+		// 				// Handle Payout
+		// 				result = '';
+		// 				result = await sellPartialOrderPayout(order, orderHandler);
+		// 				if (result === 'Finished') orderHandler.ordersHandled++;
+		// 			}
+		// 			console.log(`Total Coins Spent: ${orderHandler.totalSpent}\nTotal Coins in Order: ${totalOrderValue}`);
+		// 			console.log(`Total Items Bought: ${orderHandler.totalBought}\nTotal Items Remaining: ${orderHandler.totalRemaining}`);
+
+		// 			let coinRefund = 0;
+		// 			if (orderHandler.totalSpent < totalOrderValue) coinRefund = totalOrderValue - orderHandler.totalSpent;
+		// 			if (coinRefund > 0) {
+		// 				orderMatchObj.coinINC = coinRefund;
+		// 				await handleRefund(theOrder, coinRefund);
+		// 			}
+
+		// 			// Payout items to order filled
+		// 			const orderComplete = await buyPartialOrderPayout(theOrder, itemRef, infoObject, orderHandler);
+		// 			if (orderComplete !== 'Complete') return 'Failure: 1.1.1';
+
+		// 			const orderUpdated = await handleOrderUpdate(theOrder, orderHandler.totalBought);
+		// 			if (orderUpdated === 1) await theOrder.save();
+
+		// 			orderMatchObj.itemsMoved = orderHandler.totalBought;
+
+		// 			return 'Partial';
+		// 		}
+
+
+		// 		/** This function locates the proper materialList.json and returns the specific material from that list
+		// 		* 
+		// 		* @param {string} matType "passtype" === file name/path
+		// 		* @param {number} matID Mat_id
+		// 		*/
+		// 		function grabMatRef(matType, matID) {
+		// 			let matList;
+		// 			for (const [key, value] of materialFiles) {
+		// 				if (key === matType) {
+		// 					matList = require(value);
+		// 					break;
+		// 				}
+		// 			}
+
+		// 			let matRef = matList.filter(mat => mat.Mat_id === matID);
+		// 			matRef = matRef[0];
+		// 			return matRef;
+		// 		}
+
+
+		// 		/** This function returns an item ref using the provided loot_id.
+		// 		* 
+		// 		* @param {number} lootID Loot_id
+		// 		*/
+		// 		function grabGearRef(lootID) {
+		// 			let gearRef = lootList.filter(item => item.Loot_id === lootID);
+		// 			gearRef = gearRef[0];
+		// 			return gearRef;
+		// 		}
+
+
+		// 		/** This function adds any coins refunded to the order's creator
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {number} coinRefund Amount of coins to refund
+		// 		 */
+		// 		async function handleRefund(theOrder, coinRefund) {
+		// 			let target = 'None', type = theOrder.target_type;
+		// 			if (type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
+		// 			if (type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
+		// 			if (target === 'None') return 'Failure: 2.1';
+
+		// 			const inc = await target.increment('coins', { by: coinRefund });
+		// 			if (inc) return await target.save();
+        //         }
+
+
+		// 		/** This function calculates the total value of items being sold,
+		// 		 *	 then updates the correct users coins with that value.
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 */
+		// 		async function sellAllOrderPayout(theOrder) {
+		// 			let totalValue = theOrder.listed_value * theOrder.amount_left;
+		// 			let target = 'None';
+		// 			if (theOrder.target_type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
+		// 			if (theOrder.target_type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
+		// 			if (target === 'None') return 'Failure: 1.2';
+
+		// 			const inc = await target.increment('coins', { by: totalValue });
+		// 			if (inc) await target.save();
+
+		// 			return totalValue;
+		// 		}
+
+
+		// 		/** This function handles the function path needed for the given target and item type,
+		// 		 *   then awaits the success results to be returned
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any} itemRef Json Item Reference Object
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 */
+		// 		async function buyAllOrderPayout(theOrder, itemRef, infoObject) {
+		// 			let target = 'None', type = theOrder.target_type;
+		// 			if (type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
+		// 			if (type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
+		// 			if (target === 'None') return 'Failure: 1.3';
+
+		// 			let itemAdded = '';
+		// 			if (theOrder.item_type === 'Gear') itemAdded = await handleGearAdd(target, itemRef, theOrder.amount_left);
+		// 			if (theOrder.item_type !== 'Gear') itemAdded = await handleMatAdd(target, itemRef, theOrder.amount_left, type, infoObject.itemType);
+		// 			if (itemAdded !== 'Added') return 'Failure: 1.4';
+
+		// 			return 'Complete';
+		// 		}
+
+
+		// 		/** This function handles the function path needed for the given target, item type, and amount,
+		// 		 *   then awaits the success results to be returned
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any} itemRef Json Item Reference Object
+		// 		 * @param {any} infoObject Object containing variables needed for proccessing, used to keep function params clean
+		// 		 */
+		// 		async function buyPartialOrderPayout(theOrder, itemRef, infoObject, orderHandler) {
+		// 			let target = 'None', type = theOrder.target_type;
+		// 			if (type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
+		// 			if (type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
+		// 			if (target === 'None') return 'Failure: 1.3';
+
+		// 			let itemAdded = '';
+		// 			if (theOrder.item_type === 'Gear') itemAdded = await handleGearAdd(target, itemRef, orderHandler.totalBought);
+		// 			if (theOrder.item_type !== 'Gear') itemAdded = await handleMatAdd(target, itemRef, orderHandler.totalBought, type, infoObject.itemType);
+		// 			if (itemAdded !== 'Added') return 'Failure: 1.4';
+
+		// 			return 'Complete';
+		// 		}
+
+
+		// 		/** This function is handled through the checkOwned() script for consistant item creation
+		// 		 * 
+		// 		 * @param {any} target DB Instance Object: User
+		// 		 * @param {any} itemRef Json Item Reference Object
+		// 		 * @param {number} amount Amount needed
+		// 		 */
+		// 		async function handleGearAdd(target, itemRef, amount) {
+		// 			const addResult = await checkOwned(target, itemRef, amount);
+		// 			if (addResult !== 'Finished') return 'Failure';
+		// 			return 'Added';
+        //         }
+
+
+		// 		/** This function handles Updating/Creating a material entry in the appropeate DB
+		// 		 * 
+		// 		 * @param {any} target DB Instance Object: User || Town
+		// 		 * @param {any} itemRef Json Item Reference Object
+		// 		 * @param {number} amount Amount needed
+		// 		 * @param {string} type 'town' || 'user' 
+		// 		 * @param {string} matType mattype Reference 
+		// 		 */
+		// 		async function handleMatAdd(target, itemRef, amount, type, matType) {
+		// 			let matStore;
+		// 			if (type === 'town') {
+		// 				matStore = await TownMaterial.findOne({
+		// 					where: [{ townid: target.townid }, { mat_id: itemRef.Mat_id }, { mattype: matType }]
+		// 				});
+		// 			}
+		// 			if (type === 'user') {
+		// 				matStore = await MaterialStore.findOne({
+		// 					where: [{ spec_id: target.userid }, { mat_id: itemRef.Mat_id }, { mattype: matType }]
+		// 				});
+		// 			}
+
+		// 			if (matStore) {
+		// 				const inc = await matStore.increment('amount', { by: amount });
+		// 				if (inc) await matStore.save();
+		// 				return 'Added';
+		// 			}
+
+		// 			let newMat;
+		// 			try {
+		// 				if (type === 'town') newMat = await TownMaterial.create({ townid: target.townid, amount: amount });
+		// 				if (type === 'user') newMat = await MaterialStore.create({ spec_id: target.userid, amount: amount });
+
+		// 				if (newMat) {
+		// 					await newMat.update({
+		// 						name: itemRef.Name,
+		// 						value: itemRef.Value,
+		// 						mattype: matType,
+		// 						mat_id: itemRef.Mat_id,
+		// 						rarity: itemRef.Rarity,
+		// 						rar_id: itemRef.Rar_id,
+		// 					});
+
+		// 					await newMat.save();
+		// 					return 'Added';
+		// 				}
+		// 			} catch (error) {
+		// 				console.error(error);
+		// 			}
+		// 		}
+
+
+		// 		/** This function removes Completed Orders
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 */
+		// 		async function handleOrderRemoval(theOrder) {
+		// 			const destroyed = await theOrder.destroy();
+		// 			if (destroyed) return 1;
+		// 			return 0;
+        //         }
+
+
+		// 		/** This function handles decreasing remaining items while increasing items moved from appropreate orders.
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {number} amountRemoved Amount to change by
+		// 		 */
+		// 		async function handleOrderUpdate(theOrder, amountRemoved) {
+		// 			const dec = await theOrder.decrement('amount_left', { by: amountRemoved });
+		// 			const inc = await theOrder.increment('amount_moved', { by: amountRemoved });
+		// 			if (inc && dec) {
+		// 				await theOrder.save();
+		// 				return 1;
+		// 			} else return 0;
+        //         }
+
+
+		// 		/** This function handles order updates according to remaining items being bought.
+		// 		 * 
+		// 		 * @param {any} theOrder DB Instance Object
+		// 		 * @param {any} orderHandler Object used as callback 
+		// 		 */
+		// 		async function sellPartialOrderPayout(theOrder, orderHandler) {
+		// 			const itemsToMove = orderHandler.totalRemaining;
+		// 			const itemsInOrder = theOrder.amount_left;
+
+		// 			let itemDiff = itemsInOrder - itemsToMove, destOrder = false;
+		// 			console.log('itemDiff Before: ', itemDiff);
+
+		// 			if (itemDiff <= 0) {
+		// 				itemDiff = itemsInOrder, destOrder = true;
+		// 			} else if (itemDiff > 0) itemDiff = itemsToMove;
+		// 			console.log('itemDiff After: ', itemDiff);
+
+		// 			let totalValue = theOrder.listed_value * itemDiff;
+		// 			console.log('Total Value: ', totalValue);
+		// 			let target = 'None';
+		// 			if (theOrder.target_type === 'town') target = await Town.findOne({ where: { townid: theOrder.target_id } });
+		// 			if (theOrder.target_type === 'user') target = await UserData.findOne({ where: { userid: theOrder.target_id } });
+		// 			if (target === 'None') return 'Failure: 1.2';
+
+		// 			const inc = await target.increment('coins', { by: totalValue });
+		// 			if (inc) await target.save();
+
+		// 			let orderDone;
+		// 			if (destOrder) {
+		// 				orderDone = await handleOrderRemoval(theOrder);
+		// 			} else orderDone = await handleOrderUpdate(theOrder, itemDiff);
+
+		// 			orderHandler.totalSpent += totalValue;
+		// 			orderHandler.totalRemaining -= itemDiff;
+		// 			orderHandler.totalBought += itemDiff;
+
+		// 			if (orderDone === 1) return 'Finished';
+		// 			return 'Failure: 1.3';
+		// 		}
+
+		// 	}).catch(error => {
+		// 		console.error(errorForm('Interaction error @ Trade local:', error));
+		// 	});
+		// }
 
 		if (interaction.options.getSubcommand() === 'global') {
 			if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
