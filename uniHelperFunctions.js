@@ -122,6 +122,44 @@ async function grabActivePigmy(id){
 }
 
 /**
+ * This function handles checking a string interaction output through JSON.parse(), 
+ * if this fails returns ``itemCheck`` as ``itemName`` and ``checkForID`` as ``false``
+ * if this does not fail, returns: ``itemCheck.name`` as ``itemName`` and ``itemCheck.id`` as ``checkForID``
+ * @param {string} itemCheck Item Name | JSON Object String ``{"name": string, "id": string}``
+ * @returns {{itemName: string, checkForID: (string | boolean)}}
+ */
+function handleItemObjCheck(itemCheck){
+    // Try catch to handle invalid JSON when passed value is correct string
+    try {
+        itemCheck = JSON.parse(itemCheck);
+    } catch (e){}
+
+    let itemName, checkForID = false;
+    if (typeof itemCheck !== 'string'){
+        itemName = itemCheck.name;
+        checkForID = itemCheck.id;
+    } else itemName = itemCheck;
+
+    return {itemName, checkForID};
+}
+
+/**
+ * This function handles reducing the amount of options to below 26,
+ * this avoids the display limit of over 25.
+ * @param {object[]} options List of options to provide to an autocomplete interaction
+ * @returns {object[]}
+ */
+function handleLimitOnOptions(options){
+    let optionsList = [];
+    if (options.length > 25){
+        console.log('Too many Choices!!');
+        optionsList = options.slice(0,25);
+    } else optionsList = options;
+
+    return optionsList;
+}
+
+/**
  * This function yields ``[key, value]`` pairs of a given object where:
  * 
  * {`key` Property: `value` Value}
@@ -258,6 +296,43 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
     return {anchorMsg, collector, sCollector};
 }
 
+/** STANDARD BUTTON/STRING COLLECTER SETTUP
+ * 
+ * const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, replyObj, "FollowUp", "Both");
+
+    // ~~~~~~~~~~~~~~~~~~~~~
+    // STRING COLLECTOR
+    sCollector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+
+        }).catch(e => console.error(e));
+    });
+    // ~~~~~~~~~~~~~~~~~~~~~
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+
+        }).catch(e => console.error(e));
+    });
+    // =====================
+
+    // ~~~~~~~~~~~~~~~~~~~~~
+    // STRING COLLECTOR
+    sCollector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+    });
+    // ~~~~~~~~~~~~~~~~~~~~~
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+    });
+    // =====================
+ */
+
 /**
  * This function attatches a component collector to the provided anchorMsg object,
  * the type of components collected is specified by compType which if not provided 
@@ -328,6 +403,8 @@ module.exports = {
     objectEntries,
     grabUser,
     grabActivePigmy,
+    handleItemObjCheck,
+    handleLimitOnOptions,
     getTypeof,
     sendTimedChannelMessage,
     editTimedChannelMessage,

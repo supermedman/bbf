@@ -16,6 +16,7 @@ const { makeCapital } = require("../../../uniHelperFunctions");
  * @returns {Promise <EmbedBuilder>}
  */
 async function handleBuyOrderSetup(buyOrderObject){
+    buyOrderObject.isCrafted = false;
     await generateNewOrder(buyOrderObject);
 
     await spendUserCoins(buyOrderObject.perUnitPrice * buyOrderObject.amount, buyOrderObject.target);
@@ -35,7 +36,8 @@ async function handleBuyOrderSetup(buyOrderObject){
  */
 async function handleSellOrderSetup(sellOrderObject){
     // const orderObj = await generateNewOrder(sellOrderObject);
-    await generateNewOrder(sellOrderObject);
+    const finalOrder = await generateNewOrder(sellOrderObject);
+    console.log('Final Sell Order Value Per Unit: %d', finalOrder.dataValues.listed_value);
 
     // Handle item transfers
     switch(sellOrderObject.itemType){
@@ -68,6 +70,7 @@ async function handleSellOrderSetup(sellOrderObject){
  * @returns {Promise <object>} Newly created Order Object
  */
 async function generateNewOrder(tradeObj){
+    //console.log(`Outcomes from selling order: \n\nCrafted Object?: ${tradeObj.isCrafted}\nItem_Code: ${tradeObj.item.item_code}\n\n`);
     const newOrder = await LocalMarkets.create({
         guildid: tradeObj.interRef.guild.id,
         target_type: tradeObj.targetType,
@@ -75,6 +78,10 @@ async function generateNewOrder(tradeObj){
         sale_type: tradeObj.orderType,
         item_type: tradeObj.itemType,
         item_id: tradeObj.itemID,
+        item_name: tradeObj.item.name ?? tradeObj.item.Name,
+        item_rar: tradeObj.rarity,
+        item_caste: tradeObj.item.caste_id ?? 0,
+        item_code: (tradeObj.itemType === 'Gear') ? tradeObj.item.item_code : 'None',
         listed_value: tradeObj.perUnitPrice,
         amount_left: tradeObj.amount
     }).then(async o => await o.save()).then(async o => {return await o.reload()});
@@ -146,6 +153,31 @@ async function loadAsButts(user){
     const asButtRow = new ActionRowBuilder().addComponents(townButt, userButt);
 
     return asButtRow;
+}
+
+/**
+ * This function creates the sale type button menus buttons.
+ * @returns {ActionRowBuilder[ButtonBuilder]}
+ */
+function loadSaleButts(){
+    const buyButt = new ButtonBuilder()
+    .setCustomId('view-buy')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('View Buy Orders');
+
+    const sellButt = new ButtonBuilder()
+    .setCustomId('view-sell')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('View Sell Orders');
+
+    const backButt = new ButtonBuilder()
+    .setCustomId('back-sale')
+    .setStyle(ButtonStyle.Secondary)
+    .setLabel('Go Back');
+
+    const buttRow = new ActionRowBuilder().addComponents(backButt, buyButt, sellButt);
+
+    return buttRow;
 }
 
 /**
@@ -632,11 +664,55 @@ function handlePriceButtPicked(changeID){
     return numChange;
 }
 
+/**
+ * This function creates a single back button, its customId is set with backType:
+ * 
+ * ID: ``'back-${backType}'``
+ * @param {string} backType Used to create the back buttons customId
+ * @returns {ActionRowBuilder[]}
+ */
+function loadBasicBackButt(backType){
+    const backButt = new ButtonBuilder()
+    .setCustomId(`back-${backType}`)
+    .setStyle(ButtonStyle.Secondary)
+    .setLabel('Go Back');
+
+    const backButtRow = new ActionRowBuilder().addComponents(backButt);
+
+    return backButtRow;
+}
+
+/**
+ * This function returns **``ButtonBuilder[backButt, nextButt]``** and **NOT** an ``ActionRowBuilder[ButtonBuilder]``.
+ * 
+ * This is done to allow for row modifications to be made freely 
+ * depending on the interactivity of the pages being cycled
+ * @returns {ButtonBuilder[]}
+ */
+function createBasicPageButtons(){
+    const backPageButt = new ButtonBuilder()
+    .setLabel("Backward")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('◀️')
+    .setCustomId('back-page');
+
+    const nextPageButt = new ButtonBuilder()
+    .setLabel("Forward")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('▶️')
+    .setCustomId('next-page');
+
+    const pageButts = [backPageButt, nextPageButt];
+
+    return pageButts;
+}
+
 
 module.exports = {
     handleBuyOrderSetup,
     handleSellOrderSetup,
     loadAsButts,
+    loadSaleButts,
     loadTypeButts,
     loadRarStringMenu,
     loadConfirmButts,
@@ -645,5 +721,7 @@ module.exports = {
     handleItemNameFilter,
     loadAmountButts,
     loadPriceButts,
-    handlePriceButtPicked
+    handlePriceButtPicked,
+    loadBasicBackButt,
+    createBasicPageButtons
 }

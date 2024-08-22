@@ -1,14 +1,16 @@
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { errorForm } = require('../../chalkPresets.js');
 
-const { Loadout, MaterialStore, TownMaterial, Town, ItemStrings } = require('../../dbObjects.js');
+const { Op } = require('sequelize');
+
+const { Loadout, MaterialStore, TownMaterial, Town, ItemStrings, LocalMarkets } = require('../../dbObjects.js');
 
 //const { checkOwned } = require('./exported/createGear.js');
 
 //const lootList = require('../../events/Models/json_prefabs/lootList.json');
-const { checkingSlot } = require('../Development/Export/itemStringCore.js');
-const { grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
-const { moveItem, moveMaterial } = require('../Development/Export/itemMoveContainer.js');
+const { checkingSlot, checkingRar, uni_displayItem } = require('../Development/Export/itemStringCore.js');
+const { grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, sendTimedChannelMessage, handleItemObjCheck, endTimer } = require('../../uniHelperFunctions.js');
+const { moveItem, moveMaterial, checkInboundItem, checkInboundMat, checkInboundTownMat } = require('../Development/Export/itemMoveContainer.js');
 const { spendUserCoins, updateUserCoins } = require('../Development/Export/uni_userPayouts.js');
 
 const {
@@ -23,7 +25,10 @@ const {
     handleItemNameFilter,
     loadAmountButts,
     loadPriceButts,
-    handlePriceButtPicked
+    handlePriceButtPicked,
+	loadSaleButts,
+	loadBasicBackButt,
+	createBasicPageButtons
 } = require('./exported/tradeExtras.js');
 
 module.exports = {
@@ -759,6 +764,7 @@ module.exports = {
 						targetType: trackingObj.tradingAs,
 						targetID: (trackingObj.tradingAs === 'town') ? trackingObj.tradeEntity.townid : trackingObj.tradeEntity.userid,
 						target: trackingObj.tradeEntity,
+						rarity: trackingObj.rarity,
 						itemType: (trackingObj.itemType === 'material') ? trackingObj.itemRef.MatType : "Gear",
 						itemID: (trackingObj.itemType === 'material') ? trackingObj.itemRef.Mat_id : trackingObj.itemRef.item_id,
 						item: trackingObj.itemRef,
@@ -786,6 +792,7 @@ module.exports = {
 
 			let itemCheck = interaction.options.getString('item');
 			let {itemName, checkForID} = handleItemObjCheck(itemCheck);
+			// console.log(itemName, checkForID);
 			if (itemName === "No Items") return await interaction.followUp(`No ${itemType} items found!`);
 
 			let theTown = 'None';
@@ -811,7 +818,7 @@ module.exports = {
 					theItem = (fullItemList.length === 0) 
 					? "No Item" : (checkForID) 
 					? fullItemList.filter(item => item.name === itemName && item.item_id === checkForID)[0] 
-					: fullItemList.filter(item => item.name === itemName)[0] ;
+					: fullItemList.filter(item => item.name === itemName)[0];
 
 					// Loadout check
 					const uLoad = await Loadout.findOne({where: {spec_id: user.userid}});
@@ -918,6 +925,13 @@ module.exports = {
 					if (r === "Confirmed"){
 						await handleCatchDelete(anchorMsg);
 
+						let craftedItemStore = false;
+						if (itemType !== 'Material' && theItem.item_id.length === 36){
+							// Item is crafted!
+							//console.log('Item is crafted!');
+							craftedItemStore = true;
+						} //else console.log('Item is not crafted or is a material!');
+
 						const sellOrderObject = {
 							interRef: interaction,
 							perUnitPrice: listedValue,
@@ -925,11 +939,15 @@ module.exports = {
 							targetType: tradeAs,
 							targetID: (tradeAs === 'town') ? theTown.townid : user.userid,
 							target: (tradeAs === 'town') ? theTown : user,
+							rarity: (itemType === 'Material') ? theItem.rarity : checkingRar(theItem.item_code),
 							itemType: (itemType === 'Material') ? theItem.mattype : "Gear",
 							itemID: (itemType === 'Material') ? theItem.mat_id : theItem.item_id,
 							item: theItem,
+							isCrafted: craftedItemStore,
 							amount: moveAmount
 						};
+
+						//console.log(sellOrderObject.item.item_code);
 
 						// Handle Sell Order Setup
 						return await sendTimedChannelMessage(interaction, 60000, await handleSellOrderSetup(sellOrderObject), "FollowUp");
@@ -941,33 +959,498 @@ module.exports = {
 		if (interaction.options.getSubcommand() === 'view-local'){
 			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
 			if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
+
+			const localTowns = await Town.findAll({where: {guildid: interaction.guild.id}});
+			if (localTowns.length === 0) return await interaction.reply('There are no local markets here! Use ``/town establish`` to create a new town with open markets!');
+
+			const user = await grabUser(interaction.user.id);
+
+			// View AS Options
+			// ===============
+			// Town, User
+			const viewAsEmbed = new EmbedBuilder()
+			.setTitle('== View As? ==');
+
+			// View Order Options
+			// ==================
+			// Buy, Sell
+			const saleTypeEmbed = new EmbedBuilder()
+			.setTitle('== Buying or Selling? ==');
+
+			// Item Type Options
+			// =================
+			// Standard Type Options
+			const itemTypeEmbed = new EmbedBuilder()
+			.setTitle('== What Type of Item? ==');
+
+			// Rarity Options
+			// ==============
+			// Standard Rar List
+			const rarityEmbed = new EmbedBuilder()
+			.setTitle('== What Rarity? ==');
+
+			// Extra Filters
+			// =============
+			// Auto Filter Sell By Price?
+			// Auto Filter Buy by Owned?
+
+			const amountMoveEmbed = new EmbedBuilder()
+			.setTitle('== Move Amount ==')
+			.setDescription('Current Amount Selected: 0');
+
+			// Final View Menu
+			// ===============
+			// Nav Menu of Local Market Orders
+			const navMenuTempEmbed = new EmbedBuilder()
+			.setTitle('Placeholder Menu Embed');
+
+			const replyObj = {embeds: [viewAsEmbed], components: [await loadAsButts(user)]};
+
+			const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, replyObj, "Reply", "Both");
+
+			const menuTObj = {
+				viewAs: "",
+				saleType: "",
+				itemType: "",
+				rarity: "",
+				amount: 0,
+				itemRef: "",
+				userMaxSell: 0
+			};
+
+			const orderListObj = {
+				sortBy: "",
+				curPage: 0,
+				lastPage: 0, // orderEmbeds.length - 1
+				orderEmbeds: [],
+				inspectEmbeds: [],
+				menuComponents: [],
+				inspectOrders: [],
+				inspectComponents: [],
+				orderList: [],
+				activeOrder: ""
+			};
+
+			// ~~~~~~~~~~~~~~~~~~~~~
+			// STRING COLLECTOR
+			sCollector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+					let editWith;
+					switch(c.customId){
+						case "rar-picked": // RARITY STRING SELECT
+							menuTObj.rarity = c.values[0];
+							// console.log(menuTObj);
+
+							const orderListOutcome = await loadFilteredOrders(menuTObj);
+							if (orderListOutcome.outcome === "100 Order Limit"){
+								await c.followUp({content: "More than 100 orders matched your search. You are seeing this because only the first 100 will be shown.\n\nRefine your search to avoid this!", ephemeral: true});
+							}
+							orderListObj.lastPage = orderListOutcome.embeds.length - 1;
+							orderListObj.orderEmbeds = orderListOutcome.embeds;
+							orderListObj.orderList = orderListOutcome.orderMatch;
+							if (menuTObj.itemType !== 'material'){
+								orderListObj.inspectEmbeds = orderListOutcome.iDetails;
+							}
+							orderListObj.inspectOrders = orderListOutcome.oDetails;
+							orderListObj.inspectComponents = handleOrderInspectButts(menuTObj.saleType);
+							orderListObj.menuComponents = handleOrderListDisplay(orderListOutcome);
+							
+							editWith = {embeds: [orderListObj.orderEmbeds[0]], components: orderListObj.menuComponents};
+						break;
+						case "filter-orders": // FILTER ORDERS STRING SELECT
+							orderListObj.sortBy = c.values[0];
+
+							editWith = {embeds: [navMenuTempEmbed], components: [loadBasicBackButt('nav')]};
+						break;
+					}
+					await anchorMsg.edit(editWith);
+				}).catch(e => console.error(e));
+			});
+			// ~~~~~~~~~~~~~~~~~~~~~
+
+			// =====================
+			// BUTTON COLLECTOR
+			collector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+					// TIMER START
+					const buttHandleStart = new Date().getTime();
+					
+					let editWith;
+					if (['back-sale', 'back-type', 'back-rar', 'back-nav', 'back-flip', 'back-num', 'cancel-take'].includes(c.customId)){ // BACK BUTTONS
+						switch(c.customId){
+							case "back-sale":
+								menuTObj.viewAs = "";
+
+								editWith = {embeds: [viewAsEmbed], components: [await loadAsButts(user)]};
+							break;
+							case "back-type":
+								menuTObj.saleType = "";
+
+								editWith = {embeds: [saleTypeEmbed], components: [loadSaleButts()]};
+							break;
+							case "back-rar":
+								menuTObj.itemType = "";
+
+								editWith = {embeds: [itemTypeEmbed], components: loadTypeButts(menuTObj.viewAs)};
+							break;
+							case "back-nav":
+								menuTObj.rarity = "";
+
+								orderListObj.sortBy = "";
+								orderListObj.curPage = 0;
+								orderListObj.lastPage = 0;
+								orderListObj.orderEmbeds = [];
+								orderListObj.inspectEmbeds =  [];
+								orderListObj.inspectOrders = [];
+								orderListObj.menuComponents = [];
+								orderListObj.inspectComponents = [];
+
+								editWith = {embeds: [rarityEmbed], components: loadRarStringMenu()};
+							break;
+							case "back-flip":
+								orderListObj.activeOrder = "";
+
+								editWith = {embeds: [orderListObj.orderEmbeds[orderListObj.curPage]], components: orderListObj.menuComponents};
+							break;
+							case "back-num":
+								menuTObj.amount = 0;
+								amountMoveEmbed.setDescription(`Current Amount Selected: 0`);
+								editWith = {embeds: [orderListObj.inspectOrders[orderListObj.curPage]], components: orderListObj.inspectComponents};
+							break;
+							case "cancel-take":
+								editWith = {embeds: [amountMoveEmbed], components: loadAmountButts()};
+							break;
+						}
+					} else if (['as-town', 'as-user'].includes(c.customId)){ // VIEW AS BUTTONS
+						menuTObj.viewAs = c.customId.split('-')[1];
+						
+						editWith = {embeds: [saleTypeEmbed], components: [loadSaleButts()]};
+					} else if (['view-buy', 'view-sell'].includes(c.customId)){ // SALE TYPE BUTTONS
+						menuTObj.saleType = c.customId.split('-')[1];
+
+						editWith = {embeds: [itemTypeEmbed], components: loadTypeButts(menuTObj.viewAs)};
+					} else if (['mainhand', 'offhand', 'headslot', 'chestslot', 'legslot', 'material'].includes(c.customId)){ // ITEM TYPE BUTTONS
+						menuTObj.itemType = c.customId;
+
+						editWith = {embeds: [rarityEmbed], components: loadRarStringMenu()};
+					} else if (['back-page', 'next-page'].includes(c.customId)){ // PAGE NAV BUTTONS
+						switch(c.customId){
+							case "next-page":
+								orderListObj.curPage = (orderListObj.curPage === orderListObj.lastPage) ? 0 : orderListObj.curPage + 1;
+							break;
+							case "back-page":
+								orderListObj.curPage = (orderListObj.curPage === 0) ? orderListObj.lastPage : orderListObj.curPage - 1;
+							break;
+						}
+
+						editWith = {embeds: [orderListObj.orderEmbeds[orderListObj.curPage]], components: orderListObj.menuComponents}; // [/*NAV BUTTONS, INTERFACE BUTTONS, BACK BUTTON*/]
+					} else if (['item-inspect', 'order-inspect'].includes(c.customId)){ // ORDER INTERACTION BUTTONS
+						switch(c.customId){
+							case "item-inspect":
+								// Show current item advanced details in hidden message
+								editWith = {embeds: [orderListObj.orderEmbeds[orderListObj.curPage]], components: orderListObj.menuComponents};
+								await c.followUp({embeds: [orderListObj.inspectEmbeds[orderListObj.curPage]], ephemeral: true});
+							break;
+							case "order-inspect":
+								// Show current order details in regards to user viewing.
+								orderListObj.activeOrder = orderListObj.orderList[orderListObj.curPage];
+
+								editWith = {embeds: [orderListObj.inspectOrders[orderListObj.curPage]], components: orderListObj.inspectComponents};
+							break;
+						}
+					} else if (['sell-menu', 'buy-menu'].includes(c.customId)){ // MOVE TO BUY/SELL AMOUNT BUTTONS
+						if (c.customId === 'sell-menu'){
+							// Set max on owned item match
+							if (menuTObj.itemType === 'material'){
+								const matMatch = await MaterialStore.findOne({where: {spec_id: user.userid, mattype: orderListObj.activeOrder.item_type, mat_id: orderListObj.activeOrder.item_id}});
+								if (!matMatch) {
+									menuTObj.userMaxSell = 0;
+								} else {
+									menuTObj.userMaxSell = matMatch.amount;
+									menuTObj.itemRef = matMatch;
+								}
+							} else {
+								const itemMatch = await ItemStrings.findOne({where: {user_id: user.userid, item_id: orderListObj.activeOrder.item_id}});
+								if (!itemMatch){
+									menuTObj.userMaxSell = 0;
+								} else {
+									menuTObj.userMaxSell = itemMatch.amount;
+									menuTObj.itemRef = itemMatch;
+								}
+							}
+
+							if (menuTObj.userMaxSell === 0){
+								await c.followUp({content: "You do not have any of these items, therefore cannot sell to this Buy order!", ephemeral: true});
+							} else editWith = {embeds: [amountMoveEmbed], components: loadAmountButts()};
+						} else {
+							if (menuTObj.itemType === 'material'){
+								const matMatch = await MaterialStore.findOne({where: {spec_id: user.userid, mattype: orderListObj.activeOrder.item_type, mat_id: orderListObj.activeOrder.item_id}});
+								if (matMatch) menuTObj.itemRef = matMatch;
+							} else {
+								const itemMatch = await ItemStrings.findOne({where: {user_id: user.userid, item_id: orderListObj.activeOrder.item_id}});
+								if (itemMatch) menuTObj.itemRef = itemMatch;
+							}
+							editWith = {embeds: [amountMoveEmbed], components: loadAmountButts()};
+						}
+					} else if (['add-five', 'add-one', 'minus-five', 'minus-one'].includes(c.customId)){ // AMOUNT MATH BUTTONS
+						// Handle special counting logic here
+						switch(c.customId){
+							case "add-five":
+								menuTObj.amount += 5;
+							break;
+							case "add-one":
+								menuTObj.amount += 1;
+							break;
+							case "minus-one":
+								menuTObj.amount -= 1;
+							break;
+							case "minus-five":
+								menuTObj.amount -= 5;
+							break;
+						}
+						if (menuTObj.amount < 0) menuTObj.amount = 0;
+						if (menuTObj.amount > orderListObj.activeOrder.amount_left) {
+							menuTObj.amount = orderListObj.activeOrder.amount_left;
+							await c.followUp({content: "You cannot exceed the amount limit for the active order!", ephemeral: true});
+						}
+						if (menuTObj.saleType === 'buy' && menuTObj.userMaxSell < menuTObj.amount){
+							menuTObj.amount = menuTObj.userMaxSell;
+							await c.followUp({content: "You cannot sell more items than you own!!", ephemeral: true});
+						}
+						amountMoveEmbed.setDescription(`Price Per Item: ${orderListObj.activeOrder.listed_value}c\nItem Amount Remaining: ${orderListObj.activeOrder.amount_left}\nCurrent Amount Selected: ${menuTObj.amount}\nTotal Price: ${orderListObj.activeOrder.listed_value * menuTObj.amount}c`);
+
+						editWith = {embeds: [amountMoveEmbed], components: loadAmountButts()};
+					} else if (['confirm-num', 'confirm-take'].includes(c.customId)){ // CONFIRMATION BUTTONS
+						switch(c.customId){
+							case "confirm-num":
+								// handle Checkout menu
+								const inverseSaleType = (menuTObj.saleType === 'buy') ? "Sell" : "Buy"; 
+								const checkoutEmbed = new EmbedBuilder()
+								.setTitle('== Checkout ==')
+								.setDescription(`${inverseSaleType} ${menuTObj.amount} ${orderListObj.activeOrder.item_name} @ ${orderListObj.activeOrder.listed_value}c per item for a total of ${orderListObj.activeOrder.listed_value * menuTObj.amount}c?`);
+								editWith = {embeds: [checkoutEmbed], components: [loadConfirmButts('take')]};
+							break;
+							case "confirm-take":
+								// Handle Order Payouts here!
+								const townRef = await Town.findOne({where: {townid: user.townid}});
+								const targetObj = {
+									id: (menuTObj.viewAs === 'town') ? townRef.townid : user.userid,
+									entity: (menuTObj.viewAs === 'town') ? townRef : user,
+									itemRef: menuTObj.itemRef
+								};
+								const completeEmbed = await handleOrderChange(orderListObj.activeOrder, targetObj, menuTObj.amount);
+
+								editWith = {embeds: [completeEmbed], components: []};
+							break;
+						}
+					}
+
+					await anchorMsg.edit(editWith);
+					// TIMER END
+					endTimer(buttHandleStart, "Full Button Menu Handle");
+				}).catch(e => console.error(e));
+			});
+			// =====================
+
+			// ~~~~~~~~~~~~~~~~~~~~~
+			// STRING COLLECTOR
+			sCollector.on('end', async (c, r) => {
+				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+			});
+			// ~~~~~~~~~~~~~~~~~~~~~
+
+			// =====================
+			// BUTTON COLLECTOR
+			collector.on('end', async (c, r) => {
+				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+			});
+			// =====================
+
+			// ===================
+			//   EXTRA FUNCTIONS
+			// ===================
+
+			/**
+			 * This function handles loading the needed button components for the order page menu.
+			 * @param {object} orderOutcome Outcome of loading the order list pages
+			 * @returns {[ActionRowBuilder[ButtonBuilder]]}
+			 */
+			function handleOrderListDisplay(orderOutcome){
+				const finalButtRow = [];
+
+				const inspectButt = new ButtonBuilder()
+				.setCustomId('item-inspect')
+				.setStyle(ButtonStyle.Primary)
+				.setLabel('Item Details');
+
+				const orderInteractButt = new ButtonBuilder()
+				.setCustomId('order-inspect')
+				.setStyle(ButtonStyle.Primary)
+				.setLabel('Order Details');
+
+				let pageingButts = (orderOutcome.usePages) ? createBasicPageButtons() : [];
+
+				// Handle adding extra buttons to page change row
+				if (pageingButts.length > 0){
+					const catchSliceButt = pageingButts.splice(1, 1, inspectButt, orderInteractButt);
+					pageingButts.push(catchSliceButt[0]);
+					const pageButtRow = new ActionRowBuilder().addComponents(pageingButts);
+					finalButtRow.push(pageButtRow);
+				} else finalButtRow.push(new ActionRowBuilder().addComponents(inspectButt, orderInteractButt));
+
+				finalButtRow.push(loadBasicBackButt('nav'));
+
+
+				const compsToUse = finalButtRow;
+				
+				return compsToUse;
+			}
+
+			/**
+			 * This function loads the applicable buy/sell menu amount move buttons.
+			 * @param {string} saleType buy | sell
+			 * @returns {[ActionRowBuilder, ActionRowBuilder]}
+			 */
+			function handleOrderInspectButts(saleType){
+				const finalButtRow = [];
+
+				// Buy Order View
+				// ==============
+				// Check for owned amounts
+				// Other handling methods?
+
+				// Sell Order View
+				// ===============
+				// Move to amount menu
+				// Amount menu ==> Checkout menu 
+
+				const primeInterButt = new ButtonBuilder();
+
+				const secInterButt = new ButtonBuilder();
+
+				switch(saleType){
+					case "buy":
+						primeInterButt
+						.setCustomId('sell-menu')
+						.setStyle(ButtonStyle.Primary)
+						.setLabel('Amount Menu');
+						secInterButt
+						.setCustomId('secondary')
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(true)
+						.setLabel('Action');
+					break;
+					case "sell":
+						primeInterButt
+						.setCustomId('buy-menu')
+						.setStyle(ButtonStyle.Primary)
+						.setLabel('Amount Menu');
+						secInterButt
+						.setCustomId('secondary')
+						.setStyle(ButtonStyle.Secondary)
+						.setDisabled(true)
+						.setLabel('Action');
+					break;
+				}
+
+				finalButtRow.push(new ActionRowBuilder().addComponents(primeInterButt, secInterButt));
+
+				finalButtRow.push(loadBasicBackButt('flip'));
+
+				return finalButtRow;
+			}
+
+			/**
+			 * This function filters the existing local-orders given the filter options picked by the user.
+			 * It then creates an embed page array with each of the matching orders. 
+			 * @param {object} viewObj User Selected Options Object
+			 * @returns {Promise <{embeds: EmbedBuilder[], iDetails: EmbedBuilder[], oDetails: EmbedBuilder[], orderMatch: object[], outcome: string, usePages: boolean}>}
+			 */
+			async function loadFilteredOrders(viewObj){
+				const finalObj = {embeds: [], iDetails: [], oDetails: [], orderMatch: [], outcome: "", usePages: false};
+
+				const matFilter = (viewObj.itemType === 'material') ? 'Material' : 'Gear';
+
+				const inverseSaleType = (viewObj.saleType === 'buy') ? "Sell" : "Buy"; 
+				const noOrdersEmbed = new EmbedBuilder()
+				.setTitle(`No Applicable ${viewObj.saleType} Orders`)
+				.setDescription(`Your search options came up empty, there are no matching ${makeCapital(viewObj.saleType)} orders for:\n**=======**\n\nItem Rarity: ${viewObj.rarity}\nItem Type: ${viewObj.itemType}\n**=======**\n\nPlease search for something else or make a ${inverseSaleType} order instead!`);
+
+				let localOrderList;
+				switch(matFilter){
+					case "Material":
+						localOrderList = await LocalMarkets.findAll({where: {sale_type: makeCapital(viewObj.saleType), item_rar: viewObj.rarity, item_type: {[Op.ne]: 'Gear'}}});
+					break;
+					case "Gear":
+						localOrderList = await LocalMarkets.findAll({where: {sale_type: makeCapital(viewObj.saleType), item_rar: viewObj.rarity, item_type: matFilter}});
+						localOrderList = localOrderList.filter(order => checkingSlot(order.item_code).toLowerCase() === viewObj.itemType);
+					break;
+				}
+
+				// NO MATCHING ORDERS FOUND
+				if (localOrderList.length === 0) {
+					finalObj.embeds.push(noOrdersEmbed);
+					finalObj.outcome = "No Orders";
+					return finalObj;
+				} else if (localOrderList.length > 100){
+					localOrderList = localOrderList.slice(0, 100);
+					finalObj.outcome = "100 Order Limit";
+				}
+
+				let pageTrack = 1;
+				for (const order of localOrderList){
+					let orderDescTmp = ``;
+					// Crafted? Timestamp/Expires?
+					if (order.item_id.length === 36){
+						// Item was crafted
+						orderDescTmp += `This item was crafted, it is one of a kind!\n`;
+					}
+					orderDescTmp += `This order will expire, <t:${Math.round(order.expires_at / 1000)}:R>`;
+
+					const embed = new EmbedBuilder()
+					.setTitle(`== ${makeCapital(viewObj.saleType)} Order **# ${pageTrack}**/**${localOrderList.length}** ==`)
+					.setDescription(orderDescTmp)
+					.addFields({
+						name: "== Item Details ==",
+						value: `Name: **${order.item_name}**\nPrice: **${order.listed_value}**c\nAmount Remaining: **${order.amount_left}**`
+					});
+					finalObj.embeds.push(embed);
+
+					if (matFilter !== "Material"){
+						const exrInfoObj = uni_displayItem({name: order.item_name, item_code: order.item_code, caste_id: order.item_caste}, "Trade-Order");
+						const exrInfoEmbed = new EmbedBuilder()
+						.setTitle(exrInfoObj.title)
+						.setDescription(exrInfoObj.description)
+						.addFields(exrInfoObj.fields);
+
+						finalObj.iDetails.push(exrInfoEmbed);
+					}
+
+					if (viewObj.saleType === 'buy'){
+						// Buy Order Embed Inspect
+						const buyInfoEmbed = new EmbedBuilder()
+						.setTitle('== Sell To Order? ==');
+						finalObj.oDetails.push(buyInfoEmbed);
+					} else {
+						// Sell Order Embed Inspect
+						const sellInfoEmbed = new EmbedBuilder()
+						.setTitle('== Buy From Order? ==');
+						finalObj.oDetails.push(sellInfoEmbed);
+					}
+					finalObj.orderMatch.push(order);
+					pageTrack++;
+				}
+
+				if (finalObj.embeds.length > 1) finalObj.usePages = true;
+
+
+				return finalObj;
+			}
 		}
 
 		if (interaction.options.getSubcommand() === 'view-global'){
 			if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction, please check back later!');
 			if (interaction.user.id !== '501177494137995264') return await interaction.reply('This command is under construction, please check back later!');
-		}
-
-		/**
-		 * This function handles checking a string interaction output through JSON.parse(), 
-		 * if this fails returns ``itemCheck`` as ``itemName`` and ``checkForID`` as ``false``
-		 * if this does not fail, returns: ``itemCheck.name`` as ``itemName`` and ``itemCheck.id`` as ``checkForID``
-		 * @param {string} itemCheck Item Name | JSON Object String ``{"name": string, "id": string}``
-		 * @returns {{itemName: string, checkForID: (string | boolean)}}
-		 */
-		function handleItemObjCheck(itemCheck){
-			// Try catch to handle invalid JSON when passed value is correct string
-			try {
-				itemCheck = JSON.parse(itemCheck);
-			} catch (e){}
-
-			let itemName, checkForID = false;
-			if (typeof itemCheck !== 'string'){
-				itemName = itemCheck.name;
-				checkForID = itemCheck.id;
-			} else itemName = itemCheck;
-
-			return {itemName, checkForID};
 		}
 
 		/**
@@ -1001,6 +1484,61 @@ module.exports = {
 			const stringActionRow = new ActionRowBuilder().addComponents(selectMenu);
 
 			return stringActionRow;
+		}
+
+		/**
+		 * This function handles all the fucking lil order baby shit stuff.
+		 * 
+		 * Im over it..
+		 * @param {object} order 
+		 * @param {object} target 
+		 * @param {number} amount 
+		 * @returns {Promise <EmbedBuilder>}
+		 */
+		async function handleOrderChange(order, target, amount){
+			if (order.sale_type === 'Buy'){
+				await updateUserCoins((order.listed_value * amount), target.entity);
+				if (order.item_type === 'Gear'){
+					await moveItem(target.id, order.target_id, order.item_id, amount);
+				} else {
+					if (order.target_type === 'town'){
+						await checkInboundTownMat(order.target_id, target.itemRef, order.item_type, amount);
+					} else {
+						// WONT WORK FOR INBOUND MATS FROM TOWN STORAGE!!!
+						await moveMaterial(target.id, order.target_id, target.itemRef, order.item_type, amount);
+					}
+				}
+
+				// Update Order Details
+				await order.decrement('amount_left', {by: amount}).then(async o => await o.save()).then(async o => {return await o.reload()});
+			} else {
+				await spendUserCoins((order.listed_value * amount), target.entity);
+				if (order.item_type === 'Gear'){
+					// HANDLE EXTRACTING CRAFTED ITEM OBJECT
+					await checkInboundItem(target.id, order.item_id, amount/*, craftedItem*/);
+				} else {
+					if (order.target_type === 'town'){
+						await checkInboundTownMat(target.id, target.itemRef, order.item_type, amount);
+					} else {
+						// WONT WORK FOR INBOUND MATS FROM TOWN STORAGE!!!
+						await checkInboundMat(target.id, target.itemRef, order.item_type, amount);
+					}
+				}
+
+				// Update Order Details
+				await order.decrement('amount_left', {by: amount}).then(async o => await o.save()).then(async o => {return await o.reload()});
+			}
+
+			if (order.amount <= 0){
+				// Order Filled!
+				console.log('ORDER FILLED AND COMPLETED!!');
+				await order.destroy();
+			}
+
+			const finalEmbed = new EmbedBuilder()
+			.setTitle('== Trade Completed!! ==');
+
+			return finalEmbed;
 		}
 
 		// if (interaction.options.getSubcommand() === 'local') {

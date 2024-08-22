@@ -3,7 +3,7 @@ const { errorForm, basicInfoForm } = require('../../chalkPresets.js');
 const { LootStore, Loadout, UniqueCrafted, OwnedPotions, ItemStrings } = require('../../dbObjects.js');
 const { checkingSlot, checkingCaste, checkingDamage, checkingDefence } = require('../Development/Export/itemStringCore.js');
 const { checkHintInspect } = require('./exported/handleHints.js');
-const { grabUser } = require('../../uniHelperFunctions.js');
+const { grabUser, handleItemObjCheck, handleLimitOnOptions } = require('../../uniHelperFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -216,7 +216,7 @@ module.exports = {
 
                 const filtered = choices.filter(choice => choice.startsWith(focusedValue));
                 await interaction.respond(
-                    filtered.map(choice => ({ name: choice, value: choice })),
+                    handleLimitOnOptions(filtered).map(choice => ({ name: choice, value: choice })),
                 );
             } else {
                 // Modded choice list, handle special display
@@ -225,7 +225,7 @@ module.exports = {
 
                 const filtered = choices.filter(choice => choice.nValue.startsWith(focusedValue));
                 await interaction.respond(
-                    filtered.map(choice => (
+                    handleLimitOnOptions(filtered).map(choice => (
                         {
                             name: (choice.strongest) ? `${choice.name} == STRONGEST == ${choice.strength}`: `${choice.name}`,
                             value: choice.passValue
@@ -242,16 +242,8 @@ module.exports = {
         const slotType = interaction.options.getString('slot');
         //const itemName = interaction.options.getString('gear') ?? "None";
         let itemCheck = interaction.options.getString('gear');
-        // Try catch to handle invalid JSON when passed value is correct string
-        try {
-            itemCheck = JSON.parse(itemCheck);
-        } catch (e){}
 
-        let itemName, checkForID = false;
-        if (typeof itemCheck !== 'string'){
-            itemName = itemCheck.name;
-            checkForID = itemCheck.id;
-        } else itemName = itemCheck;
+        let {itemName, checkForID} = handleItemObjCheck(itemCheck);
         if (itemName === 'None') return interaction.followUp('You did not select an item to equip!');
         
         let userLoad = await Loadout.findOrCreate({
