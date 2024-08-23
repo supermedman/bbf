@@ -1,10 +1,14 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
-const {UserData} = require('../../dbObjects.js');
-const lootList = require('../../events/Models/json_prefabs/lootList.json');
+const {UserData, ItemLootPool} = require('../../dbObjects.js');
+//const lootList = require('../../events/Models/json_prefabs/lootList.json');
 
-const { checkOwned } = require('../Game/exported/createGear.js');
-const {handleMaterialAdding} = require('../Game/exported/materialDropper.js');
+//const { checkOwned } = require('../Game/exported/createGear.js');
+//const {handleMaterialAdding} = require('../Game/exported/materialDropper.js');
+const { loadFullRarNameList, checkingRar, checkingSlot, uni_displayItem, checkingRarID } = require('./Export/itemStringCore.js');
+const { handleLimitOnOptions, grabUser, makeCapital, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
+const { checkInboundItem, checkInboundMat } = require('./Export/itemMoveContainer.js');
+const { grabColour } = require('../Game/exported/grabRar.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,107 +16,202 @@ module.exports = {
         .setDescription('Dev Command')
         .addSubcommand(subcommand => 
             subcommand
-                .setName('give-item')
-                .setDescription('Used to give an item')
-                .addIntegerOption(option =>
-                    option.setName('id')
-                        .setDescription('Item ID')
-                        .setRequired(true))
-                .addIntegerOption(option =>
-                    option.setName('amount')
-                        .setDescription('Item Amount'))
-                .addUserOption(option => option.setName('target').setDescription('The user')))
+            .setName('give-item')
+            .setDescription('Used to give an item')
+            .addStringOption(option => 
+                option
+                .setName('rarity')
+                .setDescription('Filter by this rarity')
+                .setAutocomplete(true)
+                .setRequired(true)
+            )
+            .addStringOption(option => 
+                option
+                .setName('slot')
+                .setDescription('Filter by this slot')
+                .setRequired(true)
+                .addChoices(
+                    {name: "Mainhand", value: "Mainhand"},
+                    {name: "Offhand", value: "Offhand"},
+                    {name: "Headslot", value: "Headslot"},
+                    {name: "Chestslot", value: "Chestslot"},
+                    {name: "Legslot", value: "Legslot"}
+                )
+            )
+            .addStringOption(option => 
+                option
+                .setName('item-name')
+                .setDescription('Name of the item to give!')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addIntegerOption(option =>
+                option
+                .setName('amount')
+                .setDescription('Item Amount')
+            )
+            .addUserOption(option => option.setName('target').setDescription('The user'))
+        )
         .addSubcommand(subcommand => 
             subcommand
-                .setName('give-mat')
-                .setDescription('Used to give a material')
-                .addStringOption(option =>
-                    option.setName('mat-type')
-                        .setDescription('The material type to give')
-                        .setRequired(true)
-                        .setAutocomplete(true))
-                .addStringOption(option =>
-                    option.setName('mat-name')
-                        .setDescription('The material to give')
-                        .setRequired(true)
-                        .setAutocomplete(true))
-                .addIntegerOption(option =>
-                    option.setName('amount')
-                        .setDescription('Material Amount'))
-                .addUserOption(option => option.setName('target').setDescription('The user'))),
+            .setName('give-mat')
+            .setDescription('Used to give a material')
+            .addStringOption(option =>
+                option
+                .setName('mat-type')
+                .setDescription('The material type to give')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addStringOption(option => 
+                option
+                .setName('rarity')
+                .setDescription('Filter by this rarity')
+                .setAutocomplete(true)
+                .setRequired(true)
+            )
+            .addStringOption(option =>
+                option
+                .setName('mat-name')
+                .setDescription('The material to give')
+                .setRequired(true)
+                .setAutocomplete(true)
+            )
+            .addIntegerOption(option =>
+                option
+                .setName('amount')
+                .setDescription('Material Amount')
+            )
+            .addUserOption(option => option.setName('target').setDescription('The user'))
+        ),
     
     async autocomplete(interaction) {
         const focusedOption = interaction.options.getFocused(true);
 
 		let choices = [];
 
-        if (focusedOption.name === 'mat-type'){
+        // CHEAT IN ITEM
+        if (interaction.options.getSubcommand() === 'give-item'){
             const focusedValue = interaction.options.getFocused(false);
-            
-            choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky", "tooly"];
-            
+
+            if (focusedOption.name === 'rarity'){
+                choices = loadFullRarNameList(10);
+            }
+
+            if (focusedOption.name === 'item-name'){
+                const rarPicked = interaction.options.getString('rarity');
+                const slotPicked = interaction.options.getString('slot');
+
+                let items = await ItemLootPool.findAll();
+
+                items = items.filter(item => checkingRar(item.item_code) === rarPicked && checkingSlot(item.item_code) === slotPicked);
+                if (items.length > 0){
+                    choices = items.map(item => item.name);
+                } else choices = ['No Matches'];
+            }
+
+
             const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
-				filtered.map(choice => ({ name: choice, value: choice })),
+				handleLimitOnOptions(filtered).map(choice => ({ name: choice, value: choice })),
 			);
         }
 
-        if (focusedOption.name === 'mat-name'){
+        // CHEAT IN MATERIAL
+        if (interaction.options.getSubcommand() === 'give-mat'){
             const focusedValue = interaction.options.getFocused(false);
 
-            const matList = require(`../../events/Models/json_prefabs/materialLists/${interaction.options.getString('mat-type')}List.json`) ?? 'None';
-            
-            if (matList !== 'NONE'){
-                for (let Material of matList){
-                    choices.push(Material.Name);
+            const {materialFiles} = interaction.client;
+
+            if (focusedOption.name === 'mat-type'){
+                for (const [key, value] of materialFiles){
+                    choices.push(key);
                 }
-            } else choices = ['NONE'];
-            
+            }
+
+            if (focusedOption.name === 'rarity'){
+                choices = loadFullRarNameList(10);
+            }
+
+            if (focusedOption.name === 'mat-name'){
+                const matTypePicked = interaction.options.getString('mat-type');
+                const rarPicked = interaction.options.getString('rarity');
+
+                const matList = require(materialFiles.get(matTypePicked));
+                const matMatch = matList.filter(mat => mat.Rarity === rarPicked);
+
+                if (matMatch.length > 0){
+                    choices = matMatch.map(mat => mat.Name);
+                } else choices = ['No Matches'];
+            }
+
+
             const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
-				filtered.map(choice => ({ name: choice, value: choice })),
+				handleLimitOnOptions(filtered).map(choice => ({ name: choice, value: choice })),
 			);
         }
-        
     },
 	async execute(interaction) { 
-        if (interaction.user.id !== '501177494137995264') return await interaction.reply('Nope!');
+        if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'Nope! Only Developers are allowed to use this!', ephemeral: true});
         
-        if (interaction.options.getSubcommand() === 'give-item'){
-            const itemID = interaction.options.getInteger('id');
-            const amount = interaction.options.getInteger('amount') ?? 1;
-            
-            const targetUser = interaction.options.getUser('target') ?? interaction.user;
+        const {materialFiles} = interaction.client;
 
-            let filterItem = lootList.filter(item => item.Loot_id === itemID);
-            
-            filterItem = filterItem[0];
-            
-            const user = await UserData.findOne({where: {userid: targetUser.id}});
-            if (!user) return await interaction.reply(`That user was not found! ${user}`);
+        const targetUser = interaction.options.getUser('target') ?? interaction.user;
+        const theUser = await grabUser(targetUser.id);
+        if (!theUser) return await interaction.reply({content: 'This user does not have a profile yet!', ephemeral: true});
 
-            const outcome = await checkOwned(user, filterItem, amount);
-            if (outcome === 'Finished') return await interaction.reply(`Item added! ${amount} ${filterItem.Name}`);
+        const subCom = interaction.options.getSubcommand();
+
+        const giveAmount = interaction.options.getInteger('amount') ?? 1;
+        const namePicked = (subCom === 'give-item') ? interaction.options.getString('item-name') : interaction.options.getString('mat-name');
+        const pickedMatType = interaction.options.getString('mat-type') ?? 'None';
+        const rarPicked = interaction.options.getString('rarity');
+
+        let itemMatch;
+        switch(subCom){
+            case "give-item":
+                itemMatch = await ItemLootPool.findOne({where: {name: namePicked}});
+            break;
+            case "give-mat":
+                const pickedMatList = require(materialFiles.get(pickedMatType));
+                itemMatch = pickedMatList.filter(mat => mat.Name === namePicked)[0];
+            break;
         }
-        
-        if (interaction.options.getSubcommand() === 'give-mat'){
-            const matType = interaction.options.getString('mat-type');
-            const matName = interaction.options.getString('mat-name');
 
-            const amount = interaction.options.getInteger('amount');
+        if (!itemMatch) return await interaction.reply({content: `Locating error! Could not find ${makeCapital(subCom.split('-')[1])} with name ${namePicked}!`, ephemeral: true});
 
-            const targetUser = interaction.options.getUser('target') ?? interaction.user;
-
-            const user = await UserData.findOne({where: {userid: targetUser.id}});
-            if (!user) return await interaction.reply(`That user was not found! ${user}`);
-
-            const matList = require(`../../events/Models/json_prefabs/materialLists/${matType}List.json`);
-            let theMat = matList.filter(mat => mat.Name === matName);
-            theMat = theMat[0];
-
-            const addedMaterial = await handleMaterialAdding(theMat, amount, user, matType);
-            if (addedMaterial.name !== theMat.Name) return await interaction.reply('Something went wrong adding that material!');
-            return await interaction.reply(`${amount} ${addedMaterial.name} added!`);
+        let finalItem;
+        switch(subCom){
+            case "give-item":
+                finalItem = await checkInboundItem(theUser.userid, itemMatch.creation_offset_id, giveAmount);
+            break;
+            case "give-mat":
+                finalItem = await checkInboundMat(theUser.userid, itemMatch, pickedMatType, giveAmount);
+            break;
         }
+
+        const finalDisplayEmbed = new EmbedBuilder()
+        .setTitle(`== ${makeCapital(subCom.split('-')[1])} Given ==`);
+
+        switch(subCom){
+            case "give-item":
+                const itemExtras = uni_displayItem(finalItem, "Single-Quest", giveAmount);
+                finalDisplayEmbed
+                .setColor(itemExtras.color)
+                .addFields(itemExtras.fields);
+            break;
+            case "give-mat":
+                const eColor = grabColour(checkingRarID(rarPicked));
+                finalDisplayEmbed
+                .setColor(eColor)
+                .addFields({
+                    name: `>>__**${finalItem.name}**__<<`,
+                    value: `Value: **${finalItem.value}**c\nRarity: **${finalItem.rarity}**\nType: **${makeCapital(pickedMatType)}**\nAmount: **${giveAmount}**`
+                });
+            break;
+        }
+
+        return await sendTimedChannelMessage(interaction, 60000, finalDisplayEmbed, "Reply");
     },
 };
