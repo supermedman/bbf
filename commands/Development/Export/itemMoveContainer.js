@@ -50,7 +50,9 @@ async function checkInboundItem(userid, itemid, amount=1, craftedI){
 
     // Item was just crafted, set item_id to unique_gen_id
     if (getTypeof(theItem) !== 'Array'){
-        await theItem.update({item_id: theItem.unique_gen_id, unique_gen_id: theItem.unique_gen_id});
+        if (itemMatch.unique_gen_id){
+            await theItem.update({item_id: itemMatch.unique_gen_id, unique_gen_id: itemMatch.unique_gen_id});
+        } else await theItem.update({item_id: theItem.unique_gen_id, unique_gen_id: theItem.unique_gen_id});
         theItem = [theItem, true];
     }
 

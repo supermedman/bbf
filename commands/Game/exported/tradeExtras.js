@@ -1,9 +1,10 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require("discord.js");
-const { spendUserCoins } = require("../../Development/Export/uni_userPayouts");
-const { checkOutboundItem, checkOutboundTownMat, checkOutboundMat } = require("../../Development/Export/itemMoveContainer");
+const { spendUserCoins, updateUserCoins } = require("../../Development/Export/uni_userPayouts");
+const { checkOutboundItem, checkOutboundTownMat, checkOutboundMat, checkInboundTownMat, moveMaterial, checkInboundMat, moveItem, checkInboundItem } = require("../../Development/Export/itemMoveContainer");
 const { LocalMarkets, Town, ItemLootPool } = require("../../../dbObjects");
-const { loadFullRarNameList, checkingRar, checkingSlot } = require("../../Development/Export/itemStringCore");
-const { makeCapital } = require("../../../uniHelperFunctions");
+const { Op } = require('sequelize');
+const { loadFullRarNameList, checkingRar, checkingSlot, uni_displayItem } = require("../../Development/Export/itemStringCore");
+const { makeCapital, grabUser, grabTown, sendTimedChannelMessage } = require("../../../uniHelperFunctions");
 
 // ==================
 //   Order Handling
@@ -17,14 +18,33 @@ const { makeCapital } = require("../../../uniHelperFunctions");
  */
 async function handleBuyOrderSetup(buyOrderObject){
     buyOrderObject.isCrafted = false;
-    await generateNewOrder(buyOrderObject);
+    const finalOrder = await generateNewOrder(buyOrderObject);
+
+    const autoOutcome = await autofillOrderController(finalOrder, buyOrderObject);
+    console.log(autoOutcome);
 
     await spendUserCoins(buyOrderObject.perUnitPrice * buyOrderObject.amount, buyOrderObject.target);
 
-    const buyOrderEmbed = new EmbedBuilder()
-    .setTitle('== Buy Order Created ==')
-    .setDescription(`Your buy order for **${buyOrderObject.amount} ${buyOrderObject.item.name}** at **${buyOrderObject.perUnitPrice}**c was successfully added!`);
+    const buyOrderEmbed = new EmbedBuilder();
 
+    let dynDesc = `Your buy order for **${buyOrderObject.amount} ${buyOrderObject.item.name ?? buyOrderObject.item.Name}** at **${buyOrderObject.perUnitPrice}**c was successfully added!`;
+
+    if (['No Local Sell Orders', 'No Local Orders Passed Filtering'].includes(autoOutcome)){
+        buyOrderEmbed
+        .setTitle('== Buy Order Created ==')
+        .setDescription(dynDesc);
+    } else if (autoOutcome === 'Order Removed') {
+        dynDesc += `\nThis order has been automatically filled by existing sell orders and you have recieved all items!!`;
+        buyOrderEmbed
+        .setTitle('== Buy Order Created & Completed ==')
+        .setDescription(dynDesc);
+    } else {
+        dynDesc += `\nThis order has been partially filled by existing sell orders, you have recieved **${buyOrderObject.amount - autoOutcome.amount_left}** of the requested **${buyOrderObject.amount} ${buyOrderObject.item.name ?? buyOrderObject.item.Name}**. These items have been automatically added to the proper inventory!`;
+        buyOrderEmbed
+        .setTitle('== Buy Order Partially Filled ==')
+        .setDescription(dynDesc);
+    }
+    
     return buyOrderEmbed;
 }
 
@@ -38,6 +58,9 @@ async function handleSellOrderSetup(sellOrderObject){
     // const orderObj = await generateNewOrder(sellOrderObject);
     const finalOrder = await generateNewOrder(sellOrderObject);
     console.log('Final Sell Order Value Per Unit: %d', finalOrder.dataValues.listed_value);
+
+    const autoOutcome = await autofillOrderController(finalOrder, sellOrderObject);
+    console.log(autoOutcome);
 
     // Handle item transfers
     switch(sellOrderObject.itemType){
@@ -55,10 +78,25 @@ async function handleSellOrderSetup(sellOrderObject){
 
     // Handle matching buy orders?
 
-    // Handle display embed
-    const sellOrderEmbed = new EmbedBuilder()
-    .setTitle('== Sell Order Created ==')
-    .setDescription(`Your sell order for **${sellOrderObject.amount}** **${sellOrderObject.item.name}** at **${sellOrderObject.perUnitPrice}**c was successfully added!`);
+    const sellOrderEmbed = new EmbedBuilder();
+
+    let dynDesc = `Your sell order for **${sellOrderObject.amount}** **${sellOrderObject.item.name ?? sellOrderObject.item.Name}** at **${sellOrderObject.perUnitPrice}**c was successfully added!`;
+
+    if (['No Local Buy Orders', 'No Local Orders Passed Filtering'].includes(autoOutcome)){
+        sellOrderEmbed
+        .setTitle('== Sell Order Created ==')
+        .setDescription(dynDesc);
+    } else if (autoOutcome === 'Order Removed') {
+        dynDesc += `\nThis order has been automatically filled by existing buy orders and you have recieved all coins!!`;
+        sellOrderEmbed
+        .setTitle('== Sell Order Created & Completed ==')
+        .setDescription(dynDesc);
+    } else {
+        dynDesc += `\nThis order has been partially filled by existing buy orders, you have sold **${sellOrderObject.amount - autoOutcome.amount_left}** of the posted **${sellOrderObject.amount} ${sellOrderObject.item.name ?? sellOrderObject.item.Name}**. The value gained from these sales has been automatically added to your coins!`;
+        sellOrderEmbed
+        .setTitle('== Sell Order Partially Filled ==')
+        .setDescription(dynDesc);
+    }
 
     return sellOrderEmbed;
 }
@@ -102,6 +140,517 @@ async function updateOrderExpireTime(order){
     const expires = lastUpdate.setDate(lastUpdate.getDate() + 25);
     await order.update({expires_at: expires}).then(async o => await o.save()).then(async o => {return await o.reload()});
     return;
+}
+
+/**
+ * This function handles all the fucking lil order transfer baby shit stuff.
+ * 
+ * Im over it.. it works as intended :)
+ * @param {object} order LocalMarket DB Instance Object
+ * @param {object} target Extra Details Object ``{id: string, entity: object, type: string, itemRef: object}``
+ * @param {number} amount Amount of items being moved
+ * @returns {Promise <EmbedBuilder>}
+ */
+async function handleOrderTransfer(order, target, amount){
+    let orderDesc = "Outcome of your transaction:";
+    if (order.sale_type === 'Buy'){
+        await updateUserCoins((order.listed_value * amount), target.entity);
+        if (order.item_type === 'Gear'){
+            await moveItem(target.id, order.target_id, order.item_id, amount);
+        } else {
+            if (order.target_type === 'town'){
+                await checkInboundTownMat(order.target_id, target.itemRef, order.item_type, amount);
+            } else {
+                if (order.target_type === 'user' && target.type === 'user'){ // WONT WORK FOR INBOUND MATS FROM TOWN STORAGE!!!
+                    await moveMaterial(target.id, order.target_id, target.itemRef, order.item_type, amount);
+                } else { // Catches from town to user mat transfer case!
+                    await checkInboundMat(order.target_id, target.itemRef, order.item_type, amount);
+                    await checkOutboundTownMat(target.id, target.itemRef, order.item_type, amount);
+                }
+            }
+        }
+        orderDesc += `\nCoins Gained: ${order.listed_value * amount}c\nSold: ${amount} ${target.itemRef.name}`;
+    } else {
+        await spendUserCoins((order.listed_value * amount), target.entity);
+        if (order.item_type === 'Gear'){
+            if (!target.itemRef.unique_gen_id){
+                await checkInboundItem(target.id, order.item_id, amount/*, craftedItem*/);
+            } else await checkInboundItem(target.id, order.item_id, amount, target.itemRef); // HANDLE EXTRACTING CRAFTED ITEM OBJECT
+        } else {
+            if (order.target_type === 'town'){
+                await checkInboundTownMat(target.id, target.itemRef, order.item_type, amount);
+            } else {
+                if (target.type === 'user'){ // WONT WORK FOR INBOUND TOWN STORAGE MATS!!!
+                    await checkInboundMat(target.id, target.itemRef, order.item_type, amount);
+                } else { // Catches to town mat transfer case!
+                    await checkInboundTownMat(target.id, target.itemRef, order.item_type, amount);
+                }
+            }
+        }
+        orderDesc += `\nCoins Spent: ${order.listed_value * amount}c\nItems Gained: ${amount} ${target.itemRef.name}`;
+    }
+
+    // Update Order Details
+    await order.decrement('amount_left', {by: amount}).then(async o => await o.save()).then(async o => {return await o.reload()});
+
+    if (order.amount <= 0){
+        // Order Filled!
+        console.log('ORDER FILLED AND COMPLETED!!');
+        await order.destroy();
+    }
+
+    const finalEmbed = new EmbedBuilder()
+    .setTitle('== Trade Completed!! ==')
+    .setDescription(orderDesc);
+
+    return finalEmbed;
+}
+
+//   ~~==================~~
+//  Background Order Filling
+//   ~~==================~~
+
+/**
+ *  const buyOrderObject = {
+        interRef: interaction,
+        perUnitPrice: trackingObj.price,
+        orderType: 'Buy',
+        targetType: trackingObj.tradingAs,
+        targetID: (trackingObj.tradingAs === 'town') ? trackingObj.tradeEntity.townid : trackingObj.tradeEntity.userid,
+        target: trackingObj.tradeEntity,
+        rarity: trackingObj.rarity,
+        itemType: (trackingObj.itemType === 'material') ? trackingObj.matType : "Gear",
+        itemID: (trackingObj.itemType === 'material') ? trackingObj.itemRef.Mat_id : trackingObj.itemRef.item_id,
+        item: trackingObj.itemRef,
+        amount: trackingObj.amount
+    };
+
+    const sellOrderObject = {
+        interRef: interaction,
+        perUnitPrice: listedValue,
+        orderType: 'Sell',
+        targetType: tradeAs,
+        targetID: (tradeAs === 'town') ? theTown.townid : user.userid,
+        target: (tradeAs === 'town') ? theTown : user,
+        rarity: (itemType === 'Material') ? theItem.rarity : checkingRar(theItem.item_code),
+        itemType: (itemType === 'Material') ? theItem.mattype : "Gear",
+        itemID: (itemType === 'Material') ? theItem.mat_id : theItem.item_id,
+        item: theItem,
+        isCrafted: craftedItemStore,
+        amount: moveAmount
+    };
+ */
+
+/**
+ * This function handles all AutoFilling filters and calculations for the given order object, 
+ * 
+ * it will refund any coins as needed, as well as payout any existing orders that are filled in the process.
+ * @param {object} order LocalMarkets Instance Object created using ``infoObj`` data
+ * @param {object} infoObj Buy/Sell Order Object used for order creation and handles
+ * @returns {Promise <void>}
+ */
+async function autofillOrderController(order, infoObj){
+    // IF NEW ORDER IS BUY ORDER
+    // Sell order Vals to check 
+    // ~===~              ~===~
+
+    // == BASIC FILTERS ==
+    // !! guildid !!
+    // item_type: Gear | Material
+    // - Gear: Exclude Crafted Gear orders, Exclude ``target_type: town`` orders
+    // - Mats: Filter by item_type
+    // item_rarity, item_id
+
+    // == ADV. FILTERS ==
+    // newOrder.listed_value >= foundOrder.listed_value === MATCH
+    // - Sort value lowest to highest
+    // - Fill orders after sorting until:
+    //   1. newOrder.amount_left === 0
+    //   2. foundOrderList.length === 0
+
+
+    // IF NEW ORDER IS SELL ORDER
+    // Buy order Vals to check 
+    // ~===~             ~===~
+
+    // == BASIC FILTERS ==
+    // !! guildid !!
+    // item_type: Gear | Material
+    // - Gear: Exclude Crafted Gear orders, Exclude ``target_type: town`` orders
+    // - Mats: Filter by item_type
+    // item_rarity, item_id
+
+    // == ADV. FILTERS ==
+    // newOrder.listed_value <= foundOrder.listed_value === MATCH
+    // - Sort value highest to lowest
+    // - Fill orders after sorting until:
+    //   1. newOrder.amount_left === 0
+    //   2. foundOrderList.length === 0
+
+
+    // Shared Order Filters
+    // ~===~          ~===~
+
+    // == BASIC FILTERS ==
+    // !! guildid !!
+    // !! sale_type !!
+    // item_type: Gear | Material
+    // - Gear: Exclude Crafted Gear orders, Exclude ``target_type: town`` orders
+    // - Mats: Filter by item_type
+    // item_rarity, item_id
+
+    // == ADV. FILTERS ==
+    // newOrder.listed_value <= foundOrder.listed_value === MATCH
+    // - Fill orders after sorting until:
+    //   1. newOrder.amount_left === 0
+    //   2. foundOrderList.length === 0
+
+
+    // Differed Order Filters
+    // ~===~            ~===~
+
+    // == ADV. FILTERS ==
+    // - Sort BUY ORDER value highest to lowest
+    // - Sort SELL ORDER value lowest to highest
+
+    const inverseSaleType = (infoObj.orderType === 'Buy') ? "Sell" : "Buy"; 
+    // Could also use ``{guildid: infoObj.interRef.guild.id}`` here.
+    let localOrderFilterList = await LocalMarkets.findAll({where: {guildid: order.guildid, sale_type: inverseSaleType}});
+    if (localOrderFilterList.length === 0) return `No Local ${inverseSaleType} Orders`;
+
+    const sellPriceFilter = (checkVal) => checkVal >= order.listed_value;
+    const buyPriceFilter = (checkVal) => checkVal <= order.listed_value;
+
+    const usePriceFilter = (infoObj.orderType === 'Buy') ? buyPriceFilter : sellPriceFilter;
+
+    if (infoObj.itemType !== 'Gear'){
+        // Filter for Materials
+        localOrderFilterList = localOrderFilterList.filter(o => o.item_type === order.item_type && o.rarity === order.rarity && o.item_id === order.item_id && usePriceFilter(o.listed_value));
+    } else {
+        localOrderFilterList = localOrderFilterList.filter(o => o.item_type === 'Gear' && o.rarity === order.rarity && o.item_id === order.item_id && usePriceFilter(o.listed_value));
+    }
+
+    if (localOrderFilterList.length === 0) return `No Local Orders Passed Filtering`;
+
+    // Sell to the highest
+    const sellSortBy = (a, b) => b.listed_value - a.listed_value;
+    // Buy from the lowest
+    const buySortBy = (a, b) => a.listed_value - b.listed_value;
+
+    const useSortBy = (infoObj.orderType === 'Buy') ? buySortBy : sellSortBy;
+
+    localOrderFilterList.sort(useSortBy);
+
+    const oFillingObj = {
+        baseNumLeft: order.amount_left,
+        coins: {
+            gain: 0,
+            loss: 0,
+            net: 0
+        },
+        items: {
+            gain: 0,
+            loss: 0
+        },
+        lastOrder: {
+            oRef: "",
+            numLeft: 0,
+            numMoved: 0
+        },
+        filledOrders: []
+    };
+
+    for (const o of localOrderFilterList){
+        const afterFillRemain = oFillingObj.baseNumLeft - o.amount_left;
+        const numDiff = Math.sign(afterFillRemain);
+
+        let loopAction = "Continue";
+        switch(numDiff.toString()){
+            case "1":
+                // Order Remains, comp order filled: CONTINUE
+                oFillingObj.baseNumLeft = afterFillRemain;
+                oFillingObj.filledOrders.push(o);
+                loopAction = "Continue";
+            break;
+            case "-1":
+                // Order Exhausted, comp order remains: BREAK
+                oFillingObj.lastOrder.oRef = o;
+                oFillingObj.lastOrder.numLeft = Math.abs(afterFillRemain);
+                oFillingObj.lastOrder.numMoved = o.amount_left - Math.abs(afterFillRemain);
+
+                oFillingObj.baseNumLeft = 0;
+                loopAction = "Break";
+            break;
+            case "0":
+                // Exact Fill, both orders completed: BREAK
+                oFillingObj.lastOrder.oRef = o;
+                oFillingObj.lastOrder.numLeft = Math.abs(afterFillRemain);
+
+                oFillingObj.baseNumLeft = 0;
+                loopAction = "Break";
+            break;
+        }
+        if (loopAction === 'Break') break;
+        if (loopAction === 'Continue') continue;
+    }
+
+    if (oFillingObj.baseNumLeft > 0){
+        // Order not completely filled!!
+    }
+
+    // All filled order payouts
+    if (oFillingObj.filledOrders.length > 0){
+        // Total up items/coins current order is paid out with.
+        // if ``order`` is buy order: items.gain++, coins.loss++
+        // if ``order`` is sell order: items.loss++, coins.gain++
+        for (const o of oFillingObj.filledOrders){
+            switch(infoObj.orderType){
+                case "Buy":
+                    oFillingObj.coins.loss += o.listed_value * o.amount_left;
+                    oFillingObj.items.gain += o.amount_left;
+                break;
+                case "Sell":
+                    oFillingObj.coins.gain += o.listed_value * o.amount_left;
+                    oFillingObj.items.loss += o.amount_left;
+                break;
+            }
+        }
+    }
+
+    // Last order compared against payouts
+    if (oFillingObj.lastOrder.oRef !== ""){
+        const o = oFillingObj.lastOrder.oRef;
+        const lastNumMoved = oFillingObj.lastOrder.numMoved;
+        switch(infoObj.orderType){
+            case "Buy":
+                oFillingObj.coins.loss += o.listed_value * lastNumMoved;
+                oFillingObj.items.gain += lastNumMoved;
+            break;
+            case "Sell":
+                oFillingObj.coins.gain += o.listed_value * lastNumMoved;
+                oFillingObj.items.loss += lastNumMoved;
+            break;
+        }
+    }
+
+    // Base Expected Coin Transfer of Order
+    const staticBaseCoinRate = order.listed_value * (order.amount_left - oFillingObj.baseNumLeft);
+    let actualCoinRate;
+    if (infoObj.orderType === 'Sell'){
+        actualCoinRate = oFillingObj.coins.gain;
+    } else {
+        actualCoinRate = oFillingObj.coins.loss;
+    }
+
+    const coinRateDiff = staticBaseCoinRate - actualCoinRate;
+    console.log(`${infoObj.orderType} Order, Difference in Coin Rate after order fills: %d`, coinRateDiff);
+    oFillingObj.coins.net = staticBaseCoinRate - coinRateDiff;
+    // coins.net === ``-num: SellOrder`` Made money, ``+num: BuyOrder`` Saved money
+
+    // Handle Order Item Payouts
+    if (oFillingObj.filledOrders.length > 0){
+        for (const o of oFillingObj.filledOrders){
+            await handleAutoFilledOrder(o, o.amount_left, infoObj.item);
+        }
+    }
+
+    // Handle Final Order checked
+    if (oFillingObj.lastOrder.oRef !== "") await handleAutoFilledOrder(oFillingObj.lastOrder.oRef, oFillingObj.lastOrder.numMoved, infoObj.item);
+
+    const baseOutcome = await handleBaseAutoFilledOrder(order, infoObj.item, oFillingObj, infoObj);
+
+    return baseOutcome;
+}
+
+/**
+ * This function handles the initial order passed through the AutoFill process, paying out the applicable items
+ * as well as refunding any unspent coins from buying cheaper items.
+ * @param {object} order LocalMarkets DB Entry Object
+ * @param {object} itemRef Reference to item object being transfered
+ * @param {object} fillObj Tracking object containing processed amounts
+ * @param {object} infoObj Info Object passed for interaction acess
+ * @returns {Promise <void>}
+ */
+async function handleBaseAutoFilledOrder(order, itemRef, fillObj, infoObj){
+    const targetEntity = (order.target_type === 'user') ? await grabUser(order.target_id) : await grabTown(order.target_id);
+
+    switch(order.sale_type){
+        case "Buy":
+            switch(order.item_type){
+                case "Gear":
+                    await checkInboundItem(order.target_id, order.item_id, fillObj.items.gain);
+                break;
+                default:
+                    // Material
+                    switch(order.target_type){
+                        case "user":
+                            await checkInboundMat(order.target_id, itemRef, order.item_type, fillObj.items.gain);
+                        break;
+                        case "town":
+                            await checkInboundTownMat(order.target_id, itemRef, order.item_type, fillObj.items.gain);
+                        break;
+                    }
+                break;
+            }
+            if (fillObj.coins.net < order.listed_value * fillObj.items.gain){
+                // Refund Needed
+                const refundAmount = (order.listed_value * fillObj.items.gain) - fillObj.coins.net;
+                const refundEmbed = new EmbedBuilder()
+                .setTitle('== Coins Refunded ==')
+                .setDescription(`Your order was refunded **${refundAmount}**c as you bought **${fillObj.items.gain} ${order.item_name}** at a price lower than your asking price of **${order.listed_value}**c!!`);
+
+                await sendTimedChannelMessage(infoObj.interRef, 60000, refundEmbed);
+
+                await updateUserCoins(refundAmount, targetEntity);
+            }
+        break;
+        case "Sell":
+            await updateUserCoins(fillObj.coins.net, targetEntity);
+        break;
+    }
+
+    let orderRemoved = false;
+    await order.decrement('amount_left', {by: fillObj.items.gain}).then(async o => await o.save()).then(async o => {return await o.reload()});
+    if (order.amount_left <= 0) {
+        console.log('BASE ORDER FILLED ON CREATION!!');
+        orderRemoved = true;
+        await order.destroy();
+    } else await updateOrderExpireTime(order);
+
+    return (orderRemoved) ? 'Order Removed': order;
+}
+
+/**
+ * This function handles ``Payouts`` for the ``order`` object given. 
+ * @param {object} order LocalMarkets DB Entry Object
+ * @param {number} amount Amount of items moved
+ * @param {object} itemRef Reference to item object being transfered
+ * @returns {Promise<void>}
+ */
+async function handleAutoFilledOrder(order, amount, itemRef){
+    const targetEntity = (order.target_type === 'user') ? await grabUser(order.target_id) : await grabTown(order.target_id);
+
+    switch(order.sale_type){
+        case "Buy":
+            switch(order.item_type){
+                case "Gear":
+                    await checkInboundItem(order.target_id, order.item_id, amount);
+                break;
+                default:
+                    switch(order.target_type){
+                        case "user":
+                            await checkInboundMat(order.target_id, itemRef, order.item_type, amount);
+                        break;
+                        case "town":
+                            await checkInboundTownMat(order.target_id, itemRef, order.item_type, amount);
+                        break;
+                    }
+                break;
+            }
+        break;
+        case "Sell":
+            await updateUserCoins(order.listed_value * amount, targetEntity);
+        break;
+    }
+
+    await order.decrement('amount_left', {by: amount}).then(async o => await o.save()).then(async o => {return await o.reload()});
+    if (order.amount_left <= 0) {
+        console.log('EXISTING ORDER FILLED DURING AUTO FILL');
+        await order.destroy();
+    } else await updateOrderExpireTime(order);
+    return;
+}
+
+
+// ==================
+//  Order Displaying
+// ==================
+
+/**
+ * This function filters the existing local-orders given the filter options picked by the user.
+ * It then creates an embed page array with each of the matching orders. 
+ * @param {object} viewObj User Selected Options Object
+ * @returns {Promise <{embeds: EmbedBuilder[], iDetails: EmbedBuilder[], oDetails: EmbedBuilder[], orderMatch: object[], outcome: string, usePages: boolean}>}
+ */
+async function loadFilteredOrders(viewObj){
+    const finalObj = {embeds: [], iDetails: [], oDetails: [], orderMatch: [], outcome: "", usePages: false};
+
+    const matFilter = (viewObj.itemType === 'material') ? 'Material' : 'Gear';
+
+    const inverseSaleType = (viewObj.saleType === 'buy') ? "Sell" : "Buy"; 
+    const noOrdersEmbed = new EmbedBuilder()
+    .setTitle(`No Applicable ${viewObj.saleType} Orders`)
+    .setDescription(`Your search options came up empty, there are no matching ${makeCapital(viewObj.saleType)} orders for:\n**=======**\n\nItem Rarity: ${viewObj.rarity}\nItem Type: ${viewObj.itemType}\n**=======**\n\nPlease search for something else or make a ${inverseSaleType} order instead!`);
+
+    let localOrderList;
+    switch(matFilter){
+        case "Material":
+            localOrderList = await LocalMarkets.findAll({where: {sale_type: makeCapital(viewObj.saleType), item_rar: viewObj.rarity, item_type: {[Op.ne]: 'Gear'}}});
+        break;
+        case "Gear":
+            localOrderList = await LocalMarkets.findAll({where: {sale_type: makeCapital(viewObj.saleType), item_rar: viewObj.rarity, item_type: matFilter}});
+            localOrderList = localOrderList.filter(order => checkingSlot(order.item_code).toLowerCase() === viewObj.itemType);
+        break;
+    }
+
+    // NO MATCHING ORDERS FOUND
+    if (localOrderList.length === 0) {
+        finalObj.embeds.push(noOrdersEmbed);
+        finalObj.outcome = "No Orders";
+        return finalObj;
+    } else if (localOrderList.length > 100){
+        localOrderList = localOrderList.slice(0, 100);
+        finalObj.outcome = "100 Order Limit";
+    }
+
+    let pageTrack = 1;
+    for (const order of localOrderList){
+        let orderDescTmp = ``;
+        // Crafted? Timestamp/Expires?
+        if (order.item_id.length === 36){
+            // Item was crafted
+            orderDescTmp += `This item was crafted, it is one of a kind!\n`;
+        }
+        orderDescTmp += `This order will expire, <t:${Math.round(order.expires_at / 1000)}:R>`;
+
+        const embed = new EmbedBuilder()
+        .setTitle(`== ${makeCapital(viewObj.saleType)} Order **# ${pageTrack}**/**${localOrderList.length}** ==`)
+        .setDescription(orderDescTmp)
+        .addFields({
+            name: "== Item Details ==",
+            value: `Name: **${order.item_name}**\nPrice: **${order.listed_value}**c\nAmount Remaining: **${order.amount_left}**`
+        });
+        finalObj.embeds.push(embed);
+
+        if (matFilter !== "Material"){
+            const exrInfoObj = uni_displayItem({name: order.item_name, item_code: order.item_code, caste_id: order.item_caste}, "Trade-Order");
+            const exrInfoEmbed = new EmbedBuilder()
+            .setTitle(exrInfoObj.title)
+            .setDescription(exrInfoObj.description)
+            .addFields(exrInfoObj.fields);
+
+            finalObj.iDetails.push(exrInfoEmbed);
+        }
+
+        if (viewObj.saleType === 'buy'){
+            // Buy Order Embed Inspect
+            const buyInfoEmbed = new EmbedBuilder()
+            .setTitle('== Sell To Order? ==');
+            finalObj.oDetails.push(buyInfoEmbed);
+        } else {
+            // Sell Order Embed Inspect
+            const sellInfoEmbed = new EmbedBuilder()
+            .setTitle('== Buy From Order? ==');
+            finalObj.oDetails.push(sellInfoEmbed);
+        }
+        finalObj.orderMatch.push(order);
+        pageTrack++;
+    }
+
+    if (finalObj.embeds.length > 1) finalObj.usePages = true;
+
+
+    return finalObj;
 }
 
 // =================
@@ -388,7 +937,7 @@ function handleMatNameLoad(tradeObj, materialFiles){
         let matMatch = matFileRef.filter(mat => mat.Rarity === tradeObj.rarity);
         if (matMatch.length === 0) continue;
         matMatch = matMatch[0];
-        matchList.push({type: key, name: matMatch.Name, matRef: matMatch});
+        matchList.push({type: key, name: matMatch.Name, value: matMatch.Value, matRef: matMatch});
     }
 
     return matchList;
@@ -404,7 +953,7 @@ function handleMatNameFilter(matName, materialFiles){
         const matFileRef = require(value);
         let matMatch = matFileRef.filter(mat => mat.Name === matName);
         if (matMatch.length === 0) continue;
-        else return matMatch[0];
+        else return {matRef: matMatch[0], matType: key};
     }
 }
 
@@ -707,10 +1256,102 @@ function createBasicPageButtons(){
     return pageButts;
 }
 
+/**
+ * This function handles loading the needed button components for the order page menu.
+ * @param {object} orderOutcome Outcome of loading the order list pages
+ * @returns {[ActionRowBuilder[ButtonBuilder]]}
+ */
+function handleOrderListDisplay(orderOutcome){
+    const finalButtRow = [];
+
+    const inspectButt = new ButtonBuilder()
+    .setCustomId('item-inspect')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('Item Details');
+
+    const orderInteractButt = new ButtonBuilder()
+    .setCustomId('order-inspect')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('Order Details');
+
+    let pageingButts = (orderOutcome.usePages) ? createBasicPageButtons() : [];
+
+    // Handle adding extra buttons to page change row
+    if (pageingButts.length > 0){
+        const catchSliceButt = pageingButts.splice(1, 1, inspectButt, orderInteractButt);
+        pageingButts.push(catchSliceButt[0]);
+        const pageButtRow = new ActionRowBuilder().addComponents(pageingButts);
+        finalButtRow.push(pageButtRow);
+    } else finalButtRow.push(new ActionRowBuilder().addComponents(inspectButt, orderInteractButt));
+
+    finalButtRow.push(loadBasicBackButt('nav'));
+
+
+    const compsToUse = finalButtRow;
+    
+    return compsToUse;
+}
+
+/**
+ * This function loads the applicable buy/sell menu amount move buttons.
+ * @param {string} saleType buy | sell
+ * @returns {[ActionRowBuilder, ActionRowBuilder]}
+ */
+function handleOrderInspectButts(saleType){
+    const finalButtRow = [];
+
+    // Buy Order View
+    // ==============
+    // Check for owned amounts
+    // Other handling methods?
+
+    // Sell Order View
+    // ===============
+    // Move to amount menu
+    // Amount menu ==> Checkout menu 
+
+    const primeInterButt = new ButtonBuilder();
+
+    const secInterButt = new ButtonBuilder();
+
+    switch(saleType){
+        case "buy":
+            primeInterButt
+            .setCustomId('sell-menu')
+            .setStyle(ButtonStyle.Primary)
+            .setLabel('Amount Menu');
+            secInterButt
+            .setCustomId('secondary')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(true)
+            .setLabel('Action');
+        break;
+        case "sell":
+            primeInterButt
+            .setCustomId('buy-menu')
+            .setStyle(ButtonStyle.Primary)
+            .setLabel('Amount Menu');
+            secInterButt
+            .setCustomId('secondary')
+            .setStyle(ButtonStyle.Secondary)
+            .setDisabled(true)
+            .setLabel('Action');
+        break;
+    }
+
+    finalButtRow.push(new ActionRowBuilder().addComponents(primeInterButt, secInterButt));
+
+    finalButtRow.push(loadBasicBackButt('flip'));
+
+    return finalButtRow;
+}
+
 
 module.exports = {
     handleBuyOrderSetup,
     handleSellOrderSetup,
+    handleOrderTransfer,
+    loadFilteredOrders,
     loadAsButts,
     loadSaleButts,
     loadTypeButts,
@@ -723,5 +1364,7 @@ module.exports = {
     loadPriceButts,
     handlePriceButtPicked,
     loadBasicBackButt,
-    createBasicPageButtons
+    createBasicPageButtons,
+    handleOrderListDisplay,
+    handleOrderInspectButts
 }

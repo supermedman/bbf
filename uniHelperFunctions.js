@@ -1,6 +1,6 @@
 const {chalk, chlkPreset} = require('./chalkPresets');
 const {ComponentType} = require('discord.js');
-const { UserData, Pigmy } = require('./dbObjects');
+const { UserData, Pigmy, Town } = require('./dbObjects');
 
 /**
  * This method randomly returns an element from a given array, if the array has a
@@ -110,6 +110,15 @@ const endTimer = (startTime, measureName) => {
  */
 async function grabUser(id){
     return await UserData.findOne({where: {userid: id}});
+}
+
+/**
+ * This function retrieves and returns the Town entry for the given id.
+ * @param {string} id Town ID
+ * @returns {Promise <object>}
+ */
+async function grabTown(id){
+    return await Town.findOne({where: {townid: id}});
 }
 
 /**
@@ -402,6 +411,7 @@ module.exports = {
     endTimer,
     objectEntries,
     grabUser,
+    grabTown,
     grabActivePigmy,
     handleItemObjCheck,
     handleLimitOnOptions,
