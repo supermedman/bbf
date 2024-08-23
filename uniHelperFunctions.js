@@ -1,6 +1,6 @@
 const {chalk, chlkPreset} = require('./chalkPresets');
 const {ComponentType} = require('discord.js');
-const { UserData, Pigmy } = require('./dbObjects');
+const { UserData, Pigmy, Town } = require('./dbObjects');
 
 /**
  * This method randomly returns an element from a given array, if the array has a
@@ -113,12 +113,59 @@ async function grabUser(id){
 }
 
 /**
+ * This function retrieves and returns the Town entry for the given id.
+ * @param {string} id Town ID
+ * @returns {Promise <object>}
+ */
+async function grabTown(id){
+    return await Town.findOne({where: {townid: id}});
+}
+
+/**
  * This function retrieves and returns the Pigmy Entry for the give User id.
  * @param {string} id User ID
  * @returns {promise <object>} ```(object | undefined)```
  */
 async function grabActivePigmy(id){
     return await Pigmy.findOne({where: {spec_id: id}});
+}
+
+/**
+ * This function handles checking a string interaction output through JSON.parse(), 
+ * if this fails returns ``itemCheck`` as ``itemName`` and ``checkForID`` as ``false``
+ * if this does not fail, returns: ``itemCheck.name`` as ``itemName`` and ``itemCheck.id`` as ``checkForID``
+ * @param {string} itemCheck Item Name | JSON Object String ``{"name": string, "id": string}``
+ * @returns {{itemName: string, checkForID: (string | boolean)}}
+ */
+function handleItemObjCheck(itemCheck){
+    // Try catch to handle invalid JSON when passed value is correct string
+    try {
+        itemCheck = JSON.parse(itemCheck);
+    } catch (e){}
+
+    let itemName, checkForID = false;
+    if (typeof itemCheck !== 'string'){
+        itemName = itemCheck.name;
+        checkForID = itemCheck.id;
+    } else itemName = itemCheck;
+
+    return {itemName, checkForID};
+}
+
+/**
+ * This function handles reducing the amount of options to below 26,
+ * this avoids the display limit of over 25.
+ * @param {object[]} options List of options to provide to an autocomplete interaction
+ * @returns {object[]}
+ */
+function handleLimitOnOptions(options){
+    let optionsList = [];
+    if (options.length > 25){
+        console.log('Too many Choices!!');
+        optionsList = options.slice(0,25);
+    } else optionsList = options;
+
+    return optionsList;
 }
 
 /**
@@ -222,13 +269,16 @@ async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
  * This function creates and stores a sent message as an anchor, which it then uses
  * to attach a messageComponentCollector for use with Discords interactive components.
  * Component Type is specified by ``compType`` which if left empty defaults to Button.
+ * 
+ * ``sCollector`` Will be undefined unless ``compType`` is ``"Both"``, 
+ * ``sCollector`` can collect only ``StringSelect`` components
  * @param {object} interaction Discord Interaction Object
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {any} contents  One of many types, handled internally
  * @param {string} replyType One of: "FollowUp", "Reply", undefined
- * @param {string} compType One of: "Button", "String", undefined
+ * @param {string} compType One of: "Button", "String", "Both", undefined
  * @param {string} filterID One of: user.id, undefined
- * @returns {Promise<{anchorMsg: object, collector: object}>}
+ * @returns {Promise<{anchorMsg: object, collector: object, sCollector: (object | undefined)}>}
  */
 async function createInteractiveChannelMessage(interaction, timeLimit, contents, replyType, compType, filterID){
     const replyObject = handleContentType(contents);
@@ -244,11 +294,53 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
             anchorMsg = await interaction.channel.send(replyObject);
         break;
     }
-    
-    const collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
 
-    return {anchorMsg, collector};
+    let collector, sCollector;
+    if (compType === 'Both'){
+        const collectorPair = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
+        collector = collectorPair[0];
+        sCollector = collectorPair[1];
+    } else collector = createComponentCollector(interaction, timeLimit, anchorMsg, compType, filterID);
+
+    return {anchorMsg, collector, sCollector};
 }
+
+/** STANDARD BUTTON/STRING COLLECTER SETTUP
+ * 
+ * const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, replyObj, "FollowUp", "Both");
+
+    // ~~~~~~~~~~~~~~~~~~~~~
+    // STRING COLLECTOR
+    sCollector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+
+        }).catch(e => console.error(e));
+    });
+    // ~~~~~~~~~~~~~~~~~~~~~
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+
+        }).catch(e => console.error(e));
+    });
+    // =====================
+
+    // ~~~~~~~~~~~~~~~~~~~~~
+    // STRING COLLECTOR
+    sCollector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+    });
+    // ~~~~~~~~~~~~~~~~~~~~~
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+    });
+    // =====================
+ */
 
 /**
  * This function attatches a component collector to the provided anchorMsg object,
@@ -257,7 +349,7 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
  * @param {object} interaction Discord Interaction Object
  * @param {number} timeLimit Amount in ms to be used with setTimeout()
  * @param {object} anchorMsg Discord message object used as an anchor
- * @param {string} compType One of: "Button", "String", undefined
+ * @param {string} compType One of: "Button", "String", "Both", undefined
  * @param {string} filterID One of: user.id, undefined
  * @returns {object}
  */
@@ -273,16 +365,29 @@ function createComponentCollector(interaction, timeLimit, anchorMsg, compType, f
         case "String":
             theType = ComponentType.StringSelect;
         break;
+        case "Both":
+            theType = [ComponentType.Button, ComponentType.StringSelect];
+        break;
         default:
             theType = ComponentType.Button;
         break;
     }
 
     const collector = anchorMsg.createMessageComponentCollector({
-        componentType: theType,
+        componentType: (compType !== "Both") ? theType : theType[0],
         filter,
         time: timeLimit
     });
+
+    if (compType === "Both"){
+        const sCollector = anchorMsg.createMessageComponentCollector({
+            componentType: theType[1],
+            filter,
+            time: timeLimit
+        });
+
+        return [collector, sCollector];
+    }
 
     return collector;
 }
@@ -306,7 +411,10 @@ module.exports = {
     endTimer,
     objectEntries,
     grabUser,
+    grabTown,
     grabActivePigmy,
+    handleItemObjCheck,
+    handleLimitOnOptions,
     getTypeof,
     sendTimedChannelMessage,
     editTimedChannelMessage,

@@ -241,6 +241,24 @@ function checkingRarID(rarity){
 }
 
 /**
+ * This function loads all existing Rarity names into an array.
+ * The array does not include r11 ``Tmp`` or r12 ``Unique``
+ * @param {number} [stopRar=19] Set this to the last desired rar id.
+ * @returns {string[]}
+ */
+function loadFullRarNameList(stopRar=19){
+    const rarList = [];
+    let rCount = 0;
+    for (const [key, value] of rarKeys){
+        if (key === 'r11' || key === 'r12') continue;
+        rarList.push(value);
+        rCount++;
+        if (rCount === stopRar + 1) break;
+    }
+    return rarList;
+}
+
+/**
  * 
  * @param {String} TEST_CODE ITEM_CODE used for deconstruction
  * @returns String[]: Useable dismantled types list
@@ -661,7 +679,7 @@ function generateItemEmbedField(item, itemExtra, showAmount, makeInline){
  * formatting is done to account for differing display types and situations.
  * @param {object} item DB Item Instance Object
  * @param {string} styleType Defines Return Object Format
- * @returns object as defined by styleType
+ * @returns {object}
  */
 function uni_displayItem(item, styleType, extraOptions){
     let returnObject;
@@ -698,13 +716,49 @@ function uni_displayItem(item, styleType, extraOptions){
             // Needed Values: fields{name: item.name, value: (item) => {}}
             returnObject = generateItemEmbedField(item, itemExtras, true, true);
         break;
-        case "Shop":
+        case "Shop": // NOT IN USE!!!
             // Shop Display(/shop)
             // NEEDS ADDITIONAL SOURCE CODE CHANGES 
+        break;
+        case "Trade-Order":
+            // trade view-(local/global)
+            returnObject = loadTradeOrderExtraItemDetails(item, itemExtras, extraOptions);
         break;
     }
 
     return returnObject;
+}
+
+
+function loadTradeOrderExtraItemDetails(item, itemEXR, otherEXR){
+    const displayObj = {
+        title: "",
+        colour: "",
+        description: "",
+        fields: []
+    };
+
+    displayObj.title = `>>__**${item.name}**__<<`;
+
+    displayObj.description = `Rarity: **${itemEXR.iRar}**\nHands: **${itemEXR.iCaste.Hands}**\nSlot: **${itemEXR.iSlot}**`;
+
+    let combStatsVal;
+    switch(itemEXR.iSlot){
+        case "Mainhand":
+            combStatsVal = genDMGMap(item);
+        break;
+        case "Offhand":
+            combStatsVal = genDDMap(item);
+        break;
+        default:
+            combStatsVal = genDEFMap(item);
+        break;
+    }
+    displayObj.fields.push({name: "Combat Stats: ", value: combStatsVal});
+
+    displayObj.fields.push({name: " ", value: genDISMap(itemEXR)});
+
+    return displayObj;
 }
 
 // ============================
@@ -1311,6 +1365,7 @@ module.exports = {
     checkingRar,
     checkingRarID,
     baseCheckRarName,
+    loadFullRarNameList,
     checkingSlot,
     checkingCaste,
     checkingCasteID,

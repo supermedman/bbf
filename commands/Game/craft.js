@@ -300,12 +300,12 @@ module.exports = {
                         } else if (typeCheckList.includes(c.customId)){
                             // Third check: type picked
                             optionTracker.type = c.customId;
-                            editWith = {embeds: [new EmbedBuilder().setTitle('Place Holder').setDescription(`Final Picked Caste Options:\nSlot: ${makeCapital(optionTracker.slot)}\nGroup: ${optionTracker.group}\nType: ${optionTracker.type}\nType Matched: ${typeMatchList[typeCheckList.indexOf(optionTracker.type)]}`)]};
+                            //editWith = {embeds: [new EmbedBuilder().setTitle('Place Holder').setDescription(`Final Picked Caste Options:\nSlot: ${makeCapital(optionTracker.slot)}\nGroup: ${optionTracker.group}\nType: ${optionTracker.type}\nType Matched: ${typeMatchList[typeCheckList.indexOf(optionTracker.type)]}`)]};
                             casteFinished = true;
                         }
                     break;
                 }
-                if (casteFinished) collector.stop('Caste Picked');
+                if (casteFinished) return collector.stop('Caste Picked');
                 await anchorMsg.edit(editWith);
             }).catch(e => console.error(e));
         });

@@ -232,7 +232,7 @@ module.exports = {
                         curPage = (curPage === finalPages.length - 1) ? 0 : curPage + 1;
                     break;
                     case "back-page":
-                        curPage = (curPage === 0) ? curPage = finalPages.length - 1 : curPage - 1;
+                        curPage = (curPage === 0) ? finalPages.length - 1 : curPage - 1;
                     break;
                     case "delete-page":
                     return collector.stop('Canceled');
