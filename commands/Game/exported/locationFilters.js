@@ -34,8 +34,11 @@ function filterHunting(matWanted, maxLevel){
 
 function handleHunting(user){
     const huntingFor = huntingGrounds[biomeList.indexOf(user.current_location ?? 'Wilds')];
-    if (huntingFor === 'None') return [];
-
+    if (huntingFor === 'None') {
+        //console.log('No hunting location found!');
+        return new Map();
+    }
+    //console.log('Making and using hunting list, hunting for: ', huntingFor);
     const returnList = fillHuntingList(huntingFor);
     return returnList;
 }
@@ -49,6 +52,7 @@ function fillHuntingList(matMatch){
     let matchList = new Map();
     for (const enemy of newEList){
         if (enemy.DropTypes.includes(matMatch)){
+            //console.log(`Enemy has ${matMatch} DropType!\n${enemy.DropTypes}`);
             matchList.set(enemy.ConstKey, enemy.Level);
         }
     }

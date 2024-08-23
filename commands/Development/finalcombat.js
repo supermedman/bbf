@@ -24,6 +24,7 @@ const { handleEnemyMat } = require('./Export/materialFactory');
 
 const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, getTypeof} = require('../../uniHelperFunctions');
 const { handleUserPayout } = require('./Export/uni_userPayouts');
+const { handleHunting } = require('../Game/exported/locationFilters');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -110,7 +111,9 @@ module.exports = {
                 await thePlayer.reloadInternals();
             }
 
-            const theEnemy = loadEnemy(thePlayer.level, enemies);
+            const huntingCheck = handleHunting(await grabUser(interaction.user.id));
+            const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
+            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass);
             theEnemy.loadItems(thePlayer);
 
             const loadObj = thePlayer.loadout;

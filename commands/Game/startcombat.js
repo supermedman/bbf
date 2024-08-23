@@ -249,7 +249,8 @@ module.exports = {
             }
 
             const huntingCheck = handleHunting(await grabUser(interaction.user.id));
-            const theEnemy = loadEnemy(thePlayer.level, (huntingCheck.length > 0) ? huntingCheck : enemies);
+            const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
+            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass);
             theEnemy.loadItems(thePlayer);
 
             const loadObj = thePlayer.loadout;
