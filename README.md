@@ -8,8 +8,3 @@ Please enjoy this journey with ME!
 
 
 [1] Some current placeholder textures and thumbnail art are from open source sites and locations. Since these images are not to be included in the first offical release, or any subsiquent releases, they are not currently referenced. Upon initial release, any remaining textures and/or thumbnail art not directly owned by MYSELF will be properly referenced where applicable and where needed. 
-
-
-
-
-I'm Back!!!
