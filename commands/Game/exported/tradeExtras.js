@@ -946,7 +946,7 @@ function handleMatNameLoad(tradeObj, materialFiles){
 /**
  * This function filters through all mat lists for a matching Name with matName.
  * @param {string} matName Material Pointer Name
- * @returns {object}
+ * @returns {{matRef: object, matType: string}}
  */
 function handleMatNameFilter(matName, materialFiles){
     for (const [key, value] of materialFiles){

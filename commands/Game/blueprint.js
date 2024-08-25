@@ -12,9 +12,12 @@ const {
 const { OwnedBlueprints, MaterialStore, UniqueCrafted, OwnedPotions, UserData, OwnedTools } = require('../../dbObjects.js');
 
 const blueprintList = require('../../events/Models/json_prefabs/blueprintList.json');
+const fullBPList = require('../Development/Export/Json/bpUpdateList.json');
 const { grabColour } = require('./exported/grabRar.js');
 
 const { checkHintPotionEquip, checkHintUniqueEquip, checkHintPigmyGive } = require('./exported/handleHints.js');
+const { handleMatNameFilter, createBasicPageButtons } = require('./exported/tradeExtras.js');
+const { makeCapital, endTimer, createInteractiveChannelMessage, handleCatchDelete } = require('../../uniHelperFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -33,7 +36,7 @@ module.exports = {
 						.setDescription('The amount to craft'))),
 
 	async execute(interaction) { 
-		
+		const {materialFiles} = interaction.client;
 
 		if (interaction.options.getSubcommand() === 'view') {
 			//View ALL owned blueprints
@@ -43,7 +46,157 @@ module.exports = {
 			const userBPS = await OwnedBlueprints.findAll({where: {spec_id: interaction.user.id}});
 			if (userBPS.length <= 0) return interaction.reply('No Blueprints Owned!');
 
-			return buildBPDisplay(userBPS);
+			const bpPages = await loadBPDisplay(userBPS);
+
+			const pageButts = createBasicPageButtons();
+			const cancelButt = new ButtonBuilder()
+			.setCustomId('cancel')
+			.setStyle(ButtonStyle.Secondary)
+			.setLabel('Close Menu');
+			pageButts.push(pageButts.splice(1, 1, cancelButt)[0]);
+
+			const pageButtRow = new ActionRowBuilder().addComponents(pageButts);
+
+			const replyObj = {embeds: [bpPages[0]], components: [pageButtRow]};
+
+			const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "Reply");
+
+			// =====================
+			// BUTTON COLLECTOR
+			let curPage = 0;
+			collector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+					switch(c.customId){
+						case "next-page":
+							curPage = (curPage === bpPages.length - 1) ? 0 : curPage + 1;
+						break;
+						case "back-page":
+							curPage = (curPage === 0) ? bpPages.length - 1 : curPage - 1;
+						break;
+						case "cancel":
+						return collector.stop('Canceled');
+					}
+					await anchorMsg.edit({embeds: [bpPages[curPage]], components: [pageButtRow]});
+				}).catch(e => console.error(e));
+			});
+			// =====================
+
+			// =====================
+			// BUTTON COLLECTOR
+			collector.on('end', async (c, r) => {
+				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+
+				await handleCatchDelete(anchorMsg);
+			});
+			// =====================
+
+
+
+			//return buildBPDisplay(userBPS);
+		}
+
+		/**
+		 * This function loads the display for all owned blueprints by the user to be shown to the user.
+		 * @param {object[]} userBPList Full Owned Blueprint List for user using command
+		 * @returns {Promise <EmbedBuilder[]>}
+		 */
+		async function loadBPDisplay(userBPList){
+			const bpLoadStart = new Date().getTime();
+
+			const ownedMatList = await MaterialStore.findAll({where: {spec_id: interaction.user.id}});
+
+			const {masterBPList, masterEffList} = loadFullBPList();
+
+			const bpEmbedPages = [];
+			for (const bluey of userBPList){
+				const bpMatch = masterBPList.filter(bp => bp.Name === bluey.name)[0];
+				if (!bpMatch) continue;
+				const exrEff = masterEffList.filter(eff => eff.Name === bluey.name)[0];
+
+				let dynDesc;
+				switch(bluey.passivecategory){
+					case "Potion":
+						dynDesc = `Potion Effect: **${bpMatch.Description}**\nRarity: **${bpMatch.Rarity}**\nLevel Required: **${bpMatch.Level}**\nCraft Cost: **${bpMatch.Cost}**c\nPotion Duration: **${exrEff.Duration}**\nPotion Cooldown: **${exrEff.Cooldown}**\nMaterials Required: `;
+					break;
+					case "Tool":
+						dynDesc = `Used with **${exrEff.Type}** as **${exrEff.SubType}**\nTool Effect: ${bpMatch.Description}\nRarity: **${bpMatch.Rarity}**\nLevel Required: **${bpMatch.Level}**\nCraft Cost: **${bpMatch.Cost}**c\nMaterials Required: `;
+					break;
+				}
+
+				dynDesc += '\n\nMaterial Amount Reached: ✅\nMaterial Owned but Amount is *Below* needed: ❔\nMaterial **Not** Owned: ❌';
+
+				const finalFields = [];
+				for (const matCraft of bpMatch.CraftList){
+					const userMatMatch = ownedMatList.filter(mat => mat.name === matCraft.Name);
+					const matAmountOwned = (userMatMatch.length !== 0) ? userMatMatch[0].amount : 0;
+					const matRefObj = handleMatNameFilter(matCraft.Name, materialFiles);
+
+					const finalValue = `Type: **${makeCapital(matRefObj.matType)}**\nRarity: **${matRefObj.matRef.Rarity}**\n(Owned/Needed) Amount:  **${matAmountOwned}**/${matCraft.Amount}`;
+
+					const statusEmoji = (matAmountOwned >= matCraft.Amount) ? '✅' : (matAmountOwned > 0) ? '❔': '❌';
+
+					finalFields.push({name: `= **${matCraft.Name}** = ${statusEmoji}`, value: finalValue});
+				}
+
+				const embedColour = grabColour(bpMatch.Rar_id);
+				const embed = new EmbedBuilder()
+				.setTitle(`== ${bluey.name} ==`)
+				.setDescription(dynDesc)
+				.setColor(embedColour)
+				.addFields(finalFields);
+
+				bpEmbedPages.push(embed);
+			}
+
+			endTimer(bpLoadStart, "BP View Display Pages Load");
+
+			return bpEmbedPages;
+		}
+
+		/**
+		 * This function handles extracting all existing BP objects from the BP master list,
+		 * it also collects and returns the associated effects for each BP as its own object[]
+		 * @returns {{masterBPList: object[], masterEffList: object[]}}
+		 */
+		function loadFullBPList(){
+			const masterPotionList = fullBPList.filter(list => list.Type === "Potion")[0].Cat;
+			const potionBPList = [], potionEffectList = [];
+			for (const a of masterPotionList){
+				const craftSubCat = a.SubCat[0].List;
+				for (const pBP of craftSubCat){
+					potionBPList.push(pBP);
+				}
+				const effectSubCat = a.SubCat[1].List;
+				for (const eff of effectSubCat){
+					potionEffectList.push(eff);
+				}
+			}
+
+			const masterToolList = fullBPList.filter(list => list.Type === "Tool")[0].Cat;
+			const toolBPList = [], toolEffectList = [];
+			for (const a of masterToolList){
+				const craftSubCat = a.SubCat;
+				for (const aSubC of craftSubCat){
+					const craftASubC = aSubC.List;
+					for (const tBP of craftASubC){
+						toolBPList.push(tBP);
+					}
+					const effASubC = aSubC.Effect;
+					if (!effASubC) continue;
+					for (const eff of effASubC){
+						const eTMod = eff;
+						eTMod.Type = a.Active;
+						eTMod.SubType = aSubC.Active;
+						toolEffectList.push(eTMod);
+					}
+				}
+				
+			}
+
+			const masterBPList = potionBPList.concat(toolBPList);
+			const masterEffList = potionEffectList.concat(toolEffectList);
+
+			return {masterBPList, masterEffList};
 		}
 
 		async function buildBPDisplay(bpList){	

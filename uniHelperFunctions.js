@@ -340,6 +340,37 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
         if (!r || r === 'time') await handleCatchDelete(anchorMsg);
     });
     // =====================
+
+
+    ~~~ STANDARD PAGE BUTTON COLLECTER SETTUP ~~~
+    // =====================
+    // BUTTON COLLECTOR
+    let curPage = 0;
+    collector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+            switch(c.customId){
+                case "next-page":
+                    curPage = (curPage === embedPages.length - 1) ? 0 : curPage + 1;
+                break;
+                case "back-page":
+                    curPage = (curPage === 0) ? embedPages.length - 1 : curPage - 1;
+                break;
+                case "cancel":
+                return collector.stop('Canceled');
+            }
+            await anchorMsg.edit({embeds: [embedPages[curPage]], components: [pageButtRow]});
+        }).catch(e => console.error(e));
+    });
+    // =====================
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+
+        await handleCatchDelete(anchorMsg);
+    });
+    // =====================
  */
 
 /**

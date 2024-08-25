@@ -24,19 +24,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Dandielion",
-                                        "T1": "herby",
-                                        "A1": 10
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M2": "Foxtail",
-                                        "T2": "herby",
-                                        "A2": 5
+                                        "Name": "Foxtail",
+                                        "Type": "herby",
+                                        "Amount": 5
                                     },
                                     {
-                                        "M3": "Red Slime",
-                                        "T3": "slimy",
-                                        "A3": 1
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 1
                                     }
                                 ],
                                 "PotionID": 1,
@@ -58,24 +58,24 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Bloodroot",
-                                        "T1": "herby",
-                                        "A1": 5
+                                        "Name": "Bloodroot",
+                                        "Type": "herby",
+                                        "Amount": 5
                                     },
                                     {
-                                        "M2": "Red Slime",
-                                        "T2": "slimy",
-                                        "A2": 12
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 12
                                     },
                                     {
-                                        "M3": "Pink Slime",
-                                        "T3": "slimy",
-                                        "A3": 1
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 1
                                     },
                                     {
-                                        "M4": "Bloodied Heart",
-                                        "T4": "fleshy",
-                                        "A4": 3
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
                                     }
                                 ],
                                 "PotionID": 4,
@@ -97,29 +97,29 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Bloodroot",
-                                        "T1": "herby",
-                                        "A1": 30
+                                        "Name": "Bloodroot",
+                                        "Type": "herby",
+                                        "Amount": 30
                                     },
                                     {
-                                        "M2": "Red Slime",
-                                        "T2": "slimy",
-                                        "A2": 15
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
                                     },
                                     {
-                                        "M3": "Silverroot",
-                                        "T3": "herby",
-                                        "A3": 10
+                                        "Name": "Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M4": "Sparkly Slime",
-                                        "T4": "slimy",
-                                        "A4": 3
+                                        "Name": "Sparkly Slime",
+                                        "Type": "slimy",
+                                        "Amount": 3
                                     },
                                     {
-                                        "M5": "Pure MAGIC",
-                                        "T5": "unique",
-                                        "A5": 5
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
                                     }
                                 ],
                                 "PotionID": 10,
@@ -174,19 +174,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Slimy Eyeball",
-                                        "T1": "fleshy",
-                                        "A1": 3
+                                        "Name": "Slimy Eyeball",
+                                        "Type": "fleshy",
+                                        "Amount": 3
                                     },
                                     {
-                                        "M2": "Limestone",
-                                        "T2": "rocky",
-                                        "A2": 5
+                                        "Name": "Limestone",
+                                        "Type": "rocky",
+                                        "Amount": 5
                                     },
                                     {
-                                        "M3": "Granite",
-                                        "T3": "rocky",
-                                        "A3": 1
+                                        "Name": "Granite",
+                                        "Type": "rocky",
+                                        "Amount": 1
                                     }
                                 ],
                                 "PotionID": 2,
@@ -208,24 +208,24 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Raw Ore",
-                                        "T1": "metalic",
-                                        "A1": 30
+                                        "Name": "Raw Ore",
+                                        "Type": "metalic",
+                                        "Amount": 30
                                     },
                                     {
-                                        "M2": "Bloodied Heart",
-                                        "T2": "fleshy",
-                                        "A2": 1
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 1
                                     },
                                     {
-                                        "M3": "Smelly Entrails",
-                                        "T3": "fleshy",
-                                        "A3": 3
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 3
                                     },
                                     {
-                                        "M4": "Iron Ingot",
-                                        "T4": "metalic",
-                                        "A4": 7
+                                        "Name": "Iron Ingot",
+                                        "Type": "metalic",
+                                        "Amount": 7
                                     }
                                 ],
                                 "PotionID": 5,
@@ -247,24 +247,24 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Raw Phasemetal",
-                                        "T1": "metalic",
-                                        "A1": 24
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 24
                                     },
                                     {
-                                        "M2": "Refined Essence",
-                                        "T2": "magical",
-                                        "A2": 10
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M3": "Pure BLUNT",
-                                        "T3": "unique",
-                                        "A3": 10
+                                        "Name": "Pure BLUNT",
+                                        "Type": "unique",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M4": "Phasemetal Scrap",
-                                        "T4": "metalic",
-                                        "A4": 4
+                                        "Name": "Phasemetal Scrap",
+                                        "Type": "metalic",
+                                        "Amount": 4
                                     }
                                 ],
                                 "PotionID": 11,
@@ -319,29 +319,29 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Purple Slime",
-                                        "T1": "slimy",
-                                        "A1": 10
+                                        "Name": "Purple Slime",
+                                        "Type": "slimy",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M2": "Raw Ore",
-                                        "T2": "metalic",
-                                        "A2": 5
+                                        "Name": "Raw Ore",
+                                        "Type": "metalic",
+                                        "Amount": 5
                                     },
                                     {
-                                        "M3": "Smelly Entrails",
-                                        "T3": "fleshy",
-                                        "A3": 1
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 1
                                     },
                                     {
-                                        "M4": "Foxtail",
-                                        "T4": "herby",
-                                        "A4": 3
+                                        "Name": "Foxtail",
+                                        "Type": "herby",
+                                        "Amount": 3
                                     },
                                     {
-                                        "M5": "Refined Essence",
-                                        "T5": "magical",
-                                        "A5": 5
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 5
                                     }
                                 ],
                                 "PotionID": 3,
@@ -363,29 +363,29 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Pink Slime",
-                                        "T1": "slimy",
-                                        "A1": 7
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 7
                                     },
                                     {
-                                        "M2": "Steel Ingot",
-                                        "T2": "metalic",
-                                        "A2": 7
+                                        "Name": "Steel Ingot",
+                                        "Type": "metalic",
+                                        "Amount": 7
                                     },
                                     {
-                                        "M3": "Magical Glands",
-                                        "T3": "fleshy",
-                                        "A3": 7
+                                        "Name": "Magical Glands",
+                                        "Type": "fleshy",
+                                        "Amount": 7
                                     },
                                     {
-                                        "M4": "Silverroot",
-                                        "T4": "herby",
-                                        "A4": 7
+                                        "Name": "Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 7
                                     },
                                     {
-                                        "M5": "Pure MAGIC",
-                                        "T5": "unique",
-                                        "A5": 4
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 4
                                     }
                                 ],
                                 "PotionID": 7,
@@ -407,34 +407,34 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Rainbow Slime",
-                                        "T1": "slimy",
-                                        "A1": 4
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 4
                                     },
                                     {
-                                        "M2": "Phasemetal Scrap",
-                                        "T2": "metalic",
-                                        "A2": 4
+                                        "Name": "Phasemetal Scrap",
+                                        "Type": "metalic",
+                                        "Amount": 4
                                     },
                                     {
-                                        "M3": "Imperfect Phasesoup",
-                                        "T3": "magical",
-                                        "A3": 4
+                                        "Name": "Imperfect Phasesoup",
+                                        "Type": "magical",
+                                        "Amount": 4
                                     },
                                     {
-                                        "M4": "Phaseroot",
-                                        "T4": "herby",
-                                        "A4": 4
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 4
                                     },
                                     {
-                                        "M5": "Pure MAGIC",
-                                        "T5": "unique",
-                                        "A5": 15
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 15
                                     },
                                     {
-                                        "M6": "Dandielion",
-                                        "T6": "herby",
-                                        "A6": 150
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 150
                                     }
                                 ],
                                 "PotionID": 9,
@@ -489,19 +489,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Refined Essence",
-                                        "T1": "magical",
-                                        "A1": 20
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 20
                                     },
                                     {
-                                        "M2": "Rainbow Slime",
-                                        "T2": "slimy",
-                                        "A2": 4
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 4
                                     },
                                     {
-                                        "M3": "Infused Silverroot",
-                                        "T3": "herby",
-                                        "A3": 10
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 10
                                     }
                                 ],
                                 "PotionID": 6,
@@ -523,24 +523,24 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Refined Essence",
-                                        "T1": "magical",
-                                        "A1": 25
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 25
                                     },
                                     {
-                                        "M2": "Rainbow Slime",
-                                        "T2": "slimy",
-                                        "A2": 7
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 7
                                     },
                                     {
-                                        "M3": "Infused Silverroot",
-                                        "T3": "herby",
-                                        "A3": 15
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 15
                                     },
                                     {
-                                        "M4": "Phaseroot",
-                                        "T4": "herby",
-                                        "A4": 2
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 2
                                     }
                                 ],
                                 "PotionID": 8,
@@ -562,29 +562,29 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Refined Essence",
-                                        "T1": "herby",
-                                        "A1": 55
+                                        "Name": "Refined Essence",
+                                        "Type": "herby",
+                                        "Amount": 55
                                     },
                                     {
-                                        "M2": "Rainbow Slime",
-                                        "T2": "slimy",
-                                        "A2": 10
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M3": "Infused Silverroot",
-                                        "T3": "herby",
-                                        "A3": 40
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 40
                                     },
                                     {
-                                        "M4": "Phaseroot",
-                                        "T4": "herby",
-                                        "A4": 4
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 4
                                     },
                                     {
-                                        "M5": "Pure NULL",
-                                        "T5": "unique",
-                                        "A5": 1
+                                        "Name": "Pure NULL",
+                                        "Type": "unique",
+                                        "Amount": 1
                                     }
                                 ],
                                 "PotionID": 12,
@@ -644,19 +644,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Purple Slime",
-                                        "T1": "slimy",
-                                        "A1": 10
+                                        "Name": "Purple Slime",
+                                        "Type": "slimy",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M2": "Dandielion",
-                                        "T2": "herby",
-                                        "A2": 10
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M3": "Black Ether Fluid",
-                                        "T3": "magical",
-                                        "A3": 1
+                                        "Name": "Black Ether Fluid",
+                                        "Type": "magical",
+                                        "Amount": 1
                                     }
                                 ],
                                 "ToolID": 1,
@@ -678,14 +678,14 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Smelly Entrails",
-                                        "T1": "fleshy",
-                                        "A1": 500
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 500
                                     },
                                     {
-                                        "M2": "Fairy Dust",
-                                        "T2": "magical",
-                                        "A2": 3
+                                        "Name": "Fairy Dust",
+                                        "Type": "magical",
+                                        "Amount": 3
                                     }
                                 ],
                                 "ToolID": 9,
@@ -707,19 +707,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Soul",
-                                        "T1": "unique",
-                                        "A1": 10
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M2": "Pink Slime",
-                                        "T2": "slimy",
-                                        "A2": 25
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 25
                                     },
                                     {
-                                        "M3": "Imbued Hide",
-                                        "T3": "skinny",
-                                        "A3": 25
+                                        "Name": "Imbued Hide",
+                                        "Type": "skinny",
+                                        "Amount": 25
                                     }
                                 ],
                                 "ToolID": 4,
@@ -741,19 +741,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Soul",
-                                        "T1": "unique",
-                                        "A1": 15
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 15
                                     },
                                     {
-                                        "M2": "Well-Woven Magic Cloth",
-                                        "T2": "silky",
-                                        "A2": 25
+                                        "Name": "Well-Woven Magic Cloth",
+                                        "Type": "silky",
+                                        "Amount": 25
                                     },
                                     {
-                                        "M3": "Raw Magical Hide",
-                                        "T3": "skinny",
-                                        "A3": 25
+                                        "Name": "Raw Magical Hide",
+                                        "Type": "skinny",
+                                        "Amount": 25
                                     }
                                 ],
                                 "ToolID": 5,
@@ -775,19 +775,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Soul",
-                                        "T1": "unique",
-                                        "A1": 20
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 20
                                     },
                                     {
-                                        "M2": "Sturdy Skull",
-                                        "T2": "fleshy",
-                                        "A2": 40
+                                        "Name": "Sturdy Skull",
+                                        "Type": "fleshy",
+                                        "Amount": 40
                                     },
                                     {
-                                        "M3": "Red Slime",
-                                        "T3": "slimy",
-                                        "A3": 100
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 100
                                     }
                                 ],
                                 "ToolID": 6,
@@ -809,19 +809,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Soul",
-                                        "T1": "unique",
-                                        "A1": 30
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 30
                                     },
                                     {
-                                        "M2": "Well-Woven Phase-Cloth",
-                                        "T2": "silky",
-                                        "A2": 15
+                                        "Name": "Well-Woven Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 15
                                     },
                                     {
-                                        "M3": "Blood Opal",
-                                        "T3": "gemy",
-                                        "A3": 15
+                                        "Name": "Blood Opal",
+                                        "Type": "gemy",
+                                        "Amount": 15
                                     }
                                 ],
                                 "ToolID": 7,
@@ -843,19 +843,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Soul",
-                                        "T1": "unique",
-                                        "A1": 35
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 35
                                     },
                                     {
-                                        "M2": "Well-Woven Phase-Cloth",
-                                        "T2": "silky",
-                                        "A2": 25
+                                        "Name": "Well-Woven Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 25
                                     },
                                     {
-                                        "M3": "Phasemetal Alloy",
-                                        "T3": "metalic",
-                                        "A3": 25
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 25
                                     }
                                 ],
                                 "ToolID": 10,
@@ -877,23 +877,57 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Soul",
-                                        "T1": "unique",
-                                        "A1": 23
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 23
                                     },
                                     {
-                                        "M2": "Worked Phase-Leather",
-                                        "T2": "skinny",
-                                        "A2": 35
+                                        "Name": "Worked Phase-Leather",
+                                        "Type": "skinny",
+                                        "Amount": 35
                                     },
                                     {
-                                        "M3": "Phaseroot Potpourri",
-                                        "T3": "herby",
-                                        "A3": 5
+                                        "Name": "Phaseroot Potpourri",
+                                        "Type": "herby",
+                                        "Amount": 5
                                     }
                                 ],
                                 "ToolID": 11,
                                 "BlueprintID": 28
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "Small Ball",
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Ball of Entrails",
+                                "Strength": 7
+                            },
+                            {
+                                "Name": "Wadon Plushie",
+                                "Strength": 10
+                            },
+                            {
+                                "Name": "Dyvulla Plushie",
+                                "Strength": 15
+                            },
+                            {
+                                "Name": "Ados Plushie",
+                                "Strength": 20
+                            },
+                            {
+                                "Name": "Zimmir Plushie",
+                                "Strength": 24
+                            },
+                            {
+                                "Name": "Phamnera Plushie",
+                                "Strength": 28
+                            },
+                            {
+                                "Name": "Xogida Plushie",
+                                "Strength": 35
                             }
                         ]
                     },
@@ -916,19 +950,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Leather Scraps",
-                                        "T1": "skinny",
-                                        "A1": 15
+                                        "Name": "Leather Scraps",
+                                        "Type": "skinny",
+                                        "Amount": 15
                                     },
                                     {
-                                        "M2": "Sturdy Branch",
-                                        "T2": "woody",
-                                        "A2": 1
+                                        "Name": "Sturdy Branch",
+                                        "Type": "woody",
+                                        "Amount": 1
                                     },
                                     {
-                                        "M3": "Scrap Metal",
-                                        "T3": "metalic",
-                                        "A3": 1
+                                        "Name": "Scrap Metal",
+                                        "Type": "metalic",
+                                        "Amount": 1
                                     }
                                 ],
                                 "ToolID": 2,
@@ -950,23 +984,41 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Dandielion",
-                                        "T1": "herby",
-                                        "A1": 30
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 30
                                     },
                                     {
-                                        "M2": "Foxtail",
-                                        "T2": "herby",
-                                        "A2": 30
+                                        "Name": "Foxtail",
+                                        "Type": "herby",
+                                        "Amount": 30
                                     },
                                     {
-                                        "M3": "Phaseroot",
-                                        "T3": "herby",
-                                        "A3": 10
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 10
                                     }
                                 ],
                                 "ToolID": 8,
                                 "BlueprintID": 24
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "Goblinskin Hat",
+                                "Strength": 1,
+                                "Mult": 3,
+                                "MultType": [
+                                    "skinny"
+                                ]
+                            },
+                            {
+                                "Name": "Flower Crown",
+                                "Strength": 3,
+                                "Mult": 3,
+                                "MultType": [
+                                    "herby"
+                                ]
                             }
                         ]
                     },
@@ -989,24 +1041,24 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Fairy Dust",
-                                        "T1": "magical",
-                                        "A1": 25
+                                        "Name": "Fairy Dust",
+                                        "Type": "magical",
+                                        "Amount": 25
                                     },
                                     {
-                                        "M2": "Black Ether Fluid",
-                                        "T2": "magical",
-                                        "A2": 1
+                                        "Name": "Black Ether Fluid",
+                                        "Type": "magical",
+                                        "Amount": 1
                                     },
                                     {
-                                        "M3": "Bloodied Heart",
-                                        "T3": "fleshy",
-                                        "A3": 1
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 1
                                     },
                                     {
-                                        "M4": "Pink Slime",
-                                        "T4": "slimy",
-                                        "A4": 1
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 1
                                     }
                                 ],
                                 "ToolID": 3,
@@ -1028,24 +1080,24 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Raw Phasemetal",
-                                        "T1": "metalic",
-                                        "A1": 17
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 17
                                     },
                                     {
-                                        "M2": "Imperfect Phasesoup",
-                                        "T2": "magical",
-                                        "A2": 8
+                                        "Name": "Imperfect Phasesoup",
+                                        "Type": "magical",
+                                        "Amount": 8
                                     },
                                     {
-                                        "M3": "Bloodied Heart",
-                                        "T3": "fleshy",
-                                        "A3": 10
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 10
                                     },
                                     {
-                                        "M4": "Pure BLUNT",
-                                        "T4": "unique",
-                                        "A4": 5
+                                        "Name": "Pure BLUNT",
+                                        "Type": "unique",
+                                        "Amount": 5
                                     }
                                 ],
                                 "ToolID": 13,
@@ -1067,19 +1119,19 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Blood Opal",
-                                        "T1": "gemy",
-                                        "A1": 5
+                                        "Name": "Blood Opal",
+                                        "Type": "gemy",
+                                        "Amount": 5
                                     },
                                     {
-                                        "M2": "Phasemetal Alloy",
-                                        "T2": "metalic",
-                                        "A2": 5
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 5
                                     },
                                     {
-                                        "M3": "Volatile Essence",
-                                        "T3": "magical",
-                                        "A3": 5
+                                        "Name": "Volatile Essence",
+                                        "Type": "magical",
+                                        "Amount": 5
                                     }
                                 ],
                                 "ToolID": 14,
@@ -1101,23 +1153,45 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Slimy Eyeball",
-                                        "T1": "fleshy",
-                                        "A1": 150
+                                        "Name": "Slimy Eyeball",
+                                        "Type": "fleshy",
+                                        "Amount": 150
                                     },
                                     {
-                                        "M2": "Smelly Entrails",
-                                        "T2": "fleshy",
-                                        "A2": 75
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 75
                                     },
                                     {
-                                        "M3": "Blue Slime",
-                                        "T3": "slimy",
-                                        "A3": 100
+                                        "Name": "Blue Slime",
+                                        "Type": "slimy",
+                                        "Amount": 100
                                     }
                                 ],
                                 "ToolID": 15,
                                 "BlueprintID": 32
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "The Tiny",
+                                "PigXP": 0.03,
+                                "UserXP": 0
+                            },
+                            {
+                                "Name": "The Overbearing",
+                                "PigXP": 0.05,
+                                "UserXP": -0.03
+                            },
+                            {
+                                "Name": "The Demanding",
+                                "PigXP": 0.07,
+                                "UserXP": -0.07
+                            },
+                            {
+                                "Name": "The Ugly",
+                                "PigXP": -0.07,
+                                "UserXP": 0.1
                             }
                         ]
                     }
@@ -1145,13 +1219,22 @@
 
                                 "CraftList": [
                                     {
-                                        "M1": "Phasereader",
-                                        "T1": "unique",
-                                        "A1": 1
+                                        "Name": "Phasereader",
+                                        "Type": "unique",
+                                        "Amount": 1
                                     }
                                 ],
                                 "ToolID": 12,
                                 "BlueprintID": 29
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "Machine Schematics",
+                                "BuildType": "House",
+                                "Slot": "Forge",
+                                "Unlocks": "Imbue_One",
+                                "SingleUse": true
                             }
                         ]
                     },
