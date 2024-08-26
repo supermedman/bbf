@@ -1021,7 +1021,7 @@ function loadAmountButts(){
 
     const amountRow = new ActionRowBuilder().addComponents(minusFiveButt, minusOneButt, plusOneButt, plusFiveButt);
 
-    return [outcomeRow, amountRow];
+    return [amountRow, outcomeRow];
 }
 
 /**
@@ -1236,18 +1236,38 @@ function loadBasicBackButt(backType){
  * 
  * This is done to allow for row modifications to be made freely 
  * depending on the interactivity of the pages being cycled
+ * @param {string} [styleType="Secondary"] Set to page button style wanted: ``"Primary", "Secondary", "Danger", "Success"``
  * @returns {ButtonBuilder[]}
  */
-function createBasicPageButtons(){
+function createBasicPageButtons(styleType="Secondary"){
+    let styleToUse;
+    switch(styleType){
+        case "Primary":
+            styleToUse = ButtonStyle.Primary;
+        break;
+        case "Secondary":
+            styleToUse = ButtonStyle.Secondary;
+        break;
+        case "Danger":
+            styleToUse = ButtonStyle.Danger;
+        break;
+        case "Success":
+            styleToUse = ButtonStyle.Success;
+        break;
+        default:
+            styleToUse = ButtonStyle.Secondary;
+        break;
+    }
+
     const backPageButt = new ButtonBuilder()
     .setLabel("Backward")
-    .setStyle(ButtonStyle.Secondary)
+    .setStyle(styleToUse)
     .setEmoji('◀️')
     .setCustomId('back-page');
 
     const nextPageButt = new ButtonBuilder()
     .setLabel("Forward")
-    .setStyle(ButtonStyle.Secondary)
+    .setStyle(styleToUse)
     .setEmoji('▶️')
     .setCustomId('next-page');
 

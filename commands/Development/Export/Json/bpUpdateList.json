@@ -1242,11 +1242,17 @@
                         "Active": "Paint",
                         "List": [
                             
+                        ],
+                        "Effect": [
+
                         ]
                     },
                     {
                         "Active": "Claim",
                         "List": [
+                            
+                        ],
+                        "Effect": [
                             
                         ]
                     }
@@ -1259,6 +1265,9 @@
                         "Active": "TBD",
                         "List": [
 
+                        ],
+                        "Effect": [
+                            
                         ]
                     }
                 ]
@@ -1270,11 +1279,17 @@
                         "Active": "Title",
                         "List": [
 
+                        ],
+                        "Effect": [
+                            
                         ]
                     },
                     {
                         "Active": "Style",
                         "List": [
+                            
+                        ],
+                        "Effect": [
                             
                         ]
                     }
