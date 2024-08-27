@@ -262,7 +262,11 @@ async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
     const replyObject = handleContentType(editWith);
     return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
         anchorMsg.delete();
-    }, timeLimit)).catch(e => console.error(e));
+    }, timeLimit)).catch(e =>{
+        if (e.code !== 10008){
+            console.error(`Failed to ${e.method} a message:`, e);
+        }
+    });
 }
 
 /**

@@ -22,9 +22,10 @@ const {
 } = require('./Export/finalCombatExtras');
 const { handleEnemyMat } = require('./Export/materialFactory');
 
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, getTypeof} = require('../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, getTypeof, dropChance} = require('../../uniHelperFunctions');
 const { handleUserPayout } = require('./Export/uni_userPayouts');
 const { handleHunting } = require('../Game/exported/locationFilters');
+const { rollRandBlueprint } = require('./Export/blueprintFactory');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -318,6 +319,10 @@ module.exports = {
             let coinGain = xpGain + Math.floor(xpGain * 0.10);
 
             await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
+
+            if (dropChance(0.98)){
+                await rollRandBlueprint(await grabUser(player.userId), interaction.client.masterBPCrafts, interaction);
+            }
 
             // Material Drops
             const payoutEmbeds = [];

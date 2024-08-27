@@ -40,6 +40,7 @@ const { EnemyFab, xpPayoutScale } = require('../Development/Export/Classes/Enemy
 const { handleLootDrops } = require('../Development/Export/questUpdate.js');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts.js');
 const { createNewBlueprint } = require('./exported/createBlueprint.js');
+const { dropBlueprint, grabBPRef } = require('../Development/Export/blueprintFactory.js');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -101,7 +102,7 @@ module.exports = {
 	async execute(interaction) { 
 		// if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
 
-		const { dungeonInstance, gearDrops } = interaction.client;
+		const { dungeonInstance, gearDrops, masterBPCrafts } = interaction.client;
 
 		await interaction.deferReply();
 
@@ -282,7 +283,7 @@ module.exports = {
 
 				await handleCatchDelete(anchorMsg);
 
-				return beginDungeon(userDungeon);
+				return beginDungeon(dungMatch);
 			});
 
 			/**
@@ -562,8 +563,8 @@ module.exports = {
 				await dungeon.update({completed: true}).then(async d => await d.save()).then(async d => {return await d.reload()});
 
 				const bossRef = bossList.filter(b => b.NameRef === boss && b.Stage === 3)[0];
-				const bossXP = inclusiveRandNum(bossRef.XpMax, bossRef.XpMin);
-				const bossCoin = bossXP * 1.3;
+				const bossXP = Math.round(inclusiveRandNum(bossRef.XpMax, bossRef.XpMin));
+				const bossCoin = Math.round(bossXP * 1.3);
 
 				await handleUserPayout(bossXP, bossCoin, interaction, await grabUser(player.userId));
 
@@ -588,18 +589,20 @@ module.exports = {
 				};
 
 				const payOutFields = [], unlockFields = [];
-				payOutFields.push({name: 'XP Gained: ', value: `${bossXP}`, inline: true}, {name: 'Coins Gained: ', value: `${bossCoin}`, inline: true});
+				payOutFields.push({name: 'XP Gained: ', value: `${bossXP}`, inline: true}, {name: 'Coins Gained: ', value: `${bossCoin}c`, inline: true});
 
 				if (!checkPreComplete) {
 					// Plushie Blueprint
-					await createNewBlueprint(baseBoss.sbpID, player.userId);
+					await dropBlueprint(grabBPRef(masterBPCrafts, baseBoss.sbpID), await grabUser(player.userId), interaction);
+					// await createNewBlueprint(baseBoss.sbpID, player.userId);
 
 					// Crafting unlock fields
 					unlockFields.push({name: 'CRAFTING PROGRESS: ', value: `${baseBoss.craftText}`});
 				
 					// Check Bluey unlock fields
 					if (baseBoss.checkBP){
-						await createNewBlueprint(bossRef.BlueprintID, player.userId);
+						await dropBlueprint(grabBPRef(masterBPCrafts, bossRef.BlueprintID), await grabUser(player.userId), interaction);
+						// await createNewBlueprint(bossRef.BlueprintID, player.userId);
 						unlockFields.push({name: 'BLUEPRINT UNLOCKED: ', value: `${bossRef.Blueprint}`});
 					}
 
@@ -685,6 +688,7 @@ module.exports = {
 			 * @param {boolean} [bossGen=false] Set to true if loading boss image
 			 */
 			async function combatLooper(enemy, bossGen=false){
+				if (!enemy) return console.log('Caught Boss Dialog Load!');
 				await player.reloadInternals(true);
 
 				const replyType = {};
