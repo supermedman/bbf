@@ -616,6 +616,606 @@
                         ]
                     }
                 ]
+            },
+            {
+                "Active": "Pigmy",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Nessy's Pretty Pink Potion",
+                                "Description": "One swig of this potion and your pigmy will strike with **4x** the force!",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 32,
+                                "Cost": 20000,
+
+                                "Rarity": "???",
+                                "Rar_id": 8,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Rose Quartz",
+                                        "Type": "gemy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Pink Lace Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure NESSY",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 13,
+                                "BlueprintID": 33
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Nessy's Pretty Pink Potion",
+                                "Duration": 10,
+                                "Cooldown": 13,
+                                "Strength": 4
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Strength",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Strength",
+                                "Description": "Increases base Strength stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Iron Ingot",
+                                        "Type": "metalic",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 14,
+                                "BlueprintID": 34
+                            },
+                            {
+                                "Name": "Medium Strength",
+                                "Description": "Increases base Strength stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 15,
+                                "BlueprintID": 35
+                            },
+                            {
+                                "Name": "Major Strength",
+                                "Description": "Increases base Strength stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 16,
+                                "BlueprintID": 36
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Strength",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Strength",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Strength",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Speed",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Speed",
+                                "Description": "Increases base Speed stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 17,
+                                "BlueprintID": 37
+                            },
+                            {
+                                "Name": "Medium Speed",
+                                "Description": "Increases base Speed stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Sparkly Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 18,
+                                "BlueprintID": 38
+                            },
+                            {
+                                "Name": "Major Speed",
+                                "Description": "Increases base Speed stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Cyan Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 19,
+                                "BlueprintID": 39
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Speed",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Speed",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Speed",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Intelligence",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Intelligence",
+                                "Description": "Increases base Intelligence stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Greycap SparklShrooms",
+                                        "Type": "magical",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 20,
+                                "BlueprintID": 40
+                            },
+                            {
+                                "Name": "Medium Intelligence",
+                                "Description": "Increases base Intelligence stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 21,
+                                "BlueprintID": 41
+                            },
+                            {
+                                "Name": "Major Intelligence",
+                                "Description": "Increases base Intelligence stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Volatile Essence",
+                                        "Type": "magical",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 22,
+                                "BlueprintID": 42
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Intelligence",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Intelligence",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Intelligence",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Dexterity",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Dexterity",
+                                "Description": "Increases base Dexterity stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Bloodroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 23,
+                                "BlueprintID": 43
+                            },
+                            {
+                                "Name": "Medium Dexterity",
+                                "Description": "Increases base Dexterity stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 24,
+                                "BlueprintID": 44
+                            },
+                            {
+                                "Name": "Major Dexterity",
+                                "Description": "Increases base Dexterity stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Ground Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 25,
+                                "BlueprintID": 45
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Dexterity",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Dexterity",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Dexterity",
+                                "Duration": 0,
+                                "Cooldown": 0,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     },
