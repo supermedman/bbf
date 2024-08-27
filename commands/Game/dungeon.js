@@ -381,6 +381,8 @@ module.exports = {
             thePlayer.staticDamage = loadDamageItems(loadObj.mainhand, loadObj.offhand);
             thePlayer.staticDefence = loadDefenceItems(loadObj);
 
+			if (thePlayer.health < thePlayer.maxHealth) thePlayer.health = thePlayer.maxHealth;
+
 			endTimer(preLoadStart, "Dungeon Combat Preload");
 
 			return thePlayer;
@@ -756,6 +758,10 @@ module.exports = {
 						case "PDEAD":
 						return await handlePlayerDead(player, enemy);
 						case "RELOAD":
+							if (bossGen){
+								// Boss turns count as cooldown turns
+								await player.handlePotionCounters();
+							}
 						return combatLooper(enemy, bossGen);
 					}
 				});
@@ -930,6 +936,8 @@ module.exports = {
 	
 				collector.on('end', async (c, r) => {
 					handleCatchDelete(embedMsg);
+
+					player.health = player.maxHealth;
 				});
 			}
 

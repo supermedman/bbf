@@ -16,12 +16,16 @@ async function checkLevelBlueprint(user, bpList, interaction){
     const userBPS = await OwnedBlueprints.findAll({where: {spec_id: user.userid}});
     if (userBPS.length === 0) userBPS.push({name: "None"});
 
-    const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.name !== bp.Name);
+    const crossCheckOwned = (bp) => userBPS.some(uBP => {return (uBP.name === bp.Name) ? false : true;});
     const levelReqList = bpList.filter(bp => bp.Level <= user.level && crossCheckOwned(bp) && !bp.Drop && bp.Unlock);
     if (levelReqList.length === 0) return "No Unlocks";
 
     const addedBPList = [];
     for (const [key, bp] of levelReqList){
+        // console.log('== BP LEVEL UNLOCK ==');
+        // console.log(key);
+        // console.log(bp);
+        // console.log('=====================');
         const createdBP = await dropBlueprint(bp, user, interaction);
         if (createdBP !== 'Dupe') addedBPList.push(createdBP);
     }
@@ -41,11 +45,24 @@ async function rollRandBlueprint(user, bpList, interaction){
     const userBPS = await OwnedBlueprints.findAll({where: {spec_id: user.userid}});
     if (userBPS.length === 0) userBPS.push({name: "None"});
 
-    const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.name !== bp.Name);
-    const levelReqList = bpList.filter(bp => bp.Level <= user.level && crossCheckOwned(bp) && bp.Drop && bp.Unlock);
-    if (levelReqList.length === 0) return "No Match";
+    const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.blueprintid !== bp.BlueprintID);
+    const levelReqList = bpList.filter(bp => bp.Level <= user.level && !crossCheckOwned(bp) && bp.Drop && bp.Unlock);
+    
+    // const dropTypeFilter = bpList.filter(bp => bp.Level <= user.level && bp.Drop && bp.Unlock);
+    // const levelReqList = dropTypeFilter.filter(bp => {
+    //     if (userBPS.some(uBP => bp.BlueprintID === uBP.blueprintid)){
+    //         return false;
+    //     } else return true;
+    // });
+    //console.log(levelReqList);
+    if (levelReqList.size === 0) return "No Match";
 
-    const bpPicked = randArrPos(levelReqList);
+    const pickFromArray = [];
+    for (const [key, bp] of levelReqList){
+        pickFromArray.push(bp);
+    }
+
+    const bpPicked = randArrPos(pickFromArray);
 
     const theBP = await dropBlueprint(bpPicked, user, interaction);
 

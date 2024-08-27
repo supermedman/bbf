@@ -67,10 +67,10 @@ async function handleUserPayout(xp, coin, interaction, user){
         newLevel = lvlUpOutcome.level;
         const bpOutcome = await checkLevelBlueprint(user, interaction.client.masterBPCrafts, interaction);
         // await checkUnlockedBluey(newLevel, user.userid, interaction);
-        if (typeof bpOutcome !== 'string'){
-            let finalValue = '';
+        if (typeof bpOutcome !== 'string' && bpOutcome.length > 0){
+            let finalValue = 'Blueprint: \n';
             for (const bp of bpOutcome){
-                finalValue += `Blueprint: ${bp.name}\n`;
+                finalValue += `${bp.name}\n`;
             }
 
             const theField = {name: '== Unlocks ==', value: finalValue};

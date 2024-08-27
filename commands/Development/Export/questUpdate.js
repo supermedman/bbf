@@ -266,7 +266,7 @@ async function handleClaimMilestone(user, interaction, userMilestone){
 
         const theAdventure = thisQuest[0].Lore;
 
-        if (theAdventure.length < 3000){
+        if (theAdventure.length < 1050){
             const storyEmbed = new EmbedBuilder()
             .setTitle('Quest Progress')
             .setDescription(embedDesc)
@@ -277,9 +277,9 @@ async function handleClaimMilestone(user, interaction, userMilestone){
 
             await sendTimedChannelMessage(interaction, 300000, {embeds: [storyEmbed]}, "FollowUp");
         } else {
-            // PUT CHECK IN PLACE FOR WHEN LORE LENGTH EXCEEDS 3000 CHARACTERS
+            // PUT CHECK IN PLACE FOR WHEN LORE LENGTH EXCEEDS 1050 CHARACTERS
 
-            // SET LIMIT TO 2500 PER PAGE
+            // SET LIMIT TO 1000 PER PAGE
             // COUNT LENGTH WITH WHOLE WORDS
             // == EXTRA HANDLE FOR ``.md`` STYLED SECTIONS == LATER THO LOL
             const loreDisplayObj = handleLoreOverflow(theAdventure, embedDesc);
@@ -397,7 +397,7 @@ async function handleClaimMilestone(user, interaction, userMilestone){
 }
 
 /**
- * This function handles lore pages when the story text exceeds ``3000 CHAR`` in length,
+ * This function handles lore pages when the story text exceeds ``1050 CHAR`` in length,
  * returns both the page list, and ``ButtonBuilder[]`` to be used for display.
  * @param {string} loreText Full Lore Story Text
  * @param {string} embedDesc Embed Description to use
@@ -405,7 +405,7 @@ async function handleClaimMilestone(user, interaction, userMilestone){
  */
 function handleLoreOverflow(loreText, embedDesc){
     /**
-     * This function separates lore text into groups with a length of ``2500 CHAR`` or less
+     * This function separates lore text into groups with a length of ``1000 CHAR`` or less
      * 
      * **Notice**: This function is not complete, and will cause issue with standard Markdown
      * text groups. It needs the ability to detect/correct disjointed ``MD`` markers.
@@ -420,7 +420,7 @@ function handleLoreOverflow(loreText, embedDesc){
         for (let i = 1; i < words.length; i++){
             let word = words[i];
             let pageCharLength = (currentPage + " " + word).length;
-            if (pageCharLength < 2500) {
+            if (pageCharLength < 1000) {
                 currentPage += " " + word;
             } else {
                 pages.push(currentPage);

@@ -7,9 +7,11 @@ const questList = require('../../events/Models/json_prefabs/questList.json');
 //const { checkOwned } = require('../Game/exported/createGear.js');
 //const {handleMaterialAdding} = require('../Game/exported/materialDropper.js');
 const { loadFullRarNameList, checkingRar, checkingSlot, uni_displayItem, checkingRarID } = require('./Export/itemStringCore.js');
-const { handleLimitOnOptions, grabUser, makeCapital, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
+const { handleLimitOnOptions, grabUser, makeCapital, sendTimedChannelMessage, inclusiveRandNum } = require('../../uniHelperFunctions.js');
 const { checkInboundItem, checkInboundMat } = require('./Export/itemMoveContainer.js');
 const { grabColour } = require('../Game/exported/grabRar.js');
+const { xpPayoutScale } = require('./Export/Classes/EnemyFab.js');
+const { handleUserPayout } = require('./Export/uni_userPayouts.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -95,6 +97,18 @@ module.exports = {
                 .setDescription('Quest ID')
                 .setRequired(true)
             )
+        )
+        .addSubcommand(subcommand => 
+            subcommand
+            .setName('kill-payout')
+            .setDescription('Creates/completes the picked quest!')
+            .addIntegerOption(option =>
+                option
+                .setName('level')
+                .setDescription('Enemy Level to payout for')
+                .setRequired(true)
+            )
+            .addUserOption(option => option.setName('target').setDescription('The user'))
         ),
     
     async autocomplete(interaction) {
@@ -210,6 +224,15 @@ module.exports = {
             .then(async q => {return await q.reload()});
 
             return await interaction.reply({content: `New Quest created with ID ${theQuest.qid}`, ephemeral: true});
+        } else if (subCom === 'kill-payout'){
+            const levelRoll = interaction.options.getInteger('level');
+            const xpObj = xpPayoutScale(levelRoll);
+            const xpRolled = inclusiveRandNum(xpObj.max, xpObj.min);
+            const coinRolled = xpRolled + Math.floor(xpRolled * 0.10);
+
+            await handleUserPayout(xpRolled, coinRolled, interaction, theUser);
+
+            return await interaction.reply({content: `User Payout Success!`, ephemeral: true});
         }
 
         const giveAmount = interaction.options.getInteger('amount') ?? 1;
