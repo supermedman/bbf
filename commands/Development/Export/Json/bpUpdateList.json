@@ -455,7 +455,7 @@
                                 "Name": "Medium Ton of Stats",
                                 "Duration": 20,
                                 "Cooldown": 30,
-                                "Strength": 4
+                                "Strength": 3
                             },
                             {
                                 "Name": "Major Ton of Stats",
@@ -792,20 +792,20 @@
                         "List": [
                             {
                                 "Name": "Minor Strength",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 15,
+                                "Cooldown": 20,
                                 "Strength": 3
                             },
                             {
                                 "Name": "Medium Strength",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 25,
+                                "Cooldown": 35,
                                 "Strength": 5
                             },
                             {
                                 "Name": "Major Strength",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 50,
+                                "Cooldown": 65,
                                 "Strength": 10
                             }
                         ]
@@ -927,20 +927,20 @@
                         "List": [
                             {
                                 "Name": "Minor Speed",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 15,
+                                "Cooldown": 20,
                                 "Strength": 3
                             },
                             {
                                 "Name": "Medium Speed",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 25,
+                                "Cooldown": 35,
                                 "Strength": 5
                             },
                             {
                                 "Name": "Major Speed",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 50,
+                                "Cooldown": 65,
                                 "Strength": 10
                             }
                         ]
@@ -1062,20 +1062,20 @@
                         "List": [
                             {
                                 "Name": "Minor Intelligence",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 15,
+                                "Cooldown": 20,
                                 "Strength": 3
                             },
                             {
                                 "Name": "Medium Intelligence",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 25,
+                                "Cooldown": 35,
                                 "Strength": 5
                             },
                             {
                                 "Name": "Major Intelligence",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 50,
+                                "Cooldown": 65,
                                 "Strength": 10
                             }
                         ]
@@ -1197,21 +1197,171 @@
                         "List": [
                             {
                                 "Name": "Minor Dexterity",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 15,
+                                "Cooldown": 20,
                                 "Strength": 3
                             },
                             {
                                 "Name": "Medium Dexterity",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 25,
+                                "Cooldown": 35,
                                 "Strength": 5
                             },
                             {
                                 "Name": "Major Dexterity",
-                                "Duration": 0,
-                                "Cooldown": 0,
+                                "Duration": 50,
+                                "Cooldown": 65,
                                 "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Attack",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Attack",
+                                "Description": "Increases base Attack Damage by 150",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 25,
+                                "Cost": 15000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Twisted Horn",
+                                        "Type": "fleshy",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 15
+                                    }
+                                ],
+                                "PotionID": 26,
+                                "BlueprintID": 46
+                            },
+                            {
+                                "Name": "Medium Attack",
+                                "Description": "Increases base Attack Damage by 500",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 25000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Twisted Horn",
+                                        "Type": "fleshy",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Ground Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 30
+                                    }
+                                ],
+                                "PotionID": 27,
+                                "BlueprintID": 47
+                            },
+                            {
+                                "Name": "Major Attack",
+                                "Description": "Increases base Attack Damage by 5000",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 60,
+                                "Cost": 100000,
+
+                                "Rarity": "????",
+                                "Rar_id": 9,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Yessilese Bonemarrow",
+                                        "Type": "fleshy",
+                                        "Amount": 2
+                                    },
+                                    {
+                                        "Name": "Phaseroot Extract",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Pure Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 60
+                                    }
+                                ],
+                                "PotionID": 28,
+                                "BlueprintID": 48
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Attack",
+                                "Duration": 10,
+                                "Cooldown": 15,
+                                "Strength": 150
+                            },
+                            {
+                                "Name": "Medium Attack",
+                                "Duration": 30,
+                                "Cooldown": 40,
+                                "Strength": 500
+                            },
+                            {
+                                "Name": "Major Attack",
+                                "Duration": 4,
+                                "Cooldown": 10,
+                                "Strength": 5000
                             }
                         ]
                     }
@@ -1494,6 +1644,74 @@
                                 ],
                                 "ToolID": 11,
                                 "BlueprintID": 28
+                            },
+                            {
+                                "Name": "Mien Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *40*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 85,
+                                "Cost": 500000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 50
+                                    },
+                                    {
+                                        "Name": "Worked Phase-Leather",
+                                        "Type": "skinny",
+                                        "Amount": 35
+                                    },
+                                    {
+                                        "Name": "Phaseflower Bark",
+                                        "Type": "woody",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "ToolID": 17,
+                                "BlueprintID": 50
+                            },
+                            {
+                                "Name": "Nizdea Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *45*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 95,
+                                "Cost": 1000000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Pure DARK",
+                                        "Type": "unique",
+                                        "Amount": 17
+                                    },
+                                    {
+                                        "Name": "Zircon",
+                                        "Type": "tooly",
+                                        "Amount": 35
+                                    },
+                                    {
+                                        "Name": "Pink Lace Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 25
+                                    }
+                                ],
+                                "ToolID": 18,
+                                "BlueprintID": 51
                             }
                         ],
                         "Effect": [
@@ -1528,6 +1746,14 @@
                             {
                                 "Name": "Xogida Plushie",
                                 "Strength": 35
+                            },
+                            {
+                                "Name": "Mien Plushie",
+                                "Strength": 40
+                            },
+                            {
+                                "Name": "Nizdea Plushie",
+                                "Strength": 45
                             }
                         ]
                     },
@@ -1601,6 +1827,50 @@
                                 ],
                                 "ToolID": 8,
                                 "BlueprintID": 24
+                            },
+                            {
+                                "Name": "Small Embeded Crown",
+                                "Description": "Pigmy increases base materials collected when claiming by *6*. *x3* for all *metalic & gemy* materials",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 60,
+                                "Cost": 1000000,
+
+                                "Rarity": "???",
+                                "Rar_id": 8,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Pure Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 2
+                                    },
+                                    {
+                                        "Name": "Ruby",
+                                        "Type": "gemy",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Sapphire",
+                                        "Type": "gemy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Blood Opal",
+                                        "Type": "herby",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Diamond",
+                                        "Type": "gemy",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "ToolID": 16,
+                                "BlueprintID": 49
                             }
                         ],
                         "Effect": [
@@ -1618,6 +1888,15 @@
                                 "Mult": 3,
                                 "MultType": [
                                     "herby"
+                                ]
+                            },
+                            {
+                                "Name": "Small Embeded Crown",
+                                "Strength": 6,
+                                "Mult": 3,
+                                "MultType": [
+                                    "metalic",
+                                    "gemy"
                                 ]
                             }
                         ]
