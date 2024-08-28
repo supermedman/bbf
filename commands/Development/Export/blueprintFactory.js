@@ -16,9 +16,9 @@ async function checkLevelBlueprint(user, bpList, interaction){
     const userBPS = await OwnedBlueprints.findAll({where: {spec_id: user.userid}});
     if (userBPS.length === 0) userBPS.push({name: "None"});
 
-    const crossCheckOwned = (bp) => userBPS.some(uBP => {return (uBP.name === bp.Name) ? false : true;});
-    const levelReqList = bpList.filter(bp => bp.Level <= user.level && crossCheckOwned(bp) && !bp.Drop && bp.Unlock);
-    if (levelReqList.length === 0) return "No Unlocks";
+    const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.blueprintid !== bp.BlueprintID);
+    const levelReqList = bpList.filter(bp => bp.Level <= user.level && !crossCheckOwned(bp) && !bp.Drop && bp.Unlock);
+    if (levelReqList.size === 0) return "No Unlocks";
 
     const addedBPList = [];
     for (const [key, bp] of levelReqList){
@@ -47,14 +47,6 @@ async function rollRandBlueprint(user, bpList, interaction){
 
     const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.blueprintid !== bp.BlueprintID);
     const levelReqList = bpList.filter(bp => bp.Level <= user.level && !crossCheckOwned(bp) && bp.Drop && bp.Unlock);
-    
-    // const dropTypeFilter = bpList.filter(bp => bp.Level <= user.level && bp.Drop && bp.Unlock);
-    // const levelReqList = dropTypeFilter.filter(bp => {
-    //     if (userBPS.some(uBP => bp.BlueprintID === uBP.blueprintid)){
-    //         return false;
-    //     } else return true;
-    // });
-    //console.log(levelReqList);
     if (levelReqList.size === 0) return "No Match";
 
     const pickFromArray = [];
