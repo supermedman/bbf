@@ -11,6 +11,7 @@ const loreList = require('../../../events/Models/json_prefabs/loreList.json');
 const { uni_displayItem } = require('./itemStringCore');
 const { checkHintStoryQuest, checkHintDungeon, checkHintLore } = require('../../Game/exported/handleHints');
 const { handleUserPayout } = require('./uni_userPayouts');
+const { spawnNpc } = require('../../Game/exported/npcSpawner');
 
 /**
  * This function returns a Map() to simulate a discord.js Collection. It contains
@@ -334,16 +335,16 @@ async function handleClaimMilestone(user, interaction, userMilestone){
                 ["five", 5],
             ]);
 
+            const grabPageButtIDNum = (id) => pageStrNumSwitch.get(id.split('-')[1]);
+
             // =====================
             // BUTTON COLLECTOR
             collector.on('collect', async c => {
                 await c.deferUpdate().then(async () => {
-                    const pageNumPicked = pageStrNumSwitch.get(c.customId.split("-")[1]);
-                    loreMenu.shownPage = pageNumPicked - 1;
+                    loreMenu.shownPage = grabPageButtIDNum(c.customId) - 1;
 
                     for (const butt of loreMenu.buttList){
-                        const disButt = (butt.data.custom_id === c.customId) ? true : false;
-                        butt.setDisabled(disButt);
+                        butt.setDisabled(butt.data.custom_id === c.customId);
                     }
 
                     await anchorMsg.edit({embeds: [loreMenu.pageList[loreMenu.shownPage]], components: [loreButtRow]});
@@ -392,6 +393,10 @@ async function handleClaimMilestone(user, interaction, userMilestone){
             .then(async u => await u.save()).then(async u => {return await u.reload()});
         }
     }   
+
+    // ==== SPAWNING NPC SETUP ====
+    if (dropChance(0.33)) await spawnNpc(user, interaction);
+    // ====					   ====
 
     return;
 }

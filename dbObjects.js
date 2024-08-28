@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const fs = require('node:fs');
 
 const { sqlUser, sqlPass } = require('./config.json');
 
@@ -16,14 +17,14 @@ const LootShop = require('./events/Models/LootShop')(sequelize, Sequelize.DataTy
 const Pigmy = require('./events/Models/Pigmy')(sequelize, Sequelize.DataTypes);
 const Pighouse = require('./events/Models/Pighouse')(sequelize, Sequelize.DataTypes);
 const Questing = require('./events/Models/Questing')(sequelize, Sequelize.DataTypes);
-const ActiveEnemy = require('./events/Models/ActiveEnemy')(sequelize, Sequelize.DataTypes);
+//const ActiveEnemy = require('./events/Models/ActiveEnemy')(sequelize, Sequelize.DataTypes);
 const UserData = require('./events/Models/UserData')(sequelize, Sequelize.DataTypes);
 const GuildData = require('./events/Models/GuildData')(sequelize, Sequelize.DataTypes);
 const Loadout = require('./events/Models/Loadout')(sequelize, Sequelize.DataTypes);
 const Milestones = require('./events/Models/Milestones')(sequelize, Sequelize.DataTypes);
 const ActiveDungeon = require('./events/Models/ActiveDungeon')(sequelize, Sequelize.DataTypes);
-const ActiveDungeonEnemy = require('./events/Models/ActiveDungeonEnemy')(sequelize, Sequelize.DataTypes);
-const ActiveDungeonBoss = require('./events/Models/ActiveDungeonBoss')(sequelize, Sequelize.DataTypes);
+//const ActiveDungeonEnemy = require('./events/Models/ActiveDungeonEnemy')(sequelize, Sequelize.DataTypes);
+//const ActiveDungeonBoss = require('./events/Models/ActiveDungeonBoss')(sequelize, Sequelize.DataTypes);
 const MaterialStore = require('./events/Models/MaterialStore')(sequelize, Sequelize.DataTypes);
 const OwnedBlueprints = require('./events/Models/OwnedBlueprints')(sequelize, Sequelize.DataTypes);
 const OwnedPotions = require('./events/Models/OwnedPotions')(sequelize, Sequelize.DataTypes);
@@ -61,6 +62,32 @@ const CraftControllers = require('./events/Models/CraftControllers')(sequelize, 
 const LocalMarkets = require('./events/Models/LocalMarkets')(sequelize, Sequelize.DataTypes);
 
 
+const staticModelList = fs.readdirSync('./events/Models').filter(file => file.endsWith('.js'));
+
+/**
+ * This function contains all model filter methods, checking the given ``fName`` against each.
+ * @param {string} fName Model Filename
+ * @returns {boolean}
+ */
+function handleModelFilters(fName){
+	return !isBlackListed(fName);
+}
+
+/**
+ * This function checks if given file is blacklisted.
+ * @param {string} fName Model Filename
+ * @returns {boolean}
+ */
+function isBlackListed(fName){
+	const modelBlackList = ['Equipped', 'LootDrop', 'ActiveEnemy', 'ActiveDungeonEnemy', 'ActiveDungeonBoss'];
+	const fNameSplit = fName.split('.');
+	return modelBlackList.includes(fNameSplit[0]);
+}
+
+
+const modelList = staticModelList.filter(fName => handleModelFilters(fName));
+console.log('Active DataBase Tables: %d', modelList.length);
+
 module.exports = {
 	//Equipped,
 	LootStore,
@@ -69,14 +96,14 @@ module.exports = {
 	Pigmy,
 	Pighouse,
 	Questing,
-	ActiveEnemy,
+	//ActiveEnemy,
 	UserData,
 	GuildData,
 	Loadout,
 	Milestones,
 	ActiveDungeon,
-	ActiveDungeonEnemy,
-	ActiveDungeonBoss,
+	//ActiveDungeonEnemy,
+	//ActiveDungeonBoss,
 	MaterialStore,
 	OwnedBlueprints,
 	OwnedPotions,
