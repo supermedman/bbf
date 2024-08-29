@@ -5,6 +5,8 @@ const { Town, MediumTile, GuildData, UserData, MaterialStore, TownMaterial, Town
 const { loadBuilding } = require('./exported/displayBuilding.js');
 
 const coreReq = require('../../events/Models/json_prefabs/coreBuildings.json');
+const { checkUserTownPerms, checkUserAsMayor, grabUser, grabTown, grabTownByName, makeCapital, createInteractiveChannelMessage, editTimedChannelMessage, sendTimedChannelMessage, grabLocalTowns, handleLimitOnOptions } = require('../../uniHelperFunctions.js');
+const { createBasicPageButtons } = require('./exported/tradeExtras.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,171 +14,231 @@ module.exports = {
 		.setDescription('The Main command for all things town related!')
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('join')
-				.setDescription('Join an existing town!')
-				.addStringOption(option =>
-					option.setName('thetown')
-						.setDescription('Which town would you like to join?')
-						.setRequired(true)
-						.setAutocomplete(true)))
+			.setName('join')
+			.setDescription('Join an existing town!')
+			.addStringOption(option =>
+				option
+				.setName('thetown')
+				.setDescription('Which town would you like to join?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('belong')
-				.setDescription('View the town you belong too, or the town of someone else.')
-				.addUserOption(option => option.setName('target').setDescription('The user')))
+			.setName('belong')
+			.setDescription('View the town you belong too, or the town of someone else.')
+			.addUserOption(option => option.setName('target').setDescription('The user'))
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('bonus')
-				.setDescription('Take a look at the material bonuses from the towns around you!'))
+			.setName('bonus')
+			.setDescription('Take a look at the material bonuses from the towns around you!')
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('establish')
-				.setDescription('Establish a new town!')
-				.addStringOption(option =>
-					option.setName('townname')
-						.setDescription('What would you like to name your town?')
-						.setRequired(true))
-				.addStringOption(option =>
-					option.setName('location')
-						.setDescription('Where would you like to settle your new town?')
-						.setRequired(true)
-						.addChoices(
-							{ name: 'Location 1', value: 'one' },
-							{ name: 'Location 2', value: 'two' })))
+			.setName('establish')
+			.setDescription('Establish a new town!')
+			.addStringOption(option =>
+				option
+				.setName('townname')
+				.setDescription('What would you like to name your town?')
+				.setRequired(true)
+			)
+			.addStringOption(option =>
+				option
+				.setName('location')
+				.setDescription('Where would you like to settle your new town?')
+				.setRequired(true)
+				.addChoices(
+					{ name: 'Location 1', value: 'one' },
+					{ name: 'Location 2', value: 'two' }
+				)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('openplot')
-				.setDescription('Mark a certain amount of town plots as available to anyone belonging to the town.')
-				.addIntegerOption(option =>
-					option.setName('amount')
-						.setDescription('How many plots will be made public?')))
+			.setName('openplot')
+			.setDescription('Mark a certain amount of town plots as available to anyone belonging to the town.')
+			.addIntegerOption(option =>
+				option
+				.setName('amount')
+				.setDescription('How many plots will be made public?')
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('closeplot')
-				.setDescription('Mark a certain amount of town plots as unavailable to anyone belonging to the town.')
-				.addIntegerOption(option =>
-					option.setName('amount')
-						.setDescription('How many plots will be made private?')))
+			.setName('closeplot')
+			.setDescription('Mark a certain amount of town plots as unavailable to anyone belonging to the town.')
+			.addIntegerOption(option =>
+				option
+				.setName('amount')
+				.setDescription('How many plots will be made private?')
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('claimplot')
-				.setDescription('Claim a Town Plot as your own! Is currently free!'))
+			.setName('claimplot')
+			.setDescription('Claim a Town Plot as your own! Is currently free!')
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('buildplot')
-				.setDescription('Build on one of your owned plots!')
-				.addStringOption(option =>
-					option.setName('theplot')
-						.setDescription('Which plot would you like to build on?')
-						.setRequired(true)
-						.setAutocomplete(true))
-				.addStringOption(option =>
-					option.setName('buildtype')
-						.setDescription('Which plot would you like to build on?')
-						.setRequired(true)
-						.addChoices(
-							{ name: 'House', value: 'house' })))
+			.setName('buildplot')
+			.setDescription('Build on one of your owned plots!')
+			.addStringOption(option =>
+				option
+				.setName('theplot')
+				.setDescription('Which plot would you like to build on?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+			.addStringOption(option =>
+				option
+				.setName('buildtype')
+				.setDescription('Which plot would you like to build on?')
+				.setRequired(true)
+				.addChoices(
+					{ name: 'House', value: 'house' }
+				)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('viewplot')
-				.setDescription('View a town plot')
-				.addStringOption(option =>
-					option.setName('thetown')
-						.setDescription('Which town would you like to view?')
-						.setRequired(true)
-						.setAutocomplete(true))
-				.addStringOption(option =>
-					option.setName('townplots')
-						.setDescription('Which plot would you like to view?')
-						.setRequired(true)
-						.setAutocomplete(true)))
+			.setName('viewplot')
+			.setDescription('View a town plot')
+			.addStringOption(option =>
+				option
+				.setName('thetown')
+				.setDescription('Which town would you like to view?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+			.addStringOption(option =>
+				option
+				.setName('townplots')
+				.setDescription('Which plot would you like to view?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('buildcore')
-				.setDescription('Begin construction of a core town building!')
-				.addStringOption(option =>
-					option.setName('coretype')
-						.setDescription('Which core town building would you like to build?')
-						.setRequired(true)
-						.setAutocomplete(true)))
+			.setName('buildcore')
+			.setDescription('Begin construction of a core town building!')
+			.addStringOption(option =>
+				option
+				.setName('coretype')
+				.setDescription('Which core town building would you like to build?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('upgradecore')
-				.setDescription('Begin upgrade for a core town building!')
-				.addStringOption(option =>
-					option.setName('coretype')
-						.setDescription('Which core town building would you like to upgrade?')
-						.setRequired(true)
-						.setAutocomplete(true)))
+			.setName('upgradecore')
+			.setDescription('Begin upgrade for a core town building!')
+			.addStringOption(option =>
+				option
+				.setName('coretype')
+				.setDescription('Which core town building would you like to upgrade?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('viewcore')
-				.setDescription('View an existing core town building!')
-				.addStringOption(option =>
-					option.setName('thetown')
-						.setDescription('Which town would you like to view?')
-						.setRequired(true)
-						.setAutocomplete(true))
-				.addStringOption(option =>
-					option.setName('coretype')
-						.setDescription('Which core town building would you like to view?')
-						.setRequired(true)
-						.setAutocomplete(true)))
+			.setName('viewcore')
+			.setDescription('View an existing core town building!')
+			.addStringOption(option =>
+				option
+				.setName('thetown')
+				.setDescription('Which town would you like to view?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+			.addStringOption(option =>
+				option
+				.setName('coretype')
+				.setDescription('Which core town building would you like to view?')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('appoint')
-				.setDescription('Appoint a user to allow them access to town editing commands.')
-				.addUserOption(option => option.setName('target').setDescription('The user')))
+			.setName('appoint')
+			.setDescription('Appoint a user to allow them access to town editing commands.')
+			.addUserOption(option => option.setName('target').setDescription('The user'))
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('demote')
-				.setDescription('Demote a user to revoke access to town editing commands.')
-				.addUserOption(option => option.setName('target').setDescription('The user')))
+			.setName('demote')
+			.setDescription('Demote a user to revoke access to town editing commands.')
+			.addUserOption(option => option.setName('target').setDescription('The user'))
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('transfer')
-				.setDescription('Transfer ownership of a town to another user.')
-				.addUserOption(option => option.setName('target').setDescription('The user')))
+			.setName('transfer')
+			.setDescription('Transfer ownership of a town to another user.')
+			.addUserOption(option => option.setName('target').setDescription('The user'))
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('deposit')
-				.setDescription('Transfer coins or materials from your personal balance into the towns treasury.')
-				.addStringOption(option =>
-					option.setName('type')
-						.setDescription('Coins or Materials?')
-						.setRequired(true)
-						.addChoices(
-							{ name: 'Coins', value: 'coin' },
-							{ name: 'Materials', value: 'mat' }))
-				.addStringOption(option =>
-					option.setName('item')
-						.setDescription('Which item would you like to deposit?')
-						.setAutocomplete(true))
-				.addIntegerOption(option =>
-					option.setName('amount')
-						.setDescription('How much will you be transfering?')))
+			.setName('deposit')
+			.setDescription('Transfer coins or materials from your personal balance into the towns treasury.')
+			.addStringOption(option =>
+				option
+				.setName('type')
+				.setDescription('Coins or Materials?')
+				.setRequired(true)
+				.addChoices(
+					{ name: 'Coins', value: 'coin' },
+					{ name: 'Materials', value: 'mat' }
+				)
+			)
+			.addStringOption(option =>
+				option
+				.setName('item')
+				.setDescription('Which item would you like to deposit?')
+				.setAutocomplete(true)
+			)
+			.addIntegerOption(option =>
+				option
+				.setName('amount')
+				.setDescription('How much will you be transfering?')
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('withdraw')
-				.setDescription('Transfer coins or materials from the towns treasury into your personal balance.')
-				.addStringOption(option =>
-					option.setName('type')
-						.setDescription('Coins or Materials?')
-						.setRequired(true)
-						.addChoices(
-							{ name: 'Coins', value: 'coin' },
-							{ name: 'Materials', value: 'mat' }))
-				.addStringOption(option =>
-					option.setName('item')
-						.setDescription('Which item would you like to withdraw?')
-						.setAutocomplete(true))
-				.addIntegerOption(option =>
-					option.setName('amount')
-						.setDescription('How much will you be transfering?')))
+			.setName('withdraw')
+			.setDescription('Transfer coins or materials from the towns treasury into your personal balance.')
+			.addStringOption(option =>
+				option
+				.setName('type')
+				.setDescription('Coins or Materials?')
+				.setRequired(true)
+				.addChoices(
+					{ name: 'Coins', value: 'coin' },
+					{ name: 'Materials', value: 'mat' }
+				)
+			)
+			.addStringOption(option =>
+				option
+				.setName('item')
+				.setDescription('Which item would you like to withdraw?')
+				.setAutocomplete(true)
+			)
+			.addIntegerOption(option =>
+				option
+				.setName('amount')
+				.setDescription('How much will you be transfering?')
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('storage')
-				.setDescription('View material storage for your town.')),
+			.setName('storage')
+			.setDescription('View material storage for your town.')
+		),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -187,19 +249,22 @@ module.exports = {
 			const focusedValue = interaction.options.getFocused(false);
 
 			const medTile = await MediumTile.findOne({ where: { guildid: interaction.guild.id } });
-			let townOne = 'None', townTwo = 'None';
-			if (medTile.town_one !== '0') {
-				townOne = medTile.town_one;
-				townOne = await Town.findOne({ where: { townid: townOne } });
-				townOne = townOne.name;
-			}
-			if (medTile.town_two !== '0') {
-				townTwo = medTile.town_two;
-				townTwo = await Town.findOne({ where: { townid: townTwo } });
-				townTwo = townTwo.name;
-			}
+			const slotOne = (medTile.town_one !== '0') ? await Town.findOne({ where: { townid: medTile.town_one } }).name : 'None';
+			const slotTwo = (medTile.town_two !== '0') ? await Town.findOne({ where: { townid: medTile.town_two } }).name : 'None';
 
-			choices = [townOne, townTwo];
+			// let townOne = 'None', townTwo = 'None';
+			// if (medTile.town_one !== '0') {
+			// 	townOne = medTile.town_one;
+			// 	townOne = await Town.findOne({ where: { townid: townOne } });
+			// 	townOne = townOne.name;
+			// }
+			// if (medTile.town_two !== '0') {
+			// 	townTwo = medTile.town_two;
+			// 	townTwo = await Town.findOne({ where: { townid: townTwo } });
+			// 	townTwo = townTwo.name;
+			// }
+
+			choices = [slotOne, slotTwo];
 
 			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
@@ -240,7 +305,7 @@ module.exports = {
 
 			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
-				filtered.map(choice => ({ name: choice, value: choice })),
+				handleLimitOnOptions(filtered).map(choice => ({ name: choice, value: choice })),
 			);
 		}
 
@@ -346,6 +411,518 @@ module.exports = {
 		const { betaTester, materialFiles } = interaction.client;
 
 		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
+
+		const subCom = interaction.options.getSubcommand();
+
+		const needsEditPerms = ['deposit', 'withdraw', 'openplot', 'closeplot', 'buildcore', 'upgradecore']; // Requires edit perms to use
+		// const wantsEditPerms = ['claimplot']; // More options if edit perms are given
+		const needsMayorPerms = ['appoint', 'demote', 'transfer']; // Only Mayor can use
+
+		const canEdit = checkUserTownPerms;
+		const isMayor = checkUserAsMayor;
+		const hasTown = async (user) => typeof await grabTown(user.townid) !== 'undefined';
+
+		const checkTownPerms = async (user) => {
+			return {isMayor: await isMayor(user), canEdit: await canEdit(user), hasTown: await hasTown(user), townID: user.townid};
+		};
+
+		const user = await grabUser(interaction.user.id);
+		const permList = await checkTownPerms(user);
+
+		const targetUser = await grabUser(interaction.options.getUser('target').id ?? interaction.user.id);
+		if (!targetUser) return await interaction.reply({content: `Selected user does not have a game profile yet!`, ephemeral: true});
+		const targetPermList = await checkTownPerms(targetUser);
+
+		if (!['establish', 'join'].includes(subCom) && !permList.hasTown) return await interaction.reply({content: 'You must first join/establish a town to use this command!', ephemeral: true});
+		if (['establish', 'join'].includes(subCom) && permList.hasTown) return await interaction.reply({content: 'You already belong to a town!', ephemeral: true});
+		// if (subCom === 'belong' && !permList.hasTown) return await interaction.reply({content: 'You already belong to a town!', ephemeral: true});
+		if (needsEditPerms.includes(subCom) && !permList.canEdit) return await interaction.reply({content: 'You do not have the required town permissions to use this command!', ephemeral: true});
+		if (needsMayorPerms.includes(subCom) && !permList.isMayor) return await interaction.reply({content: 'Only the mayor can use this command!', ephemeral: true});
+
+		const townName = interaction.options.getString('thetown') ?? 'None';
+
+		const grabTownFromOptions = async (subCom) => {
+			switch(subCom){
+				case "join":
+				return await grabTownByName(townName);
+				case "belong":
+				return await grabTown(targetUser.townid);
+				default:
+				return await grabTown(user.townid);
+			}
+		};
+		const townRef = await grabTownFromOptions(subCom);
+		const mayorRef = await grabUser(townRef.mayorid) ?? 'None';
+
+		const localTowns = await grabLocalTowns(interaction.guild.id);
+
+		const confirmButt = new ButtonBuilder()
+		.setLabel('Confirm!')
+		.setStyle(ButtonStyle.Primary)
+		.setCustomId('confirm');
+		const cancelButt = new ButtonBuilder()
+		.setLabel('Cancel!')
+		.setStyle(ButtonStyle.Secondary)
+		.setCustomId('cancel');
+
+		const buttonList = [confirmButt, cancelButt];
+
+		const basePageButts = createBasicPageButtons("Primary");
+
+		const actionOneButt = new ButtonBuilder();
+		const actionTwoButt = new ButtonBuilder();
+
+		// Empty ActionRowBuilder() & EmbedBuilder()
+		const actionButtRow = new ActionRowBuilder();
+		const firstDisplayEmbed = new EmbedBuilder();
+
+		// Used for dynamic assignments
+		const replyObj = {
+			embeds: [], 
+			components: []
+		};
+
+		let hasActionRow = true, usePagination = false, useActionOneButt = false, useActionTwoButt = false;
+		switch(subCom){
+			case "establish":
+
+			break;
+			case "join": // JOIN AN EXISTING TOWN
+				if (!townRef) return await interaction.reply({content: `The town of ${townName} could not be found!`, ephemeral: true});
+
+				firstDisplayEmbed
+				.setTitle(`== Join ${makeCapital(townName)} ==`)
+				.setColor(0o0)
+				.addFields({ name: 'Join: ', value: 'Confirm to join this town!' });
+			break;
+			case "belong": // VIEW AN EXISTING TOWN
+				if (!targetPermList.hasTown) return await interaction.reply({content: `${makeCapital(targetUser.username)} does not belong to a town yet!`, ephemeral: true});
+
+				const townDetails = await generateTownDisplayEmbed(townRef, mayorRef);
+
+				firstDisplayEmbed
+				.setTitle(townDetails.title)
+				.setColor(townDetails.color)
+				.addFields(townDetails.fields);
+
+				hasActionRow = false;
+			break;
+			case "bonus": // DISPLAY LOCAL TOWN MAT BONUSES
+				if (localTowns.length === 0) return await interaction.reply({content: 'No local towns could be found!', ephemeral: true});
+
+				const localBonuses = generateLocalTownBonuses(localTowns);
+
+				firstDisplayEmbed
+				.setTitle(localBonuses.title)
+				.setColor(localBonuses.color)
+				.addFields(localBonuses.fields);
+
+				hasActionRow = false;
+			break;
+			case "appoint": // GIVE TOWN PERMS
+				if (permList.townID !== targetPermList.townID) return await interaction.reply({content: 'The user picked does not belong to your town!', ephemeral: true});
+				if (targetPermList.canEdit) return await interaction.reply({content: 'This user has already been appointed!', ephemeral: true});
+
+				firstDisplayEmbed
+				.setTitle('== Appoint User ==')
+				.setDescription(`Are you sure you would like to appoint ${makeCapital(targetUser.username)}? This will grant them town managment permissions`);
+			break;
+			case "demote": // TAKE TOWN PERMS
+				if (permList.townID !== targetPermList.townID) return await interaction.reply({content: 'The user picked does not belong to your town!', ephemeral: true});
+				if (!targetPermList.canEdit) return await interaction.reply({content: 'This user has not been appointed!', ephemeral: true});
+
+				firstDisplayEmbed
+				.setTitle('== Demote User ==')
+				.setDescription(`Are you sure you would like to demote ${makeCapital(targetUser.username)}? This will revoke there current town managment permissions`);
+			break;
+			case "transfer": // TRANSFER OWNED TOWN
+				if (permList.townID !== targetPermList.townID) return await interaction.reply({content: 'The user picked does not belong to your town!', ephemeral: true});
+
+				buttonList[0].setStyle(ButtonStyle.Danger);
+
+				firstDisplayEmbed
+				.setTitle('== TRANSFER OWNERSHIP ==')
+				.setColor('Red')
+				.setDescription('This process ***CANNOT BE UNDONE!!!***')
+				.addFields({ name: 'Are you sure you want to transfer ownership?', value: `${makeCapital(targetUser.username)} will become the new mayor!`});
+			break;
+			case "deposit":
+				// USE BUTTON NAV MENU
+				// USE AMOUNT/COIN BUTT MENU
+				// PAGE 1: TYPE
+				// PAGE 2: AMOUNT
+				// PAGE 3: CONFIRM
+			break;
+			case "withdraw":
+				// USE BUTTON NAV MENU
+				// USE AMOUNT/COIN BUTT MENU
+				// PAGE 1: TYPE
+				// PAGE 2: AMOUNT
+				// PAGE 3: CONFIRM
+			break;
+			case "openplot":
+				// USE BUTTON NAV MENU
+				// USE AMOUNT BUTT MENU
+				// PAGE 1: AMOUNT
+				// PAGE 2: CONFIRM
+			break;
+			case "closeplot":
+				// USE BUTTON NAV MENU
+				// USE AMOUNT BUTT MENU
+				// PAGE 1: AMOUNT
+				// PAGE 2: CONFIRM
+			break;
+			case "claimplot":
+				// USE BUTTON NAV MENU
+				// PAGE 1: SELECT FROM
+				// PAGE 2: CONFIRM
+			break;
+			case "buildplot":
+				// USE BUTTON NAV MENU
+				// PAGE 1: SELECT FROM
+				// PAGE 2: CONFIRM
+			break;
+			case "viewplot":
+				// USE BUTTON NAV MENU
+				// PAGE 1: VIEW PAGES
+			break;
+			case "buildcore":
+				// USE BUTTON NAV MENU
+				// PAGE 1: TYPE
+				// PAGE 2: COST
+				// PAGE 3: CONFIRM
+			break;
+			case "upgradecore":
+				// USE BUTTON NAV MENU
+				// PAGE 1: TYPE
+				// PAGE 2: COST
+				// PAGE 3: CONFIRM
+			break;
+			case "viewcore":
+				// USE BUTTON NAV MENU
+				// PAGE 1: VIEW PAGES
+			break;
+			case "storage":
+				// USE BUTTON NAV MENU
+				// PAGE 1: VIEW PAGES
+			break;
+		}
+
+		if (!hasActionRow){
+			return await sendTimedChannelMessage(interaction, 120000, replyObj, "Reply");
+		}
+
+		replyObj.embeds = [firstDisplayEmbed];
+		replyObj.components = [actionButtRow.addComponents(buttonList)];
+
+		if (usePagination) {
+			if (useActionOneButt || useActionTwoButt){
+				const usedActionButts = [];
+				if (useActionOneButt) usedActionButts.push(actionOneButt);
+				if (useActionTwoButt) usedActionButts.push(actionTwoButt);
+				basePageButts.push(basePageButts.splice(1, 1, usedActionButts)[0]);
+			}
+			
+			const pageButts = new ActionRowBuilder().addComponents(basePageButts);
+			replyObj.components.push(pageButts);
+		}
+
+		// const replyObj = {embeds: [firstDisplayEmbed], components: [actionButtRow]};
+		const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "Reply");
+
+		// =====================
+		// BUTTON COLLECTOR
+		collector.on('collect', async c => {
+			await c.deferUpdate().then(async () => {
+				let editWith, confirmOutcome;
+				switch(c.customId){
+					case "confirm":
+						switch(subCom){
+							case "join":
+								confirmOutcome = await handleJoinTown(townRef, user);
+								editWith = {embeds: [confirmOutcome.embeds], components: []};
+							break;
+							case "appoint":
+								confirmOutcome = await updateTownCanEditList(townRef, targetUser, "appoint");
+								editWith = {embeds: [confirmOutcome.embeds], components: []};
+							break;
+							case "demote":
+								confirmOutcome = await updateTownCanEditList(townRef, targetUser, "demote");
+								editWith = {embeds: [confirmOutcome.embeds], components: []};
+							break;
+							case "transfer":
+								confirmOutcome = await updateTownMayor(townRef, targetUser);
+								editWith = {embeds: [confirmOutcome.embeds], components: []};
+							break;
+							case "":
+
+							break;
+						}
+					break;
+					case "cancel":
+						switch(subCom){
+							case "join":
+							return collector.stop('Cancel');
+							case "":
+
+							break;
+							default:
+							return collector.stop('Cancel');
+						}
+					break;
+				}
+				await anchorMsg.edit(editWith);
+				if (confirmOutcome.status === 'Complete') return collector.stop('Finished');
+			}).catch(e => console.error(e));
+		});
+		// =====================
+
+		// =====================
+		// BUTTON COLLECTOR
+		collector.on('end', async (c, r) => {
+			if (!r || r === 'time' || r === 'Cancel') await handleCatchDelete(anchorMsg);
+
+			if (r === 'Finished'){
+				await editTimedChannelMessage(anchorMsg, 60000, {embeds: [anchorMsg.embeds[0]], components: []});
+			}
+		});
+		// =====================
+
+		/**
+		 * This function handles transfering ownership of the given town, to the given user.
+		 * @param {object} town Town DB Object
+		 * @param {object} user UserData DB Object
+		 * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+		 */
+		async function updateTownMayor(town, user){
+			await town.update({mayorid: user.userid}).then(async t => await t.save()).then(async t => {return await t.reload()});
+
+			const returnEmbed = new EmbedBuilder()
+			.setTitle('== Transfer Complete ==')
+			.setDescription(`${makeCapital(user.username)} has been made the new mayor!`);
+
+			return {embeds: [returnEmbed], status: 'Complete'};
+		}
+
+		/**
+		 * This function handles appointing/demoting a selected user from a given town.
+		 * @param {object} town Town DB Object
+		 * @param {object} user UserData DB Object
+		 * @param {string} changeType One of: ``appoint`` | ``demote``
+		 * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+		 */
+		async function updateTownCanEditList(town, user, changeType){
+			const curEditList = town.can_edit.split('-');
+
+			const returnEmbed = new EmbedBuilder();
+			let newEditList;
+			switch(changeType){
+				case "appoint":
+					newEditList = curEditList.push(user.userid);
+					returnEmbed
+					.setTitle('== User Appointed ==')
+					.setDescription(`${makeCapital(user.username)} has been appointed to your town!`);
+				break;
+				case "demote":
+					newEditList = curEditList.filter(id => id !== user.userid);
+					returnEmbed
+					.setTitle('== User Demoted ==')
+					.setDescription(`${makeCapital(user.username)} has been demoted from your town!`);
+				break;
+			}
+
+			await town.update({can_edit: newEditList.toString()}).then(async t => await t.save()).then(async t => {return await t.reload()});
+
+			return {embeds: [returnEmbed], status: 'Complete'};
+		}
+
+		/**
+		 * This function loads the display object for all local town material bonuses available.
+		 * @param {object[]} towns List of all local towns
+		 * @returns {{title: string, color: string, fields: {name: string, value: string}[]}}
+		 */
+		function generateLocalTownBonuses(towns){
+			const finalObj = {
+				title: `== Local Town Bonuses ==`,
+				color: "",
+				fields: []
+			};
+
+			const allignMatBonus = {
+				Normal: [10, 5, 3, 3],
+				Evil: [5, 3, 1, 1],
+				Phase: [10, 8, 5, 5],
+			};
+
+			const finalFields = [];
+			for (const town of towns){
+				const matTypes = town.mat_bonus.split(',');
+				const bonusList = allignMatBonus[`${town.local_biome.split('-')[1]}`];
+
+				let bonusIdx = 0, finalValue = "";
+				for (const type of matTypes){
+					finalValue += `+${bonusList[bonusIdx]} ${makeCapital(type)}\n`;
+					bonusIdx++;
+				}
+
+				finalFields.push({name: `The Town of ${makeCapital(town.name)} gives: `, value: finalValue});
+			}
+
+			finalObj.fields = finalFields;
+			finalObj.color = 'DarkGold';
+
+			return finalObj;
+		}
+
+		/**
+		 * This function generates the embed values for the ``town`` requested.
+		 * @param {object} town Town DB Object
+		 * @param {object} mayor UserData DB Object
+		 * @returns {Promise <{title: string, color: string, fields: {name: string, value: string}[]}>}
+		 */
+		async function generateTownDisplayEmbed(town, mayor){
+			const finalObj = {
+				title: `== Town of ${makeCapital(town.name)} ==`,
+				color: "",
+				fields: []
+			};
+
+			// finalObj.description = `Current Mayor: ${mayor.username}\nTown Level: ${town.level}\nTreasury Contains: ${town.coins}c\n========\nHuman Population: ${town.population}\nNPC Population: ${town.npc_population}\n========\nMax Buildings: ${town.buildlimit}\nOpen Plots: ${town.openplots}\nClosed Plots: ${town.closedplots}\nOwned Plots: ${town.ownedplots}\nBuildings: ${town.buildcount}\n========\nMain Biome: ${biomeList[0]}\nAllignment: ${biomeList[1]}\n========\n`;
+
+			// Basic Info
+            // ==========
+            // Level, Coins, Location, Population
+            const locationSwitch = town.local_biome.split("-");
+            const basicField = {
+                name: '== Basic Info ==',
+                value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population}**\nNPC Population: **${town.npc_population}**`
+            };
+
+            // Mayor Info
+            // ==========
+            // Cur-User?
+            // const theMayor = await grabUser(town.mayorid);
+            const mayorField = {
+                name: '== The Mayor ==',
+                value: `**${makeCapital(mayor.username)}**`
+            };
+
+            // Build Info
+            // ==========
+            // Tot-Plots, Open, Closed, Built
+            const buildFields = {
+                name: '== Plot Info ==',
+                value: `Total Plots: **${town.buildlimit}**\nOpen Plots: **${town.openplots}**\nClosed Plots: **${town.closedplots}**\nOwned Plots: **${town.ownedplots}**\nDeveloped Plots: **${town.buildcount}**`
+            };
+
+            // Core Info
+            // =========
+            // Grandhall, Bank, Market, Tavern, Clergy
+			/**
+			 * This method loads the appropete display text given the status of a core building.
+			 * @param {string} status Corebuilding build status
+			 * @returns {string}
+			 */
+			const loadCoreTextFromStatus = (status) => {
+				return (status === 'None') ? "Not Built" : `Progress: ${status.split(': ')[0]} @ ${status.split(': ')[1]}`;
+			};
+			// 0 Grandhall, 1 Bank, 2 Market, 3 Tavern, 4 Clergy
+			const coreTextList = [
+				loadCoreTextFromStatus(town.grandhall_status), 
+				loadCoreTextFromStatus(town.bank_status), 
+				loadCoreTextFromStatus(town.market_status), 
+				loadCoreTextFromStatus(town.tavern_status), 
+				loadCoreTextFromStatus(town.clergy_status)
+			];
+            const coreFields = {
+                name: '== Core-Building Info ==',
+                value: `Grandhall Status: **${coreTextList[0]}**\nBank Status: **${coreTextList[1]}**\nMarket Status: **${coreTextList[2]}**\nTavern Status: **${coreTextList[3]}**\nClergy Status: **${coreTextList[4]}**`
+            };
+
+			// Embed Fields
+			finalObj.fields = [mayorField, basicField, buildFields, coreFields];
+
+			const biomeColours = {
+				Forest: 'DarkGreen',
+				Mountain: 'LightGrey',
+				Desert: 'DarkGold',
+				Plains: 'Gold',
+				Swamp: 'DarkAqua',
+				Grassland: 'Green'
+			};
+
+			// Embed Colour
+			finalObj.color = biomeColours[`${locationSwitch[0]}`];
+
+			return finalObj;
+		}
+
+		/**
+		 * This function handles updating both the ``town`` and ``user`` objects given.
+		 * 
+		 * ``town.population++``
+		 * 
+		 * ``user.townid`` = ``town.townid``
+		 * @param {object} town Town DB Object
+		 * @param {object} user UserData DB Object
+		 * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+		 */
+		async function handleJoinTown(town, user){
+			await town.increment('population').then(async t => await t.save()).then(async t => {return await t.reload()});
+			await handleTownPopLeveling(town);
+			await user.update({townid: town.townid}).then(async u => await u.save()).then(async u => {return await u.reload()});
+
+			const finalEmbed = new EmbedBuilder()
+			.setTitle('== Town Joined ==')
+			.setDescription(`Congratulations!! You are now a member of ${makeCapital(town.name)}!`);
+
+			return {embeds: finalEmbed, status: 'Complete'};
+		}
+
+		/**
+		 * This function handles checking if the given ``town`` meets the level up requirements.
+		 * @param {object} town Town DB Object
+		 * @returns {Promise <void>}
+		 */
+		async function handleTownPopLeveling(town){
+			const townLevelCheckStart = new Date().getTime();
+			let timerEndsText = 'Town Level Checking';
+
+			const staticTownPopLevelReq = (town) => {
+				const totPop = town.population + town.npc_population;
+				const levelUPReq = town.level * 5;
+				return totPop >= levelUPReq;
+			};
+
+			if (staticTownPopLevelReq(town)) {
+				await town.increment('level').then(async t => await t.save()).then(async t => {return await t.reload()});
+				// CHANGE THIS VALUE BASED ON LEVEL/OTHER FACTORS!!
+				const plotsNeeded = 5;
+				await handleNewTownPlotCreation(town, plotsNeeded);
+				timerEndsText += ' (LEVEL UP)';
+			}
+
+			endTimer(townLevelCheckStart, timerEndsText);
+			return;
+		}
+
+		/**
+		 * This function generates ``plotAmount`` new plots linked by ``town.townid``.
+		 * @param {object} town Town DB Object
+		 * @param {number} plotAmount Number of new plots to create
+		 * @returns {Promise <void>}
+		 */
+		async function handleNewTownPlotCreation(town, plotAmount){
+			const makeNewPlotsStart = new Date().getTime();
+			for (let i = 0; i < plotAmount; i++){
+				await TownPlots.create({
+					townid: town.townid
+				}).then(async tp => await tp.save()).then(async tp => {return await tp.reload()});
+			}
+			endTimer(makeNewPlotsStart, 'Create New Town Plots');
+			console.log(`Current Total Plots for ${makeCapital(town.name)}: %d`, await TownPlots.findAll({where: {townid: town.townid}}).length);
+		}
+
 
 		// Establish Town
 		if (interaction.options.getSubcommand() === 'establish') {

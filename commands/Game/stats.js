@@ -872,7 +872,7 @@ module.exports = {
             const locationSwitch = town.local_biome.split("-");
             const basicField = {
                 name: '== Basic Info ==',
-                value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population - town.npc_population}**\nNPC Population: **${town.npc_population}**`
+                value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population}**\nNPC Population: **${town.npc_population}**`
             };
 
             // Mayor Info
@@ -895,9 +895,26 @@ module.exports = {
             // Core Info
             // =========
             // Grandhall, Bank, Market, Tavern, Clergy
+            /**
+			 * This method loads the appropete display text given the status of a core building.
+			 * @param {string} status Corebuilding build status
+			 * @returns {string}
+			 */
+			const loadCoreTextFromStatus = (status) => {
+				return (status === 'None') ? "Not Built" : `Progress: ${status.split(': ')[0]} @ ${status.split(': ')[1]}`;
+			};
+			// 0 Grandhall, 1 Bank, 2 Market, 3 Tavern, 4 Clergy
+			const coreTextList = [
+				loadCoreTextFromStatus(town.grandhall_status), 
+				loadCoreTextFromStatus(town.bank_status), 
+				loadCoreTextFromStatus(town.market_status), 
+				loadCoreTextFromStatus(town.tavern_status), 
+				loadCoreTextFromStatus(town.clergy_status)
+			];
+
             const coreFields = {
                 name: '== Core-Building Info ==',
-                value: `Grandhall Status: **${(town.grandhall_status === "None") ? "Not Built" : town.grandhall_status}**\nBank Status: **${(town.bank_status === "None") ? "Not Built" : town.bank_status}**\nMarket Status: **${(town.market_status === "None") ? "Not Built" : town.market_status}**\nTavern Status: **${(town.tavern_status === "None") ? "Not Built" : town.tavern_status}**\nClergy Status: **${(town.clergy_status === "None") ? "Not Built" : town.clergy_status}**`
+                value: `Grandhall Status: **${coreTextList[0]}**\nBank Status: **${coreTextList[1]}**\nMarket Status: **${coreTextList[2]}**\nTavern Status: **${coreTextList[3]}**\nClergy Status: **${coreTextList[4]}**`
             };
 
             // Band Info?

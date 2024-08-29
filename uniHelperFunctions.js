@@ -115,10 +115,28 @@ async function grabUser(id){
 /**
  * This function retrieves and returns the Town entry for the given id.
  * @param {string} id Town ID
- * @returns {Promise <object>}
+ * @returns {Promise <object>} ```(object | undefined)```
  */
 async function grabTown(id){
     return await Town.findOne({where: {townid: id}});
+}
+
+/**
+ * This function attempts to locate a town with name ``name``.
+ * @param {string} name Name of town to search for
+ * @returns {Promise <object | undefined>}
+ */
+async function grabTownByName(name){
+    return await Town.findOne({where: {name: name}});
+}
+
+/**
+ * This function grabs any towns that having a ``guildid`` matching the given ``guildid``.
+ * @param {string} guildid The ID of the guild to check for
+ * @returns {Promise <object[]>}
+ */
+async function grabLocalTowns(guildid){
+    return await Town.findAll({where: {guildid: guildid}});
 }
 
 /**
@@ -128,6 +146,33 @@ async function grabTown(id){
  */
 async function grabActivePigmy(id){
     return await Pigmy.findOne({where: {spec_id: id}});
+}
+
+/**
+ * This function handles locating, and checking the users towns permissions,
+ * if the given user has ``can_edit`` permissions returns ``true`` otherwise returns ``false``.
+ * @param {object} user UserData DB Object
+ * @returns {Promise <boolean>}
+ */
+async function checkUserTownPerms(user){
+    if (user.townid === '0') return false;
+    const userTown = await grabTown(user.townid);
+    if (!userTown) return false;
+    if (!userTown.can_edit.split(',').includes(user.userid)) return false;
+    return true;
+}
+
+/**
+ * This function checks if the given user belongs to a town, and then checks if a town with 
+ * the given users id can be found, checking for each towns ``mayorid``
+ * @param {object} user UserData DB Object
+ * @returns {Promise <boolean>}
+ */
+async function checkUserAsMayor(user){
+    if (user.townid === '0') return false;
+    const townMayor = await Town.findOne({where: {mayorid: user.userid}});
+    if (!townMayor) return false;
+    return true;
 }
 
 /**
@@ -448,6 +493,10 @@ module.exports = {
     grabUser,
     grabTown,
     grabActivePigmy,
+    checkUserTownPerms,
+    checkUserAsMayor,
+    grabLocalTowns,
+    grabTownByName,
     handleItemObjCheck,
     handleLimitOnOptions,
     getTypeof,
