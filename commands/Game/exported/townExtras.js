@@ -1,3 +1,967 @@
+const { ButtonBuilder, ButtonStyle, EmbedBuilder, AttachmentBuilder, Collection, ActionRowBuilder } = require("discord.js");
+const { CoreBuilding, TownPlots, PlayerBuilding, TownMaterial } = require("../../../dbObjects");
+const { makeCapital, grabUser, endTimer, randArrPos } = require("../../../uniHelperFunctions");
+const { loadBuilding } = require("./displayBuilding");
+const { baseCheckRarName } = require("../../Development/Export/itemStringCore");
+const coreBuildCostList = require('../Development/Export/Json/coreBuildCostList.json');
+const { checkInboundTownMat, checkOutboundMat, checkInboundMat, checkOutboundTownMat } = require("../../Development/Export/itemMoveContainer");
+const { updateUserCoins, spendUserCoins } = require("../../Development/Export/uni_userPayouts");
+
+// ===================
+//   BUTTON CREATION
+// ===================
+
+// DEPOSIT/WITHDRAW BUTTS
+/**
+ * This function loads the deposit/withdraw type select buttons
+ * @param {string} subCom Current Subcommand Name
+ * @returns {ButtonBuilder[]}
+ */
+function loadTownStoreButts(subCom){
+    const matSelectButt = new ButtonBuilder()
+    .setCustomId('mat')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel(`${subCom} Material`);
+    const coinSelectButt = new ButtonBuilder()
+    .setCustomId('coin')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel(`${subCom} Coins`);
+
+    return [matSelectButt, coinSelectButt];
+}
+
+// CLAIM PLOTS BUTTS
+/**
+ * This function loads the claim town plot buttons
+ * @param {object} permList Users Town Permission Object 
+ * @returns {ButtonBuilder[]}
+ */
+function loadClaimPlotButts(permList){
+    const openedPlotsButt = new ButtonBuilder()
+    .setCustomId('open-plot')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel(`Claim Open Plot`);
+    const closedPlotsButt = new ButtonBuilder()
+    .setCustomId('closed-plot')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(!permList.canEdit)
+    .setLabel(`Claim Closed Plot`);
+
+    return [openedPlotsButt, closedPlotsButt];
+}
+
+// OWNED PLOTS BUTTS
+/**
+ * This function loads the owned plots selection buttons
+ * @param {object} permList Users Town Permission Object 
+ * @returns {ButtonBuilder[]}
+ */
+function loadOwnedPlotSelectButts(permList){
+    const opOneButt = new ButtonBuilder()
+    .setCustomId('plot-one')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('Plot One');
+    const opTwoButt = new ButtonBuilder()
+    .setCustomId('plot-two')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(!permList.canEdit)
+    .setLabel('Plot Two');
+    const opThreeButt = new ButtonBuilder()
+    .setCustomId('plot-three')
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(!permList.canEdit)
+    .setLabel('Plot Three');
+
+    return [opOneButt, opTwoButt, opThreeButt];
+}
+
+// CORE BUTT LIST
+/**
+ * This function loads the button list related to the given towns core buildings
+ * 
+ * Buttons are disabled if the ``Core Building`` **is** ``Built``
+ * IDS: ``build-${coretype}``
+ * @param {object} town Town DB Object
+ * @returns {Promise <{noChoices: boolean, buttons: ButtonBuilder[]}>}
+ */
+async function loadCoreBuildTypeButtons(town){
+    const townCores = await grabTownCoreBuildings(town);
+
+    let totalChoices = 5;
+    const coreIsBuilt = (checkType) => townCores.some(core => core.build_type === checkType);
+
+    const coreTypes = ['grandhall', 'bank', 'market', 'tavern', 'clergy'];
+    const buttList = [];
+    for (const type of coreTypes){
+        const isBuilt = coreIsBuilt(type);
+        if (isBuilt) totalChoices--;
+        const button = new ButtonBuilder()
+        .setCustomId(`build-${type}`)
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(isBuilt)
+        .setLabel(`Build ${makeCapital(type)}`);
+        buttList.push(button);
+    }
+
+    return {noChoices: totalChoices === 0, buttons: buttList};
+}
+
+/**
+ * This function loads the button list related to the given towns core buildings
+ * 
+ * Buttons are disabled if the ``Core Building`` **is not** ``Built``
+ * IDS: ``upgrade-${coretype}``
+ * @param {object} town Town DB Object
+ * @returns {Promise <{noChoices: boolean, buttons: ButtonBuilder[]}>}
+ */
+async function loadCoreUpgradeTypeButtons(town){
+    const townCores = await grabTownCoreBuildings(town);
+
+    let totalChoices = 5;
+    const coreIsBuilt = (checkType) => townCores.some(core => core.build_type === checkType);
+
+    const coreTypes = ['grandhall', 'bank', 'market', 'tavern', 'clergy'];
+    const buttList = [];
+    for (const type of coreTypes){
+        const isBuilt = coreIsBuilt(type);
+        if (!isBuilt) totalChoices--;
+        const button = new ButtonBuilder()
+        .setCustomId(`upgrade-${type}`)
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(!isBuilt)
+        .setLabel(`Upgrade ${makeCapital(type)}`);
+        buttList.push(button);
+    }
+
+    return {noChoices: totalChoices === 0, buttons: buttList};
+}
+
+/**
+ * This function loads all plot building option buttons
+ * 
+ * houseButt: ``build-house``
+ * @returns {ActionRowBuilder}
+ */
+function createBuildTypeButtonRow(){
+    const houseButt = new ButtonBuilder()
+    .setCustomId('build-house')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('Build House!');
+
+    const buttonRow = new ActionRowBuilder().addComponents(houseButt);
+
+    return buttonRow;
+}
+
+// ====================
+//   DISPLAY CREATION
+// ====================
+
+/**
+ * This function generates the embed values for the ``town`` requested.
+ * @param {object} town Town DB Object
+ * @param {object} mayor UserData DB Object
+ * @returns {Promise <{title: string, color: string, fields: {name: string, value: string}[]}>}
+ */
+async function generateTownDisplayEmbed(town, mayor){
+    const finalObj = {
+        title: `== Town of ${makeCapital(town.name)} ==`,
+        color: "",
+        fields: []
+    };
+
+    // finalObj.description = `Current Mayor: ${mayor.username}\nTown Level: ${town.level}\nTreasury Contains: ${town.coins}c\n========\nHuman Population: ${town.population}\nNPC Population: ${town.npc_population}\n========\nMax Buildings: ${town.buildlimit}\nOpen Plots: ${town.openplots}\nClosed Plots: ${town.closedplots}\nOwned Plots: ${town.ownedplots}\nBuildings: ${town.buildcount}\n========\nMain Biome: ${biomeList[0]}\nAllignment: ${biomeList[1]}\n========\n`;
+
+    // Basic Info
+    // ==========
+    // Level, Coins, Location, Population
+    const locationSwitch = town.local_biome.split("-");
+    const basicField = {
+        name: '== Basic Info ==',
+        value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population}**\nNPC Population: **${town.npc_population}**`
+    };
+
+    // Mayor Info
+    // ==========
+    // Cur-User?
+    // const theMayor = await grabUser(town.mayorid);
+    const mayorField = {
+        name: '== The Mayor ==',
+        value: `**${makeCapital(mayor.username)}**`
+    };
+
+    // Build Info
+    // ==========
+    // Tot-Plots, Open, Closed, Built
+    const buildFields = {
+        name: '== Plot Info ==',
+        value: `Total Plots: **${town.buildlimit}**\nOpen Plots: **${town.openplots}**\nClosed Plots: **${town.closedplots}**\nOwned Plots: **${town.ownedplots}**\nDeveloped Plots: **${town.buildcount}**`
+    };
+
+    // Core Info
+    // =========
+    // Grandhall, Bank, Market, Tavern, Clergy
+    /**
+     * This method loads the appropete display text given the status of a core building.
+     * @param {string} status Corebuilding build status
+     * @returns {string}
+     */
+    const loadCoreTextFromStatus = (status) => {
+        return (status === 'None') ? "Not Built" : `Progress: ${status.split(': ')[0]} @ ${status.split(': ')[1]}`;
+    };
+    // 0 Grandhall, 1 Bank, 2 Market, 3 Tavern, 4 Clergy
+    const coreTextList = [
+        loadCoreTextFromStatus(town.grandhall_status), 
+        loadCoreTextFromStatus(town.bank_status), 
+        loadCoreTextFromStatus(town.market_status), 
+        loadCoreTextFromStatus(town.tavern_status), 
+        loadCoreTextFromStatus(town.clergy_status)
+    ];
+    const coreFields = {
+        name: '== Core-Building Info ==',
+        value: `Grandhall Status: **${coreTextList[0]}**\nBank Status: **${coreTextList[1]}**\nMarket Status: **${coreTextList[2]}**\nTavern Status: **${coreTextList[3]}**\nClergy Status: **${coreTextList[4]}**`
+    };
+
+    // Embed Fields
+    finalObj.fields = [mayorField, basicField, buildFields, coreFields];
+
+    const biomeColours = {
+        Forest: 'DarkGreen',
+        Mountain: 'LightGrey',
+        Desert: 'DarkGold',
+        Plains: 'Gold',
+        Swamp: 'DarkAqua',
+        Grassland: 'Green'
+    };
+
+    // Embed Colour
+    finalObj.color = biomeColours[`${locationSwitch[0]}`];
+
+    return finalObj;
+}
+
+/**
+ * This function loads the display object for all local town material bonuses available.
+ * @param {object[]} towns List of all local towns
+ * @returns {{title: string, color: string, fields: {name: string, value: string}[]}}
+ */
+function generateLocalTownBonuses(towns){
+    const finalObj = {
+        title: `== Local Town Bonuses ==`,
+        color: "",
+        fields: []
+    };
+
+    const allignMatBonus = {
+        Normal: [10, 5, 3, 3],
+        Evil: [5, 3, 1, 1],
+        Phase: [10, 8, 5, 5],
+    };
+
+    const finalFields = [];
+    for (const town of towns){
+        const matTypes = town.mat_bonus.split(',');
+        const bonusList = allignMatBonus[`${town.local_biome.split('-')[1]}`];
+
+        let bonusIdx = 0, finalValue = "";
+        for (const type of matTypes){
+            finalValue += `+${bonusList[bonusIdx]} ${makeCapital(type)}\n`;
+            bonusIdx++;
+        }
+
+        finalFields.push({name: `The Town of ${makeCapital(town.name)} gives: `, value: finalValue});
+    }
+
+    finalObj.fields = finalFields;
+    finalObj.color = 'DarkGold';
+
+    return finalObj;
+}
+
+/**
+ * This function loads all player made buildings located within the given town.
+ * @param {object} town Town DB Object
+ * @returns {Promise <{embeds: EmbedBuilder[], files: AttachmentBuilder[], details: EmbedBuilder[]}>}
+ */
+async function loadTownBuildingDisplayList(town){
+    const returnObj = {embeds: [], files: [], details: []};
+
+    const builtPlots = await grabTownPlotList(town, "Built");
+
+    for (const plot of builtPlots){
+        const building = await PlayerBuilding.findOne({where: {plotid: plot.plotid}});
+
+        const mainEmbed = new EmbedBuilder()
+        .setTitle(`== ${makeCapital(building.build_type)} ==`)
+        .setColor('DarkGold');
+        returnObj.embeds.push(mainEmbed);
+
+        const mainFile = await loadBuilding(building);
+        returnObj.files.push(mainFile);
+
+        const detailEmbed = new EmbedBuilder()
+        .setTitle('== Building Details ==')
+        .setColor('DarkNavy')
+        .setDescription(`Town: ${makeCapital(town.name)}\nOwner: ${makeCapital((await grabUser(building.ownerid)).username)}\nBand: No Linked Band`);
+        returnObj.details.push(detailEmbed);
+    }
+
+    return returnObj;
+}
+
+/**
+ * This function loads all built core buildings for the given town, ready to be displayed
+ * @param {object} town Town DB Object
+ * @returns {Promise <{embeds: EmbedBuilder[], files: AttachmentBuilder[], details: EmbedBuilder[], clergyQuest: {active: boolean, posIndex: number, callFunction: handleClergyMystQuest}}>}
+ */
+async function loadTownCoreBuildingDisplayList(town){
+    const returnObj = {embeds: [], files: [], details: [], clergyQuest: {active: false, posIndex: 0, callFunction: handleClergyMystQuest}};
+    const townCores = await grabTownCoreBuildings(town);
+
+    for (const core of townCores){
+        const mainEmbed = new EmbedBuilder()
+        .setTitle(`== ${makeCapital(core.build_type)} ==`)
+        .setColor('DarkGold');
+        returnObj.embeds.push(mainEmbed);
+
+        const mainFile = await loadBuilding(core);
+        returnObj.files.push(mainFile);
+
+        const detailEmbed = new EmbedBuilder()
+        .setTitle('== Core Building Details ==')
+        .setColor('DarkNavy')
+        .setDescription(`Town: ${makeCapital(town.name)}\n${makeCapital(core.build_type)} Level: ${core.level}`);
+        returnObj.details.push(detailEmbed);
+
+        if (core.build_type === 'clergy'){
+            returnObj.clergyQuest.active = true;
+            returnObj.clergyQuest.posIndex = returnObj.details.length - 1;
+        }
+    }
+
+    return returnObj;
+}
+
+/**
+ * This function handles loading the given towns owned material list display.
+ * @param {object} town Town DB Object
+ * @param {Collection} materialFiles Material File Collection Object
+ * @returns {Promise <EmbedBuilder[]>}
+ */
+async function handleTownMaterialStorageDisplay(town, materialFiles){
+    const fullTownMaterialList = await TownMaterial.findAll({where: {townid: town.townid}})
+    const materialPages = [];
+    for (const [key, value] of materialFiles){
+        const matType = key;
+        const matEmbed = new EmbedBuilder()
+        .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
+
+        const matList = require(value);
+        matList.sort((a,b) => a.Rar_id - b.Rar_id);
+
+        const refListLength = matList.length;
+        let missingAll = false;
+
+        const matchingOwnedMats = (key === "unique") 
+        ? fullTownMaterialList.filter(mat => mat.rar_id === 12)
+        : fullTownMaterialList.filter(mat => mat.mattype === key);
+        if (matchingOwnedMats.length === 0) missingAll = true;
+
+        const orderedUMats = new Array(refListLength);
+        if (!missingAll){
+            let counter = 0;
+            for (const matRef of matList){
+                orderedUMats[counter] = (key === "unique") 
+                ? matchingOwnedMats.filter(mat => mat.mattype === matRef.UniqueMatch)[0] ?? matRef.Rar_id
+                : matchingOwnedMats.filter(mat => mat.rar_id === matRef.Rar_id)[0] ?? matRef.Rar_id;
+                counter++;
+            }
+        }
+
+        const matFields = handleMaterialDisplay(orderedUMats, matList, missingAll);
+        matEmbed.addFields(matFields);
+        
+        materialPages.push(matEmbed);
+    }
+
+    return materialPages;
+}
+
+/**
+ * This function constructs the field array to be used for displaying mats,
+ * by way of EmbedBuilder.addFields(finalFields)
+ * @param {(object|string)[]} matchMatList Array of owned materials
+ * @param {object[]} matRefList Material list array
+ * @param {boolean} emptyMatch true if no matching mats found
+ * @returns {{name: string, value: string}[]} Object array 
+ */
+function handleMaterialDisplay(matchMatList, matRefList, emptyMatch){
+    const finalFields = [];
+    
+    for (let i = 0; i < matRefList.length; i++){
+        let fieldName = '', fieldValue = '';
+        if (typeof matchMatList[i] === 'number' || emptyMatch){
+            // Missing Material
+            fieldName = `Unknown material of **${matRefList[i].Rarity}** rarity:`;
+            fieldValue = 'Amount Owned: 0';
+        } else {
+            // Matching Material
+            fieldName = `~= ${matRefList[i].Rarity} Material =~`;
+            fieldValue = `Name: **__${matchMatList[i].name}__**\nAmount Owned: **${matchMatList[i].amount}**`;
+        }
+
+        finalFields.push({name: fieldName, value: fieldValue});
+    }
+
+    return finalFields;
+}
+
+/**
+ * This function handles building the display for the upgrade costs given the construction type picked
+ * @param {object} town Town DB Object
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ * @param {string} constructType One of ``build`` | ``upgrade``
+ * @param {Collection} materialFiles Material File Collection Object
+ * @returns {Promise<{canConfirm: boolean, embed: EmbedBuilder, costObj: {matCosts: {name: string, matType: string, amount: number, rar_id: number}[], matsOwned: {name: string, matType: string, amount: number, rar_id: number}[]}}>}
+ */
+async function handleCoreCostDisplay(town, navMenu, constructType, materialFiles){
+    // Town is needed for checking owned material amounts
+
+    let coreBuildCostObj;
+    switch(constructType){
+        case "build":
+            coreBuildCostObj = await handleCoreCostCalc(town, 0, navMenu.typePicked, materialFiles);
+        break;
+        case "upgrade":
+            const coreRef = (await grabTownCoreBuildings(town)).find(core => core.build_type === navMenu.typePicked);
+            coreBuildCostObj = await handleCoreCostCalc(town, coreRef.level, coreRef.build_type, materialFiles);
+        break;
+    }
+
+    const costEmbed = new EmbedBuilder()
+    .setTitle(`== ${makeCapital(constructType)} Cost ==`)
+    .setDescription(`Material Requirements to begin core building construction:`);
+
+    const finalFields = [];
+    let idxMatch = 0, canConfirm = true;
+    for (const matNeeded of coreBuildCostObj.matCosts){
+        const matOwned = coreBuildCostObj.matsOwned[idxMatch];
+        if (canConfirm && matOwned.amount < matNeeded.amount) canConfirm = false;
+        finalFields.push({name: `== ${matNeeded.name} ==`, value: `Rarity: ${baseCheckRarName(matNeeded.rar_id)}\n(Owned/Needed) Amount: ${matOwned.amount}/${matNeeded.amount}`});
+        idxMatch++;
+    }
+
+    costEmbed.addFields(finalFields);
+
+    return {canConfirm: canConfirm, embed: costEmbed, costObj: coreBuildCostObj};
+}
+
+// ====================
+//   HELPER FUNCTIONS
+// ====================
+
+/**
+ * This function handles calculating the cost to build/upgrade the given ``coreType`` building.
+ * @param {object} town Town DB Object
+ * @param {number} level Current Level of the given core building
+ * @param {string} coreType Core Building ``build_type``
+ * @param {Collection} materialFiles Material File Collection Object
+ * @returns {Promise <{matCosts: {name: string, matType: string, amount: number, rar_id: number}[], matsOwned: {name: string, matType: string, amount: number, rar_id: number}[]}>}
+ */
+async function handleCoreCostCalc(town, level, coreType, materialFiles){
+    const matTypeConverter = new Map([
+        ['rocky', 'Stone'],
+        ['woody', 'Wood'],
+        ['metalic', 'Metal'],
+        ['skinny', 'Hide'],
+        ['slimy', 'Slime']
+    ]);
+
+    const coreCostRef = coreBuildCostList.find(core => core.Name === coreType);
+
+    const handleCoreMaterialScale = (lvl, costObj) => {
+        return costObj.Amount * (1 + (lvl - (costObj.Level)));
+    };
+
+    const handleCoreMaterialRarity = (lvl, costObj) => {
+        return costObj.Rarity + Math.floor(lvl / 2);
+    };
+
+    const nextLevel = level + 1;
+    const materialCostList = [], materialOwnedList = [];
+    for (const [matType, convType] of matTypeConverter){
+        // Check if next level !requires convType
+        if (coreCostRef[convType].Level > nextLevel) continue;
+        const curMatCostRef = coreCostRef[convType];
+
+        const matNumNeeded = handleCoreMaterialScale(nextLevel, curMatCostRef);
+        const matRarNeeded = handleCoreMaterialRarity(nextLevel, curMatCostRef);
+        
+        const matRef = grabMaterialByRarID(matRarNeeded, matType, materialFiles);
+
+        materialCostList.push({name: matRef.Name, matType: matType, amount: matNumNeeded, rar_id: matRarNeeded});
+    
+        const townOwnsMat = await TownMaterial.findOne({where: {townid: town.townid, name: matRef.Name}});
+        materialOwnedList.push({name: matRef.Name, matType: matType, amount: townOwnsMat?.amount ?? 0, rar_id: matRarNeeded});
+    }
+
+    return {matCosts: materialCostList, matsOwned: materialOwnedList};
+}
+
+/**
+ * This function retrieves a material ref object based on the given ``rar`` & ``matType``
+ * @param {number} rar RarID to search for
+ * @param {string} matType Material Type to search for
+ * @param {Collection} materialFiles Discord Collection object
+ * @returns {object}
+ */
+function grabMaterialByRarID(rar, matType, materialFiles){
+    const matFile = require(materialFiles.get(matType));
+
+    const matRef = matFile.find(mat => mat.Rar_id === rar);
+
+    return matRef;
+}
+
+// ====================
+//   DATABASE QUERIES
+// ====================
+
+/**
+ * This function loads all existing core buildings matching the given towns id.
+ * @param {object} town Town DB Object
+ * @param {boolean} [returnLength=false] Set to ``true`` to return the ``.length`` for "built" core buildings
+ * @returns {Promise <object[]>}
+ */
+async function grabTownCoreBuildings(town, returnLength=false){
+    const coreTypes = ['grandhall', 'bank', 'market', 'tavern', 'clergy'];
+
+    const townCoreList = [];
+    for (const type of coreTypes){
+        const core = await CoreBuilding.findOne({where: {townid: town.townid, build_type: type}});
+        if (!core) continue;
+        townCoreList.push(core);
+    }
+
+    return (returnLength) ? townCoreList.length : townCoreList;
+}
+
+/**
+ * This function handles locating all plots belonging to the given town.
+ * 
+ * It then filters them based on the provided ``plotStatus``.
+ * @param {object} town Town DB Object
+ * @param {string} plotStatus One of: ``Owned``, ``Closed``, ``Open``, ``Built``, ``Empty``
+ * @param {boolean} returnLength Default: ``false``, set to ``true`` to return found plots list length
+ * @returns {Promise <object[] | number>}
+ */
+async function grabTownPlotList(town, plotStatus, returnLength=false){
+    const townPlots = await TownPlots.findAll({where: {townid: town.townid}});
+
+    const hasOwner = (plot) => plot.ownerid !== '0';
+    const hasBuild = (plot) => !plot.empty;
+    const isClosed = (plot) => plot.private;
+
+    let filteredPlotList = [];
+    switch(plotStatus){
+        case "Owned":
+            filteredPlotList = townPlots.filter(plot => hasOwner(plot));
+        break;
+        case "Closed":
+            filteredPlotList = townPlots.filter(plot => isClosed(plot) && !hasOwner(plot));
+        break;
+        case "Open":
+            filteredPlotList = townPlots.filter(plot => !isClosed(plot) && !hasOwner(plot));
+        break;
+        case "Built":
+            filteredPlotList = townPlots.filter(plot => hasBuild(plot));
+        break;
+        case "Empty":
+            filteredPlotList = townPlots.filter(plot => !hasBuild(plot) && hasOwner(plot));
+        break;
+        default:
+            filteredPlotList = townPlots;
+        break;
+    }
+
+    return (returnLength) ? filteredPlotList.length : filteredPlotList;
+}
+
+/**
+ * This function checks if the given town has at least one stored material
+ * @param {object} town Town DB Object
+ * @returns {Promise <boolean>}
+ */
+async function checkTownHasMaterials(town){
+    const hasMat = await TownMaterial.findOne({where: {townid: town.townid}});
+    return !!hasMat;
+}
+
+
+// ====================
+//   DATABASE UPDATES
+// ====================
+
+/**
+ * This function handles updating both the ``town`` and ``user`` objects given.
+ * 
+ * ``town.population++``
+ * 
+ * ``user.townid`` = ``town.townid``
+ * @param {object} town Town DB Object
+ * @param {object} user UserData DB Object
+ * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+ */
+async function handleJoinTown(town, user){
+    await town.increment('population').then(async t => await t.save()).then(async t => {return await t.reload()});
+    await handleTownPopLeveling(town);
+    await user.update({townid: town.townid}).then(async u => await u.save()).then(async u => {return await u.reload()});
+
+    const finalEmbed = new EmbedBuilder()
+    .setTitle('== Town Joined ==')
+    .setDescription(`Congratulations!! You are now a member of ${makeCapital(town.name)}!`);
+
+    return {embeds: finalEmbed, status: 'Complete'};
+}
+
+/**
+ * This function handles checking if the given ``town`` meets the level up requirements.
+ * @param {object} town Town DB Object
+ * @returns {Promise <void>}
+ */
+async function handleTownPopLeveling(town){
+    const townLevelCheckStart = new Date().getTime();
+    let timerEndsText = 'Town Level Checking';
+
+    const staticTownPopLevelReq = (town) => {
+        const totPop = town.population + town.npc_population;
+        const levelUPReq = town.level * 5;
+        return totPop >= levelUPReq;
+    };
+
+    if (staticTownPopLevelReq(town)) {
+        await town.increment('level').then(async t => await t.save()).then(async t => {return await t.reload()});
+        // CHANGE THIS VALUE BASED ON LEVEL/OTHER FACTORS!!
+        const plotsNeeded = 5;
+        await handleNewTownPlotCreation(town, plotsNeeded);
+        timerEndsText += ' (LEVEL UP)';
+    }
+
+    endTimer(townLevelCheckStart, timerEndsText);
+    return;
+}
+
+/**
+ * This function generates ``plotAmount`` new plots linked by ``town.townid``.
+ * @param {object} town Town DB Object
+ * @param {number} plotAmount Number of new plots to create
+ * @returns {Promise <void>}
+ */
+async function handleNewTownPlotCreation(town, plotAmount){
+    const makeNewPlotsStart = new Date().getTime();
+    for (let i = 0; i < plotAmount; i++){
+        await TownPlots.create({
+            townid: town.townid
+        }).then(async tp => await tp.save()).then(async tp => {return await tp.reload()});
+    }
+
+    await handleUpdateTownPlotTypeAmounts(town);
+
+    endTimer(makeNewPlotsStart, 'Create New Town Plots');
+    console.log(`Current Total Plots for ${makeCapital(town.name)}: %d`, await TownPlots.findAll({where: {townid: town.townid}}).length);
+}
+
+/**
+ * This function checks and updates any plots !matching amount values found.
+ * @param {object} town Town DB Object
+ */
+async function handleUpdateTownPlotTypeAmounts(town){
+    const openPlots = await grabTownPlotList(town, "Open", true);
+    if (town.openplots !== openPlots) await town.update({openplots: openPlots}).then(async t => await t.save()).then(async t => {return await t.reload()});
+    const closedPlots = await grabTownPlotList(town, "Closed", true);
+    if (town.closedplots !== closedPlots) await town.update({closedplots: closedPlots}).then(async t => await t.save()).then(async t => {return await t.reload()});
+    const ownedPlots = await grabTownPlotList(town, "Owned", true);
+    if (town.ownedplots !== ownedPlots) await town.update({ownedplots: ownedPlots}).then(async t => await t.save()).then(async t => {return await t.reload()});
+    const builtPlots = await grabTownPlotList(town, "Built", true);
+    if (town.buildcount !== builtPlots) await town.update({buildcount: builtPlots}).then(async t => await t.save()).then(async t => {return await t.reload()});
+
+}
+
+/**
+ * This function handles appointing/demoting a selected user from a given town.
+ * @param {object} town Town DB Object
+ * @param {object} user UserData DB Object
+ * @param {string} changeType One of: ``appoint`` | ``demote``
+ * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+ */
+async function updateTownCanEditList(town, user, changeType){
+    const curEditList = town.can_edit.split('-');
+
+    const returnEmbed = new EmbedBuilder();
+    let newEditList;
+    switch(changeType){
+        case "appoint":
+            newEditList = curEditList.push(user.userid);
+            returnEmbed
+            .setTitle('== User Appointed ==')
+            .setDescription(`${makeCapital(user.username)} has been appointed to your town!`);
+        break;
+        case "demote":
+            newEditList = curEditList.filter(id => id !== user.userid);
+            returnEmbed
+            .setTitle('== User Demoted ==')
+            .setDescription(`${makeCapital(user.username)} has been demoted from your town!`);
+        break;
+    }
+
+    await town.update({can_edit: newEditList.toString()}).then(async t => await t.save()).then(async t => {return await t.reload()});
+
+    return {embeds: [returnEmbed], status: 'Complete'};
+}
+
+/**
+ * This function handles transfering ownership of the given town, to the given user.
+ * @param {object} town Town DB Object
+ * @param {object} user UserData DB Object
+ * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+ */
+async function updateTownMayor(town, user){
+    await town.update({mayorid: user.userid}).then(async t => await t.save()).then(async t => {return await t.reload()});
+
+    const returnEmbed = new EmbedBuilder()
+    .setTitle('== Transfer Complete ==')
+    .setDescription(`${makeCapital(user.username)} has been made the new mayor!`);
+
+    return {embeds: [returnEmbed], status: 'Complete'};
+}
+
+/**
+ * This function handles deposit logic and updating inventories with applicable amounts and items
+ * @param {object} town Town DB Object, town recieving goods
+ * @param {object} user UserData DB Object, user giving goods
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ * @returns {Promise <EmbedBuilder>}
+ */
+async function handleDepositIntoTown(town, user, navMenu){
+    switch(navMenu.typePicked){
+        case "mat":
+            // Give to Town
+            await checkInboundTownMat(town.townid, navMenu.typeExtras.ref, navMenu.typeExtras.matType, navMenu.moveAmount);
+            // Take from user
+            await checkOutboundMat(user.userid, navMenu.typeExtras.ref, navMenu.typeExtras.matType, navMenu.moveAmount);
+        break;
+        case "coin":
+            // Give to town
+            await updateUserCoins(navMenu.moveAmount, town);
+            // take from user
+            await spendUserCoins(navMenu.moveAmount, user);
+        break;
+    }
+
+    const finalEmbed = new EmbedBuilder()
+    .setTitle('== Deposit Successful ==');
+
+    return finalEmbed;
+}
+
+/**
+ * This function handles withdraw logic and updating inventories with applicable amounts and items
+ * @param {object} town Town DB Object, town giving goods
+ * @param {object} user UserData DB Object, user recieving goods
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ * @returns {Promise <EmbedBuilder>}
+ */
+async function handleWithdrawFromTown(town, user, navMenu){
+    switch(navMenu.typePicked){
+        case "mat":
+            // Give to User
+            await checkInboundMat(user.userid, navMenu.typeExtras.ref, navMenu.typeExtras.matType, navMenu.moveAmount);
+            // Take from Town
+            await checkOutboundTownMat(town.townid, navMenu.typeExtras.ref, navMenu.typeExtras.matType, navMenu.moveAmount);
+        break;
+        case "coin":
+            // Give to User
+            await updateUserCoins(navMenu.moveAmount, user);
+            // Take from Town
+            await spendUserCoins(navMenu.moveAmount, town);
+        break;
+    }
+
+    const finalEmbed = new EmbedBuilder()
+    .setTitle('== Withdraw Successful ==');
+
+    return finalEmbed;
+}
+
+/**
+ * This function handles updating ``TownPlot.private`` for the given towns plots of ``currentPlotStatus``. 
+ * @param {object} town Town DB Object
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ */
+async function handleTownPlotStatusUpdates(town, navMenu){
+    const grabType = (navMenu.typePicked === "Open") ? "Closed" : "Open";
+    const townPlots = await grabTownPlotList(town, grabType);
+
+    console.log('Total Plots: %d', townPlots.length);
+
+    for (let i = 0; i < navMenu.moveAmount; i++){
+        await townPlots[i].update({private: navMenu.typePicked !== 'Open'})
+        .then(async tp => await tp.save())
+        .then(async tp => {return await tp.reload()});
+    }
+
+    await handleUpdateTownPlotTypeAmounts(town);
+}
+
+/**
+ * This function handles claiming a random unowned plot, assigning the plot to the given user,
+ * then updates the plot counts of the given town.
+ * @param {object} town Town DB Object
+ * @param {object} user UserData DB Object, user claiming plot
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ */
+async function handleTownPlotClaim(town, user, navMenu){
+    const townPlots = await grabTownPlotList(town, navMenu.navType);
+
+    const thePlot = randArrPos(townPlots);
+
+    await thePlot.update({ownerid: user.userid, private: true})
+    .then(async tp => await tp.save())
+    .then(async tp => {return await tp.reload()});
+
+    await handleUpdateTownPlotTypeAmounts(town);
+}
+
+// Biome Background Texture Array:
+// Used for Building canvas creation.
+const biomeBTexList = ["None", "Forest", "Mountain", "Desert", "Plains", "Swamp", "Grassland"];
+
+/**
+ * This function handles building the selected build type on on of the users owned && empty plots.
+ * 
+ * Constructs the building display image for the newly created building and returns it.
+ * @param {object} town Town DB Object
+ * @param {object} user UserData DB Object, user building
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ * @returns {Promise<{embeds: EmbedBuilder[]; files: (string | AttachmentBuilder)[];}>}
+ */
+async function handleBuildingOnTownPlot(town, user, navMenu){
+    const townOwnedPlots = await grabTownPlotList(town, "Empty");
+    const ownedPlotPicked = townOwnedPlots.find(plot => plot.ownerid === user.userid);  // .filter(plot => plot.ownerid === user.userid)[0];
+
+    await ownedPlotPicked.update({empty: false})
+    .then(async tp => await tp.save())
+    .then(async tp => {return await tp.reload()});
+
+    await handleUpdateTownPlotTypeAmounts(town);
+
+    const building = await PlayerBuilding.create({
+        townid: town.townid,
+        ownerid: user.userid,
+        plotid: ownedPlotPicked.plotid,
+        can_edit: user.userid,
+        build_type: navMenu.typePicked,
+        background_tex: biomeBTexList.indexOf(town.local_biome.split('-')[0])
+    }).then(async b => await b.save()).then(async b => {return await b.reload()});
+
+    const buildingPngFile = await loadBuilding(building);
+
+    let dynBuildDesc = `New ${makeCapital(navMenu.typePicked)} created!`;
+    if (navMenu.typePicked === 'house') dynBuildDesc += `\nWelcome home! <3`;
+    const buildingCreateEmbed = new EmbedBuilder()
+    .setTitle('== Building Created ==')
+    .setColor('DarkGold')
+    .setDescription(dynBuildDesc);
+
+    return {embeds: [buildingCreateEmbed], files: [buildingPngFile]};
+}
+
+/**
+ * This function handles both newly built core buildings and upgrading existing ones.
+ * 
+ * Is responsable for returning the core building display upon completion.
+ * @param {object} town Town DB Object
+ * @param {object} navMenu Nav menu object holding all user selected values needed
+ * @returns {Promise <{embeds: EmbedBuilder[], files: AttachmentBuilder[]}>}
+ */
+async function handleCoreBuildingConstruction(town, navMenu){
+    let coreBuilding = await CoreBuilding.findOrCreate({
+        where: {
+            townid: town.townid,
+            build_type: navMenu.typePicked
+        },
+        defaults: {
+            level: 1,
+            build_status: "Level 1",
+            background_tex: biomeBTexList.indexOf(town.local_biome.split('-')[0])
+        }
+    });
+
+    // Was created
+    let wasUpgraded = true;
+    if (coreBuilding[1]){
+        wasUpgraded = false;
+        await coreBuilding[0].save().then(async cb => {return await cb.reload()});
+    } else {
+        await coreBuilding[0].update({level: coreBuilding[0].level + 1, build_status: `Level ${coreBuilding[0].level + 1}`})
+        .then(async cb => await cb.save())
+        .then(async cb => {return await cb.reload()});
+    }
+
+    coreBuilding = coreBuilding[0];
+
+    await town.update({[`${navMenu.typePicked}_status`]: `Built: Level ${coreBuilding.level}`})
+    .then(async t => await t.save())
+    .then(async t => {return await t.reload()});
+
+    const coreBuildingPngFile = await loadBuilding(coreBuilding);
+
+    const dynBuildDesc = (wasUpgraded) ? `${makeCapital(navMenu.typePicked)} upgraded to level **${coreBuilding.level}**!`: `${makeCapital(navMenu.typePicked)} built at level 1!`;
+    const constructType = (wasUpgraded) ? 'Upgraded': 'Built';
+    const coreBuildingCreateEmbed = new EmbedBuilder()
+    .setTitle(`== Core Building ${constructType} ==`)
+    .setColor('DarkGold')
+    .setDescription(dynBuildDesc);
+
+    return {embeds: [coreBuildingCreateEmbed], files: [coreBuildingPngFile]};
+}
+
+
+module.exports = {
+    loadTownStoreButts,
+    loadClaimPlotButts,
+    loadOwnedPlotSelectButts,
+    loadCoreBuildTypeButtons,
+    loadCoreUpgradeTypeButtons,
+    createBuildTypeButtonRow,
+
+    generateTownDisplayEmbed,
+    generateLocalTownBonuses,
+    loadTownBuildingDisplayList,
+    loadTownCoreBuildingDisplayList,
+    handleTownMaterialStorageDisplay,
+    handleCoreCostDisplay,
+
+    grabTownCoreBuildings,
+    grabTownPlotList,
+    checkTownHasMaterials,
+    
+    handleJoinTown,
+    updateTownCanEditList,
+    updateTownMayor,
+    handleDepositIntoTown,
+    handleWithdrawFromTown,
+    handleTownPlotStatusUpdates,
+    handleTownPlotClaim,
+    handleBuildingOnTownPlot,
+    handleCoreBuildingConstruction
+}
+
+// ===================
+//    OLD TOWN CODE
+// ===================
+
+
 // Join Town
 if (interaction.options.getSubcommand() === 'join') {
 
