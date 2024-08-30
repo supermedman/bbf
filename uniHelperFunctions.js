@@ -1,5 +1,5 @@
 const {chalk, chlkPreset} = require('./chalkPresets');
-const {ComponentType} = require('discord.js');
+const {ComponentType, ButtonBuilder, ButtonStyle, ActionRowBuilder} = require('discord.js');
 const { UserData, Pigmy, Town } = require('./dbObjects');
 
 /**
@@ -472,12 +472,44 @@ function createComponentCollector(interaction, timeLimit, anchorMsg, compType, f
     return collector;
 }
 
+/**
+ * This function handles deleting the given message, catching any resulting errors.
+ * @param {object} anchorMsg Message Object to be deleted
+ * @returns {Promise <void>}
+ */
 async function handleCatchDelete(anchorMsg){
     return await anchorMsg.delete().catch(error => {
         if (error.code !== 10008) {
             console.error('Failed to delete the message:', error);
         }
     });
+}
+
+/**
+ * This function generates a standard ``Confirm`` & ``Cancel`` button action row.
+ * @param {string} idExtension **REQUIRED** Extension to attached to base ``confirm-${idExtension}`` & ``cancel-${idExtension}``
+ * @param {ButtonStyle} confirmStyle Styling for confirm button. Default: === ``ButtonStyle.Success``
+ * @param {ButtonStyle} cancelStyle Styling for cancel button Default: === ``ButtonStyle.Secondary``
+ * @param {string} extraConfirmText ``"Confirm ${extraConfirmText}"`` Default: === ``"Confirm"``
+ * @param {string} extraCancelText ``"Cancel ${extraCancelText}"`` Default: === ``"Cancel"``
+ * @returns {ActionRowBuilder}
+ */
+function createConfirmCancelButtonRow(idExtension, confirmStyle=ButtonStyle.Success, cancelStyle=ButtonStyle.Secondary, extraConfirmText="None", extraCancelText="None"){
+    const extraConText = (extraConfirmText !== 'None') ? ` ${extraConfirmText}` : "";
+    const confirmButt = new ButtonBuilder()
+    .setCustomId(`confirm-${idExtension}`)
+    .setStyle(confirmStyle)
+    .setLabel(`Confirm${extraConText}`);
+
+    const extraCanText = (extraCancelText !== 'None') ? ` ${extraCancelText}` : "";
+    const cancelButt = new ButtonBuilder()
+    .setCustomId(`cancel-${idExtension}`)
+    .setStyle(cancelStyle)
+    .setLabel(`Cancel${extraCanText}`);
+
+    const ccActionRow = new ActionRowBuilder().addComponents(confirmButt, cancelButt);
+
+    return ccActionRow;
 }
 
 module.exports = {
@@ -503,5 +535,6 @@ module.exports = {
     sendTimedChannelMessage,
     editTimedChannelMessage,
     createInteractiveChannelMessage,
+    createConfirmCancelButtonRow,
     handleCatchDelete
 }
