@@ -795,9 +795,10 @@ function loadTypeButts(tradeAs){
 /**
  * This function constructs the string option menu for selecting a rarity.
  * Includes two rows, one for rarity select, another for a back button.
+ * @param {string} [moveType="Buy"] Set to value for ``"${moveType} @ ${rar} Rarity"
  * @returns {[ActionRowBuilder[StringSelectMenuBuilder], ActionRowBuilder[ButtonBuilder]]}
  */
-function loadRarStringMenu(){
+function loadRarStringMenu(moveType="Buy"){
     const rarList = loadFullRarNameList(10);
     
     const stringOptionList = [];
@@ -805,7 +806,7 @@ function loadRarStringMenu(){
     for (const rar of rarList){
         const option = new StringSelectMenuOptionBuilder()
         .setLabel(rar)
-        .setDescription(`Buy @ ${rar} Rarity`)
+        .setDescription(`${moveType} @ ${rar} Rarity`)
         .setValue(rar);
         stringOptionList.push(option);
     }
@@ -946,7 +947,7 @@ function handleMatNameLoad(tradeObj, materialFiles){
 /**
  * This function filters through all mat lists for a matching Name with matName.
  * @param {string} matName Material Pointer Name
- * @returns {object}
+ * @returns {{matRef: object, matType: string}}
  */
 function handleMatNameFilter(matName, materialFiles){
     for (const [key, value] of materialFiles){
@@ -1021,7 +1022,7 @@ function loadAmountButts(){
 
     const amountRow = new ActionRowBuilder().addComponents(minusFiveButt, minusOneButt, plusOneButt, plusFiveButt);
 
-    return [outcomeRow, amountRow];
+    return [amountRow, outcomeRow];
 }
 
 /**
@@ -1045,14 +1046,16 @@ function loadAmountButts(){
  * ### ``RowThree``
  * 
  * ``add-10k-c``, ``add-1k-c``, ``mult-1k-c``, ``minus-1k-c``, ``minus-10k-c``
+ * @param {boolean} [backDisabled=false] Set ``true`` if back-button should be disabled
  * @returns {[ActionRowBuilder[ButtonBuilder], ActionRowBuilder[ButtonBuilder], ActionRowBuilder[ButtonBuilder], ActionRowBuilder[ButtonBuilder]]}
  */
-function loadPriceButts(){
+function loadPriceButts(backDisabled=false){
     // ===================
     // CONTROL ROW
     const backButt = new ButtonBuilder()
     .setCustomId('back-price')
     .setStyle(ButtonStyle.Secondary)
+    .setDisabled(backDisabled)
     .setLabel('Go Back');
     const confirmButt = new ButtonBuilder()
     .setCustomId('confirm-price')
@@ -1236,18 +1239,38 @@ function loadBasicBackButt(backType){
  * 
  * This is done to allow for row modifications to be made freely 
  * depending on the interactivity of the pages being cycled
+ * @param {string} [styleType="Secondary"] Set to page button style wanted: ``"Primary", "Secondary", "Danger", "Success"``
  * @returns {ButtonBuilder[]}
  */
-function createBasicPageButtons(){
+function createBasicPageButtons(styleType="Secondary"){
+    let styleToUse;
+    switch(styleType){
+        case "Primary":
+            styleToUse = ButtonStyle.Primary;
+        break;
+        case "Secondary":
+            styleToUse = ButtonStyle.Secondary;
+        break;
+        case "Danger":
+            styleToUse = ButtonStyle.Danger;
+        break;
+        case "Success":
+            styleToUse = ButtonStyle.Success;
+        break;
+        default:
+            styleToUse = ButtonStyle.Secondary;
+        break;
+    }
+
     const backPageButt = new ButtonBuilder()
     .setLabel("Backward")
-    .setStyle(ButtonStyle.Secondary)
+    .setStyle(styleToUse)
     .setEmoji('◀️')
     .setCustomId('back-page');
 
     const nextPageButt = new ButtonBuilder()
     .setLabel("Forward")
-    .setStyle(ButtonStyle.Secondary)
+    .setStyle(styleToUse)
     .setEmoji('▶️')
     .setCustomId('next-page');
 

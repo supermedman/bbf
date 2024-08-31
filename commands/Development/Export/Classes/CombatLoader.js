@@ -116,7 +116,7 @@ class CombatInstance {
         let effectDisplay;
         // Create type filter
         const statModList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
-        const physModList = ["Reinforce", "Attack"];
+        const physModList = ["Reinforce", "Attack", "Pigmy"];
         const gainModList = ["EXP", "COIN"];
         if (statModList.indexOf(potObj.cat) !== -1){
             // Effects Stats
@@ -157,6 +157,10 @@ class CombatInstance {
                     this.internalEffects.upDmg += potObj.e;
                     effectDisplay = `Base Damage: +**${potObj.e}** DMG`;
                 break;
+                case "Pigmy":
+                    this.internalEffects.pigUpMult += potObj.e;
+                    effectDisplay = `Pigmy Damage Multiplier: x**${potObj.e}**`;
+                break;
             }
         }
         if (gainModList.indexOf(potObj.cat) !== -1){
@@ -188,7 +192,7 @@ class CombatInstance {
         const remainingPots = this.internalEffects.potions.filter(pot => !pot.expired);
 
         const statModList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
-        const physModList = ["Reinforce", "Attack"];
+        const physModList = ["Reinforce", "Attack", "Pigmy"];
         const gainModList = ["EXP", "COIN"];
 
         for (const pot of expiredPots){
@@ -223,6 +227,9 @@ class CombatInstance {
                     break;
                     case "Attack":
                         this.internalEffects.upDmg -= pot.e;
+                    break;
+                    case "Pigmy":
+                        this.internalEffects.pigUpMult -= pot.e;
                     break;
                 }
             }

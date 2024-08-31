@@ -142,8 +142,9 @@ const { createNewEnemyImage } = require('../exported/displayEnemy');
 const { attackEnemy, handleActiveStatus, applyActiveStatus } = require('../../Development/Export/combatContainer');
 
 const { handleEnemyMat } = require('../../Development/Export/materialFactory');
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser} = require('../../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, dropChance} = require('../../../uniHelperFunctions');
 const { handleUserPayout } = require('../../Development/Export/uni_userPayouts');
+const { rollRandBlueprint } = require('../../Development/Export/blueprintFactory.js');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -210,9 +211,11 @@ async function handleExterCombat(interaction, forcedKey){
             await thePlayer.reloadInternals();
         }
 
-        const huntingCheck = handleHunting(await grabUser(interaction.user.id));
+        const user = await grabUser(interaction.user.id);
+
+        const huntingCheck = handleHunting(user);
         const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
-        const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, forcedKey);
+        const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, forcedKey, user.current_location);
         theEnemy.loadItems(thePlayer);
 
         const loadObj = thePlayer.loadout;
@@ -414,6 +417,10 @@ async function handleExterCombat(interaction, forcedKey){
         let coinGain = xpGain + Math.floor(xpGain * 0.10);
 
         await handleUserPayout(xpGain, coinGain, interaction, user);
+
+        if (dropChance(0.98)){
+            await rollRandBlueprint(user, interaction.client.masterBPCrafts, interaction);
+        }
 
         const payoutEmbeds = [];
 

@@ -110,6 +110,81 @@ for (const matFile of foundMatFiles){
 	client.materialFiles.set(matType[0], matPath);
 }
 
+// Setup Blueprint Cache data
+client.masterBPCrafts = new Collection();
+client.masterBPEffects = new Collection();
+
+const fullBPList = require('./commands/Development/Export/Json/bpUpdateList.json');
+(() => {
+	// {"Type": "Potion", "Cat": object[]}
+	const masterPotionList = fullBPList.filter(list => list.Type === "Potion")[0].Cat;
+	/**
+	 * a: {
+	 * 		"Active": "PotionType",
+	 * 		"SubCat": [
+	 * 			{
+	 * 				"Active": "Craft",
+	 *				"List": object[ {"Name": ""}, ... ]
+	 *			},
+	 *			{
+	 *				"Active": "Effect",
+	 *				"List": object[ {"Name": ""}, ... ]
+	 *			}
+	 *		]
+	 *	}
+	 */
+	for (const a of masterPotionList){
+		const craftSubCat = a.SubCat[0].List;
+		for (const cBP of craftSubCat){
+			client.masterBPCrafts.set(cBP.Name, cBP);
+		}
+		const effectSubCat = a.SubCat[1].List;
+		for (const eff of effectSubCat){
+			const eTMod = eff;
+			eTMod.Type = a.Active;
+			client.masterBPEffects.set(eff.Name, eTMod);
+		}
+	}
+	// {"Type": "Tool", "Cat": object[]}
+	const masterToolList = fullBPList.filter(list => list.Type === "Tool")[0].Cat;
+	/**
+	 * a: {
+	 * 		"Active": "ToolTarget",
+	 * 		"SubCat": [
+	 * 			{
+	 * 				"Active": "TargetType",
+	 *				"List": object[ {"Name": ""}, ... ],
+	 *				"Effect": object[ {"Name": ""}, ... ]
+	 *			},
+	 *			// ...
+	 *		]
+	 *	}
+	 */
+	for (const a of masterToolList){
+		const toolSubCat = a.SubCat;
+		for (const tSubC of toolSubCat){
+			const craftTSubC = tSubC.List;
+			if (craftTSubC.length === 0 || !craftTSubC) continue;
+			for (const cBP of craftTSubC){
+				client.masterBPCrafts.set(cBP.Name, cBP);
+			}
+
+			const effTSubC = tSubC.Effect;
+			if (effTSubC.length === 0 || !effTSubC) continue;
+			for (const eff of effTSubC){
+				const eTMod = eff;
+				eTMod.Type = a.Active;
+				eTMod.SubType = tSubC.Active;
+				client.masterBPEffects.set(eff.Name, eTMod);
+			}
+		}
+	}
+
+	//console.log('BP Craft Master List Size: %d', client.masterBPCrafts.size);
+	//console.log('BP Effect Master List Size: %d', client.masterBPEffects.size);
+})();
+
+
 client.newEnemy = new Collection();
 client.betaTester = new Collection();
 

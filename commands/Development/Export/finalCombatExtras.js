@@ -25,21 +25,21 @@ const loadPlayer = (id, loadedInstance) => {
     return newInstance;
 };
 
-const loadPickedEnemy = (id) => { 
+const loadPickedEnemy = (id, huntingLocation) => { 
     // Filter Enemy List for given id
     let enemyFab = enemyTestList.filter(enemy => enemy.ConstKey === id)[0];
     if (!enemyFab) console.log(`Enemy not found with ConstKey: ${id}`);
-    const newEnemy = new EnemyFab(enemyFab);
+    const newEnemy = new EnemyFab(enemyFab, huntingLocation);
     return newEnemy;
 };
 
-const loadRandomEnemy = (lvl, enemies) => {
+const loadRandomEnemy = (lvl, enemies, huntingLocation) => {
     const enemyChoiceList = [];
     for (const [key, value] of enemies){
         if (value <= lvl) enemyChoiceList.push(key);
     }
     const idPicked = randArrPos(enemyChoiceList);
-    const newEnemy = loadPickedEnemy(idPicked);
+    const newEnemy = loadPickedEnemy(idPicked, huntingLocation);
     return newEnemy;
 };
 
@@ -50,12 +50,13 @@ const loadRandomEnemy = (lvl, enemies) => {
  * @param {number} pLvl Player Level
  * @param {Collection} enemies enemy level/id collection
  * @param {number} eID Defaults to false if not provided
+ * @param {string} [huntingLocation="Wilds"] Set this to user location if currently hunting
  * @returns {EnemyFab}
  */
-const loadEnemy = (pLvl, enemies, eID=false) => {
+const loadEnemy = (pLvl, enemies, eID=false, huntingLocation="Wilds") => {
     let theEnemy;
-    if (eID) theEnemy = loadPickedEnemy(eID);
-    else theEnemy = loadRandomEnemy(pLvl, enemies);
+    if (eID) theEnemy = loadPickedEnemy(eID, huntingLocation);
+    else theEnemy = loadRandomEnemy(pLvl, enemies, huntingLocation);
     return theEnemy;
 };
 

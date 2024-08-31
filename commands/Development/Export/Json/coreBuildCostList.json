@@ -1,0 +1,142 @@
+[
+    {
+        "Name": "grandhall",
+        "Stone": {
+            "Amount": 20000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Wood": {
+            "Amount": 20000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Metal": {
+            "Amount": 5000,
+            "Level": 4,
+            "Rarity": 2
+        },
+        "Hide": {
+            "Amount": 1500,
+            "Level": 2,
+            "Rarity": 2
+        },
+        "Slime": {
+            "Amount": 200,
+            "Level": 3,
+            "Rarity": 0
+        }
+    },
+    {
+        "Name": "bank",
+        "Stone": {
+            "Amount": 20000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Wood": {
+            "Amount": 12000,
+            "Level": 3,
+            "Rarity": 1
+        },
+        "Metal": {
+            "Amount": 15000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Hide": {
+            "Amount": 450,
+            "Level": 5,
+            "Rarity": 4
+        },
+        "Slime": {
+            "Amount": 450,
+            "Level": 5,
+            "Rarity": 4
+        }
+    },
+    {
+        "Name": "market",
+        "Stone": {
+            "Amount": 2000,
+            "Level": 4,
+            "Rarity": 3
+        },
+        "Wood": {
+            "Amount": 20000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Metal": {
+            "Amount": 1100,
+            "Level": 6,
+            "Rarity": 6
+        },
+        "Hide": {
+            "Amount": 15000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Slime": {
+            "Amount": 4560,
+            "Level": 1,
+            "Rarity": 0
+        }
+    },
+    {
+        "Name": "tavern",
+        "Stone": {
+            "Amount": 25000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Wood": {
+            "Amount": 10000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Metal": {
+            "Amount": 3500,
+            "Level": 2,
+            "Rarity": 2
+        },
+        "Hide": {
+            "Amount": 5000,
+            "Level": 2,
+            "Rarity": 2
+        },
+        "Slime": {
+            "Amount": 300,
+            "Level": 5,
+            "Rarity": 4
+        }
+    },
+    {
+        "Name": "clergy",
+        "Stone": {
+            "Amount": 5000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Wood": {
+            "Amount": 5000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Metal": {
+            "Amount": 5000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Hide": {
+            "Amount": 5000,
+            "Level": 1,
+            "Rarity": 0
+        },
+        "Slime": {
+            "Amount": 5000,
+            "Level": 1,
+            "Rarity": 0
+        }
+    }
+]

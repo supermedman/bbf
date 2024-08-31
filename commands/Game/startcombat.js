@@ -1,157 +1,157 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const { Op } = require('sequelize');
-const { grabRar, grabColour } = require('./exported/grabRar.js');
-const { createEnemyDisplay } = require('./exported/displayEnemy.js');
-const { checkOwned } = require('./exported/createGear.js');
-const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted, UserTasks } = require('../../dbObjects.js');
+//const { Op } = require('sequelize');
+//const { grabRar, grabColour } = require('./exported/grabRar.js');
+//const { createEnemyDisplay } = require('./exported/displayEnemy.js');
+//const { checkOwned } = require('./exported/createGear.js');
+// const { UserData, ActiveEnemy, Pigmy, Loadout, ActiveStatus, OwnedPotions, UniqueCrafted, UserTasks } = require('../../dbObjects.js');
 
-const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
-const lootList = require('../../events/Models/json_prefabs/lootList.json');
-const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
-const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
-const aCATE = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
+//const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
+//const lootList = require('../../events/Models/json_prefabs/lootList.json');
+//const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
+//const deathMsgList = require('../../events/Models/json_prefabs/deathMsgList.json');
+//const aCATE = require('../../events/Models/json_prefabs/activeCategoryEffects.json');
 
-const { isLvlUp, isUniqueLevelUp } = require('./exported/levelup.js');
-const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
-const { grabMat } = require('./exported/materialDropper.js');
+//const { isLvlUp, isUniqueLevelUp } = require('./exported/levelup.js');
+//const { dropRandomBlueprint } = require('./exported/createBlueprint.js');
+//const { grabMat } = require('./exported/materialDropper.js');
 const { checkHintStats, checkHintLootView } = require('./exported/handleHints.js');
 
-const { Player } = require('./exported/MadeClasses/Player.js');
-const { Enemy } = require('./exported/MadeClasses/Enemy.js');
+//const { Player } = require('./exported/MadeClasses/Player.js');
+//const { Enemy } = require('./exported/MadeClasses/Enemy.js');
 
-/** This method retrives Defence values from all given gear ids
- * 
- * @param {string} userID user id snowflake
- * @param {any[]} gear list of all gear containing defence values
- */
-const grabDefenceGear = async (userID, gear) => {
-    let totalDs = [];
-    for (const id of gear) {
-        let pushVal = 0;
-        let itemRef;
-        if (id === 0) {
+// /** This method retrives Defence values from all given gear ids
+//  * 
+//  * @param {string} userID user id snowflake
+//  * @param {any[]} gear list of all gear containing defence values
+//  */
+// const grabDefenceGear = async (userID, gear) => {
+//     let totalDs = [];
+//     for (const id of gear) {
+//         let pushVal = 0;
+//         let itemRef;
+//         if (id === 0) {
 
-        } else if (id >= 30000) {
-            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
-            pushVal = itemRef.Defence;
-        } else if (id < 1000 || id >= 20000) {
-            itemRef = lootList.filter(item => item.Loot_id === id);
-            pushVal = itemRef[0].Defence;
-        } else if (id > 1000) {
-            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
-            pushVal = itemRef[0].Defence;
-        }
-        totalDs.push(pushVal);
-    }
-    return totalDs;
-};
+//         } else if (id >= 30000) {
+//             itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+//             pushVal = itemRef.Defence;
+//         } else if (id < 1000 || id >= 20000) {
+//             itemRef = lootList.filter(item => item.Loot_id === id);
+//             pushVal = itemRef[0].Defence;
+//         } else if (id > 1000) {
+//             itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+//             pushVal = itemRef[0].Defence;
+//         }
+//         totalDs.push(pushVal);
+//     }
+//     return totalDs;
+// };
 
-/** This method retrives Damage values from all given gear ids
- * 
- * @param {string} userID user id snowflake
- * @param {any[]} gear list of all gear containing attack values
- */
-const grabDamageGear = async (userID, gear) => {
-    let totalAs = [];
-    for (const id of gear) {
-        let pushVal = 0;
-        let itemRef;
-        if (id === 0) {
+// /** This method retrives Damage values from all given gear ids
+//  * 
+//  * @param {string} userID user id snowflake
+//  * @param {any[]} gear list of all gear containing attack values
+//  */
+// const grabDamageGear = async (userID, gear) => {
+//     let totalAs = [];
+//     for (const id of gear) {
+//         let pushVal = 0;
+//         let itemRef;
+//         if (id === 0) {
 
-        } else if (id >= 30000) {
-            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
-            pushVal = itemRef.Attack;
-        } else if (id < 1000 || id >= 20000) {
-            itemRef = lootList.filter(item => item.Loot_id === id);
-            pushVal = itemRef[0].Attack;
-        } else if (id > 1000) {
-            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
-            pushVal = itemRef[0].Attack;
-        }
-        totalAs.push(pushVal);
-    }
-    return totalAs;
-};
+//         } else if (id >= 30000) {
+//             itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+//             pushVal = itemRef.Attack;
+//         } else if (id < 1000 || id >= 20000) {
+//             itemRef = lootList.filter(item => item.Loot_id === id);
+//             pushVal = itemRef[0].Attack;
+//         } else if (id > 1000) {
+//             itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+//             pushVal = itemRef[0].Attack;
+//         }
+//         totalAs.push(pushVal);
+//     }
+//     return totalAs;
+// };
 
-/** This method retrives Damage values from all given gear ids
- * 
- * @param {string} userID user id snowflake
- * @param {any[]} gear list of all gear containing type values
- */
-const grabGearTypes = async (userID, gear) => {
-    let totalTypes = [];
-    for (const id of gear) {
-        let pushVal = 'NONE';
-        let itemRef;
-        if (id === 0) {
+// /** This method retrives Damage values from all given gear ids
+//  * 
+//  * @param {string} userID user id snowflake
+//  * @param {any[]} gear list of all gear containing type values
+//  */
+// const grabGearTypes = async (userID, gear) => {
+//     let totalTypes = [];
+//     for (const id of gear) {
+//         let pushVal = 'NONE';
+//         let itemRef;
+//         if (id === 0) {
 
-        } else if (id >= 30000) {
-            itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
-            pushVal = itemRef.Type;
-        } else if (id < 1000 || id >= 20000) {
-            itemRef = lootList.filter(item => item.Loot_id === id);
-            pushVal = itemRef[0].Type;
-        } else if (id > 1000) {
-            itemRef = uniqueLootList.filter(item => item.Loot_id === id);
-            pushVal = itemRef[0].Type;
-        }
-        totalTypes.push(pushVal);
-    }
-    return totalTypes;
-};
+//         } else if (id >= 30000) {
+//             itemRef = await UniqueCrafted.findOne({ where: [{ spec_id: userID }, { loot_id: id }] });
+//             pushVal = itemRef.Type;
+//         } else if (id < 1000 || id >= 20000) {
+//             itemRef = lootList.filter(item => item.Loot_id === id);
+//             pushVal = itemRef[0].Type;
+//         } else if (id > 1000) {
+//             itemRef = uniqueLootList.filter(item => item.Loot_id === id);
+//             pushVal = itemRef[0].Type;
+//         }
+//         totalTypes.push(pushVal);
+//     }
+//     return totalTypes;
+// };
 
-const findPotion = async (potionOneID, userID) => {
-    let potionOne;
-    console.log(potionOneID);
-    if (potionOneID === 0) {
-        //Nothing equipped
-        return 'NONE';
-    } else {
-        potionOne = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionOneID }] });
-        if (!potionOne) {
-            //console.log(warnedForm('PotionOne NOT FOUND AMOUNT LIKELY 0!'));
-            return 'HASNONE';
-        }
-        if (potionOne.amount > 0) return potionOne;
-    }
-}
+// const findPotion = async (potionOneID, userID) => {
+//     let potionOne;
+//     console.log(potionOneID);
+//     if (potionOneID === 0) {
+//         //Nothing equipped
+//         return 'NONE';
+//     } else {
+//         potionOne = await OwnedPotions.findOne({ where: [{ spec_id: userID }, { potion_id: potionOneID }] });
+//         if (!potionOne) {
+//             //console.log(warnedForm('PotionOne NOT FOUND AMOUNT LIKELY 0!'));
+//             return 'HASNONE';
+//         }
+//         if (potionOne.amount > 0) return potionOne;
+//     }
+// }
 
-const randArrPos = (arr) => {
-    let returnIndex = 0;
-    if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
-    return arr[returnIndex];
-};
+// const randArrPos = (arr) => {
+//     let returnIndex = 0;
+//     if (arr.length > 1) returnIndex = Math.floor(Math.random() * arr.length);
+//     return arr[returnIndex];
+// };
 
-const enemyExtraGen = (eFab) => {
-    const lvl = eFab.Level;
-    let nxtLvl;
-    if (lvl < 20) {
-        nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
-    } else if (lvl === 20) {
-        nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
-    } else if (lvl > 20) {
-        const lvlScale = 1.5 * (Math.floor(lvl / 5));
-        nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
-    }
+// const enemyExtraGen = (eFab) => {
+//     const lvl = eFab.Level;
+//     let nxtLvl;
+//     if (lvl < 20) {
+//         nxtLvl = 50 * (Math.pow(lvl, 2) - 1);
+//     } else if (lvl === 20) {
+//         nxtLvl = 75 * (Math.pow(lvl, 2) - 1);
+//     } else if (lvl > 20) {
+//         const lvlScale = 1.5 * (Math.floor(lvl / 5));
+//         nxtLvl = (75 + lvlScale) * (Math.pow(lvl, 2) - 1);
+//     }
 
-    let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
-    let XpMin = XpMax - Math.floor(XpMax * 0.25);
+//     let XpMax = Math.floor((nxtLvl / 15) + (0.2 * (100 - lvl)));
+//     let XpMin = XpMax - Math.floor(XpMax * 0.25);
 
-    // This needs balancing, damage needs to scale up/down off of avg by 50% rough outline
-    const avgDmgRef = eFab.AvgDmg;
-    let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02 * Math.floor(lvl / 6)));
-    let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
+//     // This needs balancing, damage needs to scale up/down off of avg by 50% rough outline
+//     const avgDmgRef = eFab.AvgDmg;
+//     let DmgMax = Math.floor(avgDmgRef * 1.5 + (0.02 * Math.floor(lvl / 6)));
+//     let DmgMin = DmgMax - Math.floor(DmgMax / 4.8);
 
-    const calcValueObj = {
-        maxDmg: DmgMax,
-        minDmg: DmgMin,
-        maxXp: XpMax,
-        minXp: XpMin,
-    };
+//     const calcValueObj = {
+//         maxDmg: DmgMax,
+//         minDmg: DmgMin,
+//         maxXp: XpMax,
+//         minXp: XpMin,
+//     };
 
-    return calcValueObj;
-};
+//     return calcValueObj;
+// };
 
 const { CombatInstance } = require('../Development/Export/Classes/CombatLoader');
 const { EnemyFab } = require('../Development/Export/Classes/EnemyFab');
@@ -173,8 +173,9 @@ const { createNewEnemyImage } = require('./exported/displayEnemy');
 const { attackEnemy, handleActiveStatus, applyActiveStatus } = require('../Development/Export/combatContainer');
 
 const { handleEnemyMat } = require('../Development/Export/materialFactory');
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser} = require('../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, dropChance} = require('../../uniHelperFunctions');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts');
+const { rollRandBlueprint } = require('../Development/Export/blueprintFactory.js');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -232,6 +233,8 @@ module.exports = {
         
         const { enemies, combatInstance, gearDrops, newEnemy } = interaction.client;
 
+        let enemiesToPass = enemies;
+
         let startTime, displayStartTime;
         async function preloadCombat(){
             await interaction.deferReply();
@@ -248,9 +251,11 @@ module.exports = {
                 await thePlayer.reloadInternals();
             }
 
-            const huntingCheck = handleHunting(await grabUser(interaction.user.id));
-            const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
-            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass);
+            const user = await grabUser(interaction.user.id);
+
+            const huntingCheck = handleHunting(user);
+            enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
+            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, false, user.current_location);
             theEnemy.loadItems(thePlayer);
 
             const loadObj = thePlayer.loadout;
@@ -453,6 +458,10 @@ module.exports = {
 
             await handleUserPayout(xpGain, coinGain, interaction, user);
 
+            if (dropChance(0.98)){
+                await rollRandBlueprint(user, interaction.client.masterBPCrafts, interaction);
+            }
+
             const payoutEmbeds = [];
 
             // Material Drops
@@ -511,7 +520,7 @@ module.exports = {
                     await c.deferUpdate().then(async () => {
                         if (c.customId === 'spawn-new'){
                             collector.stop();
-                            return combatLooper(player, loadEnemy(player.level, enemies));
+                            return combatLooper(player, loadEnemy(player.level, enemiesToPass, false, (await grabUser(player.userId)).current_location));
                         }
                     }).catch(e => console.error(e));
                 });

@@ -1,5 +1,5 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
-const { UserData, ActiveEnemy } = require('../../dbObjects.js');
+const { UserData } = require('../../dbObjects.js');
 const { handleExterCombat } = require('./exported/combatDisplay.js');
 
 module.exports = {

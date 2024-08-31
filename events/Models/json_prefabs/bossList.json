@@ -104,6 +104,10 @@
 		"XpMin": 15000,
 		"XpMax": 20000,
 
+		"CraftText": "Your *crafting* ability has been improved!!\nLost souls explode from ***Wadon***, you sense a change in the creatures of the world!",
+		"RepeatText": "",
+		"HasBluey": false,
+
 		"Blueprint": "Soul God's Reaver",
 		"BlueprintID": 1,
 
@@ -225,6 +229,10 @@
 		"Dead": false,
 		"XpMin": 25000,
 		"XpMax": 35000,
+
+		"CraftText": "Your *crafting* ability has been improved!!\nA deep darkness spills out from ***Dyvulla***, you sense a change in the creatures of the world!!",
+		"RepeatText": "",
+		"HasBluey": false,
 
 		"Blueprint": "Dark Bringers Visage",
 		"BlueprintID": 10,
@@ -348,6 +356,10 @@
 		"XpMin": 35000,
 		"XpMax": 48000,
 
+		"CraftText": "Your *crafting* ability has been improved!!\n***Ados*** fills your mind with weapon designs!",
+		"RepeatText": "",
+		"HasBluey": false,
+
 		"Blueprint": "Spiked Bloodborne Skullstompers",
 		"BlueprintID": 18,
 
@@ -469,6 +481,10 @@
 		"Dead": false,
 		"XpMin": 60000,
 		"XpMax": 75000,
+
+		"CraftText": "Your *crafting* ability has been improved!!\n***Zimmir***'s chaos forces insanity, you see visions of advanced *crafting* materials!!\n***Zimmir***'s chaos causes a change in the creatures of the world!",
+		"RepeatText": "",
+		"HasBluey": false,
 
 		"Blueprint": "Robes of Forced Insanity",
 		"BlueprintID": 19,
@@ -592,6 +608,10 @@
 		"XpMin": 85000,
 		"XpMax": 100000,
 
+		"CraftText": "***Phamnera***'s lawful hold breaks, it fills your mind with armor designs, and reveals stronger advanced *crafting* methods!!\nYou sense this causing a profound change in the creatures of the world!",
+		"RepeatText": "",
+		"HasBluey": false,
+
 		"Blueprint": "Balance Bane, Law Keepers Gavel",
 		"BlueprintID": 27,
 
@@ -713,6 +733,10 @@
 		"Dead": false,
 		"XpMin": 150000,
 		"XpMax": 250000,
+
+		"CraftText": "Hateful spite rips forth from ***Xogdia***, causing a change in the creatures of the world!\nShe leaves behind a **Blueprint**!!",
+		"RepeatText": "",
+		"HasBluey": true,
 
 		"Blueprint": "Machine Schematics",
 		"BlueprintID": 29,
@@ -836,6 +860,10 @@
 		"XpMin": 150000,
 		"XpMax": 250000,
 
+		"CraftText": "***Mien*** impowers a change in the creatures of the world!!\nShe shares with you a new **Blueprint**",
+		"RepeatText": "",
+		"HasBluey": true,
+
 		"Blueprint": "<Forge Upgrade BP>",
 		"BlueprintID": 1000,
 
@@ -957,6 +985,10 @@
 		"Dead": false,
 		"XpMin": 150000,
 		"XpMax": 250000,
+
+		"CraftText": "Your *crafting* ability has been improved!!\n***Nizdea*** ||(Breaks her NDA)|| no longer keeps guard over her secrets, your mind fills with **Powerful** gear designs!!\nHer secrets find rest in the creatures of the world!!",
+		"RepeatText": "",
+		"HasBluey": false,
 
 		"Blueprint": "<TBD>",
 		"BlueprintID": 1000,

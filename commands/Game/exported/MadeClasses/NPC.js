@@ -8,6 +8,7 @@ const npcDialogCaste = require('../../../../events/Models/json_prefabs/NPC_Prefa
 const lootList = require('../../../../events/Models/json_prefabs/lootList.json');
 
 const {NPCcheckMaterialFav} = require('../locationFilters.js');
+const { inclusiveRandNum } = require('../../../../uniHelperFunctions.js');
 
 const randArrPos = (arr) => {
     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
@@ -348,18 +349,20 @@ class NPC {
             case "Fetch":
                 fieldName = (this.taskContents.Material === true) ? "Material Requested: " : "Item Requested: ";
                 fieldValue = `Name: ${this.taskRequest.Name}\nRarity: ${this.taskRequest.Rarity}\nAmount: ${this.taskRequest.Amount}`;
-                break;
+            break;
             case "Combat":
                 fieldName = "Enemies To Kill: ";
                 fieldValue = `Level: ${this.taskRequest.MinLevel}+\nAmount: ${this.taskRequest.Amount}`;
-                break;
+            break;
             case "Gather":
                 fieldName = "Material Requested: ";
                 fieldValue = `Name: ${this.taskRequest.Name}\nRarity: ${this.taskRequest.Rarity}\nAmount: ${this.taskRequest.Amount}`;
-                break;
+            break;
             case "Craft":
-                
-                break;
+                // Add other crafting based conditions
+                fieldName = 'Crafting Conditions: ';
+                fieldValue = `Slot: SLOT-TYPE-HERE\nRarity: RARITY-HERE\nAmount: AMOUNT-HERE`;
+            break;
         }
 
 
@@ -426,10 +429,10 @@ class NPC {
             MinLevel: 0,
             Amount: 0,
         };
-
-        const minimumLevel = Math.floor(Math.random() * (this.taskContents.LevelMax - this.taskContents.LevelMin + 1) + this.taskContents.LevelMin);
+        
+        const minimumLevel = inclusiveRandNum(this.taskContents.LevelMax, this.taskContents.LevelMin);
         returnObj.MinLevel = minimumLevel;
-        const amountWanted = Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
+        const amountWanted = inclusiveRandNum(this.taskContents.MaxNeed, this.taskContents.MinNeed);
         returnObj.Amount = amountWanted;
 
         this.taskRequest = returnObj;
@@ -460,7 +463,7 @@ class NPC {
         returnObj.Rar_id = rarIdResult;
         //console.log(`Rarity: ${rarResult}\nRar_id: ${rarIdResult}`);
 
-        const amountWanted = Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
+        const amountWanted = inclusiveRandNum(this.taskContents.MaxNeed, this.taskContents.MinNeed);
         returnObj.Amount = amountWanted;
 
         // Generate Material Request

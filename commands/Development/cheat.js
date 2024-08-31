@@ -1,14 +1,17 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
-const {UserData, ItemLootPool} = require('../../dbObjects.js');
+const {UserData, ItemLootPool, Questing} = require('../../dbObjects.js');
+const questList = require('../../events/Models/json_prefabs/questList.json');
 //const lootList = require('../../events/Models/json_prefabs/lootList.json');
 
 //const { checkOwned } = require('../Game/exported/createGear.js');
 //const {handleMaterialAdding} = require('../Game/exported/materialDropper.js');
 const { loadFullRarNameList, checkingRar, checkingSlot, uni_displayItem, checkingRarID } = require('./Export/itemStringCore.js');
-const { handleLimitOnOptions, grabUser, makeCapital, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
+const { handleLimitOnOptions, grabUser, makeCapital, sendTimedChannelMessage, inclusiveRandNum } = require('../../uniHelperFunctions.js');
 const { checkInboundItem, checkInboundMat } = require('./Export/itemMoveContainer.js');
 const { grabColour } = require('../Game/exported/grabRar.js');
+const { xpPayoutScale } = require('./Export/Classes/EnemyFab.js');
+const { handleUserPayout } = require('./Export/uni_userPayouts.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -83,6 +86,29 @@ module.exports = {
                 .setDescription('Material Amount')
             )
             .addUserOption(option => option.setName('target').setDescription('The user'))
+        )
+        .addSubcommand(subcommand => 
+            subcommand
+            .setName('quest-test')
+            .setDescription('Creates/completes the picked quest!')
+            .addIntegerOption(option =>
+                option
+                .setName('q-id')
+                .setDescription('Quest ID')
+                .setRequired(true)
+            )
+        )
+        .addSubcommand(subcommand => 
+            subcommand
+            .setName('kill-payout')
+            .setDescription('Creates/completes the picked quest!')
+            .addIntegerOption(option =>
+                option
+                .setName('level')
+                .setDescription('Enemy Level to payout for')
+                .setRequired(true)
+            )
+            .addUserOption(option => option.setName('target').setDescription('The user'))
         ),
     
     async autocomplete(interaction) {
@@ -154,7 +180,7 @@ module.exports = {
     },
 	async execute(interaction) { 
         if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'Nope! Only Developers are allowed to use this!', ephemeral: true});
-        
+
         const {materialFiles} = interaction.client;
 
         const targetUser = interaction.options.getUser('target') ?? interaction.user;
@@ -162,6 +188,52 @@ module.exports = {
         if (!theUser) return await interaction.reply({content: 'This user does not have a profile yet!', ephemeral: true});
 
         const subCom = interaction.options.getSubcommand();
+        if (subCom === 'quest-test'){
+            const qID = interaction.options.getInteger('q-id');
+
+            const questPicked = questList.filter(q => q.ID === qID)[0] ?? 'None';
+            if (questPicked === 'None') return await interaction.reply({content: `Quest with ID ${qID} **NOT** found!`, ephemeral: true});
+
+            let theQuest = await Questing.findOrCreate({
+                where: {
+                    user_id: theUser.userid
+                },
+                defaults: {
+                    qlength: questPicked.Length,
+                    qlevel: questPicked.Level,
+                    qname: questPicked.Name,
+                    qid: questPicked.ID,
+                    qstory: questPicked.Story,
+                }
+            });
+
+            if (theQuest[1]){
+                await theQuest[0].save().then(async q => {return await q.reload()});
+            } else if (theQuest[0].qid !== qID) return await interaction.reply({content: `Active quest found with ID ${theQuest[0].qid}`, ephemeral: true});
+
+            theQuest = theQuest[0];
+
+            const today = new Date();
+            const setStarted = new Date(today);
+            setStarted.setDate(setStarted.getDate() - 5);
+            console.log(setStarted);
+            setStarted.setHours(0, 0, 0, 0);
+
+            await theQuest.update({createdAt: setStarted})
+            .then(async q => await q.save())
+            .then(async q => {return await q.reload()});
+
+            return await interaction.reply({content: `New Quest created with ID ${theQuest.qid}`, ephemeral: true});
+        } else if (subCom === 'kill-payout'){
+            const levelRoll = interaction.options.getInteger('level');
+            const xpObj = xpPayoutScale(levelRoll);
+            const xpRolled = inclusiveRandNum(xpObj.max, xpObj.min);
+            const coinRolled = xpRolled + Math.floor(xpRolled * 0.10);
+
+            await handleUserPayout(xpRolled, coinRolled, interaction, theUser);
+
+            return await interaction.reply({content: `User Payout Success!`, ephemeral: true});
+        }
 
         const giveAmount = interaction.options.getInteger('amount') ?? 1;
         const namePicked = (subCom === 'give-item') ? interaction.options.getString('item-name') : interaction.options.getString('mat-name');

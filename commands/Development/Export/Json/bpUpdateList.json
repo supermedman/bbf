@@ -1,0 +1,2179 @@
+[
+    {
+        "Type": "Potion",
+        "Cat": [
+            {
+                "Active": "Healing",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Healing",
+                                "Description": "Heals for 45",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 5,
+                                "Cost": 1000,
+
+                                "Rarity": "Uncommon",
+                                "Rar_id": 1,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Foxtail",
+                                        "Type": "herby",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "PotionID": 1,
+                                "BlueprintID": 2
+                            },
+                            {
+                                "Name": "Medium Healing",
+                                "Description": "Heals for 100",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 13,
+                                "Cost": 3500,
+
+                                "Rarity": "Very Rare",
+                                "Rar_id": 3,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodroot",
+                                        "Type": "herby",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 12
+                                    },
+                                    {
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 4,
+                                "BlueprintID": 5
+                            },
+                            {
+                                "Name": "Major Healing",
+                                "Description": "Heals for 200",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 12500,
+
+                                "Rarity": "Mystic",
+                                "Rar_id": 5,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodroot",
+                                        "Type": "herby",
+                                        "Amount": 30
+                                    },
+                                    {
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Sparkly Slime",
+                                        "Type": "slimy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 10,
+                                "BlueprintID": 12
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Healing",
+                                "Duration": 0,
+                                "Cooldown": 3,
+                                "Strength": 45
+                            },
+                            {
+                                "Name": "Medium Healing",
+                                "Duration": 0,
+                                "Cooldown": 5,
+                                "Strength": 100
+                            },
+                            {
+                                "Name": "Major Healing",
+                                "Duration": 0,
+                                "Cooldown": 8,
+                                "Strength": 200
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Reinforce",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Stone Skin",
+                                "Description": "Increases base defence by 15",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 8,
+                                "Cost": 1750,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Slimy Eyeball",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Limestone",
+                                        "Type": "rocky",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Granite",
+                                        "Type": "rocky",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "PotionID": 2,
+                                "BlueprintID": 3
+                            },
+                            {
+                                "Name": "Iron Skin",
+                                "Description": "Increases base defence by 30",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 13,
+                                "Cost": 3650,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Raw Ore",
+                                        "Type": "metalic",
+                                        "Amount": 30
+                                    },
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Iron Ingot",
+                                        "Type": "metalic",
+                                        "Amount": 7
+                                    }
+                                ],
+                                "PotionID": 5,
+                                "BlueprintID": 6
+                            },
+                            {
+                                "Name": "Phasemetal Skin",
+                                "Description": "Increases base defence by 75",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 25,
+                                "Cost": 14000,
+
+                                "Rarity": "?",
+                                "Rar_id": 6,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 24
+                                    },
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Pure BLUNT",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Phasemetal Scrap",
+                                        "Type": "metalic",
+                                        "Amount": 4
+                                    }
+                                ],
+                                "PotionID": 11,
+                                "BlueprintID": 13
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Stone Skin",
+                                "Duration": 5,
+                                "Cooldown": 7,
+                                "Strength": 15
+                            },
+                            {
+                                "Name": "Iron Skin",
+                                "Duration": 15,
+                                "Cooldown": 20,
+                                "Strength": 30
+                            },
+                            {
+                                "Name": "Phasemetal Skin",
+                                "Duration": 15,
+                                "Cooldown": 18,
+                                "Strength": 75
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Tons",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Ton of Stats",
+                                "Description": "Increases ALL base stats by 1",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 8,
+                                "Cost": 2000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Purple Slime",
+                                        "Type": "slimy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Raw Ore",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Foxtail",
+                                        "Type": "herby",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 3,
+                                "BlueprintID": 4
+                            },
+                            {
+                                "Name": "Medium Ton of Stats",
+                                "Description": "Increases ALL base stats by 3",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 15,
+                                "Cost": 5000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 7
+                                    },
+                                    {
+                                        "Name": "Steel Ingot",
+                                        "Type": "metalic",
+                                        "Amount": 7
+                                    },
+                                    {
+                                        "Name": "Magical Glands",
+                                        "Type": "fleshy",
+                                        "Amount": 7
+                                    },
+                                    {
+                                        "Name": "Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 7
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 4
+                                    }
+                                ],
+                                "PotionID": 7,
+                                "BlueprintID": 8
+                            },
+                            {
+                                "Name": "Major Ton of Stats",
+                                "Description": "Increases ALL base stats by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "?",
+                                "Rar_id": 6,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 4
+                                    },
+                                    {
+                                        "Name": "Phasemetal Scrap",
+                                        "Type": "metalic",
+                                        "Amount": 4
+                                    },
+                                    {
+                                        "Name": "Imperfect Phasesoup",
+                                        "Type": "magical",
+                                        "Amount": 4
+                                    },
+                                    {
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 4
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 150
+                                    }
+                                ],
+                                "PotionID": 9,
+                                "BlueprintID": 11
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Ton of Stats",
+                                "Duration": 10,
+                                "Cooldown": 15,
+                                "Strength": 1
+                            },
+                            {
+                                "Name": "Medium Ton of Stats",
+                                "Duration": 20,
+                                "Cooldown": 30,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Major Ton of Stats",
+                                "Duration": 50,
+                                "Cooldown": 65,
+                                "Strength": 5
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "EXP",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor EXP",
+                                "Description": "Increases EXP gain by 5%",
+
+                                "Dupe": true,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 15,
+                                "Cost": 5000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 20
+                                    },
+                                    {
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 4
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 6,
+                                "BlueprintID": 7
+                            },
+                            {
+                                "Name": "Medium EXP",
+                                "Description": "Increases EXP gain by 10%",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 18,
+                                "Cost": 7500,
+
+                                "Rarity": "Mystic",
+                                "Rar_id": 5,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 7
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 2
+                                    }
+                                ],
+                                "PotionID": 8,
+                                "BlueprintID": 9
+                            },
+                            {
+                                "Name": "Major EXP",
+                                "Description": "Increases EXP gain by 15%",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 25,
+                                "Cost": 17500,
+
+                                "Rarity": "?",
+                                "Rar_id": 6,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "herby",
+                                        "Amount": 55
+                                    },
+                                    {
+                                        "Name": "Rainbow Slime",
+                                        "Type": "slimy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 40
+                                    },
+                                    {
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 4
+                                    },
+                                    {
+                                        "Name": "Pure NULL",
+                                        "Type": "unique",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "PotionID": 12,
+                                "BlueprintID": 14
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor EXP",
+                                "Duration": 50,
+                                "Cooldown": 55,
+                                "Strength": 0.05
+                            },
+                            {
+                                "Name": "Medium EXP",
+                                "Duration": 100,
+                                "Cooldown": 100,
+                                "Strength": 0.1
+                            },
+                            {
+                                "Name": "Major EXP",
+                                "Duration": 200,
+                                "Cooldown": 200,
+                                "Strength": 0.15
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Pigmy",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Nessy's Pretty Pink Potion",
+                                "Description": "One swig of this potion and your pigmy will strike with **4x** the force!",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 32,
+                                "Cost": 20000,
+
+                                "Rarity": "???",
+                                "Rar_id": 8,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Rose Quartz",
+                                        "Type": "gemy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Pink Lace Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure NESSY",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 13,
+                                "BlueprintID": 33
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Nessy's Pretty Pink Potion",
+                                "Duration": 10,
+                                "Cooldown": 13,
+                                "Strength": 4
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Strength",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Strength",
+                                "Description": "Increases base Strength stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Iron Ingot",
+                                        "Type": "metalic",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 14,
+                                "BlueprintID": 34
+                            },
+                            {
+                                "Name": "Medium Strength",
+                                "Description": "Increases base Strength stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 15,
+                                "BlueprintID": 35
+                            },
+                            {
+                                "Name": "Major Strength",
+                                "Description": "Increases base Strength stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 16,
+                                "BlueprintID": 36
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Strength",
+                                "Duration": 15,
+                                "Cooldown": 20,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Strength",
+                                "Duration": 25,
+                                "Cooldown": 35,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Strength",
+                                "Duration": 50,
+                                "Cooldown": 65,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Speed",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Speed",
+                                "Description": "Increases base Speed stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 17,
+                                "BlueprintID": 37
+                            },
+                            {
+                                "Name": "Medium Speed",
+                                "Description": "Increases base Speed stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Sparkly Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 18,
+                                "BlueprintID": 38
+                            },
+                            {
+                                "Name": "Major Speed",
+                                "Description": "Increases base Speed stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Cyan Slime",
+                                        "Type": "slimy",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 19,
+                                "BlueprintID": 39
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Speed",
+                                "Duration": 15,
+                                "Cooldown": 20,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Speed",
+                                "Duration": 25,
+                                "Cooldown": 35,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Speed",
+                                "Duration": 50,
+                                "Cooldown": 65,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Intelligence",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Intelligence",
+                                "Description": "Increases base Intelligence stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Greycap SparklShrooms",
+                                        "Type": "magical",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 20,
+                                "BlueprintID": 40
+                            },
+                            {
+                                "Name": "Medium Intelligence",
+                                "Description": "Increases base Intelligence stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Refined Essence",
+                                        "Type": "magical",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 21,
+                                "BlueprintID": 41
+                            },
+                            {
+                                "Name": "Major Intelligence",
+                                "Description": "Increases base Intelligence stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Volatile Essence",
+                                        "Type": "magical",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 22,
+                                "BlueprintID": 42
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Intelligence",
+                                "Duration": 15,
+                                "Cooldown": 20,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Intelligence",
+                                "Duration": 25,
+                                "Cooldown": 35,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Intelligence",
+                                "Duration": 50,
+                                "Cooldown": 65,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Dexterity",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Dexterity",
+                                "Description": "Increases base Dexterity stat by 3",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 5000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 3
+                                    },
+                                    {
+                                        "Name": "Bloodroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "PotionID": 23,
+                                "BlueprintID": 43
+                            },
+                            {
+                                "Name": "Medium Dexterity",
+                                "Description": "Increases base Dexterity stat by 5",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 10000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Wings",
+                                        "Type": "fleshy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "PotionID": 24,
+                                "BlueprintID": 44
+                            },
+                            {
+                                "Name": "Major Dexterity",
+                                "Description": "Increases base Dexterity stat by 10",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 30000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Corse Tongue",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Ground Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Pure MAGIC",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "PotionID": 25,
+                                "BlueprintID": 45
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Dexterity",
+                                "Duration": 15,
+                                "Cooldown": 20,
+                                "Strength": 3
+                            },
+                            {
+                                "Name": "Medium Dexterity",
+                                "Duration": 25,
+                                "Cooldown": 35,
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Major Dexterity",
+                                "Duration": 50,
+                                "Cooldown": 65,
+                                "Strength": 10
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Attack",
+                "SubCat": [
+                    {
+                        "Active": "Craft",
+                        "List": [
+                            {
+                                "Name": "Minor Attack",
+                                "Description": "Increases base Attack Damage by 150",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 25,
+                                "Cost": 15000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Twisted Horn",
+                                        "Type": "fleshy",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Infused Silverroot",
+                                        "Type": "herby",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 15
+                                    }
+                                ],
+                                "PotionID": 26,
+                                "BlueprintID": 46
+                            },
+                            {
+                                "Name": "Medium Attack",
+                                "Description": "Increases base Attack Damage by 500",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 25000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Twisted Horn",
+                                        "Type": "fleshy",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Ground Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 30
+                                    }
+                                ],
+                                "PotionID": 27,
+                                "BlueprintID": 47
+                            },
+                            {
+                                "Name": "Major Attack",
+                                "Description": "Increases base Attack Damage by 5000",
+
+                                "Dupe": true,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 60,
+                                "Cost": 100000,
+
+                                "Rarity": "????",
+                                "Rar_id": 9,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Yessilese Bonemarrow",
+                                        "Type": "fleshy",
+                                        "Amount": 2
+                                    },
+                                    {
+                                        "Name": "Phaseroot Extract",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Pure Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 60
+                                    }
+                                ],
+                                "PotionID": 28,
+                                "BlueprintID": 48
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Effect",
+                        "List": [
+                            {
+                                "Name": "Minor Attack",
+                                "Duration": 10,
+                                "Cooldown": 15,
+                                "Strength": 150
+                            },
+                            {
+                                "Name": "Medium Attack",
+                                "Duration": 30,
+                                "Cooldown": 40,
+                                "Strength": 500
+                            },
+                            {
+                                "Name": "Major Attack",
+                                "Duration": 4,
+                                "Cooldown": 10,
+                                "Strength": 5000
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "Type": "Tool",
+        "Cat": [
+            {
+                "Active": "Pigmy",
+                "SubCat": [
+                    {
+                        "Active": "Toy",
+                        "List": [
+                            {
+                                "Name": "Small Ball",
+                                "Description": "Increases pigmy *happiness* when playing by *5*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 1000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Purple Slime",
+                                        "Type": "slimy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Black Ether Fluid",
+                                        "Type": "magical",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "ToolID": 1,
+                                "BlueprintID": 15
+                            },
+                            {
+                                "Name": "Ball of Entrails",
+                                "Description": "Increases pigmy *happiness* when playing by *7*",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 15,
+                                "Cost": 3000,
+                                
+                                "Rarity": "Very Rare",
+                                "Rar_id": 3,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 500
+                                    },
+                                    {
+                                        "Name": "Fairy Dust",
+                                        "Type": "magical",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "ToolID": 9,
+                                "BlueprintID": 25
+                            },
+                            {
+                                "Name": "Wadon Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *10*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 35,
+                                "Cost": 20000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Imbued Hide",
+                                        "Type": "skinny",
+                                        "Amount": 25
+                                    }
+                                ],
+                                "ToolID": 4,
+                                "BlueprintID": 20
+                            },
+                            {
+                                "Name": "Dyvulla Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *15*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 45,
+                                "Cost": 40000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Well-Woven Magic Cloth",
+                                        "Type": "silky",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Raw Magical Hide",
+                                        "Type": "skinny",
+                                        "Amount": 25
+                                    }
+                                ],
+                                "ToolID": 5,
+                                "BlueprintID": 21
+                            },
+                            {
+                                "Name": "Ados Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *20*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 50,
+                                "Cost": 80000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 20
+                                    },
+                                    {
+                                        "Name": "Sturdy Skull",
+                                        "Type": "fleshy",
+                                        "Amount": 40
+                                    },
+                                    {
+                                        "Name": "Red Slime",
+                                        "Type": "slimy",
+                                        "Amount": 100
+                                    }
+                                ],
+                                "ToolID": 6,
+                                "BlueprintID": 22
+                            },
+                            {
+                                "Name": "Zimmir Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *24*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 55,
+                                "Cost": 160000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 30
+                                    },
+                                    {
+                                        "Name": "Well-Woven Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Blood Opal",
+                                        "Type": "gemy",
+                                        "Amount": 15
+                                    }
+                                ],
+                                "ToolID": 7,
+                                "BlueprintID": 23
+                            },
+                            {
+                                "Name": "Phamnera Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *28*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 65,
+                                "Cost": 200000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 35
+                                    },
+                                    {
+                                        "Name": "Well-Woven Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 25
+                                    }
+                                ],
+                                "ToolID": 10,
+                                "BlueprintID": 26
+                            },
+                            {
+                                "Name": "Xogida Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *35*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 75,
+                                "Cost": 250000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 23
+                                    },
+                                    {
+                                        "Name": "Worked Phase-Leather",
+                                        "Type": "skinny",
+                                        "Amount": 35
+                                    },
+                                    {
+                                        "Name": "Phaseroot Potpourri",
+                                        "Type": "herby",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "ToolID": 11,
+                                "BlueprintID": 28
+                            },
+                            {
+                                "Name": "Mien Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *40*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 85,
+                                "Cost": 500000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Soul",
+                                        "Type": "unique",
+                                        "Amount": 50
+                                    },
+                                    {
+                                        "Name": "Worked Phase-Leather",
+                                        "Type": "skinny",
+                                        "Amount": 35
+                                    },
+                                    {
+                                        "Name": "Phaseflower Bark",
+                                        "Type": "woody",
+                                        "Amount": 3
+                                    }
+                                ],
+                                "ToolID": 17,
+                                "BlueprintID": 50
+                            },
+                            {
+                                "Name": "Nizdea Plushie",
+                                "Description": "Increases pigmy *happiness* when playing by *45*",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 95,
+                                "Cost": 1000000,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Pure DARK",
+                                        "Type": "unique",
+                                        "Amount": 17
+                                    },
+                                    {
+                                        "Name": "Zircon",
+                                        "Type": "tooly",
+                                        "Amount": 35
+                                    },
+                                    {
+                                        "Name": "Pink Lace Phase-Cloth",
+                                        "Type": "silky",
+                                        "Amount": 25
+                                    }
+                                ],
+                                "ToolID": 18,
+                                "BlueprintID": 51
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "Small Ball",
+                                "Strength": 5
+                            },
+                            {
+                                "Name": "Ball of Entrails",
+                                "Strength": 7
+                            },
+                            {
+                                "Name": "Wadon Plushie",
+                                "Strength": 10
+                            },
+                            {
+                                "Name": "Dyvulla Plushie",
+                                "Strength": 15
+                            },
+                            {
+                                "Name": "Ados Plushie",
+                                "Strength": 20
+                            },
+                            {
+                                "Name": "Zimmir Plushie",
+                                "Strength": 24
+                            },
+                            {
+                                "Name": "Phamnera Plushie",
+                                "Strength": 28
+                            },
+                            {
+                                "Name": "Xogida Plushie",
+                                "Strength": 35
+                            },
+                            {
+                                "Name": "Mien Plushie",
+                                "Strength": 40
+                            },
+                            {
+                                "Name": "Nizdea Plushie",
+                                "Strength": 45
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Hat",
+                        "List": [
+                            {
+                                "Name": "Goblinskin Hat",
+                                "Description": "Pigmy increases base materials collected when claiming by *1*. *x3* for all *skinny* materials",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 10,
+                                "Cost": 1000,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Leather Scraps",
+                                        "Type": "skinny",
+                                        "Amount": 15
+                                    },
+                                    {
+                                        "Name": "Sturdy Branch",
+                                        "Type": "woody",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Scrap Metal",
+                                        "Type": "metalic",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "ToolID": 2,
+                                "BlueprintID": 16
+                            },
+                            {
+                                "Name": "Flower Crown",
+                                "Description": "Pigmy increases base materials collected when claiming by *3*. *x3* for all *herby* materials",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 20,
+                                "Cost": 25000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Dandielion",
+                                        "Type": "herby",
+                                        "Amount": 30
+                                    },
+                                    {
+                                        "Name": "Foxtail",
+                                        "Type": "herby",
+                                        "Amount": 30
+                                    },
+                                    {
+                                        "Name": "Phaseroot",
+                                        "Type": "herby",
+                                        "Amount": 10
+                                    }
+                                ],
+                                "ToolID": 8,
+                                "BlueprintID": 24
+                            },
+                            {
+                                "Name": "Small Embeded Crown",
+                                "Description": "Pigmy increases base materials collected when claiming by *6*. *x3* for all *metalic & gemy* materials",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 60,
+                                "Cost": 1000000,
+
+                                "Rarity": "???",
+                                "Rar_id": 8,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Pure Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 2
+                                    },
+                                    {
+                                        "Name": "Ruby",
+                                        "Type": "gemy",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Sapphire",
+                                        "Type": "gemy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Blood Opal",
+                                        "Type": "herby",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Diamond",
+                                        "Type": "gemy",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "ToolID": 16,
+                                "BlueprintID": 49
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "Goblinskin Hat",
+                                "Strength": 1,
+                                "Mult": 3,
+                                "MultType": [
+                                    "skinny"
+                                ]
+                            },
+                            {
+                                "Name": "Flower Crown",
+                                "Strength": 3,
+                                "Mult": 3,
+                                "MultType": [
+                                    "herby"
+                                ]
+                            },
+                            {
+                                "Name": "Small Embeded Crown",
+                                "Strength": 6,
+                                "Mult": 3,
+                                "MultType": [
+                                    "metalic",
+                                    "gemy"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Title",
+                        "List": [
+                            {
+                                "Name": "The Tiny",
+                                "Description": "Increases *pigmy xp* when claiming by *3%*",
+                                
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 15,
+                                "Cost": 2500,
+
+                                "Rarity": "Rare",
+                                "Rar_id": 2,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Fairy Dust",
+                                        "Type": "magical",
+                                        "Amount": 25
+                                    },
+                                    {
+                                        "Name": "Black Ether Fluid",
+                                        "Type": "magical",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 1
+                                    },
+                                    {
+                                        "Name": "Pink Slime",
+                                        "Type": "slimy",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "ToolID": 3,
+                                "BlueprintID": 17
+                            },
+                            {
+                                "Name": "The Overbearing",
+                                "Description": "Increases *pigmy xp* when claiming by *5%*, Decreases *Player xp* by *3%*",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 25,
+                                "Cost": 30000,
+
+                                "Rarity": "Epic",
+                                "Rar_id": 4,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Raw Phasemetal",
+                                        "Type": "metalic",
+                                        "Amount": 17
+                                    },
+                                    {
+                                        "Name": "Imperfect Phasesoup",
+                                        "Type": "magical",
+                                        "Amount": 8
+                                    },
+                                    {
+                                        "Name": "Bloodied Heart",
+                                        "Type": "fleshy",
+                                        "Amount": 10
+                                    },
+                                    {
+                                        "Name": "Pure BLUNT",
+                                        "Type": "unique",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "ToolID": 13,
+                                "BlueprintID": 30
+                            },
+                            {
+                                "Name": "The Demanding",
+                                "Description": "Increases *pigmy xp* when claiming by *7%*, Decreases *Player xp* by *7%*",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 30,
+                                "Cost": 50000,
+
+                                "Rarity": "??",
+                                "Rar_id": 7,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Blood Opal",
+                                        "Type": "gemy",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Phasemetal Alloy",
+                                        "Type": "metalic",
+                                        "Amount": 5
+                                    },
+                                    {
+                                        "Name": "Volatile Essence",
+                                        "Type": "magical",
+                                        "Amount": 5
+                                    }
+                                ],
+                                "ToolID": 14,
+                                "BlueprintID": 31
+                            },
+                            {
+                                "Name": "The Ugly",
+                                "Description": "Decreases *pigmy xp* when claiming by *7%*, Increases *Player xp* by *10%*",
+
+                                "Dupe": false,
+                                "Drop": true,
+                                "Unlock": true,
+                                
+                                "Level": 40,
+                                "Cost": 10000,
+
+                                "Rarity": "Mystic",
+                                "Rar_id": 5,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Slimy Eyeball",
+                                        "Type": "fleshy",
+                                        "Amount": 150
+                                    },
+                                    {
+                                        "Name": "Smelly Entrails",
+                                        "Type": "fleshy",
+                                        "Amount": 75
+                                    },
+                                    {
+                                        "Name": "Blue Slime",
+                                        "Type": "slimy",
+                                        "Amount": 100
+                                    }
+                                ],
+                                "ToolID": 15,
+                                "BlueprintID": 32
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "The Tiny",
+                                "PigXP": 0.03,
+                                "UserXP": 0
+                            },
+                            {
+                                "Name": "The Overbearing",
+                                "PigXP": 0.05,
+                                "UserXP": -0.03
+                            },
+                            {
+                                "Name": "The Demanding",
+                                "PigXP": 0.07,
+                                "UserXP": -0.07
+                            },
+                            {
+                                "Name": "The Ugly",
+                                "PigXP": -0.07,
+                                "UserXP": 0.1
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Town",
+                "SubCat": [
+                    {
+                        "Active": "Build",
+                        "List": [
+                            {
+                                "Name": "Machine Schematics",
+                                "Description": "Unkown uses, Unknown Crafting, Written in an unknown language",
+
+                                "Dupe": false,
+                                "Drop": false,
+                                "Unlock": false,
+                                
+                                "Level": 75,
+                                "Cost": 25,
+
+                                "Rarity": "Unique",
+                                "Rar_id": 12,
+
+                                "CraftList": [
+                                    {
+                                        "Name": "Phasereader",
+                                        "Type": "unique",
+                                        "Amount": 1
+                                    }
+                                ],
+                                "ToolID": 12,
+                                "BlueprintID": 29
+                            }
+                        ],
+                        "Effect": [
+                            {
+                                "Name": "Machine Schematics",
+                                "BuildType": "House",
+                                "Slot": "Forge",
+                                "Unlocks": "Imbue_One",
+                                "SingleUse": true
+                            }
+                        ]
+                    },
+                    {
+                        "Active": "Paint",
+                        "List": [
+                            
+                        ],
+                        "Effect": [
+
+                        ]
+                    },
+                    {
+                        "Active": "Claim",
+                        "List": [
+                            
+                        ],
+                        "Effect": [
+                            
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "Band",
+                "SubCat": [
+                    {
+                        "Active": "TBD",
+                        "List": [
+
+                        ],
+                        "Effect": [
+                            
+                        ]
+                    }
+                ]
+            },
+            {
+                "Active": "User",
+                "SubCat": [
+                    {
+                        "Active": "Title",
+                        "List": [
+
+                        ],
+                        "Effect": [
+                            
+                        ]
+                    },
+                    {
+                        "Active": "Style",
+                        "List": [
+                            
+                        ],
+                        "Effect": [
+                            
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

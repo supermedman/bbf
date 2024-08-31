@@ -4,6 +4,7 @@ const { checkHintLevelOneHundred, checkHintLevelThirty, checkHintLevelFive } = r
 const { checkUnlockedBluey } = require("../../Game/exported/createBlueprint");
 const { Pighouse } = require("../../../dbObjects");
 const {chlkPreset} = require('../../../chalkPresets');
+const { checkLevelBlueprint } = require("./blueprintFactory");
 
 /**
  * This method uses the given level to output the required xp needed to reach the next
@@ -61,9 +62,25 @@ async function handleUserPayout(xp, coin, interaction, user){
         } else if (lvlUpOutcome.level >= 5){
             await checkHintLevelFive(user, interaction);
         }
+        // ADD CHECK HINT LVL: 10, 15, 25
         totalXP = lvlUpOutcome.xp;
         newLevel = lvlUpOutcome.level;
-        await checkUnlockedBluey(newLevel, user.userid, interaction);
+        const bpOutcome = await checkLevelBlueprint(user, interaction.client.masterBPCrafts, interaction);
+        // await checkUnlockedBluey(newLevel, user.userid, interaction);
+        if (typeof bpOutcome !== 'string' && bpOutcome.length > 0){
+            let finalValue = 'Blueprint: \n';
+            for (const bp of bpOutcome){
+                finalValue += `${bp.name}\n`;
+            }
+
+            const theField = {name: '== Unlocks ==', value: finalValue};
+            const bpUnlockEmbed = new EmbedBuilder()
+            .setTitle('Blueprints Unlocked')
+            .setColor('Blurple')
+            .addFields(theField);
+
+            await sendTimedChannelMessage(interaction, 45000, bpUnlockEmbed);
+        }
         await addPoints(user, lvlUpOutcome.points);
     }
 

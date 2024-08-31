@@ -1,6 +1,6 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ItemLootPool, Milestones, ActiveDungeon, Questing, LocationData, ActiveStatus } = require('../../../dbObjects');
-const { randArrPos, inclusiveRandNum, rollChance, sendTimedChannelMessage, checkLootUP, grabUser, grabActivePigmy, dropChance } = require('../../../uniHelperFunctions');
+const { randArrPos, inclusiveRandNum, rollChance, sendTimedChannelMessage, checkLootUP, grabUser, grabActivePigmy, dropChance, createInteractiveChannelMessage, handleCatchDelete } = require('../../../uniHelperFunctions');
 const { grabRar } = require('../../Game/exported/grabRar');
 const {xpPayoutScale} = require('./Classes/EnemyFab');
 const { checkInboundItem } = require('./itemMoveContainer');
@@ -11,6 +11,7 @@ const loreList = require('../../../events/Models/json_prefabs/loreList.json');
 const { uni_displayItem } = require('./itemStringCore');
 const { checkHintStoryQuest, checkHintDungeon, checkHintLore } = require('../../Game/exported/handleHints');
 const { handleUserPayout } = require('./uni_userPayouts');
+const { spawnNpc } = require('../../Game/exported/npcSpawner');
 
 /**
  * This function returns a Map() to simulate a discord.js Collection. It contains
@@ -71,7 +72,7 @@ async function handleEnemyKills(activeQuest, gearDrops, userid, interaction){
         }
         totalXP *= totBoost;
     }
-
+    totalXP = Math.round(totalXP);
     totalCoins = totalXP * 2;
 
     let itemEmbeds = [];
@@ -266,17 +267,98 @@ async function handleClaimMilestone(user, interaction, userMilestone){
 
         const theAdventure = thisQuest[0].Lore;
 
-        // PUT CHECK IN PLACE FOR WHEN LORE LENGTH EXCEEDS 3000 CHARACTERS
+        if (theAdventure.length < 1050){
+            const storyEmbed = new EmbedBuilder()
+            .setTitle('Quest Progress')
+            .setDescription(embedDesc)
+            .setColor('DarkAqua')
+            .addFields({
+                name: 'Adventure', value: theAdventure
+            });
 
-        const storyEmbed = new EmbedBuilder()
-        .setTitle('Quest Progress')
-        .setDescription(embedDesc)
-        .setColor('DarkAqua')
-        .addFields({
-            name: 'Adventure', value: theAdventure
-        });
+            await sendTimedChannelMessage(interaction, 300000, {embeds: [storyEmbed]}, "FollowUp");
+        } else {
+            // PUT CHECK IN PLACE FOR WHEN LORE LENGTH EXCEEDS 1050 CHARACTERS
 
-        await sendTimedChannelMessage(interaction, 300000, {embeds: [storyEmbed]}, "FollowUp");
+            // SET LIMIT TO 1000 PER PAGE
+            // COUNT LENGTH WITH WHOLE WORDS
+            // == EXTRA HANDLE FOR ``.md`` STYLED SECTIONS == LATER THO LOL
+            const loreDisplayObj = handleLoreOverflow(theAdventure, embedDesc);
+            const loreButtRow = new ActionRowBuilder().addComponents(loreDisplayObj.butts);
+
+            const loreMenu = {
+                shownPage: 0,
+                pageList: loreDisplayObj.pageList,
+                buttList: loreDisplayObj.butts,
+                buttRow: loreButtRow
+            };
+
+            const disTracker = ((butts) => {
+                // const pageNumStrSwitch = new Map([
+                //     [1, "one"],
+                //     [2, "two"],
+                //     [3, "three"],
+                //     [4, "four"],
+                //     [5, "five"]
+                // ]);
+                // const idExtract = (strMatch) => {
+                //     for (const [key, value] of pageNumStrSwitch){
+                //         if (strMatch === value) break;
+                //     }
+                // }
+                console.log(butts.map(butt => ({[`${butt.data.custom_id}`]: ~~butt.custom_id.split("-")[1]})));
+                
+                // [`${butts[0].data.custom_id}`]: {
+                //     shown: true
+                // },
+                const finalObj = {};
+                let buttCount = 1;
+                for (const button of butts){
+                    finalObj[`${button.data.custom_id}`] = {};
+                    finalObj[`${button.data.custom_id}`].shown = (buttCount === 1) ? true : false;
+                    buttCount++;
+                }
+                return finalObj;
+            })(loreMenu.buttList);
+
+            console.log(disTracker);
+
+            const replyObj = {embeds: [loreMenu.pageList[0]], components: [loreMenu.buttRow]};
+
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 300000, replyObj, "FollowUp");
+
+            const pageStrNumSwitch = new Map([
+                ["one", 1],
+                ["two", 2],
+                ["three", 3],
+                ["four", 4],
+                ["five", 5],
+            ]);
+
+            const grabPageButtIDNum = (id) => pageStrNumSwitch.get(id.split('-')[1]);
+
+            // =====================
+            // BUTTON COLLECTOR
+            collector.on('collect', async c => {
+                await c.deferUpdate().then(async () => {
+                    loreMenu.shownPage = grabPageButtIDNum(c.customId) - 1;
+
+                    for (const butt of loreMenu.buttList){
+                        butt.setDisabled(butt.data.custom_id === c.customId);
+                    }
+
+                    await anchorMsg.edit({embeds: [loreMenu.pageList[loreMenu.shownPage]], components: [loreButtRow]});
+                }).catch(e => console.error(e));
+            });
+            // =====================
+
+            // =====================
+            // BUTTON COLLECTOR
+            collector.on('end', async (c, r) => {
+                if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+            });
+            // =====================
+        }
     }
 
     // Checking hunting quest completion
@@ -312,7 +394,84 @@ async function handleClaimMilestone(user, interaction, userMilestone){
         }
     }   
 
+    // ==== SPAWNING NPC SETUP ====
+    if (dropChance(0.33)) await spawnNpc(user, interaction);
+    // ====					   ====
+
     return;
+}
+
+/**
+ * This function handles lore pages when the story text exceeds ``1050 CHAR`` in length,
+ * returns both the page list, and ``ButtonBuilder[]`` to be used for display.
+ * @param {string} loreText Full Lore Story Text
+ * @param {string} embedDesc Embed Description to use
+ * @returns {{pageList: EmbedBuilder[], butts: ButtonBuilder[]}}
+ */
+function handleLoreOverflow(loreText, embedDesc){
+    /**
+     * This function separates lore text into groups with a length of ``1000 CHAR`` or less
+     * 
+     * **Notice**: This function is not complete, and will cause issue with standard Markdown
+     * text groups. It needs the ability to detect/correct disjointed ``MD`` markers.
+     * @param {string} text Full Lore Text to be shown
+     * @returns {string[]}
+     */
+    const getPages = (text) => {
+        const words = text.split(" ");
+        const pages = [];
+        let currentPage = words[0];
+
+        for (let i = 1; i < words.length; i++){
+            let word = words[i];
+            let pageCharLength = (currentPage + " " + word).length;
+            if (pageCharLength < 1000) {
+                currentPage += " " + word;
+            } else {
+                pages.push(currentPage);
+                currentPage = word;
+            }
+        }
+        pages.push(currentPage);
+        return pages;
+    }
+    const lorePageList = getPages(loreText);
+
+    const loreEmbeds = [];
+    let pageCount = 1, totPage = lorePageList.length;
+    for (const lText of lorePageList){
+        const embed = new EmbedBuilder()
+        .setTitle(`Quest Progress == Page ${pageCount}/${totPage}`)
+        .setDescription(embedDesc)
+        .setColor('DarkAqua')
+        .addFields({ name: 'Adventure', value: lText });
+
+        loreEmbeds.push(embed);
+        pageCount++;
+    }
+
+    const lorePageButts = [], 
+    pageNumStrSwitch = new Map([
+        [1, "one"],
+        [2, "two"],
+        [3, "three"],
+        [4, "four"],
+        [5, "five"]
+    ]);
+    for (let i = 1; i < loreEmbeds.length; i++){
+        const disFirstButt = (i === 1) ? true : false;
+        const butt = new ButtonBuilder()
+        .setCustomId(`page-${pageNumStrSwitch.get(i)}`)
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(disFirstButt)
+        .setLabel(`Page ${i}`);
+
+        lorePageButts.push(butt);
+    }
+
+    //const loreButtRow = new ActionRowBuilder().addComponents(lorePageButts);
+
+    return {pageList: loreEmbeds, butts: lorePageButts};
 }
 
 /**

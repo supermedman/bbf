@@ -1,5 +1,5 @@
 const {chalk, chlkPreset} = require('./chalkPresets');
-const {ComponentType} = require('discord.js');
+const {ComponentType, ButtonBuilder, ButtonStyle, ActionRowBuilder} = require('discord.js');
 const { UserData, Pigmy, Town } = require('./dbObjects');
 
 /**
@@ -115,10 +115,28 @@ async function grabUser(id){
 /**
  * This function retrieves and returns the Town entry for the given id.
  * @param {string} id Town ID
- * @returns {Promise <object>}
+ * @returns {Promise <object>} ```(object | undefined)```
  */
 async function grabTown(id){
     return await Town.findOne({where: {townid: id}});
+}
+
+/**
+ * This function attempts to locate a town with name ``name``.
+ * @param {string} name Name of town to search for
+ * @returns {Promise <object | undefined>}
+ */
+async function grabTownByName(name){
+    return await Town.findOne({where: {name: name}});
+}
+
+/**
+ * This function grabs any towns that having a ``guildid`` matching the given ``guildid``.
+ * @param {string} guildid The ID of the guild to check for
+ * @returns {Promise <object[]>}
+ */
+async function grabLocalTowns(guildid){
+    return await Town.findAll({where: {guildid: guildid}});
 }
 
 /**
@@ -128,6 +146,33 @@ async function grabTown(id){
  */
 async function grabActivePigmy(id){
     return await Pigmy.findOne({where: {spec_id: id}});
+}
+
+/**
+ * This function handles locating, and checking the users towns permissions,
+ * if the given user has ``can_edit`` permissions returns ``true`` otherwise returns ``false``.
+ * @param {object} user UserData DB Object
+ * @returns {Promise <boolean>}
+ */
+async function checkUserTownPerms(user){
+    if (user.townid === '0') return false;
+    const userTown = await grabTown(user.townid);
+    if (!userTown) return false;
+    if (!userTown.can_edit.split(',').includes(user.userid)) return false;
+    return true;
+}
+
+/**
+ * This function checks if the given user belongs to a town, and then checks if a town with 
+ * the given users id can be found, checking for each towns ``mayorid``
+ * @param {object} user UserData DB Object
+ * @returns {Promise <boolean>}
+ */
+async function checkUserAsMayor(user){
+    if (user.townid === '0') return false;
+    const townMayor = await Town.findOne({where: {mayorid: user.userid}});
+    if (!townMayor) return false;
+    return true;
 }
 
 /**
@@ -262,7 +307,11 @@ async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
     const replyObject = handleContentType(editWith);
     return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
         anchorMsg.delete();
-    }, timeLimit)).catch(e => console.error(e));
+    }, timeLimit)).catch(e =>{
+        if (e.code !== 10008){
+            console.error(`Failed to ${e.method} a message:`, e);
+        }
+    });
 }
 
 /**
@@ -340,6 +389,37 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
         if (!r || r === 'time') await handleCatchDelete(anchorMsg);
     });
     // =====================
+
+
+    ~~~ STANDARD PAGE BUTTON COLLECTER SETTUP ~~~
+    // =====================
+    // BUTTON COLLECTOR
+    let curPage = 0;
+    collector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+            switch(c.customId){
+                case "next-page":
+                    curPage = (curPage === embedPages.length - 1) ? 0 : curPage + 1;
+                break;
+                case "back-page":
+                    curPage = (curPage === 0) ? embedPages.length - 1 : curPage - 1;
+                break;
+                case "cancel":
+                return collector.stop('Canceled');
+            }
+            await anchorMsg.edit({embeds: [embedPages[curPage]], components: [pageButtRow]});
+        }).catch(e => console.error(e));
+    });
+    // =====================
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+
+        await handleCatchDelete(anchorMsg);
+    });
+    // =====================
  */
 
 /**
@@ -392,12 +472,44 @@ function createComponentCollector(interaction, timeLimit, anchorMsg, compType, f
     return collector;
 }
 
+/**
+ * This function handles deleting the given message, catching any resulting errors.
+ * @param {object} anchorMsg Message Object to be deleted
+ * @returns {Promise <void>}
+ */
 async function handleCatchDelete(anchorMsg){
     return await anchorMsg.delete().catch(error => {
         if (error.code !== 10008) {
             console.error('Failed to delete the message:', error);
         }
     });
+}
+
+/**
+ * This function generates a standard ``Confirm`` & ``Cancel`` button action row.
+ * @param {string} idExtension **REQUIRED** Extension to attached to base ``confirm-${idExtension}`` & ``cancel-${idExtension}``
+ * @param {ButtonStyle} confirmStyle Styling for confirm button. Default: === ``ButtonStyle.Success``
+ * @param {ButtonStyle} cancelStyle Styling for cancel button Default: === ``ButtonStyle.Secondary``
+ * @param {string} extraConfirmText ``"Confirm ${extraConfirmText}"`` Default: === ``"Confirm"``
+ * @param {string} extraCancelText ``"Cancel ${extraCancelText}"`` Default: === ``"Cancel"``
+ * @returns {ActionRowBuilder}
+ */
+function createConfirmCancelButtonRow(idExtension, confirmStyle=ButtonStyle.Success, cancelStyle=ButtonStyle.Secondary, extraConfirmText="None", extraCancelText="None"){
+    const extraConText = (extraConfirmText !== 'None') ? ` ${extraConfirmText}` : "";
+    const confirmButt = new ButtonBuilder()
+    .setCustomId(`confirm-${idExtension}`)
+    .setStyle(confirmStyle)
+    .setLabel(`Confirm${extraConText}`);
+
+    const extraCanText = (extraCancelText !== 'None') ? ` ${extraCancelText}` : "";
+    const cancelButt = new ButtonBuilder()
+    .setCustomId(`cancel-${idExtension}`)
+    .setStyle(cancelStyle)
+    .setLabel(`Cancel${extraCanText}`);
+
+    const ccActionRow = new ActionRowBuilder().addComponents(confirmButt, cancelButt);
+
+    return ccActionRow;
 }
 
 module.exports = {
@@ -413,11 +525,16 @@ module.exports = {
     grabUser,
     grabTown,
     grabActivePigmy,
+    checkUserTownPerms,
+    checkUserAsMayor,
+    grabLocalTowns,
+    grabTownByName,
     handleItemObjCheck,
     handleLimitOnOptions,
     getTypeof,
     sendTimedChannelMessage,
     editTimedChannelMessage,
     createInteractiveChannelMessage,
+    createConfirmCancelButtonRow,
     handleCatchDelete
 }

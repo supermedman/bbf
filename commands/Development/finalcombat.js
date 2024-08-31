@@ -22,9 +22,10 @@ const {
 } = require('./Export/finalCombatExtras');
 const { handleEnemyMat } = require('./Export/materialFactory');
 
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, getTypeof} = require('../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, getTypeof, dropChance} = require('../../uniHelperFunctions');
 const { handleUserPayout } = require('./Export/uni_userPayouts');
 const { handleHunting } = require('../Game/exported/locationFilters');
+const { rollRandBlueprint } = require('./Export/blueprintFactory');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -93,7 +94,9 @@ module.exports = {
 
 	async execute(interaction) { 
 
-        const { enemies, combatInstance, betaTester, gearDrops } = interaction.client; 
+        const { enemies, combatInstance, betaTester, gearDrops } = interaction.client;
+
+        let enemiesToPass = enemies;
 
         if (!betaTester.has(interaction.user.id)) return await interaction.reply('Sorry, this command is being tested and is unavailable.');
 
@@ -111,9 +114,11 @@ module.exports = {
                 await thePlayer.reloadInternals();
             }
 
-            const huntingCheck = handleHunting(await grabUser(interaction.user.id));
-            const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
-            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass);
+            const user = await grabUser(interaction.user.id);
+
+            const huntingCheck = handleHunting(user);
+            enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
+            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, false, user.current_location);
             theEnemy.loadItems(thePlayer);
 
             const loadObj = thePlayer.loadout;
@@ -319,6 +324,10 @@ module.exports = {
 
             await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
 
+            if (dropChance(0.98)){
+                await rollRandBlueprint(await grabUser(player.userId), interaction.client.masterBPCrafts, interaction);
+            }
+
             // Material Drops
             const payoutEmbeds = [];
 
@@ -374,7 +383,7 @@ module.exports = {
                     await c.deferUpdate().then(async () => {
                         if (c.customId === 'spawn-new'){
                             collector.stop();
-                            return combatLooper(player, loadEnemy(player.level, enemies));
+                            return combatLooper(player, loadEnemy(player.level, enemiesToPass, false, (await grabUser(player.userId)).current_location));
                         }
                     }).catch(e => console.error(e));
                 });

@@ -8,14 +8,14 @@ const {
     Pigmy,
     Pighouse,
     Questing,
-    ActiveEnemy,
+    //ActiveEnemy,
     UserData,
     GuildData,
     Loadout,
     Milestones,
     ActiveDungeon,
-    ActiveDungeonEnemy,
-    ActiveDungeonBoss,
+    //ActiveDungeonEnemy,
+    //ActiveDungeonBoss,
     MaterialStore,
     OwnedBlueprints,
     OwnedPotions,
@@ -123,10 +123,10 @@ module.exports = {
         MaterialStore.sync();
 
         ActiveDungeon.sync();
-        ActiveDungeonEnemy.sync({ force: true });
-        ActiveDungeonBoss.sync({ force: true });
+        // ActiveDungeonEnemy.sync({ force: true });
+        // ActiveDungeonBoss.sync({ force: true });
         
-        ActiveEnemy.sync();
+        // ActiveEnemy.sync();
 
         Town.sync();
 	    BigTile.sync();
