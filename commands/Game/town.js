@@ -2,10 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, Butt
 
 const { Town, MediumTile, MaterialStore, TownMaterial, GuildData, UserData, TownPlots, PlayerBuilding, CoreBuilding } = require('../../dbObjects.js');
 
-// const { loadBuilding } = require('./exported/displayBuilding.js');
-
-// const coreReq = require('../../events/Models/json_prefabs/coreBuildings.json');
-// const coreBuildCostList = require('../Development/Export/Json/coreBuildCostList.json');
+const { createBasicPageButtons, loadRarStringMenu, loadPriceButts, handlePriceButtPicked, loadNameStringMenu, handleMatNameFilter, loadBasicBackButt } = require('./exported/tradeExtras.js');
 const { 
 	checkUserTownPerms, 
 	checkUserAsMayor, 
@@ -20,10 +17,6 @@ const {
 	createConfirmCancelButtonRow,
 	handleCatchDelete
 } = require('../../uniHelperFunctions.js');
-const { createBasicPageButtons, loadRarStringMenu, loadPriceButts, handlePriceButtPicked, loadNameStringMenu, handleMatNameFilter, loadBasicBackButt } = require('./exported/tradeExtras.js');
-// const { checkInboundTownMat, checkOutboundMat, checkInboundMat, checkOutboundTownMat } = require('../Development/Export/itemMoveContainer.js');
-// const { updateUserCoins, spendUserCoins } = require('../Development/Export/uni_userPayouts.js');
-// const { checkingRar, checkingRarID, baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 const {
     loadTownStoreButts,
     loadClaimPlotButts,
@@ -310,7 +303,7 @@ module.exports = {
 			clergyQuest: {
 				active: false,
 				posIndex: 0,
-				callFunction: "" // REPLACED BY handleClergyMystQuest
+				callFunction: "" // REPLACED BY theClergymansQuest
 			},
 			costList: { // Material Cost Lists for core building constructs
 				need: [],
@@ -633,28 +626,7 @@ module.exports = {
 		//console.log('Initial Interaction Response Object Used: ', replyObj);
 		//console.log('Action Row Contents: ', ...replyObj.components);
 		//console.log(`Response Type Used: ${replyType}`);
-
-		// const replyObj = {embeds: [firstDisplayEmbed], components: [actionButtRow]};
 		const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, replyType, "Both");
-
-		// const navMenu = {
-		// 	navType: subCom,
-		// 	typePicked: "", // Used for deposit/withdraw/core types
-		// 	typeExtras: { // Used for deposit/withdraw MATERIALS
-		// 		rarity: "",
-		// 		name: "",
-		//		matType: "",
-		// 		ref: "" // Set as object when assigned
-		// 	},
-		// 	curPage: 0,
-		// 	lastPage: 0, // embedPages.length - 1
-		// 	embedPages: [],
-		// 	pageFiles: [], // Files to display with embeds if used
-		//  pageDetails: [], // Details for each build/core in display list.
-		//  maxAmount: 0, // Owned amount total for selected type/item
-		//  storedAmount: 0, // Total Amount already stored in target location
-		// 	moveAmount: 0 // Amount selected for deposit/withdraw
-		// };
 
 		const priceIDList = [
 			"add-one-c", 'add-ten-c', "add-25-c", "add-100-c", "add-1k-c", "add-10k-c", 

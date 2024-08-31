@@ -129,59 +129,6 @@ async function theClergymansQuest(interaction, user) {
         }
     });
     // =====================
-
-
-    // const dialogMsg = await interaction.followUp({ embeds: [clergyDialogEmbed], components: [buttonRow] });
-
-    // const filter = (i) => i.user.id === interaction.user.id;
-
-    // const collector = dialogMsg.createMessageComponentCollector({
-    //     componentType: ComponentType.Button,
-    //     filter,
-    //     time: 120000,
-    // });
-
-    // let currentPage = 0;
-    // collector.on('collect', async (COI) => {
-    //     if (COI.customId === 'next-dialog') {
-    //         await COI.deferUpdate().then(async () => {
-    //             if ((currentPage + 1) === embedDescList.length) {
-    //                 const material = await handleMaterialAdding(phasereader, 1, user, 'Phasereader');
-
-    //                 let fieldName = `${material.name}`;
-    //                 let fieldValue = `Value: ${material.value}\nRarity: ${material.rarity}\nAmount: 1\nUses: ***Crafting Machine Schematics***`;
-    //                 let fieldObj = { name: fieldName, value: fieldValue };
-    //                 let finalFields = [fieldObj];
-
-    //                 const embedColour = await grabColour(12);
-
-    //                 const matEmbed = new EmbedBuilder()
-    //                     .setTitle('~==~**Material Obtained!**~==~')
-    //                     .setColor(embedColour)
-    //                     .addFields(finalFields);
-
-    //                 collector.stop();
-
-    //                 return await interaction.channel.send({ embeds: [matEmbed] }).then(embedMsg => setTimeout(() => {
-    //                     embedMsg.delete();
-    //                 }, 120000)).catch(e => console.error(e));
-    //             } else {
-    //                 currentPage++;
-    //                 nextButton.setLabel(buttonLabelList[currentPage]);
-    //                 clergyDialogEmbed.setDescription(embedDescList[currentPage]);
-    //                 await dialogMsg.edit({ embeds: [clergyDialogEmbed], components: [buttonRow] });
-    //             }
-    //         }).catch(e => console.error(e));
-    //     }
-    // });
-
-    // collector.on('end', () => {
-    //     dialogMsg.delete().catch(error => {
-    //         if (error.code !== 10008) {
-    //             console.error('Failed to delete the message:', error);
-    //         }
-    //     });
-    // });
 }
 
 module.exports = {theClergymansQuest};

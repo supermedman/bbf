@@ -927,12 +927,6 @@ async function handleCoreBuildingConstruction(town, navMenu){
     return {embeds: [coreBuildingCreateEmbed], files: [coreBuildingPngFile]};
 }
 
-
-
-// ADD CLERGY QUEST DIALOG INTERACTION HERE
-
-
-
 module.exports = {
     loadTownStoreButts,
     loadClaimPlotButts,
