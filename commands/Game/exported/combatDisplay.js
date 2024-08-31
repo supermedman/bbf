@@ -211,9 +211,11 @@ async function handleExterCombat(interaction, forcedKey){
             await thePlayer.reloadInternals();
         }
 
-        const huntingCheck = handleHunting(await grabUser(interaction.user.id));
+        const user = await grabUser(interaction.user.id);
+
+        const huntingCheck = handleHunting(user);
         const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
-        const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, forcedKey);
+        const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, forcedKey, user.current_location);
         theEnemy.loadItems(thePlayer);
 
         const loadObj = thePlayer.loadout;

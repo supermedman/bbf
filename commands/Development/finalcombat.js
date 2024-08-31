@@ -94,7 +94,9 @@ module.exports = {
 
 	async execute(interaction) { 
 
-        const { enemies, combatInstance, betaTester, gearDrops } = interaction.client; 
+        const { enemies, combatInstance, betaTester, gearDrops } = interaction.client;
+
+        let enemiesToPass = enemies;
 
         if (!betaTester.has(interaction.user.id)) return await interaction.reply('Sorry, this command is being tested and is unavailable.');
 
@@ -112,9 +114,11 @@ module.exports = {
                 await thePlayer.reloadInternals();
             }
 
-            const huntingCheck = handleHunting(await grabUser(interaction.user.id));
-            const enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
-            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass);
+            const user = await grabUser(interaction.user.id);
+
+            const huntingCheck = handleHunting(user);
+            enemiesToPass = (huntingCheck.size > 0) ? huntingCheck : enemies;
+            const theEnemy = loadEnemy(thePlayer.level, enemiesToPass, false, user.current_location);
             theEnemy.loadItems(thePlayer);
 
             const loadObj = thePlayer.loadout;
@@ -379,7 +383,7 @@ module.exports = {
                     await c.deferUpdate().then(async () => {
                         if (c.customId === 'spawn-new'){
                             collector.stop();
-                            return combatLooper(player, loadEnemy(player.level, enemies));
+                            return combatLooper(player, loadEnemy(player.level, enemiesToPass, false, (await grabUser(player.userId)).current_location));
                         }
                     }).catch(e => console.error(e));
                 });

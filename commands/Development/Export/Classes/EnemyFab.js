@@ -172,7 +172,7 @@ const dmgOutputRange = (level) => {
  * Contains methods for all status effects being applied and removed.
  */
 class EnemyFab {
-    constructor(eFab) {
+    constructor(eFab, huntingLocation="Wilds") {
         const {Level, Body, Armor, Shield, Name, Description, UniqueItem, ConstKey} = eFab;
         this.imageCheck = {
             checkKey: ConstKey ?? 0,
@@ -182,6 +182,7 @@ class EnemyFab {
         
         this.name = Name ?? "None";
         this.description = Description ?? "";
+        this.forceBackground = huntingLocation;
         //Math.floor(Math.random() * (this.taskContents.MaxNeed - this.taskContents.MinNeed + 1) + this.taskContents.MinNeed);
         //const enemyLevel = Math.floor(Math.random() * (100 - 1 + 1) + 1);
         this.level = (Level) ? Level : Math.floor(Math.random() * (100 - 1 + 1) + 1);

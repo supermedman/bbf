@@ -7,6 +7,7 @@ const bossList = require('../../../events/Models/json_prefabs/bossList.json');
 
 //const newEList = require('../../Development/Export/Json/newEnemyList.json');
 const { EnemyFab } = require('../../Development/Export/Classes/EnemyFab');
+const { randArrPos } = require('../../../uniHelperFunctions');
 
 //const HBimg = require('../../../events/Models/json_prefabs/image_extras/healthbar.png');
 
@@ -282,6 +283,18 @@ function createHealthBar(enemy) {
     return fullBar;
 }
 
+const bgIndexMatchList = ['Wilds', 'Forest', 'Grassland', 'Swamp', 'Plains', 'Desert', 'Mountain'];
+
+const backgroundPNGList = [
+    './events/Models/json_prefabs/weapon_png/Background.jpg', // Base Background PNG
+    './events/Models/json_prefabs/Building-Textures/Background-Assets/Forest_biome.png',
+    './events/Models/json_prefabs/Building-Textures/Background-Assets/Forest_biome.png', // Replace Grassland
+    './events/Models/json_prefabs/Building-Textures/Background-Assets/Forest_biome.png', // Replace Swamp
+    './events/Models/json_prefabs/Building-Textures/Background-Assets/Forest_biome.png', // Replace Plains
+    './events/Models/json_prefabs/Building-Textures/Background-Assets/Desert_biome.png',
+    './events/Models/json_prefabs/Building-Textures/Background-Assets/Mountain_biome.png'
+];
+
 /**
  * This function creates a canvas and generates the provided enemy onto it.
  * @param {EnemyFab} enemy 
@@ -300,8 +313,10 @@ async function createNewEnemyImage(enemy){
     
     // TIME LOG
     //const bLoadStart = new Date().getTime();
+    console.log(enemy.forceBackground);
+    const loadThisBackground = (enemy.forceBackground === 'Wilds') ? randArrPos(backgroundPNGList) : backgroundPNGList[bgIndexMatchList.indexOf(enemy.forceBackground)];
 
-    const background = await Canvas.loadImage('./events/Models/json_prefabs/weapon_png/Background.jpg');
+    const background = await Canvas.loadImage(loadThisBackground);
     let enemyPng;
     if (hasImage) enemyPng = await Canvas.loadImage(enemy.imageCheck.pngRef);
 
