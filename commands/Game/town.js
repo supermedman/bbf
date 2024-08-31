@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, AttachmentBuilder, Collection } = require('discord.js');
 
-const { Town, MediumTile, GuildData, UserData, MaterialStore, TownMaterial, TownPlots, PlayerBuilding, CoreBuilding } = require('../../dbObjects.js');
+const { Town, MediumTile, MaterialStore, TownMaterial, GuildData, UserData, TownPlots, PlayerBuilding, CoreBuilding } = require('../../dbObjects.js');
 
 // const { loadBuilding } = require('./exported/displayBuilding.js');
 
@@ -473,7 +473,6 @@ module.exports = {
 		if (['establish', 'join'].includes(subCom) && permList.hasTown) return await interaction.reply({content: 'You already belong to a town!', ephemeral: true});
 		if (needsEditPerms.includes(subCom) && !permList.canEdit) return await interaction.reply({content: 'You do not have the required town permissions to use this command!', ephemeral: true});
 		if (needsMayorPerms.includes(subCom) && !permList.isMayor) return await interaction.reply({content: 'Only the mayor can use this command!', ephemeral: true});
-		//console.log(targetPermList);
 		if (subCom === 'belong' && !targetPermList.hasTown) return await interaction.reply({content: 'This user must first join/establish a town to before this command will work!', ephemeral: true});
 
 		const townName = interaction.options.getString('thetown') ?? 'None';
@@ -1280,7 +1279,7 @@ module.exports = {
 					await c.followUp({embeds: [navMenu.pageDetails[navMenu.curPage]], ephemeral: true});
 
 					if (c.customId === 'view-core' && navMenu.curPage === navMenu.clergyQuest.posIndex){
-						await navMenu.clergyQuest.callFunction(user);
+						await navMenu.clergyQuest.callFunction(interaction, user);
 					}
 
 					editWith = {embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow], files: [navMenu.pageFiles[navMenu.curPage]]};
@@ -2304,131 +2303,131 @@ module.exports = {
 		// }
 
 		// This function is temporary
-		/** This function handles checking if a user is eligable for recieving a phasereader needed to craft a personal forge,
-		 *		this will only work once. The contained dialog is to aid in UX for the user, and will better direct the user
-		 *		towards the needed locations and commands to finish the blueprint. Upon completetion Miens storyline will become
-		 *		much clearer and straightforward!
-		 * 
-		 * @param {any} user db instance
-		 * 
-		 */
-		async function handleClergyMystQuest(user) {
-			const { Milestones, ActiveDungeon, OwnedTools } = require('../dbObjects.js');
-			const { handleMaterialAdding } = require('./exported/materialDropper.js');
-			const { grabColour } = require('./exported/grabRar.js');
+		// /** This function handles checking if a user is eligable for recieving a phasereader needed to craft a personal forge,
+		//  *		this will only work once. The contained dialog is to aid in UX for the user, and will better direct the user
+		//  *		towards the needed locations and commands to finish the blueprint. Upon completetion Miens storyline will become
+		//  *		much clearer and straightforward!
+		//  * 
+		//  * @param {any} user db instance
+		//  * 
+		//  */
+        //  async function handleClergyMystQuest(user) {
+		// 	const { Milestones, ActiveDungeon, OwnedTools } = require('../dbObjects.js');
+		// 	const { handleMaterialAdding } = require('./exported/materialDropper.js');
+		// 	const { grabColour } = require('./exported/grabRar.js');
 
-			const uniqueMatList = require('../events/Models/json_prefabs/materialLists/uniqueList.json');
-			const pr = uniqueMatList.filter(mat => mat.Name === 'Phasereader');
-			const phasereader = pr[0];
+		// 	const uniqueMatList = require('../events/Models/json_prefabs/materialLists/uniqueList.json');
+		// 	const pr = uniqueMatList.filter(mat => mat.Name === 'Phasereader');
+		// 	const phasereader = pr[0];
 
-			const userMilestone = await Milestones.findOne({ where: { userid: user.userid } });
-			if (!userMilestone) return;
-			if (userMilestone.currentquestline !== 'Myst') return;
+		// 	const userMilestone = await Milestones.findOne({ where: { userid: user.userid } });
+		// 	if (!userMilestone) return;
+		// 	if (userMilestone.currentquestline !== 'Myst') return;
 
-			const userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: user.userid }, { dungeonid: 6 }] });
-			if (!userDungeon || !userDungeon.completed) return;
+		// 	const userDungeon = await ActiveDungeon.findOne({ where: [{ dungeonspecid: user.userid }, { dungeonid: 6 }] });
+		// 	if (!userDungeon || !userDungeon.completed) return;
 
-			const schemaCheck = await OwnedTools.findOne({ where: [{ spec_id: user.userid }, { name: 'Machine Schematics' }] });
-			if (schemaCheck) return;
+		// 	const schemaCheck = await OwnedTools.findOne({ where: [{ spec_id: user.userid }, { name: 'Machine Schematics' }] });
+		// 	if (schemaCheck) return;
 
-			const prCheck = await MaterialStore.findOne({ where: [{ spec_id: user.userid }, { name: 'Phasereader' }] });
-			if (prCheck) return;
+		// 	const prCheck = await MaterialStore.findOne({ where: [{ spec_id: user.userid }, { name: 'Phasereader' }] });
+		// 	if (prCheck) return;
 
-			const embedDescList = [];
-			const buttonLabelList = [];
+		// 	const embedDescList = [];
+		// 	const buttonLabelList = [];
 
-			embedDescList[0] = 'Hello there, what brings you here today?';
-			buttonLabelList[0] = 'Hello';
+		// 	embedDescList[0] = 'Hello there, what brings you here today?';
+		// 	buttonLabelList[0] = 'Hello';
 
-			embedDescList[1] = 'It has been some time since last we saw you! Whats that in your hand?';
-			buttonLabelList[1] = 'What, this old thing?';
+		// 	embedDescList[1] = 'It has been some time since last we saw you! Whats that in your hand?';
+		// 	buttonLabelList[1] = 'What, this old thing?';
 
-			embedDescList[2] = 'Yes! Give it here!';
-			buttonLabelList[2] = 'Give Machine Schematics to clergyman';
+		// 	embedDescList[2] = 'Yes! Give it here!';
+		// 	buttonLabelList[2] = 'Give Machine Schematics to clergyman';
 
-			embedDescList[3] = 'Oh my! What a truly fascinating contraption! Where did you get this?!';
-			buttonLabelList[3] = 'I-i found it. What does it say?';
+		// 	embedDescList[3] = 'Oh my! What a truly fascinating contraption! Where did you get this?!';
+		// 	buttonLabelList[3] = 'I-i found it. What does it say?';
 
-			embedDescList[4] = 'Hmmm so be it.. I cannot read it without the proper tools, I do believe a *Phasereader* is required!';
-			buttonLabelList[4] = 'Where might one find one of those?';
+		// 	embedDescList[4] = 'Hmmm so be it.. I cannot read it without the proper tools, I do believe a *Phasereader* is required!';
+		// 	buttonLabelList[4] = 'Where might one find one of those?';
 
-			embedDescList[5] = 'Allow me to check our inventory, we may very well still have one!';
-			buttonLabelList[5] = 'Wait for Clergyman';
+		// 	embedDescList[5] = 'Allow me to check our inventory, we may very well still have one!';
+		// 	buttonLabelList[5] = 'Wait for Clergyman';
 
-			embedDescList[6] = '...';
-			buttonLabelList[6] = 'Wait for Clergyman';
+		// 	embedDescList[6] = '...';
+		// 	buttonLabelList[6] = 'Wait for Clergyman';
 
-			embedDescList[7] = '...';
-			buttonLabelList[7] = 'Wait for Clergyman';
+		// 	embedDescList[7] = '...';
+		// 	buttonLabelList[7] = 'Wait for Clergyman';
 
-			embedDescList[8] = 'You are in luck! We do have one. Here, its all yours free of charge. Now go build that machine!!';
-			buttonLabelList[8] = 'Thank you kindly!';
+		// 	embedDescList[8] = 'You are in luck! We do have one. Here, its all yours free of charge. Now go build that machine!!';
+		// 	buttonLabelList[8] = 'Thank you kindly!';
 
-			const nextButton = new ButtonBuilder()
-				.setCustomId('next-dialog')
-				.setLabel(buttonLabelList[0])
-				.setStyle(ButtonStyle.Primary);
+		// 	const nextButton = new ButtonBuilder()
+		// 		.setCustomId('next-dialog')
+		// 		.setLabel(buttonLabelList[0])
+		// 		.setStyle(ButtonStyle.Primary);
 
-			const buttonRow = new ActionRowBuilder().addComponents(nextButton);
+		// 	const buttonRow = new ActionRowBuilder().addComponents(nextButton);
 
-			const clergyDialogEmbed = new EmbedBuilder()
-				.setTitle('Clergyman')
-				.setDescription(embedDescList[0])
-				.setColor('DarkAqua');
+		// 	const clergyDialogEmbed = new EmbedBuilder()
+		// 		.setTitle('Clergyman')
+		// 		.setDescription(embedDescList[0])
+		// 		.setColor('DarkAqua');
 
-			const dialogMsg = await interaction.followUp({ embeds: [clergyDialogEmbed], components: [buttonRow] });
+		// 	const dialogMsg = await interaction.followUp({ embeds: [clergyDialogEmbed], components: [buttonRow] });
 
-			const filter = (i) => i.user.id === interaction.user.id;
+		// 	const filter = (i) => i.user.id === interaction.user.id;
 
-			const collector = dialogMsg.createMessageComponentCollector({
-				componentType: ComponentType.Button,
-				filter,
-				time: 120000,
-			});
+		// 	const collector = dialogMsg.createMessageComponentCollector({
+		// 		componentType: ComponentType.Button,
+		// 		filter,
+		// 		time: 120000,
+		// 	});
 
-			let currentPage = 0;
-			collector.on('collect', async (COI) => {
-				if (COI.customId === 'next-dialog') {
-					await COI.deferUpdate().then(async () => {
-						if ((currentPage + 1) === embedDescList.length) {
-							const material = await handleMaterialAdding(phasereader, 1, user, 'Phasereader');
+		// 	let currentPage = 0;
+		// 	collector.on('collect', async (COI) => {
+		// 		if (COI.customId === 'next-dialog') {
+		// 			await COI.deferUpdate().then(async () => {
+		// 				if ((currentPage + 1) === embedDescList.length) {
+		// 					const material = await handleMaterialAdding(phasereader, 1, user, 'Phasereader');
 
-							let fieldName = `${material.name}`;
-							let fieldValue = `Value: ${material.value}\nRarity: ${material.rarity}\nAmount: 1\nUses: ***Crafting Machine Schematics***`;
-							let fieldObj = { name: fieldName, value: fieldValue };
-							let finalFields = [fieldObj];
+		// 					let fieldName = `${material.name}`;
+		// 					let fieldValue = `Value: ${material.value}\nRarity: ${material.rarity}\nAmount: 1\nUses: ***Crafting Machine Schematics***`;
+		// 					let fieldObj = { name: fieldName, value: fieldValue };
+		// 					let finalFields = [fieldObj];
 
-							const embedColour = await grabColour(12);
+		// 					const embedColour = await grabColour(12);
 
-							const matEmbed = new EmbedBuilder()
-								.setTitle('~==~**Material Obtained!**~==~')
-								.setColor(embedColour)
-								.addFields(finalFields);
+		// 					const matEmbed = new EmbedBuilder()
+		// 						.setTitle('~==~**Material Obtained!**~==~')
+		// 						.setColor(embedColour)
+		// 						.addFields(finalFields);
 
-							collector.stop();
+		// 					collector.stop();
 
-							return await interaction.channel.send({ embeds: [matEmbed] }).then(embedMsg => setTimeout(() => {
-								embedMsg.delete();
-							}, 120000)).catch(e => console.error(e));
-						} else {
-							currentPage++;
-							nextButton.setLabel(buttonLabelList[currentPage]);
-							clergyDialogEmbed.setDescription(embedDescList[currentPage]);
-							await dialogMsg.edit({ embeds: [clergyDialogEmbed], components: [buttonRow] });
-						}
-					}).catch(e => console.error(e));
-                }
-			});
+		// 					return await interaction.channel.send({ embeds: [matEmbed] }).then(embedMsg => setTimeout(() => {
+		// 						embedMsg.delete();
+		// 					}, 120000)).catch(e => console.error(e));
+		// 				} else {
+		// 					currentPage++;
+		// 					nextButton.setLabel(buttonLabelList[currentPage]);
+		// 					clergyDialogEmbed.setDescription(embedDescList[currentPage]);
+		// 					await dialogMsg.edit({ embeds: [clergyDialogEmbed], components: [buttonRow] });
+		// 				}
+		// 			}).catch(e => console.error(e));
+        //         }
+		// 	});
 
-			collector.on('end', () => {
-				dialogMsg.delete().catch(error => {
-					if (error.code !== 10008) {
-						console.error('Failed to delete the message:', error);
-					}
-				});
-			});
+		// 	collector.on('end', () => {
+		// 		dialogMsg.delete().catch(error => {
+		// 			if (error.code !== 10008) {
+		// 				console.error('Failed to delete the message:', error);
+		// 			}
+		// 		});
+		// 	});
 
-			return;
-		}
+		// 	return;
+		// }
 	},
 };
