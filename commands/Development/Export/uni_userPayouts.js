@@ -2,7 +2,7 @@ const { EmbedBuilder } = require("discord.js");
 const { sendTimedChannelMessage } = require("../../../uniHelperFunctions");
 const { checkHintLevelOneHundred, checkHintLevelThirty, checkHintLevelFive } = require("../../Game/exported/handleHints");
 const { checkUnlockedBluey } = require("../../Game/exported/createBlueprint");
-const { Pighouse } = require("../../../dbObjects");
+const { Pighouse, Milestones, ActiveDungeon } = require("../../../dbObjects");
 const {chlkPreset} = require('../../../chalkPresets');
 const { checkLevelBlueprint } = require("./blueprintFactory");
 
@@ -51,8 +51,19 @@ async function handleUserPayout(xp, coin, interaction, user){
     let newLevel = user.level;
     const totalCoin = Math.round(user.coins + coin);
 
+    const isDreaming = async (user) => {
+        if (user.level < 100) return true;
+        const m = await Milestones.findOne({where: {userid: user.userid}});
+        if (m?.currentquestline !== "Dream") return true;
+        const d = await ActiveDungeon.findOne({where: {dungeonspecid: user.userid, dungeonid: 9, completed: true}});
+        // Additional Check for Fayrn complete
+        return !!d;
+    };
 
-    const lvlUpOutcome = handleLevelCheck(totalXP, user);
+    const lvlUpOutcome = (await isDreaming(user)) 
+    ? (user.level === 100) ? "No Level" : handleLevelCheck(totalXP, user) 
+    : "No Level"; // Handle post dream lvl 100+ here
+
     if (lvlUpOutcome !== "No Level"){
         await sendTimedChannelMessage(interaction, 45000, {embeds: [lvlUpOutcome.embeds]});
         if (lvlUpOutcome.level >= 100){

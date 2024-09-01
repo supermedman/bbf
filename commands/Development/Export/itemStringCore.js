@@ -729,6 +729,27 @@ function uni_displayItem(item, styleType, extraOptions){
     return returnObject;
 }
 
+/**
+ * This function generates the display for a single material.
+ * @param {object} mat Material Object {name: string, rarity: string, value: number, mattype: string}
+ * @param {number} amount Default: ``false`` set to a number for ``amount`` to be shown
+ * @returns {{color: string, fields: [{name: string, value: string}]}}
+ */
+function uni_displaySingleMaterial(mat, amount=false){
+    const displayObj = {color: "", fields: []};
+
+    const matEmbedColor = grabColour(checkingRarID(mat.rarity));
+    displayObj.color = matEmbedColor;
+
+    displayObj.fields.push({
+        name: `>>__**${mat.name}**__<<`,
+        value: `Value: **${mat.value}**c\nRarity: **${mat.rarity}**\nType: **${makeCapital(mat.mattype)}**`
+    });
+    if (amount) displayObj.fields[0].value += `\nAmount: **${amount}**`;
+
+    return displayObj;
+}
+
 
 function loadTradeOrderExtraItemDetails(item, itemEXR, otherEXR){
     const displayObj = {
@@ -1371,5 +1392,6 @@ module.exports = {
     checkingCasteID,
     convertToUniItem,
     uni_displayItem,
+    uni_displaySingleMaterial,
     uni_CreateCompleteItemCode
 };

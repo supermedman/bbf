@@ -1382,6 +1382,7 @@ module.exports = {
     loadConfirmButts,
     loadNameStringMenu,
     handleMatNameFilter,
+    handleMatNameLoad,
     handleItemNameFilter,
     loadAmountButts,
     loadPriceButts,
