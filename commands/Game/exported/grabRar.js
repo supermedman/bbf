@@ -26,7 +26,7 @@ async function grabRar(level) {
 
     var randR = Math.random();
 
-    console.log('OUTCOME OF randR IN grabRar(): ', randR);
+    //console.log('OUTCOME OF randR IN grabRar(): ', randR);
 
     //if level 1-7 rar_id can be 0-3
     //if level 8-12 rar_id can be 0-4

@@ -2,7 +2,7 @@ const {EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, Com
 
 const {NPCTable, UserTasks} = require('../../../dbObjects.js');
 const { NPC } = require('./MadeClasses/NPC.js');
-const { createInteractiveChannelMessage, editTimedChannelMessage } = require('../../../uniHelperFunctions.js');
+const { createInteractiveChannelMessage, editTimedChannelMessage, handleCatchDelete } = require('../../../uniHelperFunctions.js');
 
 /**
  * This function handles loading, displaying, and db updates dependent on user choices
@@ -44,8 +44,9 @@ async function initialDialog(npc, interaction, user) {
 
     const dialogMenu = {
         curPage: 0,
-        lastPage: npc.dialogList.length - 1,
-        optionObj: userReplyOptionMenu,
+        lastPage: npc.dialogList.length,
+        optionsObj: userReplyOptionMenu,
+        selectRow: selectRow,
         optionList: stringSelectOptionList,
         npcEmbed: npcDialogEmbed,
         npcDialogList: npc.dialogList,
@@ -60,15 +61,20 @@ async function initialDialog(npc, interaction, user) {
             // If player is rude, this adds 1
             // If not, this adds 0
             dialogMenu.rudeReplies += c.values[0] === 'Decline';
-            if (dialogMenu.rudeReplies >= dialogMenu.maxRudeness) return collector.stop('Was Rude'); // NPC leaves from rudeness lol
+            if (
+                (dialogMenu.rudeReplies >= dialogMenu.maxRudeness) ||
+                (c.values[0] === 'Decline' && dialogMenu.curPage === dialogMenu.lastPage - 1)
+            ) return collector.stop('Was Rude'); // NPC leaves from rudeness lol, or Decline option picked as final option
 
             dialogMenu.curPage++;
             if (dialogMenu.curPage === dialogMenu.lastPage) return collector.stop('Task Taken');
 
-            dialogMenu.optionObj.setOptions(dialogMenu.optionList[dialogMenu.curPage]);
+            dialogMenu.optionsObj.setOptions(dialogMenu.optionList[dialogMenu.curPage]);
+            // console.log(dialogMenu.optionsObj);
+
             dialogMenu.npcEmbed.setDescription(dialogMenu.npcDialogList[dialogMenu.curPage]);
 
-            await anchorMsg.edit({embeds: [dialogMenu.npcEmbed], components: [dialogMenu.optionObj]});
+            await anchorMsg.edit({embeds: [dialogMenu.npcEmbed], components: [dialogMenu.selectRow]});
         }).catch(e => console.error(e));
     });
     // ~~~~~~~~~~~~~~~~~~~~~

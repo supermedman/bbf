@@ -247,7 +247,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setTitle('APPOINTING USER')
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields({ name: `Appoint ${targetUser.username}?`, value: 'Select a button below.' });
 
 			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });
@@ -328,7 +328,7 @@ module.exports = {
 
 			const embed = new EmbedBuilder()
 				.setTitle('DEMOTING USER')
-				.setColor(0000)
+				.setColor(0o0)
 				.addFields({ name: `Demote ${targetUser.username}?`, value: 'Select a button below.' });
 
 			const embedMsg = await interaction.reply({ embeds: [embed], components: [buttonRow] });

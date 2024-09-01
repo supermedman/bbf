@@ -9,7 +9,16 @@ const npcRewardCaste = require('../../events/Models/json_prefabs/NPC_Prefabs/npc
 const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const blueprintList = require('../../events/Models/json_prefabs/blueprintList.json');
 const { isLvlUp } = require('./exported/levelup.js');
-const { makeCapital, createInteractiveChannelMessage, createConfirmCancelButtonRow, inclusiveRandNum, sendTimedChannelMessage } = require('../../uniHelperFunctions.js');
+const { 
+    makeCapital, 
+    createInteractiveChannelMessage, 
+    createConfirmCancelButtonRow, 
+    inclusiveRandNum, 
+    sendTimedChannelMessage, 
+    grabUser, 
+    handleCatchDelete, 
+    grabUserTaskList
+} = require('../../uniHelperFunctions.js');
 const { baseCheckRarName, uni_displayItem, uni_displaySingleMaterial } = require('../Development/Export/itemStringCore.js');
 const { createBasicPageButtons, handleMatNameLoad } = require('./exported/tradeExtras.js');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts.js');
@@ -55,8 +64,10 @@ module.exports = {
 
 	async execute(interaction) { 
 
-        const user = await checkUser();
-        if (user === "No User") return await interaction.reply('No userdata found, please use ``/start`` to make a profile!');
+        const user = await grabUser(interaction.user.id);
+
+        // const user = await checkUser();
+        // if (user === "No User") return await interaction.reply('No userdata found, please use ``/start`` to make a profile!');
 
         const { betaTester } = interaction.client;
 
@@ -80,8 +91,16 @@ module.exports = {
                 // LocationData.findOne
                 const locData = await LocationData.findOne({where: {userid: user.userid}});
                 if (!locData) return await interaction.reply('No unlocked locations found! You must first complete a "Location Quest" in order to unlock new locations! *Try this quest:*||Free Whitepool Woods from Bandits||');
+                
                 const unlockedBiomes = checkUnlockedBiome(locData);
-                console.log(...unlockedBiomes);
+
+                const locationEmbed = new EmbedBuilder()
+                .setTitle('== Known Locations ==')
+                .setDescription('This is a list containing all locations currently known to you. They can be accessed by using ``/travel <location-name>``!')
+                .setColor("Aqua")
+                .addFields({name: "== Locations ==", value: `${unlockedBiomes.map(l => `Location Name: **${l}**`).join('\n\n')}`});
+
+                return await sendTimedChannelMessage(interaction, 120000, locationEmbed, "Reply");
             }
         }
 
@@ -148,15 +167,15 @@ module.exports = {
             .setCustomId('select-task')
             .setStyle(ButtonStyle.Success)
             .setLabel('Select Task');
-            basePageButts.splice(1, 1, taskSelectButt);
+            basePageButts.push(basePageButts.splice(1, 1, taskSelectButt)[0]);
 
             // First Selection Page
-            const taskPickButtRow = createConfirmCancelButtonRow('task', null, null, 'Task');
+            const taskPickButtRow = createConfirmCancelButtonRow('task', ButtonStyle.Success, ButtonStyle.Secondary, 'Task');
             const taskPickEmbed = new EmbedBuilder()
             .setTitle('== Fill Task? ==');
 
             // Second Selection Page
-            const taskFillButtRow = createConfirmCancelButtonRow('fill', null, null, 'Fill');
+            const taskFillButtRow = createConfirmCancelButtonRow('fill', ButtonStyle.Success, ButtonStyle.Secondary, 'Fill');
             const taskFillEmbed = new EmbedBuilder()
             .setTitle('== Confirm Changes ==');
 
@@ -236,23 +255,38 @@ module.exports = {
                                         navMenu.selectedTask = "";
                                         navMenu.progressObj = "";
 
+                                        cleanPlaceholderEmbed(taskFillEmbed);
+                                        cleanPlaceholderEmbed(taskPickEmbed);
+
                                         editWith = {embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow]};
                                     break;
                                     case "Complete":
-                                        await handleUpdateTaskProgress(navMenu.selectedTask, user, navMenu.progressObj);
+                                        await handleUpdateTaskProgress(navMenu.selectedTask, user, navMenu.progressObj, interaction);
                                         // Splice currently shown embed and task out of active list
                                         navMenu.embedPages.splice(navMenu.curPage, 1);
                                         navMenu.orderedTasks.splice(navMenu.curPage, 1);
                                         navMenu.lastPage--;
                                         navMenu.curPage = 0;
+
+                                        navMenu.selectedTask = "";
+                                        navMenu.progressObj = "";
+
+                                        cleanPlaceholderEmbed(taskFillEmbed);
+                                        cleanPlaceholderEmbed(taskPickEmbed);
                                         // Show task payout rewards
                                         // return to active task list select
                                         editWith = {embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow]};
                                     break;
                                     case "Partial":
-                                        const updatedTaskObj = await handleUpdateTaskProgress(navMenu.selectedTask, user, navMenu.progressObj);
+                                        const updatedTaskObj = await handleUpdateTaskProgress(navMenu.selectedTask, user, navMenu.progressObj, interaction);
                                         navMenu.orderedTasks[navMenu.curPage] = updatedTaskObj;
                                         // return to active task list select
+
+                                        navMenu.selectedTask = "";
+                                        navMenu.progressObj = "";
+
+                                        cleanPlaceholderEmbed(taskFillEmbed);
+                                        cleanPlaceholderEmbed(taskPickEmbed);
 
                                         editWith = {embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow]};
                                     break;
@@ -265,18 +299,26 @@ module.exports = {
                                 // Cancel Pick Task: GO BACK TO SELECT
                                 navMenu.selectedTask = "";
                                 navMenu.progressObj = "";
+
+                                cleanPlaceholderEmbed(taskFillEmbed);
+                                cleanPlaceholderEmbed(taskPickEmbed);
+
                                 editWith = {embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow]};
                             break;
                             case "cancel-fill":
                                 // Cancel Fill Task: GO BACK TO SELECT
                                 navMenu.selectedTask = "";
                                 navMenu.progressObj = "";
+
+                                cleanPlaceholderEmbed(taskFillEmbed);
+                                cleanPlaceholderEmbed(taskPickEmbed);
+
                                 editWith = {embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow]};
                             break;
                         }
                     }
 
-                    await anchorMsg.edit(editWith);
+                    if (editWith) await anchorMsg.edit(editWith);
                 }).catch(e => console.error(e));
             });
             // =====================
@@ -291,6 +333,15 @@ module.exports = {
             // =====================
         }
 
+        /**
+         * This function resets the contents of the given embed to prevent improper values from being retained
+         * @param {EmbedBuilder} embed Embed to be wiped clean
+         */
+        function cleanPlaceholderEmbed(embed){
+            embed.setColor('DarkButNotBlack');
+            if (embed.data.description) embed.setDescription('Temp');
+            if (embed.data.fields?.length > 0) embed.spliceFields(0, embed.data.fields.length); // , {name: 'TMP', value: 'Placeholder'}
+        }
 
         /**
          * This function handles task updates, if task is completed handles payouts. 
@@ -305,7 +356,7 @@ module.exports = {
         async function handleUpdateTaskProgress(task, user, fillCheckObj, interaction){
             await task.increment('amount', {by: fillCheckObj.amountChange}).then(async t => await t.save()).then(async t => {return await t.reload()});
 
-            if (task.amount === task.total_amount){
+            if (task.amount >= task.total_amount){
                 await task.update({complete: true}).then(async t => await t.save()).then(async t => {return await t.reload()});
                 await user.increment('tasks_complete').then(async u => await u.save()).then(async u => {return await u.reload()});
 
@@ -326,12 +377,17 @@ module.exports = {
             const payoutObj = randArrPos(npcRewardCaste.find(caste => caste.Rated === task.task_difficulty).Options).Contents;
             
             const baseDisplay = await handleTaskBasePayout(task, user, payoutObj, interaction);
-            const objectDisplay = await handleTaskObjPayout(task, user, payoutObj, interaction);
+            const objectDisplay = await handleTaskObjPayout(user, payoutObj, interaction);
+
+            //console.log('baseDisplay Object: ', baseDisplay);
+            //console.log('payout reward objectDisplay: ', objectDisplay);
+
+            const finalColour = objectDisplay.embed.color;
 
             const finalEmbed = new EmbedBuilder()
             .setTitle(`== **${task.task_difficulty} ${task.task_type} Rewards** ==`)
             .setDescription(objectDisplay.embed.description)
-            .setColor(objectDisplay.color)
+            .setColor(finalColour)
             .addFields(baseDisplay.concat(objectDisplay.embed.fields));
 
             return await sendTimedChannelMessage(interaction, 60000, finalEmbed, "FollowUp");
@@ -342,10 +398,10 @@ module.exports = {
          * @param {object} user UserData DB Object
          * @param {object} payoutObj JSON Reward object
          * @param {object} interaction Base Discord Interaction Object
-         * @returns {Promise<{ref: string, embed: {description: string, color: string, fields: [{name: string, value: string}]}}>}
+         * @returns {Promise<{ref: string, embed: {description: string, color: number, fields: [{name: string, value: string}]}}>}
          */
         async function handleTaskObjPayout(user, payoutObj, interaction){
-            const rewardDisplay = {ref: "", embed: {description: "", color: "", fields: []}};
+            const rewardDisplay = {ref: "", embed: {description: "", color: 0, fields: []}};
             switch(payoutObj.Type){
                 case "Potion":
                     const potMatch = {
@@ -623,10 +679,17 @@ module.exports = {
 
             const taskTypes = ['Fetch', 'Gather', 'Combat', 'Craft'];
             // Sort tasks by type, ordered as defined above.
-            taskList.sort((a, b) => taskTypes.indexOf(b.task_type) - taskTypes.indexOf(a.task_type));
+            taskList.sort((a, b) => taskTypes.indexOf(a.task_type) - taskTypes.indexOf(b.task_type));
+
+            const timeOrderedTaskList = [];
+            for (const type of taskTypes){
+                const taskTypeList = taskList.filter(task => task.task_type === type);
+                taskTypeList.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                timeOrderedTaskList.push(...taskTypeList);
+            }
 
             let taskTypeCounter = 1, currentTypeCheck = 'Fetch';
-            for (const task of taskList){
+            for (const task of timeOrderedTaskList){
                 // Reset Type counter to 1, as a new task type is being checked
                 if (task.task_type !== currentTypeCheck){
                     currentTypeCheck = task.task_type;
@@ -636,8 +699,8 @@ module.exports = {
                 const taskCreatedAt = new Date(task.createdAt).getTime();
 
                 const embed = new EmbedBuilder()
-                .setTitle(`== ${makeCapital(subCom)} ${currentTypeCheck} Task #${taskTypeCounter}`)
-                .setDescription(`Task Started: <t:${taskCreatedAt / 1000}:f>`)
+                .setTitle(`== ${makeCapital(subCom)} ${currentTypeCheck} Task #${taskTypeCounter} ==`)
+                .setDescription(`Task Started: <t:${Math.floor(taskCreatedAt / 1000)}:f>`)
                 .addFields(loadBaseTaskFields(task, subCom));
 
                 returnObj.embeds.push(embed);
@@ -685,7 +748,7 @@ module.exports = {
                         case "cancel":
                         return collector.stop('Canceled');
                     }
-                    await anchorMsg.edit({embeds: [navMenu.embedPages[curPage]], components: [pageButtRow]});
+                    await anchorMsg.edit({embeds: [navMenu.embedPages[navMenu.curPage]], components: [pageButtRow]});
                 }).catch(e => console.error(e));
             });
             // =====================
@@ -709,11 +772,18 @@ module.exports = {
         function loadInactiveTaskDisplayPages(subCom, taskList){
             const taskTypes = ['Fetch', 'Gather', 'Combat', 'Craft'];
             // Sort tasks by type, ordered as defined above.
-            taskList.sort((a, b) => taskTypes.indexOf(b.task_type) - taskTypes.indexOf(a.task_type));
+            taskList.sort((a, b) => taskTypes.indexOf(a.task_type) - taskTypes.indexOf(b.task_type));
+
+            const timeOrderedTaskList = [];
+            for (const type of taskTypes){
+                const taskTypeList = taskList.filter(task => task.task_type === type);
+                taskTypeList.sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime());
+                timeOrderedTaskList.push(...taskTypeList);
+            }
 
             const finalEmbeds = [];
             let taskTypeCounter = 1, currentTypeCheck = 'Fetch';
-            for (const task of taskList){
+            for (const task of timeOrderedTaskList){
                 // Reset Type counter to 1, as a new task type is being checked
                 if (task.task_type !== currentTypeCheck){
                     currentTypeCheck = task.task_type;
@@ -724,8 +794,8 @@ module.exports = {
 
 
                 const embed = new EmbedBuilder()
-                .setTitle(`== ${makeCapital(subCom)} ${currentTypeCheck} Task #${taskTypeCounter}`)
-                .setDescription(`${makeCapital(subCom)}: <t:${lastUpdated / 1000}:f>`)
+                .setTitle(`== ${makeCapital(subCom)} ${currentTypeCheck} Task #${taskTypeCounter} ==`)
+                .setDescription(`${makeCapital(subCom)}: <t:${Math.floor(lastUpdated / 1000)}:f>`)
                 .addFields(loadBaseTaskFields(task, subCom));
 
                 finalEmbeds.push(embed);
@@ -770,44 +840,44 @@ module.exports = {
             return [fieldObj];
         }
 
-        /**
-         * This function handles loading the given users task list, 
-         * then filters it for the given ``taskStatus`` and ``taskType`` if !"All"
-         * @param {object} user UserData DB Object
-         * @param {string} taskStatus One of: ``complete``, ``failed``, ``active``
-         * @param {string} taskType One of: ``Fetch``, ``Gather``, ``Combat``, ``Craft``. Default: ``All``
-         * @returns {Promise <object[] | string>}
-         */
-        async function grabUserTaskList(user, taskStatus, taskType="All"){
-            const userTaskList = await UserTasks.findAll({where: {userid: user.userid}});
-            if (userTaskList.length === 0) return "No Tasks";
+        // /**
+        //  * This function handles loading the given users task list, 
+        //  * then filters it for the given ``taskStatus`` and ``taskType`` if !"All"
+        //  * @param {object} user UserData DB Object
+        //  * @param {string} taskStatus One of: ``complete``, ``failed``, ``active``
+        //  * @param {string} taskType One of: ``Fetch``, ``Gather``, ``Combat``, ``Craft``. Default: ``All``
+        //  * @returns {Promise <object[] | string>}
+        //  */
+        // async function grabUserTaskList(user, taskStatus, taskType="All"){
+        //     const userTaskList = await UserTasks.findAll({where: {userid: user.userid}});
+        //     if (userTaskList.length === 0) return "No Tasks";
 
-            let filteredTaskList;
-            switch(taskStatus){
-                case "complete":
-                    filteredTaskList = userTaskList.filter(task => task.complete);
-                break;
-                case "failed":
-                    filteredTaskList = userTaskList.filter(task => task.failed);
-                break;
-                case "active":
-                    filteredTaskList = userTaskList.filter(task => !task.failed && !task.complete);
-                break;
-            }
-            if (filteredTaskList.length === 0) return "No Tasks Match";
+        //     let filteredTaskList;
+        //     switch(taskStatus){
+        //         case "complete":
+        //             filteredTaskList = userTaskList.filter(task => task.complete);
+        //         break;
+        //         case "failed":
+        //             filteredTaskList = userTaskList.filter(task => task.failed);
+        //         break;
+        //         case "active":
+        //             filteredTaskList = userTaskList.filter(task => !task.failed && !task.complete);
+        //         break;
+        //     }
+        //     if (filteredTaskList.length === 0) return "No Tasks Match";
 
 
-            const matchTaskType = (task, type) => {
-                return task.task_type === type;
-            };
+        //     const matchTaskType = (task, type) => {
+        //         return task.task_type === type;
+        //     };
 
-            if (taskType !== 'All') {
-                filteredTaskList = filteredTaskList.filter(task => matchTaskType(task, taskType));
-                if (filteredTaskList.length === 0) return "No Type Tasks Match";
-            }
+        //     if (taskType !== 'All') {
+        //         filteredTaskList = filteredTaskList.filter(task => matchTaskType(task, taskType));
+        //         if (filteredTaskList.length === 0) return "No Type Tasks Match";
+        //     }
 
-            return filteredTaskList;
-        }
+        //     return filteredTaskList;
+        // }
 
 
 

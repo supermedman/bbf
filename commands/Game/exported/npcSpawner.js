@@ -8,7 +8,7 @@ async function spawnNpc(user, interaction) {
     // Static fromWilds atm
     const theNpc = new NPC();
 
-    theNpc.genRandNpc(user.current_location);
+    await theNpc.genRandNpc(user.current_location, user.userid);
 
     const startDialogButton = new ButtonBuilder()
     .setCustomId('start-dialog')

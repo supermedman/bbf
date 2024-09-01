@@ -1,6 +1,6 @@
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const { Milestones, ActiveDungeon } = require("../../../dbObjects");
-const { endTimer } = require("../../../uniHelperFunctions");
+const { endTimer, grabUserTaskList, grabUser } = require("../../../uniHelperFunctions");
 const { checkingDamage, checkingDefence } = require("../../Development/Export/itemStringCore");
 
 // ========================
@@ -300,6 +300,48 @@ async function handleControllerCrafting(controller, casteObj, finalObj){
     // ============================
     if (finalObj.passedBenching) await controller.increment('benchmark_crafts').then(async c => await c.save()).then(async c => {return await c.reload()});
 
+    // Check if item meets active task request
+    // =======================================
+    const craftTaskCheckUpdateStart = new Date().getTime();
+    const userTaskList = await grabUserTaskList(await grabUser(controller.user_id), 'active', "Craft");
+    if (typeof userTaskList !== 'string'){
+        // Check for match 
+        // casteObj.casteType === task.name
+        // casteObj.rarity === task.condition
+        const casteMatches = (name) => casteObj.casteType === name;
+        const rarQualifies = (rar) => casteObj.rarity >= rar;
+
+        const checkTaskReqs = (task) => {
+            return casteMatches(task.name) && rarQualifies(task.condition);
+        };
+
+        // Filter for any and all tasks that pass requirement check
+        const tasksMatchConditionList = [];
+        for (const task of userTaskList){
+            if (checkTaskReqs(task)) tasksMatchConditionList.push(task);
+        }
+
+        // Update all matching tasks, if any
+        if (tasksMatchConditionList.length > 0){
+            for (const task of tasksMatchConditionList){
+                await task.increment('amount')
+                .then(async t => await t.save())
+                .then(async t => {return await t.reload()});
+            }
+
+            endTimer(craftTaskCheckUpdateStart, '(UPDATE) Craft Tasks Check List');
+        } else {
+            console.log('No Tasks Match Crafting Conditions');
+            endTimer(craftTaskCheckUpdateStart, '(NO UPDATE) Craft Tasks Check List');
+        }
+
+        
+    } else {
+        console.log(`No Tasks Outcome: ${userTaskList}`);
+        endTimer(craftTaskCheckUpdateStart, '(NO UPDATE) Craft Tasks Check List');
+    }
+
+
     // console.log(controller.dataValues);
 
     endTimer(craftedUpdatingStart, "Post-Crafting: Controller Update Cycle");
@@ -308,6 +350,60 @@ async function handleControllerCrafting(controller, casteObj, finalObj){
 // ========================
 //   CRAFT OPTION FILTERS
 // ========================
+
+/**
+ * This function loads the crafting filter reference object used with crafting button displays,
+ * 
+ * The filtering outcomes decide which buttons should be disabled for the given user.
+ * @param {object} user UserData DB Object
+ * @param {object} controller CraftingController DB Object
+ * @returns {{Class: string, Hands: number[], Type: {Weapon: string[], Armor: string[]}}}
+ */
+function loadCasteTypeFilterObject(user, controller){
+    // CASTE CHOICE FILTERING
+    const classCasteList = [
+        {Class: "Mage", Hands: [0, 1], Type: {Weapon: ["Magic"], Armor: ["Magic"]}},
+        {Class: "Thief", Hands: [0, 1], Type: {Weapon: ["Melee"], Armor: ["Melee"]}},
+        {Class: "Warrior", Hands: [1, 2], Type: {Weapon: ["Melee"], Armor: ["None"]}},
+        {Class: "Paladin", Hands: [0, 2], Type: {Weapon: ["Magic", "Melee"], Armor: ["Melee"]}},
+    ];
+
+    const classObjMatch = classCasteList.find(obj => obj.Class === user.pclass);
+
+    // Options available for caste_options: Class Type
+    const classCasteFilter = {
+        Class: classObjMatch.Class,
+        Hands: classObjMatch.Hands,
+        Type: classObjMatch.Type
+    };
+
+    // Obtain option list, split to array 
+    const contCasteOptions = controller.caste_options;
+    const casteOptionList = contCasteOptions.split(', ');
+
+    let finalCasteTypes = classCasteFilter;
+    // Check last position for total options
+    switch(casteOptionList[casteOptionList.length - 1]){
+        case "Class Type":
+            // Only Class Types, Do nothing
+        break;
+        case "Norm Weapon":
+            // All Norm Wep
+            loadWepCasteChanges(finalCasteTypes.Class, finalCasteTypes);
+        break;
+        case "Norm Armor":
+            // All Norm Wep/Armor
+            loadWepCasteChanges(finalCasteTypes.Class, finalCasteTypes);
+            loadArmCasteChanges(finalCasteTypes.Class, finalCasteTypes);
+        break;
+        case "All Phase":
+            // All Castes Available
+            loadAllCasteOptions(finalCasteTypes);
+        break;
+    }
+
+    return finalCasteTypes;
+}
 
 /**
  * This function loads the ``casteObj`` weapon data according to the given ``cType``
@@ -729,9 +825,7 @@ function loadTypeButtons(groupPicked){
 module.exports = {
     handleControllerUpdateCheck,
     handleControllerCrafting,
-    loadWepCasteChanges,
-    loadArmCasteChanges,
-    loadAllCasteOptions,
+    loadCasteTypeFilterObject,
     loadSlotButtons,
     loadGroupButtons,
     loadTypeButtons

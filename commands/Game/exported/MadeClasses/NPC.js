@@ -8,11 +8,14 @@ const npcDialogCaste = require('../../../../events/Models/json_prefabs/NPC_Prefa
 const lootList = require('../../../../events/Models/json_prefabs/lootList.json');
 
 const {NPCcheckMaterialFav} = require('../locationFilters.js');
-const { inclusiveRandNum } = require('../../../../uniHelperFunctions.js');
+const { inclusiveRandNum, grabUser, randArrPos } = require('../../../../uniHelperFunctions.js');
+const { CraftControllers } = require('../../../../dbObjects.js');
+const { handleControllerUpdateCheck, loadCasteTypeFilterObject } = require('../craftingExtras.js');
+const { getFilteredCasteTypes, checkingCaste } = require('../../../Development/Export/itemStringCore.js');
 
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
+// const randArrPos = (arr) => {
+//     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+// };
 
 class NPC {
     constructor(npcRef) {
@@ -69,7 +72,7 @@ class NPC {
         }
     }
 
-    genRandNpc(localBiome) {
+    async genRandNpc(localBiome, userid='0') {
         const biomes = ['Forest', 'Mountain', 'Desert', 'Plains', 'Swamp', 'Grassland'];
         const genFromBiome = localBiome ?? randArrPos(biomes);
 
@@ -83,7 +86,7 @@ class NPC {
 
         this.genName();
 
-        this.genNewTask();
+        await this.genNewTask(userid);
 
         this.genDialogOptions();
         /**		
@@ -247,25 +250,34 @@ class NPC {
         }
     }
 
-    genNewTask(){
+    async genNewTask(userid){
         // Generate NPC's current task/new task off of level, location, and prereq.
-        let taskCaste = npcTaskCastes.filter(caste => caste.Biome === this.curBiome);
-        taskCaste = taskCaste[0];
+        const taskCaste = npcTaskCastes.find(caste => caste.Biome === this.curBiome);
+        // taskCaste = taskCaste[0];
 
         //console.log("Difficulties: ", ...taskCaste.MaxDiff);
         //console.log("Types: ", ...taskCaste.Types);
 
+        // Grab reference to user if userid is valid
+        const userRef = (userid !== '0') ? await grabUser(userid): false;
+
         // Task Type "Basic" = All Tasks at taskCaste.MaxDiff[0]
-        let filterCats = [];
-        for (const task of npcTaskList){
-            // Temp Exclude "Craft" taskType
-            if (task.Category === "Craft") continue;
-            filterCats.push(task.Category);
+        const taskTypeList = [];
+        for (const t of npcTaskList){ 
+            if (t.Category === "Craft" && (!userRef || userRef.level < 10)) continue; // User has no crafting access yet
+            taskTypeList.push(t.Category); 
         }
 
-        const taskTypePicked = randArrPos(filterCats);
-        let taskPicked = npcTaskList.filter(task => task.Category === taskTypePicked);
-        taskPicked = taskPicked[0];
+        // let filterCats = [];
+        // for (const task of npcTaskList){
+        //     // Temp Exclude "Craft" taskType
+        //     if (task.Category === "Craft") continue;
+        //     filterCats.push(task.Category);
+        // }
+
+        const taskTypePicked = randArrPos(taskTypeList);
+        const taskPicked = npcTaskList.find(task => task.Category === taskTypePicked);
+        // taskPicked = taskPicked[0];
 
         this.taskType = taskTypePicked;
         /**
@@ -282,24 +294,32 @@ class NPC {
          *      GodGiven:   70-100
          * 
          */
-        const levelMaps = new Map();
-        levelMaps.set("Baby", 5);
-        levelMaps.set("Easy", 8);
-        levelMaps.set("Medium", 12);
-        levelMaps.set("Hard", 25);
-        levelMaps.set("GodGiven", 100);
+        const levelMaps = new Map([
+            ["Baby", {min: 1, max: 5}],
+            ["Easy", {min: 1, max: 8}],
+            ["Medium", {min: 9, max: 12}],
+            ["Hard", {min: 13, max: 25}],
+            ["GodGiven", {min: 70, max: 100}]
+        ]);
         
         let highest = "";
         for (const [key, value] of levelMaps){
-            if (typeof taskCaste.Types[1] === "string" && taskCaste.Types[1] === taskTypePicked) {
-                highest = taskCaste.MaxDiff[1]; 
+            // If task castes biome contains a specific extra type
+            if (taskCaste.Types.length > 1){
+                // If extra type matches picked type, use its difficulty, else use default difficulty
+                if (taskCaste.Types[1] === taskTypePicked){
+                    highest = taskCaste.MaxDiff[1];
+                } else highest = taskCaste.MaxDiff[0];
                 break;
-            } else if (typeof taskCaste.Types[1] === "string"){
-                highest = taskCaste.MaxDiff[0];
+            }
+
+            if (this.level <= value.max && this.level > value.min) { // Level Range Match found!
+                highest = key;
                 break;
-            } else {
-                if (this.level >= value) highest = key;
-                if (this.level < value) {highest = key; break;}
+            } else if (this.level > value.max){ // Level exceeds range being checked, set key and check next range
+                highest = key;
+            } else if (this.level < value.min){ // Level is lower than min required for range, use last set diff, end loop
+                break;
             }
         }
 
@@ -318,26 +338,26 @@ class NPC {
         this.taskList = finalTask;
         this.taskContents = this.taskList.Conditions;
 
-        this.genTaskDetails();
+        await this.genTaskDetails(userRef);
     }
 
-    genTaskDetails(){
-        console.log(`Details from genTaskDetails(): \n${this.taskType}\n${this.taskTags}`);
-        console.log(this.taskList);
+    async genTaskDetails(userRef){
+        //console.log(`Details from genTaskDetails(): \n${this.taskType}\n${this.taskTags}`);
+        console.log('NPC Task Object: ', this.taskList);
 
         switch(this.taskType){
             case "Fetch":
                 this.#genFetchTask();
-                break;
+            break;
             case "Combat":
                 this.#genCombatTask();
-                break;
+            break;
             case "Gather":
                 this.#genGatherTask();
-                break;
+            break;
             case "Craft":
-                this.#genCraftTask();
-                break;
+                await this.#genCraftTask(userRef);
+            break;
         }
     }
 
@@ -361,7 +381,7 @@ class NPC {
             case "Craft":
                 // Add other crafting based conditions
                 fieldName = 'Crafting Conditions: ';
-                fieldValue = `Slot: SLOT-TYPE-HERE\nRarity: RARITY-HERE\nAmount: AMOUNT-HERE`;
+                fieldValue = `Item Caste Type: **${this.taskRequest.Name}**\nCrafted Rarity: **${this.taskRequest.Rarity}**\nAmount to Craft: **${this.taskRequest.Amount}**`;
             break;
         }
 
@@ -480,45 +500,155 @@ class NPC {
         this.taskRequest = returnObj;
     }
 
-    #genCraftTask(){
+    async #genCraftTask(userRef){
         console.log("Craft Task!");
+        const theTask = {
+            Name: "", // Crafted Slot Requested
+            Rarity: "", // Crafted Item Rarity
+            Rar_id: 0, // number for Rarity
+            Amount: 0 // Amount to craft at specs
+        };
+
+        const rarityList = ["Common", "Uncommon", "Rare", "Very Rare", "Epic", "Mystic", "?", "??", "???", "????"];
+        const rarOptions = rarityList.slice(this.taskContents.Rar_id_Min, this.taskContents.Rar_id_Max);
+        const rarPicked = randArrPos(rarOptions);
+        theTask.Rarity = rarPicked;
+        theTask.Rar_id = rarityList.indexOf(rarPicked);
+
+        const amountWanted = inclusiveRandNum(this.taskContents.MaxNeed, this.taskContents.MinNeed);
+        theTask.Amount = amountWanted;
+
+        async function loadCraftingController(userRef){
+            let controller = await CraftControllers.findOrCreate({
+                where: {
+                    user_id: userRef.userid
+                }
+            });
+    
+            if (controller[1]){
+                await controller[0].save().then(async c => {return await c.reload()});
+            }
+    
+            controller = controller[0];
+    
+            await handleControllerUpdateCheck(controller, userRef);
+
+            return controller;
+        }
+
+        const craftControl = await loadCraftingController(userRef);
+        const craftOptionsObj = loadCasteTypeFilterObject(userRef, craftControl);
+
+        console.log('CraftController Options Object: ', craftOptionsObj);
+        
+        const slotTypeOptions = ['Mainhand', 'Offhand', 'Headslot', 'Chestslot', 'Legslot'];
+        if (!craftOptionsObj.Hands.includes(0)) slotTypeOptions.splice(2, 3);
+
+        const slotPicked = randArrPos(slotTypeOptions);
+
+        console.log('Available Slot Options: ', slotTypeOptions);
+        console.log('Slot Picked: ', slotPicked);
+
+        let casteOptionList;
+        if (['Headslot', 'Chestslot', 'Legslot'].includes(slotPicked)){
+            // Armor Caste
+            casteOptionList = getFilteredCasteTypes([0], craftOptionsObj.Type.Armor);
+        } else if (slotPicked === 'Mainhand'){
+            // Weapon Caste
+            if (craftOptionsObj.Hands[0] === 0) craftOptionsObj.Hands.splice(0, 1); // Remove Armor Checking hands 
+            casteOptionList = getFilteredCasteTypes(craftOptionsObj.Hands, craftOptionsObj.Type.Weapon);
+        } else if (slotPicked === 'Offhand'){
+            // Offhand Caste 1 handed 
+            // Special case since only 2 offhand types
+            if (['Magic'].includes(craftOptionsObj.Type.Weapon)) casteOptionList.push("15");
+            if (['Melee'].includes(craftOptionsObj.Type.Weapon)) casteOptionList.push("16");
+            if (['Special'].includes(craftOptionsObj.Type.Weapon)) casteOptionList.push("24");
+        }
+
+        console.log('CASTE OPTION LIST: ', casteOptionList);
+
+        const casteIDPicked = randArrPos(casteOptionList);
+        const casteNamePicked = checkingCaste(casteIDPicked).Caste;
+        theTask.Name = casteNamePicked;
+
+        this.taskRequest = theTask;
     }
 
     genDialogOptions(){
-        const embedContentList = [];
-        const replyOptionsList = [];
-
         // Compile all dialog castes together for the current preset tasktype/difficulty/biome
-        let locFilter = npcDialogCaste[0].Locations.filter(caste => caste.Biome === this.curBiome);
-        locFilter = locFilter[0].Castes;
-        let taskFilter = npcDialogCaste[0].TaskTypes.filter(caste => caste.Type === this.taskType);
-        taskFilter = taskFilter[0].Castes;
-        let diffFilter = npcDialogCaste[0].Difficulties.filter(caste => caste.Rated === this.taskTags[1]);
-        diffFilter = diffFilter[0].Castes;
-        let reapFilter = npcDialogCaste[0].Rewards.filter(caste => caste.Rated === this.taskTags[1]);
-        reapFilter = reapFilter[0].Castes;
+        const dialogObj = npcDialogCaste;
 
-        const locPicked = randArrPos(locFilter);
-        const taskPicked = randArrPos(taskFilter);
-        const diffPicked = randArrPos(diffFilter);
-        const reapPicked = randArrPos(reapFilter);
+        const locationFilter = dialogObj.Locations.find(caste => caste.Biome === this.curBiome).Castes;
+        const taskTypeFilter = dialogObj.TaskTypes.find(caste => caste.Type === this.taskType).Castes;
+        const difficultyFilter = dialogObj.Difficulties.find(caste => caste.Rated === this.taskTags[1]).Castes;
+        const rewardFilter = dialogObj.Rewards.find(caste => caste.Rated === this.taskTags[1]).Castes;
 
-        embedContentList[0] = locPicked.Dialog;
-        embedContentList[1] = taskPicked.Dialog;
-        embedContentList[2] = diffPicked.Dialog;
-        embedContentList[3] = reapPicked.Dialog;
+        const pickedObj = {
+            location: randArrPos(locationFilter),
+            taskType: randArrPos(taskTypeFilter),
+            diffType: randArrPos(difficultyFilter),
+            reward: randArrPos(rewardFilter)
+        };
 
-        replyOptionsList[0] = locPicked.Options; //randArrPos(locPicked.Options);
-        replyOptionsList[1] = taskPicked.Options; //randArrPos(taskPicked.Options);
-        replyOptionsList[2] = diffPicked.Options; //randArrPos(diffPicked.Options);
-        replyOptionsList[3] = reapPicked.Options;
+        const embedContentList = [
+            pickedObj.location.Dialog,
+            pickedObj.taskType.Dialog,
+            pickedObj.diffType.Dialog,
+            pickedObj.reward.Dialog
+        ];
+        const replyOptionsList = [
+            pickedObj.location.Options,
+            pickedObj.taskType.Options,
+            pickedObj.diffType.Options,
+            pickedObj.reward.Options
+        ];
+
+
+        // let locFilter = npcDialogCaste.Locations.filter(caste => caste.Biome === this.curBiome);
+        // locFilter = locFilter[0].Castes;
+        // let taskFilter = npcDialogCaste.TaskTypes.filter(caste => caste.Type === this.taskType);
+        // taskFilter = taskFilter[0].Castes;
+        // let diffFilter = npcDialogCaste.Difficulties.filter(caste => caste.Rated === this.taskTags[1]);
+        // diffFilter = diffFilter[0].Castes;
+        // let reapFilter = npcDialogCaste.Rewards.filter(caste => caste.Rated === this.taskTags[1]);
+        // reapFilter = reapFilter[0].Castes;
+
+        // const locPicked = randArrPos(locFilter);
+        // const taskPicked = randArrPos(taskFilter);
+        // const diffPicked = randArrPos(diffFilter);
+        // const reapPicked = randArrPos(reapFilter);
+
+        // const embedContentList = [
+        //     locPicked.Dialog,
+        //     taskPicked.Dialog,
+        //     diffPicked.Dialog,
+        //     reapPicked.Dialog
+        // ];
+        // const replyOptionsList = [
+        //     locPicked.Options,
+        //     taskPicked.Options,
+        //     diffPicked.Options,
+        //     reapPicked.Options
+        // ];
+
+        // embedContentList.push(locPicked.Dialog, taskPicked.Dialog, )
+
+        // embedContentList[0] = locPicked.Dialog;
+        // embedContentList[1] = taskPicked.Dialog;
+        // embedContentList[2] = diffPicked.Dialog;
+        // embedContentList[3] = reapPicked.Dialog;
+
+        // replyOptionsList[0] = locPicked.Options; //randArrPos(locPicked.Options);
+        // replyOptionsList[1] = taskPicked.Options; //randArrPos(taskPicked.Options);
+        // replyOptionsList[2] = diffPicked.Options; //randArrPos(diffPicked.Options);
+        // replyOptionsList[3] = reapPicked.Options;
 
         this.dialogList = embedContentList;
         this.replyOptions = replyOptionsList;
 
-        console.log(`Location Result: ${locPicked.Name}\nTask Result: ${taskPicked.Name}\nDifficulty Result: ${diffPicked.Name}\nReward Result: ${reapPicked.Name}`);
-        console.log(...embedContentList);
-        console.log(...replyOptionsList);
+        console.log(`Location Result: ${pickedObj.location.Name}\nTask Result: ${pickedObj.taskType.Name}\nDifficulty Result: ${pickedObj.diffType.Name}\nReward Result: ${pickedObj.reward.Name}`);
+        console.log('Dialog Text Length: %d', embedContentList.length);
+        console.log('Reply Options List Length: %d', replyOptionsList.length);
     }
 
     combatSkillCheck(){

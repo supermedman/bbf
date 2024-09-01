@@ -207,27 +207,67 @@
         "Category": "Craft",
         "Baby": [
             {
-                "Name": "Baby_Craft_Task_One"
+                "Name": "Baby_Craft_Task_One",
+                "Conditions": {
+                    "RarityMax": "Uncommon",
+                    "RarityMin": "Common",
+                    "Rar_id_Max": 1,
+                    "Rar_id_Min": 0,
+                    "MaxNeed": 10,
+                    "MinNeed": 5
+                }
             }
         ],
         "Easy": [
             {
-                "Name": "Easy_Craft_Task_One"
+                "Name": "Easy_Craft_Task_One",
+                "Conditions": {
+                    "RarityMax": "Rare",
+                    "RarityMin": "Uncommon",
+                    "Rar_id_Max": 2,
+                    "Rar_id_Min": 1,
+                    "MaxNeed": 15,
+                    "MinNeed": 10
+                }
             }
         ],
         "Medium": [
             {
-                "Name": "Medium_Craft_Task_One"
+                "Name": "Medium_Craft_Task_One",
+                "Conditions": {
+                    "RarityMax": "Epic",
+                    "RarityMin": "Rare",
+                    "Rar_id_Max": 4,
+                    "Rar_id_Min": 2,
+                    "MaxNeed": 20,
+                    "MinNeed": 15
+                }
             }
         ],
         "Hard": [
             {
-                "Name": "Hard_Craft_Task_One"
+                "Name": "Hard_Craft_Task_One",
+                "Conditions": {
+                    "RarityMax": "?",
+                    "RarityMin": "Epic",
+                    "Rar_id_Max": 6,
+                    "Rar_id_Min": 4,
+                    "MaxNeed": 20,
+                    "MinNeed": 10
+                }
             }
         ],
         "GodGiven": [
             {
-                "Name": "GodGiven_Craft_Task_One"
+                "Name": "GodGiven_Craft_Task_One",
+                "Conditions": {
+                    "RarityMax": "????",
+                    "RarityMin": "??",
+                    "Rar_id_Max": 9,
+                    "Rar_id_Min": 7,
+                    "MaxNeed": 20,
+                    "MinNeed": 10
+                }
             }
         ]
     }

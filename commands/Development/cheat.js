@@ -12,6 +12,7 @@ const { checkInboundItem, checkInboundMat } = require('./Export/itemMoveContaine
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { xpPayoutScale } = require('./Export/Classes/EnemyFab.js');
 const { handleUserPayout } = require('./Export/uni_userPayouts.js');
+const { spawnNpc } = require('../Game/exported/npcSpawner.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -90,7 +91,7 @@ module.exports = {
         .addSubcommand(subcommand => 
             subcommand
             .setName('quest-test')
-            .setDescription('Creates/completes the picked quest!')
+            .setDescription('Creates the picked quest!')
             .addIntegerOption(option =>
                 option
                 .setName('q-id')
@@ -101,7 +102,7 @@ module.exports = {
         .addSubcommand(subcommand => 
             subcommand
             .setName('kill-payout')
-            .setDescription('Creates/completes the picked quest!')
+            .setDescription('Handles the enemy kill payout function.')
             .addIntegerOption(option =>
                 option
                 .setName('level')
@@ -109,6 +110,11 @@ module.exports = {
                 .setRequired(true)
             )
             .addUserOption(option => option.setName('target').setDescription('The user'))
+        )
+        .addSubcommand(subcommand => 
+            subcommand
+            .setName('make-npc')
+            .setDescription('Spawns a random npc!')
         ),
     
     async autocomplete(interaction) {
@@ -233,6 +239,9 @@ module.exports = {
             await handleUserPayout(xpRolled, coinRolled, interaction, theUser);
 
             return await interaction.reply({content: `User Payout Success!`, ephemeral: true});
+        } else if (subCom === 'make-npc'){
+            await interaction.reply({content: "Npc spawning in progress..", ephemeral: true});
+            return await spawnNpc(theUser, interaction);
         }
 
         const giveAmount = interaction.options.getInteger('amount') ?? 1;

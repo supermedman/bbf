@@ -1,6 +1,6 @@
 const {chalk, chlkPreset} = require('./chalkPresets');
 const {ComponentType, ButtonBuilder, ButtonStyle, ActionRowBuilder} = require('discord.js');
-const { UserData, Pigmy, Town } = require('./dbObjects');
+const { UserData, Pigmy, Town, UserTasks } = require('./dbObjects');
 
 /**
  * This method randomly returns an element from a given array, if the array has a
@@ -9,7 +9,7 @@ const { UserData, Pigmy, Town } = require('./dbObjects');
  * @returns {any} Contents at randomly chosen index
  */
 const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+    return arr[((arr?.length ?? 0) > 1) ? Math.floor(Math.random() * arr.length) : 0];
 };
 
 /**
@@ -173,6 +173,45 @@ async function checkUserAsMayor(user){
     const townMayor = await Town.findOne({where: {mayorid: user.userid}});
     if (!townMayor) return false;
     return true;
+}
+
+/**
+ * This function handles loading the given users task list, 
+ * then filters it for the given ``taskStatus`` and ``taskType`` if !"All"
+ * @param {object} user UserData DB Object
+ * @param {string} taskStatus One of: ``complete``, ``failed``, ``active``
+ * @param {string} taskType One of: ``Fetch``, ``Gather``, ``Combat``, ``Craft``. Default: ``All``
+ * @returns {Promise <object[] | string>} ``No Tasks``, ``No Tasks Match``, ``No Type Tasks Match`` if filter is empty.
+ */
+async function grabUserTaskList(user, taskStatus, taskType="All"){
+    const userTaskList = await UserTasks.findAll({where: {userid: user.userid}});
+    if (userTaskList.length === 0) return "No Tasks";
+
+    let filteredTaskList;
+    switch(taskStatus){
+        case "complete":
+            filteredTaskList = userTaskList.filter(task => task.complete);
+        break;
+        case "failed":
+            filteredTaskList = userTaskList.filter(task => task.failed);
+        break;
+        case "active":
+            filteredTaskList = userTaskList.filter(task => !task.failed && !task.complete);
+        break;
+    }
+    if (filteredTaskList.length === 0) return "No Tasks Match";
+
+
+    const matchTaskType = (task, type) => {
+        return task.task_type === type;
+    };
+
+    if (taskType !== 'All') {
+        filteredTaskList = filteredTaskList.filter(task => matchTaskType(task, taskType));
+        if (filteredTaskList.length === 0) return "No Type Tasks Match";
+    }
+
+    return filteredTaskList;
 }
 
 /**
@@ -529,6 +568,7 @@ module.exports = {
     checkUserAsMayor,
     grabLocalTowns,
     grabTownByName,
+    grabUserTaskList,
     handleItemObjCheck,
     handleLimitOnOptions,
     getTypeof,
