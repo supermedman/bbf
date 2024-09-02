@@ -2,7 +2,9 @@
 
 const { Town, UserData, CoreBuilding } = require('../../dbObjects.js');
 
-const { loadBuilding } = require('./exported/displayBuilding.js');
+const { loadBuilding, countBuildingDisplayOptions } = require('./exported/displayBuilding.js');
+const {makeCapital, grabUser, grabTown, checkUserTownPerms, checkUserAsMayor, sendTimedChannelMessage, editTimedChannelMessage} = require('../../uniHelperFunctions.js');
+const { grabTownCoreBuildings } = require('./exported/townExtras.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -10,41 +12,53 @@ module.exports = {
 		.setDescription('The main command for all things core building related!')
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('belong')
-				.setDescription('View all core buildings that belong to you or your town!'))
+			.setName('belong')
+			.setDescription('View all core buildings that belong to you or your town!')
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('settings')
-				.setDescription('Manage and edit settings for the selected core building.')
-				.addStringOption(option =>
-					option.setName('thecore')
-						.setDescription('The core building to be used.')
-						.setRequired(true)
-						.setAutocomplete(true)))
+			.setName('settings')
+			.setDescription('Manage and edit settings for the selected core building.')
+			.addStringOption(option =>
+				option
+				.setName('thecore')
+				.setDescription('The core building to be used.')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		)
 		.addSubcommand(subcommand =>
 			subcommand
-				.setName('change')
-				.setDescription('Change something on a core building.')
-				.addStringOption(option =>
-					option.setName('thecore')
-						.setDescription('The core building to be used.')
-						.setRequired(true)
-						.setAutocomplete(true))
-				.addStringOption(option =>
-					option.setName('feature')
-						.setDescription('What feature would you like to change?')
-						.setRequired(true)
-						.addChoices(
-							{ name: 'Foreground', value: 'foreground' },
-							{ name: 'Roof', value: 'roof' },
-							{ name: 'Walls', value: 'wall' },
-							{ name: 'Windows', value: 'window' },
-							{ name: 'Door', value: 'door' }))
-				.addStringOption(option =>
-					option.setName('selection')
-						.setDescription('Options for the choosen feature.')
-						.setRequired(true)
-						.setAutocomplete(true))),
+			.setName('change')
+			.setDescription('Change something on a core building.')
+			.addStringOption(option =>
+				option
+				.setName('thecore')
+				.setDescription('The core building to be used.')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+			.addStringOption(option =>
+				option
+				.setName('feature')
+				.setDescription('What feature would you like to change?')
+				.setRequired(true)
+				.addChoices(
+					{ name: 'Foreground', value: 'foreground' },
+					{ name: 'Roof', value: 'roof' },
+					{ name: 'Walls', value: 'wall' },
+					{ name: 'Windows', value: 'window' },
+					{ name: 'Door', value: 'door' }
+				)
+			)
+			.addStringOption(option =>
+				option
+				.setName('selection')
+				.setDescription('Options for the choosen feature.')
+				.setRequired(true)
+				.setAutocomplete(true)
+			)
+		),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -52,18 +66,28 @@ module.exports = {
 
 		if (focusedOption.name === 'thecore') {
 			const focusedValue = interaction.options.getFocused(false);
-			const user = await UserData.findOne({ where: { userid: interaction.user.id } });
+			const user = await grabUser(interaction.user.id);
+			const theTown = await grabTown(user.townid);
 
-			let theTown;
-			if (user && user.townid !== '0') theTown = await Town.findOne({ where: { townid: user.townid } });
+			if (theTown){
+				const builtCores = await grabTownCoreBuildings(theTown);
+				choices = builtCores.map(core => makeCapital(core.build_type));
+			} else choices = ['None'];
+			
 
-			if (theTown) {
-				if (theTown.grandhall_status !== 'None') choices.push('Grand Hall');
-				if (theTown.bank_status !== 'None') choices.push('Bank');
-				if (theTown.market_status !== 'None') choices.push('Market');
-				if (theTown.tavern_status !== 'None') choices.push('Tavern');
-				if (theTown.clergy_status !== 'None') choices.push('Clergy');
-			} else choices.push('None');
+			//const user = await UserData.findOne({ where: { userid: interaction.user.id } });
+			
+
+			// let theTown;
+			// if (user && user.townid !== '0') theTown = await Town.findOne({ where: { townid: user.townid } });
+
+			// if (theTown) {
+			// 	if (theTown.grandhall_status !== 'None') choices.push('Grand Hall');
+			// 	if (theTown.bank_status !== 'None') choices.push('Bank');
+			// 	if (theTown.market_status !== 'None') choices.push('Market');
+			// 	if (theTown.tavern_status !== 'None') choices.push('Tavern');
+			// 	if (theTown.clergy_status !== 'None') choices.push('Clergy');
+			// } else choices.push('None');
 
 			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
@@ -75,17 +99,22 @@ module.exports = {
 			const focusedValue = interaction.options.getFocused(false);
 			const featureChoice = interaction.options.getString('feature') ?? 'NONE';
 
-			if (featureChoice === 'foreground') choices = ['1', '2', '3', '4', '5', '6'];
+			if (featureChoice !== 'NONE'){
+				// const choiceArray = new Array(countBuildingDisplayOptions(makeCapital(featureChoice))).fill(1); 
+				choices = Array.from(new Array(countBuildingDisplayOptions(makeCapital(featureChoice))).fill(1), (v, t) => `${t + v}`); // [], (v, t) => `${t + 1}`
+			} else choices = ['None'];
 
-			if (featureChoice === 'roof') choices = ['1', '2', '3', '4'];
+			// if (featureChoice === 'foreground') choices = ['1', '2', '3', '4', '5', '6'];
 
-			if (featureChoice === 'wall') choices = ['1', '2', '3', '4', '5', '6', '7'];
+			// if (featureChoice === 'roof') choices = ['1', '2', '3', '4'];
 
-			if (featureChoice === 'window') choices = ['1', '2', '3', '4'];
+			// if (featureChoice === 'wall') choices = ['1', '2', '3', '4', '5', '6', '7'];
 
-			if (featureChoice === 'door') choices = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+			// if (featureChoice === 'window') choices = ['1', '2', '3', '4'];
 
-			if (featureChoice === 'NONE') choices = ['None'];
+			// if (featureChoice === 'door') choices = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+			// if (featureChoice === 'NONE') choices = ['None'];
 
 			const filtered = choices.filter(choice => choice.startsWith(focusedValue));
 			await interaction.respond(
@@ -98,10 +127,27 @@ module.exports = {
 
 		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
 
-		const user = await grabU();
-		if (!user) return await noUser();
+		const subCom = interaction.options.getSubcommand();
 
-		if (interaction.options.getSubcommand() === 'belong') {
+		const needPermsList = ['change', 'settings'];
+
+		const canEdit = checkUserTownPerms;
+		const isMayor = checkUserAsMayor;
+		const hasTown = (user) => user.townid !== '0';
+
+		const checkTownPerms = async (user) => {
+			return {isMayor: await isMayor(user), canEdit: await canEdit(user), hasTown: hasTown(user), townID: user.townid};
+		};
+
+		const user = await grabUser(interaction.user.id);
+		const permList = await checkTownPerms(user);
+
+		if (!permList.hasTown) return await interaction.reply({content: "You must first join a town before you can use this command!", ephemeral: true});
+		if (!permList.canEdit && needPermsList.includes(subCom)) return await interaction.reply({content: "You need town editing permissions before you can use this command!", ephemeral: true});
+
+		const townRef = await grabTown(permList.townID);
+
+		if (subCom === 'belong') {
 			const ownedBuilds = await CoreBuilding.findAll({ where: { townid: user.townid }});
 			if (ownedBuilds.length <= 0) return await interaction.reply('You do not own any buildings!');
 
@@ -184,39 +230,57 @@ module.exports = {
 			});
 		}
 
-		if (interaction.options.getSubcommand() === 'change') {
+		if (subCom === 'change') {
 			const changeType = interaction.options.getString('feature');
-			const changeVal = 1 * interaction.options.getString('selection');
-			const coreType = extractCoreType(interaction.options.getString('thecore'));
+			const changeVal = +interaction.options.getString('selection');
+			const coreType = interaction.options.getString('thecore').toLowerCase(); // extractCoreType(interaction.options.getString('thecore'))
 
-			const theTown = await Town.findOne({ where: { townid: user.townid } });
-			if (!theTown) return await interaction.reply('Something went wrong while locating your town!');
+			// const townRef = await grabTown(user.townid);
+			// if (!townRef) return await interaction.reply({content: 'No town was found!', ephemeral: true});
 
-			const currentEditList = theTown.can_edit.split(',');
-			let exists = false;
-			for (const id of currentEditList) {
-				if (user.userid === id) {
-					exists = true;
-					break;
-				}
-			}
-			if (!exists) return await interaction.reply('You do not have permission to use this command for this town!');
 
-			const theBuild = await CoreBuilding.findOne({ where: [{ townid: user.townid }, { build_type: coreType }] });
+			// const theTown = await Town.findOne({ where: { townid: user.townid } });
+			// if (!theTown) return await interaction.reply('Something went wrong while locating your town!');
+
+			// const currentEditList = theTown.can_edit.split(',');
+			// let exists = false;
+			// for (const id of currentEditList) {
+			// 	if (user.userid === id) {
+			// 		exists = true;
+			// 		break;
+			// 	}
+			// }
+			// if (!exists) return await interaction.reply('You do not have permission to use this command for this town!');
+
+			const theBuild = await CoreBuilding.findOne({ where: {townid: townRef.townid, build_type: coreType}}); // [{ townid: user.townid }, { build_type: coreType }] 
 			if (!theBuild) return await interaction.reply('Something went wrong while locating that core building!');
 
-			let buildUpdate;
-			if (changeType === 'foreground') buildUpdate = await theBuild.update({ foreground_tex: changeVal });
-			if (changeType === 'roof') buildUpdate = await theBuild.update({ roof_tex: changeVal });
-			if (changeType === 'wall') buildUpdate = await theBuild.update({ wall_tex: changeVal });
-			if (changeType === 'window') buildUpdate = await theBuild.update({ window_tex: changeVal });
-			if (changeType === 'door') buildUpdate = await theBuild.update({ door_tex: changeVal });
-			if (buildUpdate) await theBuild.save();
+			const buildLoadEmbed = new EmbedBuilder()
+			.setTitle('== Loading Core Building Display ==')
+			.setDescription('Please hold...');
+
+			const buildLoadingMsg = await interaction.reply({embeds: [buildLoadEmbed]});
+
+			await theBuild.update({[`${changeType}_tex`]: changeVal}).then(async cb => await cb.save()).then(async cb => {return await cb.reload()});
+
+			// let buildUpdate;
+			// if (changeType === 'foreground') buildUpdate = await theBuild.update({ foreground_tex: changeVal });
+			// if (changeType === 'roof') buildUpdate = await theBuild.update({ roof_tex: changeVal });
+			// if (changeType === 'wall') buildUpdate = await theBuild.update({ wall_tex: changeVal });
+			// if (changeType === 'window') buildUpdate = await theBuild.update({ window_tex: changeVal });
+			// if (changeType === 'door') buildUpdate = await theBuild.update({ door_tex: changeVal });
+			// if (buildUpdate) await theBuild.save();
 
 			const attachment = await loadBuilding(theBuild);
-			const msgContent = 'Building Updated Successfully!!';
+			const updateEmbed = new EmbedBuilder()
+			.setTitle('== Building Updated ==')
+			.setDescription(`${makeCapital(coreType)} ${makeCapital(changeType)} have been updated!!`);
+			
+			//const msgContent = 'Building Updated Successfully!!';
 
-			return await interaction.reply({ content: msgContent, files: [attachment] });
+			return await editTimedChannelMessage(buildLoadingMsg, 120000, {embeds: [updateEmbed], files: [attachment]});
+
+			// return await interaction.reply({ content: msgContent, files: [attachment] });
 		}
 
 		if (interaction.options.getSubcommand() === 'settings') {

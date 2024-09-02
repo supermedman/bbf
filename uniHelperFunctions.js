@@ -34,6 +34,11 @@ const inclusiveRandNum = (max, min) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+/**
+ * This method returns the given string, with the first letter capitalized.
+ * @param {string} str String to capitalize
+ * @returns {string}
+ */
 const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1) };
 
 const checkLootDrop = (pigmy, user) => {

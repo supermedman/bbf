@@ -1,94 +1,204 @@
 const { AttachmentBuilder } = require('discord.js');
+const fs = require('node:fs');
 
-const { InstalledBuild } = require('../../../dbObjects.js');
+const { InstalledBuild, Town } = require('../../../dbObjects.js');
 
 const Canvas = require('@napi-rs/canvas');
+const { objectEntries, makeCapital } = require('../../../uniHelperFunctions.js');
+
+const pathFinder = {
+    roof: "./events/Models/json_prefabs/Building-Textures/Roof-Styles",
+    wall: "./events/Models/json_prefabs/Building-Textures/Wall-Styles",
+    door: "./events/Models/json_prefabs/Building-Textures/Door-Styles",
+    window: "./events/Models/json_prefabs/Building-Textures/Window-Styles",
+    background: {
+        normal: "./events/Models/json_prefabs/Building-Textures/Background-Styles/Normal",
+        evil: "./events/Models/json_prefabs/Building-Textures/Background-Styles/Evil",
+        phase: "./events/Models/json_prefabs/Building-Textures/Background-Styles/Phase"
+    },
+    foreground: "./events/Models/json_prefabs/Building-Textures/Foreground-Styles",
+    otherDeco: {
+        plants: "./events/Models/json_prefabs/Building-Textures/Other-Decorations/Plants",
+        structs: "./events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures"
+    }
+};
+
+/**
+ * This method locates existing assets in the given folder location ``path``, 
+ * 
+ * if ``path`` is an object, cycles through ``key: obj[key]`` returning ``string['sType']['sPaths']``
+ * @param {string} type String value of Asset Style Type
+ * @param {string | object} path File path of Asset Style Folder
+ * @param {boolean} [useFullPath=true] Set to false to return only the filenames found.
+ * @returns {string[] | string[][]}
+ */
+const loadSelectedAssetGroup = (type, path, useFullPath=true) => {
+    // If subfolder checking required, path !== validPath but instead {}
+    if (typeof path !== 'string'){
+        const subAssetPathPairList = [];
+        for (const [sType, sPath] of objectEntries(path)){
+            const subStyleFiles = (useFullPath) 
+            ? fs.readdirSync(sPath).filter(file => file.endsWith('.png')).map(fileName => `${sPath}/${fileName}`)
+            : fs.readdirSync(sPath).filter(file => file.endsWith('.png'));
+
+            // console.log(`${sType} Texture Count: ${subStyleFiles.length}`);
+            subAssetPathPairList.push([makeCapital(sType), subStyleFiles]);
+        }
+        return subAssetPathPairList;
+    }
+
+    const styleFiles = (useFullPath) 
+    ? fs.readdirSync(path).filter(file => file.endsWith('.png')).map(fileName => `${path}/${fileName}`)
+    : fs.readdirSync(path).filter(file => file.endsWith('.png'));
+
+    if (!type) console.log(type); // ha funny catch
+
+    // console.log(`${type} Texture Count: ${styleFiles.length}`);
+    return styleFiles;
+};
+
+// const roofStyleListTest = loadSelectedAssetGroup('Roof', pathFinder.roof);
+// console.log(...roofStyleListTest);
+
+/**
+ * This function loads the file location/names for all existing building display assets.
+ * 
+ * Returns valid ``new Map()`` constructor format
+ * @param {object} pathFinder Full Static File Pathing Object
+ * @param {boolean} [useFullPath=true] Set to false to return only the filenames found.
+ * @returns {[string, string[]][]}
+ */
+function loadFullBuildingDisplayAssetList(pathFinder, useFullPath=true){
+    const assetPathPairList = [];
+    for (const [type, path] of objectEntries(pathFinder)){
+        assetPathPairList.push([makeCapital(type), loadSelectedAssetGroup(makeCapital(type), path, useFullPath)]); // {style: , fileList: }
+    }
+
+    return assetPathPairList;
+}
+
+const buildingAssetPathKeys = new Map(loadFullBuildingDisplayAssetList(pathFinder));
+// console.log(buildingAssetPathKeys);
+
+const buildingAssetNameKeys = new Map(loadFullBuildingDisplayAssetList(pathFinder, false));
+// console.log(buildingAssetNameKeys);
 
 /** 0-3 */
-const roofTiles =
-    [
-        './events/Models/json_prefabs/Building-Textures/roof-tile-one.png',
-        './events/Models/json_prefabs/Building-Textures/roof-tile-two.png',
-        './events/Models/json_prefabs/Building-Textures/roof-tile-three.png',
-        './events/Models/json_prefabs/Building-Textures/roof-tile-four.png'
-    ];
+// const roofTiles = [
+//     './events/Models/json_prefabs/Building-Textures/roof-tile-one.png',
+//     './events/Models/json_prefabs/Building-Textures/roof-tile-two.png',
+//     './events/Models/json_prefabs/Building-Textures/roof-tile-three.png',
+//     './events/Models/json_prefabs/Building-Textures/roof-tile-four.png'
+// ];
+
+const roofTiles = buildingAssetPathKeys.get('Roof');
 
 /** 0-3 */
-const wallWoodTiles =
-    [
-        './events/Models/json_prefabs/Building-Textures/wood-wall-one.png',
-        './events/Models/json_prefabs/Building-Textures/wood-wall-two.png',
-        './events/Models/json_prefabs/Building-Textures/wood-wall-three.png',
-        './events/Models/json_prefabs/Building-Textures/wood-wall-four.png'
-    ];
+const wallWoodTiles = [
+    './events/Models/json_prefabs/Building-Textures/wood-wall-one.png',
+    './events/Models/json_prefabs/Building-Textures/wood-wall-two.png',
+    './events/Models/json_prefabs/Building-Textures/wood-wall-three.png',
+    './events/Models/json_prefabs/Building-Textures/wood-wall-four.png'
+];
 
 /** 4-6 */
-const wallStoneTiles =
-    [
-        './events/Models/json_prefabs/Building-Textures/stone-wall-one.png',
-        './events/Models/json_prefabs/Building-Textures/stone-wall-two.png',
-        './events/Models/json_prefabs/Building-Textures/stone-wall-three.png'
-    ];
+const wallStoneTiles = [
+    './events/Models/json_prefabs/Building-Textures/stone-wall-one.png',
+    './events/Models/json_prefabs/Building-Textures/stone-wall-two.png',
+    './events/Models/json_prefabs/Building-Textures/stone-wall-three.png'
+];
 
 /** 0-6 */
-const allWallTiles = wallWoodTiles.concat(wallStoneTiles);
+// const allWallTiles = wallWoodTiles.concat(wallStoneTiles);
+
+const allWallTiles = buildingAssetPathKeys.get('Wall');
 
 /** 0-11 */
-const doorStyles =
-    [
-        './events/Models/json_prefabs/Building-Textures/door-style-one.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-two.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-three.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-four.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-five.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-six.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-seven.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-eight.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-nine.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-ten.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-eleven.png',
-        './events/Models/json_prefabs/Building-Textures/door-style-twelve.png'
-    ];
+// const doorStyles = [
+//     './events/Models/json_prefabs/Building-Textures/door-style-one.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-two.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-three.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-four.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-five.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-six.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-seven.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-eight.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-nine.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-ten.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-eleven.png',
+//     './events/Models/json_prefabs/Building-Textures/door-style-twelve.png'
+// ];
+
+const doorStyles = buildingAssetPathKeys.get('Door');
 
 /** 0-3 */
-const windowStyles =
-    [
-        './events/Models/json_prefabs/Building-Textures/fancy-window-one.png',
-        './events/Models/json_prefabs/Building-Textures/fancy-window-two.png',
-        './events/Models/json_prefabs/Building-Textures/fancy-window-three.png',
-        './events/Models/json_prefabs/Building-Textures/fancy-window-four.png'
-    ];
+// const windowStyles = [
+//     './events/Models/json_prefabs/Building-Textures/fancy-window-one.png',
+//     './events/Models/json_prefabs/Building-Textures/fancy-window-two.png',
+//     './events/Models/json_prefabs/Building-Textures/fancy-window-three.png',
+//     './events/Models/json_prefabs/Building-Textures/fancy-window-four.png'
+// ];
+
+const windowStyles = buildingAssetPathKeys.get('Window');
 
 /** 0-4 */
-const backgroundStyles =
-    [
-        './events/Models/json_prefabs/Building-Textures/background-evil-one.png',
-        './events/Models/json_prefabs/Building-Textures/background-evil-two.png',
-        './events/Models/json_prefabs/Building-Textures/background-dusty.png',
-        './events/Models/json_prefabs/Building-Textures/background-forest-one.png',
-        './events/Models/json_prefabs/Building-Textures/background-hilly-one.png',
-        './events/Models/json_prefabs/Building-Textures/background-forest-one.png',
-        './events/Models/json_prefabs/Building-Textures/background-hilly-one.png'
-    ];
+// const backgroundStyles = [
+//     './events/Models/json_prefabs/Building-Textures/background-evil-one.png',
+//     './events/Models/json_prefabs/Building-Textures/background-evil-two.png',
+//     './events/Models/json_prefabs/Building-Textures/background-dusty.png',
+//     './events/Models/json_prefabs/Building-Textures/background-forest-one.png',
+//     './events/Models/json_prefabs/Building-Textures/background-hilly-one.png',
+//     './events/Models/json_prefabs/Building-Textures/background-forest-one.png',
+//     './events/Models/json_prefabs/Building-Textures/background-hilly-one.png'
+// ];
+
+const backgroundMasterList = new Map(buildingAssetPathKeys.get('Background'));
+//console.log(backgroundMasterList);
 
 /** 0-5 */
-const foregroundStyles =
-    [
-        './events/Models/json_prefabs/Building-Textures/ground-green-grass.png',
-        './events/Models/json_prefabs/Building-Textures/ground-black-stone.png',
-        './events/Models/json_prefabs/Building-Textures/ground-blue-stone.png',
-        './events/Models/json_prefabs/Building-Textures/ground-brown-stone.png',
-        './events/Models/json_prefabs/Building-Textures/ground-green-grass-two.png',
-        './events/Models/json_prefabs/Building-Textures/ground-icy.png'
-    ];
+// const foregroundStyles = [
+//     './events/Models/json_prefabs/Building-Textures/ground-green-grass.png',
+//     './events/Models/json_prefabs/Building-Textures/ground-black-stone.png',
+//     './events/Models/json_prefabs/Building-Textures/ground-blue-stone.png',
+//     './events/Models/json_prefabs/Building-Textures/ground-brown-stone.png',
+//     './events/Models/json_prefabs/Building-Textures/ground-green-grass-two.png',
+//     './events/Models/json_prefabs/Building-Textures/ground-icy.png'
+// ];
+
+const foregroundStyles = buildingAssetPathKeys.get('Foreground');
+
+/**
+ * This function returns the length of the given ``buildFeature``'s PNG array list.
+ * @param {string} buildFeature One of: ``Roof``, ``Wall``, ``Door``, ``Window``, ``Foreground``
+ * @returns {number}
+ */
+function countBuildingDisplayOptions(buildFeature){
+    const matchingAssetList = buildingAssetPathKeys.get(buildFeature);
+    return matchingAssetList?.length ?? 0;
+
+    // switch(buildFeature){
+    //     case "Roof":
+    //     return roofTiles.length;
+    //     case "Wall":
+    //     return allWallTiles.length;
+    //     case "Door":
+    //     return doorStyles.length;
+    //     case "Window":
+    //     return windowStyles.length;
+    //     case "Foreground":
+    //     return foregroundStyles.length;
+    //     default: 
+    //     return 0;
+    // }
+}
 
 /** 0-3 */
 const woodStructures =
     [
-        './events/Models/json_prefabs/Building-Textures/wood-struct-square-closed.png',
-        './events/Models/json_prefabs/Building-Textures/wood-struct-square-open.png',
-        './events/Models/json_prefabs/Building-Textures/wood-struct-tbeam.png',
-        './events/Models/json_prefabs/Building-Textures/wood-struct-ladder.png'
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures/wood-struct-square-closed.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures/wood-struct-square-open.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures/wood-struct-tbeam.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures/wood-struct-ladder.png'
     ];
 
 const metalChains =
@@ -102,18 +212,18 @@ const metalChains =
 /** 0-1 */
 const largeWoodStructures =
     [
-        './events/Models/json_prefabs/Building-Textures/wood-struct-large-foundation.png',
-        './events/Models/json_prefabs/Building-Textures/wood-struct-large-xlatice.png'
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures/wood-struct-large-foundation.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Structures/wood-struct-large-xlatice.png'
     ];
 
 /** 0-4 */
 const bushObjects =
     [
-        './events/Models/json_prefabs/Building-Textures/foliage-bush-large-one.png',
-        './events/Models/json_prefabs/Building-Textures/foliage-bush-large-two.png',
-        './events/Models/json_prefabs/Building-Textures/foliage-bush-large-three.png',
-        './events/Models/json_prefabs/Building-Textures/foliage-bush-small-one.png',
-        './events/Models/json_prefabs/Building-Textures/foliage-bush-small-two.png'
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Plants/foliage-bush-large-one.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Plants/foliage-bush-large-two.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Plants/foliage-bush-large-three.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Plants/foliage-bush-small-one.png',
+        './events/Models/json_prefabs/Building-Textures/Other-Decorations/Plants/foliage-bush-small-two.png'
     ];
 
 const installedObjects =
@@ -146,6 +256,32 @@ const preLoadImages = async (loadingGroup) => {
     }
     return returnArr;
 };
+
+/**
+ * This function loads the correct background biome image based on the given buildings town
+ * @param {object} buildingRef Building/CoreBuilding DB Object
+ * @returns {Promise <string>}
+ */
+async function handleLoadingBackgroundImage(buildingRef){
+    const townRef = await Town.findOne({where: {townid: buildingRef.townid}});
+    
+    const biomeType = townRef.local_biome.split('-');
+    const backgroundAllignmentFiles = backgroundMasterList.get(biomeType[1]);
+
+    const checkFilesBiome = (biomeName, biomePath) => {
+        return biomePath.toLowerCase().indexOf(biomeName) !== -1;
+    };
+
+    let backFileWanted = backgroundAllignmentFiles[1];
+    for (const biomeF of backgroundAllignmentFiles){
+        if (checkFilesBiome(biomeType[0].toLowerCase(), biomeF)) {
+            backFileWanted = biomeF;
+            break;
+        }
+    }
+
+    return backFileWanted;
+}
 
 async function loadBuilding(buildingRef) {
 
@@ -199,7 +335,7 @@ async function drawHouseStyleOne(buildingRef, showForge) {
     const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
     const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     const woodStructTex = await preLoadImages(woodStructures);
@@ -348,7 +484,7 @@ async function drawHouseStyleTwo(buildingRef, showForge) {
     const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
     const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     //const woodStructTex = await preLoadImages(woodStructures);
@@ -473,7 +609,7 @@ async function drawHouseStyleThree(buildingRef, showForge) {
     const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
     const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     //const woodStructTex = await preLoadImages(woodStructures);
@@ -607,7 +743,9 @@ async function drawGrandhall(buildingRef) {
     const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
     const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    
+
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef)); // backgroundStyles[buildingRef.background_tex - 1]
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     //const woodStructTex = await preLoadImages(woodStructures);
@@ -711,7 +849,7 @@ async function drawBank(buildingRef) {
     const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
     const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     //const woodStructTex = await preLoadImages(woodStructures);
@@ -795,7 +933,7 @@ async function drawMarket(buildingRef) {
     const canvas = Canvas.createCanvas(700, 300);
     const ctx = canvas.getContext('2d');
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     const otherTex = await preLoadImages(otherObjects);
@@ -820,7 +958,7 @@ async function drawClergy(buildingRef) {
     const doorStyle = await Canvas.loadImage(doorStyles[buildingRef.door_tex - 1]);
     const windowStyle = await Canvas.loadImage(windowStyles[buildingRef.window_tex - 1]);
 
-    const backgroundTex = await Canvas.loadImage(backgroundStyles[buildingRef.background_tex - 1]);
+    const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
     const woodStructTex = await preLoadImages(woodStructures);
@@ -901,4 +1039,4 @@ async function drawClergy(buildingRef) {
     return attachment;
 }
 
-module.exports = { loadBuilding };
+module.exports = { loadBuilding, countBuildingDisplayOptions };

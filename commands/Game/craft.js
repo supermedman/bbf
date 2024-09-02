@@ -372,6 +372,7 @@ module.exports = {
 
             // List of materials to be checked, Array[][]
             // console.log(...matFabRefList);
+            // Add additional number menu for tooly amounts if unlocked
             const orderedAmounts = [15, 10, 5, controller.max_tooly];
             const ownedMatRefList = [];
             idxCount = 0;
