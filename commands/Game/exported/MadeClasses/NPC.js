@@ -560,9 +560,9 @@ class NPC {
         } else if (slotPicked === 'Offhand'){
             // Offhand Caste 1 handed 
             // Special case since only 2 offhand types
-            if (['Magic'].includes(craftOptionsObj.Type.Weapon)) casteOptionList.push("15");
-            if (['Melee'].includes(craftOptionsObj.Type.Weapon)) casteOptionList.push("16");
-            if (['Special'].includes(craftOptionsObj.Type.Weapon)) casteOptionList.push("24");
+            if (craftOptionsObj.Type.Weapon.includes('Magic')) casteOptionList.push("15");
+            if (craftOptionsObj.Type.Weapon.includes('Melee')) casteOptionList.push("16");
+            if (craftOptionsObj.Type.Weapon.includes('Special')) casteOptionList.push("24");
         }
 
         console.log('CASTE OPTION LIST: ', casteOptionList);

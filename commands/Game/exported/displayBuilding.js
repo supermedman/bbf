@@ -855,7 +855,7 @@ async function drawBank(buildingRef) {
     //const woodStructTex = await preLoadImages(woodStructures);
     //const largeWoodStructTex = await preLoadImages(largeWoodStructures);
     //const bushTex = await preLoadImages(bushObjects);
-    const metalChainTex = await preLoadImages(metalChains);
+    //const metalChainTex = await preLoadImages(metalChains);
 
     ctx.drawImage(backgroundTex, 0, 0, canvas.width, canvas.height);
     ctx.drawImage(foregroundTex, 0, 0, canvas.width, canvas.height);
@@ -891,9 +891,9 @@ async function drawBank(buildingRef) {
             chainType = 0;
         }
 
-        for (let j = 0; j < 2; j++) {
-            ctx.drawImage(metalChainTex[chainType], (i * 35) + 95, (j * 142) + 250, 30, 150);
-        }
+        // for (let j = 0; j < 2; j++) {
+        //     ctx.drawImage(metalChainTex[chainType], (i * 35) + 95, (j * 142) + 250, 30, 150);
+        // }
     }
 
     // STRUCTURES\
@@ -936,14 +936,14 @@ async function drawMarket(buildingRef) {
     const backgroundTex = await Canvas.loadImage(await handleLoadingBackgroundImage(buildingRef));
     const foregroundTex = await Canvas.loadImage(foregroundStyles[buildingRef.foreground_tex - 1]);
 
-    const otherTex = await preLoadImages(otherObjects);
+    // const otherTex = await preLoadImages(otherObjects);
 
     ctx.drawImage(backgroundTex, 0, 0, canvas.width, canvas.height);
     ctx.drawImage(foregroundTex, 0, 0, canvas.width, canvas.height);
 
     ctx.fillStyle = 'red';
     //ctx.fillRect(canvas.width / 2 - 50, 175, 100, 100);
-    ctx.drawImage(otherTex[0], canvas.width / 2 - 50, 175, 100, 100);
+    // ctx.drawImage(otherTex[0], canvas.width / 2 - 50, 175, 100, 100);
 
     const attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'market.png' });
     return attachment;

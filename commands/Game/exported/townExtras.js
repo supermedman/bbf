@@ -7,6 +7,7 @@ const { checkInboundTownMat, checkOutboundMat, checkInboundMat, checkOutboundTow
 const { updateUserCoins, spendUserCoins } = require("../../Development/Export/uni_userPayouts");
 const {theClergymansQuest} = require('./theClergyman');
 const coreBuildCostList = require('../../Development/Export/Json/coreBuildCostList.json');
+const coreSettingsList = require('../../Development/Export/Json/coreSettingTemplate.json');
 
 // ===================
 //   BUTTON CREATION
@@ -131,6 +132,36 @@ async function loadCoreUpgradeTypeButtons(town){
         .setStyle(ButtonStyle.Primary)
         .setDisabled(!isBuilt)
         .setLabel(`Upgrade ${makeCapital(type)}`);
+        buttList.push(button);
+    }
+
+    return {noChoices: totalChoices === 0, buttons: buttList};
+}
+
+/**
+ * This function loads the button list related to the given towns core buildings
+ * 
+ * Buttons are disabled if the ``Core Building`` **is not** ``Built``
+ * IDS: ``select-${coretype}``
+ * @param {object} town Town DB Object
+ * @returns {Promise <{noChoices: boolean, buttons: ButtonBuilder[]}>}
+ */
+async function loadBuiltCoreTypeButtons(town){
+    const townCores = await grabTownCoreBuildings(town);
+
+    let totalChoices = 5;
+    const coreIsBuilt = (checkType) => townCores.some(core => core.build_type === checkType);
+
+    const coreTypes = ['grandhall', 'bank', 'market', 'tavern', 'clergy'];
+    const buttList = [];
+    for (const type of coreTypes){
+        const isBuilt = coreIsBuilt(type);
+        if (!isBuilt) totalChoices--;
+        const button = new ButtonBuilder()
+        .setCustomId(`select-${type}`)
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(!isBuilt)
+        .setLabel(`${makeCapital(type)}`);
         buttList.push(button);
     }
 
@@ -886,6 +917,8 @@ async function handleBuildingOnTownPlot(town, user, navMenu){
  * @returns {Promise <{embeds: EmbedBuilder[], files: AttachmentBuilder[]}>}
  */
 async function handleCoreBuildingConstruction(town, navMenu){
+    const coreTypeDefaultSettings = (coreSettingsList.find(cs => cs.Type === navMenu.typePicked)).Data;
+
     let coreBuilding = await CoreBuilding.findOrCreate({
         where: {
             townid: town.townid,
@@ -893,6 +926,7 @@ async function handleCoreBuildingConstruction(town, navMenu){
         },
         defaults: {
             level: 1,
+            core_settings: JSON.stringify(coreTypeDefaultSettings),
             build_status: "Level 1",
             background_tex: biomeBTexList.indexOf(town.local_biome.split('-')[0])
         }
@@ -933,6 +967,7 @@ module.exports = {
     loadOwnedPlotSelectButts,
     loadCoreBuildTypeButtons,
     loadCoreUpgradeTypeButtons,
+    loadBuiltCoreTypeButtons,
     createBuildTypeButtonRow,
 
     generateTownDisplayEmbed,

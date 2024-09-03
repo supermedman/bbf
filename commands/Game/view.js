@@ -17,17 +17,19 @@ const {
     sendTimedChannelMessage, 
     grabUser, 
     handleCatchDelete, 
-    grabUserTaskList
+    grabUserTaskList,
+    randArrPos
 } = require('../../uniHelperFunctions.js');
 const { baseCheckRarName, uni_displayItem, uni_displaySingleMaterial } = require('../Development/Export/itemStringCore.js');
 const { createBasicPageButtons, handleMatNameLoad } = require('./exported/tradeExtras.js');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts.js');
 const { checkInboundItem, checkInboundMat } = require('../Development/Export/itemMoveContainer.js');
 const { grabColour } = require('./exported/grabRar.js');
+const { checkHintPotionEquip } = require('./exported/handleHints.js');
 
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
+// const randArrPos = (arr) => {
+//     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+// };
 
 module.exports = {
 	data: new SlashCommandBuilder()

@@ -956,7 +956,7 @@ module.exports = {
 				const waitForLoadingEmbed = new EmbedBuilder()
 				.setTitle('== Loading Building... ==');
 
-				const loadMsg = await c.followUp({embeds: [waitForLoadingEmbed]});
+				const loadMsg = await interaction.followUp({embeds: [waitForLoadingEmbed]});
 
 				const houseDisplayObj = await handleBuildingOnTownPlot(townRef, user, navMenu);
 
@@ -967,7 +967,7 @@ module.exports = {
 				const waitForLoadingEmbed = new EmbedBuilder()
 				.setTitle('== Loading Building... ==');
 
-				const loadMsg = await c.followUp({embeds: [waitForLoadingEmbed]});
+				const loadMsg = await interaction.followUp({embeds: [waitForLoadingEmbed]});
 
 				const coreBuildDisplayObj = await handleCoreBuildingConstruction(townRef, navMenu);
 

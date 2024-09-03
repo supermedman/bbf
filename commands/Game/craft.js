@@ -275,6 +275,7 @@ module.exports = {
 
         collector.on('collect', async c => {
             await c.deferUpdate().then(async () =>{
+                //console.log(c);
                 // Handling progressive menu here
                 let editWith, casteFinished = false;
                 switch(c.customId){
@@ -393,7 +394,7 @@ module.exports = {
                     // Material not owned || Material amount too low
                     if (!uMat || uMat.amount < orderedAmounts[idxCount]){
                         matFabRefList[idxCount].splice(innerCount, 1);
-                        innerCount++;
+                        // innerCount++;
                         continue;
                     }
 
