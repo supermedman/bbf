@@ -7,7 +7,7 @@ class NavMenu {
 
         this.navDisplayPath = [displayOne];
         this.listenForPages = ['back-page', 'next-page'];
-        this.pageDisplayNext = [];
+        this.pageDisplayNext = {};
         this.listenForBack = [];
         this.listenForNext = [firstRowIDS];
 
@@ -24,7 +24,7 @@ class NavMenu {
                 embeds: [],
                 files: []
             },
-            extraStore: {
+            storedExtras: {
 
             }
         };
@@ -40,6 +40,34 @@ class NavMenu {
 
     pageWasHeard(id){
         return this.listenForPages.includes(id);
+    }
+
+    /**
+     * This method loads the internal storages based on the given storage object
+     * @param {object} types {embeds?: [], files?: []}
+     */
+    loadPageDisplays(types){
+        const givenType = key => !!types[key];
+        Object.keys(this.paging.displayStore)
+        .filter(key => givenType(key))
+        .reduce((acc, key) => {
+            acc = types[key];
+            this.paging.displayUsing[key] = true;
+            this.paging.displayStore[key] = acc;
+            this.paging.lastPage = acc.length - 1;
+            return;
+        }, []);        
+    }
+
+    clearDisplayPages(){
+        this.paging.displayUsing.embeds = false;
+        this.paging.displayUsing.files = false;
+
+        this.paging.displayStore.embeds = [];
+        this.paging.displayStore.files = [];
+
+        this.paging.curPage = 0;
+        this.paging.lastPage = 0;
     }
 
     handlePaging(id){
@@ -107,6 +135,10 @@ class NavMenu {
         this.navDisplayPath.pop();
         this.listenForBack.pop();
         this.listenForNext.pop();
+    }
+
+    destroy(){
+        delete this;
     }
 }
 
