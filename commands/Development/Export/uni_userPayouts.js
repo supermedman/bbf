@@ -165,6 +165,16 @@ async function updateUserBasics(xp, coin, level, user){
 }
 
 /**
+ * This function updates the given `user` `qt` amount by `qts`
+ * @param {number} qts Amount of qts to increase by
+ * @param {object} user UserData DB Object
+ * @returns {Promise <void>}
+ */
+async function  updateUserQTS(qts, user){
+    return await user.increment('qt', {by: qts}).then(async u => await u.save()).then(async u => {return await u.reload()});
+}
+
+/**
  * This function increments the given users coins by the amount of coins given.
  * @param {number} coin Amount of coins gained
  * @param {object} user UserData Instance Object
@@ -263,4 +273,4 @@ async function updatePigmyValues(xp, level, pigmy, claimed){
     return;
 }
 
-module.exports = {lvlScaleCheck, handleUserPayout, handlePigmyPayouts, updateUserCoins, spendUserCoins};
+module.exports = {lvlScaleCheck, handleUserPayout, handlePigmyPayouts, updateUserCoins, spendUserCoins, updateUserQTS};

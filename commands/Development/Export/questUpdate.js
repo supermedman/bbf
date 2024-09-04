@@ -10,7 +10,7 @@ const questList = require('../../../events/Models/json_prefabs/questList.json');
 const loreList = require('../../../events/Models/json_prefabs/loreList.json');
 const { uni_displayItem } = require('./itemStringCore');
 const { checkHintStoryQuest, checkHintDungeon, checkHintLore } = require('../../Game/exported/handleHints');
-const { handleUserPayout } = require('./uni_userPayouts');
+const { handleUserPayout, updateUserQTS } = require('./uni_userPayouts');
 const { spawnNpc } = require('../../Game/exported/npcSpawner');
 
 /**
@@ -86,6 +86,7 @@ async function handleEnemyKills(activeQuest, gearDrops, userid, interaction){
     // =====================
 
     await handleUserPayout(totalXP, totalCoins, interaction, await grabUser(userid));
+    await updateUserQTS(totQT, await grabUser(userid));
 
     const rewardEmbed = new EmbedBuilder()
     .setTitle("~QUEST COMPLETE~")

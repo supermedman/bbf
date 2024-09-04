@@ -313,8 +313,25 @@ async function createNewEnemyImage(enemy){
     
     // TIME LOG
     //const bLoadStart = new Date().getTime();
-    console.log(enemy.forceBackground);
-    const loadThisBackground = (enemy.forceBackground === 'Wilds') ? randArrPos(backgroundPNGList) : backgroundPNGList[bgIndexMatchList.indexOf(enemy.forceBackground)];
+    //console.log(enemy.forceBackground);
+
+    /**
+     * This function returns the given ``bg`` or one at random, this sets
+     * the forced background for the provided `EnemyFab` object
+     * @param {string} bg Biome Current
+     * @returns {string}
+     */
+    const pickRandBiome = bg => (bg === 'Wilds') ? randArrPos(bgIndexMatchList) : bg;
+
+    // Set forced background to rand 'Wilds' or current bg.
+    // All further encounters during this combat will follow that match!
+    console.log('1', enemy);
+    
+    enemy.forceBackground = pickRandBiome(enemy.forceBackground);
+    
+    console.log('2', enemy);
+
+    const loadThisBackground = backgroundPNGList[bgIndexMatchList.indexOf(enemy.forceBackground)];
 
     const background = await Canvas.loadImage(loadThisBackground);
     let enemyPng;

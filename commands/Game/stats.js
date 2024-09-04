@@ -1018,7 +1018,7 @@ module.exports = {
             // ==========
             // Completed Amount @ Difficulty For:
             // Fetch, Combat, Gather, Craft?
-            const tList = ["Fetch", "Gather", "Combat"]; // "Craft"
+            const tList = ["Fetch", "Gather", "Combat", "Craft"]; // 
             const diffOrderList = ["Baby", "Easy", "Medium", "Hard", "GodGiven"];
 
             const taskTypeObjTotalList = [];

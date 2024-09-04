@@ -74,7 +74,7 @@ class NPC {
 
     async genRandNpc(localBiome, userid='0') {
         const biomes = ['Forest', 'Mountain', 'Desert', 'Plains', 'Swamp', 'Grassland'];
-        const genFromBiome = localBiome ?? randArrPos(biomes);
+        const genFromBiome = (localBiome === 'Wilds') ? randArrPos(biomes) : localBiome;
 
         this.curBiome = genFromBiome;
 
