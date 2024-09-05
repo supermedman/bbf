@@ -667,15 +667,15 @@ async function drawHouseStyleThree(buildingRef, showForge) {
     //=====================================
     //ctx.fillStyle = 'red';
     //ctx.fillRect(255, 250, 300, 115);
-    ctx.drawImage(largeWoodStructTex[1], 65, 390, 302, 110);
+    ctx.drawImage(largeWoodStructTex[1], 65, 345, 302, 110);
 
     //ctx.fillStyle = 'red';
     //ctx.fillRect(255, 250, 300, 115);
-    ctx.drawImage(largeWoodStructTex[1], 254, 390, 302, 110);
+    ctx.drawImage(largeWoodStructTex[1], 254, 345, 302, 110);
 
     //ctx.fillStyle = 'red';
     //ctx.fillRect(255, 250, 300, 115);
-    ctx.drawImage(largeWoodStructTex[1], 552, 390, 302, 110);
+    ctx.drawImage(largeWoodStructTex[1], 552, 345, 302, 110);
     //=====================================
 
     //=====================================

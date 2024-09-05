@@ -145,7 +145,7 @@ async function updateOrderExpireTime(order){
 /**
  * This function handles all the fucking lil order transfer baby shit stuff.
  * 
- * Im over it.. it works as intended :)
+ * Im over it.. it works as intended :) It didnt :(
  * @param {object} order LocalMarket DB Instance Object
  * @param {object} target Extra Details Object ``{id: string, entity: object, type: string, itemRef: object}``
  * @param {number} amount Amount of items being moved

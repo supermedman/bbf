@@ -8,14 +8,15 @@ class NavMenu {
      * 
      * As well as containing "Listening methods":
      * 
-     * ### `cID` === `collectedComponentInteraction.customId` 
+     * #### `cID` === `collectedComponentInteraction.customId` 
+     * 
+     * ### `NavMenu(...).whatDoYouHear(id)` Calls everything following:
      * 
      * ~~==~~ `NavMenu.pageWasHeard(cID)` ~~==~~ **CHECK FOR FIRST**
      * 
      * Returns true on `back-page` and `next-page` **EXCLUSIVELY**.
      * 
      * Call `NavMenu.handlePaging(cID)` to change internal page position
-     * 
      * Call `NavMenu.loadNextPage()` to retrieve the page at the internally stored position
      * 
      * ~~==~~ `NavMenu.nextWasHeard(cID)` ~~==~~ **CHECK FOR SECOND**
@@ -40,7 +41,7 @@ class NavMenu {
      * @param {string[] | [ActionRowBuilder]} firstRowIDS Array of Component.custom_id strings or ActionRowBuilder
      * @param {object} extraSpecs Any additional props to store, stored as `.specs`
      */
-    constructor(user, displayOne, firstRowIDS, extraSpecs){
+    constructor(user, displayOne, firstRowIDS=[], extraSpecs){
         this.userUsing = user.userid;
 
         this.navDisplayPath = [displayOne];

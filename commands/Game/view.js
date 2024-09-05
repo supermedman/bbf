@@ -413,7 +413,7 @@ module.exports = {
                     rewardDisplay.ref = await handlePotionDrop(potMatch, payoutObj.Amount, interaction);
                     rewardDisplay.embed.description = 'You recieved **Potions**!! You can find them by using the command ``/myloot potions``. Details listed below: ';
                     rewardDisplay.embed.fields.push({name: `== ${potMatch.craft.Name} ==`, value: `Potion Effect: **${potMatch.craft.Description}**\nRarity: **${potMatch.craft.Rarity}**\nLevel Required: **${potMatch.craft.Level}**\nPotion Duration: **${potMatch.effect.Duration}**\nPotion Cooldown: **${potMatch.effect.Cooldown}**`});
-                    rewardDisplay.embed.color = grabColour(potMatch.craft.Rarity);
+                    rewardDisplay.embed.color = grabColour(potMatch.craft.Rar_id);
                 break;
                 case "Item":
                     rewardDisplay.ref = await handleItemDrop(payoutObj, user, interaction);
