@@ -127,7 +127,7 @@ module.exports = {
             
             const finalReply = {embeds: [shopDisplay.embeds], components: [buttRow]};
 
-            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 60000, finalReply, "FollowUp");
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 600000, finalReply, "FollowUp");
             
             let soldOutBreak = 0;
             collector.on('collect', async c => {

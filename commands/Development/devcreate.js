@@ -14,7 +14,8 @@ const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
-const { handleCatchDelete, createInteractiveChannelMessage } = require('../../uniHelperFunctions.js');
+const { handleCatchDelete, createInteractiveChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
+const { NavMenu } = require('./Export/Classes/NavMenu.js');
 
 const UI = [
 	'./events/Models/json_prefabs/image_extras/user-inspect/gold-frame-menu.png',
@@ -103,7 +104,7 @@ module.exports = {
 		.setName('menu-test')
 		.setDescription('Embed menu display testing')
 	),
-	async autocomplete(interaction) { 
+	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
 		let choices = [];
@@ -115,7 +116,7 @@ module.exports = {
 			const findName = makeCapital(interaction.options.getString('enemy'));
 
 			let enemyMatchList = enemyList.filter(enemy => enemy.Name.startsWith(findName));
-			
+
 			for (const enemy of enemyMatchList){
 				choices.push(enemy.Name);
 			}
@@ -137,9 +138,9 @@ module.exports = {
 			);
 		}
 	},
-	async execute(interaction) { 
+	async execute(interaction) {
 		if (interaction.user.id !== '501177494137995264') return interaction.reply({content: 'This command is not for you!', ephemeral: true});
-		
+
 		function pngCheck(enemy) {
 			if (enemy.PngRef) return true;
 			return false;
@@ -150,7 +151,7 @@ module.exports = {
 		// Enemy Display Testing
 		if (subCom === 'enemy-style'){
 			const enemyName = interaction.options.getString('enemy');
-			
+
 			let theEnemy = enemyList.filter(enemy => enemy.Name.startsWith(enemyName));
 			let enemyRef = theEnemy[0];
 
@@ -383,8 +384,8 @@ module.exports = {
 			ctx.fillText('Strong Type Increase: ' + `${finalProcDamage}`, 565, currentPosition); //ctx.fillText('Strong Using These Types: ' + strongList.toString(), 565, currentPosition);
 			currentPosition += lineSpacing;
 			currentPosition += lineSpacing;
-			
-			// Final Total Damage Dealt 
+
+			// Final Total Damage Dealt
 			const finalDamageDisplay = baseModDamage + totalDamage + pigmyBaseDamage + pigmyAddDamage + finalProcDamage;
 			ctx.fillText('Final Total Damage: ' + `${finalDamageDisplay}`, 565, currentPosition);
 			currentPosition += lineSpacing;
@@ -398,8 +399,73 @@ module.exports = {
 
 		// NavMenu Testing
 		if (subCom === 'menu-test'){
-			
-			const replyObj = {embeds: [], components: []};
+
+			function loadExampleDisplayMenu(){
+				const menuContainer = [];
+
+				const posContainer = [
+				//   p1     p2     p3       p4      p5
+					['one', 'two', 'three', 'four', 'five'], // Layer 1
+					['one', 'two', 'three'], 				 // Layer 2
+					['one', 'two', 'three', 'four'] 		 // Layer 3
+				];
+
+				//let layer = 0;
+				const buttonLayerList = [];
+				for (let l = 0; l < 3; l++){
+					const exampleMenu = {
+						embeds: [],
+						components: []
+					};
+
+					const buttonPageList = [];
+					for (let i = 0; i < posContainer[l].length; i++){
+						// Embed
+						const embed = new EmbedBuilder()
+						.setTitle(`== Page ${i + 1}, Layer ${l + 1} ==`)
+						.setDescription(`This is some sample text, \n\n\n\n***Bottom Text***`);
+						exampleMenu.embeds.push(embed);
+
+						// Button
+						const pageButton = new ButtonBuilder()
+						.setCustomId(`page-${posContainer[l][i]}-layer-${posContainer[0][l]}`)
+						.setStyle(ButtonStyle.Secondary)
+						.setLabel(`Page ${posContainer[l][i]} on layer ${posContainer[0][l]}`);
+						buttonPageList.push(pageButton);
+					}
+					// Disable first button
+					buttonPageList[0].setDisabled(true);
+					exampleMenu.components.push(new ActionRowBuilder().addComponents(buttonPageList));
+
+					menuContainer.push(exampleMenu);
+
+					const layerButton = new ButtonBuilder()
+					.setCustomId(`layer-${posContainer[0][l]}`)
+					.setStyle(ButtonStyle.Primary)
+					.setLabel(`Layer ${posContainer[0][l]}`);
+					buttonLayerList.push(layerButton);
+				}
+
+				buttonLayerList[0].setDisabled(true);
+				const layerSelectRow = new ActionRowBuilder().addComponents(buttonLayerList);
+
+				//let layer = 0;
+				for (const menu of menuContainer){
+					menu.components.push(layerSelectRow);
+					// menu.components[1].components[layer].setDisabled(true);
+					// layer++;
+				}
+
+				return menuContainer;
+			}
+
+			const displayContainer = loadExampleDisplayMenu();
+
+			// console.log(...displayContainer);
+
+			const replyObj = {embeds: [displayContainer[0].embeds[0]], components: [...displayContainer[0].components]};
+
+			const nav = new NavMenu(await grabUser(interaction.user.id), replyObj, [displayContainer[0].components[0], displayContainer[1].components[0], displayContainer[2].components[0], displayContainer[0].components[1]], {display: displayContainer, page: 'one', layer: 'one'});
 
 			const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "Reply");
 
@@ -407,7 +473,53 @@ module.exports = {
 			// BUTTON COLLECTOR
 			collector.on('collect', async c => {
 				await c.deferUpdate().then(async () => {
+					console.log(nav);
+					// const iHeard = nav.whatDoYouHear(c.customId);
+					switch(nav.whatDoYouHear(c.customId)){
+						case "PAGE":
+							console.log('Change the page number!');
+						break;
+						case "NEXT":
+							console.log('Change display...');
+							if (c.customId.startsWith('layer')){
+								// Change Layer
+								const layerMatchTypes = ['one', 'two', 'three', 'four', 'five'];
+								const layerPicked = layerMatchTypes.indexOf(c.customId.split('-')[1]);
 
+								nav.specs.layer = layerMatchTypes[layerPicked];
+
+								const {embeds, components} = nav.specs.display[layerPicked];
+
+								nav.currentPagingPage = {embeds: [embeds[0]], components: components};
+								// EXTRACT CURRENT LAYER BUTTON AND SETDISABLED
+
+								await anchorMsg.edit(nav.currentPagingPage);
+							} else if (c.customId.startsWith('page')){
+								// Change Page
+								const pageMatchTypes = ['one', 'two', 'three', 'four', 'five'];
+								const pagePicked = pageMatchTypes.indexOf(c.customId.split('-')[1]);
+								const layerPicked = pageMatchTypes.indexOf(nav.specs.layer);
+
+								nav.specs.page = pageMatchTypes[pagePicked];
+
+								const {embeds, components} = nav.specs.display[layerPicked];
+
+								nav.currentPagingPage = {embeds: [embeds[pagePicked]], components: components};
+								// EXTRACT CURRENT PAGE BUTTON AND SETDISABLED
+
+								await anchorMsg.edit(nav.currentPagingPage);
+							}
+						break;
+						case "BACK":
+							console.log('Go one layer higher!');
+						break;
+						case "CANCEL":
+							console.log('Cancel the current page!');
+						break;
+						case "UNKNOWN":
+							console.log('UNKNOWN COMPONENT COLLECTED!!');
+						break;
+					}
 				}).catch(e => console.error(e));
 			});
 			// =====================
@@ -418,6 +530,6 @@ module.exports = {
 				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
 			});
 			// =====================
-		} 
+		}
 	},
 };

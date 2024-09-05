@@ -286,11 +286,11 @@ function createHealthBar(enemy) {
 const bgIndexMatchList = ['Wilds', 'Forest', 'Grassland', 'Swamp', 'Plains', 'Desert', 'Mountain'];
 
 const backgroundPNGList = [
-    './events/Models/json_prefabs/weapon_png/Background.jpg', // Base Background PNG
+    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Wilds_biome.png', // Base Background PNG
     './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Forest_biome.png',
-    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Grassland_biome.png', // Replace Grassland
-    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Forest_biome.png', // Replace Swamp
-    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Forest_biome.png', // Replace Plains
+    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Grassland_biome.png',
+    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Swamp_biome.png',
+    './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Plains_biome.png', 
     './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Desert_biome.png',
     './events/Models/json_prefabs/Building-Textures/Background-Styles/Normal/Mountain_biome.png'
 ];
