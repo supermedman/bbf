@@ -1,0 +1,187 @@
+[
+    {
+        "Type": "grandhall",
+        "Data": {
+            "Active": false,
+            "Settings": [
+                {
+                    "Name": "Outsider Trade Tax",
+                    "Description": "The % amount of coins paid to the town from local orders made by players not belonging to this town.",
+                    "Standard": true,
+                    "Data": {
+                        "Active": false,
+                        "Value": 0,
+                        "Max": 0.10,
+                        "Min": 0
+                    }
+                },
+                {
+                    "Name": "Local Trade Tax",
+                    "Description": "The % amount of coins paid to the town from local orders made by players belonging to this town.",
+                    "Standard": true,
+                    "Data": {
+                        "Active": false,
+                        "Value": 0,
+                        "Max": 0.05,
+                        "Min": 0
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "Type": "bank",
+        "Data": {
+            "Active": false,
+            "Settings": [
+                {
+                    "Name": "Auto Material Deposit",
+                    "Description": "***ONLY*** Users with town edit permissions can enable this. When enabled, materials dropped during combat that are of the allowed types/rarities, will be automatically deposited into your towns storage.",
+                    "Standard": false,
+                    "Users": [
+
+                    ],
+                    "Template": {
+                        "UserID": "0",
+                        "Data": {
+                            "Active": false,
+                            "Value": {
+                                "Max": 0,
+                                "Min": 0
+                            },
+                            "Possible": {
+                                "Max": 3,
+                                "Min": 0
+                            },
+                            "RestrictedTypes": [
+                                "unique"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "Name": "Outsider Material Tax",
+                    "Description": "The % amount of materials paid to the town when monsters are defeated by outsiders, not from this town.",
+                    "Standard": true,
+                    "Data": {
+                        "Active": false,
+                        "Value": {
+                            "Amount": 0,
+                            "Max": 0,
+                            "Min": 0
+                        },
+                        "Possible": {
+                            "Amount": 0.10,
+                            "Max": 3,
+                            "Min": 0
+                        },
+                        "TypesNotTaxed": [
+                            "unique",
+                            "tooly"
+                        ]
+                    }
+                },
+                {
+                    "Name": "Local Material Tax",
+                    "Description": "The % amount of materials paid to the town when monsters are defeated by locals, who are from this town.",
+                    "Standard": true,
+                    "Data": {
+                        "Active": false,
+                        "Value": {
+                            "Amount": 0,
+                            "Max": 0,
+                            "Min": 0
+                        },
+                        "Possible": {
+                            "Amount": 0.05,
+                            "Max": 3,
+                            "Min": 0
+                        },
+                        "TypesNotTaxed": [
+                            "unique",
+                            "tooly"
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "Type": "market",
+        "Data": {
+            "Active": false,
+            "Settings": [
+                {
+                    "Name": "Auto Buy Order",
+                    "Description": "When enabled, Buy orders will be created automatically if the specified conditions are met (EX. The town is set to stay above 100 slime, if it drops below this amount it will check to see if a buy order can be made). The amounts, prices, and other options are all changeable for each material type and rarity",
+                    "Standard": true,
+                    "Setup": [
+
+                    ],
+                    "Template": {
+                        "Type": "mattype",
+                        "Active": false,
+                        "Data": {
+                            "RarityList": {
+                                "Format": ["0", {"Target": 0, "ActiveAt": 0}],
+                                "Size": 11
+                            },
+                            "OrderList": {
+                                "Format": ["0", {"Cost": {"Max": 0, "Min": 0}, "Amount": {"Max": 0, "Min": 0}}],
+                                "Size": 11
+                            }
+                        }
+                    }
+                },
+                {
+                    "Name": "Auto Sell Order",
+                    "Description": "When enabled, Sell orders will be created automatically if the specified conditions are met (EX. The town is set to stay below 300 slime, if it goes above this amount it will check to see if a sell order can be made). The amounts, prices, and other options are all changeable for each material type and rarity",
+                    "Standard": true,
+                    "Setup": [
+                        
+                    ],
+                    "Template": {
+                        "Type": "mattype",
+                        "Active": false,
+                        "Data": {
+                            "RarityList": {
+                                "Format": ["0", {"Target": 0, "ActiveAt": 0}],
+                                "Size": 11
+                            },
+                            "OrderList": {
+                                "Format": ["0", {"Cost": {"Max": 0, "Min": 0}, "Amount": {"Max": 0, "Min": 0}}],
+                                "Size": 11
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "Type": "tavern",
+        "Data": {
+            "Active": false,
+            "Settings": [
+                {
+                    "Name": "T_Setting_One",
+                    "Description": "WIP",
+                    "Standard": true
+                }
+            ]
+        }
+    },
+    {
+        "Type": "clergy",
+        "Data": {
+            "Active": false,
+            "Settings": [
+                {
+                    "Name": "C_Setting_One",
+                    "Description": "WIP",
+                    "Standard": true
+                }
+            ]
+        }
+    }
+]

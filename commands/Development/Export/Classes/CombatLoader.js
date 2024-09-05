@@ -186,7 +186,7 @@ class CombatInstance {
         return {title: "Potion Used", desc: `${effectDisplay}!`, type: potObj.cat};
     }
 
-    potionExpired(){
+    async potionExpired(){
         const expiredPots = this.internalEffects.potions.filter(pot => pot.expired);
         if (expiredPots.length === 0) return;
         const remainingPots = this.internalEffects.potions.filter(pot => !pot.expired);
@@ -246,8 +246,17 @@ class CombatInstance {
             }
         }
 
+        await this.#clearExpiredPotions(expiredPots);
+
         this.internalEffects.potions = remainingPots;
         return;
+    }
+
+    async #clearExpiredPotions(potList){
+        for (const pot of potList){
+            const potRef = await ActiveStatus.findOne({where: {name: pot.name, spec_id: this.userId}});
+            await potRef.destroy().then(async pr => {return await pr.reload()});
+        }
     }
 
     onCooldown(){
@@ -308,7 +317,7 @@ class CombatInstance {
                     eff.expired = true;
                 } else eff.d--;
             }
-            this.potionExpired();
+            await this.potionExpired();
         }
         if (this.potion.isCooling) {
             if (this.potion.cCount - 1 <= 0) {
@@ -343,6 +352,8 @@ class CombatInstance {
         if (u.totalkills > 10){
             await checkHintStats(u, interaction);
         }
+
+        this.buttonState.steal.disable = false;
 
         return;
     }

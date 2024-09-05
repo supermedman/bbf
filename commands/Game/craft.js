@@ -17,12 +17,10 @@ const {
 const {
     handleControllerUpdateCheck,
     handleControllerCrafting,
-    loadWepCasteChanges,
-    loadArmCasteChanges,
-    loadAllCasteOptions,
     loadSlotButtons,
     loadGroupButtons,
-    loadTypeButtons
+    loadTypeButtons,
+    loadCasteTypeFilterObject
 } = require('./exported/craftingExtras');
 const { uni_CreateCompleteItemCode, checkingSlot, checkingRar, checkingCasteID, checkingRarID } = require('../Development/Export/itemStringCore');
 const { grabColour } = require('./exported/grabRar');
@@ -184,44 +182,46 @@ module.exports = {
         // - imbue_two (WIP)
 
         // CASTE CHOICE FILTERING
-        const classCasteList = [
-            {Class: "Mage", Hands: [0, 1], Type: {Weapon: ["Magic"], Armor: ["Magic"]}},
-            {Class: "Thief", Hands: [0, 1], Type: {Weapon: ["Melee"], Armor: ["Melee"]}},
-            {Class: "Warrior", Hands: [1, 2], Type: {Weapon: ["Melee"], Armor: ["None"]}},
-            {Class: "Paladin", Hands: [0, 2], Type: {Weapon: ["Magic", "Melee"], Armor: ["Melee"]}},
-        ];
-        const classObjMatch = classCasteList.filter(obj => obj.Class === user.pclass)[0];
-        // Options available for caste_options: Class Type
-        const classCasteFilter = {
-            Class: classObjMatch.Class,
-            Hands: classObjMatch.Hands,
-            Type: classObjMatch.Type
-        };
+        // const classCasteList = [
+        //     {Class: "Mage", Hands: [0, 1], Type: {Weapon: ["Magic"], Armor: ["Magic"]}},
+        //     {Class: "Thief", Hands: [0, 1], Type: {Weapon: ["Melee"], Armor: ["Melee"]}},
+        //     {Class: "Warrior", Hands: [1, 2], Type: {Weapon: ["Melee"], Armor: ["None"]}},
+        //     {Class: "Paladin", Hands: [0, 2], Type: {Weapon: ["Magic", "Melee"], Armor: ["Melee"]}},
+        // ];
+        // const classObjMatch = classCasteList.filter(obj => obj.Class === user.pclass)[0];
+        // // Options available for caste_options: Class Type
+        // const classCasteFilter = {
+        //     Class: classObjMatch.Class,
+        //     Hands: classObjMatch.Hands,
+        //     Type: classObjMatch.Type
+        // };
 
-        // Obtain option list, split to array 
-        const contCasteOptions = controller.caste_options;
-        const casteOptionList = contCasteOptions.split(', ');
+        // // Obtain option list, split to array 
+        // const contCasteOptions = controller.caste_options;
+        // const casteOptionList = contCasteOptions.split(', ');
 
-        let finalCasteTypes = classCasteFilter;
-        // Check last position for total options
-        switch(casteOptionList[casteOptionList.length - 1]){
-            case "Class Type":
-                // Only Class Types, Do nothing
-            break;
-            case "Norm Weapon":
-                // All Norm Wep
-                loadWepCasteChanges(finalCasteTypes.Class, finalCasteTypes);
-            break;
-            case "Norm Armor":
-                // All Norm Wep/Armor
-                loadWepCasteChanges(finalCasteTypes.Class, finalCasteTypes);
-                loadArmCasteChanges(finalCasteTypes.Class, finalCasteTypes);
-            break;
-            case "All Phase":
-                // All Castes Available
-                loadAllCasteOptions(finalCasteTypes);
-            break;
-        }
+        // let finalCasteTypes = classCasteFilter;
+        // // Check last position for total options
+        // switch(casteOptionList[casteOptionList.length - 1]){
+        //     case "Class Type":
+        //         // Only Class Types, Do nothing
+        //     break;
+        //     case "Norm Weapon":
+        //         // All Norm Wep
+        //         loadWepCasteChanges(finalCasteTypes.Class, finalCasteTypes);
+        //     break;
+        //     case "Norm Armor":
+        //         // All Norm Wep/Armor
+        //         loadWepCasteChanges(finalCasteTypes.Class, finalCasteTypes);
+        //         loadArmCasteChanges(finalCasteTypes.Class, finalCasteTypes);
+        //     break;
+        //     case "All Phase":
+        //         // All Castes Available
+        //         loadAllCasteOptions(finalCasteTypes);
+        //     break;
+        // }
+
+        const finalCasteTypes = loadCasteTypeFilterObject(user, controller);
 
         // console.log('Final Caste Options for user: ');
         // console.log(finalCasteTypes);
@@ -275,6 +275,7 @@ module.exports = {
 
         collector.on('collect', async c => {
             await c.deferUpdate().then(async () =>{
+                //console.log(c);
                 // Handling progressive menu here
                 let editWith, casteFinished = false;
                 switch(c.customId){
@@ -372,6 +373,7 @@ module.exports = {
 
             // List of materials to be checked, Array[][]
             // console.log(...matFabRefList);
+            // Add additional number menu for tooly amounts if unlocked
             const orderedAmounts = [15, 10, 5, controller.max_tooly];
             const ownedMatRefList = [];
             idxCount = 0;
@@ -392,7 +394,7 @@ module.exports = {
                     // Material not owned || Material amount too low
                     if (!uMat || uMat.amount < orderedAmounts[idxCount]){
                         matFabRefList[idxCount].splice(innerCount, 1);
-                        innerCount++;
+                        // innerCount++;
                         continue;
                     }
 

@@ -11,7 +11,8 @@ const { handleLimitOnOptions, grabUser, makeCapital, sendTimedChannelMessage, in
 const { checkInboundItem, checkInboundMat } = require('./Export/itemMoveContainer.js');
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { xpPayoutScale } = require('./Export/Classes/EnemyFab.js');
-const { handleUserPayout } = require('./Export/uni_userPayouts.js');
+const { handleUserPayout, updateUserQTS } = require('./Export/uni_userPayouts.js');
+const { spawnNpc } = require('../Game/exported/npcSpawner.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -90,7 +91,7 @@ module.exports = {
         .addSubcommand(subcommand => 
             subcommand
             .setName('quest-test')
-            .setDescription('Creates/completes the picked quest!')
+            .setDescription('Creates the picked quest!')
             .addIntegerOption(option =>
                 option
                 .setName('q-id')
@@ -101,7 +102,7 @@ module.exports = {
         .addSubcommand(subcommand => 
             subcommand
             .setName('kill-payout')
-            .setDescription('Creates/completes the picked quest!')
+            .setDescription('Handles the enemy kill payout function.')
             .addIntegerOption(option =>
                 option
                 .setName('level')
@@ -109,6 +110,22 @@ module.exports = {
                 .setRequired(true)
             )
             .addUserOption(option => option.setName('target').setDescription('The user'))
+        )
+        .addSubcommand(subcommand => 
+            subcommand
+            .setName('give-qts')
+            .setDescription('Update a users QT amount')
+            .addIntegerOption(option =>
+                option
+                .setName('amount')
+                .setDescription('Amount of qts to give')
+            )
+            .addUserOption(option => option.setName('target').setDescription('The user'))
+        )
+        .addSubcommand(subcommand => 
+            subcommand
+            .setName('make-npc')
+            .setDescription('Spawns a random npc!')
         ),
     
     async autocomplete(interaction) {
@@ -156,12 +173,13 @@ module.exports = {
             }
 
             if (focusedOption.name === 'rarity'){
-                choices = loadFullRarNameList(10);
+                choices = [...loadFullRarNameList(10), 'Unique'];
             }
 
             if (focusedOption.name === 'mat-name'){
-                const matTypePicked = interaction.options.getString('mat-type');
                 const rarPicked = interaction.options.getString('rarity');
+                const matTypePicked = interaction.options.getString('mat-type');
+                
 
                 const matList = require(materialFiles.get(matTypePicked));
                 const matMatch = matList.filter(mat => mat.Rarity === rarPicked);
@@ -179,7 +197,7 @@ module.exports = {
         }
     },
 	async execute(interaction) { 
-        if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'Nope! Only Developers are allowed to use this!', ephemeral: true});
+        if (!['501177494137995264', '1271550152334901299'].includes(interaction.user.id)) return await interaction.reply({content: 'Nope! Only Developers are allowed to use this!', ephemeral: true});
 
         const {materialFiles} = interaction.client;
 
@@ -233,6 +251,13 @@ module.exports = {
             await handleUserPayout(xpRolled, coinRolled, interaction, theUser);
 
             return await interaction.reply({content: `User Payout Success!`, ephemeral: true});
+        } else if (subCom === 'make-npc'){
+            await interaction.reply({content: "Npc spawning in progress..", ephemeral: true});
+            return await spawnNpc(theUser, interaction);
+        } else if (subCom === 'give-qts'){
+            const giveAmount = interaction.options.getInteger('amount') ?? 1;
+            await updateUserQTS(giveAmount, theUser);
+            return await interaction.reply({content: `QTS updated!! QTS given: ${giveAmount}`, ephemeral: true});
         }
 
         const giveAmount = interaction.options.getInteger('amount') ?? 1;
@@ -259,7 +284,7 @@ module.exports = {
                 finalItem = await checkInboundItem(theUser.userid, itemMatch.creation_offset_id, giveAmount);
             break;
             case "give-mat":
-                finalItem = await checkInboundMat(theUser.userid, itemMatch, pickedMatType, giveAmount);
+                finalItem = await checkInboundMat(theUser.userid, itemMatch, itemMatch.UniqueMatch, giveAmount);
             break;
         }
 

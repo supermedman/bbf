@@ -172,6 +172,11 @@ const dmgOutputRange = (level) => {
  * Contains methods for all status effects being applied and removed.
  */
 class EnemyFab {
+    /**
+     * THE OPPS
+     * @param {object} eFab JSON object
+     * @param {string} huntingLocation Location of players hunting biome || `Wilds` if none
+     */
     constructor(eFab, huntingLocation="Wilds") {
         const {Level, Body, Armor, Shield, Name, Description, UniqueItem, ConstKey} = eFab;
         this.imageCheck = {

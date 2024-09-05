@@ -15,7 +15,8 @@ const { checkHintLootSell, checkHintLootDismantle, checkHintMaterialCombine, che
 
 const { UserData, LootStore, MaterialStore, OwnedPotions, OwnedTools, UniqueCrafted, ItemStrings } = require('../../dbObjects.js');
 const { uni_displayItem } = require('../Development/Export/itemStringCore.js');
-const { createInteractiveChannelMessage, sendTimedChannelMessage, makeCapital } = require('../../uniHelperFunctions.js');
+const { createInteractiveChannelMessage, sendTimedChannelMessage, makeCapital, handleCatchDelete } = require('../../uniHelperFunctions.js');
+const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -221,34 +222,43 @@ module.exports = {
 
         const finalReply = {embeds: [finalPages[0]], components: [pageButtonRow]};
 
+        const pageNav = new NavMenu(user, finalReply);
+        pageNav.loadPageDisplays({embeds: finalPages});
+
         const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 1200000, finalReply, "FollowUp");
 
-        let curPage = 0;
+        //let curPage = 0;
 
         collector.on('collect', async c => {
             await c.deferUpdate().then(async () => {
-                switch(c.customId){
-                    case "next-page":
-                        curPage = (curPage === finalPages.length - 1) ? 0 : curPage + 1;
-                    break;
-                    case "back-page":
-                        curPage = (curPage === 0) ? finalPages.length - 1 : curPage - 1;
-                    break;
-                    case "delete-page":
-                    return collector.stop('Canceled');
-                }
-                await anchorMsg.edit({ components: [pageButtonRow], embeds: [finalPages[curPage]]});
-            }).catch(e => {
-                console.error(e);
-            });
+                if (pageNav.pageWasHeard(c.customId)){
+                    pageNav.handlePaging(c.customId);
+                    await anchorMsg.edit(pageNav.loadNextPage());
+                } else if (c.customId === 'delete-page') return collector.stop('Canceled');
+                // switch(c.customId){
+                //     case "next-page":
+                //         curPage = (curPage === finalPages.length - 1) ? 0 : curPage + 1;
+                //     break;
+                //     case "back-page":
+                //         curPage = (curPage === 0) ? finalPages.length - 1 : curPage - 1;
+                //     break;
+                //     case "delete-page":
+                //     return collector.stop('Canceled');
+                // }
+                // await anchorMsg.edit({ components: [pageButtonRow], embeds: [finalPages[curPage]]});
+            }).catch(e => console.error(e));
         });
 
-        collector.on('end', (c, r) => {
-            anchorMsg.delete().catch(e => {
-                if (e.code !== 10008) {
-                    console.error('Failed to delete the message:', e);
-                }
-            });
+        collector.on('end', async (c, r) => {
+            if (!r || r === 'time' || r === 'Canceled') {
+                await handleCatchDelete(anchorMsg);
+                pageNav.destroy();
+            }
+            // anchorMsg.delete().catch(e => {
+            //     if (e.code !== 10008) {
+            //         console.error('Failed to delete the message:', e);
+            //     }
+            // });
         });
 
         /**

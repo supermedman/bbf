@@ -111,7 +111,7 @@ async function handleXPSpawn(message, spawnChannelID){
 				const interaction = c;
 
 				const user = await grabUser(userID);
-				if (!user) return await c.channel.followUp('No user found! Please use ``/start`` to create a profile!');
+				if (!user) return await c.followUp({content: 'No user found! Please use ``/start`` to create a profile!', ephemeral: true});
 				buttRow.components[0].setDisabled(true);
 				await anchorMsg.edit({components: [buttRow]});
 

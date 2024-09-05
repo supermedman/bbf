@@ -2,12 +2,13 @@ const {EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType
 
 const {NPC} = require('./MadeClasses/NPC');
 const {initialDialog} = require('./handleNPC.js');
+const { createInteractiveChannelMessage, handleCatchDelete } = require('../../../uniHelperFunctions.js');
 
 async function spawnNpc(user, interaction) {
     // Static fromWilds atm
     const theNpc = new NPC();
 
-    theNpc.genRandNpc(user.current_location);
+    await theNpc.genRandNpc(user.current_location, user.userid);
 
     const startDialogButton = new ButtonBuilder()
     .setCustomId('start-dialog')
@@ -21,33 +22,30 @@ async function spawnNpc(user, interaction) {
     .setColor('DarkPurple')
     .setDescription("It seems they wish to speak with you!");
 
-    const filter = (i) => i.user.id === user.userid;
+    const replyObj = {embeds: [displayEmbed], components: [buttonRow]};
 
-    const dialogStartMessage = await interaction.channel.send({
-        embeds: [displayEmbed],
-        components: [buttonRow],
+    const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj);
+
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('collect', async c => {
+        await c.deferUpdate().then(async () => {
+            return collector.stop('Start Dialog');
+        }).catch(e => console.error(e));
     });
+    // =====================
 
-    const collector = dialogStartMessage.createMessageComponentCollector({
-        componentType: ComponentType.Button,
-        filter,
-        time: 120000,
-    });
+    // =====================
+    // BUTTON COLLECTOR
+    collector.on('end', async (c, r) => {
+        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
 
-    collector.on('collect', async (COI) =>{
-        if (COI.customId === 'start-dialog'){
+        if (r === 'Start Dialog') {
+            await handleCatchDelete(anchorMsg);
             initialDialog(theNpc, interaction, user);
-            collector.stop();
         }
     });
-
-    collector.once('end', () =>{
-        dialogStartMessage.delete().catch(error => {
-            if (error.code !== 10008) {
-                console.error('Failed to delete the message:', error);
-            }
-        });
-    });
+    // =====================
 }
 
 module.exports = { spawnNpc };

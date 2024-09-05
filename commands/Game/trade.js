@@ -1155,7 +1155,7 @@ module.exports = {
 							case "item-inspect":
 								// Show current item advanced details in hidden message
 								editWith = {embeds: [orderListObj.orderEmbeds[orderListObj.curPage]], components: orderListObj.menuComponents};
-								await c.followUp({embeds: [orderListObj.inspectEmbeds[orderListObj.curPage]], ephemeral: true});
+								await interaction.followUp({embeds: [orderListObj.inspectEmbeds[orderListObj.curPage]], ephemeral: true});
 							break;
 							case "order-inspect":
 								// Show current order details in regards to user viewing.

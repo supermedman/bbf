@@ -145,7 +145,7 @@ async function updateOrderExpireTime(order){
 /**
  * This function handles all the fucking lil order transfer baby shit stuff.
  * 
- * Im over it.. it works as intended :)
+ * Im over it.. it works as intended :) It didnt :(
  * @param {object} order LocalMarket DB Instance Object
  * @param {object} target Extra Details Object ``{id: string, entity: object, type: string, itemRef: object}``
  * @param {number} amount Amount of items being moved
@@ -172,6 +172,8 @@ async function handleOrderTransfer(order, target, amount){
         orderDesc += `\nCoins Gained: ${order.listed_value * amount}c\nSold: ${amount} ${target.itemRef.name}`;
     } else {
         await spendUserCoins((order.listed_value * amount), target.entity);
+        const payoutUser = (order.target_type === 'town') ? await grabTown(order.target_id) : await grabUser(order.target_id);
+        await updateUserCoins((order.listed_value * amount), payoutUser);
         if (order.item_type === 'Gear'){
             if (!target.itemRef.unique_gen_id){
                 await checkInboundItem(target.id, order.item_id, amount/*, craftedItem*/);
@@ -799,7 +801,7 @@ function loadTypeButts(tradeAs){
  * @returns {[ActionRowBuilder[StringSelectMenuBuilder], ActionRowBuilder[ButtonBuilder]]}
  */
 function loadRarStringMenu(moveType="Buy"){
-    const rarList = loadFullRarNameList(10);
+    const rarList = [...loadFullRarNameList(10), 'Unique'];
     
     const stringOptionList = [];
 
@@ -932,13 +934,21 @@ async function loadNameStringMenu(tradeObj, materialFiles){
  */
 function handleMatNameLoad(tradeObj, materialFiles){
     // Filter each mat list grabbing matching rar_id names
+    const isUnique = (r, f) => r === 'Unique' && f === 'unique';
+
     const matchList = [];
     for (const [key, value] of materialFiles){
         const matFileRef = require(value);
-        let matMatch = matFileRef.filter(mat => mat.Rarity === tradeObj.rarity);
-        if (matMatch.length === 0) continue;
-        matMatch = matMatch[0];
-        matchList.push({type: key, name: matMatch.Name, value: matMatch.Value, matRef: matMatch});
+        if (isUnique(tradeObj.rarity, key)){
+            for (const matMatch of matFileRef){
+                matchList.push({type: key, name: matMatch.Name, value: matMatch.Value, matRef: matMatch});
+            }
+            break;
+        } else {
+            const matMatch = matFileRef.find(mat => mat.Rarity === tradeObj.rarity);
+            if (!matMatch) continue;
+            matchList.push({type: key, name: matMatch.Name, value: matMatch.Value, matRef: matMatch});
+        }
     }
 
     return matchList;
@@ -1382,6 +1392,7 @@ module.exports = {
     loadConfirmButts,
     loadNameStringMenu,
     handleMatNameFilter,
+    handleMatNameLoad,
     handleItemNameFilter,
     loadAmountButts,
     loadPriceButts,

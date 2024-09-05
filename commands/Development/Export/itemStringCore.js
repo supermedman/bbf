@@ -298,15 +298,18 @@ function checkingSlot(TEST_CODE){
 
 /**
  * This function extracts a matching caste type for the caste ID given.
- * @param {number} casteID Caste ID of item to be checked
+ * @param {number | string} casteID Caste ID of item to be checked
  * @returns {{Caste: string, Hands: number, Type: string}}
  */
 function checkingCaste(casteID){
+    const checkMethodBase = (key, id) => {
+        if (typeof id === 'string') return key === id;
+        if (typeof id === 'number') return +key === id;
+    };
+
     let casteData;
     for (const [key, value] of casteKeys) {
-        if (~~key === casteID) {
-            casteData = JSON.parse(value);
-        }
+        if (checkMethodBase(key, casteID)) casteData = JSON.parse(value);
     }
     return casteData;
 }
@@ -334,6 +337,27 @@ function checkingCasteID(casteName){
     // }
     
     return casteID;
+}
+
+/**
+ * This function filters the ``casteKeys`` Map() given the contents of ``hands[]`` & ``types[]``
+ * @param {number[]} hands Number array containing any combination of ``0``, ``1``, ``2``. Default: ``[0, 1, 2]``
+ * @param {string[]} types String array containing any combination of ``'Magic'``, ``'Melee'``, ``'Special'``. Default: ``['Magic', 'Melee', 'Special']``
+ * @returns {string[]}
+ */
+function getFilteredCasteTypes(hands=[0, 1, 2], types=['Magic', 'Melee', 'Special']){
+    const handsMatch = (h) => hands.includes(h);
+    const typesMatch = (t) => types.includes(t);
+
+    const matchingList = [];
+    for (const [id, rawData] of casteKeys){
+        const data = JSON.parse(rawData);
+        if (handsMatch(data.Hands) && typesMatch(data.Type)){
+            matchingList.push(id);
+        }
+    }
+
+    return matchingList;
 }
 
 // ===============================
@@ -727,6 +751,27 @@ function uni_displayItem(item, styleType, extraOptions){
     }
 
     return returnObject;
+}
+
+/**
+ * This function generates the display for a single material.
+ * @param {object} mat Material Object {name: string, rarity: string, value: number, mattype: string}
+ * @param {number} amount Default: ``false`` set to a number for ``amount`` to be shown
+ * @returns {{color: string, fields: [{name: string, value: string}]}}
+ */
+function uni_displaySingleMaterial(mat, amount=false){
+    const displayObj = {color: "", fields: []};
+
+    const matEmbedColor = grabColour(checkingRarID(mat.rarity));
+    displayObj.color = matEmbedColor;
+
+    displayObj.fields.push({
+        name: `>>__**${mat.name}**__<<`,
+        value: `Value: **${mat.value}**c\nRarity: **${mat.rarity}**\nType: **${makeCapital(mat.mattype)}**`
+    });
+    if (amount) displayObj.fields[0].value += `\nAmount: **${amount}**`;
+
+    return displayObj;
 }
 
 
@@ -1369,7 +1414,9 @@ module.exports = {
     checkingSlot,
     checkingCaste,
     checkingCasteID,
+    getFilteredCasteTypes,
     convertToUniItem,
     uni_displayItem,
+    uni_displaySingleMaterial,
     uni_CreateCompleteItemCode
 };
