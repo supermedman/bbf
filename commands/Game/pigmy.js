@@ -22,55 +22,55 @@ const blueprintList = require('../../events/Models/json_prefabs/blueprintList.js
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('pigmy')
-		.setDescription('All your pigmies needs in one place!')
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('equip')
-				.setDescription('Equip or switch your active pigmy!')
-				.addStringOption(option =>
-					option.setName('choice')
-						.setDescription('The pigmy')
-						.setAutocomplete(true)
-						.setRequired(true)))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('give')
-				.setDescription('Give your pigmy something to use!')
-				.addStringOption(option =>
-					option.setName('type')
-						.setDescription('Which tool type would you like to give from?')
-						.setRequired(true)
-						.addChoices(
-							{ name: 'Toy', value: 'toy' },
-							{ name: 'Hat', value: 'hat' },
-							{ name: 'Title', value: 'title' },
-						))
-				.addStringOption(option =>
-					option.setName('tool')
-						.setDescription(`Which tool would you like to give?`)
-						.setRequired(true)
-						.setAutocomplete(true)))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('claim')
-				.setDescription('Claims collected rewards from active pigmy!'))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('inspect')
-				.setDescription('Info about active pigmy.'))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('play')
-				.setDescription('Play with your pigmy to increase happiness!'))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('rename')
-				.setDescription('Change the name of your active pigmy!')
-				.addStringOption(option =>
-					option.setName('new-name')
-						.setDescription('New name for your pigmy')
-						.setRequired(true))),
+	.setName('pigmy')
+	.setDescription('All your pigmies needs in one place!')
+	.addSubcommand(subcommand =>
+		subcommand
+			.setName('equip')
+			.setDescription('Equip or switch your active pigmy!')
+			.addStringOption(option =>
+				option.setName('choice')
+					.setDescription('The pigmy')
+					.setAutocomplete(true)
+					.setRequired(true)))
+	.addSubcommand(subcommand =>
+		subcommand
+			.setName('give')
+			.setDescription('Give your pigmy something to use!')
+			.addStringOption(option =>
+				option.setName('type')
+					.setDescription('Which tool type would you like to give from?')
+					.setRequired(true)
+					.addChoices(
+						{ name: 'Toy', value: 'toy' },
+						{ name: 'Hat', value: 'hat' },
+						{ name: 'Title', value: 'title' },
+					))
+			.addStringOption(option =>
+				option.setName('tool')
+					.setDescription(`Which tool would you like to give?`)
+					.setRequired(true)
+					.setAutocomplete(true)))
+	.addSubcommand(subcommand =>
+		subcommand
+			.setName('claim')
+			.setDescription('Claims collected rewards from active pigmy!'))
+	.addSubcommand(subcommand =>
+		subcommand
+			.setName('inspect')
+			.setDescription('Info about active pigmy.'))
+	.addSubcommand(subcommand =>
+		subcommand
+			.setName('play')
+			.setDescription('Play with your pigmy to increase happiness!'))
+	.addSubcommand(subcommand =>
+		subcommand
+			.setName('rename')
+			.setDescription('Change the name of your active pigmy!')
+			.addStringOption(option =>
+				option.setName('new-name')
+					.setDescription('New name for your pigmy')
+					.setRequired(true))),
 	async autocomplete(interaction) {
 		const focusedOption = interaction.options.getFocused(true);
 
