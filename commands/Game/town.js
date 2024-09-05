@@ -388,7 +388,7 @@ module.exports = {
 
 				firstDisplayEmbed
 				.setTitle('== Demote User ==')
-				.setDescription(`Are you sure you would like to demote ${makeCapital(targetUser.username)}? This will revoke there current town managment permissions`);
+				.setDescription(`Are you sure you would like to demote ${makeCapital(targetUser.username)}? This will revoke their current town managment permissions`);
 			break;
 			case "transfer": // TRANSFER OWNED TOWN
 				if (permList.townID !== targetPermList.townID) return await interaction.reply({content: 'The user picked does not belong to your town!', ephemeral: true});

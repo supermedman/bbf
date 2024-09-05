@@ -325,11 +325,11 @@ async function createNewEnemyImage(enemy){
 
     // Set forced background to rand 'Wilds' or current bg.
     // All further encounters during this combat will follow that match!
-    console.log('1', enemy);
+    //console.log('1', enemy);
     
     enemy.forceBackground = pickRandBiome(enemy.forceBackground);
     
-    console.log('2', enemy);
+    //console.log('2', enemy);
 
     const loadThisBackground = backgroundPNGList[bgIndexMatchList.indexOf(enemy.forceBackground)];
 

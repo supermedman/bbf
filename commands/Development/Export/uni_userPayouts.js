@@ -2,7 +2,7 @@ const { EmbedBuilder } = require("discord.js");
 const { sendTimedChannelMessage } = require("../../../uniHelperFunctions");
 const { checkHintLevelOneHundred, checkHintLevelThirty, checkHintLevelFive } = require("../../Game/exported/handleHints");
 const { checkUnlockedBluey } = require("../../Game/exported/createBlueprint");
-const { Pighouse, Milestones, ActiveDungeon } = require("../../../dbObjects");
+const { Pighouse, Milestones, ActiveDungeon, ActiveStatus } = require("../../../dbObjects");
 const {chlkPreset} = require('../../../chalkPresets');
 const { checkLevelBlueprint } = require("./blueprintFactory");
 
@@ -47,9 +47,38 @@ const pigLvlScaleCheck = (level) => {
  * @returns {promise <void>}
  */
 async function handleUserPayout(xp, coin, interaction, user){
+    // MOVE TO FUNCTION ================
+    const isPayoutBoost = ac => ['EXP', 'COIN'].includes(ac);
+    const activeBoosts = (await ActiveStatus.findAll({where: {spec_id: user.userid}})).filter(status => isPayoutBoost(status.activec));
+    const boostCollecter = {
+        exp: 1,
+        coins: 1
+    };
+
+    if (activeBoosts.length){
+        for (const b of activeBoosts){
+            if (b.duration > 0){
+                switch(b.activec){
+                    case "EXP":
+                        boostCollecter.exp += b.curreffect;
+                    break;
+                    case "COIN":
+                        boostCollecter.coins += b.curreffect;
+                    break;
+                }
+                await b.decrement(['duration', 'cooldown']).then(async ab => await ab.save()).then(async ab => {return await ab.reload()});
+            } else await b.decrement('cooldown').then(async ab => await ab.save()).then(async ab => {return await ab.reload()});
+            
+            if (b.cooldown <= 0) await b.destroy();
+        }
+
+        xp *= boostCollecter.exp;
+    }
+    // MOVE TO FUNCTION ================
+
     let totalXP = Math.round(user.xp + xp);
     let newLevel = user.level;
-    const totalCoin = Math.round(user.coins + coin);
+    const totalCoin = Math.round(user.coins + (coin * boostCollecter.coins));
 
     const isDreaming = async (user) => {
         if (user.level < 100) return true;

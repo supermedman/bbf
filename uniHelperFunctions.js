@@ -168,6 +168,16 @@ async function checkUserTownPerms(user){
 }
 
 /**
+ * This function checks if the given user has edit permissions for the given building
+ * @param {object} user UserData DB Object
+ * @param {{can_edit: string}} build PlayerBuilding DB Object
+ * @returns {boolean}
+ */
+function checkUserBuildPerms(user, build){
+    return build.can_edit.split(',').includes(user.userid);
+}
+
+/**
  * This function checks if the given user belongs to a town, and then checks if a town with 
  * the given users id can be found, checking for each towns ``mayorid``
  * @param {object} user UserData DB Object
@@ -570,6 +580,7 @@ module.exports = {
     grabTown,
     grabActivePigmy,
     checkUserTownPerms,
+    checkUserBuildPerms,
     checkUserAsMayor,
     grabLocalTowns,
     grabTownByName,

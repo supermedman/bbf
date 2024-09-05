@@ -342,6 +342,36 @@ async function loadTownBuildingDisplayList(town){
 }
 
 /**
+ * This function loads the building display pages from the given `buildList`.
+ * @param {object} town Town DB Object
+ * @param {object[]} buildList PlayerBuilding DB Object Array
+ * @returns {Promise <{embeds: EmbedBuilder[], files: AttachmentBuilder[], details: EmbedBuilder[]}>}
+ */
+async function loadOwnedBuildingDisplayList(town, buildList){
+    const returnObj = {embeds: [], files: [], details: []};
+
+    for (const building of buildList){
+        // const building = await PlayerBuilding.findOne({where: {plotid: plot.plotid}});
+
+        const mainEmbed = new EmbedBuilder()
+        .setTitle(`== ${makeCapital(building.build_type)} ==`)
+        .setColor('DarkGold');
+        returnObj.embeds.push(mainEmbed);
+
+        const mainFile = await loadBuilding(building);
+        returnObj.files.push(mainFile);
+
+        const detailEmbed = new EmbedBuilder()
+        .setTitle('== Building Details ==')
+        .setColor('DarkNavy')
+        .setDescription(`Town: ${makeCapital(town.name)}\nOwner: ${makeCapital((await grabUser(building.ownerid)).username)}\nBand: No Linked Band`);
+        returnObj.details.push(detailEmbed);
+    }
+
+    return returnObj;
+}
+
+/**
  * This function loads all built core buildings for the given town, ready to be displayed
  * @param {object} town Town DB Object
  * @returns {Promise <{embeds: EmbedBuilder[], files: AttachmentBuilder[], details: EmbedBuilder[], clergyQuest: {active: boolean, posIndex: number, callFunction: theClergymansQuest}}>}
@@ -620,6 +650,25 @@ async function grabTownPlotList(town, plotStatus, returnLength=false){
 }
 
 /**
+ * This function retrieves all `PlayerBuilding` objects for the given `town`
+ * @param {object} town Town DB Object
+ * @param {boolean} returnLength Set to `true` to return `buildList.length`, Default `false`
+ * @returns {Promise<object[] | number>}
+ */
+async function grabTownBuildingList(town, returnLength=false){
+    const builtPlots = await grabTownPlotList(town, "Built");
+    if (!builtPlots.length) return [];
+
+    const buildList = [];
+    for (const plot of builtPlots){
+        const build = await PlayerBuilding.findOne({where: {plotid: plot.plotid}});
+        buildList.push(build);
+    }
+
+    return (returnLength) ? buildList.length : buildList;
+}
+
+/**
  * This function checks if the given town has at least one stored material
  * @param {object} town Town DB Object
  * @returns {Promise <boolean>}
@@ -727,7 +776,7 @@ async function handleUpdateTownPlotTypeAmounts(town){
  * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
  */
 async function updateTownCanEditList(town, user, changeType){
-    const curEditList = town.can_edit.split('-');
+    const curEditList = town.can_edit.split(',');
 
     const returnEmbed = new EmbedBuilder();
     let newEditList;
@@ -747,6 +796,41 @@ async function updateTownCanEditList(town, user, changeType){
     }
 
     await town.update({can_edit: newEditList.toString()}).then(async t => await t.save()).then(async t => {return await t.reload()});
+
+    return {embeds: [returnEmbed], status: 'Complete'};
+}
+
+/**
+ * This function handles appointing/demoting a selected user from a given building.
+ * @param {object} build PlayerBuilding DB Object
+ * @param {object} user UserData DB Object
+ * @param {string} changeType One of: ``appoint`` | ``demote``
+ * @returns {Promise <{embeds: EmbedBuilder, status: string}>}
+ */
+async function updateBuildingCanEditList(build, user, changeType){
+    const curEditList = build.can_edit.split(',');
+
+    //console.log(curEditList);
+
+    const returnEmbed = new EmbedBuilder();
+    let newEditList;
+    switch(changeType){
+        case "appoint":
+            curEditList.push(user.userid);
+            newEditList = curEditList;
+            returnEmbed
+            .setTitle('== User Appointed ==')
+            .setDescription(`${makeCapital(user.username)} has been appointed for your building!`);
+        break;
+        case "demote":
+            newEditList = curEditList.filter(id => id !== user.userid);
+            returnEmbed
+            .setTitle('== User Demoted ==')
+            .setDescription(`${makeCapital(user.username)} has been demoted from your building!`);
+        break;
+    }
+
+    await build.update({can_edit: newEditList.toString()}).then(async t => await t.save()).then(async t => {return await t.reload()});
 
     return {embeds: [returnEmbed], status: 'Complete'};
 }
@@ -973,16 +1057,19 @@ module.exports = {
     generateTownDisplayEmbed,
     generateLocalTownBonuses,
     loadTownBuildingDisplayList,
+    loadOwnedBuildingDisplayList,
     loadTownCoreBuildingDisplayList,
     handleTownMaterialStorageDisplay,
     handleCoreCostDisplay,
 
     grabTownCoreBuildings,
     grabTownPlotList,
+    grabTownBuildingList,
     checkTownHasMaterials,
     
     handleJoinTown,
     updateTownCanEditList,
+    updateBuildingCanEditList,
     updateTownMayor,
     handleDepositIntoTown,
     handleWithdrawFromTown,

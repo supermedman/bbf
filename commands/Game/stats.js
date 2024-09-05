@@ -864,7 +864,8 @@ module.exports = {
             if (town === 'None') return "No Town";
             
             const townEmbed = new EmbedBuilder()
-            .setTitle(`== Town of ${makeCapital(town.name)} ==`);
+            .setTitle(`== Town of ${makeCapital(town.name)} ==`)
+            .setDescription('Use `/town` for more info!');
 
             // Basic Info
             // ==========
@@ -938,7 +939,8 @@ module.exports = {
             if (!controller) return "No Crafts";
 
             const craftEmbed = new EmbedBuilder()
-            .setTitle(`== ${makeCapital(user.username)}'s Crafting Ledger ==`);
+            .setTitle(`== ${makeCapital(user.username)}'s Crafting Ledger ==`)
+            .setDescription('Use `/craft` to craft something!');
 
             // Progress Info
             // =============
@@ -1000,7 +1002,8 @@ module.exports = {
             if (userTasks.length === 0) return "No Tasks";
 
             const taskEmbed = new EmbedBuilder()
-            .setTitle(`== ${makeCapital(user.username)}'s Task Overview ==`);
+            .setTitle(`== ${makeCapital(user.username)}'s Task Overview ==`)
+            .setDescription('Use `/view tasks` for more info, or to interact with tasks!');
 
             const cTaskList = userTasks.filter(task => task.complete);
             const fTaskList = userTasks.filter(task => task.failed);

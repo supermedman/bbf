@@ -14,6 +14,7 @@ const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
+const { handleCatchDelete, createInteractiveChannelMessage } = require('../../uniHelperFunctions.js');
 
 const UI = [
 	'./events/Models/json_prefabs/image_extras/user-inspect/gold-frame-menu.png',
@@ -57,36 +58,51 @@ const loadLoadout = async (userID, gear) => {
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('devcreate')
-        .setDescription('Dev Based Creative Enviroment!')
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('enemy-style')
-				.setDescription('Canvas Testing for enemy based display')
-				.addStringOption(option =>
-					option.setName('enemy')
-						.setDescription('Which enemy would you like displayed?')
-						.setRequired(true)
-						.setAutocomplete(true)))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('npc-spawn')
-				.setDescription('Initial Spawn Tests For NPCs')
-				.addStringOption(option =>
-					option.setName('from')
-						.setDescription('Where is this npc from?')
-						.setRequired(true)
-						.setChoices(
-							{name: "Town", value: "fromTown"},
-							{name: "Wild", value: "fromWilds"}))
-				.addStringOption(option =>
-					option.setName('local-biome')
-						.setDescription('Would you like choose a biome?')
-						.setAutocomplete(true)))
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('player-inspect')
-				.setDescription('Canvas Testing for inspect based display')),
+	.setName('devcreate')
+	.setDescription('Dev Based Creative Enviroment!')
+	.addSubcommand(subcommand =>
+		subcommand
+		.setName('enemy-style')
+		.setDescription('Canvas Testing for enemy based display')
+		.addStringOption(option =>
+			option
+			.setName('enemy')
+			.setDescription('Which enemy would you like displayed?')
+			.setRequired(true)
+			.setAutocomplete(true)
+		)
+	)
+	.addSubcommand(subcommand =>
+		subcommand
+		.setName('npc-spawn')
+		.setDescription('Initial Spawn Tests For NPCs')
+		.addStringOption(option =>
+			option
+			.setName('from')
+			.setDescription('Where is this npc from?')
+			.setRequired(true)
+			.setChoices(
+				{name: "Town", value: "fromTown"},
+				{name: "Wild", value: "fromWilds"}
+			)
+		)
+		.addStringOption(option =>
+			option
+			.setName('local-biome')
+			.setDescription('Would you like choose a biome?')
+			.setAutocomplete(true)
+		)
+	)
+	.addSubcommand(subcommand =>
+		subcommand
+		.setName('player-inspect')
+		.setDescription('Canvas Testing for inspect based display')
+	)
+	.addSubcommand(subcommand =>
+		subcommand
+		.setName('menu-test')
+		.setDescription('Embed menu display testing')
+	),
 	async autocomplete(interaction) { 
 		const focusedOption = interaction.options.getFocused(true);
 
@@ -129,7 +145,10 @@ module.exports = {
 			return false;
 		}
 
-		if (interaction.options.getSubcommand() === 'enemy-style'){
+		const subCom = interaction.options.getSubcommand();
+
+		// Enemy Display Testing
+		if (subCom === 'enemy-style'){
 			const enemyName = interaction.options.getString('enemy');
 			
 			let theEnemy = enemyList.filter(enemy => enemy.Name.startsWith(enemyName));
@@ -183,7 +202,8 @@ module.exports = {
 			return await interaction.reply({ files: [attachment] });
 		}
 
-		if (interaction.options.getSubcommand() === 'npc-spawn'){
+		// NPC Spawn Testing
+		if (subCom === 'npc-spawn'){
 			const spawnType = interaction.options.getString('from');
 			let localBiome = interaction.options.getString('local-biome');
 
@@ -244,7 +264,8 @@ module.exports = {
 			})
 		}
 
-		if (interaction.options.getSubcommand() === 'player-inspect'){
+		// Player Inspect Testing
+		if (subCom === 'player-inspect'){
 			const canvas = Canvas.createCanvas(1000, 1000);
 			const ctx = canvas.getContext('2d');
 
@@ -374,5 +395,29 @@ module.exports = {
 			const attachment = new AttachmentBuilder(await canvas.encode('png'), {name: 'user-display.png'});
 			return await interaction.reply({files: [attachment]});
 		}
+
+		// NavMenu Testing
+		if (subCom === 'menu-test'){
+			
+			const replyObj = {embeds: [], components: []};
+
+			const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 120000, replyObj, "Reply");
+
+			// =====================
+			// BUTTON COLLECTOR
+			collector.on('collect', async c => {
+				await c.deferUpdate().then(async () => {
+
+				}).catch(e => console.error(e));
+			});
+			// =====================
+
+			// =====================
+			// BUTTON COLLECTOR
+			collector.on('end', async (c, r) => {
+				if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+			});
+			// =====================
+		} 
 	},
 };
