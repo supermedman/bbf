@@ -204,7 +204,8 @@ module.exports = {
                         }
                     };
 
-                    finalItemsList.forEach(displayStrongItems);
+                    if (finalItemsList.length) finalItemsList.forEach(displayStrongItems);
+                    if (!finalItemsList.length) choices.push('None');
                 }                
             }
 

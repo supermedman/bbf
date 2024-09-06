@@ -17,7 +17,7 @@ module.exports = {
 				return;
 			}
 
-			if (command.data.name !== 'start'){
+			if (!['start', 'setup'].includes(command.data.name)){
 				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
 				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
 				const rollNpc = 0.98, rolled = Math.random();

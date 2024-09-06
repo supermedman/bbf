@@ -197,7 +197,7 @@ module.exports = {
 				if (pigmy?.name === equipPigMatch.name) return await interaction.reply({content: `${equipPigNamed} is already equipped!`, ephemeral: true});
 
 				const equippedPigmy = await handlePigmyEquip(equipPigMatch, user);
-				console.log(equippedPigmy);
+				// console.log(equippedPigmy);
 
 				displayEmbed
 				.setTitle('== Pigmy Equipped ==')

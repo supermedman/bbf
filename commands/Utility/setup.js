@@ -99,7 +99,7 @@ module.exports = {
                 ]);
             break;
             case "help":
-                returnEmbed = setupEmbed;
+                returnEmbed = [setupEmbed, introEmbed];
             break;
         }
 
