@@ -876,6 +876,7 @@ module.exports = {
 					exp: pigmyRef.exp,
 					mood: pigmyRef.mood,
 					happiness: pigmyRef.happiness,
+					playcount: pigmyRef.playcount,
 					refid: pigmyRef.refid
 				}).then(async ep => await ep.save()).then(async ep => {return await ep.reload()});
 			}
