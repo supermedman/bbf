@@ -480,10 +480,10 @@ module.exports = {
 						if (['Empty Filter', 'Empty Craft'].includes(bpPageOutcome.outcome)){
 							switch(bpPageOutcome.outcome){
 								case "Empty Filter":
-									await c.followUp({content: `No Owned ${bpMenuObj.bpType} Blueprints!`, ephemeral: true});
+									await interaction.followUp({content: `No Owned ${bpMenuObj.bpType} Blueprints!`, ephemeral: true});
 								break;
 								case "Empty Craft":
-									await c.followUp({content: `No ${bpMenuObj.bpType} Blueprints able to be crafted!`, ephemeral: true});
+									await interaction.followUp({content: `No ${bpMenuObj.bpType} Blueprints able to be crafted!`, ephemeral: true});
 								break;
 							}
 							editWith = {embeds: [entryEmbed], components: [selectRow]};

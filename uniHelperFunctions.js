@@ -5,8 +5,9 @@ const { UserData, Pigmy, Town, UserTasks } = require('./dbObjects');
 /**
  * This method randomly returns an element from a given array, if the array has a
  * length of 1 that element is returned.
- * @param {any[]} arr Any type of array with any type of contents   
- * @returns {any} Contents at randomly chosen index
+ * @template A
+ * @param {A[]} arr Any type of array with any type of contents   
+ * @returns {A} Contents at randomly chosen index
  */
 const randArrPos = (arr) => {
     return arr[((arr?.length ?? 0) > 1) ? Math.floor(Math.random() * arr.length) : 0];
@@ -337,15 +338,21 @@ async function sendTimedChannelMessage(interaction, timeLimit, contents, replyTy
         case "FollowUp":
         return await interaction.followUp(replyObject).then(msg => setTimeout(() => {
             msg.delete();
-        }, timeLimit)).catch(e => console.error(e));
+        }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
         case "Reply":
         return await interaction.reply(replyObject).then(msg => setTimeout(() => {
             msg.delete();
-        }, timeLimit)).catch(e => console.error(e));
+        }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
         default:
         return await interaction.channel.send(replyObject).then(msg => setTimeout(() => {
             msg.delete();
-        }, timeLimit)).catch(e => console.error(e));
+        }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+    }
+}
+
+function ignoreUnknownMessageError(e){
+    if (e.code !== 10008){
+        console.error('Failed to delete a message: ', e);
     }
 }
 
@@ -361,7 +368,7 @@ async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
     const replyObject = handleContentType(editWith);
     return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
         anchorMsg.delete();
-    }, timeLimit)).catch(e =>{
+    }, timeLimit)).catch(e => {
         if (e.code !== 10008){
             console.error(`Failed to ${e.method} a message:`, e);
         }
@@ -538,6 +545,8 @@ async function handleCatchDelete(anchorMsg){
         }
     });
 }
+
+
 
 /**
  * This function generates a standard ``Confirm`` & ``Cancel`` button action row.

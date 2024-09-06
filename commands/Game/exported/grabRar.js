@@ -1,6 +1,6 @@
 //========================================
 //This method uses an rng equation to output and assign a rarity value for the item to be dropped
-async function grabRar(level) {
+function grabRar(level) {
     //this method first determines rarity to look for then uses .push() to add all items of found rar_id to iPool[]
 
     //rarity effects items selected from pool
@@ -23,7 +23,6 @@ async function grabRar(level) {
     //rar_id 10 = 0.0141
 
     //current total = 1
-
     var randR = Math.random();
 
     //console.log('OUTCOME OF randR IN grabRar(): ', randR);
@@ -152,274 +151,274 @@ async function grabRar(level) {
      * */
     let beatThisDROP = [0.25, 0.35, 0.44, 0.54, 0.85];
     
-        if (level <= 7) {
-            if (randR >= 0.2920) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            else if (randR >= 0.1870) {
-                //rar_id = 1;
-                //10.5%
-                return foundRar = 1;
-            }
-            else if (randR >= 0.1410) {
-                //rar_id = 2;
-                //4.6%
-                return foundRar = 2;
-            }
-            else if (randR >= 0.1050) {
-                //rar_id = 3;
-                //3.6%
-                return foundRar = 3;
-            }
-            else if (randR < 0.1050) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-        } else if (level > 30) {
-            if (randR >= 0.2920) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            else if (randR >= 0.1870) {
-                //rar_id = 1;
-                //10.5%
-                return foundRar = 1;
-            }
-            else if (randR >= 0.1410) {
-                //rar_id = 2;
-                //4.6%
-                return foundRar = 2;
-            }
-            else if (randR >= 0.1050) {
-                //rar_id = 3;
-                //3.6%
-                return foundRar = 3;
-            }
-            else if (randR >= 0.0798) {
-                //rar_id = 4;
-                //2.52%
-                return foundRar = 4;
-            }
-            else if (randR >= 0.0593) {
-                //rar_id = 5;
-                //2.05%
-                return foundRar = 5;
-            }
-            else if (randR >= 0.0445) {
-                //rar_id = 6;
-                //1.48%
-                return foundRar = 6;
-            }
-            else if (randR >= 0.0334) {
-                //rar_id = 7;
-                //1.11%
-                return foundRar = 7;
-            }
-            else if (randR >= 0.0251) {
-                //rar_id = 8;
-                //0.83%
-                return foundRar = 8;
-            }
-            else if (randR >= 0.0188) {
-                //rar_id = 9;
-                //0.63%
-                return foundRar = 9;
-            }
-            else if (randR >= 0.0141) {
-                //rar_id = 10;
-                //0.47%
-                return foundRar = 10;
-            }
-            else if (randR < 0.0141) {
-                //rar_id = 0;
-                return foundRar = 0;
-            }
-        } else if (level >= 25) {
-            if (randR >= 0.2920) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            else if (randR >= 0.1870) {
-                //rar_id = 1;
-                //10.5%
-                return foundRar = 1;
-            }
-            else if (randR >= 0.1410) {
-                //rar_id = 2;
-                //4.6%
-                return foundRar = 2;
-            }
-            else if (randR >= 0.1050) {
-                //rar_id = 3;
-                //3.6%
-                return foundRar = 3;
-            }
-            else if (randR >= 0.0798) {
-                //rar_id = 4;
-                //2.52%
-                return foundRar = 4;
-            }
-            else if (randR >= 0.0593) {
-                //rar_id = 5;
-                //2.05%
-                return foundRar = 5;
-            }
-            else if (randR >= 0.0445) {
-                //rar_id = 6;
-                //1.48%
-                return foundRar = 6;
-            }
-            else if (randR >= 0.0334) {
-                //rar_id = 7;
-                //1.11%
-                return foundRar = 7;
-            }
-            else if (randR >= 0.0251) {
-                //rar_id = 8;
-                //0.83%
-                return foundRar = 8;
-            }
-            else if (randR >= 0.0188) {
-                //rar_id = 9;
-                //0.63%
-                return foundRar = 9;
-            }
-            else if (randR < 0.0188) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-        } else if (level >= 19) {
-            if (randR >= 0.2920) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            else if (randR >= 0.1870) {
-                //rar_id = 1;
-                //10.5%
-                return foundRar = 1;
-            }
-            else if (randR >= 0.1410) {
-                //rar_id = 2;
-                //4.6%
-                return foundRar = 2;
-            }
-            else if (randR >= 0.1050) {
-                //rar_id = 3;
-                //3.6%
-                return foundRar = 3;
-            }
-            else if (randR >= 0.0798) {
-                //rar_id = 4;
-                //2.52%
-                return foundRar = 4;
-            }
-            else if (randR >= 0.0593) {
-                //rar_id = 5;
-                //2.05%
-                return foundRar = 5;
-            }
-            else if (randR >= 0.0445) {
-                //rar_id = 6;
-                //1.48%
-                return foundRar = 6;
-            }
-            else if (randR >= 0.0334) {
-                //rar_id = 7;
-                //1.11%
-                return foundRar = 7;
-            }
-            else if (randR >= 0.0251) {
-                //rar_id = 8;
-                //0.83%
-                return foundRar = 8;
-            }
-            else if (randR < 0.0251) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-        } else if (level >= 13) {
-            if (randR >= 0.2920) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            else if (randR >= 0.1870) {
-                //rar_id = 1;
-                //10.5%
-                return foundRar = 1;
-            }
-            else if (randR >= 0.1410) {
-                //rar_id = 2;
-                //4.6%
-                return foundRar = 2;
-            }
-            else if (randR >= 0.1050) {
-                //rar_id = 3;
-                //3.6%
-                return foundRar = 3;
-            }
-            else if (randR >= 0.0798) {
-                //rar_id = 4;
-                //2.52%
-                return foundRar = 4;
-            }
-            else if (randR >= 0.0593) {
-                //rar_id = 5;
-                //2.05%
-                return foundRar = 5;
-            }
-            else if (randR >= 0.0445) {
-                //rar_id = 6;
-                //1.48%
-                return foundRar = 6;
-            }
-            else if (randR < 0.0445) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
+    if (level > 30) {
+        if (randR >= 0.2920) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+        else if (randR >= 0.1870) {
+            //rar_id = 1;
+            //10.5%
+            return foundRar = 1;
+        }
+        else if (randR >= 0.1410) {
+            //rar_id = 2;
+            //4.6%
+            return foundRar = 2;
+        }
+        else if (randR >= 0.1050) {
+            //rar_id = 3;
+            //3.6%
+            return foundRar = 3;
+        }
+        else if (randR >= 0.0798) {
+            //rar_id = 4;
+            //2.52%
+            return foundRar = 4;
+        }
+        else if (randR >= 0.0593) {
+            //rar_id = 5;
+            //2.05%
+            return foundRar = 5;
+        }
+        else if (randR >= 0.0445) {
+            //rar_id = 6;
+            //1.48%
+            return foundRar = 6;
+        }
+        else if (randR >= 0.0334) {
+            //rar_id = 7;
+            //1.11%
+            return foundRar = 7;
+        }
+        else if (randR >= 0.0251) {
+            //rar_id = 8;
+            //0.83%
+            return foundRar = 8;
+        }
+        else if (randR >= 0.0188) {
+            //rar_id = 9;
+            //0.63%
+            return foundRar = 9;
+        }
+        else if (randR >= 0.0141) {
+            //rar_id = 10;
+            //0.47%
+            return foundRar = 10;
+        }
+        else if (randR < 0.0141) {
+            //rar_id = 0;
+            return foundRar = 0;
+        }
+    } else if (level >= 25) {
+        if (randR >= 0.2920) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+        else if (randR >= 0.1870) {
+            //rar_id = 1;
+            //10.5%
+            return foundRar = 1;
+        }
+        else if (randR >= 0.1410) {
+            //rar_id = 2;
+            //4.6%
+            return foundRar = 2;
+        }
+        else if (randR >= 0.1050) {
+            //rar_id = 3;
+            //3.6%
+            return foundRar = 3;
+        }
+        else if (randR >= 0.0798) {
+            //rar_id = 4;
+            //2.52%
+            return foundRar = 4;
+        }
+        else if (randR >= 0.0593) {
+            //rar_id = 5;
+            //2.05%
+            return foundRar = 5;
+        }
+        else if (randR >= 0.0445) {
+            //rar_id = 6;
+            //1.48%
+            return foundRar = 6;
+        }
+        else if (randR >= 0.0334) {
+            //rar_id = 7;
+            //1.11%
+            return foundRar = 7;
+        }
+        else if (randR >= 0.0251) {
+            //rar_id = 8;
+            //0.83%
+            return foundRar = 8;
+        }
+        else if (randR >= 0.0188) {
+            //rar_id = 9;
+            //0.63%
+            return foundRar = 9;
+        }
+        else if (randR < 0.0188) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+    } else if (level >= 19) {
+        if (randR >= 0.2920) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+        else if (randR >= 0.1870) {
+            //rar_id = 1;
+            //10.5%
+            return foundRar = 1;
+        }
+        else if (randR >= 0.1410) {
+            //rar_id = 2;
+            //4.6%
+            return foundRar = 2;
+        }
+        else if (randR >= 0.1050) {
+            //rar_id = 3;
+            //3.6%
+            return foundRar = 3;
+        }
+        else if (randR >= 0.0798) {
+            //rar_id = 4;
+            //2.52%
+            return foundRar = 4;
+        }
+        else if (randR >= 0.0593) {
+            //rar_id = 5;
+            //2.05%
+            return foundRar = 5;
+        }
+        else if (randR >= 0.0445) {
+            //rar_id = 6;
+            //1.48%
+            return foundRar = 6;
+        }
+        else if (randR >= 0.0334) {
+            //rar_id = 7;
+            //1.11%
+            return foundRar = 7;
+        }
+        else if (randR >= 0.0251) {
+            //rar_id = 8;
+            //0.83%
+            return foundRar = 8;
+        }
+        else if (randR < 0.0251) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+    } else if (level >= 13) {
+        if (randR >= 0.2920) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+        else if (randR >= 0.1870) {
+            //rar_id = 1;
+            //10.5%
+            return foundRar = 1;
+        }
+        else if (randR >= 0.1410) {
+            //rar_id = 2;
+            //4.6%
+            return foundRar = 2;
+        }
+        else if (randR >= 0.1050) {
+            //rar_id = 3;
+            //3.6%
+            return foundRar = 3;
+        }
+        else if (randR >= 0.0798) {
+            //rar_id = 4;
+            //2.52%
+            return foundRar = 4;
+        }
+        else if (randR >= 0.0593) {
+            //rar_id = 5;
+            //2.05%
+            return foundRar = 5;
+        }
+        else if (randR >= 0.0445) {
+            //rar_id = 6;
+            //1.48%
+            return foundRar = 6;
+        }
+        else if (randR < 0.0445) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
 
-        } else if (level >= 8) {
-            if (randR >= 0.2920) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            else if (randR >= 0.1870) {
-                //rar_id = 1;
-                //10.5%
-                return foundRar = 1;
-            }
-            else if (randR >= 0.1410) {
-                //rar_id = 2;
-                //4.6%
-                return foundRar = 2;
-            }
-            else if (randR >= 0.1050) {
-                //rar_id = 3;
-                //3.6%
-                return foundRar = 3;
-            }
-            else if (randR >= 0.0798) {
-                //rar_id = 4;
-                //2.52%
-                return foundRar = 4;
-            }
-            else if (randR < 0.0798) {
-                //rar_id = 0;
-                //69.39%
-                return foundRar = 0;
-            }
-            
-        }    
+    } else if (level >= 8) {
+        if (randR >= 0.2920) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+        else if (randR >= 0.1870) {
+            //rar_id = 1;
+            //10.5%
+            return foundRar = 1;
+        }
+        else if (randR >= 0.1410) {
+            //rar_id = 2;
+            //4.6%
+            return foundRar = 2;
+        }
+        else if (randR >= 0.1050) {
+            //rar_id = 3;
+            //3.6%
+            return foundRar = 3;
+        }
+        else if (randR >= 0.0798) {
+            //rar_id = 4;
+            //2.52%
+            return foundRar = 4;
+        }
+        else if (randR < 0.0798) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+    } else {
+        if (randR >= 0.2920) {
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+        else if (randR >= 0.1870) {
+            //rar_id = 1;
+            //10.5%
+            return foundRar = 1;
+        }
+        else if (randR >= 0.1410) {
+            //rar_id = 2;
+            //4.6%
+            return foundRar = 2;
+        }
+        else if (randR >= 0.1050) {
+            //rar_id = 3;
+            //3.6%
+            return foundRar = 3;
+        } else { // if (randR < 0.1050)
+            //rar_id = 0;
+            //69.39%
+            return foundRar = 0;
+        }
+    }
+
+    return 0;
 }
 
 //This method takes a given rarid and returns a hex colour code for use with embeds
