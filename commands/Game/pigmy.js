@@ -298,7 +298,7 @@ module.exports = {
 			.setLabel('Close Menu');
 			pageButts.push(pageButts.splice(1,1,finishViewButt)[0]);
 
-			const pageButtRow = new ActionRowBuilder().addComponents(pageButtRow);
+			const pageButtRow = new ActionRowBuilder().addComponents(pageButts);
 
 			replyObj.embeds = [passingObject.embeds[0]];
 			replyObj.components = [pageButtRow];
