@@ -155,7 +155,7 @@ module.exports = {
 	},
 	async execute(interaction) {
 
-		if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'Command under construction! Check back later!', ephemeral: true});
+		//if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'Command under construction! Check back later!', ephemeral: true});
 
 		const subCom = interaction.options.getSubcommand();
 
@@ -247,15 +247,24 @@ module.exports = {
 				claimingPigmy = true;
 			break;
 			case "inspect":
-
-			break;
+			return await interaction.reply({content: 'Command under construction! Check back later!', ephemeral: true});;
 			case "play":
+				const pigmyPlayCount = await handleTomorrowCheck(pigmy);
+				if (pigmyPlayCount === 5) return await interaction.reply({content: `${makeCapital(pigmy.name)} is too tired to play anymore today!`, ephemeral: true});
+				if (pigmy.happiness === 100) return await interaction.reply({content: `${makeCapital(pigmy.name)} is already as happy as can be!`, ephemeral: true});
 
+				const playOutcome = await handlePigmyPlay(pigmy);
+				
+				displayEmbed
+				.setTitle(playOutcome.title)
+				.addFields(playOutcome.fields);
 			break;
 			case "rename":
 				const newPigName = interaction.options.getString('new-name');
 				if (!newPigName) return await interaction.reply({content: `Invalid name: ${newPigName}`, ephemeral: true});
 				// Profanity filter here?
+				const ownedPigNameMatch = await Pighouse.findOne({where: {spec_id: user.userid, name: newPigName}});
+				if (ownedPigNameMatch) return await interaction.reply({content: `Invalid name: ${newPigName}, you already have a pigmy with this name!`, ephemeral: true});
 
 				usingButtons = true;
 
@@ -350,6 +359,66 @@ module.exports = {
 			return await editTimedChannelMessage(anchorMsg, 90000, {embeds: [finalReply], components: []});
 		});
 		// =====================
+
+		/**
+		 * This function handles pigmy playtime, increasing the given pigmys happiness based on,
+		 * 
+		 * any toys equipped. Returns a display conveying the outcome of playtime.
+		 * @param {object} pig Active Pigmy DB Object
+		 * @returns {Promise <{title: string, fields: {name: string, value: string}[]}>}
+		 */
+		async function handlePigmyPlay(pig){
+			const {masterBPEffects} = interaction.client;
+
+			const pigmyPlaytime = {
+				base: 6,
+				toy: {
+					name: pig.toy,
+					effect: 0
+				}
+			};
+
+			if (pigmyPlaytime.toy.name !== 'NONE'){
+				const toyEffMatch = masterBPEffects.get(pigmyPlaytime.toy.name);
+				pigmyPlaytime.toy.effect = toyEffMatch.Strength;
+			}
+
+			const totalPlaytimeEffect = pigmyPlaytime.base + pigmyPlaytime.toy.effect;
+			const newPigmyHappiness = ((totalPlaytimeEffect + pig.happiness) > 100) 
+			? 100 
+			: totalPlaytimeEffect + pig.happiness;
+
+			const playTextChoices = ['Awwe how cute!', 'What joy!', 'They loved it!', 'Too bad cameras dont exist yet!'];
+
+			const playingWithToy = (pigmyPlaytime.toy.name !== 'NONE') 
+			? `Played with their ${pigmyPlaytime.toy.name}. ${randArrPos(playTextChoices)}`
+			: "Has nothing to play with...";
+
+			const playtimeDisplay = {
+				title: '~== Pigmy Playtime ==~',
+				fields: [
+					{
+						name: `${makeCapital(pig.name)}`,
+						value: playingWithToy
+					}
+				]
+			}
+
+			const currMood = grabMoodString(pig.happiness);
+			const newMood = grabMoodString(newPigmyHappiness);
+
+			const changeInHappy = currMood !== newMood;
+			const moodOutcome = (!changeInHappy) 
+			? {name: 'Pigmy mood: ', value: `**${currMood}**`}
+			: {name: 'Mood Change: ', value: `**${currMood}** ==> **${newMood}**`};
+
+			playtimeDisplay.fields.push(moodOutcome);
+
+			await updatePigmyHappiness(pig, newPigmyHappiness);
+			await increasePlayCount(pig);
+
+			return playtimeDisplay;
+		}
 
 		/**
 		 * This function handles every aspect of using `/pigmy claim`, 
@@ -606,7 +675,7 @@ module.exports = {
 			for (const matTypeList of matCont.constructMatRefList(fullMatRollList)){
 				const matTypeEmbed = new EmbedBuilder()
 				.setTitle(`== ${makeCapital(matTypeList[0].matType)} Materials ==`)
-				.setColor(grabColour(matTypeList.at(-1).matRef.Rarity));
+				.setColor(grabColour(matTypeList.at(-1).matRef.Rar_id));
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){
@@ -704,7 +773,7 @@ module.exports = {
 
 		/**
 		 * This function handles checking if the given `pig` is ready for claiming.
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 * @returns {{ready: boolean, display?: string}}
 		 */
 		function isClaimReady(pig){
@@ -732,7 +801,7 @@ module.exports = {
 
 		/**
 		 * This function updates `pig[details.toolType] = details.toolName` for the given `pig`.
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 * @param {{toolType: string, toolName: string, tool: object}} details User options object, contains `toolType` and `toolName`
 		 * @returns {Promise <EmbedBuilder>}
 		 */
@@ -748,13 +817,13 @@ module.exports = {
 
 		/**
 		 * This function updates `.name` for the given `pig` and its `Pighouse` counterpart
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 * @param {{newName: string}} details User options object, contains new name
 		 * @returns {Promise <EmbedBuilder>}
 		 */
 		async function updatePigmyName(pig, details){
 			await pig.update({name: details.newName}).then(async p => await p.save()).then(async p => {return await p.reload()});
-			await Pighouse.update({name: details.newName}, {where: {spec_id: pig.spec_id, refid: pig.refid}}).then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
+			await Pighouse.update({name: details.newName}, {where: {spec_id: pig.spec_id, refid: pig.refid}});//.then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
 
 			const finalEmbed = new EmbedBuilder()
 			.setTitle('== Name Updated ==');
@@ -764,13 +833,13 @@ module.exports = {
 
 		/**
 		 * This function updates the given `pig` and its `Pighouse` counterpart `.happiness` & `.mood` values.
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 * @param {number} happiness New Pigmy Happiness
 		 */
 		async function updatePigmyHappiness(pig, happiness){
 			const newMood = grabMoodString(happiness);
 			await pig.update({happiness: happiness, mood: newMood}).then(async p => await p.save()).then(async p => {return await p.reload()});
-			await Pighouse.update({happiness: happiness, mood: newMood}, {where: {spec_id: pig.spec_id, refid: pig.refid}}).then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
+			await Pighouse.update({happiness: happiness, mood: newMood}, {where: {spec_id: pig.spec_id, refid: pig.refid}}); //.then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
 		}
 
 		/**
@@ -825,7 +894,7 @@ module.exports = {
 		 * This function handles `checkForTomorrow(pig)`, given the `type` returns differently
 		 * 
 		 * IF `type = 'play'` checks if new tomorrow, true returns 0, false returns current playcount
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 * @param {string} type Default: `play`
 		 * @returns {Promise <number>}
 		 */
@@ -844,7 +913,7 @@ module.exports = {
 		/**
 		 * This function sets and updates the date that is `1 + today`,
 		 * updating `tomorrow` for both the given `pig` and its `Pighouse` counterpart
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 */
 		async function setNewTomorrow(pig){
 			// Create Date() for tomorrow
@@ -857,12 +926,12 @@ module.exports = {
 
 			// Update active pigmy and stored pigmy
 			await pig.update({tomorrow: newDay}).then(async p => await p.save()).then(async p => {return await p.reload()});
-			await Pighouse.update({tomorrow: newDay}, {where: {spec_id: pig.spec_id, refid: pig.refid}}).then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
+			await Pighouse.update({tomorrow: newDay}, {where: {spec_id: pig.spec_id, refid: pig.refid}});//.then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
 		}
 
 		/**
 		 * This function returns true if the given pigmy's `.tomorrow` is <= `today`
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 * @returns {boolean}
 		 */
 		function checkForTomorrow(pig){
@@ -871,20 +940,20 @@ module.exports = {
 
 		/**
 		 * This function resets the `playcount` for both the given `pig` and its `Pighouse` counterpart
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 */
 		async function resetPlayCount(pig){
 			await pig.update({playcount: 0}).then(async p => await p.save()).then(async p => {return await p.reload()});
-			await Pighouse.update({playcount: 0}, {where: {spec_id: pig.spec_id, refid: pig.refid}}).then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
+			await Pighouse.update({playcount: 0}, {where: {spec_id: pig.spec_id, refid: pig.refid}});//.then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
 		}
 
 		/**
 		 * This function increments the `playcount` by 1, for both the given `pig` and its `Pighouse` counterpart 
-		 * @param {object} pig Pigmy DB Object
+		 * @param {object} pig Active Pigmy DB Object
 		 */
 		async function increasePlayCount(pig){
 			await pig.increment('playcount').then(async p => await p.save()).then(async p => {return await p.reload()});
-			await Pighouse.increment('playcount', {where: {spec_id: pig.spec_id, refid: pig.refid}}).then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
+			await Pighouse.increment('playcount', {where: {spec_id: pig.spec_id, refid: pig.refid}});//.then(async pr => await pr.save()).then(async pr => {return await pr.reload()});
 		}
 
 
@@ -1064,434 +1133,434 @@ module.exports = {
 		// 	}
 		// }
 
-		if (interaction.options.getSubcommand() === 'claim') {
-			//if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
-			await interaction.deferReply();
-			//everything contained here needs to base off of the lcm value
-			const userPigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
-			if (!userPigmy) return await interaction.followUp('You have no pigmy equipped! Use the command ``/pigmy equip <pigmy-name>`` to equip one, or ``/pigmyshop`` to buy one!');
-			if (userPigmy.mood === 'Corrupted!') return await interaction.followUp(`${userPigmy.name} has been corrupted due to your negligence and refuses to help!`);
-
-			const then = userPigmy.lcm;
-			const now = new Date().getTime();
-
-			// 7,200,000ms is 2 hours
-			// Minimum time needed before claiming is possible
-			const timeDiff = Math.abs(now - then);
-			const timeLeft = Math.round(7200000 - timeDiff);
-			if (timeLeft > 0) {
-				let shownTime = now + timeLeft;
-				shownTime = Math.round(shownTime / 1000);
-				return await interaction.followUp(`${userPigmy.name} can claim again <t:${shownTime}:R>!`);
-			} else if (timeLeft <= 0) {
-				let hrs = Math.abs(Math.floor(timeLeft / (1000 * 60 * 60)));
-				console.log(specialInfoForm(`Hours since last claim: ${hrs}`));
-
-				// Set max claim hours to a default of 72
-				let maxClaimLength = 72;
-				if (userPigmy.level >= 25) {
-					//Every 5 pigmy levels allows for an additional 3 hours
-					maxClaimLength += Math.floor(3 * (userPigmy.level / 5) + 1);
-				}
-				console.log(specialInfoForm(`maxClaimLength: ${maxClaimLength}`));
-
-				if (hrs > maxClaimLength) {
-					hrs = maxClaimLength;
-				}
-
-				// MATERIAL DROP HANDLING HERE ============================
-				const pigmyHat = userPigmy.hat;
-				let hatMatBuff;
-				let hatMatTypeBuff;
-				if (pigmyHat === 'NONE') {
-					hatMatBuff = 0;
-					hatMatTypeBuff = 'NONE'
-				} else {
-					const filterPigmy = acToolEffects.filter(effect => effect.Name === 'Pigmy');
-					console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 1: ${filterPigmy[0]['SubCategory'][1][`${pigmyHat}`]}`));
-					//const filterSubCategory = filterPigmy.filter(subCat => subCat.Name === 'Hat');
-					const hatBuffObject = filterPigmy[0]['SubCategory'][1][`${pigmyHat}`];
-					hatMatBuff = hatBuffObject[0];
-					hatMatBuff = ~~hatMatBuff;
-					hatMatTypeBuff = hatBuffObject[1];
-				}
-
-				//console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 0: ${filterPigmy[0]['SubCategory'][0][`${pigmyToy}`]}`));
-				//const toyBuffObject = filterPigmy[0]['SubCategory'][0][`${pigmyToy}`];
-
-				console.log(specialInfoForm(`Current matBuff: ${hatMatBuff}\nCurrent matTypeBuff: ${hatMatTypeBuff}`));
-
-				let choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky"];
-
-				let critChoices = [];
-				if (hatMatTypeBuff !== 'NONE') {
-					critChoices = critChoices.concat(hatMatTypeBuff);
-				}
-
-				var totPages = 0;
-
-				let matHrChoices = [];
-				let matsThisHr;
-
-				let matsToAdd = [];
-
-				let pigDiffHappy = Math.abs((100 - userPigmy.happiness) / 100);
-				let curRun = 0;
-				do {
-					matHrChoices = [];
-					var chanceChoiceONE = Math.floor(Math.random() * (choices.length - 1));
-					var chanceChoiceTWO = Math.floor(Math.random() * (choices.length - 1));
-
-					matHrChoices.push(choices[chanceChoiceONE]);
-					matHrChoices.push(choices[chanceChoiceTWO]);
-
-					// This is 5 + ((1-5) + (1 per 5 pig levels)
-					// Maximum 30 @ pigLevel 100
-					// Minimum 6 @ pigLevel 1
-					matsThisHr = 5 + (Math.floor(Math.random() * ((1 - 5) + 1) + Math.floor(userPigmy.level / 5)));
-
-					matsThisHr -= Math.floor(pigDiffHappy * matsThisHr);
-
-					if (matsThisHr <= 0) matsThisHr = 1;
-
-					var passType;
-					let listStr;
-
-					let matTypeChosen;
-					let rolledMatPos;
-					let foundRar;
-
-					let foundMaterialList;
-					let tmpMat = [];
-					for (var matRun = 0; matRun < matsThisHr; matRun++) {
-						tmpMat = [];
-
-						rolledMatPos = Math.floor(Math.random() * (matHrChoices.length - 1));
-						//console.log(specialInfoForm('rolledMatPos: ', rolledMatPos));
-						matTypeChosen = matHrChoices[rolledMatPos];
-
-
-
-						listStr = `${matTypeChosen}List.json`;
-						passType = `${matTypeChosen}`;
-
-						foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
-
-						foundRar = await grabRar(userPigmy.level);
-
-						let matDropPool = foundMaterialList.filter(mat => mat.Rar_id === foundRar);
-						if (matDropPool.length > 0) {
-							tmpMat.push(matDropPool[0]);
-
-							var droppedNum = Math.floor(100 * ((userPigmy.level * 0.01) - ((foundRar * 0.02) + 0.02)));
-
-							if (droppedNum <= 0) {
-								droppedNum = 1;
-							}
-
-							droppedNum += hatMatBuff;
-
-							if (critChoices.length > 0) {
-								const isCrit = critChoices.filter(type => type === passType);
-								if (isCrit.length > 0) {
-									droppedNum *= 3;
-								}
-							}
-
-
-							var matNew = true;
-							for (const item of matsToAdd) {
-								if (item.Name === tmpMat[0].Name) {
-									matNew = false;
-									//console.log(basicInfoForm('DupeMat'));
-									item.Amount += droppedNum;
-									break;
-								}
-							}
-
-							if (matNew === true) {
-								console.log(basicInfoForm('BEFORE MAPPED NEW MAT: ', tmpMat[0].Name));
-
-								const mappedMat = await tmpMat.map(mat => ({ ...mat, Amount: droppedNum }),);
-
-								totPages += 1;
-
-								matsToAdd.push(...mappedMat);
-							}
-
-							var theMaterial = matDropPool[0];
-
-							const matStore = await MaterialStore.findOne({
-								where: [{ spec_id: interaction.user.id }, { mat_id: theMaterial.Mat_id }, { mattype: passType }]
-							});
-
-							if (matStore) {
-								droppedNum += matStore.amount;
-								await MaterialStore.update({ amount: droppedNum },
-									{
-										where: [{ spec_id: interaction.user.id }, { mat_id: theMaterial.Mat_id }, { mattype: passType }]
-									});
-
-								//const inc = 
-								//if (inc) console.log(successResult('Amount was UPDATED!'));
-							} else {
-								await MaterialStore.create({
-									name: theMaterial.Name,
-									value: theMaterial.Value,
-									mattype: passType,
-									mat_id: theMaterial.Mat_id,
-									rarity: theMaterial.Rarity,
-									rar_id: theMaterial.Rar_id,
-									amount: droppedNum,
-									spec_id: interaction.user.id
-								});
-
-								//const createdMat =
-								//if (createdMat) console.log(successResult('New Material Added!'));
-							}
-						}
-					}
-					curRun++;
-				} while (curRun < hrs)
-
-				let totXP = 0;
-				let totCoin = 0;
-
-				//Xp gained min and max is based on length of time since last claim
-				//And active pigmies level
-				const XpMax = ((userPigmy.level * 1.5) + (100 * hrs));
-				const XpMin = (((userPigmy.level * 1.5) + (100 * hrs)) - 75);
-
-				//calculate xp gained and add to overall total
-				let xpGained = Math.floor(Math.random() * (XpMax - XpMin + 1) + XpMin);
-				console.log(specialInfoForm(`Gained xp before applying buffs: ${xpGained}`));
-				//Give boost per the following formula
-				//xpGained = xpGained * 1 + ((-1) * (2 * hrs) ** 0.4 + 3.7);
-				//add to total
-				totXP += xpGained;
-
-				//MODIFY XP GAIN BASED ON TITLE EQUIPPED
-				const pigmyTitle = userPigmy.title;
-				let titlePigmyBuff;
-				let titlePlayerBuff;
-				if (pigmyTitle === 'NONE') {
-					titlePigmyBuff = 0;
-					titlePlayerBuff = 0;
-				} else {
-					const filterPigmy = acToolEffects.filter(effect => effect.Name === 'Pigmy');
-					console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 2: ${filterPigmy[0]['SubCategory'][2][`${pigmyTitle}`]}`));
-					//const filterSubCategory = filterPigmy.filter(subCat => subCat.Name === 'Title');
-					const titleBuffObject = filterPigmy[0]['SubCategory'][2][`${pigmyTitle}`];
-					titlePigmyBuff = titleBuffObject[0];
-					titlePigmyBuff *= 1;
-					titlePlayerBuff = titleBuffObject[1];
-					titlePlayerBuff *= 1;
-				}
-
-				console.log(specialInfoForm(`Current pigmy titleBuff: ${titlePigmyBuff}\nCurrent player titleBuff: ${titlePlayerBuff}`));
-				console.log(specialInfoForm(`Total xp before applying buffs: ${totXP}`));
-
-				if (titlePlayerBuff !== 0) {
-					totXP = Math.floor(totXP + (totXP * titlePlayerBuff));
-				}
-				totXP = Math.round(totXP);
-				console.log(basicInfoForm(`Total XP gained after rounding, before happiness reduce: ${totXP}`));
-
-				//Calculate cointotal
-				let cGained = (((xpGained - 5) * 1.2) + 1);
-				totCoin += cGained;
-				totCoin = Math.round(totCoin);
-				console.log(basicInfoForm(`Total Coins gained after rounding, before happiness reduce: ${totCoin}`));
-
-				//calculate pigmy xp gained
-				let pigXp = Math.floor(xpGained * (100 * ((userPigmy.level / 6) * 0.005)));
-				if (titlePigmyBuff !== 0) {
-					pigXp = Math.floor(pigXp + (pigXp * titlePigmyBuff));
-				}
-				pigXp = Math.round(pigXp);
-				console.log(basicInfoForm(`Total Pigmy XP gained after rounding, before happiness reduce: ${pigXp}`));
-
-				//==============================
-				//	Alter final results based on happiness of the pigmy
-				//	pigDiffHappy
-				//	matsThisHr -= Math.floor(pigDiffHappy * matsThisHr);
-				let newHappiness = userPigmy.happiness;
-				if (userPigmy.happiness < 85) {
-					totXP -= Math.floor(pigDiffHappy * totXP);
-					totCoin -= Math.floor(pigDiffHappy * totCoin);
-					pigXp -= Math.floor(pigDiffHappy * pigXp);
-					newHappiness -= (10 + (hrs / 24));
-				} else {
-					newHappiness -= (10 + (hrs / 24));
-				}
-
-				const pigmyHappyStr = await updateHappiness(userPigmy, newHappiness);
-
-				const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
-				if (extraEXP) {
-					if (extraEXP.duration > 0) {
-						totXP += totXP * extraEXP.curreffect;
-					}
-				}
-
-				totXP = Math.round(totXP);
-				console.log(basicInfoForm(`Total XP gained after rounding, after happiness reduce: ${totXP}`));
-				totCoin = Math.round(totCoin);
-				console.log(basicInfoForm(`Total Coins gained after rounding, after happiness reduce: ${totCoin}`));
-				pigXp = Math.round(pigXp);
-				console.log(basicInfoForm(`Total Pigmy XP gained after rounding, after happiness reduce: ${pigXp}`));
-
-
-				//==============================
-				//Basic levelup check for user, ending with updating xp and coins in database
-				await isLvlUp(totXP, totCoin, interaction);
-
-				//==============================
-				//Next check if pigmy passes levelup
-				await isPigLvlUp(pigXp, userPigmy, interaction, true);
-
-				//==============================
-				//Generate the rewards embed and prep for user
-				const rewards = `${userPigmy.name} has collected: \n**For you** \n${totCoin}c \n${totXP}xp \n**For ${userPigmy.name}** \n${pigXp}xp`;
-				const dynDes = `After searching tirelessly for hours ${userPigmy.name} had success!`;
-
-				hrs = Math.floor(hrs);
-
-				const pigClaimEmbed = new EmbedBuilder()
-					.setTitle('==**YOU CLAIMED REWARDS**==')
-					.setDescription(dynDes)
-					.setColor(0o0)
-					.addFields(
-						{
-							name: `Rewards after ${hrs}hours`,
-							value: rewards
-						},
-						{
-							name: `${userPigmy.name} is now:`,
-							value: `${pigmyHappyStr}!`
-						});
-				await interaction.followUp({ embeds: [pigClaimEmbed] }).then(async pigClaimEmbed => setTimeout(() => {
-					pigClaimEmbed.delete();
-				}, 100000)).catch(console.error);
-
-				const backButton = new ButtonBuilder()
-					.setLabel("Back")
-					.setStyle(ButtonStyle.Secondary)
-					.setEmoji('◀️')
-					.setCustomId('back-page');
-
-				const finishButton = new ButtonBuilder()
-					.setLabel("Finish")
-					.setStyle(ButtonStyle.Success)
-					.setEmoji('*️⃣')
-					.setCustomId('delete-page');
-
-				const forwardButton = new ButtonBuilder()
-					.setLabel("Forward")
-					.setStyle(ButtonStyle.Secondary)
-					.setEmoji('▶️')
-					.setCustomId('next-page');
-
-				const interactiveButtons = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
-
-				const rarityTypes = ["Common", "Uncommon", "Rare", "Very Rare", "Epic", "Mystic", "?", "??", "???", "????"];
-
-				let fullRarList;
-				let rarCheckNum = 0;
-
-				let embedColour;
-				let matListings;
-
-				let embedPages = [];
-
-				let pageRun = 0;
-				do {
-					fullRarList = matsToAdd.filter(mat => mat.Rarity === rarityTypes[rarCheckNum]);
-					if (fullRarList.length <= 0) {
-						//There are no mats of this rarity, check next Rarity
-						rarCheckNum++;
-					} else {
-						embedColour = await grabColour(rarCheckNum);
-						let breakPoint = 0;
-						for (const matCheck of fullRarList) {
-							matListings = `Value: ${matCheck.Value}\nRarity: ${matCheck.Rarity}\nAmount: ${matCheck.Amount}`;
-
-							const theMaterialEmbed = new EmbedBuilder()
-								.setTitle('~Material Dropped~')
-								.setDescription(`Page ${(pageRun + 1)}/${totPages}`)
-								.setColor(embedColour)
-								.addFields({
-									name: `${matCheck.Name}`,
-									value: matListings
-								});
-
-							embedPages.push(theMaterialEmbed);
-							pageRun++;
-							breakPoint++;
-							if (breakPoint === fullRarList.length) break;
-						}
-						rarCheckNum++;
-					}
-				} while (pageRun < matsToAdd.length)
-
-				const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
-
-				const filter = (ID) => ID.user.id === interaction.user.id;
-
-				const collector = embedMsg.createMessageComponentCollector({
-					componentType: ComponentType.Button,
-					filter,
-					time: 300000,
-				});
-
-				var currentPage = 0;
-
-				collector.on('collect', async (collInteract) => {
-					if (collInteract.customId === 'next-page') {
-						await collInteract.deferUpdate().then(async () => {
-							if (currentPage === embedPages.length - 1) {
-								currentPage = 0;
-								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-							} else {
-								currentPage += 1;
-								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-							}
-						}).catch(error => {
-							console.log(errorForm(error));
-						});
-					}
-
-					if (collInteract.customId === 'back-page') {
-						await collInteract.deferUpdate().then(async () => {
-							if (currentPage === 0) {
-								currentPage = embedPages.length - 1;
-								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-							} else {
-								currentPage -= 1;
-								await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
-							}
-						}).catch(error => {
-							console.log(errorForm(error));
-						});
-					}
-
-					if (collInteract.customId === 'delete-page') {
-						await collInteract.deferUpdate();
-						await collector.stop();
-					}
-				});
-
-				collector.on('end', () => {
-					if (embedMsg) {
-						embedMsg.delete().catch(error => {
-							if (error.code !== 10008) {
-								console.error('Failed to delete the message:', error);
-							}
-						});
-					}
-				});
-			}
-		}
+		// if (interaction.options.getSubcommand() === 'claim') {
+		// 	//if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
+		// 	await interaction.deferReply();
+		// 	//everything contained here needs to base off of the lcm value
+		// 	const userPigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+		// 	if (!userPigmy) return await interaction.followUp('You have no pigmy equipped! Use the command ``/pigmy equip <pigmy-name>`` to equip one, or ``/pigmyshop`` to buy one!');
+		// 	if (userPigmy.mood === 'Corrupted!') return await interaction.followUp(`${userPigmy.name} has been corrupted due to your negligence and refuses to help!`);
+
+		// 	const then = userPigmy.lcm;
+		// 	const now = new Date().getTime();
+
+		// 	// 7,200,000ms is 2 hours
+		// 	// Minimum time needed before claiming is possible
+		// 	const timeDiff = Math.abs(now - then);
+		// 	const timeLeft = Math.round(7200000 - timeDiff);
+		// 	if (timeLeft > 0) {
+		// 		let shownTime = now + timeLeft;
+		// 		shownTime = Math.round(shownTime / 1000);
+		// 		return await interaction.followUp(`${userPigmy.name} can claim again <t:${shownTime}:R>!`);
+		// 	} else if (timeLeft <= 0) {
+		// 		let hrs = Math.abs(Math.floor(timeLeft / (1000 * 60 * 60)));
+		// 		console.log(specialInfoForm(`Hours since last claim: ${hrs}`));
+
+		// 		// Set max claim hours to a default of 72
+		// 		let maxClaimLength = 72;
+		// 		if (userPigmy.level >= 25) {
+		// 			//Every 5 pigmy levels allows for an additional 3 hours
+		// 			maxClaimLength += Math.floor(3 * (userPigmy.level / 5) + 1);
+		// 		}
+		// 		console.log(specialInfoForm(`maxClaimLength: ${maxClaimLength}`));
+
+		// 		if (hrs > maxClaimLength) {
+		// 			hrs = maxClaimLength;
+		// 		}
+
+		// 		// MATERIAL DROP HANDLING HERE ============================
+		// 		const pigmyHat = userPigmy.hat;
+		// 		let hatMatBuff;
+		// 		let hatMatTypeBuff;
+		// 		if (pigmyHat === 'NONE') {
+		// 			hatMatBuff = 0;
+		// 			hatMatTypeBuff = 'NONE'
+		// 		} else {
+		// 			const filterPigmy = acToolEffects.filter(effect => effect.Name === 'Pigmy');
+		// 			console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 1: ${filterPigmy[0]['SubCategory'][1][`${pigmyHat}`]}`));
+		// 			//const filterSubCategory = filterPigmy.filter(subCat => subCat.Name === 'Hat');
+		// 			const hatBuffObject = filterPigmy[0]['SubCategory'][1][`${pigmyHat}`];
+		// 			hatMatBuff = hatBuffObject[0];
+		// 			hatMatBuff = ~~hatMatBuff;
+		// 			hatMatTypeBuff = hatBuffObject[1];
+		// 		}
+
+		// 		//console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 0: ${filterPigmy[0]['SubCategory'][0][`${pigmyToy}`]}`));
+		// 		//const toyBuffObject = filterPigmy[0]['SubCategory'][0][`${pigmyToy}`];
+
+		// 		console.log(specialInfoForm(`Current matBuff: ${hatMatBuff}\nCurrent matTypeBuff: ${hatMatTypeBuff}`));
+
+		// 		let choices = ["slimy", "rocky", "woody", "skinny", "herby", "gemy", "magical", "metalic", "fleshy", "silky"];
+
+		// 		let critChoices = [];
+		// 		if (hatMatTypeBuff !== 'NONE') {
+		// 			critChoices = critChoices.concat(hatMatTypeBuff);
+		// 		}
+
+		// 		var totPages = 0;
+
+		// 		let matHrChoices = [];
+		// 		let matsThisHr;
+
+		// 		let matsToAdd = [];
+
+		// 		let pigDiffHappy = Math.abs((100 - userPigmy.happiness) / 100);
+		// 		let curRun = 0;
+		// 		do {
+		// 			matHrChoices = [];
+		// 			var chanceChoiceONE = Math.floor(Math.random() * (choices.length - 1));
+		// 			var chanceChoiceTWO = Math.floor(Math.random() * (choices.length - 1));
+
+		// 			matHrChoices.push(choices[chanceChoiceONE]);
+		// 			matHrChoices.push(choices[chanceChoiceTWO]);
+
+		// 			// This is 5 + ((1-5) + (1 per 5 pig levels)
+		// 			// Maximum 30 @ pigLevel 100
+		// 			// Minimum 6 @ pigLevel 1
+		// 			matsThisHr = 5 + (Math.floor(Math.random() * ((1 - 5) + 1) + Math.floor(userPigmy.level / 5)));
+
+		// 			matsThisHr -= Math.floor(pigDiffHappy * matsThisHr);
+
+		// 			if (matsThisHr <= 0) matsThisHr = 1;
+
+		// 			var passType;
+		// 			let listStr;
+
+		// 			let matTypeChosen;
+		// 			let rolledMatPos;
+		// 			let foundRar;
+
+		// 			let foundMaterialList;
+		// 			let tmpMat = [];
+		// 			for (var matRun = 0; matRun < matsThisHr; matRun++) {
+		// 				tmpMat = [];
+
+		// 				rolledMatPos = Math.floor(Math.random() * (matHrChoices.length - 1));
+		// 				//console.log(specialInfoForm('rolledMatPos: ', rolledMatPos));
+		// 				matTypeChosen = matHrChoices[rolledMatPos];
+
+
+
+		// 				listStr = `${matTypeChosen}List.json`;
+		// 				passType = `${matTypeChosen}`;
+
+		// 				foundMaterialList = require(`../../events/Models/json_prefabs/materialLists/${listStr}`);
+
+		// 				foundRar = await grabRar(userPigmy.level);
+
+		// 				let matDropPool = foundMaterialList.filter(mat => mat.Rar_id === foundRar);
+		// 				if (matDropPool.length > 0) {
+		// 					tmpMat.push(matDropPool[0]);
+
+		// 					var droppedNum = Math.floor(100 * ((userPigmy.level * 0.01) - ((foundRar * 0.02) + 0.02)));
+
+		// 					if (droppedNum <= 0) {
+		// 						droppedNum = 1;
+		// 					}
+
+		// 					droppedNum += hatMatBuff;
+
+		// 					if (critChoices.length > 0) {
+		// 						const isCrit = critChoices.filter(type => type === passType);
+		// 						if (isCrit.length > 0) {
+		// 							droppedNum *= 3;
+		// 						}
+		// 					}
+
+
+		// 					var matNew = true;
+		// 					for (const item of matsToAdd) {
+		// 						if (item.Name === tmpMat[0].Name) {
+		// 							matNew = false;
+		// 							//console.log(basicInfoForm('DupeMat'));
+		// 							item.Amount += droppedNum;
+		// 							break;
+		// 						}
+		// 					}
+
+		// 					if (matNew === true) {
+		// 						console.log(basicInfoForm('BEFORE MAPPED NEW MAT: ', tmpMat[0].Name));
+
+		// 						const mappedMat = await tmpMat.map(mat => ({ ...mat, Amount: droppedNum }),);
+
+		// 						totPages += 1;
+
+		// 						matsToAdd.push(...mappedMat);
+		// 					}
+
+		// 					var theMaterial = matDropPool[0];
+
+		// 					const matStore = await MaterialStore.findOne({
+		// 						where: [{ spec_id: interaction.user.id }, { mat_id: theMaterial.Mat_id }, { mattype: passType }]
+		// 					});
+
+		// 					if (matStore) {
+		// 						droppedNum += matStore.amount;
+		// 						await MaterialStore.update({ amount: droppedNum },
+		// 							{
+		// 								where: [{ spec_id: interaction.user.id }, { mat_id: theMaterial.Mat_id }, { mattype: passType }]
+		// 							});
+
+		// 						//const inc = 
+		// 						//if (inc) console.log(successResult('Amount was UPDATED!'));
+		// 					} else {
+		// 						await MaterialStore.create({
+		// 							name: theMaterial.Name,
+		// 							value: theMaterial.Value,
+		// 							mattype: passType,
+		// 							mat_id: theMaterial.Mat_id,
+		// 							rarity: theMaterial.Rarity,
+		// 							rar_id: theMaterial.Rar_id,
+		// 							amount: droppedNum,
+		// 							spec_id: interaction.user.id
+		// 						});
+
+		// 						//const createdMat =
+		// 						//if (createdMat) console.log(successResult('New Material Added!'));
+		// 					}
+		// 				}
+		// 			}
+		// 			curRun++;
+		// 		} while (curRun < hrs)
+
+		// 		let totXP = 0;
+		// 		let totCoin = 0;
+
+		// 		//Xp gained min and max is based on length of time since last claim
+		// 		//And active pigmies level
+		// 		const XpMax = ((userPigmy.level * 1.5) + (100 * hrs));
+		// 		const XpMin = (((userPigmy.level * 1.5) + (100 * hrs)) - 75);
+
+		// 		//calculate xp gained and add to overall total
+		// 		let xpGained = Math.floor(Math.random() * (XpMax - XpMin + 1) + XpMin);
+		// 		console.log(specialInfoForm(`Gained xp before applying buffs: ${xpGained}`));
+		// 		//Give boost per the following formula
+		// 		//xpGained = xpGained * 1 + ((-1) * (2 * hrs) ** 0.4 + 3.7);
+		// 		//add to total
+		// 		totXP += xpGained;
+
+		// 		//MODIFY XP GAIN BASED ON TITLE EQUIPPED
+		// 		const pigmyTitle = userPigmy.title;
+		// 		let titlePigmyBuff;
+		// 		let titlePlayerBuff;
+		// 		if (pigmyTitle === 'NONE') {
+		// 			titlePigmyBuff = 0;
+		// 			titlePlayerBuff = 0;
+		// 		} else {
+		// 			const filterPigmy = acToolEffects.filter(effect => effect.Name === 'Pigmy');
+		// 			console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 2: ${filterPigmy[0]['SubCategory'][2][`${pigmyTitle}`]}`));
+		// 			//const filterSubCategory = filterPigmy.filter(subCat => subCat.Name === 'Title');
+		// 			const titleBuffObject = filterPigmy[0]['SubCategory'][2][`${pigmyTitle}`];
+		// 			titlePigmyBuff = titleBuffObject[0];
+		// 			titlePigmyBuff *= 1;
+		// 			titlePlayerBuff = titleBuffObject[1];
+		// 			titlePlayerBuff *= 1;
+		// 		}
+
+		// 		console.log(specialInfoForm(`Current pigmy titleBuff: ${titlePigmyBuff}\nCurrent player titleBuff: ${titlePlayerBuff}`));
+		// 		console.log(specialInfoForm(`Total xp before applying buffs: ${totXP}`));
+
+		// 		if (titlePlayerBuff !== 0) {
+		// 			totXP = Math.floor(totXP + (totXP * titlePlayerBuff));
+		// 		}
+		// 		totXP = Math.round(totXP);
+		// 		console.log(basicInfoForm(`Total XP gained after rounding, before happiness reduce: ${totXP}`));
+
+		// 		//Calculate cointotal
+		// 		let cGained = (((xpGained - 5) * 1.2) + 1);
+		// 		totCoin += cGained;
+		// 		totCoin = Math.round(totCoin);
+		// 		console.log(basicInfoForm(`Total Coins gained after rounding, before happiness reduce: ${totCoin}`));
+
+		// 		//calculate pigmy xp gained
+		// 		let pigXp = Math.floor(xpGained * (100 * ((userPigmy.level / 6) * 0.005)));
+		// 		if (titlePigmyBuff !== 0) {
+		// 			pigXp = Math.floor(pigXp + (pigXp * titlePigmyBuff));
+		// 		}
+		// 		pigXp = Math.round(pigXp);
+		// 		console.log(basicInfoForm(`Total Pigmy XP gained after rounding, before happiness reduce: ${pigXp}`));
+
+		// 		//==============================
+		// 		//	Alter final results based on happiness of the pigmy
+		// 		//	pigDiffHappy
+		// 		//	matsThisHr -= Math.floor(pigDiffHappy * matsThisHr);
+		// 		let newHappiness = userPigmy.happiness;
+		// 		if (userPigmy.happiness < 85) {
+		// 			totXP -= Math.floor(pigDiffHappy * totXP);
+		// 			totCoin -= Math.floor(pigDiffHappy * totCoin);
+		// 			pigXp -= Math.floor(pigDiffHappy * pigXp);
+		// 			newHappiness -= (10 + (hrs / 24));
+		// 		} else {
+		// 			newHappiness -= (10 + (hrs / 24));
+		// 		}
+
+		// 		const pigmyHappyStr = await updateHappiness(userPigmy, newHappiness);
+
+		// 		const extraEXP = await ActiveStatus.findOne({ where: [{ spec_id: interaction.user.id }, { activec: 'EXP' }] });
+		// 		if (extraEXP) {
+		// 			if (extraEXP.duration > 0) {
+		// 				totXP += totXP * extraEXP.curreffect;
+		// 			}
+		// 		}
+
+		// 		totXP = Math.round(totXP);
+		// 		console.log(basicInfoForm(`Total XP gained after rounding, after happiness reduce: ${totXP}`));
+		// 		totCoin = Math.round(totCoin);
+		// 		console.log(basicInfoForm(`Total Coins gained after rounding, after happiness reduce: ${totCoin}`));
+		// 		pigXp = Math.round(pigXp);
+		// 		console.log(basicInfoForm(`Total Pigmy XP gained after rounding, after happiness reduce: ${pigXp}`));
+
+
+		// 		//==============================
+		// 		//Basic levelup check for user, ending with updating xp and coins in database
+		// 		await isLvlUp(totXP, totCoin, interaction);
+
+		// 		//==============================
+		// 		//Next check if pigmy passes levelup
+		// 		await isPigLvlUp(pigXp, userPigmy, interaction, true);
+
+		// 		//==============================
+		// 		//Generate the rewards embed and prep for user
+		// 		const rewards = `${userPigmy.name} has collected: \n**For you** \n${totCoin}c \n${totXP}xp \n**For ${userPigmy.name}** \n${pigXp}xp`;
+		// 		const dynDes = `After searching tirelessly for hours ${userPigmy.name} had success!`;
+
+		// 		hrs = Math.floor(hrs);
+
+		// 		const pigClaimEmbed = new EmbedBuilder()
+		// 			.setTitle('==**YOU CLAIMED REWARDS**==')
+		// 			.setDescription(dynDes)
+		// 			.setColor(0o0)
+		// 			.addFields(
+		// 				{
+		// 					name: `Rewards after ${hrs}hours`,
+		// 					value: rewards
+		// 				},
+		// 				{
+		// 					name: `${userPigmy.name} is now:`,
+		// 					value: `${pigmyHappyStr}!`
+		// 				});
+		// 		await interaction.followUp({ embeds: [pigClaimEmbed] }).then(async pigClaimEmbed => setTimeout(() => {
+		// 			pigClaimEmbed.delete();
+		// 		}, 100000)).catch(console.error);
+
+		// 		const backButton = new ButtonBuilder()
+		// 			.setLabel("Back")
+		// 			.setStyle(ButtonStyle.Secondary)
+		// 			.setEmoji('◀️')
+		// 			.setCustomId('back-page');
+
+		// 		const finishButton = new ButtonBuilder()
+		// 			.setLabel("Finish")
+		// 			.setStyle(ButtonStyle.Success)
+		// 			.setEmoji('*️⃣')
+		// 			.setCustomId('delete-page');
+
+		// 		const forwardButton = new ButtonBuilder()
+		// 			.setLabel("Forward")
+		// 			.setStyle(ButtonStyle.Secondary)
+		// 			.setEmoji('▶️')
+		// 			.setCustomId('next-page');
+
+		// 		const interactiveButtons = new ActionRowBuilder().addComponents(backButton, finishButton, forwardButton);
+
+		// 		const rarityTypes = ["Common", "Uncommon", "Rare", "Very Rare", "Epic", "Mystic", "?", "??", "???", "????"];
+
+		// 		let fullRarList;
+		// 		let rarCheckNum = 0;
+
+		// 		let embedColour;
+		// 		let matListings;
+
+		// 		let embedPages = [];
+
+		// 		let pageRun = 0;
+		// 		do {
+		// 			fullRarList = matsToAdd.filter(mat => mat.Rarity === rarityTypes[rarCheckNum]);
+		// 			if (fullRarList.length <= 0) {
+		// 				//There are no mats of this rarity, check next Rarity
+		// 				rarCheckNum++;
+		// 			} else {
+		// 				embedColour = await grabColour(rarCheckNum);
+		// 				let breakPoint = 0;
+		// 				for (const matCheck of fullRarList) {
+		// 					matListings = `Value: ${matCheck.Value}\nRarity: ${matCheck.Rarity}\nAmount: ${matCheck.Amount}`;
+
+		// 					const theMaterialEmbed = new EmbedBuilder()
+		// 						.setTitle('~Material Dropped~')
+		// 						.setDescription(`Page ${(pageRun + 1)}/${totPages}`)
+		// 						.setColor(embedColour)
+		// 						.addFields({
+		// 							name: `${matCheck.Name}`,
+		// 							value: matListings
+		// 						});
+
+		// 					embedPages.push(theMaterialEmbed);
+		// 					pageRun++;
+		// 					breakPoint++;
+		// 					if (breakPoint === fullRarList.length) break;
+		// 				}
+		// 				rarCheckNum++;
+		// 			}
+		// 		} while (pageRun < matsToAdd.length)
+
+		// 		const embedMsg = await interaction.followUp({ components: [interactiveButtons], embeds: [embedPages[0]] });
+
+		// 		const filter = (ID) => ID.user.id === interaction.user.id;
+
+		// 		const collector = embedMsg.createMessageComponentCollector({
+		// 			componentType: ComponentType.Button,
+		// 			filter,
+		// 			time: 300000,
+		// 		});
+
+		// 		var currentPage = 0;
+
+		// 		collector.on('collect', async (collInteract) => {
+		// 			if (collInteract.customId === 'next-page') {
+		// 				await collInteract.deferUpdate().then(async () => {
+		// 					if (currentPage === embedPages.length - 1) {
+		// 						currentPage = 0;
+		// 						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+		// 					} else {
+		// 						currentPage += 1;
+		// 						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+		// 					}
+		// 				}).catch(error => {
+		// 					console.log(errorForm(error));
+		// 				});
+		// 			}
+
+		// 			if (collInteract.customId === 'back-page') {
+		// 				await collInteract.deferUpdate().then(async () => {
+		// 					if (currentPage === 0) {
+		// 						currentPage = embedPages.length - 1;
+		// 						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+		// 					} else {
+		// 						currentPage -= 1;
+		// 						await embedMsg.edit({ embeds: [embedPages[currentPage]], components: [interactiveButtons] });
+		// 					}
+		// 				}).catch(error => {
+		// 					console.log(errorForm(error));
+		// 				});
+		// 			}
+
+		// 			if (collInteract.customId === 'delete-page') {
+		// 				await collInteract.deferUpdate();
+		// 				await collector.stop();
+		// 			}
+		// 		});
+
+		// 		collector.on('end', () => {
+		// 			if (embedMsg) {
+		// 				embedMsg.delete().catch(error => {
+		// 					if (error.code !== 10008) {
+		// 						console.error('Failed to delete the message:', error);
+		// 					}
+		// 				});
+		// 			}
+		// 		});
+		// 	}
+		// }
 
 		if (interaction.options.getSubcommand() === 'inspect') {
 			//if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
@@ -1619,107 +1688,107 @@ module.exports = {
 			}, 60000)).catch(console.error);
 		}
 
-		if (interaction.options.getSubcommand() === 'play') {
-			//if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
-			await interaction.deferReply();
-			/**
-					How does happiness effect gameplay?
-						- Increase/Decrease rewards where pigmies are used
-						- Increases/Decreases time it takes to be able to claim from pigmy
-						- Gives the user a sense of purpose and duty to their pigmy
+		// if (interaction.options.getSubcommand() === 'play') {
+		// 	//if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
+		// 	await interaction.deferReply();
+		// 	/**
+		// 			How does happiness effect gameplay?
+		// 				- Increase/Decrease rewards where pigmies are used
+		// 				- Increases/Decreases time it takes to be able to claim from pigmy
+		// 				- Gives the user a sense of purpose and duty to their pigmy
 
-					How does "Playing" effect the pigmy?
-						- Increases happiness
-						- Gives a small amount of xp to the pigmy
-						- Possible chance for pigmy to drop a weapon
+		// 			How does "Playing" effect the pigmy?
+		// 				- Increases happiness
+		// 				- Gives a small amount of xp to the pigmy
+		// 				- Possible chance for pigmy to drop a weapon
 
-					What restrictions/Limits will be in place?
-						- Set limit of play chances per day?
-						- If pigmy is max happiness play is prevented
-						- Very low chance of item drop
+		// 			What restrictions/Limits will be in place?
+		// 				- Set limit of play chances per day?
+		// 				- If pigmy is max happiness play is prevented
+		// 				- Very low chance of item drop
 					
-					How can the user play?
-						- Prompt user with a mini game 
-						- Mini game chosen by the pigmy
-						- Start with 2 mini games once code base is working
-			 */
+		// 			How can the user play?
+		// 				- Prompt user with a mini game 
+		// 				- Mini game chosen by the pigmy
+		// 				- Start with 2 mini games once code base is working
+		// 	 */
 
-			//First set a limit to play chances
-			//Second handle the interaction
-			//Third update the database
-			//Fourth display to user the outcome 
-			const userPigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
-			if (!userPigmy) return await interaction.followUp('You have no pigmy equipped! Use ``/pigmy equip <pigmy-name>`` to change that!');
-			if (!userPigmy.tomorrow) {
-				await setTomorrow(userPigmy);
-			}
-			const playCheck = await checkTomorrow(userPigmy);
+		// 	//First set a limit to play chances
+		// 	//Second handle the interaction
+		// 	//Third update the database
+		// 	//Fourth display to user the outcome 
+		// 	const userPigmy = await Pigmy.findOne({ where: { spec_id: interaction.user.id } });
+		// 	if (!userPigmy) return await interaction.followUp('You have no pigmy equipped! Use ``/pigmy equip <pigmy-name>`` to change that!');
+		// 	if (!userPigmy.tomorrow) {
+		// 		await setTomorrow(userPigmy);
+		// 	}
+		// 	const playCheck = await checkTomorrow(userPigmy);
 
-			if (playCheck === 5) return interaction.followUp(`${userPigmy.name} has refused to play anymore today!!`);
-			if (userPigmy.happiness === 100) return interaction.followUp(`${userPigmy.name} is already the happiest pigmy around!`);
+		// 	if (playCheck === 5) return interaction.followUp(`${userPigmy.name} has refused to play anymore today!!`);
+		// 	if (userPigmy.happiness === 100) return interaction.followUp(`${userPigmy.name} is already the happiest pigmy around!`);
 
-			const pigmyToy = userPigmy.toy;
-			console.log(specialInfoForm(`Current pigmy toy: ${pigmyToy}`));
-			let happyInc = 10;
-			let newHappy = userPigmy.happiness;
-			if (pigmyToy === 'NONE') {
-				console.log(failureResult('NO TOY'));
-				happyInc += 0;
-			} else {
-				const filterPigmy = acToolEffects.filter(effect => effect.Name === 'Pigmy');
-				console.log(specialInfoForm(`Length of filterPigmy: ${filterPigmy.length}`));
-				console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 0: ${filterPigmy[0]['SubCategory'][0][`${pigmyToy}`]}`));
-				//console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 0: ${filterPigmy[0]['SubCategory'][1]}`));
+		// 	const pigmyToy = userPigmy.toy;
+		// 	console.log(specialInfoForm(`Current pigmy toy: ${pigmyToy}`));
+		// 	let happyInc = 10;
+		// 	let newHappy = userPigmy.happiness;
+		// 	if (pigmyToy === 'NONE') {
+		// 		console.log(failureResult('NO TOY'));
+		// 		happyInc += 0;
+		// 	} else {
+		// 		const filterPigmy = acToolEffects.filter(effect => effect.Name === 'Pigmy');
+		// 		console.log(specialInfoForm(`Length of filterPigmy: ${filterPigmy.length}`));
+		// 		console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 0: ${filterPigmy[0]['SubCategory'][0][`${pigmyToy}`]}`));
+		// 		//console.log(specialInfoForm(`Contents of Pigmy-SubCategory @ 0: ${filterPigmy[0]['SubCategory'][1]}`));
 				
 
-				//const filterSubCategory = filterPigmy.filter(subCat => subCat.Name === 'Toy');
-				//console.log(specialInfoForm(`Length of filterSubCategory: ${filterSubCategory.length}`));
-				//console.log(specialInfoForm(`Contents of filtersubCategory @ ${pigmyToy} ${filterSubCategory[`${pigmyToy}`]}`));
+		// 		//const filterSubCategory = filterPigmy.filter(subCat => subCat.Name === 'Toy');
+		// 		//console.log(specialInfoForm(`Length of filterSubCategory: ${filterSubCategory.length}`));
+		// 		//console.log(specialInfoForm(`Contents of filtersubCategory @ ${pigmyToy} ${filterSubCategory[`${pigmyToy}`]}`));
 
-				const toyBuffObject = filterPigmy[0]['SubCategory'][0][`${pigmyToy}`];
-				console.log(specialInfoForm(`Toy buff from filterSubCategory: ${toyBuffObject}`));
-				happyInc += toyBuffObject;
-			}
+		// 		const toyBuffObject = filterPigmy[0]['SubCategory'][0][`${pigmyToy}`];
+		// 		console.log(specialInfoForm(`Toy buff from filterSubCategory: ${toyBuffObject}`));
+		// 		happyInc += toyBuffObject;
+		// 	}
 
-			newHappy += happyInc;
-			console.log(specialInfoForm2(`newHappy is now ${newHappy}`));
-			if (newHappy > 100) newHappy = 100;
+		// 	newHappy += happyInc;
+		// 	console.log(specialInfoForm2(`newHappy is now ${newHappy}`));
+		// 	if (newHappy > 100) newHappy = 100;
 
-			let moodChange = await updateHappiness(userPigmy, newHappy);
-			console.log(specialInfoForm2(`moodChange is now ${moodChange}`));
-			if (moodChange === 'NOMOOD') {
-				return interaction.followUp('Something went wrong while playing!');
-			} else {
-				const incPlay = playCheck + 1;
-				await updatePlayCount(userPigmy, incPlay);
+		// 	let moodChange = await updateHappiness(userPigmy, newHappy);
+		// 	console.log(specialInfoForm2(`moodChange is now ${moodChange}`));
+		// 	if (moodChange === 'NOMOOD') {
+		// 		return interaction.followUp('Something went wrong while playing!');
+		// 	} else {
+		// 		const incPlay = playCheck + 1;
+		// 		await updatePlayCount(userPigmy, incPlay);
 
-				const playTextChoices = ['Awwe how cute!', 'What joy!', 'They loved it!', 'Too bad cameras dont exist yet!'];
-				const theChoiceNum = Math.floor(Math.random() * (playTextChoices.length - 1));
+		// 		const playTextChoices = ['Awwe how cute!', 'What joy!', 'They loved it!', 'Too bad cameras dont exist yet!'];
+		// 		const theChoiceNum = Math.floor(Math.random() * (playTextChoices.length - 1));
 
-				const altPlayText = playTextChoices[theChoiceNum];
+		// 		const altPlayText = playTextChoices[theChoiceNum];
 
-				let playedWithVal;
-				if (pigmyToy === 'NONE') {
-					playedWithVal = 'Doesnt have a toy to play with..';
-				} else {
-					playedWithVal = `Played with their ${pigmyToy}. ${altPlayText}`;
-				}
+		// 		let playedWithVal;
+		// 		if (pigmyToy === 'NONE') {
+		// 			playedWithVal = 'Doesnt have a toy to play with..';
+		// 		} else {
+		// 			playedWithVal = `Played with their ${pigmyToy}. ${altPlayText}`;
+		// 		}
 
-				const playEmbed = new EmbedBuilder()
-					.setTitle(`~PLAYTIME~`)
-					.setColor(0o0)
-					.setFields(
-						{
-							name: `${userPigmy.name}`, value: playedWithVal,
-						},
-						{
-							name: `Current mood: `, value: `${moodChange}`,
-						});
-				await interaction.followUp({ embeds: [playEmbed] }).then(async playEmbed => setTimeout(() => {
-					playEmbed.delete();
-				}, 20000)).catch(console.error);
-            }
-		}
+		// 		const playEmbed = new EmbedBuilder()
+		// 			.setTitle(`~PLAYTIME~`)
+		// 			.setColor(0o0)
+		// 			.setFields(
+		// 				{
+		// 					name: `${userPigmy.name}`, value: playedWithVal,
+		// 				},
+		// 				{
+		// 					name: `Current mood: `, value: `${moodChange}`,
+		// 				});
+		// 		await interaction.followUp({ embeds: [playEmbed] }).then(async playEmbed => setTimeout(() => {
+		// 			playEmbed.delete();
+		// 		}, 20000)).catch(console.error);
+        //     }
+		// }
 
 		// if (interaction.options.getSubcommand() === 'rename') {
 		// 	//if (interaction.user.id !== '501177494137995264') return interaction.reply('This command is under construction, please check back later!');
@@ -1760,113 +1829,113 @@ module.exports = {
 
 		//========================================
 		//This method updates the name of both the active pigmy and its pighouse counterpart 
-		async function editPigName(pig, newpigname) {
-			const activePig = await Pigmy.update({ name: newpigname }, { where: { spec_id: interaction.user.id } });
-			const housePig = await Pighouse.update({ name: newpigname }, { where: { spec_id: interaction.user.id, refid: pig.refid } });
+		// async function editPigName(pig, newpigname) {
+		// 	const activePig = await Pigmy.update({ name: newpigname }, { where: { spec_id: interaction.user.id } });
+		// 	const housePig = await Pighouse.update({ name: newpigname }, { where: { spec_id: interaction.user.id, refid: pig.refid } });
 
-			if (activePig > 0 && housePig > 0) {
-				console.log(successResult('Both checks passed, name updated successfully!'));
-				return 'Updated';
-			} else return 'Failure';
-		}
-
-		//========================================
-		// This method sets the date of tomorrow with the refrence of today
-		async function setTomorrow(pigmy) {
-			//	Give refrence to what day is today 
-			// Set what day is tomorrow in the pigmy database
-			// Use that date to know when to reset play chances
-			const today = new Date();
-			const tomorrow = new Date(today);
-			tomorrow.setDate(tomorrow.getDate() + 1);
-			tomorrow.setHours(0, 0, 0, 0);
-
-			const newDay = tomorrow.getTime();
-			console.log(newDay);
-
-			const activePig = await Pigmy.update({ tomorrow: newDay }, { where: { spec_id: interaction.user.id } });
-			const housePig = await Pighouse.update({ tomorrow: newDay }, { where: { spec_id: interaction.user.id, refid: pigmy.refid } });
-
-			if (activePig > 0) {
-				if (housePig > 0) {
-
-					return console.log('Both checks passed, the day that is next has been set/updated!');
-				}
-			}
-		}
+		// 	if (activePig > 0 && housePig > 0) {
+		// 		console.log(successResult('Both checks passed, name updated successfully!'));
+		// 		return 'Updated';
+		// 	} else return 'Failure';
+		// }
 
 		//========================================
 		// This method sets the date of tomorrow with the refrence of today
-		async function checkTomorrow(pigmy) {
-			const today = new Date();
-			console.log(today.getTime());
-			console.log(pigmy.tomorrow);
+		// async function setTomorrow(pigmy) {
+		// 	//	Give refrence to what day is today 
+		// 	// Set what day is tomorrow in the pigmy database
+		// 	// Use that date to know when to reset play chances
+		// 	const today = new Date();
+		// 	const tomorrow = new Date(today);
+		// 	tomorrow.setDate(tomorrow.getDate() + 1);
+		// 	tomorrow.setHours(0, 0, 0, 0);
 
-			if (pigmy.tomorrow <= today.getTime()) {
-				// Its been a day time to reset play count!
-				console.log('IS TOMORROW!');
-				await setTomorrow(pigmy);
-				await updatePlayCount(pigmy, 0);
-				return 0;
-			} else {
-				// Not tomorrow current playcount is valid
-				console.log('IS STILL TODAY!');
-				return pigmy.playcount;
-			}
-		}
+		// 	const newDay = tomorrow.getTime();
+		// 	console.log(newDay);
+
+		// 	const activePig = await Pigmy.update({ tomorrow: newDay }, { where: { spec_id: interaction.user.id } });
+		// 	const housePig = await Pighouse.update({ tomorrow: newDay }, { where: { spec_id: interaction.user.id, refid: pigmy.refid } });
+
+		// 	if (activePig > 0) {
+		// 		if (housePig > 0) {
+
+		// 			return console.log('Both checks passed, the day that is next has been set/updated!');
+		// 		}
+		// 	}
+		// }
+
+		//========================================
+		// This method sets the date of tomorrow with the refrence of today
+		// async function checkTomorrow(pigmy) {
+		// 	const today = new Date();
+		// 	console.log(today.getTime());
+		// 	console.log(pigmy.tomorrow);
+
+		// 	if (pigmy.tomorrow <= today.getTime()) {
+		// 		// Its been a day time to reset play count!
+		// 		console.log('IS TOMORROW!');
+		// 		await setTomorrow(pigmy);
+		// 		await updatePlayCount(pigmy, 0);
+		// 		return 0;
+		// 	} else {
+		// 		// Not tomorrow current playcount is valid
+		// 		console.log('IS STILL TODAY!');
+		// 		return pigmy.playcount;
+		// 	}
+		// }
 
 		//========================================
 		// This method increments play count of both the active pigmy and its pighouse counterpart
-		async function updatePlayCount(pigmy, currentplay) {
-			const activePig = await Pigmy.update({ playcount: currentplay }, { where: { spec_id: interaction.user.id } });
-			const housePig = await Pighouse.update({ playcount: currentplay }, { where: { spec_id: interaction.user.id, refid: pigmy.refid } });
-			if (activePig > 0) {
-				if (housePig > 0) {
+		// async function updatePlayCount(pigmy, currentplay) {
+		// 	const activePig = await Pigmy.update({ playcount: currentplay }, { where: { spec_id: interaction.user.id } });
+		// 	const housePig = await Pighouse.update({ playcount: currentplay }, { where: { spec_id: interaction.user.id, refid: pigmy.refid } });
+		// 	if (activePig > 0) {
+		// 		if (housePig > 0) {
 
-					return console.log('Both checks passed, Play count has been updated!');
-				}
-			}
-		}
+		// 			return console.log('Both checks passed, Play count has been updated!');
+		// 		}
+		// 	}
+		// }
 
 		//========================================
 		//This method updates the happiness of both the active pigmy and its pighouse counterpart
-		async function updateHappiness(pigmy, newHappiness) {
-			let newMood;
-			if (newHappiness === 100) {
-				//Pigmy is fantasitc!
-				newMood = 'Fantastic!';
-			} else if (newHappiness < 10) {
-				//Pigmy is Corrupted!
-				newMood = 'Corrupted!';
-			} else if (newHappiness <= 25) {
-				//Pigmy is Dejected
-				newMood = 'Dejected';
-			} else if (newHappiness <= 40) {
-				//Pigmy is Unhappy
-				newMood = 'Unhappy';
-			} else if (newHappiness <= 50) {
-				//Pigmy is Uneasy
-				newMood = 'Uneasy';
-			} else if (newHappiness <= 75) {
-				//Pigmy is Content
-				newMood = 'Content';
-			} else if (newHappiness <= 90) {
-				//Pigmy is Happy!
-				newMood = 'Happy!';
-			} else if (newHappiness < 100) {
-				//Pigmy is Happy!
-				newMood = 'Happy!';
-			}
+		// async function updateHappiness(pigmy, newHappiness) {
+		// 	let newMood;
+		// 	if (newHappiness === 100) {
+		// 		//Pigmy is fantasitc!
+		// 		newMood = 'Fantastic!';
+		// 	} else if (newHappiness < 10) {
+		// 		//Pigmy is Corrupted!
+		// 		newMood = 'Corrupted!';
+		// 	} else if (newHappiness <= 25) {
+		// 		//Pigmy is Dejected
+		// 		newMood = 'Dejected';
+		// 	} else if (newHappiness <= 40) {
+		// 		//Pigmy is Unhappy
+		// 		newMood = 'Unhappy';
+		// 	} else if (newHappiness <= 50) {
+		// 		//Pigmy is Uneasy
+		// 		newMood = 'Uneasy';
+		// 	} else if (newHappiness <= 75) {
+		// 		//Pigmy is Content
+		// 		newMood = 'Content';
+		// 	} else if (newHappiness <= 90) {
+		// 		//Pigmy is Happy!
+		// 		newMood = 'Happy!';
+		// 	} else if (newHappiness < 100) {
+		// 		//Pigmy is Happy!
+		// 		newMood = 'Happy!';
+		// 	}
 
-			const activePig = await Pigmy.update({ happiness: newHappiness, mood: newMood }, { where: { spec_id: interaction.user.id } });
-			const housePig = await Pighouse.update({ happiness: newHappiness, mood: newMood }, { where: { spec_id: interaction.user.id, refid: pigmy.refid } });
+		// 	const activePig = await Pigmy.update({ happiness: newHappiness, mood: newMood }, { where: { spec_id: interaction.user.id } });
+		// 	const housePig = await Pighouse.update({ happiness: newHappiness, mood: newMood }, { where: { spec_id: interaction.user.id, refid: pigmy.refid } });
 
-			if (activePig > 0) {
-				if (housePig > 0) {
-					console.log('Both checks passed, Happiness and Mood updated!');
-					return newMood;
-				} else return 'NOMOOD';
-			} else return 'NOMOOD';
-		}
+		// 	if (activePig > 0) {
+		// 		if (housePig > 0) {
+		// 			console.log('Both checks passed, Happiness and Mood updated!');
+		// 			return newMood;
+		// 		} else return 'NOMOOD';
+		// 	} else return 'NOMOOD';
+		// }
 	},
 };
