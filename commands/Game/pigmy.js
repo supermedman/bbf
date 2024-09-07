@@ -22,7 +22,7 @@ const blueprintList = require('../../events/Models/json_prefabs/blueprintList.js
 const { makeCapital, grabUser, grabActivePigmy, sendTimedChannelMessage, createConfirmCancelButtonRow, createInteractiveChannelMessage, handleCatchDelete, editTimedChannelMessage, randArrPos, inclusiveRandNum, endTimer } = require('../../uniHelperFunctions.js');
 const { loadFullDismantleList, baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 const { checkInboundMat } = require('../Development/Export/itemMoveContainer.js');
-const { handleUserPayout, handlePigmyPayouts } = require('../Development/Export/uni_userPayouts.js');
+const { handleUserPayout, handlePigmyPayouts, pigLvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
 const { createBasicPageButtons } = require('./exported/tradeExtras.js');
 const {NavMenu} = require('../Development/Export/Classes/NavMenu.js');
 
@@ -247,7 +247,12 @@ module.exports = {
 				claimingPigmy = true;
 			break;
 			case "inspect":
-			return await interaction.reply({content: 'Command under construction! Check back later!', ephemeral: true});;
+				// if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'Command under construction! Check back later!', ephemeral: true});
+				const pigmyInspectDisplay = await loadPigmyDisplay(pigmy);
+
+				const pigPicLoadAnchor = await interaction.reply({embeds: [new EmbedBuilder().setTitle('Loading Pigmy!')]});
+
+			return await editTimedChannelMessage(pigPicLoadAnchor, 120000, {files: [pigmyInspectDisplay], embeds: []});
 			case "play":
 				const pigmyPlayCount = await handleTomorrowCheck(pigmy);
 				if (pigmyPlayCount === 5) return await interaction.reply({content: `${makeCapital(pigmy.name)} is too tired to play anymore today!`, ephemeral: true});
@@ -359,6 +364,358 @@ module.exports = {
 			return await editTimedChannelMessage(anchorMsg, 90000, {embeds: [finalReply], components: []});
 		});
 		// =====================
+
+
+		async function loadPigmyDisplay(pig){
+			const drawDisplayStartTime = new Date().getTime();
+			const {masterBPCrafts} = interaction.client;
+			const pRef = pigmyList.find(p => p.ID === pig.refid);
+
+			const canvas = Canvas.createCanvas(700, 400);
+			const ctx = canvas.getContext('2d');
+
+			// Load Background & Pigmy Picture
+			const background = await Canvas.loadImage(pRef.BackRef);
+			const pigPic = await Canvas.loadImage(pRef.PngRef);
+			ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+			const baseStyle = {
+				fontSize: '25px',
+				font: 'sans-serif',
+				fillStyle: 'white',
+				clearCurrentStyles(){
+					ctx.font = this.fontSize + " " + this.font;
+					ctx.fillStyle = this.fillStyle;
+				},
+				clearCurrentSize(){
+					ctx.font = this.fontSize + " " + this.font;
+				},
+				clearCurrentColour(){
+					ctx.fillStyle = this.fillStyle;
+				},
+				applySize(px){
+					ctx.font = `${px}px ` + this.font;
+				},
+				applyColour(colour){
+					ctx.fillStyle = colour;
+				}
+			};
+
+			// ctx.font = baseStyle.fontSize + " " + baseStyle.font;
+			// ctx.fillStyle = baseStyle.fillStyle;
+			baseStyle.clearCurrentStyles();
+
+			// PigmyPicDimensions: (Alias) ppDims
+			const ppDims = {
+				w: 250,
+				h: 250
+			};
+
+			const topMargin = 65;
+			const leftMargin = 20;
+
+			// LineSpacing: (Alias) lsp
+			const lsp = {
+				// Standard spacing between text groups
+				spaceBetween: 35, 
+				// Standard spacing between text lines
+				spaceBelow: 25,
+				// Combined total text height bottoms
+				bottomTotal: 0, 
+				// Line data Object
+				lines: {
+					// Above PigmyPic
+					one: leftMargin, 
+					// Last string measured of line one
+					oneLastTxt: '', 
+					// Bottom of `lsp.one`
+					oneB: topMargin,
+
+					// Right of PigmyPic
+					two: leftMargin + ppDims.w, 
+					// Last string measured of line two
+					twoLastTxt: '', 
+					// Bottom of `lsp.two`
+					twoB: topMargin, 
+
+					// Right of PigmyPic
+					three: leftMargin + ppDims.w, 
+					// Last string measured of line three
+					threeLastTxt: '', 
+					// Bottom of `lsp.three`
+					threeB: topMargin,
+
+					// Right of PigmyPic
+					four: leftMargin + ppDims.w, 
+					// Last string measured of line four
+					fourLastTxt: '', 
+					// Bottom of `lsp.four`
+					fourB: topMargin, 
+				},
+				/**
+				 * This method increases the given `line` by the given `pxInc`
+				 * @param {string} line Line to increase
+				 * @param {number} pxInc Pixel Width to add to given `line`
+				 * @returns {number} Updated Pixel Width of given `line`
+				 */
+				incLineWidth(line, pxInc){
+					this.lines[line] += pxInc;
+					return this.lines[line];
+				},
+				/**
+				 * This method measures the given `text`,
+				 * first setting `this.lines["${line}LastText"]` to `text`, 
+				 * then passing the Pixel width to `this.incLineWidth` as 
+				 * `(line, text.width + this.spaceBetween)`
+				 *  
+				 * returns the total updated Pixel width
+				 * @param {string} line Line to increase
+				 * @param {string} text Text being draw on the canvas
+				 * @returns {number} Updated Pixel Width of given `line`
+				 */
+				addLineTxt(line, text){
+					const txtWidth = ctx.measureText(text).width;
+					this.lines[`${line}LastTxt`] = text;
+					return this.incLineWidth(line, txtWidth + this.spaceBetween);
+				},
+				textLineWidth(text){
+					return ctx.measureText(text).width;
+				},
+				outLineWidth(line){
+					console.log(`Measured Total Width of Line ${line}: `, this.lines[line], 'px');
+				},
+				/**
+				 * This method handles checking the bottom bounding box of the given `line`'s
+				 * text. It adds this to the `this.bottomTotal` and returns its value. 
+				 * @param {string} line Line to set bottom height of
+				 * @returns {number} Total Pixel Height from ctx.top to bottom of `line` given
+				 */
+				bottomLineSet(line){
+					const bottomPX = ctx.measureText(this.lines[`${line}LastTxt`]).actualBoundingBoxAscent;
+					this.bottomTotal += bottomPX; //this.lines[`${line}B`];
+					this.lines[`${line}B`] += this.bottomTotal + this.spaceBelow; // bottomPX
+					// console.log(`Line ${line} bottom set at: ${this.lines[`${line}B`]}`);
+					return this.bottomTotal;
+				},
+				bottomTotalSet(line){
+					this.bottomTotal = this.lines[`${line}B`];
+				},
+				bottomLineGet(line){
+					return this.lines[`${line}B`];
+				},
+				handleOutOfBound(line, text){
+					const isOutOfBounds = (txt) => (this.lines[line] + ctx.measureText(txt).width) >= canvas.width;
+					if (isOutOfBounds(text)){
+						// Resize font until not out of bounds
+						let fontSize = 25;
+						do {
+							// Downsize font by 5px
+							fontSize -= 5;
+							// Failsafe
+							if (fontSize <= 0) break; 
+							// Apply size to ctx
+							baseStyle.applySize(fontSize);
+						} while (isOutOfBounds(text));
+					} else return;
+				},
+				handleMaxSetLength(text, pxMax){
+					const isOutOfBounds = (txt) => ctx.measureText(txt).width >= pxMax;
+					if (isOutOfBounds(text)){
+						let fontSize = 25;
+						do {
+							// Downsize font by 5px
+							fontSize -= 5;
+							// Failsafe
+							if (fontSize <= 0) break; 
+							// Apply size to ctx
+							baseStyle.applySize(fontSize);
+						} while (isOutOfBounds(text));
+					} else return;
+				}
+			};
+
+			if (pig.title !== 'NONE'){
+				const titleMatch = masterBPCrafts.get(pig.title);
+				baseStyle.applyColour(grabColour(titleMatch.Rar_id, true));
+			}
+
+
+			// Load/Draw Title ==> Name
+			const titleText = (pig.title === 'NONE') ? "No Title": pig.title;
+			// !!TITLE!! Placement is || margin => titleText <== (((PigmyPic.width - leftMargin) - titleText.width) / 2) 
+			ctx.fillText(titleText, lsp.incLineWidth('one', ((ppDims.w - lsp.textLineWidth(titleText)) / 2) - leftMargin), topMargin);
+			baseStyle.clearCurrentColour();
+			// lsp.lines.one
+			lsp.addLineTxt('one', titleText);
+
+			// Load/Draw Name
+			const nameText = makeCapital(pig.name);
+			// Remaining Canvas Width
+			const rcw = canvas.width - lsp.lines.one;
+			// !!NAME!! Placement is || lsp.lines.one => {== (Remaining Canvas Width - nameText.width) / 2 ==} ==> nameText <== {== Remaining Canvas Width / 2 ==} ||
+			ctx.fillText(nameText, lsp.incLineWidth('one', ((rcw - lsp.textLineWidth(nameText)) / 2)), topMargin);
+			// lsp.outLineWidth('one');
+			lsp.bottomLineSet('one');
+			
+			//ctx.strokeStyle = 'red';
+			//ctx.strokeRect(leftMargin, lsp.bottomLineGet('one') - 25, ppDims.w, ppDims.h);
+			
+			//ctx.strokeStyle = 'blue';
+			//ctx.strokeRect(leftMargin, lsp.bottomTotal, ppDims.w, ppDims.h);
+			// console.log(lsp.bottomTotal);
+			// Draw pigmy picture
+			ctx.drawImage(pigPic, leftMargin, lsp.bottomTotal + lsp.spaceBelow, ppDims.w, ppDims.h);
+			const pigPicSpacing = (lsp.bottomTotal + lsp.spaceBelow + ppDims.h);
+			lsp.bottomTotalSet('one');
+			// Load/Draw Pigmy Type Below ^^^
+			// Load proper pigmy Type Text
+			const typeText = (pRef.Type === 'NONE') 
+			? 'Typeless Pigmy'
+			: `${pRef.Type} Pigmy`;
+
+			// If not NONE, apply colour to type
+			if (pRef.Type !== 'NONE'){
+				switch(pRef.Type){
+					case "Fire":
+						baseStyle.applyColour('red');
+					break;
+					case "Frost":
+						baseStyle.applyColour('cyan');
+					break;
+					case "Light":
+						baseStyle.applyColour('#ECFFDC');
+					break;
+					case "Dark":
+						baseStyle.applyColour('#191970');
+					break;
+					case "Magic":
+						baseStyle.applyColour('#DAA520');
+					break;
+					case "Elder":
+						baseStyle.applyColour('burgundy');
+					break;
+					case "NULL":
+						baseStyle.applyColour('rebeccapurple');
+					break;
+				}
+			}
+			ctx.fillText(typeText, leftMargin + (((ppDims.w - leftMargin) - lsp.textLineWidth(typeText)) / 2), pigPicSpacing);
+			baseStyle.clearCurrentColour();
+
+			// Load/Draw Level ==> XP (Cur/Nxt) ==> Mood
+			const infoText = {
+				lvlTxt: `Level: ${pig.level}`,
+				xpTxt: `XP: ${pig.exp}/${pigLvlScaleCheck(pig.level)}`,
+				moodTxt: `Mood: ${pig.mood}`
+			};
+
+			// console.log('START OF LINE TWO');
+			// lsp.outLineWidth('two');
+			// Draw Level info
+			ctx.fillText(infoText.lvlTxt, lsp.lines.two, lsp.bottomLineGet('one'));
+			lsp.addLineTxt('two', infoText.lvlTxt);
+			//lsp.outLineWidth('two');
+
+			// const XPTEXT = 'XP:';
+			// // Draw XP: text inline
+			// ctx.fillText(XPTEXT, lsp.lines.two, lsp.bottomLineGet('one'));
+			// // Handle xp text length
+			// const xpTextBase = lsp.textLineWidth(XPTEXT);
+			lsp.handleMaxSetLength(infoText.xpTxt, 100);
+			// Draw XP info
+			ctx.fillText(infoText.xpTxt, lsp.lines.two, lsp.bottomLineGet('one')); //  + xpTextBase
+			//lsp.addLineTxt('two', XPTEXT);
+			lsp.addLineTxt('two', infoText.xpTxt);
+			baseStyle.clearCurrentStyles();
+
+			// Check if Current mood text will display outside canvas bounds.
+			// Resizes font accordingly
+			lsp.handleOutOfBound('two', infoText.moodTxt);
+			// Draw Mood info
+			ctx.fillText(infoText.moodTxt, lsp.lines.two, lsp.bottomLineGet('one'));
+			lsp.addLineTxt('two', infoText.moodTxt);
+			// Reset ctx styles to defaults
+			baseStyle.clearCurrentStyles();
+			//lsp.outLineWidth('two');
+			lsp.bottomLineSet('two');
+			lsp.bottomTotalSet('two');
+
+
+			//console.log('START OF LINE THREE');
+			//lsp.outLineWidth('three');
+			// Load/Draw Hat ===> Buff
+			if (pig.hat !== 'NONE'){
+				const hatMatch = masterBPCrafts.get(pig.hat);
+				baseStyle.applyColour(grabColour(hatMatch.Rar_id, true));
+			}
+			const hatText = (pig.hat === 'NONE') 
+			? 'No Hat!'
+			: pig.hat;
+			// Draw Hat: text above
+			ctx.fillText('Hat:', lsp.lines.three, lsp.bottomLineGet('two') - 25);
+			// Handle hat name length
+			lsp.handleMaxSetLength(hatText, 150);
+			// Draw hat text
+			ctx.fillText(hatText, lsp.lines.three, lsp.bottomLineGet('two'));
+			// Add to line length
+			lsp.addLineTxt('three', hatText);
+			// Clear hat styling
+			baseStyle.clearCurrentStyles();
+			
+
+			// Draw Buff: text above
+			ctx.fillText('Buff:', lsp.lines.three, lsp.bottomLineGet('two') - 25);
+			
+			const buffText = `${pRef.Buff}`;
+			// Handle buff text out of bounds
+			lsp.handleOutOfBound('three', buffText);
+			// Draw buff text
+			ctx.fillText(buffText, lsp.lines.three, lsp.bottomLineGet('two'));
+			// Add to line length
+			lsp.addLineTxt('three', buffText);
+			// Clear font changes
+			baseStyle.clearCurrentSize();
+
+			lsp.bottomLineSet('three');
+			lsp.bottomTotalSet('three');
+
+			// Load/Draw Toy ===> D.P.L (dmg per lvl)
+			if (pig.toy !== 'NONE'){
+				const toyMatch = masterBPCrafts.get(pig.toy);
+				baseStyle.applyColour(grabColour(toyMatch.Rar_id, true));
+			}
+			const toyText = (pig.toy === 'NONE') 
+			? 'No Toy!'
+			: pig.toy;
+			// Draw Toy: text above
+			ctx.fillText('Toy:', lsp.lines.four, lsp.bottomLineGet('three') - 25);
+			// Handle toy name length
+			lsp.handleMaxSetLength(toyText, 175);
+			// Draw toy text
+			ctx.fillText(toyText, lsp.lines.four, lsp.bottomLineGet('three'));
+			// Add to line length
+			lsp.addLineTxt('four', toyText);
+			// Clear toy styling
+			baseStyle.clearCurrentStyles();
+
+			// Draw D.P.L: text above
+			ctx.fillText(`D.P.L: ${pRef.DPL}`, lsp.lines.four, lsp.bottomLineGet('three') - 25);
+			
+			const dmgText = `Dmg Bonus: ${pRef.DPL * pig.level}`;
+			// Handle dmg text out of bounds
+			lsp.handleOutOfBound('four', dmgText);
+			// Draw dmg text
+			ctx.fillText(dmgText, lsp.lines.four, lsp.bottomLineGet('three'));
+			// Add to line length
+			lsp.addLineTxt('four', dmgText);
+			// Clear font changes
+			baseStyle.clearCurrentSize();
+
+			const finalImage = new AttachmentBuilder(await canvas.encode('png'), {name: 'pigmy-inspect-image.png'});
+			endTimer(drawDisplayStartTime, 'Total Pigmy Inspect Draw Display');
+
+			return finalImage;
+		}
 
 		/**
 		 * This function handles pigmy playtime, increasing the given pigmys happiness based on,
@@ -675,7 +1032,7 @@ module.exports = {
 			for (const matTypeList of matCont.constructMatRefList(fullMatRollList)){
 				const matTypeEmbed = new EmbedBuilder()
 				.setTitle(`== ${makeCapital(matTypeList[0].matType)} Materials ==`)
-				.setColor(grabColour(matTypeList.at(-1).matRef.Rar_id));
+				.setColor(grabColour((matTypeList.at(-1)).matRef.Rar_id));
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){

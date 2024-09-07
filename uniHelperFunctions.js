@@ -334,20 +334,39 @@ function handleContentType(contents){
  */
 async function sendTimedChannelMessage(interaction, timeLimit, contents, replyType){
     const replyObject = handleContentType(contents);
+    let responseMessage;
     switch(replyType){
         case "FollowUp":
-        return await interaction.followUp(replyObject).then(msg => setTimeout(() => {
-            msg.delete();
-        }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+            responseMessage = await interaction.followUp(replyObject);
+        break;
         case "Reply":
-        return await interaction.reply(replyObject).then(msg => setTimeout(() => {
-            msg.delete();
-        }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+            responseMessage = await interaction.reply(replyObject);
+        break;
         default:
-        return await interaction.channel.send(replyObject).then(msg => setTimeout(() => {
-            msg.delete();
-        }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+            responseMessage = await interaction.channel.send(replyObject);
+        break;
     }
+
+    // * INTERACTION FOLLOWUP
+    //  * return await interaction.followUp(replyObject).then(msg => setTimeout(() => {
+    //         msg.delete();
+    //     }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+    //  * 
+    //  * INTERACTION REPLY
+    //  * return await interaction.reply(replyObject).then(msg => setTimeout(() => {
+    //         msg.delete();
+    //     }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+    //  * 
+    //  * INTERACTION CHANNEL SEND
+    //  * return await interaction.channel.send(replyObject).then(msg => setTimeout(() => {
+    //     msg.delete();
+    // }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+
+    setTimeout(async () => {
+        await handleCatchDelete(responseMessage);
+    }, timeLimit);
+
+    return;
 }
 
 function ignoreUnknownMessageError(e){
@@ -366,13 +385,20 @@ function ignoreUnknownMessageError(e){
  */
 async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
     const replyObject = handleContentType(editWith);
-    return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
-        anchorMsg.delete();
-    }, timeLimit)).catch(e => {
-        if (e.code !== 10008){
-            console.error(`Failed to ${e.method} a message:`, e);
-        }
-    });
+
+    await anchorMsg.edit(replyObject).then(async () => setTimeout(async () => {
+        await handleCatchDelete(anchorMsg);
+    }, timeLimit));
+
+    // return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
+    //     anchorMsg.delete();
+    // }, timeLimit)).catch(e => {
+    //     if (e.code !== 10008){
+    //         console.error(`Failed to ${e.method} a message:`, e);
+    //     }
+    // });
+
+    return;
 }
 
 /**
@@ -545,8 +571,6 @@ async function handleCatchDelete(anchorMsg){
         }
     });
 }
-
-
 
 /**
  * This function generates a standard ``Confirm`` & ``Cancel`` button action row.

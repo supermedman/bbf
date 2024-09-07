@@ -20,7 +20,8 @@ module.exports = {
 			if (!['start', 'setup'].includes(command.data.name)){
 				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
 				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
-				const rollNpc = 0.98, rolled = Math.random();
+				
+				const rollNpc = 0.998, rolled = Math.random();
 				if (rolled >= rollNpc) spawnNpc(userCheck, interaction);
 			}
 
@@ -53,18 +54,19 @@ module.exports = {
 			
 			try {
 				await command.execute(interaction);
-			} catch (error) {
-				console.error(`Error executing ${interaction.commandName}`);
-				console.error(error);
-				if (!interaction) {
-					return console.log('INTERACTION FAILED TO BE FOUND LOGGING FAILURE!');
-				} else {
-					console.log('INTERACTION FOUND DISPLAYING FAILURE!');
-					if (interaction.replied || interaction.deferred) {
-						await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-					} else {
-						await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: false });
-					}
+			} catch (e) {
+				console.log(`~~== ERROR executing ==> ${interaction.commandName} ==~~`);
+				if (!interaction){
+                    console.log('INTERACTION NOT FOUND!');
+                    console.error(e);
+                    return;
+                } else {
+                    console.log('INTERACTION FOUND! Displaying Error');
+                    console.error(e);
+                    const errReplyContent = { content: 'There was an error while executing this command!', ephemeral: true };
+                    if (interaction.replied || interaction.deferred){
+                        return await interaction.followUp(errReplyContent);
+                    } else return await interaction.reply(errReplyContent);
                 }
 			}
 		} else if (interaction.isButton()) {

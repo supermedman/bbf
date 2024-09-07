@@ -353,7 +353,11 @@ class CombatInstance {
             await checkHintStats(u, interaction);
         }
 
+        this.buttonState.steal.txt = 'Steal';
         this.buttonState.steal.disable = false;
+
+        this.buttonState.hide.txt = 'Try to hide';
+        this.buttonState.hide.disable = false;
 
         return;
     }
