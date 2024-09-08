@@ -222,7 +222,7 @@ const damageMatchTable = [
     //fle,  arm,   bark,  foss,  m-fle, spec,  hell,  dem,   p-dem, p-aur, boss,  plot
     ["+",   "+++", "+",   "++",  "-",   "---", "-",   "=",   "=",   "---", "-",   "---"], // 00 Blunt
     ["++",  "-",   "+",   "-",   "+",   "---", "=",   "=",   "=",   "---", "-",   "---"], // 01 Slash
-    ["+",   "-",   "=",   "--",  "+",   "--",  "++",  "-",   "++",  "++",  "-",   "---"], // 02 Pierce
+    ["+",   "--",  "=",   "--",  "+",   "--",  "++",  "-",   "++",  "++",  "-",   "---"], // 02 Pierce
     ["=",   "=",   "=",   "=",   "--",  "++",  "-",   "+",   "-",   "-",   "-",   "---"], // 03 Magic
     ["+++", "+",   "=",   "=",   "++",  "--",  "--",  "+",   "+",   "++",  "+",   "---"], // 04 Rad
     ["+",   "++",  "++",  "-",   "-",   "-",   "+++", "++",  "--",  "-",   "-",   "---"], // 05 Frost
@@ -242,6 +242,26 @@ const damageMatchTable = [
 // ===============================
 
 const {statusContainer} = require('./statusEffect');
+
+// Shields are immune to all status effects
+
+// Armor can be bypassed through status effects
+
+// Flesh is the main target for status effects and on average should contain the largest HP pool compared to Armor and Shields
+
+// Basic flesh status effects test one:
+// Status effect pairs
+
+
+// Combo Effects
+/**
+ *      - Blast: Frost + Fire
+ *      - PhaseBind: Dark + Light
+ */
+// const statusComboComp = {
+//     Blast: Frost + Fire,
+//     PhaseBind: Dark + Light
+// }
 
 /**
  * This function handles all status checks based on damage type using status effect container object methods

@@ -98,6 +98,7 @@ for (const gear of lootList) {
 	} else console.log(`[WARNING] Gear ${gear.Name} is missing required "Loot_id" or "Rar_id" property.`);
 }
 
+// Will be removed.
 client.materialFiles = new Collection();
 
 const materialPath = path.join(__dirname, 'events/Models/json_prefabs/materialLists');
@@ -109,6 +110,24 @@ for (const matFile of foundMatFiles){
 
 	client.materialFiles.set(matType[0], matPath);
 }
+
+// Will be used in place of `client.materialFiles` in the future for all material related actions
+client.materials = new Collection();
+
+for (const matFile of foundMatFiles){
+	const matPath = `${materialPath}/${matFile}`;
+	const matFileType = matFile.split('List')[0];
+
+	const matRefList = require(matPath);
+	const matRefDataList = [];
+	for (const matRef of matRefList){
+		matRefDataList.push(matRef);
+	}
+
+	matRefDataList.sort((a,b) => a.Mat_id - b.Mat_id);
+	client.materials.set(matFileType, matRefDataList);
+}
+
 
 // Setup Blueprint Cache data
 client.masterBPCrafts = new Collection();

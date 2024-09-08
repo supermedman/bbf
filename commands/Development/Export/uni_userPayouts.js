@@ -302,4 +302,4 @@ async function updatePigmyValues(xp, level, pigmy, claimed){
     return;
 }
 
-module.exports = {lvlScaleCheck, handleUserPayout, handlePigmyPayouts, updateUserCoins, spendUserCoins, updateUserQTS};
+module.exports = {lvlScaleCheck, pigLvlScaleCheck, handleUserPayout, handlePigmyPayouts, updateUserCoins, spendUserCoins, updateUserQTS};

@@ -20,7 +20,7 @@
         "Cost": 50,
 
         "DPL": 1.5,
-        "Buff": "Dexterity + 0.10 & Strength + 5",
+        "Buff": "Dexterity +1 & Strength +5",
 
         "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Fire-Pigmy.png",
         "Image": "attachment://Fire-Pigmy.png",
@@ -35,7 +35,7 @@
         "Cost": 80,
 
         "DPL": 2,
-        "Buff": "Speed + 0.10 & Intelligence + 5",
+        "Buff": "Speed +1 & Intelligence +5",
 
         "PngRef": "./events/Models/json_prefabs/pigmy-list-png/Frost-Pigmy.png",
         "Image": "attachment://Frost-Pigmy.png",

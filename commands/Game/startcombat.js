@@ -514,7 +514,7 @@ module.exports = {
                 await sendTimedChannelMessage(interaction, 35000, killedEmbed);
             } else {
                 const combReplyObj = {embeds: [killedEmbed], components: [eRow]};
-                const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj);
+                const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj, "FollowUp");
 
                 collector.on('collect', async c => {
                     await c.deferUpdate().then(async () => {

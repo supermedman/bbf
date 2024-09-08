@@ -3,6 +3,7 @@ const { warnedForm } = require('../chalkPresets');
 
 const {EarlyAccess, UserData} = require('../dbObjects.js');
 const { spawnNpc } = require('../commands/Game/exported/npcSpawner.js');
+const { makeCapital } = require('../uniHelperFunctions.js');
 
 //let collectionRunOnce = false;
 
@@ -17,10 +18,11 @@ module.exports = {
 				return;
 			}
 
-			if (command.data.name !== 'start'){
+			if (!['start', 'setup', 'invite', 'channel'].includes(command.data.name)){
 				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
 				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
-				const rollNpc = 0.98, rolled = Math.random();
+				
+				const rollNpc = 0.998, rolled = Math.random();
 				if (rolled >= rollNpc) spawnNpc(userCheck, interaction);
 			}
 
@@ -53,18 +55,41 @@ module.exports = {
 			
 			try {
 				await command.execute(interaction);
-			} catch (error) {
-				console.error(`Error executing ${interaction.commandName}`);
-				console.error(error);
-				if (!interaction) {
-					return console.log('INTERACTION FAILED TO BE FOUND LOGGING FAILURE!');
-				} else {
-					console.log('INTERACTION FOUND DISPLAYING FAILURE!');
-					if (interaction.replied || interaction.deferred) {
-						await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-					} else {
-						await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: false });
-					}
+			} catch (e) {
+				console.log(`~~== ERROR executing ==> ${interaction.commandName} ==~~`);
+				if (!interaction){
+                    console.log('INTERACTION NOT FOUND!');
+                    console.error(e);
+                    return;
+                } else {
+                    console.log('INTERACTION FOUND! Displaying Error');
+					console.log('Interaction Options Provided: ', interaction.options);
+                    console.error(e);
+                    const errReplyContent = { content: 'There was an error while executing this command!', ephemeral: true };
+                    if (interaction.replied || interaction.deferred){
+                        await interaction.followUp(errReplyContent);
+                    } else await interaction.reply(errReplyContent);
+
+					// Attempt to send error log to https://discord.com/channels/892659101878849576/1282130653608935476
+					const channel = await interaction.client.guilds.fetch("892659101878849576").then(async g => {
+						return await g.channels.fetch("1282130653608935476");
+					}).catch(e => console.error('Failed to retrieve logging channel: ', e));
+
+					const errEmbed = new EmbedBuilder()
+					.setTitle(`==> Command: /${makeCapital(interaction.commandName)} <==`)
+					.setDescription(`Subcommand Group: **${interaction.options.getSubcommandGroup()}**\nSubcommand: **${interaction.options.getSubcommand()}**\nAdditional Args Passed:`);
+
+					const argFieldList = [];
+					if (interaction.options._hoistedOptions.length){
+						for (const op of interaction.options._hoistedOptions){
+							argFieldList.push({name: `ArgName: **${op.name}**`, value: `Option Type: **${op.type}**\nOption Value: **${op.value}**`});
+							if (argFieldList.length >= 25) break;
+						}
+					} else argFieldList.push({name: 'None', value: 'No additional data..'});
+
+					errEmbed.addFields(argFieldList);
+
+					return await channel.send({embeds: [errEmbed], content: `\`\`\`\nRaw Error: ${e.toString()}\n\nStack: ${e.stack}\`\`\``});
                 }
 			}
 		} else if (interaction.isButton()) {

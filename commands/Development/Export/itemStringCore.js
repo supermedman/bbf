@@ -226,7 +226,7 @@ function baseCheckRarName(rarID){
 /**
  * This function takes a given rarity and converts it into its rarID equivalent.
  * @param {string} rarity rarKeys String Matched Rarity 
- * @returns number as RarID
+ * @returns {number} as RarID
  */
 function checkingRarID(rarity){
     let keyCopy;
@@ -279,6 +279,17 @@ function checkingDismantle(TEST_CODE) {
     }
     
     return finalListed;
+}
+
+/**
+ * This function returns all stored `dismantleTypes`, excluding types matching 
+ * the contents of `excludeTypes`
+ * @param {string[]} excludeTypes Material Types to exclude from the return list. Default: `['unique']`
+ * @returns {string[]}
+ */
+function loadFullDismantleList(excludeTypes=['unique']){
+    const typeList = Array.from(disKeys.values(), v => v.toLowerCase());
+    return typeList.filter(type => !excludeTypes.includes(type));
 }
 
 /**
@@ -1404,18 +1415,26 @@ function createSingleUniItem(dbItem){
 module.exports = { 
     createItemList,
     createSingleUniItem,
+
     checkingDamage,
     checkingDefence,
+
     checkingDismantle,
+    loadFullDismantleList,
+
     checkingRar,
     checkingRarID,
     baseCheckRarName,
     loadFullRarNameList,
+
     checkingSlot,
+
     checkingCaste,
     checkingCasteID,
     getFilteredCasteTypes,
+
     convertToUniItem,
+
     uni_displayItem,
     uni_displaySingleMaterial,
     uni_CreateCompleteItemCode

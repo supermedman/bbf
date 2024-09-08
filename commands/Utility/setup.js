@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
 
 const { GuildData } = require('../../dbObjects.js');
+const { getTypeof } = require('../../uniHelperFunctions.js');
 
 
 let introEmbedDesc = '*Hello and welcome!*\nThis is Black Blade, an expansive game app. Contained within are a plethora of features and commands focused around entertainment! A few of those core features are: ``Interactive Combat``, ``Quests``, ``Progressive Storyline``, ``NPC Tasks``, ``Pets (Pigmies)``, ``In Game Trading``, ``Unique Loot``, ``Boss Battles``, ``Travel``, and ``Designable Towns``.';
@@ -99,7 +100,7 @@ module.exports = {
                 ]);
             break;
             case "help":
-                returnEmbed = setupEmbed;
+                returnEmbed = [setupEmbed, introEmbed];
             break;
         }
 
@@ -108,8 +109,14 @@ module.exports = {
             return await interaction.reply("Data updated! Use ``/setup info`` for more details.");
         }
 
-        if (typeof returnEmbed === 'object'){
+        if (getTypeof(returnEmbed) === 'Array'){
+            return await interaction.reply({embeds: [...returnEmbed]});
+        } else if (getTypeof(returnEmbed) === 'EmbedBuilder'){
             return await interaction.reply({embeds: [returnEmbed]});
         } else return interaction.reply("Something went wrong while creating/sending a message!!");
+
+        // if (typeof returnEmbed === 'object'){
+        //     return await interaction.reply({embeds: [returnEmbed]});
+        // } else return interaction.reply("Something went wrong while creating/sending a message!!");
 	},
 };

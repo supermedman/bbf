@@ -5,8 +5,9 @@ const { UserData, Pigmy, Town, UserTasks } = require('./dbObjects');
 /**
  * This method randomly returns an element from a given array, if the array has a
  * length of 1 that element is returned.
- * @param {any[]} arr Any type of array with any type of contents   
- * @returns {any} Contents at randomly chosen index
+ * @template A Typed Array
+ * @param {A[]} arr Any type of array with any type of contents   
+ * @returns {A} Contents at randomly chosen index
  */
 const randArrPos = (arr) => {
     return arr[((arr?.length ?? 0) > 1) ? Math.floor(Math.random() * arr.length) : 0];
@@ -333,19 +334,44 @@ function handleContentType(contents){
  */
 async function sendTimedChannelMessage(interaction, timeLimit, contents, replyType){
     const replyObject = handleContentType(contents);
+    let responseMessage;
     switch(replyType){
         case "FollowUp":
-        return await interaction.followUp(replyObject).then(msg => setTimeout(() => {
-            msg.delete();
-        }, timeLimit)).catch(e => console.error(e));
+            responseMessage = await interaction.followUp(replyObject);
+        break;
         case "Reply":
-        return await interaction.reply(replyObject).then(msg => setTimeout(() => {
-            msg.delete();
-        }, timeLimit)).catch(e => console.error(e));
+            responseMessage = await interaction.reply(replyObject);
+        break;
         default:
-        return await interaction.channel.send(replyObject).then(msg => setTimeout(() => {
-            msg.delete();
-        }, timeLimit)).catch(e => console.error(e));
+            responseMessage = await interaction.channel.send(replyObject);
+        break;
+    }
+
+    // * INTERACTION FOLLOWUP
+    //  * return await interaction.followUp(replyObject).then(msg => setTimeout(() => {
+    //         msg.delete();
+    //     }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+    //  * 
+    //  * INTERACTION REPLY
+    //  * return await interaction.reply(replyObject).then(msg => setTimeout(() => {
+    //         msg.delete();
+    //     }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+    //  * 
+    //  * INTERACTION CHANNEL SEND
+    //  * return await interaction.channel.send(replyObject).then(msg => setTimeout(() => {
+    //     msg.delete();
+    // }, timeLimit)).catch(e => ignoreUnknownMessageError(e));
+
+    setTimeout(async () => {
+        await handleCatchDelete(responseMessage);
+    }, timeLimit);
+
+    return;
+}
+
+function ignoreUnknownMessageError(e){
+    if (e.code !== 10008){
+        console.error('Failed to delete a message: ', e);
     }
 }
 
@@ -359,13 +385,20 @@ async function sendTimedChannelMessage(interaction, timeLimit, contents, replyTy
  */
 async function editTimedChannelMessage(anchorMsg, timeLimit, editWith){
     const replyObject = handleContentType(editWith);
-    return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
-        anchorMsg.delete();
-    }, timeLimit)).catch(e =>{
-        if (e.code !== 10008){
-            console.error(`Failed to ${e.method} a message:`, e);
-        }
-    });
+
+    await anchorMsg.edit(replyObject).then(async () => setTimeout(async () => {
+        await handleCatchDelete(anchorMsg);
+    }, timeLimit));
+
+    // return await anchorMsg.edit(replyObject).then(() => setTimeout(() => {
+    //     anchorMsg.delete();
+    // }, timeLimit)).catch(e => {
+    //     if (e.code !== 10008){
+    //         console.error(`Failed to ${e.method} a message:`, e);
+    //     }
+    // });
+
+    return;
 }
 
 /**

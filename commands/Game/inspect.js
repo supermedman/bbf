@@ -75,6 +75,7 @@ module.exports = {
     .addUserOption(option => option.setName('player').setDescription('The user')),
 
     async execute(interaction) {
+        if (['oldView', 'newView'].includes(interaction.options.getString('style'))) return interaction.reply({content: 'This is broken, try `Updated` instead', ephemeral: true});
         if (interaction.options.getString('style') === 'sCode'){
             await interaction.deferReply();
             const givenUser = interaction.options.getUser('player') ?? interaction.user;
