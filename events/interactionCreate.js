@@ -3,6 +3,7 @@ const { warnedForm } = require('../chalkPresets');
 
 const {EarlyAccess, UserData} = require('../dbObjects.js');
 const { spawnNpc } = require('../commands/Game/exported/npcSpawner.js');
+const { makeCapital } = require('../uniHelperFunctions.js');
 
 //let collectionRunOnce = false;
 
@@ -62,11 +63,33 @@ module.exports = {
                     return;
                 } else {
                     console.log('INTERACTION FOUND! Displaying Error');
+					console.log('Interaction Options Provided: ', interaction.options);
                     console.error(e);
                     const errReplyContent = { content: 'There was an error while executing this command!', ephemeral: true };
                     if (interaction.replied || interaction.deferred){
-                        return await interaction.followUp(errReplyContent);
-                    } else return await interaction.reply(errReplyContent);
+                        await interaction.followUp(errReplyContent);
+                    } else await interaction.reply(errReplyContent);
+
+					// Attempt to send error log to https://discord.com/channels/892659101878849576/1282130653608935476
+					const channel = await interaction.client.guilds.fetch("892659101878849576").then(async g => {
+						return await g.channels.fetch("1282130653608935476");
+					}).catch(e => console.error('Failed to retrieve logging channel: ', e));
+
+					const errEmbed = new EmbedBuilder()
+					.setTitle(`==> Command: /${makeCapital(interaction.commandName)} <==`)
+					.setDescription(`Subcommand Group: **${interaction.options.getSubcommandGroup()}**\nSubcommand: **${interaction.options.getSubcommand()}**\nAdditional Args Passed:`);
+
+					const argFieldList = [];
+					if (interaction.options._hoistedOptions.length){
+						for (const op of interaction.options._hoistedOptions){
+							argFieldList.push({name: `ArgName: **${op.name}**`, value: `Option Type: **${op.type}**\nOption Value: **${op.value}**`});
+							if (argFieldList.length >= 25) break;
+						}
+					} else argFieldList.push({name: 'None', value: 'No additional data..'});
+
+					errEmbed.addFields(argFieldList);
+
+					return await channel.send({embeds: [errEmbed], content: `\`\`\`\nRaw Error: ${e.toString()}\n\nStack: ${e.stack}\`\`\``});
                 }
 			}
 		} else if (interaction.isButton()) {

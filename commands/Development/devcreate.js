@@ -150,6 +150,11 @@ module.exports = {
 
 		// Enemy Display Testing
 		if (subCom === 'enemy-style'){
+			let emptList;
+			emptList.push("break");
+
+			return;
+
 			const enemyName = interaction.options.getString('enemy');
 
 			let theEnemy = enemyList.filter(enemy => enemy.Name.startsWith(enemyName));
@@ -399,6 +404,35 @@ module.exports = {
 
 		// NavMenu Testing
 		if (subCom === 'menu-test'){
+
+			async function sendBBINTRODisplay(){
+				const channel = await interaction.client.guilds.fetch(interaction.guild.id).then(async g => {
+					return await g.channels.fetch("1282050368188059668");
+				});
+	
+				const serverIntroEmbed = new EmbedBuilder()
+				.setTitle('== Bloodstone Info ==')
+				.setDescription('Here are some places to check out!\n\nServer Rules: <#918570994229186640>\nNews & Updates: <#911841629403500544>\nSay Hello: <#892666959970308166>\n\nNeed a link? Look no further!');
+	
+				const bloodstoneINV = new ButtonBuilder()
+				.setLabel('Support Link')
+				.setURL('https://discord.gg/XHdyQf7hd7')
+				.setStyle(ButtonStyle.Link);
+	
+				const blackbladeINV = new ButtonBuilder()
+				.setLabel('Black Blade Invite')
+				.setURL('https://discord.com/oauth2/authorize?client_id=1037837929952858154&permissions=2147871824&scope=bot%20applications.commands')
+				.setStyle(ButtonStyle.Link);
+
+				const invButtRow = new ActionRowBuilder().addComponents(bloodstoneINV, blackbladeINV);
+
+				const introReply = {content: "# Welcome to Black Blade", embeds: [serverIntroEmbed], components: [invButtRow]};
+
+				return await channel.send(introReply);
+			}
+
+			// return await sendBBINTRODisplay();
+
 
 			function loadExampleDisplayMenu(){
 				const menuContainer = [];

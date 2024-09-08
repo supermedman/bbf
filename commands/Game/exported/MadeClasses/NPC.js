@@ -549,7 +549,7 @@ class NPC {
         console.log('Available Slot Options: ', slotTypeOptions);
         console.log('Slot Picked: ', slotPicked);
 
-        let casteOptionList;
+        let casteOptionList = [];
         if (['Headslot', 'Chestslot', 'Legslot'].includes(slotPicked)){
             // Armor Caste
             casteOptionList = getFilteredCasteTypes([0], craftOptionsObj.Type.Armor);
