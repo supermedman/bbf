@@ -243,6 +243,26 @@ const damageMatchTable = [
 
 const {statusContainer} = require('./statusEffect');
 
+// Shields are immune to all status effects
+
+// Armor can be bypassed through status effects
+
+// Flesh is the main target for status effects and on average should contain the largest HP pool compared to Armor and Shields
+
+// Basic flesh status effects test one:
+// Status effect pairs
+
+
+// Combo Effects
+/**
+ *      - Blast: Frost + Fire
+ *      - PhaseBind: Dark + Light
+ */
+// const statusComboComp = {
+//     Blast: Frost + Fire,
+//     PhaseBind: Dark + Light
+// }
+
 /**
  * This function handles all status checks based on damage type using status effect container object methods
  * @param {Object} dmgObj Damage object used to check for status effect

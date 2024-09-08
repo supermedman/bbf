@@ -226,7 +226,7 @@ function baseCheckRarName(rarID){
 /**
  * This function takes a given rarity and converts it into its rarID equivalent.
  * @param {string} rarity rarKeys String Matched Rarity 
- * @returns number as RarID
+ * @returns {number} as RarID
  */
 function checkingRarID(rarity){
     let keyCopy;

@@ -5,7 +5,7 @@ const { UserData, Pigmy, Town, UserTasks } = require('./dbObjects');
 /**
  * This method randomly returns an element from a given array, if the array has a
  * length of 1 that element is returned.
- * @template A
+ * @template A Typed Array
  * @param {A[]} arr Any type of array with any type of contents   
  * @returns {A} Contents at randomly chosen index
  */

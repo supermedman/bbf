@@ -61,6 +61,8 @@ const CraftControllers = require('./events/Models/CraftControllers')(sequelize, 
 
 const LocalMarkets = require('./events/Models/LocalMarkets')(sequelize, Sequelize.DataTypes);
 
+const UserMaterials = require('./events/Models/UserMaterials')(sequelize, Sequelize.DataTypes);
+
 
 const staticModelList = fs.readdirSync('./events/Models').filter(file => file.endsWith('.js'));
 
@@ -129,5 +131,6 @@ module.exports = {
 	GameEvents,
 	GuildEvents,
 	CraftControllers,
-	LocalMarkets
+	LocalMarkets,
+	UserMaterials
 };

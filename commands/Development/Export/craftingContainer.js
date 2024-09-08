@@ -1,19 +1,137 @@
 // Used for any external methods, calls, filtering related to crafting/item generation.
-
-const { rollChance } = require('../../../uniHelperFunctions');
+// =======================
+//    HOW WILL IT WORK?
+// =======================
+/**     WEAPONS/MAINHAND
+ *  - Castes:
+ *   - 3 CATS:
+ *      - Magic
+ *      - Melee
+ *      - Special
+ *   - 1 || 2 hands
+ * 
+ *  - Requirements: (Ordered by amount needed)
+ *   - Magic:
+ *      - Magical (Both)
+ *      - Skinny (Tome/1 Hand)|| Woody (Staff/2 Hand)
+ *      - Gemy (Both)
+ *   - Melee:
+ *      - Metalic (Blade/1||2 Hands) || Woody (Polearm/2 Hands)
+ *      - Skinny (Blade/1||2 Hands) || Metalic (Polearm/2 Hands)
+ *      - Woody (Blade/1||2 Hands) || Skinny (Polearm/2 Hands)
+ *   - Special: TBD
+ *      - Fleshy?
+ *      - Slimy?
+ *      - Rocky?
+ *   - ALL CATS:
+ *      - Tooly
+ * 
+ *  - Types:
+ *   - Between 1 and 5 different types
+ *   - Caste CATS have predefined "Natural Types"
+ *      - Magic: Magic, Fire, Frost, Dark, Light
+ *      - Melee: Blunt, Slash, Rad?
+ *      - Special: Spirit, Pain, Chaos, Null
+ *   - Additional types can be "Imbued" by using PURE essence 
+ *      - This is capped at 2, and adds a flat damage value
+ *      - If a damage type already exists this flat value is additive towards it
+ * 
+ *  - Damage:
+ *   - Min damage value locked at 1 (maybe 2?)
+ *   - Max damage value will be soft capped dependent on testing 
+ *   - Initial Base Damage Formula:
+ * 
+ *       = ((25 + ((5 * h1)/a2)) * (1 + a1))log(x)
+ * 
+ * where 'a1' is rarity (0-10), 'a2' is damage type amount (1-5),
+ * where 'h1' is hands required (1 or 2), 
+ * and where 'x' (51 < x > 1) is material amount
+ * 
+ */
+// ===============
+//  CASTE OPTIONS
+// ===============
+/**
+ *  == MAGIC 1H ==
+ *   - Wand (Magical, Woody, Gemy, Tooly?)
+ *   - Tome (Magical, Skinny, Gemy, Tooly?)
+ * 
+ *  == MAGIC 2H ==
+ *   - Staff (Magical, Woody, Gemy, Tooly?)
+ *   - Focus (Magical, Metalic, Gemy, Tooly?)
+ * 
+ *  == MELEE 1H ==
+ *   - Light Blade (Metalic, Skinny, Woody, Tooly?)
+ *   - Mace (Metalic, Woody, Skinny, Tooly?)
+ * 
+ *  == MELEE 2H ==
+ *   - Polearm (Woody, Metalic, Skinny, Tooly?)
+ *   - Heavy Blade (Metalic, Skinny, Woody, Tooly?)
+ * 
+ *  == SPECIAL 1H ==
+ *   - TBD
+ * 
+ *  == SPECIAL 2H ==
+ *   - TBD
+ */
+// =======================
+//   WHAT IS ALLOWED?
+// =======================
+/**
+ *  == What is user input defined? ==
+ *  - Caste CAT
+ *      - CAT Style (If any: EX. Blade||Polearm)
+ *  - Hands Required?
+ *  - PURE Types to add
+ * 
+ *  == What follows this prompt? ==
+ *  - Required Material types
+ *  - Minimum Material Amount
+ *      - Required Base Total: 30
+ *      - Mat 1 (m1): 15
+ *      - Mat 2 (m2): 10
+ *      - Mat 3 (m3): 5
+ *  - Additional Material Amount
+ *      - Optional Added Total: 31-50
+ *      - Mat 4 (m4)(typeof Tooly): 1-20
+ *  
+ *  == How are these values used? ==
+ *  - Used for itemGenConstant()
+ *  - Used to calculate rarity 
+ *      - Weighted by amount
+ *      - Averaged to find final rarity
+ *      - Formula:
+ *  w1 = 30% = (m1 * 2)
+ *  w2 = 20% = (m2 * 2)
+ *  w3 = 10% = (m3 * 2)
+ * 
+ *  w4? = 40% = (m4 * 2)
+ *  m4 = 0 
+ *  ? (w1 + 20%, w2 + 10%, w3 + 10%) 
+ *  : (w3 + (10% - w4), w2 + (10% - w4), w1 + (20% - w4))
+ * 
+ *  r1 = m1 Rar
+ *  r2 = m2 Rar
+ *  r3 = m3 Rar
+ *  r4? = m4 Rar
+ *  
+ *  Highest Weighted Rarity:
+ *  Rarity = func()
+ */
+const { rollChance, inclusiveRandNum, randArrPos } = require('../../../uniHelperFunctions');
 const { baseCheckRarName } = require('./itemStringCore');
 
 // ===============================
 //       HELPER METHODS
 // ===============================
 
-const inclusiveRandNum = (max, min) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-};
+// const inclusiveRandNum = (max, min) => {
+//     return Math.floor(Math.random() * (max - min + 1) + min);
+// };
 
-const randArrPos = (arr) => {
-    return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
-};
+// const randArrPos = (arr) => {
+//     return arr[(arr.length > 1) ? Math.floor(Math.random() * arr.length) : 0];
+// };
 
 
 // ===============================
