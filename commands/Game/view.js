@@ -73,7 +73,7 @@ module.exports = {
 
         const { betaTester } = interaction.client;
 
-		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
+		// if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
 
         const subComGroup = interaction.options.getSubcommandGroup();
         const subCom = interaction.options.getSubcommand();

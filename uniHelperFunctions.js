@@ -446,7 +446,7 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
  * const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, replyObj, "FollowUp", "Both");
 
     // ~~~~~~~~~~~~~~~~~~~~~
-    // STRING COLLECTOR
+    // STRING COLLECTOR (COLLECT)
     sCollector.on('collect', async c => {
         await c.deferUpdate().then(async () => {
 
@@ -455,7 +455,7 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
     // ~~~~~~~~~~~~~~~~~~~~~
 
     // =====================
-    // BUTTON COLLECTOR
+    // BUTTON COLLECTOR (COLLECT)
     collector.on('collect', async c => {
         await c.deferUpdate().then(async () => {
 
@@ -464,16 +464,16 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
     // =====================
 
     // ~~~~~~~~~~~~~~~~~~~~~
-    // STRING COLLECTOR
+    // STRING COLLECTOR (END)
     sCollector.on('end', async (c, r) => {
-        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+        if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
     });
     // ~~~~~~~~~~~~~~~~~~~~~
 
     // =====================
-    // BUTTON COLLECTOR
+    // BUTTON COLLECTOR (END)
     collector.on('end', async (c, r) => {
-        if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+        if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
     });
     // =====================
 

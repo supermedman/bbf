@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 
 const {chlkPreset} = require('../../chalkPresets.js');
 const chalk = require('chalk');
-const { handleLimitOnOptions, endTimer, randArrPos } = require('../../uniHelperFunctions.js');
+const { handleLimitOnOptions, endTimer, randArrPos, inclusiveRandNum, makeCapital } = require('../../uniHelperFunctions.js');
 const { checkingRarID, loadFullRarNameList, loadFullDismantleList } = require('./Export/itemStringCore.js');
 const { UserMaterials, MaterialStore } = require('../../dbObjects.js');
 
@@ -183,6 +183,257 @@ module.exports = {
             }
         ];
         // ==========================
+        // npcOptionsContainer: (Alias) npcOC
+        const npcOC = {
+            creature: {
+                species: [
+                    {
+                        name: "Human", 
+                        data: {
+                            stats: {
+                                statRange: {max: 4, min: 2}, 
+                                skillRange: {max: 4, min: 2},
+                                perLevel: 1
+                            },
+                            lands: {
+                                a: ['Normal', 'Evil', 'Phase'],
+                                b: ['All'],
+                                w: {
+                                    m: [],
+                                    c: 0
+                                }
+                            },
+                            status: {
+                                title: ['Duke', 'Earl', 'Barron', 'Count', 'Viscount', 'Lord', 'Knight', 'Peasant'],
+                                econ: l => (l.a * l.b) + (l.w.m * l.w.c),
+                                funds: (t, e) => t * e
+                            }
+                        }
+                    }, 
+                    {
+                        name: "Dwarf", 
+                        data: {
+                            stats: {
+                                statRange: {max: 5, min: 2}, 
+                                skillRange: {max: 5, min: 2},
+                                perLevel: 1.5
+                            },
+                            lands: {
+                                a: ['Normal', 'Evil'],
+                                b: ['Mountain', 'Forest'],
+                                w: {
+                                    m: [],
+                                    c: 0
+                                }
+                            },
+                            status: {
+                                title: ['Duke', 'Earl', 'Barron', 'Count', 'Viscount', 'Lord', 'Knight', 'Peasant'],
+                                econ: l => (l.a * l.b) + (l.w.m * l.w.c),
+                                funds: (t, e) => t * e
+                            }
+                        }
+                    }, 
+                    {
+                        name: "Elven", 
+                        data: {
+                            stats: {
+                                statRange: {max: 5, min: 2}, 
+                                skillRange: {max: 5, min: 2},
+                                perLevel: 1.5
+                            },
+                            lands: {
+                                a: ['Normal', 'Phase'],
+                                b: ['Forest', 'Plains', 'Grassland'],
+                                w: {
+                                    m: [],
+                                    c: 0
+                                }
+                            },
+                            status: {
+                                title: ['Duke', 'Earl', 'Barron', 'Count', 'Viscount', 'Lord', 'Knight', 'Peasant'],
+                                econ: l => (l.a * l.b) + (l.w.m * l.w.c),
+                                funds: (t, e) => t * e
+                            }
+                        }
+                    }, 
+                    {
+                        name: "Yutlid", 
+                        data: {
+                            stats: {
+                                statRange: {max: 8, min: 4}, 
+                                skillRange: {max: 6, min: 3},
+                                perLevel: 2
+                            },
+                            lands: {
+                                a: ['Phase', 'Evil'],
+                                b: ['All'],
+                                w: {
+                                    m: [],
+                                    c: 0
+                                }
+                            },
+                            status: {
+                                title: ['Duke', 'Earl', 'Barron', 'Count', 'Viscount', 'Lord', 'Knight', 'Peasant'],
+                                econ: l => (l.a * l.b) + (l.w.m * l.w.c),
+                                funds: (t, e) => t * e
+                            }
+                        }
+                    }, 
+                    {
+                        name: "Yesselise", 
+                        data: {
+                            stats: {
+                                statRange: {max: 10, min: 6}, 
+                                skillRange: {max: 7, min: 4},
+                                perLevel: 3
+                            },
+                            lands: {
+                                a: ['Phase', 'Evil'],
+                                b: ['All'],
+                                w: {
+                                    m: [],
+                                    c: 0
+                                }
+                            },
+                            status: {
+                                title: ['Duke', 'Earl', 'Barron', 'Count', 'Viscount', 'Lord', 'Knight', 'Peasant'],
+                                econ: l => (l.a * l.b) + (l.w.m * l.w.c),
+                                funds: (t, e) => t * e
+                            }
+                        }
+                    }
+                ]
+            }
+        };
+
+        const biomeList = ['Forest', 'Grassland', 'Swamp', 'Plains', 'Desert', 'Mountain'];
+
+        const biomeBonus = new Map([
+            ["Forest", ["woody", "fleshy", "skinny"]],
+            ["Grassland", ["herby", "rocky", "metalic"]],
+            ["Swamp", ["slimy", "herby", "woody"]],
+            ["Plains", ["skinny", "herby", "fleshy"]],
+            ["Desert", ["gemy", "rocky", "skinny"]],
+            ["Mountain", ["metalic", "rocky", "gemy"]]
+        ]);
+
+        const allignBonus = new Map([
+            ["Normal", {mat: "magical", inc: [10, 5, 3, 3]}],
+            ["Evil", {mat: "unique", inc: [5, 3, 1, 1]}],
+            ["Phase", {mat: "tooly", inc: [10, 8, 5, 5]}]
+        ]);
+
+        const landEconBonus = new Map([
+            ["Forest", 10000],
+            ["Grassland", 10000],
+            ["Swamp", 6000],
+            ["Plains", 100000],
+            ["Desert", 6000],
+            ["Mountain", 100000]
+        ]);
+
+        const matEconBonus = new Map([
+            ["fleshy", 1],
+            ["skinny", 3],
+            ["woody", 3],
+            ["herby", 5],
+            ["rocky", 2],
+            ["metalic", 4],
+            ["magical", 2],
+            ["tooly", 10],
+            ["gemy", 4],
+            ["silky", 3],
+            ["slimy", 4],
+            ["unique", 25],
+        ]);
+
+        const allignEconBonus = new Map([
+            ["Normal", 1.5],
+            ["Evil", 1.8],
+            ["Phase", 2]
+        ]);
+
+        const titleEconBonus = new Map([
+            ["Duke", 15000],
+            ["Earl", 12500],
+            ["Barron", 10000],
+            ["Count", 8000],
+            ["Viscount", 7500],
+            ["Lord", 4000],
+            ["Knight", 1000],
+            ["Peasant", 100]
+        ]);
+
+        const abcd = 'abcdefghijklmnopqrstuvwxyz';
+
+        const loadRandomName = (nameLength) => {
+            const newName = Array.from(new Array(nameLength).fill(0), () => abcd[inclusiveRandNum(26, 0)]).join("");
+            return makeCapital(newName);
+        };
+
+        class CombatNPC {
+            constructor(){
+                this.level = inclusiveRandNum(200, 1);
+                this.name = loadRandomName(inclusiveRandNum(8, 4));
+
+                this.fullCaste = randArrPos(npcOC.creature.species)
+
+                this.creatureCaste = {
+                    species: this.fullCaste.name
+                };
+
+                this.homelandCaste = {
+                    allignment: randArrPos(this.fullCaste.data.lands.a),
+                    biome: (this.fullCaste.data.lands.b[0] !== 'All') ? randArrPos(this.fullCaste.data.lands.b) : randArrPos(biomeList),
+                    wealth: {m: 0, c: 0}
+                };
+                const materialGroup = [...[biomeBonus.get(this.homelandCaste.biome)], (allignBonus.get(this.homelandCaste.allignment)).mat];
+
+                this.homelandCaste.wealth.m = materialGroup.reduce((acc, ele) => {
+                    return (acc > 0) ? acc + matEconBonus.get(ele) : matEconBonus.get(ele);
+                }, 0);
+                this.homelandCaste.wealth.c = this.homelandCaste.wealth.m * (landEconBonus.get(this.homelandCaste.biome) * allignEconBonus.get(this.homelandCaste.allignment));
+
+                this.individualCaste = {
+                    title: randArrPos(this.fullCaste.data.status.title),
+                    buyingPower: 0
+                };
+                this.individualCaste.buyingPower = this.homelandCaste.wealth.c * titleEconBonus.get(this.individualCaste.title);
+
+
+                this.abilitiesCaste = {
+                    physical: {
+
+                    },
+                    magical: {
+
+                    },
+                    special: {
+
+                    }
+                };
+
+                // stats: {
+                //     statRange: {max: 4, min: 2}, 
+                //     skillRange: {max: 4, min: 2},
+                //     perLevel: 1
+                // },
+
+                const {min, max} = this.fullCaste.data.stats.statRange;
+                const levelDistrabution = this.level * this.fullCaste.data.stats.perLevel;
+
+                this.baseStatsCaste = {
+                    str: inclusiveRandNum(max, min) + (levelDistrabution / 4),
+                    spd: inclusiveRandNum(max, min) + (levelDistrabution / 4),
+                    int: inclusiveRandNum(max, min) + (levelDistrabution / 4),
+                    dex: inclusiveRandNum(max, min) + (levelDistrabution / 4)
+                };
+            }
+
+            buyLoadout(){
+                const {title, buyingPower} = this.individualCaste;
+            }
+        }
 
 
         // Combat order of operations
@@ -205,6 +456,8 @@ module.exports = {
                 switch(subCom){
                     case "simulation":
                         // NPC testing
+                        const combatNPC = new CombatNPC();
+                        console.log(combatNPC);
                     break;
                     case "full":
                         
