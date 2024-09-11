@@ -12,12 +12,12 @@ const {
 const { grabColour } = require('./exported/grabRar');
 const { checkHintMaterialDismantle } = require('./exported/handleHints.js');
 
-const {NavMenu} = require('../Development/Export/Classes/NavMenu.js');
+const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 const { grabUser, createInteractiveChannelMessage, handleCatchDelete, makeCapital } = require('../../uniHelperFunctions.js');
 const { loadBasicBackButt } = require('./exported/tradeExtras.js');
-const { loadFullDismantleList, loadFullRarNameList } = require('../Development/Export/itemStringCore.js');
+const { loadFullDismantleList, loadFullRarNameList, convertRarToID, baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 const { convertOldMatStore } = require('./exported/materialContainer.js');
-const { loadDefaultAmountButtonActionRows, handleAmountChange } = require('../../uniDisplayFunctions.js');
+const { loadDefaultAmountButtonActionRows, fnSignConverter } = require('../../uniDisplayFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -33,15 +33,19 @@ module.exports = {
 		.setName('combine')
 		.setDescription('Combine to upgrade material type and rarity!')
 		.addStringOption(option =>
-			option.setName('type')
-				.setDescription('Material type to combine')
-				.setAutocomplete(true)
-				.setRequired(true))
+			option
+			.setName('type')
+			.setDescription('Material type to combine')
+			.setAutocomplete(true)
+			.setRequired(true)
+		)
 		.addStringOption(option =>
-			option.setName('rarity')
-				.setDescription('The desired new Material rarity')
-				.setAutocomplete(true)
-				.setRequired(true))
+			option
+			.setName('rarity')
+			.setDescription('The desired new Material rarity')
+			.setAutocomplete(true)
+			.setRequired(true)
+		)
 		.addIntegerOption(option =>
 			option
 			.setName('amount')
@@ -53,15 +57,19 @@ module.exports = {
 		.setName('dismantle')
 		.setDescription('Dismantle into lower tier materials by type and rarity!')
 		.addStringOption(option =>
-			option.setName('type')
-				.setDescription('Material type to dismantle')
-				.setAutocomplete(true)
-				.setRequired(true))
+			option
+			.setName('type')
+			.setDescription('Material type to dismantle')
+			.setAutocomplete(true)
+			.setRequired(true)
+		)
 		.addStringOption(option =>
-			option.setName('rarity')
-				.setDescription('Material rarity to dismantle')
-				.setAutocomplete(true)
-				.setRequired(true))
+			option
+			.setName('rarity')
+			.setDescription('Material rarity to dismantle')
+			.setAutocomplete(true)
+			.setRequired(true)
+		)
 		.addIntegerOption(option =>
 			option
 			.setName('amount')
@@ -73,14 +81,18 @@ module.exports = {
 		.setName('view')
 		.setDescription('View all of a material type or one material type and rarity!')
 		.addStringOption(option =>
-			option.setName('typeview')
-				.setDescription('Material type to view')
-				.setAutocomplete(true)
-				.setRequired(true))
+			option
+			.setName('typeview')
+			.setDescription('Material type to view')
+			.setAutocomplete(true)
+			.setRequired(true)
+		)
 		.addBooleanOption(option =>
-			option.setName('all')
-				.setDescription('Whether or not to show all of this type')
-				.setRequired(true))
+			option
+			.setName('all')
+			.setDescription('Whether or not to show all of this type')
+			.setRequired(true)
+		)
 		.addStringOption(option =>
 			option
 			.setName('rarity')
@@ -140,7 +152,9 @@ module.exports = {
 		const matExtras = {
 			actionType: "",
 			matType: "",
-			matStore: {},
+			matStore: {
+
+			},
 			rarity: {
 				target: "",
 				extra: ""
@@ -158,10 +172,12 @@ module.exports = {
 		.setCustomId('mat-combine')
 		.setStyle(ButtonStyle.Primary)
 		.setLabel('Combine Material');
+
 		const matDisButt = new ButtonBuilder()
 		.setCustomId('mat-dismantle')
 		.setStyle(ButtonStyle.Primary)
 		.setLabel('Dismantle Material');
+
 		const matActionRow = new ActionRowBuilder().addComponents(matCombButt, matDisButt);
 
 		// Material Type?
@@ -185,7 +201,7 @@ module.exports = {
 		// 		===============
 		const replyObj = { embeds: [matActionEmbed], components: [matActionRow] };
 
-		const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, replyObj, "Reply", "Both");
+		const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 1200000, replyObj, "Reply", "Both");
 
 		// Base NavMenu
 		const matMenu = new NavMenu(user, replyObj, replyObj.components, matExtras);
@@ -236,6 +252,7 @@ module.exports = {
 			}, false);
 			return moreThanFive;
 		};
+
 		// IF DIS
 		// Check if any amount > 0
 		/**
@@ -288,20 +305,344 @@ module.exports = {
 		}
 
 		/**
+		 * This function filters the full userMaterialStorage object for rarities at and below
+		 * the given `targetRID`. Returns a constructed object with the filtered props
+		 * @param {{[s: string]: number}} typedMatStore Owned Material Storage Object
+		 * @param {number} targetRID Targeted Material Rarity
+		 * @returns {{[s: string]: number}} Filtered Owned Material Storage Object
+		 */
+		function restructCombineMatStorage(typedMatStore, targetRID){
+			const restructedMatStore = Object.entries(typedMatStore)
+			.filter(([k]) => +k <= targetRID)
+			.reduce((acc, [k, v]) => {
+				acc[k] = v;
+				return acc;
+			}, {});
+
+			return restructedMatStore;
+		}
+
+		/**
+		 * This function handles the calculations for the given `targetAmount` @ `targetRID`
 		 * 
+		 * given the total contents of `matsStored`, it attempts to met the `targetAmount`
+		 * by way of combining lower rarity materials until it succeededs or fails.
+		 * @param {number} targetAmount Targeted amount of material to combine to
+		 * @param {number} targetRID Targeted Material Rarity to combine to
+		 * @param {{[s: string]: number}} matsStored Owned Material Storage Object
+		 */
+		function handleCombineOutcome(targetAmount, targetRID, matsStored){
+			const TR = targetRID, TA = targetAmount;
+			let TDiff = TA, carryDown = 0;
+
+			// HANDLING CALCULATIONS FOR COMBINING TO AMOUNT @ RARITY
+			const finalCombOutcome = Object.entries(matsStored)
+			.reduceRight((acc, [k, v]) => {
+				// If TDiff has already been made up and is 0
+				if (!TDiff) {
+					acc[k] = {
+						owned: v,
+						remain: v,
+						combined: 0,
+						combinedInto: 0,
+						used: false
+					};
+					return acc;
+				}
+				// ["k"]: v
+				const CR = +k;
+				// Target Rarity being checked for
+				if (CR === TR) {
+					acc[k] = {
+						owned: v,
+						used: true,
+						isTarget: true
+					};
+					return acc;
+				}
+				// Subtract any existing remainder passed down from TDiff,
+				// before scaling upto `CR`
+				TDiff -= carryDown;
+				// ["0"]: 5 === ["1"]: 1 === ["2"]: 0.2
+				// Therefor TDiff @ ["k"] === 5 * TDiff @ ["k - 1"]
+				TDiff *= 5;
+
+				// Current itter, material needed difference to check against
+				// TA * (5 ** (TR - CR))
+				const atCRDiff = (TA * (5 ** (TR - CR)));
+				// If TDiff is less than atCRDiff, use modded TDiff as difference to check against
+				const curDiff = (TDiff < atCRDiff) ? TDiff : atCRDiff;
+
+				// String representing one of "1", "-1", "0"
+				const outcome = (Math.sign(v - curDiff)).toString();
+				let remain = 0, combined = 0, combinedInto = 0, owned = v;
+				switch(outcome){
+					case "-1": // Difference remains
+						remain = v % 5;
+						// Material Amount Divend of ["k + 1"]: v
+						combinedInto = Math.floor(v / 5);
+						// Material Amount Total combined at ["k"]
+						combined = 5 * combinedInto;
+						// Subtract Total from TDiff
+						TDiff -= combined;
+						// Apply remainder to higher scoped `carryDown`
+						carryDown = remain;
+					break;
+					default: // Difference made up || Difference exactly matched
+						remain = v - curDiff;
+						combined = curDiff;
+						combinedInto = Math.floor(combined / 5);
+						TDiff = 0;
+					break;
+				}
+
+				acc[k] = {
+					owned,
+					remain,
+					combined,
+					combinedInto,
+					used: true
+				};
+
+				return acc;
+			}, {});
+
+			// Gather maximum total amount that can be combined
+			let combineCap = 0;
+			const totalCombineDisplayCap = ele => {
+				if (!ele.used || ele.isTarget) return;
+				if (!combineCap) return combineCap = ele.combinedInto;
+				combineCap = Math.floor((ele.owned + combineCap) / 5);
+			};
+
+			Object.values(finalCombOutcome).forEach(totalCombineDisplayCap);
+			console.log('Display fix value (combineCap): %d', combineCap);
+
+			// CONSTRUCTING EMBEDBUILDER FIELDS ARRAY
+			const finalFields = Object.entries(finalCombOutcome)
+			.reduce((acc, [r, obj], idx, arr) => {
+				if (!obj.used) return acc;
+				const CR = +r;
+
+				let fieldName = ``, fieldValue = ``;
+				if (CR === TR){
+					fieldName = `== TARGET ${baseCheckRarName(CR)} ==`;
+					fieldValue = `Currently Owned: **${obj.owned}**\nCombining Will Yield: **${combineCap}** / **${targetAmount}**`;
+				} else {
+					fieldName = `== ${baseCheckRarName(CR)} ==`;
+					let lastObj, lastRar;
+					if (CR > 0){
+						const [LR, LOBJ] = arr[idx - 1];
+						lastRar = +LR;
+						lastObj = LOBJ;
+					}
+					const ownedTextValue = (CR > 0 && lastObj.combinedInto > 0) 
+					? `Owned: **${obj.owned}**   +*${lastObj.combinedInto} from ${baseCheckRarName(lastRar)}*`
+					: `Owned: **${obj.owned}**`;
+					const remainTextValue = (CR > 0 && lastObj.combinedInto > 0)
+					? `Amount Remaining: **${(obj.remain + lastObj.combinedInto) % 5}**`
+					: `Amount Remaining: **${obj.remain}**`;
+					fieldValue = `${ownedTextValue}\n${remainTextValue}\nAmount Combined: **${obj.combined}**`;
+				}
+
+				acc.push({name: fieldName, value: fieldValue});
+				return acc;
+			}, []);
+
+			return finalFields;
+		}
+
+
+		function restructDismantleMatStorage(matMenu){
+			
+		}
+
+		/**
+		 * This function loads the given `embed` with the calculated display data returned 
+		 * from `handleCombineOutcome` || `handleDismantleOutcome` according to the `actionType`.
 		 * @param {EmbedBuilder} embed Amount display embed
 		 * @param {NavMenu} matMenu Material NavMenu
 		 */
-		async function buildMatAmountEmbed(embed, matMenu){
+		function buildMatAmountEmbed(embed, matMenu){
 			const typedMatStore = matMenu.specs.matStore;
-			
-			const targetDetails = {
-				targetR: matMenu.specs.rarity.target,
-				actionT: matMenu.specs.actionType
+			const {actionType, rarity, targetAmount, matType} = matMenu.specs;
+
+			const targetRID = convertRarToID(rarity.target);
+
+			const filteredMatStore = (actionType === 'combine') 
+			? restructCombineMatStorage(typedMatStore, targetRID) 
+			: restructDismantleMatStorage(matMenu);
+
+			embed
+			.setTitle(`== ${makeCapital(matType)} Amount Desired ==`)
+			.setDescription(`Amount Currently Selected: ${targetAmount}`);
+
+			if (actionType === 'combine'){
+				// Handle Combine
+				embed.setFields(handleCombineOutcome(targetAmount, targetRID, filteredMatStore));
+				return;
+			} else {
+				// Handle Dismantle
+				return;
 			}
 
-			embed.setDescription(`Amount Currently Selected: ${matMenu.specs.targetAmount}`);
 			
+
+			
+			const targetMaxRID = (actionType === 'dismantle') ? convertRarToID(rarity.extra): undefined;
+			// DISMANTLE
+			// Rar targetRID to targetMaxRID;
+			const neededMatRarsUpper = Object.entries(typedMatStore)
+			.filter(([k]) => +k > targetRID && +k <= targetMaxRID)
+			.reduce((acc, [k, v]) => {
+				acc[k] = {
+					owned: v,
+					canMake: v * 5
+				};
+				return acc;
+			}, {});
+			console.log(neededMatRarsUpper);
+			
+			
+			if (actionType === 'combine'){
+				// Rar 0 to targetRID;
+				// Remove any `k,v`s above target rar id
+				const neededMatRarsLower = Object.entries(typedMatStore)
+				.filter(([k]) => +k <= targetRID)
+				.reduce((acc, [k, v]) => {
+					if (+k === targetRID){
+						// Targeted Rar ID
+						acc[k] = {owned: v, maxMake: acc.carryUp};
+					} else {
+						// All Lower Rar IDS
+						// lowest ('0') => highest(targetRID - 1)
+						acc[k] = {
+							owned: v,
+							carried: acc.carryUp ?? 0,
+							canMakeMax: Math.floor((v + (acc.carryUp ?? 0)) / 5),
+							remainMax: (v + (acc.carryUp ?? 0)) % 5
+						};
+
+						// Carry combinable total to next itteration
+						// Overwrite existing value!!
+						acc.carryUp = acc[k].canMakeMax;
+					}
+					return acc;
+				}, {});
+				//console.log(neededMatRarsLower);
+
+				// Work from top to bottom attempting to meet the target amount
+				const updateFields = Object.entries(neededMatRarsLower)
+				.reduceRight((acc, [k, v]) => {
+					if (k === 'carryUp') return acc;
+					if (+k === targetRID) {
+						const shownCurMax = (v.maxMake > targetAmount) ? targetAmount : v.maxMake; 
+						const targetDetails = `Currently Owned: ${v.owned}\nCombining Will Yield: ${shownCurMax}/${targetAmount}`;
+						acc.push({name: `== TARGET ${baseCheckRarName(+k)} ==`, value: targetDetails});
+						return acc;
+					}
+
+					const totalToFillTargetedAmount = targetAmount * (5 * (targetRID - +k));
+					//console.log(totalToFillTargetedAmount);
+
+					const oVal = (k === '0') ? `${v.owned}`: `${v.owned} + ${v.carried} from ${baseCheckRarName(+k - 1)}`;
+					const compValue = `Owned: ${oVal}\nRemaining: ${v.remain}`;
+					acc.unshift({name: `== ${baseCheckRarName(+k)} ==`, value: compValue});
+					return acc;
+				}, []);
+
+				let runningTotal = targetAmount;
+				const finalFields = Object.entries(Object.entries(typedMatStore)
+				.filter(([k]) => +k <= targetRID).reduce((acc, [k, v]) => {
+					if (+k === targetRID){
+						// Targeted Rar ID
+						acc[k] = {owned: v, maxMake: acc.carryUp};
+						delete acc.carryUp;
+					} else {
+						// All Lower Rar IDS
+						// lowest ('0') => highest(targetRID - 1)
+						acc[k] = {
+							owned: v,
+							carried: acc.carryUp ?? 0,
+							canMake: Math.floor(v / 5),
+							remain: v % 5,
+							canMakeMax: Math.floor((v + (acc.carryUp ?? 0)) / 5),
+							remainMax: (v + (acc.carryUp ?? 0)) % 5
+						};
+
+						// Carry combinable total to next itteration
+						// Overwrite existing value!!
+						acc.carryUp = acc[k].canMakeMax;
+					}
+					return acc;
+				}, {})).reduceRight((acc, [k, v]) => {
+					// Only contains k,v with k <= targetRar
+					// Itterating from targetRar => "0"
+					// First itter = targetRar
+					if (+k === targetRID) {
+						runningTotal = targetAmount;	
+						return acc;
+					}
+					// If total has already been filled
+					// EDIT TARGET MAT FIELD VALUE
+					// NEEDS CHANGING, OUT OF ORDER WHEN CHECKED FOR CANMAKEMAX OF COMMON RAR
+					// NEEDS NEW DISPLAY INFO FOR WHEN TARGETAMOUNT IS NOT REACHABLE
+					if (runningTotal === 0) { 
+						const targetDetails = `Currently Owned: ${typedMatStore[`${targetRID.toString()}`]}\nCombining Will Yield: ${targetAmount}/${targetAmount}`;
+						acc.push({name: `== TARGET ${baseCheckRarName(targetRID)} ==`, value: targetDetails});
+						return acc;
+					}
+					// [[k]: v]: {owned, carried, canMake, remain, canMakeMax, remainMax}
+					console.log(`@ ITTER: ${k} CONTENTS OF V:`, v);
+					let runValue = ``;
+					if (v.owned === 0) {
+						// Itteration total = Itteration ** 5
+						runningTotal *= 5;
+
+						// NOT OWNED
+						runValue = `Owned: NONE\nRemaining After Combine: ${v.remainMax}`;
+					} else if (runningTotal - v.canMake <= 0){
+						// Amount Owned can cover combine total
+
+						// Itteration total = Itteration ** 5
+						runningTotal *= 5;
+
+						// Check exact amount needed to cover combine
+						// v.remain = v.owned not consumed.
+						v.remain = v.owned - runningTotal;
+						runValue = `Owned: ${v.owned}\nCombined: ${runningTotal}\nRemaining: ${v.remain}`;
+						// Clear running total
+						runningTotal = 0;
+					} else if (runningTotal - v.canMakeMax <= 0){
+						// Amount Owned + Carried up can cover combine total
+
+						// Itteration total = Itteration ** 5
+						runningTotal *= 5;
+
+						// This is the amount to take from v.owned @ [k - 1]: v
+						const carryDownTotal = runningTotal - v.owned;
+						// Set runningTotal to difference taken by [k]: v.owned
+						runningTotal = carryDownTotal;
+						runValue = `Owned: ${v.owned}\nCombined: ${v.owned - v.remain}\nRemaining: ${v.remain}`;
+					} else {
+						// Amount cannot cover combine total
+
+						// Itteration total = Itteration ** 5
+						runningTotal *= 5;
+
+						const carryDownTotal = runningTotal - v.owned;
+						runningTotal = carryDownTotal;
+						runValue = `Owned: ${v.owned}\nCombined: ${v.canMakeMax * 5}\nRemaining: ${v.remainMax}`;
+					}
+
+					console.log(`AFTER CHECK @ ITTER: ${k} CONTENTS OF V:`, v);
+
+					acc.unshit({name: `== ${baseCheckRarName(+k)} ==`, value: runValue});
+					return acc;
+				}, []);
+
+				embed.setFields(finalFields);
+			}
 		}
 
 		
@@ -334,7 +675,6 @@ module.exports = {
 						editWith = matMenu.goingForward({embeds: [amountSelectEmbed], components: [...loadDefaultAmountButtonActionRows()]});
 					break;
 				}
-
 				if (editWith.embeds) await anchorMsg.edit(editWith);
 			}).catch(e => console.error(e));
 		});
@@ -353,13 +693,10 @@ module.exports = {
 						} else if (['minus', 'mult', 'plus'].includes(c.customId.split('-')[0]) || c.customId === 'reset-amount'){
 							// Number Change Button
 							if (c.customId !== 'reset-amount'){
-								// ========================
-								// Test this, Will likely break as is
-								matMenu.specs.targetAmount = handleAmountChange(c.customId, matMenu.specs.targetAmount);
-								// ========================
+								matMenu.specs.targetAmount = fnSignConverter.grabCalledEq(c.customId, matMenu.specs.targetAmount);
 							} else matMenu.specs.targetAmount = 0;
 
-							await buildMatAmountEmbed(amountSelectEmbed, matMenu);
+							buildMatAmountEmbed(amountSelectEmbed, matMenu);
 
 							editWith = matMenu.goingNowhere()
 						} else if (['confirm'].includes(c.customId.split('-')[0])){
@@ -375,9 +712,13 @@ module.exports = {
 								matMenu.specs.matType = "";
 							break;
 							case "amount":
+								matMenu.specs.targetAmount = 0;
+
+								buildMatAmountEmbed(amountSelectEmbed, matMenu);
+								amountSelectEmbed.setTitle('== Amount Desired ==');
+
 								matMenu.specs.rarity.target = "";
 								matMenu.specs.rarity.extra = "";
-								matMenu.specs.targetAmount = 0;
 							break;
 						}
 						editWith = matMenu.goingBackward();
@@ -412,6 +753,7 @@ module.exports = {
 		// OLD CODE
 		// ========
 		if (interaction.user.id === "1011") {
+
 			if (interaction.options.getSubcommand() === 'combine') {
 				await interaction.deferReply().then(async () => {
 					//if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction! Sorry!');

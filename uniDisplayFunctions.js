@@ -170,6 +170,6 @@ const fnSignConverter = {
 
 module.exports = {
     loadDefaultAmountButtonActionRows,
-    // fnSignConverter
-    handleAmountChange: fnSignConverter.grabCalledEq
+    fnSignConverter
+    //handleAmountChange: fnSignConverter.grabCalledEq
 };

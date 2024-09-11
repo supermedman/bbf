@@ -280,6 +280,26 @@ function checkingRarID(rarity){
 }
 
 /**
+ * This function handles checking if the given `r` value needs to be converted
+ * to a number, 
+ * 
+ * EX: 
+ * ```js
+ * r === "Common"; 
+ * checkingRarID(r) => rarKeys<"0", "Common">;
+ * return +"0";
+ * ```
+ * @param {string | number} r 
+ * @returns {number}
+ */
+const convertRarToID = r => {
+    if (isNaN(r) && typeof r === 'string'){
+        // Extract Rar_id from r
+        return checkingRarID(r);
+    } else return +r;
+};
+
+/**
  * This function loads all existing Rarity names into an array.
  * The array does not include r11 ``Tmp`` or r12 ``Unique``
  * @param {number} [stopRar=19] Set this to the last desired rar id.
@@ -1464,6 +1484,7 @@ module.exports = {
 
     checkingRar,
     checkingRarID,
+    convertRarToID,
     baseCheckRarName,
     loadFullRarNameList,
 

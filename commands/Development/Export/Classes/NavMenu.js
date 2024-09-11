@@ -222,9 +222,9 @@ class NavMenu {
      * with IDS not starting with `back-` || `cancel-` to the given ``next[]``
      * 
      * Any and all ``Buttons`` with IDS starting with ``back-`` are added to the given ``back[]``
-     * @param  {...ActionRowBuilder} rows Between 1 - 5 Active ActionRowBuilders
+     * @param  {ActionRowBuilder[]} rows Between 1 - 5 Active ActionRowBuilders
      */
-    extractActionRowIDS(...rows) {
+    extractActionRowIDS(rows) {
         // NOT reserved
         const isReserved = bid => this.listenForPages.includes(bid);
 
@@ -245,7 +245,10 @@ class NavMenu {
         const isStringBuilder = (c) => getTypeof(c) === 'StringSelectMenuBuilder';
 
         const nextList = [], backList = [], cancelList = [];
+        //console.log(rows);
+        if (getTypeof(rows) !== 'Array') rows = [rows];
         for (const actionRow of rows){
+            //console.log(actionRow);
             if (isStringBuilder(actionRow.components[0])){
                 nextList.push(actionRow.components[0].data.custom_id);
                 continue;
