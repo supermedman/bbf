@@ -305,16 +305,28 @@ module.exports = {
 		}
 
 		/**
-		 * This function filters the full userMaterialStorage object for rarities at and below
-		 * the given `targetRID`. Returns a constructed object with the filtered props
+		 * This function filters the full userMaterialStorage object, 
+		 * the filter function used depends on the given `actionType`.
+		 * 
+		 * `Action = "combine"`: `["k"] <= targetRID`
+		 * 
+		 * `Action = "dismantle"`: `["k"] >= targetRID`
+		 * 
+		 * Returns a constructed object with the filtered props
 		 * @param {{[s: string]: number}} typedMatStore Owned Material Storage Object
 		 * @param {number} targetRID Targeted Material Rarity
+		 * @param {string} actionType The user selected material action, one of: `combine` or `dismantle`
 		 * @returns {{[s: string]: number}} Filtered Owned Material Storage Object
 		 */
-		function restructCombineMatStorage(typedMatStore, targetRID){
+		function restructUserMatStorage(typedMatStore, targetRID, actionType){
+			const combFilter = k => +k <= targetRID;
+			const disFilter = k => +k >= targetRID;
+			const matchesFilter = (actionType === 'combine') 
+			? combFilter 
+			: disFilter;
+
 			const restructedMatStore = Object.entries(typedMatStore)
-			.filter(([k]) => +k <= targetRID)
-			.reduce((acc, [k, v]) => {
+			.filter(([k]) => matchesFilter(k)).reduce((acc, [k, v]) => {
 				acc[k] = v;
 				return acc;
 			}, {});
@@ -323,13 +335,14 @@ module.exports = {
 		}
 
 		/**
-		 * This function handles the calculations for the given `targetAmount` @ `targetRID`
+		 * This function handles the combine calculations for the given `targetAmount` @ `targetRID`
 		 * 
 		 * given the total contents of `matsStored`, it attempts to met the `targetAmount`
 		 * by way of combining lower rarity materials until it succeededs or fails.
 		 * @param {number} targetAmount Targeted amount of material to combine to
 		 * @param {number} targetRID Targeted Material Rarity to combine to
 		 * @param {{[s: string]: number}} matsStored Owned Material Storage Object
+		 * @returns {{name: string, value: string}[]} Vaild EmbedBuilder Fields Array
 		 */
 		function handleCombineOutcome(targetAmount, targetRID, matsStored){
 			const TR = targetRID, TA = targetAmount;
@@ -452,10 +465,176 @@ module.exports = {
 			return finalFields;
 		}
 
+		/**
+		 * This function handles the dismantle calculations for the given `targetAmount` @ `targetRID`
+		 * 
+		 * given the total contents of `matsStored`, it attempts to meet the `targetAmount`
+		 * by way of dismantling higher rarity materials until it succeededs or fails.
+		 * @param {number} targetAmount Targeted amount of material to dismantle to
+		 * @param {number} targetRID Targeted Material Rarity to dismantle to
+		 * @param {{[s: string]: number}} matsStored Owned Material Storage Object
+		 * @returns {{name: string, value: string}[]} Vaild EmbedBuilder Fields Array
+		 */
+		function handleDismantleOutcome(targetAmount, targetRID, matsStored){
+			const TR = targetRID, TA = targetAmount;
+			let TDiff = TA, splitDiff = {};//, fallingDown = 0;
 
-		function restructDismantleMatStorage(matMenu){
-			
+			// HANDLING CALCULATIONS FOR DISMANTLING TO AMOUNT @ RARITY
+			const finalDisOutcome = Object.entries(matsStored)
+			.reduce((acc, [k, v]) => {
+				// Itteration starts at TR going ^: Itter 2 = "TR + 1", Itter 3 = "TR + 2"
+				// If TDiff has already been made up and is 0
+				if (!TDiff) {
+					acc[k] = {
+						owned: v,
+						remain: v,
+						dismantled: 0,
+						dismantledInto: 0,
+						used: false
+					};
+					return acc;
+				}
+				// ["k"]: v
+				const CR = +k;
+				// First Itter will be CR = TR
+				if (CR === TR) {
+					acc[k] = {
+						owned: v,
+						used: true,
+						isTarget: true
+					};
+					return acc;
+				}
+				
+				// console.log('== @ CR %d == TDiff %d Mod 5: %d', CR, TDiff, (TDiff % 5));
+				//const modDiff = TDiff % 5;
+				
+				// (TDiff <= 5 && ((TDiff / 5) % 1) !== 0)
+				// console.log('splitDiff condition checked: (((TDiff / 5) % 1) * 5) = ', Math.round(((TDiff / 5) % 1) * 5));
+				splitDiff[k] = Math.round(((TDiff / 5) % 1) * 5);
+				
+				// Divide TDiff by 5 per Itter
+				TDiff = Math.ceil(TDiff / 5);
+				
+				//TDiff = (TDiff <= 5) ? TDiff : Math.ceil(TDiff / 5);
+				// atCRDiff = Math.ceil(TA / 5 * (CR - TR));
+				const atCRDiff = Math.ceil(TA / (5 * (CR - TR)));
+				// curDiff = atCRDiff if TDiff is unmodified
+				const curDiff = (TDiff < atCRDiff) ? TDiff : atCRDiff;
+				// console.log('Itter Values: TDiff(%d) || atCRDiff(%d) || curDiff(%d)', TDiff, atCRDiff, curDiff);
+
+				// String representing one of "1", "-1", "0"
+				const outcome = (Math.sign(v - curDiff)).toString();
+				let remain = 0, dismantled = 0, dismantledInto = 0, owned = v;
+				switch(outcome){
+					case "-1": // Difference remains
+						// remain = 0;
+						// Total amount * 5
+						dismantledInto = v * 5;
+						// If not filled, all material is dismantled
+						dismantled = v;
+						// Subtract Total from TDiff
+						TDiff -= dismantled;
+					break;
+					default: // Difference made up || Difference exactly matched
+						// Use TDiff / 5 for CR remain, using curDiff for CR - 1 remain
+						//const actualDiff = (curDiff > 5) ? curDiff : Math.ceil(TDiff / 5);
+						remain = v - curDiff; // actualDiff
+						dismantled = curDiff; // actualDiff
+						dismantledInto = dismantled * 5;
+
+						if (CR - 1 !== TR){
+							for (const [pk, pv] of Object.entries(splitDiff)){
+								if (+pk - 1 === TR) continue;
+								acc[`${+pk - 1}`].remain = (!pv) ? pv : 5 - pv;
+								// fallingDown += (+pk === CR) 
+								// ? dismantledInto - acc[`${+pk - 1}`].remain
+								// : acc[`${+pk}`].dismantledInto - acc[`${+pk - 1}`].remain;
+							}
+							// console.log('FALLING DOWN LOL', fallingDown);
+							// fallingDown *= 3 + CR;
+						}
+						
+						// if (CR - 1 !== TR) acc[`${CR - 1}`].remain = (!splitDiff[k]) ? splitDiff[k] : 5 - splitDiff[k]; // 5 - curDiff;
+						// if (CR - 1 !== TR) console.log('Last Rar acc value (REMAIN MODDED): ', acc[`${CR - 1}`]);
+
+						TDiff = 0;
+					break;
+				}
+
+				acc[k] = {
+					owned,
+					remain,
+					dismantled,
+					dismantledInto,
+					used: true,
+					lastCheck: TDiff === 0
+				};
+
+				return acc;
+			}, {});
+
+			// console.log(finalDisOutcome);
+
+			// Gather Maximum total to be dismantled into
+			let dismantleOverflow = 0; // finalDisOutcome[`${TR + 1}`].dismantledInto + fallingDown;
+			const totalDismantleDisplayOverflow = ([CR, ele], idx, arr) => {
+				if (!ele.used || ele.isTarget) return; // || !ele.lastCheck
+				if (!dismantleOverflow) return dismantleOverflow = ele.dismantledInto;
+
+				// Max R used - (MAXR - 1).remain loop
+				// let carryingDown = 0;
+				// for (const [r, o] of arr){
+				// 	const [pr, pObj] = arr[arr.indexOf(r) - 1];
+				// 	carryingDown += o.dismantledInto - pObj.remain;
+				// 	carryingDown *= 5;
+				// }
+				// console.log('Previous ele obj: ', arr[idx - 1]);
+				
+				const [PR, POBJ] = arr[idx - 1];
+				if (+PR !== TR && POBJ.used) {
+					const totDisAmountUsed = ele.dismantledInto - POBJ.remain;
+					console.log('TotDisamountUsed: ', totDisAmountUsed);
+					console.log('PrevRar & PrevObj: ', PR, POBJ);
+					dismantleOverflow += totDisAmountUsed * (5 * (+PR - TR));
+				}
+				// dismantleOverflow = (ele.dismantled + dismantleOverflow) * 5;
+			};
+
+			Object.entries(finalDisOutcome).forEach(totalDismantleDisplayOverflow);
+			console.log('Display fix value (dismantleOverflow): %d', dismantleOverflow);
+
+			// CONSTRUCTING EMBEDBUILDER FIELDS ARRAY
+			const finalFields = Object.entries(finalDisOutcome)
+			.reduce((acc, [r, obj], idx, arr) => {
+				if (!obj.used) return acc;
+				const CR = +r;
+
+				let fieldName = ``, fieldValue = ``;
+				if (CR === TR){
+					fieldName = `== TARGET ${baseCheckRarName(CR)} ==`;
+					fieldValue = `Currently Owned: **${obj.owned}**\nDismantling Will Yield: **${dismantleOverflow}** / **${TA}**`;
+				} else {
+					fieldName = `== ${baseCheckRarName(CR)} ==`;
+					let nextObj, nextRar;
+					if (CR > 0){
+						const [NR, NOBJ] = arr[(arr.length - 1 > idx + 1) ? idx + 1 : arr.length - 1];
+						nextRar = +NR;
+						nextObj = NOBJ;
+					}
+					// console.log(nextObj, nextRar);
+					const ownedTextValue = (CR > 0 && nextObj.dismantledInto > 0) 
+					? `Owned: **${obj.owned}**   +*${nextObj.dismantledInto} from ${baseCheckRarName(nextRar)}*`
+					: `Owned: **${obj.owned}**`;
+					fieldValue = `${ownedTextValue}\nAmount Remaining: **${obj.remain}**\nAmount Dismantled: **${obj.dismantled}**`;
+				}
+				acc.unshift({name: fieldName, value: fieldValue});
+				return acc;
+			}, []);
+
+			return finalFields;
 		}
+		
 
 		/**
 		 * This function loads the given `embed` with the calculated display data returned 
@@ -469,9 +648,7 @@ module.exports = {
 
 			const targetRID = convertRarToID(rarity.target);
 
-			const filteredMatStore = (actionType === 'combine') 
-			? restructCombineMatStorage(typedMatStore, targetRID) 
-			: restructDismantleMatStorage(matMenu);
+			const filteredMatStore = restructUserMatStorage(typedMatStore, targetRID, actionType);
 
 			embed
 			.setTitle(`== ${makeCapital(matType)} Amount Desired ==`)
@@ -483,166 +660,164 @@ module.exports = {
 				return;
 			} else {
 				// Handle Dismantle
+				embed.setFields(handleDismantleOutcome(targetAmount, targetRID, filteredMatStore));
 				return;
 			}
 
-			
-
-			
-			const targetMaxRID = (actionType === 'dismantle') ? convertRarToID(rarity.extra): undefined;
-			// DISMANTLE
-			// Rar targetRID to targetMaxRID;
-			const neededMatRarsUpper = Object.entries(typedMatStore)
-			.filter(([k]) => +k > targetRID && +k <= targetMaxRID)
-			.reduce((acc, [k, v]) => {
-				acc[k] = {
-					owned: v,
-					canMake: v * 5
-				};
-				return acc;
-			}, {});
-			console.log(neededMatRarsUpper);
+			// const targetMaxRID = (actionType === 'dismantle') ? convertRarToID(rarity.extra): undefined;
+			// // DISMANTLE
+			// // Rar targetRID to targetMaxRID;
+			// const neededMatRarsUpper = Object.entries(typedMatStore)
+			// .filter(([k]) => +k > targetRID && +k <= targetMaxRID)
+			// .reduce((acc, [k, v]) => {
+			// 	acc[k] = {
+			// 		owned: v,
+			// 		canMake: v * 5
+			// 	};
+			// 	return acc;
+			// }, {});
+			// console.log(neededMatRarsUpper);
 			
 			
-			if (actionType === 'combine'){
-				// Rar 0 to targetRID;
-				// Remove any `k,v`s above target rar id
-				const neededMatRarsLower = Object.entries(typedMatStore)
-				.filter(([k]) => +k <= targetRID)
-				.reduce((acc, [k, v]) => {
-					if (+k === targetRID){
-						// Targeted Rar ID
-						acc[k] = {owned: v, maxMake: acc.carryUp};
-					} else {
-						// All Lower Rar IDS
-						// lowest ('0') => highest(targetRID - 1)
-						acc[k] = {
-							owned: v,
-							carried: acc.carryUp ?? 0,
-							canMakeMax: Math.floor((v + (acc.carryUp ?? 0)) / 5),
-							remainMax: (v + (acc.carryUp ?? 0)) % 5
-						};
+			// if (actionType === 'combine'){
+			// 	// Rar 0 to targetRID;
+			// 	// Remove any `k,v`s above target rar id
+			// 	const neededMatRarsLower = Object.entries(typedMatStore)
+			// 	.filter(([k]) => +k <= targetRID)
+			// 	.reduce((acc, [k, v]) => {
+			// 		if (+k === targetRID){
+			// 			// Targeted Rar ID
+			// 			acc[k] = {owned: v, maxMake: acc.carryUp};
+			// 		} else {
+			// 			// All Lower Rar IDS
+			// 			// lowest ('0') => highest(targetRID - 1)
+			// 			acc[k] = {
+			// 				owned: v,
+			// 				carried: acc.carryUp ?? 0,
+			// 				canMakeMax: Math.floor((v + (acc.carryUp ?? 0)) / 5),
+			// 				remainMax: (v + (acc.carryUp ?? 0)) % 5
+			// 			};
 
-						// Carry combinable total to next itteration
-						// Overwrite existing value!!
-						acc.carryUp = acc[k].canMakeMax;
-					}
-					return acc;
-				}, {});
-				//console.log(neededMatRarsLower);
+			// 			// Carry combinable total to next itteration
+			// 			// Overwrite existing value!!
+			// 			acc.carryUp = acc[k].canMakeMax;
+			// 		}
+			// 		return acc;
+			// 	}, {});
+			// 	//console.log(neededMatRarsLower);
 
-				// Work from top to bottom attempting to meet the target amount
-				const updateFields = Object.entries(neededMatRarsLower)
-				.reduceRight((acc, [k, v]) => {
-					if (k === 'carryUp') return acc;
-					if (+k === targetRID) {
-						const shownCurMax = (v.maxMake > targetAmount) ? targetAmount : v.maxMake; 
-						const targetDetails = `Currently Owned: ${v.owned}\nCombining Will Yield: ${shownCurMax}/${targetAmount}`;
-						acc.push({name: `== TARGET ${baseCheckRarName(+k)} ==`, value: targetDetails});
-						return acc;
-					}
+			// 	// Work from top to bottom attempting to meet the target amount
+			// 	const updateFields = Object.entries(neededMatRarsLower)
+			// 	.reduceRight((acc, [k, v]) => {
+			// 		if (k === 'carryUp') return acc;
+			// 		if (+k === targetRID) {
+			// 			const shownCurMax = (v.maxMake > targetAmount) ? targetAmount : v.maxMake; 
+			// 			const targetDetails = `Currently Owned: ${v.owned}\nCombining Will Yield: ${shownCurMax}/${targetAmount}`;
+			// 			acc.push({name: `== TARGET ${baseCheckRarName(+k)} ==`, value: targetDetails});
+			// 			return acc;
+			// 		}
 
-					const totalToFillTargetedAmount = targetAmount * (5 * (targetRID - +k));
-					//console.log(totalToFillTargetedAmount);
+			// 		const totalToFillTargetedAmount = targetAmount * (5 * (targetRID - +k));
+			// 		//console.log(totalToFillTargetedAmount);
 
-					const oVal = (k === '0') ? `${v.owned}`: `${v.owned} + ${v.carried} from ${baseCheckRarName(+k - 1)}`;
-					const compValue = `Owned: ${oVal}\nRemaining: ${v.remain}`;
-					acc.unshift({name: `== ${baseCheckRarName(+k)} ==`, value: compValue});
-					return acc;
-				}, []);
+			// 		const oVal = (k === '0') ? `${v.owned}`: `${v.owned} + ${v.carried} from ${baseCheckRarName(+k - 1)}`;
+			// 		const compValue = `Owned: ${oVal}\nRemaining: ${v.remain}`;
+			// 		acc.unshift({name: `== ${baseCheckRarName(+k)} ==`, value: compValue});
+			// 		return acc;
+			// 	}, []);
 
-				let runningTotal = targetAmount;
-				const finalFields = Object.entries(Object.entries(typedMatStore)
-				.filter(([k]) => +k <= targetRID).reduce((acc, [k, v]) => {
-					if (+k === targetRID){
-						// Targeted Rar ID
-						acc[k] = {owned: v, maxMake: acc.carryUp};
-						delete acc.carryUp;
-					} else {
-						// All Lower Rar IDS
-						// lowest ('0') => highest(targetRID - 1)
-						acc[k] = {
-							owned: v,
-							carried: acc.carryUp ?? 0,
-							canMake: Math.floor(v / 5),
-							remain: v % 5,
-							canMakeMax: Math.floor((v + (acc.carryUp ?? 0)) / 5),
-							remainMax: (v + (acc.carryUp ?? 0)) % 5
-						};
+			// 	let runningTotal = targetAmount;
+			// 	const finalFields = Object.entries(Object.entries(typedMatStore)
+			// 	.filter(([k]) => +k <= targetRID).reduce((acc, [k, v]) => {
+			// 		if (+k === targetRID){
+			// 			// Targeted Rar ID
+			// 			acc[k] = {owned: v, maxMake: acc.carryUp};
+			// 			delete acc.carryUp;
+			// 		} else {
+			// 			// All Lower Rar IDS
+			// 			// lowest ('0') => highest(targetRID - 1)
+			// 			acc[k] = {
+			// 				owned: v,
+			// 				carried: acc.carryUp ?? 0,
+			// 				canMake: Math.floor(v / 5),
+			// 				remain: v % 5,
+			// 				canMakeMax: Math.floor((v + (acc.carryUp ?? 0)) / 5),
+			// 				remainMax: (v + (acc.carryUp ?? 0)) % 5
+			// 			};
 
-						// Carry combinable total to next itteration
-						// Overwrite existing value!!
-						acc.carryUp = acc[k].canMakeMax;
-					}
-					return acc;
-				}, {})).reduceRight((acc, [k, v]) => {
-					// Only contains k,v with k <= targetRar
-					// Itterating from targetRar => "0"
-					// First itter = targetRar
-					if (+k === targetRID) {
-						runningTotal = targetAmount;	
-						return acc;
-					}
-					// If total has already been filled
-					// EDIT TARGET MAT FIELD VALUE
-					// NEEDS CHANGING, OUT OF ORDER WHEN CHECKED FOR CANMAKEMAX OF COMMON RAR
-					// NEEDS NEW DISPLAY INFO FOR WHEN TARGETAMOUNT IS NOT REACHABLE
-					if (runningTotal === 0) { 
-						const targetDetails = `Currently Owned: ${typedMatStore[`${targetRID.toString()}`]}\nCombining Will Yield: ${targetAmount}/${targetAmount}`;
-						acc.push({name: `== TARGET ${baseCheckRarName(targetRID)} ==`, value: targetDetails});
-						return acc;
-					}
-					// [[k]: v]: {owned, carried, canMake, remain, canMakeMax, remainMax}
-					console.log(`@ ITTER: ${k} CONTENTS OF V:`, v);
-					let runValue = ``;
-					if (v.owned === 0) {
-						// Itteration total = Itteration ** 5
-						runningTotal *= 5;
+			// 			// Carry combinable total to next itteration
+			// 			// Overwrite existing value!!
+			// 			acc.carryUp = acc[k].canMakeMax;
+			// 		}
+			// 		return acc;
+			// 	}, {})).reduceRight((acc, [k, v]) => {
+			// 		// Only contains k,v with k <= targetRar
+			// 		// Itterating from targetRar => "0"
+			// 		// First itter = targetRar
+			// 		if (+k === targetRID) {
+			// 			runningTotal = targetAmount;	
+			// 			return acc;
+			// 		}
+			// 		// If total has already been filled
+			// 		// EDIT TARGET MAT FIELD VALUE
+			// 		// NEEDS CHANGING, OUT OF ORDER WHEN CHECKED FOR CANMAKEMAX OF COMMON RAR
+			// 		// NEEDS NEW DISPLAY INFO FOR WHEN TARGETAMOUNT IS NOT REACHABLE
+			// 		if (runningTotal === 0) { 
+			// 			const targetDetails = `Currently Owned: ${typedMatStore[`${targetRID.toString()}`]}\nCombining Will Yield: ${targetAmount}/${targetAmount}`;
+			// 			acc.push({name: `== TARGET ${baseCheckRarName(targetRID)} ==`, value: targetDetails});
+			// 			return acc;
+			// 		}
+			// 		// [[k]: v]: {owned, carried, canMake, remain, canMakeMax, remainMax}
+			// 		console.log(`@ ITTER: ${k} CONTENTS OF V:`, v);
+			// 		let runValue = ``;
+			// 		if (v.owned === 0) {
+			// 			// Itteration total = Itteration ** 5
+			// 			runningTotal *= 5;
 
-						// NOT OWNED
-						runValue = `Owned: NONE\nRemaining After Combine: ${v.remainMax}`;
-					} else if (runningTotal - v.canMake <= 0){
-						// Amount Owned can cover combine total
+			// 			// NOT OWNED
+			// 			runValue = `Owned: NONE\nRemaining After Combine: ${v.remainMax}`;
+			// 		} else if (runningTotal - v.canMake <= 0){
+			// 			// Amount Owned can cover combine total
 
-						// Itteration total = Itteration ** 5
-						runningTotal *= 5;
+			// 			// Itteration total = Itteration ** 5
+			// 			runningTotal *= 5;
 
-						// Check exact amount needed to cover combine
-						// v.remain = v.owned not consumed.
-						v.remain = v.owned - runningTotal;
-						runValue = `Owned: ${v.owned}\nCombined: ${runningTotal}\nRemaining: ${v.remain}`;
-						// Clear running total
-						runningTotal = 0;
-					} else if (runningTotal - v.canMakeMax <= 0){
-						// Amount Owned + Carried up can cover combine total
+			// 			// Check exact amount needed to cover combine
+			// 			// v.remain = v.owned not consumed.
+			// 			v.remain = v.owned - runningTotal;
+			// 			runValue = `Owned: ${v.owned}\nCombined: ${runningTotal}\nRemaining: ${v.remain}`;
+			// 			// Clear running total
+			// 			runningTotal = 0;
+			// 		} else if (runningTotal - v.canMakeMax <= 0){
+			// 			// Amount Owned + Carried up can cover combine total
 
-						// Itteration total = Itteration ** 5
-						runningTotal *= 5;
+			// 			// Itteration total = Itteration ** 5
+			// 			runningTotal *= 5;
 
-						// This is the amount to take from v.owned @ [k - 1]: v
-						const carryDownTotal = runningTotal - v.owned;
-						// Set runningTotal to difference taken by [k]: v.owned
-						runningTotal = carryDownTotal;
-						runValue = `Owned: ${v.owned}\nCombined: ${v.owned - v.remain}\nRemaining: ${v.remain}`;
-					} else {
-						// Amount cannot cover combine total
+			// 			// This is the amount to take from v.owned @ [k - 1]: v
+			// 			const carryDownTotal = runningTotal - v.owned;
+			// 			// Set runningTotal to difference taken by [k]: v.owned
+			// 			runningTotal = carryDownTotal;
+			// 			runValue = `Owned: ${v.owned}\nCombined: ${v.owned - v.remain}\nRemaining: ${v.remain}`;
+			// 		} else {
+			// 			// Amount cannot cover combine total
 
-						// Itteration total = Itteration ** 5
-						runningTotal *= 5;
+			// 			// Itteration total = Itteration ** 5
+			// 			runningTotal *= 5;
 
-						const carryDownTotal = runningTotal - v.owned;
-						runningTotal = carryDownTotal;
-						runValue = `Owned: ${v.owned}\nCombined: ${v.canMakeMax * 5}\nRemaining: ${v.remainMax}`;
-					}
+			// 			const carryDownTotal = runningTotal - v.owned;
+			// 			runningTotal = carryDownTotal;
+			// 			runValue = `Owned: ${v.owned}\nCombined: ${v.canMakeMax * 5}\nRemaining: ${v.remainMax}`;
+			// 		}
 
-					console.log(`AFTER CHECK @ ITTER: ${k} CONTENTS OF V:`, v);
+			// 		console.log(`AFTER CHECK @ ITTER: ${k} CONTENTS OF V:`, v);
 
-					acc.unshit({name: `== ${baseCheckRarName(+k)} ==`, value: runValue});
-					return acc;
-				}, []);
+			// 		acc.unshit({name: `== ${baseCheckRarName(+k)} ==`, value: runValue});
+			// 		return acc;
+			// 	}, []);
 
-				embed.setFields(finalFields);
-			}
+			// 	embed.setFields(finalFields);
+			// }
 		}
 
 		

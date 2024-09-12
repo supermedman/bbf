@@ -150,10 +150,10 @@ module.exports = {
 
 		// Enemy Display Testing
 		if (subCom === 'enemy-style'){
-			let emptList;
-			emptList.push("break");
+			// let emptList;
+			// emptList.push("break");
 
-			return;
+			// return;
 
 			const enemyName = interaction.options.getString('enemy');
 

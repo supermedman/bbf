@@ -526,7 +526,7 @@ async function handleStartMilestone(user, userMilestone){
     let questCount = 1;
     for (const quest of allQuests){
         const questEmbed = new EmbedBuilder()
-        .setColor(0o0)
+        .setColor((questCount === 1) ? 'DarkGold': 0o0)
         .setTitle(`Quest: ${questCount}`)
         .addFields(
             {name: `Name: ${quest.Name}`, value: `Quest Level: ${quest.Level}\nLength: ${quest.Time}\nEnemy Level: ${quest.ELevel}`}
