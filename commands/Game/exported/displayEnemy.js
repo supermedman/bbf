@@ -437,11 +437,15 @@ async function createNewEnemyImage(enemy){
             for (let j = 0; j < 3; j++){
                 // Measure current row length
                 curLine = (lines[i]?.length > 0) ? lines[i].join(" | ") : "";
+                const effectSpacing = 25;
+                const theLineWidth = (curLine === '') 
+                ? effectSpacing 
+                : effectSpacing + ctx.measureText(curLine + " | ").width;
                 curLineWidth += (curLine === "") ? 0 : ctx.measureText(curLine + " | ").width;
 
                 const colourObj = statusColourMatch.get(effects[effectPos].Type);
                 ctx.fillStyle = colourObj.colour;
-                ctx.fillText(effects[effectPos].Type, curLineWidth, (descBottom + 25) + (i * 25));
+                ctx.fillText(effects[effectPos].Type, theLineWidth, (descBottom + 25) + (i * 25));
 
                 lines[i][j] = effects[effectPos].Type;
                 effectPos++;

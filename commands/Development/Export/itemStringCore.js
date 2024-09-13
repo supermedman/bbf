@@ -162,6 +162,45 @@ function checkingDamage(TEST_CODE) {
     return finalTypes;
 }
 
+function loadFullDDNameList(includeTypes=['melee', 'magic', 'special']){
+
+    const returnTypes = [];
+    if (includeTypes.includes('melee')){
+        const physTypes = Array.from(dmgKeys.keys())
+        .filter(key => key.substring(2,) === 'ph')
+        .reduce((acc, key) => {
+            acc.push(dmgKeys.get(key));
+            return acc;
+        }, []);
+
+        returnTypes.push(physTypes); // Array.from(dmgKeys.keys()).filter(key => key.substring(2,) === "ph").filter(key => dmgKeys.get(key).toLowerCase() === (item.Type ?? item.type)?.toLowerCase());
+    }
+
+    if (includeTypes.includes('magic')){
+        const magiTypes = Array.from(dmgKeys.keys())
+        .filter(key => key.substring(2,) === 'ma')
+        .reduce((acc, key) => {
+            acc.push(dmgKeys.get(key));
+            return acc;
+        }, []);
+
+        returnTypes.push(magiTypes);
+    }
+
+    if (includeTypes.includes('special')){
+        const specTypes = Array.from(dmgKeys.keys())
+        .filter(key => key.substring(2,) === 'sp')
+        .reduce((acc, key) => {
+            acc.push(dmgKeys.get(key));
+            return acc;
+        }, []);
+
+        returnTypes.push(specTypes);
+    }
+
+    return returnTypes;
+}
+
 /**
  * 
  * @param {String} TEST_CODE ITEM_CODE used for deconstruction
@@ -239,6 +278,26 @@ function checkingRarID(rarity){
     }
     return keyCopy;
 }
+
+/**
+ * This function handles checking if the given `r` value needs to be converted
+ * to a number, 
+ * 
+ * EX: 
+ * ```js
+ * r === "Common"; 
+ * checkingRarID(r) => rarKeys<"0", "Common">;
+ * return +"0";
+ * ```
+ * @param {string | number} r 
+ * @returns {number}
+ */
+const convertRarToID = r => {
+    if (isNaN(r) && typeof r === 'string'){
+        // Extract Rar_id from r
+        return checkingRarID(r);
+    } else return +r;
+};
 
 /**
  * This function loads all existing Rarity names into an array.
@@ -1418,12 +1477,14 @@ module.exports = {
 
     checkingDamage,
     checkingDefence,
+    loadFullDDNameList,
 
     checkingDismantle,
     loadFullDismantleList,
 
     checkingRar,
     checkingRarID,
+    convertRarToID,
     baseCheckRarName,
     loadFullRarNameList,
 

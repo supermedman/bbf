@@ -95,7 +95,7 @@ module.exports = {
 	async execute(client) {
         console.log(`Ready! Logged in as ${client.user.tag}`);
         const Guilds = client.guilds.cache.map(guild => guild.id);
-        console.log(`Grabbing current server list! ${Guilds}`);
+        console.log(`Grabbing current server list! BB is active in ${Guilds.length} servers!!`);
         GuildData.sync();
 
         Loadout.sync();

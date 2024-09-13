@@ -1,12 +1,44 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { UserData, Pighouse } = require('../../dbObjects.js');
+const { grabUser } = require('../../uniHelperFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('help')
-        		.setDescription('Basic tips, tricks, and assistance!'),
+	.setName('help')
+    .setDescription('Basic tips, tricks, and assistance!'),
+	async execute(interaction) {
+		const user = await grabUser(interaction.user.id);
 
-	async execute(interaction) { 
+		// Help categories
+		// ===============
+		// COMMANDS, GAMEPLAY, SETUP, OTHER
+
+		// COMMANDS
+		// ========
+		// Dynamically loaded embed display
+		// Sort commands into more specific categories
+		const commandList = interaction.client.commands;
+		// Filter out dev commands
+		const isDevCommand = c => c.helpcat === 'Development';
+		// Remove `help` command
+		const isHelpCommand = c => c.data.name === 'help';
+		// Filter out any commands missing "help" related props
+		const hasHelpType = c => 'helptypes' in c;
+
+		const helpSupportedCommands = commandList.filter(c => !isDevCommand(c) && !isHelpCommand(c) && hasHelpType(c));
+
+		// GAMEPLAY
+		// ========
+
+		// SETUP
+		// =====
+		// Direct to `/setup help`
+
+		// OTHER
+		// =====
+
+
+
 		const uData = await UserData.findOne({ where: { userid: interaction.user.id } });
 		if (!uData) return interaction.reply(`Welcome new user! To get started use the command \`/start\`. If you still need help afterwards use the help command again!`);
 

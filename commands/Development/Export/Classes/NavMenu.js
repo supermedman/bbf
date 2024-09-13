@@ -1,13 +1,16 @@
 const { ActionRowBuilder, EmbedBuilder, AttachmentBuilder } = require("discord.js");
 const { getTypeof } = require("../../../../uniHelperFunctions");
 
+/**
+ * NavMenu is the core display interaction handler, it manages;
+ * menu navigation, paging, button/string component id extraction.
+ * 
+ * As well as containing "Listening methods":
+ * @ template E
+ * @ param {E} extraSpecs Any additional props to store, stored as `.specs`
+ */
 class NavMenu {
     /**
-     * NavMenu is the core display interaction handler, it manages;
-     * menu navigation, paging, button/string component id extraction.
-     * 
-     * As well as containing "Listening methods":
-     * 
      * #### `cID` === `collectedComponentInteraction.customId` 
      * 
      * ### `NavMenu(...).whatDoYouHear(id)` Calls everything following:
@@ -35,11 +38,12 @@ class NavMenu {
      * 
      * Returns true on `ids` starting with "cancel-" || "cancel"
      * 
-     * 
+     * @ template T
      * @param {object} user UserData DB Object
      * @param {{components: ActionRowBuilder[], embeds?: EmbedBuilder[], files?: AttachmentBuilder[]}} displayOne First Display Object
      * @param {string[] | [ActionRowBuilder]} firstRowIDS Array of Component.custom_id strings or ActionRowBuilder
-     * @param {object} extraSpecs Any additional props to store, stored as `.specs`
+     * @extends {E<T>}
+     * @ param {T} extraSpecs Any additional props to store, stored as `.specs`
      */
     constructor(user, displayOne, firstRowIDS=[], extraSpecs){
         this.userUsing = user.userid;
@@ -55,6 +59,11 @@ class NavMenu {
             this.extractActionRowIDS(...firstRowIDS);
         } else this.listenForNext = [firstRowIDS];
 
+        // /**
+        //  * @template T
+        //  * @extends {E<T>}
+        //  * @type {T | undefined} 
+        //  */
         this.specs = extraSpecs;
 
         this.currentPagingPage = {};
@@ -64,11 +73,13 @@ class NavMenu {
             lastPage: 0,
             displayUsing: {
                 embeds: false,
-                files: false
+                files: false,
+                components: false
             },
             displayStore: {
                 embeds: [],
-                files: []
+                files: [],
+                components: []
             },
             storedExtras: {
 
@@ -218,9 +229,9 @@ class NavMenu {
      * with IDS not starting with `back-` || `cancel-` to the given ``next[]``
      * 
      * Any and all ``Buttons`` with IDS starting with ``back-`` are added to the given ``back[]``
-     * @param  {...ActionRowBuilder} rows Between 1 - 5 Active ActionRowBuilders
+     * @param  {ActionRowBuilder[]} rows Between 1 - 5 Active ActionRowBuilders
      */
-    extractActionRowIDS(...rows) {
+    extractActionRowIDS(rows) {
         // NOT reserved
         const isReserved = bid => this.listenForPages.includes(bid);
 
@@ -241,7 +252,10 @@ class NavMenu {
         const isStringBuilder = (c) => getTypeof(c) === 'StringSelectMenuBuilder';
 
         const nextList = [], backList = [], cancelList = [];
+        //console.log(rows);
+        if (getTypeof(rows) !== 'Array') rows = [rows];
         for (const actionRow of rows){
+            //console.log(actionRow);
             if (isStringBuilder(actionRow.components[0])){
                 nextList.push(actionRow.components[0].data.custom_id);
                 continue;
@@ -273,7 +287,18 @@ class NavMenu {
         return this.navDisplayPath.at(-1);
     }
 
-    // USE IN FAVOUR OF `this.goingBack()`
+    /**
+     * This method returns the current menu page display
+     * @returns {object}
+     */
+    goingNowhere(){
+        return this.navDisplayPath.at(-1);
+    }
+
+    /**
+     * USE IN FAVOUR OF `this.goingBack()`
+     * @returns {object}
+     */
     goingBackward(){
         if (this.navDisplayPath.length === 1) {
             // Catch handle for `delete-page` `cancel-<base-menu>`
@@ -288,7 +313,10 @@ class NavMenu {
         return this.navDisplayPath.at(-1);
     }
 
-    // TO BE REMOVED
+    /**
+     * TO BE REMOVED
+     * @returns {void}
+     */
     goingBack() {
         if (this.navDisplayPath.length === 1) return;
 
@@ -303,4 +331,4 @@ class NavMenu {
 }
 
 
-module.exports = {NavMenu};
+module.exports = { NavMenu };

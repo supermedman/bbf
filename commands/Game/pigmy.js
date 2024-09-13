@@ -859,10 +859,10 @@ module.exports = {
 				claimBuffs.title.base.playerXP += buffFound.UserXP;
 			}
 
-			console.log(claimBuffs);
+			//console.log(claimBuffs);
 
 			const staticMatChoices = loadFullDismantleList();
-			console.log(staticMatChoices);
+			//console.log(staticMatChoices);
 
 			// Pigmy Mood modifier: 1 - difference of (mood / 100) 
 			// pig.happy === 100 => unhappyMod = 0
@@ -1074,6 +1074,7 @@ module.exports = {
 
 			// Calculate pigmies happiness after claim is complete
 			const happinessAfterClaim = pig.happiness - (10 + Math.ceil(claimHours / (12 - (pig.level * 0.04))));
+			console.log('Current Pigmy Happiness: %d\nNew Pigmy Happiness: %d', pig.happiness, happinessAfterClaim);
 			
 			// Final base display embed data
 			const baseClaimDisplay = {
