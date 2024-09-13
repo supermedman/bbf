@@ -212,6 +212,8 @@ module.exports = {
 
 		const subCom = interaction.options.getSubcommand();
 
+		if (subCom === 'establish') return await interaction.reply({content: 'This command is under construction!', ephemeral: true});
+
 		const needsEditPerms = ['deposit', 'withdraw', 'openplot', 'closeplot', 'buildcore', 'upgradecore']; // Requires edit perms to use
 		const needsMayorPerms = ['appoint', 'demote', 'transfer']; // Only Mayor can use
 

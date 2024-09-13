@@ -273,6 +273,8 @@ module.exports = {
                                         navMenu.selectedTask = "";
                                         navMenu.progressObj = "";
 
+                                        if (navMenu.embedPages.length === 0) return collector.stop();
+
                                         cleanPlaceholderEmbed(taskFillEmbed);
                                         cleanPlaceholderEmbed(taskPickEmbed);
                                         // Show task payout rewards
@@ -328,7 +330,7 @@ module.exports = {
             // =====================
             // BUTTON COLLECTOR
             collector.on('end', async (c, r) => {
-                if (!r || r === 'time') await handleCatchDelete(anchorMsg);
+                if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
 
                 await handleCatchDelete(anchorMsg);
             });

@@ -523,11 +523,12 @@ async function handleStartMilestone(user, userMilestone){
     } else allQuests = nextQuest.concat(normalQuests);
 
     const questEmbeds = [];
+    const isStoryQuest = (qc) => allQuests.length > normalQuests.length && qc === 1;
     let questCount = 1;
     for (const quest of allQuests){
         const questEmbed = new EmbedBuilder()
-        .setColor((questCount === 1) ? 'DarkGold': 0o0)
-        .setTitle(`Quest: ${questCount}`)
+        .setColor((isStoryQuest(questCount)) ? 'DarkGold': 0o0)
+        .setTitle((isStoryQuest(questCount)) ? `Quest: ${questCount} *Story Quest*`: `Quest: ${questCount}`)
         .addFields(
             {name: `Name: ${quest.Name}`, value: `Quest Level: ${quest.Level}\nLength: ${quest.Time}\nEnemy Level: ${quest.ELevel}`}
         );

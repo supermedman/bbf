@@ -6,6 +6,8 @@ const { getTypeof } = require("../../../../uniHelperFunctions");
  * menu navigation, paging, button/string component id extraction.
  * 
  * As well as containing "Listening methods":
+ * @ template E
+ * @ param {E} extraSpecs Any additional props to store, stored as `.specs`
  */
 class NavMenu {
     /**
@@ -36,11 +38,12 @@ class NavMenu {
      * 
      * Returns true on `ids` starting with "cancel-" || "cancel"
      * 
-     * @template E
+     * @ template T
      * @param {object} user UserData DB Object
      * @param {{components: ActionRowBuilder[], embeds?: EmbedBuilder[], files?: AttachmentBuilder[]}} displayOne First Display Object
      * @param {string[] | [ActionRowBuilder]} firstRowIDS Array of Component.custom_id strings or ActionRowBuilder
-     * @param {E} [extraSpecs] Any additional props to store, stored as `.specs`
+     * @extends {E<T>}
+     * @ param {T} extraSpecs Any additional props to store, stored as `.specs`
      */
     constructor(user, displayOne, firstRowIDS=[], extraSpecs){
         this.userUsing = user.userid;
@@ -56,9 +59,11 @@ class NavMenu {
             this.extractActionRowIDS(...firstRowIDS);
         } else this.listenForNext = [firstRowIDS];
 
-        /**
-         * @type {E} 
-         */
+        // /**
+        //  * @template T
+        //  * @extends {E<T>}
+        //  * @type {T | undefined} 
+        //  */
         this.specs = extraSpecs;
 
         this.currentPagingPage = {};
