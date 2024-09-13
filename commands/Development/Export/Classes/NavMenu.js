@@ -73,11 +73,13 @@ class NavMenu {
             lastPage: 0,
             displayUsing: {
                 embeds: false,
-                files: false
+                files: false,
+                components: false
             },
             displayStore: {
                 embeds: [],
-                files: []
+                files: [],
+                components: []
             },
             storedExtras: {
 

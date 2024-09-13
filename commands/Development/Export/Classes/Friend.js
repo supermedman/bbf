@@ -1,0 +1,1 @@
+// This is the core of NPC: dialog, requests, moving, "talk with", hiring, and anything else added for NPC's 

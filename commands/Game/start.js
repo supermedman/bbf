@@ -1,42 +1,39 @@
 const { ActionRowBuilder, EmbedBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { UserData } = require('../../dbObjects.js');
 const { handleExterCombat } = require('./exported/combatDisplay.js');
+const { grabUser, createConfirmCancelButtonRow, createInteractiveChannelMessage, handleCatchDelete, makeCapital } = require('../../uniHelperFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('start')
         .setDescription('Start your grand adventure!'),
 	async execute(interaction) {
+		const userExists = await grabUser(interaction.user.id);
+		if (userExists) return await interaction.reply({content: 'Profile already exists! Please use `/startcombat` to play!', ephemeral: true});
 
-		const userChecking = await UserData.findOne({ where: { userid: interaction.user.id } });
-		if (userChecking) return await interaction.reply('Profile already exists! Please use ``/startcombat`` to play!');
+		const wButt = new ButtonBuilder()
+		.setCustomId('slot-warrior')
+		.setLabel('Warrior')
+		.setStyle(ButtonStyle.Primary), 
+		mButt = new ButtonBuilder()
+		.setCustomId('slot-mage')
+		.setLabel('Mage')
+		.setStyle(ButtonStyle.Primary), 
+		tButt = new ButtonBuilder()
+		.setCustomId('slot-thief')
+		.setLabel('Thief')
+		.setStyle(ButtonStyle.Primary), 
+		pButt = new ButtonBuilder()
+		.setCustomId('slot-paladin')
+		.setLabel('Paladin')
+		.setStyle(ButtonStyle.Primary);
+		const pClassButts = [wButt, mButt, tButt, pButt];
 
-		const warriorButton = new ButtonBuilder()
-			.setCustomId('slot1')
-			.setLabel('Warrior')
-			.setStyle(ButtonStyle.Primary);
-
-		const mageButton = new ButtonBuilder()
-			.setCustomId('slot2')
-			.setLabel('Mage')
-			.setStyle(ButtonStyle.Primary);
-
-		const thiefButton = new ButtonBuilder()
-			.setCustomId('slot3')
-			.setLabel('Thief')
-			.setStyle(ButtonStyle.Primary);
-
-		const paladinButton = new ButtonBuilder()
-			.setCustomId('slot4')
-			.setLabel('Paladin')
-			.setStyle(ButtonStyle.Primary);
-
-		const row = new ActionRowBuilder().addComponents(warriorButton, mageButton, thiefButton, paladinButton);
-
-		const embed = new EmbedBuilder()
-		.setTitle("~Welcome to Black Blade~")
+		// Class choice embed/intro
+		const introEmbed = new EmbedBuilder()
+		.setTitle("~= Welcome to Black Blade =~")
 		.setColor(0x39acf3)
-		.setDescription("This is the start of the journey.. Select one of the options to continue! The choice you make will be unchangable, make this choice wisely.\n\n**Notice**: by selecting a class you are agreeing to the terms of Black Blades [Privacy Policy](<https://docs.google.com/document/d/1M-Ymfu2TZGdQ9tUFX0h7wivS2bIdewlsdnum7lOuI8o/edit?usp=sharing>) & [Terms of Service](<https://#>)")
+		.setDescription("This is the start of the journey.. Select one of the options to continue! The choice you make will be unchangable, make this choice wisely.")
 		.addFields(
 			{ name: '🪓 Warrior 🪓', value: '~Ability~ \n**Allrounder**: \n- **5%** reduction on damage taken \n- **5%** increase on damage dealt\n- **x1.5 HP** increase', inline: true },
 			{ name: '🪄 Mage 🪄', value: '~Ability~ \n**GlassCannon**: \n- **5%** increase on damage taken \n- **15%** increase on damage dealt\n- **x1.1 HP** increase', inline: true },
@@ -44,159 +41,105 @@ module.exports = {
 			{ name: '🛡️ Paladin 🛡️', value: '~Ability~ \n**Unshakeable**: \n- **15%** reduction on damage taken \n- **5%** reduction on damage dealt\n- **x2.0 HP** increase', inline: true },
 		);
 
-		const embedMsg = await interaction.reply({ content: 'Make your choice below.', ephemeral: true, embeds: [embed], components: [row] });
+		const classChoiceRow = new ActionRowBuilder().addComponents(pClassButts);
 
-		const collector = embedMsg.createMessageComponentCollector({
-			componentType: ComponentType.Button,
-			time: 120000,
+		// Final confirmation
+		const confirmChoiceEmbed = new EmbedBuilder()
+		.setTitle('== ARE YOU SURE ABOUT THAT ==')
+		.setColor('Red')
+		.setDescription('***The choice you make will be unchangable, make this choice wisely.***');
+
+		const comChoiceRow = createConfirmCancelButtonRow('class', ButtonStyle.Danger, ButtonStyle.Secondary, 'Class Choice!', 'Choice, GO BACK!!');
+		
+		// Confirm choice display
+		const confirmReply = {embeds: [confirmChoiceEmbed], components: [comChoiceRow]};
+
+		// Make this ephemeral!
+		const agreementEmbed = new EmbedBuilder()
+		.setTitle('== **Notice** ==')
+		.setColor('White')
+		.setDescription("By selecting a class you are agreeing to the terms of both Black Blades [Privacy Policy](<https://docs.google.com/document/d/1M-Ymfu2TZGdQ9tUFX0h7wivS2bIdewlsdnum7lOuI8o/edit?usp=sharing>) & [Terms of Service](<https://#>)");
+
+		await interaction.reply({embeds: [agreementEmbed], ephemeral: true});
+		
+		// Class choice display
+		const choiceReply = {embeds: [introEmbed], components: [classChoiceRow]};
+
+		const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 300000, choiceReply);
+
+		// =====================
+		let cPicked = "";
+		// BUTTON COLLECTOR (COLLECT)
+		collector.on('collect', async c => {
+			await c.deferUpdate().then(async () => {
+				const idSplits = c.customId.split('-');
+				let editWith;
+				switch(idSplits[0]){
+					case "slot":
+						cPicked = makeCapital(idSplits[1]);
+						editWith = confirmReply;
+					break;
+					case "confirm":
+						// Create new user
+					return collector.stop(cPicked);
+					case "cancel":
+						// Go back to class options
+						cPicked = "";
+						editWith = choiceReply;
+					break;
+				}
+
+				if (editWith.embeds) await anchorMsg.edit(editWith);
+			}).catch(e => console.error(e));
 		});
+		// =====================
 
-		const channel = interaction.channel;
+		// =====================
+		// BUTTON COLLECTOR (END)
+		collector.on('end', async (c, r) => {
+			if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
 
-		collector.on('collect', async (COI) => {
-			if (COI.customId === 'slot1') {
-				const classP = 'Warrior';
-				await generateNewPlayer(classP);
-				collector.stop();
-				return handleExterCombat(interaction, 1);
-			}
-
-			if (COI.customId === 'slot2') {
-				const classP = 'Mage';
-				await generateNewPlayer(classP);
-				collector.stop();
-				return handleExterCombat(interaction, 1);
-			}
-
-			if (COI.customId === 'slot3') {
-				const classP = 'Thief';
-				await generateNewPlayer(classP);
-				collector.stop();
-				return handleExterCombat(interaction, 1);
-			}
-
-			if (COI.customId === 'slot4') {
-				const classP = 'Paladin';
-				await generateNewPlayer(classP);
-				collector.stop();
+			if (r !== '') {
+				await createNewUserEntry(r);
+				await handleCatchDelete(anchorMsg);
 				return handleExterCombat(interaction, 1);
 			}
 		});
+		// =====================
 
-		collector.on('end', () => {
-			embedMsg.delete().catch(e => console.error(e));
-		});
+		async function createNewUserEntry(classPicked){
+			const healthModC = ["Mage", "Thief", "Warrior", "Paladin"];
+            const healthModM = [1.1, 1.2, 1.5, 2];
+			const statDefault = [
+				{spd: 1, str: 1, int: 4, dex: 1, hp: 107, p: 1},
+				{spd: 2, str: 1, int: 1, dex: 2, hp: 107, p: 2},
+				{spd: 1, str: 2, int: 1, dex: 1, hp: 112, p: 3},
+				{spd: 1, str: 4, int: 1, dex: 1, hp: 122, p: 1}
+			];
 
+			const cIdx = healthModC.indexOf(classPicked);
+			const statObj = statDefault[cIdx];
+			statObj.hp *= healthModM[cIdx];
 
-		async function generateNewPlayer(pClass) {
-			let newUser;
-			try {
-				newUser = await UserData.create({
-					userid: interaction.user.id,
-					username: interaction.user.username,
-					health: 100,
-					level: 1,
-					xp: 0,
-					pclass: pClass,
-					lastdeath: 'None',
-				});
-			} catch (error) {
-				if (error.name === 'SequelizeUniqueConstraintError') return channel.send('That Data already exists. Use ``/startcombat``!');
-				console.error(error);
-				return channel.send('Something went wrong while adding that data!');
-			}
-
-			if (!newUser) return await channel.send('Something went wrong while creating your profile!');
-
-			const statObj = loadPlayerStats(pClass);
-
-			const tableUpdate = await newUser.update({
-				health: statObj.health,
-				speed: statObj.speed,
-				strength: statObj.strength,
-				intelligence: statObj.intelligence,
-				dexterity: statObj.dexterity,
-				points: statObj.points,
+			const newUser = await UserData.create({
+				userid: interaction.user.id,
+				username: interaction.user.username,
+				level: 1,
+				xp: 0,
+				pclass: classPicked,
+				totitem: 0,
+				refreshcount: 0,
+				lastdeath: 'None',
+				health: statObj.hp,
+				speed: statObj.spd,
+				strength: statObj.str,
+				intelligence: statObj.int,
+				dexterity: statObj.dex,
+				points: statObj.p
 			});
 
-			if (tableUpdate) await newUser.save();
-
-			return newUser;
+			await newUser.save().then(async nu => {return await nu.reload()});
 		}
-
-		// async function generateNewEnemy() {
-		// 	const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
-		// 	const enemyFab = enemyList[0];
-
-		// 	const specCode = interaction.user.id + enemyFab.ConstKey;
-
-		// 	let hasUI = false;
-		// 	if (enemyFab.HasUnique) hasUI = true;
-
-		// 	let theEnemy;
-		// 	try {
-		// 		theEnemy = await ActiveEnemy.create({
-		// 			name: enemyFab.Name,
-		// 			description: enemyFab.Description,
-		// 			level: enemyFab.Level,
-		// 			mindmg: enemyFab.MinDmg,
-		// 			maxdmg: enemyFab.MaxDmg,
-		// 			health: enemyFab.Health,
-		// 			defence: enemyFab.Defence,
-		// 			weakto: enemyFab.WeakTo,
-		// 			dead: enemyFab.Dead,
-		// 			hasitem: false,
-		// 			xpmin: enemyFab.XpMin,
-		// 			xpmax: enemyFab.XpMax,
-		// 			constkey: enemyFab.ConstKey,
-		// 			hasunique: hasUI,
-		// 			specid: specCode,
-		// 		});
-		// 	} catch (error) {
-		// 		console.error(error);
-		// 	}
-
-		// 	if (theEnemy) return theEnemy;
-		// }
-
-		function loadPlayerStats(pClass) {
-			let statObj = {
-				health: 100,
-				speed: 1,
-				strength: 1,
-				intelligence: 1,
-				dexterity: 1,
-				points: 4,
-			};
-
-			if (pClass === 'Warrior') {
-				statObj.health = 120;
-				statObj.strength++;
-				statObj.points--;
-			}
-
-			if (pClass === 'Mage') {
-				statObj.health = 110;
-				statObj.intelligence += 3;
-				statObj.points -= 3;
-			}
-
-			if (pClass === 'Thief') {
-				statObj.health = 110;
-				statObj.speed++;
-				statObj.dexterity++;
-				statObj.points -= 2;
-			}
-
-			if (pClass === 'Paladin') {
-				statObj.health = 140;
-				statObj.strength += 3;
-				statObj.points -= 3;
-			}
-
-			return statObj;
-        }
-
 	},
 
 };

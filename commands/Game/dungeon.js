@@ -10,7 +10,7 @@ const {
 } = require('../../chalkPresets.js');
 
 const { UserData, Milestones, ActiveDungeon } = require('../../dbObjects.js');
-const { loadDungeon } = require('./exported/handleDungeon.js');
+//const { loadDungeon } = require('./exported/handleDungeon.js');
 
 const dungeonList = require('../../events/Models/json_prefabs/dungeonList.json');
 const loreList = require('../../events/Models/json_prefabs/loreList.json');
@@ -39,8 +39,9 @@ const { attackEnemy, handleActiveStatus, applyActiveStatus } = require('../Devel
 const { EnemyFab, xpPayoutScale } = require('../Development/Export/Classes/EnemyFab.js');
 const { handleLootDrops } = require('../Development/Export/questUpdate.js');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts.js');
-const { createNewBlueprint } = require('./exported/createBlueprint.js');
+//const { createNewBlueprint } = require('./exported/createBlueprint.js');
 const { dropBlueprint, grabBPRef } = require('../Development/Export/blueprintFactory.js');
+const { mienSpeaks } = require('./exported/mienSpeaks.js');
 
 const loadCombButts = (player) => {
     const attackButton = new ButtonBuilder()
@@ -89,6 +90,7 @@ const loadCombButts = (player) => {
 
 module.exports = {
 	cooldown: 60,
+	helptypes: ['Combat', 'Story', 'Quest'],
 	data: new SlashCommandBuilder()
 	.setName('dungeon')
 	.setDescription('Delve deep and find riches!')
@@ -113,7 +115,7 @@ module.exports = {
 		 */
 		async function startDungeonHandle(){
 			const user = await grabUser(interaction.user.id);
-			if (user.level < 25) return await interaction.followUp('You must reach a higher level before the secrets of the dungeons can be revealed!');
+			if (user.level < 25) return await interaction.followUp('You must reach a higher level before the secrets of the dungeons can be revealed! ||Level 25||');
 
 			const nameGiven = interaction.options.getString('name').toLowerCase();
 			const filterDungeon = dungeonList.filter(d => d.Boss.toLowerCase() === nameGiven)[0] ?? 'None';
@@ -479,6 +481,7 @@ module.exports = {
 				
 				// Do boss floor stuff here
 				bossStage++;
+				
 				const nextButt = new ButtonBuilder()
 				.setCustomId('next')
 				.setLabel('Continue..')
@@ -495,13 +498,32 @@ module.exports = {
 				collector.on('collect', async c => {
 					await c.deferUpdate().then(async () => {
 						if (c.customId === 'next'){
-							if (curLine + 1 === 3){
-								collector.stop('Boss Fight');
-							} else {
-								curLine++;
-								await anchorMsg.edit({embeds: [bossEmbeds[curLine]], components: [dialogRow], files: [thumbFile]});
-							}
+							if (curLine + 1 === 3) return collector.stop('Boss Fight');
+
+							curLine++;
+							const isMienChoice = dungeonRef.Boss === 'Mien' && bossStage === 3 && curLine === 2;
+							if (!isMienChoice) return await anchorMsg.edit({embeds: [bossEmbeds[curLine]], components: [dialogRow], files: [thumbFile]});
+
+							// If mien choice active, send option button row, timeout on disabled buttons
+							const mienButtRow = loadMienChoice();
+							const mienReply = {embeds: [bossEmbeds[curLine]], components: mienButtRow, files: [thumbFile]};
+							
+							await anchorMsg.edit(mienReply);
+
+							(setTimeout(async () => {
+								for (const b of mienReply.components){
+									b.setDisabled(false);
+								}
+		
+								await anchorMsg.edit(mienReply);
+							}, 10000))();
+						} else if (c.customId === 'friend'){
+							// Load extra mien dialog, Dungeon is complete!
+							handleBossPayouts(dungeonRef.Boss);
+							collector.stop('Friend');
+							return mienSpeaks(interaction, await grabUser(interaction.user.id), thumbFile);
 						}
+						
 					}).catch(e => console.error(e));
 				});
 
@@ -513,6 +535,28 @@ module.exports = {
 					const loadedBoss = loadBossStage(bossStage, dungeonRef.Boss);
 					return combatLooper(loadedBoss, true);
 				});
+
+				function loadMienChoice(){
+					const dialogButtList = [];
+					
+					const befriendButt = new ButtonBuilder()
+					.setCustomId('friend')
+					.setLabel('Join Mien')
+					.setDisabled(true)
+					.setStyle(ButtonStyle.Primary);
+
+					dialogButtList.push(befriendButt);
+
+					nextButt
+					.setLabel('Never!')
+					.setDisabled(true)
+					.setStyle(ButtonStyle.Primary);
+
+					// "Next Button" placed as the first button displayed by default
+					dialogButtList.unshift(nextButt);
+
+					return new ActionRowBuilder().addComponents(...dialogButtList);
+				}
 			}
 
 			/**
@@ -521,7 +565,7 @@ module.exports = {
 			 * @returns {object{bossEmbeds: EmbedBuilder[], thumbFile: AttachmentBuilder}}
 			 */
 			function loadBossDialog(){
-				const theBoss = bossList.filter(boss => boss.NameRef === dungeonRef.Boss && boss.Stage === bossStage)[0];
+				const theBoss = bossList.find(boss => boss.NameRef === dungeonRef.Boss && boss.Stage === bossStage);
 
 				const thumbFile = new AttachmentBuilder(theBoss.PngRef_Closeup);
 				const thumb = theBoss.Image_Closeup;
