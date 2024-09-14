@@ -9,6 +9,7 @@ const { loadBasicBackButt } = require('./exported/tradeExtras.js');
 const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 
 module.exports = {
+	helptypes: ['EA', 'Town', 'Info', 'Payup', 'Story', 'NPC'],
 	data: new SlashCommandBuilder()
 		.setName('corebuilding')
 		.setDescription('The main command for all things core building related!')

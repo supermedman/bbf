@@ -10,6 +10,7 @@ const {
 const { UserData } = require('../../dbObjects');
 
 module.exports = {
+	helptypes: ['Info', 'Stats'],
 	data: new SlashCommandBuilder()
 		.setName('ranking')
 		.setDescription('Show the top players in black blade sorted by one of the following!')

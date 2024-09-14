@@ -3,6 +3,7 @@ const Canvas = require('@napi-rs/canvas');
 const { request } = require('undici');
 
 module.exports = {
+    helptypes: ['Testing', 'Locked'],
     data: new SlashCommandBuilder()
         .setName('info')
         .setDescription('Get info about a user or a server!')

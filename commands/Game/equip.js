@@ -6,6 +6,7 @@ const { checkHintInspect } = require('./exported/handleHints.js');
 const { grabUser, handleItemObjCheck, handleLimitOnOptions } = require('../../uniHelperFunctions.js');
 
 module.exports = {
+    helptypes: ['Gear', 'Combat'],
 	data: new SlashCommandBuilder()
 		.setName('equip')
         .setDescription('What will you arm yourself with?')

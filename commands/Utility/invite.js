@@ -2,6 +2,7 @@ const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, Embed
 
 module.exports = {
     cooldown: 60,
+    helptypes: ['Info'],
 	data: new SlashCommandBuilder()
     .setName('invite')
     .setDescription('Easy access to invite Black Blade'),

@@ -11,6 +11,7 @@ const {
 const { GuildData } = require('../../dbObjects.js');
 
 module.exports = {
+	helptypes: ['Info', 'Support'],
 	data: new SlashCommandBuilder()
 		.setName('channel')
 		.setDescription('channel handling from one command!')

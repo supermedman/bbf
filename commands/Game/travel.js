@@ -7,6 +7,7 @@ const {checkUnlockedBiome, checkSelectedBiome} = require('./exported/locationFil
 //const biomeList = ['Wilds', 'Forest', 'Grassland', 'Swamp', 'Plains', 'Desert', 'Mountain'];
 
 module.exports = {
+	helptypes: ['Info', 'Quest'],
 	data: new SlashCommandBuilder()
 		.setName('travel')
         .setDescription('Travel to somewhere!')

@@ -59,6 +59,7 @@ const loadLoadout = async (userID, gear) => {
 
 
 module.exports = {
+    helptypes: ['Gear', 'Info', 'Stats'],
 	data: new SlashCommandBuilder()
     .setName('inspect')
     .setDescription('What exactly are you swinging around?')

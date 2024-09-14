@@ -14,6 +14,7 @@ const { Milestones } = require('../../dbObjects.js');
 const loreList = require('../../events/Models/json_prefabs/loreList.json');
 
 module.exports = {
+	helptypes: ['Story', 'Quest', 'Level', 'Info'],
 	cooldown: 30,
 	data: new SlashCommandBuilder()
 		.setName('lore')

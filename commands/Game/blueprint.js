@@ -22,6 +22,7 @@ const { checkOutboundMat } = require('../Development/Export/itemMoveContainer.js
 const { spendUserCoins } = require('../Development/Export/uni_userPayouts.js');
 
 module.exports = {
+	helptypes: ['Blueprint', 'Payup', 'Level'],
 	data: new SlashCommandBuilder()
 		.setName('blueprint')
 		.setDescription('Blueprint Managment!')

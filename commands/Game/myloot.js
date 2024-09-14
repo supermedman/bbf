@@ -19,6 +19,7 @@ const { createInteractiveChannelMessage, sendTimedChannelMessage, makeCapital, h
 const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 
 module.exports = {
+    helptypes: ['Material', 'Gear', 'Info', 'Stats', 'Blueprint'],
 	data: new SlashCommandBuilder()
 		.setName('myloot')
         .setDescription('What have you got in those pockets precious?')

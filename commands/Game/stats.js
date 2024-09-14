@@ -9,7 +9,7 @@ const { sendTimedChannelMessage, grabUser, makeCapital, createInteractiveChannel
 const { lvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
 const { baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 module.exports = {
-    helptypes: ['Mechanics', 'Info'],
+    helptypes: ['Stats', 'Info'],
 	data: new SlashCommandBuilder()
 		.setName('stats')
         .setDescription('Inspect a player or an enemies stats')

@@ -6,9 +6,10 @@ const pigmyList = require('../../events/Models/json_prefabs/pigmyList.json');
 const { grabUser, createInteractiveChannelMessage, sendTimedChannelMessage, handleCatchDelete } = require('../../uniHelperFunctions.js');
 
 module.exports = {
+	helptypes: ['Story', 'Quest', 'Level', 'Info'],
 	data: new SlashCommandBuilder()
-		.setName('pigmyshop')
-        	.setDescription('The place to pick up your own pigmy!'),
+	.setName('pigmyshop')
+    .setDescription('The place to pick up your own pigmy!'),
 
 	async execute(interaction) {
 

@@ -21,6 +21,7 @@ const { loadDefaultAmountButtonActionRows, fnSignConverter } = require('../../un
 const { checkInboundMat } = require('../Development/Export/itemMoveContainer.js');
 
 module.exports = {
+	helptypes: ['Material'],
 	data: new SlashCommandBuilder()
 	.setName('material')
 	.setDescription('Material options!')

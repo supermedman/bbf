@@ -11,6 +11,7 @@ const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 const { createBasicPageButtons } = require('./exported/tradeExtras.js');
 
 module.exports = {
+	helptypes: ['NPC', 'Town', 'Craft', 'EA'],
 	data: new SlashCommandBuilder()
 	.setName('building')
 	.setDescription('The main command for all things building related!')

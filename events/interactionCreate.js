@@ -75,9 +75,17 @@ module.exports = {
 						return await g.channels.fetch("1282130653608935476");
 					}).catch(e => console.error('Failed to retrieve logging channel: ', e));
 
+					const subComGroupUsed = (interaction.options.__group) 
+					? interaction.options.getSubcommandGroup()
+					: "None";
+
+					const subComUsed = (interaction.options.__subcommand) 
+					? interaction.options.getSubcommand()
+					: "None";
+
 					const errEmbed = new EmbedBuilder()
 					.setTitle(`==> Command: /${makeCapital(interaction.commandName)} <==`)
-					.setDescription(`Subcommand Group: **${interaction.options.getSubcommandGroup()}**\nSubcommand: **${interaction.options.getSubcommand()}**\nAdditional Args Passed:`);
+					.setDescription(`Subcommand Group: **${subComGroupUsed}**\nSubcommand: **${subComUsed}**\nAdditional Args Passed:`);
 
 					const argFieldList = [];
 					if (interaction.options._hoistedOptions.length){

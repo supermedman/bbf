@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const { UserData } = require('../../dbObjects.js');
 
 module.exports = {
+	helptypes: ['Payout', 'Payup'],
 	data: new SlashCommandBuilder()
 		.setName('roll')
 		.setDescription('Care to take a gamble?')

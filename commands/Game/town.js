@@ -49,6 +49,7 @@ const {
 
 
 module.exports = {
+	helptypes: ['EA', 'Town', 'Payup', 'Payout', 'Material', 'Story', 'NPC'],
 	data: new SlashCommandBuilder()
 		.setName('town')
 		.setDescription('The Main command for all things town related!')

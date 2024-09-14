@@ -28,6 +28,7 @@ const {NavMenu} = require('../Development/Export/Classes/NavMenu.js');
 
 
 module.exports = {
+	helptypes: ['Material', 'Payout', 'Combat', 'Quest', 'Luck', 'Level'],
 	data: new SlashCommandBuilder()
 	.setName('pigmy')
 	.setDescription('All your pigmies needs in one place!')
@@ -1007,6 +1008,8 @@ module.exports = {
 						t: randArrPos(perHourMatTypes), 
 						a: 0
 					};
+
+					if (matRollObject.r === 10) matRollObject.r = 9;
 					
 					// Base Material Drop rates
 					const baseMaterialDropped = (1 + claimBuffs.hat.material.base) + Math.floor(100 * ((pig.level * 0.01) - ((matRollObject.r * 0.02) + 0.02)));

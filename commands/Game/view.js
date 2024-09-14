@@ -32,6 +32,7 @@ const { checkHintPotionEquip } = require('./exported/handleHints.js');
 // };
 
 module.exports = {
+    helptypes: ['Info', 'Stats', 'Story', 'Quest', 'NPC', 'Material', 'Gear', 'Payout', 'Payup'],
 	data: new SlashCommandBuilder()
 		.setName('view')
         .setDescription('View different areas of content or progression')

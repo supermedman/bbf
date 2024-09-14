@@ -8,6 +8,7 @@ const { checkingDismantle, checkingRar, checkingRarID } = require('../Developmen
 const { checkInboundMat, checkOutboundItem } = require('../Development/Export/itemMoveContainer.js');
 
 module.exports = {
+    helptypes: ['Material'],
 	data: new SlashCommandBuilder()
 		.setName('dismantle')
 		.setDescription('Dismantle old unwanted gear into materials!!')

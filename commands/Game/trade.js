@@ -35,6 +35,7 @@ const {
 } = require('./exported/tradeExtras.js');
 
 module.exports = {
+	helptypes: ['Trade', 'Town', 'Material', 'Gear', 'Payup', 'Payout'],
 	data: new SlashCommandBuilder()
 		.setName('trade')
 		.setDescription('Trade weapons, armor, or materials with another player!')

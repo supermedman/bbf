@@ -8,6 +8,7 @@ const { updateUserCoins } = require('../Development/Export/uni_userPayouts.js');
 const { checkOutboundItem } = require('../Development/Export/itemMoveContainer.js');
 
 module.exports = {
+    helptypes: ['Payout'],
 	data: new SlashCommandBuilder()
 		.setName('sell')
         .setDescription('Sell some old gear!')

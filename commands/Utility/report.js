@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = {
+    helptypes: ['Support'],
 	data: new SlashCommandBuilder()
     .setName('report')
     .setDescription('Report an issue with Black Blade!')

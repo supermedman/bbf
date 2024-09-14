@@ -9,6 +9,7 @@ const { checkInboundItem } = require('../Development/Export/itemMoveContainer.js
 const { spendUserCoins } = require('../Development/Export/uni_userPayouts.js');
 
 module.exports = {
+    helptypes: ['Gear', 'Payup', 'Luck'],
     cooldown: 35,
 	data: new SlashCommandBuilder()
 		.setName('shop')

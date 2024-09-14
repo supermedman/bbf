@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
+	helptypes: ['Support'],
 	data: new SlashCommandBuilder()
 		.setName('suggest')
 		.setDescription('Leave a suggestion, or report a bug. Your message will arrive in bloodstone inn!')

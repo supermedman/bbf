@@ -223,6 +223,7 @@ const loadCombButts = (player) => {
 };
 
 module.exports = {
+    helptypes: ['Material', 'Gear', 'Payout', 'Combat'],
     cooldown: 10,
     data: new SlashCommandBuilder()
         .setName('startcombat')

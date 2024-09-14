@@ -37,6 +37,7 @@ const checkLootUP = (pigmy, user) => {
 };
 
 module.exports = {
+	helptypes: ['Story', 'Quest', 'Level', 'Gear', 'Payout', 'NPC'],
 	data: new SlashCommandBuilder()
 		.setName('quest')
 		.setDescription('Gain loot and xp while youre away!')

@@ -3,6 +3,7 @@ const { errorForm } = require('../../chalkPresets.js');
 const { UserData } = require('../../dbObjects.js');
 
 module.exports = {
+	helptypes: ['Stats'],
 	data: new SlashCommandBuilder()
 		.setName('addpoint')
         .setDescription('Add skill points!')

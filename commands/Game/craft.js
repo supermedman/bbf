@@ -27,10 +27,10 @@ const { grabColour } = require('./exported/grabRar');
 const { checkInboundItem, handleNewStaticItem, checkOutboundMat } = require('../Development/Export/itemMoveContainer');
 
 module.exports = {
+    helptypes: ['Gear', 'Crafting', 'Story'],
 	data: new SlashCommandBuilder()
-		.setName('craft')
-        .setDescription('Enter the forge, bring fury from the flames!'),
-
+    .setName('craft')
+    .setDescription('Enter the forge, bring fury from the flames!'),
 	async execute(interaction) { 
         // const allowedUsers = ['501177494137995264', '951980834469060629', '544114963346620417'];
         // if (!allowedUsers.includes(interaction.user.id)) return await interaction.reply('This command is under construction! Check back later!');
@@ -307,7 +307,7 @@ module.exports = {
                     break;
                 }
                 if (casteFinished) return collector.stop('Caste Picked');
-                await anchorMsg.edit(editWith);
+                if (editWith.embeds) await anchorMsg.edit(editWith);
             }).catch(e => console.error(e));
         });
 
@@ -475,7 +475,7 @@ module.exports = {
 
             collector.on('end', async (c, r) => {
                 if (!r || r !== 'Done'){
-                    await handleCatchDelete(anchorMsg);
+                    return await handleCatchDelete(anchorMsg);
                 }
 
                 await handleCatchDelete(anchorMsg);

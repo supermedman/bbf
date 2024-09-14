@@ -4,6 +4,7 @@ const { handleExterCombat } = require('./exported/combatDisplay.js');
 const { grabUser, createConfirmCancelButtonRow, createInteractiveChannelMessage, handleCatchDelete, makeCapital } = require('../../uniHelperFunctions.js');
 
 module.exports = {
+	helptypes: ['Combat', 'Info', 'Stats'],
 	data: new SlashCommandBuilder()
 		.setName('start')
         .setDescription('Start your grand adventure!'),
