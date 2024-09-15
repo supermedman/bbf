@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require('discord.js');
 // const { UserData, Pighouse } = require('../../dbObjects.js');
-const { grabUser, createInteractiveChannelMessage, handleCatchDelete } = require('../../uniHelperFunctions.js');
+const { grabUser, createInteractiveChannelMessage, handleCatchDelete, makeCapital } = require('../../uniHelperFunctions.js');
 const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 const { loadBasicBackButt } = require('./exported/tradeExtras.js');
 
@@ -39,7 +39,11 @@ module.exports = {
 		.setLabel('Other Help')
 		.setDisabled(true);
 		const helpTypeRow = new ActionRowBuilder().addComponents(comHelpButt, gameHelpButt, setupHelpButt, otherHelpButt);
+		
 		const backTypeRow = loadBasicBackButt('type');
+		const backCatRow = loadBasicBackButt('cat');
+		const backSubCatRow = loadBasicBackButt('subcat');
+		const backWithRow = loadBasicBackButt('with');
 
 		// COMMANDS
 		// ========
@@ -69,10 +73,15 @@ module.exports = {
 		// OTHER: EarlyAccess, New, Testing
 		// 'EA', 'New', 'Testing', 'Locked', 'Support'
 
-		// Dynamically loaded embed display
-		const commandCatEmbed = loadCommandCatDisplay();
+		// Define helpcom formatting.
+		/**@typedef {{ helpcat: string, helptypes: string[], data: { name: string, description: string, execute(): void, options?: object[], autocomplete?(): void } }} baseCommand */
+		/**@typedef { Collection<string, baseCommand> } CommandCollection */
 
-		function loadCommandCatDisplay(){
+		/**
+		 * This function loads all of the "help" formatted commands from `interaction.client.commands` Collection()
+		 * @returns {CommandCollection}
+		 */
+		function loadAllHelpfulCommands(){
 			// Sort commands into more specific categories
 			const commandList = interaction.client.commands;
 			// Filter out dev commands
@@ -82,17 +91,31 @@ module.exports = {
 			// Filter out any commands missing "help" related props
 			const hasHelpType = c => 'helptypes' in c;
 
-			/**@type { Collection<string, { helpcat: string, helptypes: string[], data: { name: string, description: string, options?: object[], execute(), autocomplete?() } }> } */
-			const helpSupportedCommands = commandList.filter(c => !isDevCommand(c) && !isHelpCommand(c) && hasHelpType(c));
+			const allHelpfulComsList = commandList.filter(c => !isDevCommand(c) && !isHelpCommand(c) && hasHelpType(c));
+			console.log(allHelpfulComsList.size);
 
-			console.log(helpSupportedCommands.size);
+			return allHelpfulComsList;
+		}
+	
+		const helpSupportedCommands = loadAllHelpfulCommands();
+		
+		/**@param {baseCommand} c */
+		const isHelpfulGameCom = c => c.helpcat === 'Game';
+		/**@param {baseCommand} c */
+		const isHelpfulUtilCom = c => c.helpcat === 'Utility';
 
-			const gameHelpList = helpSupportedCommands.filter(c => c.helpcat === 'Game');
-			const gameComFields = gameHelpList.map(c => `**\`/${c.data.name}\`** `).join();
+		/**
+		 * This function loads the base cat display for all "help" filtered commands 
+		 * @param {CommandCollection} commandsList Preloaded helpful commands list
+		 * @returns {EmbedBuilder}
+		 */
+		function loadCommandCatDisplay(commandsList){
+			const gameHelpList = commandsList.filter(c => isHelpfulGameCom(c));
+			const gameComFields = gameHelpList.map(c => `**\`/${c.data.name}\`**`).join(', ');
 			const gameFieldObj = { name: '== Gameplay ==', value: gameComFields };
 
-			const utilHelpList = helpSupportedCommands.filter(c => c.helpcat === 'Utility');
-			const utilComFields = utilHelpList.map(c => `**\`/${c.data.name}\`** `).join();
+			const utilHelpList = commandsList.filter(c => isHelpfulUtilCom(c));
+			const utilComFields = utilHelpList.map(c => `**\`/${c.data.name}\`**`).join(', ');
 			const utilFieldObj = { name: '== Utility ==', value: utilComFields };
 
 			const embed = new EmbedBuilder()
@@ -102,6 +125,9 @@ module.exports = {
 
 			return embed;
 		}
+
+		// Dynamically loaded embed display
+		const commandCatEmbed = loadCommandCatDisplay(helpSupportedCommands);
 
 		const gameCatButt = new ButtonBuilder()
 		.setCustomId('help-cat-game')
@@ -113,8 +139,238 @@ module.exports = {
 		.setLabel('Utility Commands');
 		const comCatRow = new ActionRowBuilder().addComponents(gameCatButt, utilCatButt);
 		
-		// COMMAND CAT DISPLAY
-		const commandCatDisplay = {embeds: [commandCatEmbed], components: [comCatRow, backTypeRow]};
+		// COMMAND CAT SELECT DISPLAY
+		const commandCatSelectDisplay = {embeds: [commandCatEmbed], components: [comCatRow, backTypeRow]};
+
+		// COMMAND SUBCAT SELECT DISPLAY
+		const commandSubCatSelectDisplay = {
+			display: {embeds: [], components: []},
+			/**
+			 * This method loads the needed help display given the contents of `menu.specs`
+			 * @param {CommandCollection} comList 
+			 * @param {NavMenu} menu 
+			 * @returns {{embeds: EmbedBuilder[], components: ActionRowBuilder[]}}
+			 */
+			load(comList, menu) {
+				const {embeds, components} = loadPickedHelpCatDisplay(comList, menu);
+				this.display.embeds = embeds;
+				this.display.components = components;
+				return this.display;
+			}
+		};
+
+		const commandHelpWithSelectDisplay = {
+			display: {embeds: [], components: []},
+			load(comList, menu) {
+				const {embeds, components} = loadPickedHelpSubCatDisplay(comList, menu);
+				this.display.embeds = embeds;
+				this.display.components = components;
+				return this.display;
+			}
+		};
+
+		// Gain: 'Material', 'Gear', 'Payout'
+		// Progress: 'Story', 'Quest', 'Level'
+		// Info: 'Info', 'Stats'
+		// Transaction: 'Trade', 'Town', 'Payup', 'Craft'
+		// Combat: 'Combat'
+		// Misc: 'NPC', 'Luck', 'Blueprint'
+		// Other: 'EA', 'New', 'Testing', 'Locked', 'Support'
+		const subCatGroupTypes = new Map([
+			["Gain", ['Material', 'Gear', 'Payout']],
+			["Progress", ['Story', 'Quest', 'Level']],
+			["Information", ['Info', 'Stats']],
+			["Transaction", ['Trade', 'Town', 'Payup', 'Craft']],
+			["Combat", ['Combat']],
+			["Misc", ['NPC', 'Luck', 'Blueprint']],
+			["Other", ['EA', 'New', 'Testing', 'Locked', 'Support']]
+		]);
+
+		/**
+		 * @typedef {string} baseCat 
+		 * One of 
+		 * ```js
+		 * "game" | "utility"
+		 * ```
+		 * */
+		// ===================
+
+		/**@param {baseCat} cat*/
+		const filterComType = cat => {
+			return (cat === 'game') ? isHelpfulGameCom : isHelpfulUtilCom;
+		};
+
+		/**
+		 * @param {baseCat} cat
+		 * @param {CommandCollection} coms
+		 * @returns {CommandCollection}
+		 * */
+		const isMatchingCatType = (cat, coms) => {
+			const isCatType = filterComType(cat);
+			return coms.filter(c => isCatType(c));
+		};
+
+		/**
+		 * @param {baseCat} cat
+		 * @param {CommandCollection} coms
+		 * @returns {string[]}
+		 * */
+		const grabSubCatTypeList = (cat, coms) => {
+			return isMatchingCatType(cat, coms).reduce((acc, c) => {
+				acc.push(...c.helptypes.filter(sc => !acc.includes(sc)));
+				return acc;
+			}, []);
+		};
+
+		/**
+		 * @param {baseCat} cat
+		 * @param {CommandCollection} coms
+		 * @returns {{fields: {name: string, value: string}[], optionObj: string[]}} Valid EmbedBuilder Field Object Array
+		 * */
+		const groupSubCatTypeList = (cat, coms) => {
+			const existingSubCatTypes = grabSubCatTypeList(cat, coms);
+			existingSubCatTypes.sort();
+
+			const nameList = [], valueList = [], shownGroupTypes = [];
+			for (const [group, types] of subCatGroupTypes.entries()){
+				const matchingTypes = types.filter(sc => existingSubCatTypes.includes(sc));
+				// If current `[group]: types[]` finds no matches within existingSubCatTypes
+				// skip group, excluding it from return display.
+				if (matchingTypes.length === 0) continue;
+				shownGroupTypes.push(...matchingTypes);
+				const subCatHeaderList = matchingTypes.join(' | ');
+				nameList.push(`== __${group} Related Categories__ ==> ${subCatHeaderList}`);
+
+				const subCatContainsList = matchingTypes.reduce((acc, type) => {
+					const isComAddedForType = c => acc.some(addedCom => addedCom.data.name === c.data.name);
+					
+					const curTypeComMatchList = isMatchingSubCatType(cat, type, coms);
+					const unaddedTypeComMatches = curTypeComMatchList.filter(c => !isComAddedForType(c));
+
+					acc.push(...unaddedTypeComMatches.map(c => c));
+
+					return acc;
+				}, []).map(c => `**\`/${c.data.name}\`**`).join(', ');
+				valueList.push(subCatContainsList + '\n\n');
+			}
+
+			// const fieldNameValueMap = [];
+			// new Array(nameList.length).fill(0).forEach((__, idx) => {
+			// 	fieldNameValueMap.push([nameList[idx], valueList[idx]]);
+			// });
+
+			//const f = ;
+
+			const selectionDisplayObj = {
+				fields: nameList.map((n, i) => ({name: n, value: valueList[i]})), // fieldNameValueMap.map(([n, v]) => ({name: n, value: v})),
+				optionObj: shownGroupTypes
+			};
+
+			return selectionDisplayObj;
+		};
+
+		/**
+		 * @param {baseCat} cat
+		 * @param {string} subCat
+		 * @param {CommandCollection} coms
+		 * @returns {CommandCollection}
+		 * */
+		const isMatchingSubCatType = (cat, subCat, coms) => {
+			const catMatchList = isMatchingCatType(cat, coms);
+			return catMatchList.filter(c => c.helptypes.includes(subCat));
+		};
+
+
+		/**
+		 * This function loads the selected `help cat`'s, `subcat` options menu
+		 * @param {CommandCollection} commandList Helpful Commands List
+		 * @param {NavMenu} menu Standard Navigation Menu
+		 * @returns {{embeds: EmbedBuilder[], components: ActionRowBuilder[]}}
+		 */
+		function loadPickedHelpCatDisplay(commandList, menu){
+			//const catPickedList = isMatchingCatType(menu.specs.helpCat, commandList);
+			// const subCatList = grabSubCatTypeList(menu.specs.helpCat, commandList);
+
+			//const subCatOptions = []; // subCatFields = [], 
+			// for (const subCType of subCatList){
+			// 	const option = new StringSelectMenuOptionBuilder()
+			// 	.setLabel(makeCapital(subCType))
+			// 	.setValue(subCType)
+			// 	.setDescription(`Commands related to ${makeCapital(subCType)}`);
+
+			// 	subCatOptions.push(option);
+			// 	// subCatFields.push({name: `== ${subCType} ==`, value: catPickedList.filter(c => c.helptypes.includes(subCType)).map(c => `**\`/${c.data.name}\`**`).join(', ')})
+			// }
+
+			const displayObj = groupSubCatTypeList(menu.specs.helpCat, commandList);
+			const subCatOptions = [];
+			for (const type of displayObj.optionObj){
+				const option = new StringSelectMenuOptionBuilder()
+				.setLabel(makeCapital(type))
+				.setValue(type)
+				.setDescription(`Commands related to ${makeCapital(type)}`);
+
+				subCatOptions.push(option);
+			}
+
+			const subCatOptionMenu = new StringSelectMenuBuilder()
+			.setCustomId('help-subcat')
+			.setPlaceholder('Select an option to continue!')
+			.addOptions(subCatOptions);
+
+			const subCatOptionMenuRow = new ActionRowBuilder().addComponents(subCatOptionMenu);
+
+			const embed = new EmbedBuilder()
+			.setTitle(`== ${makeCapital(menu.specs.helpCat)} Command Categories ==`)
+			.setDescription('Select one of the following categories!')
+			.addFields(displayObj.fields);
+
+			return {embeds: [embed], components: [subCatOptionMenuRow, backSubCatRow]};
+		}
+
+		/**
+		 * This function loads the selected `help subcat`'s, `command` options menu
+		 * @param {CommandCollection} commandList Helpful Commands List
+		 * @param {NavMenu} menu Standard Navigation Menu
+		 * @returns {{embeds: EmbedBuilder[], components: ActionRowBuilder[]}}
+		 */
+		function loadPickedHelpSubCatDisplay(commandList, menu){
+			const subCatPickedList = isMatchingSubCatType(menu.specs.helpCat, menu.specs.helpSubCat, commandList);
+
+			const helpWithFields = [], helpWithOptions = [];
+			for (const [comName, com] of subCatPickedList){
+				const option = new StringSelectMenuOptionBuilder()
+				.setLabel(makeCapital(comName))
+				.setValue(comName)
+				.setDescription(`/${makeCapital(comName)} command`);
+
+				helpWithOptions.push(option);
+				helpWithFields.push({name: `== \`/${com.data.name}\` ==`, value: `Description: ${com.data.description}`});
+			}
+
+			const helpWithOptionMenu = new StringSelectMenuBuilder()
+			.setCustomId('help-subcat')
+			.setPlaceholder('Select an option to continue!')
+			.addOptions(helpWithOptions);
+
+			const helpWithOptionMenuRow = new ActionRowBuilder().addComponents(helpWithOptionMenu);
+
+			const embed = new EmbedBuilder()
+			.setTitle(`== ${makeCapital(menu.specs.helpSubCat)} Commands ==`)
+			.setDescription('Select one of the following commands!')
+			.addFields(helpWithFields);
+
+			return {embeds: [embed], components: [helpWithOptionMenuRow, backWithRow]};
+		}
+
+
+		function loadFullPickedCommandInfoSheet(commandList, menu){
+			const isCommandMatch = c => c.data.name === menu.specs.helpWith;
+			const commandMatch = commandList.find(c => isCommandMatch(c));
+
+			// Write Command usage display using command.data.options
+		}
+
 
 		// GAMEPLAY
 		// ========
@@ -158,7 +414,26 @@ module.exports = {
 		// STRING COLLECTOR (COLLECT)
 		sCollector.on('collect', async c => {
 			await c.deferUpdate().then(async () => {
-
+				let editWith = {};
+				switch(helpMenu.whatDoYouHear(c.customId)){
+					case "NEXT":
+						const idSplits = c.customId.split('-');
+						switch(idSplits[1]){
+							case "subcat":
+								helpMenu.specs.helpSubCat = c.values[0];
+								editWith = helpMenu.goingForward(commandHelpWithSelectDisplay.load(helpSupportedCommands, helpMenu));
+							break;
+							case "with":
+								helpMenu.specs.helpWith = c.values[0];
+								editWith = helpMenu.goingForward();
+							break;
+						}
+					break;
+					default:
+						console.log(helpMenu.whatDoYouHear(c.customId));
+					break;
+				}
+				if (editWith.embeds) await anchorMsg.edit(editWith);
 			}).catch(e => console.error(e));
 		});
 		// ~~~~~~~~~~~~~~~~~~~~~
@@ -167,27 +442,22 @@ module.exports = {
 		// BUTTON COLLECTOR (COLLECT)
 		collector.on('collect', async c => {
 			await c.deferUpdate().then(async () => {
-				let editWith;
+				let editWith = {};
 				switch(helpMenu.whatDoYouHear(c.customId)){
 					case "NEXT":
 						const idSplits = c.customId.split('-');
 						console.log(...idSplits);
 						switch(idSplits[1]){
 							case "cat":
-
-							break;
-							case "subcat":
-
-							break;
-							case "with":
-
+								helpMenu.specs.helpCat = idSplits[2];
+								editWith = helpMenu.goingForward(commandSubCatSelectDisplay.load(helpSupportedCommands, helpMenu));
 							break;
 							default:
 								// Help Type selected
 								helpMenu.specs.helpType = idSplits[1];
 								switch(idSplits[1]){
 									case "command":
-										editWith = helpMenu.goingForward(commandCatDisplay);
+										editWith = helpMenu.goingForward(commandCatSelectDisplay);
 									break;
 									case "gameplay":
 										editWith = helpMenu.goingForward(gameplayCatDisplay);
@@ -206,6 +476,15 @@ module.exports = {
 						switch(c.customId.split('-')[1]){
 							case "type":
 								helpMenu.specs.helpType = "";
+							break;
+							case "cat":
+								helpMenu.specs.helpCat = "";
+							break;
+							case "subcat":
+								helpMenu.specs.helpSubCat = "";
+							break;
+							case "with":
+								helpMenu.specs.helpWith = "";
 							break;
 						}
 						editWith = helpMenu.goingBackward();

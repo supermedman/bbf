@@ -27,7 +27,7 @@ const { grabColour } = require('./exported/grabRar');
 const { checkInboundItem, handleNewStaticItem, checkOutboundMat } = require('../Development/Export/itemMoveContainer');
 
 module.exports = {
-    helptypes: ['Gear', 'Crafting', 'Story'],
+    helptypes: ['Gear', 'Craft', 'Story'],
 	data: new SlashCommandBuilder()
     .setName('craft')
     .setDescription('Enter the forge, bring fury from the flames!'),
