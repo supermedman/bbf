@@ -1,6 +1,6 @@
-const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, Collection, StringSelectMenuOptionBuilder, StringSelectMenuBuilder, SlashCommandSubcommandGroupBuilder, SlashCommandSubcommandBuilder } = require('discord.js');
 // const { UserData, Pighouse } = require('../../dbObjects.js');
-const { grabUser, createInteractiveChannelMessage, handleCatchDelete, makeCapital } = require('../../uniHelperFunctions.js');
+const { grabUser, createInteractiveChannelMessage, handleCatchDelete, makeCapital, getTypeof } = require('../../uniHelperFunctions.js');
 const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 const { loadBasicBackButt } = require('./exported/tradeExtras.js');
 
@@ -10,7 +10,7 @@ module.exports = {
 	.setName('help')
     .setDescription('Basic tips, tricks, and assistance!'),
 	async execute(interaction) {
-		if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'This command is under construction! Please check back later!'});
+		// if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'This command is under construction! Please check back later!'});
 		const user = await grabUser(interaction.user.id);
 
 		// Help categories
@@ -74,7 +74,8 @@ module.exports = {
 		// 'EA', 'New', 'Testing', 'Locked', 'Support'
 
 		// Define helpcom formatting.
-		/**@typedef {{ helpcat: string, helptypes: string[], data: { name: string, description: string, execute(): void, options?: object[], autocomplete?(): void } }} baseCommand */
+		/**@typedef {{type: number, name: string, description: string, choices?: {name: string, value: string}[], autocomplete: boolean, required: boolean, max_length?: number, min_length?: number}} BaseOption */
+		/**@typedef {{ helpcat: string, helptypes: string[], data: { name: string, description: string, execute(): void, options?: SlashCommandSubcommandGroupBuilder<SlashCommandSubcommandBuilder<BaseOption>>[] | SlashCommandSubcommandBuilder<BaseOption>[] | BaseOption[], autocomplete?(): void } }} baseCommand */
 		/**@typedef { Collection<string, baseCommand> } CommandCollection */
 
 		/**
@@ -92,7 +93,7 @@ module.exports = {
 			const hasHelpType = c => 'helptypes' in c;
 
 			const allHelpfulComsList = commandList.filter(c => !isDevCommand(c) && !isHelpCommand(c) && hasHelpType(c));
-			console.log(allHelpfulComsList.size);
+			// console.log(allHelpfulComsList.size);
 
 			return allHelpfulComsList;
 		}
@@ -288,20 +289,6 @@ module.exports = {
 		 * @returns {{embeds: EmbedBuilder[], components: ActionRowBuilder[]}}
 		 */
 		function loadPickedHelpCatDisplay(commandList, menu){
-			//const catPickedList = isMatchingCatType(menu.specs.helpCat, commandList);
-			// const subCatList = grabSubCatTypeList(menu.specs.helpCat, commandList);
-
-			//const subCatOptions = []; // subCatFields = [], 
-			// for (const subCType of subCatList){
-			// 	const option = new StringSelectMenuOptionBuilder()
-			// 	.setLabel(makeCapital(subCType))
-			// 	.setValue(subCType)
-			// 	.setDescription(`Commands related to ${makeCapital(subCType)}`);
-
-			// 	subCatOptions.push(option);
-			// 	// subCatFields.push({name: `== ${subCType} ==`, value: catPickedList.filter(c => c.helptypes.includes(subCType)).map(c => `**\`/${c.data.name}\`**`).join(', ')})
-			// }
-
 			const displayObj = groupSubCatTypeList(menu.specs.helpCat, commandList);
 			const subCatOptions = [];
 			for (const type of displayObj.optionObj){
@@ -325,7 +312,7 @@ module.exports = {
 			.setDescription('Select one of the following categories!')
 			.addFields(displayObj.fields);
 
-			return {embeds: [embed], components: [subCatOptionMenuRow, backSubCatRow]};
+			return {embeds: [embed], components: [subCatOptionMenuRow, backCatRow]};
 		}
 
 		/**
@@ -349,7 +336,7 @@ module.exports = {
 			}
 
 			const helpWithOptionMenu = new StringSelectMenuBuilder()
-			.setCustomId('help-subcat')
+			.setCustomId('help-with')
 			.setPlaceholder('Select an option to continue!')
 			.addOptions(helpWithOptions);
 
@@ -360,15 +347,157 @@ module.exports = {
 			.setDescription('Select one of the following commands!')
 			.addFields(helpWithFields);
 
-			return {embeds: [embed], components: [helpWithOptionMenuRow, backWithRow]};
+			return {embeds: [embed], components: [helpWithOptionMenuRow, backSubCatRow]};
 		}
 
-
+		/**
+		 * This function loads the selected `command`'s help menu display
+		 * @param {CommandCollection} commandList Helpful Commands List
+		 * @param {NavMenu} menu Standard Navigation Menu
+		 * @returns {{embeds: EmbedBuilder[], components: ActionRowBuilder[]}}
+		 */
 		function loadFullPickedCommandInfoSheet(commandList, menu){
 			const isCommandMatch = c => c.data.name === menu.specs.helpWith;
 			const commandMatch = commandList.find(c => isCommandMatch(c));
 
-			// Write Command usage display using command.data.options
+			const comDesc = `Help Tags: \`${commandMatch.helptypes.map(ht => `${ht}`).join(`\`, \``)}\`\n\nDescription: *${commandMatch.data.description}*`;
+
+			const commandEmbed = new EmbedBuilder()
+			.setTitle(`===> Command: \`/${commandMatch.data.name}\``)
+			.setDescription(comDesc);
+
+			if (commandMatch.data.options.length > 0){
+				const comFields = createCommandOptionDisplayFields(commandMatch);
+				commandEmbed.setFields(comFields);
+			}
+
+			return {embeds: [commandEmbed], components: [backWithRow]};
+		}
+
+
+		/**
+		 * This function handles loading the selected commands `slashcommand` data, which it converts into valid `APIEmbedField` data.
+		 * @param {baseCommand} pickedCommand Selected command for help
+		 * @returns {{name: string, value: string}[]}
+		 */
+		function createCommandOptionDisplayFields(pickedCommand){
+			const comOptionTypeKeys = new Map([
+				[1, "SubCom"],
+				[2, "SubComGroup"],
+				[3, "Text"],
+				[4, "Number"],
+				[5, "Yes/No"],
+				[6, "User"],
+				[7, "Channel"],
+				[8, "Role"],
+				[9, "Mentionable"],
+				[10, "Number"],
+				[11, "File Attachment :paperclip:"]
+			]);
+
+			const optionExampleKeys = new Map([
+				['rarity', 'EX: `Common`\n'],
+				['item', 'EX: `Sword`, `Minor Healing`, `Shield`\n'],
+				['gear', 'EX: `Sword`, `Minor Healing`, `Shield`\n'],
+				['amount', 'EX: `10`\n'],
+				['target', `EX: <@${interaction.user.id}>\n`]
+			]);
+
+			/**
+			 * const comOptionTypeKeys = new Map([
+				[1, "SubCom"],
+				[2, "SubComGroup"],
+				[3, "Text :abc:"],
+				[4, "Number 0️⃣"],
+				[5, "Yes/No ✅/❌"],
+				[6, "User :bust_in_silhouette:"],
+				[7, "Channel :speech_left:"],
+				[8, "Role :crown:"],
+				[9, "Mentionable"],
+				[10, "Number 0️⃣"],
+				[11, "File Attachment :paperclip:"]
+			]);
+			 */
+
+			// console.log(pickedCommand.data.options);
+
+			/**@param {BaseOption} o */
+			const hasChoices = o => o.choices;
+			/**@param {BaseOption} o */
+			const isAutocomplete = o => o.autocomplete;
+			/**@param {BaseOption} o */
+			const isRequired = o => o.required;
+
+			/**@param {BaseOption} o */
+			const extraOptionDisplay = o => {
+				return {choices: hasChoices(o), autocomplete: isAutocomplete(o), required: isRequired(o)};
+			};
+
+			/**@param {BaseOption} o */
+			const extractOptionExtras = o => {
+				let extraStr = "";
+				const objExtras = extraOptionDisplay(o);
+				if (!objExtras.autocomplete && !objExtras.required && !objExtras.choices) return {extraStr};
+				if (objExtras.required) extraStr += '\n❗ **Option is required!** ❗';
+				if (objExtras.autocomplete) extraStr += '\n❔ **Uses Autocomplete!** ❔';
+				if (!objExtras.choices) return {extraStr};
+				return {choiceStr: '**Choices given:** \n' + objExtras.choices.map(choice => `> - **${choice.name}**`).join('\n'), extraStr};
+			};
+
+
+			const extractSubcomName = sc => `=> Subcommand: \`${sc.name}\``;
+			const extractSubcomData = sc => `Description: *${sc.description}*`;
+
+			/**@param {BaseOption} o */
+			const extractOptionName = o => `**> Option Name: \`${o.name}\`**`;
+
+			/**@param {BaseOption} o */
+			const extractOptionTitleExample = o => {
+				const oName = `${extractOptionName(o)} ${(optionExampleKeys.has(o.name)) ? optionExampleKeys.get(o.name) : ""}`;
+				return oName;
+			};
+
+			/**@param {BaseOption} o */
+			const extractOptionData = o => {
+				const optionExtras = extractOptionExtras(o);
+				const baseStr = `Description: *${o.description}*\nInput Type: **${comOptionTypeKeys.get(o.type)}**` + optionExtras.extraStr;
+				if (!optionExtras.choiceStr) return baseStr;
+				return optionExtras.choiceStr + '\n' + baseStr;
+			};
+			/**@param {BaseOption} o */
+			const extractFullOptionData = o => extractOptionTitleExample(o) + '\n' + extractOptionData(o) + '\n\n';
+
+			const finalFields = [];
+			if (getTypeof(pickedCommand.data.options[0]) === 'SlashCommandSubcommandGroupBuilder'){
+				for (const subcomGroup of pickedCommand.data.options){
+					let subcomGroupStr = `Description: *${subcomGroup.description}*\n\n`;
+					for (const subcom of subcomGroup.options){
+						subcomGroupStr += extractSubcomName(subcom) + '\n' + extractSubcomData(subcom) + '\n\n';
+						//subcomGroupStr += `=> Subcommand: \`${subcom.name}\`\nDescription: ${subcom.description}\n\n`;
+						for (const option of subcom.options){
+							subcomGroupStr += extractFullOptionData(option);
+						}
+					}
+					finalFields.push({name: `==> Subcommand Group: \`${subcomGroup.name}\``, value: subcomGroupStr});
+				}
+				return finalFields;
+			}
+
+			if (getTypeof(pickedCommand.data.options[0]) === 'SlashCommandSubcommandBuilder'){
+				for (const subcom of pickedCommand.data.options){
+					let subcomStr = extractSubcomData(subcom) + `\n\n`;
+					for (const option of subcom.options){
+						subcomStr += extractFullOptionData(option);
+					}
+					finalFields.push({name: extractSubcomName(subcom), value: subcomStr});
+				}
+				return finalFields;
+			}
+
+			for (const option of pickedCommand.data.options){
+				finalFields.push({name: extractOptionTitleExample(option), value: extractOptionData(option)});
+			}
+			return finalFields;
 		}
 
 
@@ -425,7 +554,7 @@ module.exports = {
 							break;
 							case "with":
 								helpMenu.specs.helpWith = c.values[0];
-								editWith = helpMenu.goingForward();
+								editWith = helpMenu.goingForward(loadFullPickedCommandInfoSheet(helpSupportedCommands, helpMenu));
 							break;
 						}
 					break;

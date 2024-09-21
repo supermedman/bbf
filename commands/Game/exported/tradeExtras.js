@@ -1231,7 +1231,7 @@ function handlePriceButtPicked(changeID){
  * 
  * ID: ``'back-${backType}'``
  * @param {string} backType Used to create the back buttons customId
- * @returns {ActionRowBuilder[]}
+ * @returns {ActionRowBuilder<ButtonBuilder>}
  */
 function loadBasicBackButt(backType){
     const backButt = new ButtonBuilder()

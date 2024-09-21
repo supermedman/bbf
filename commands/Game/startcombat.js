@@ -508,7 +508,7 @@ module.exports = {
             .setDescription("Your rewards: ")
             .addFields(
                 {name: "Xp Gained: ", value: `${xpGain}`, inline: true},
-                {name: "Coins Gained: ", value: `${coinGain}`, inline: true}
+                {name: "Coins Gained: ", value: `${coinGain}c`, inline: true}
             );
 
             if (!newEnemy.has(player.userId)){
