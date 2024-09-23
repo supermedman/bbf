@@ -26,8 +26,7 @@ module.exports = {
 		const gameHelpButt = new ButtonBuilder()
 		.setCustomId('help-gameplay')
 		.setStyle(ButtonStyle.Primary)
-		.setLabel('Gameplay Help')
-		.setDisabled(true);
+		.setLabel('Gameplay Help');
 		const setupHelpButt = new ButtonBuilder()
 		.setCustomId('help-setup')
 		.setStyle(ButtonStyle.Primary)
@@ -374,7 +373,6 @@ module.exports = {
 			return {embeds: [commandEmbed], components: [backWithRow]};
 		}
 
-
 		/**
 		 * This function handles loading the selected commands `slashcommand` data, which it converts into valid `APIEmbedField` data.
 		 * @param {baseCommand} pickedCommand Selected command for help
@@ -500,14 +498,427 @@ module.exports = {
 			return finalFields;
 		}
 
-
 		// GAMEPLAY
 		// ========
 		const gameplayCatEmbed = new EmbedBuilder()
 		.setTitle('== Gameplay Categories ==')
 		.setDescription('Select one of the following gameplay categories!');
+
+		// Gameplay categories
+		// ===================
+		// Progress
+		const gameLevelButt = new ButtonBuilder()
+		.setCustomId('help-game-level')
+		.setStyle(ButtonStyle.Primary)
+		.setLabel('Progression');
+		const progressDisplayKeys = new Map([
+			["leveling", ["level_up", "perk_points", "xp_potions", "xp_gain"]],
+			["quests", ["basics", "story", "dungeons"]],
+			["unlocks", ["level_5", "level_10", "level_25", "level_31", "level_100"]]
+		]);
+
+		// Mechanics
+		const gameMechaButt = new ButtonBuilder()
+		.setCustomId('help-game-mecha')
+		.setStyle(ButtonStyle.Primary)
+		.setDisabled(true)
+		.setLabel('Mechanics');
+		const mechanicsDisplayKeys = new Map([
+			["tbd", ["mecha-1"]]
+		]);
+		
+		// Loot
+		const gameLootButt = new ButtonBuilder()
+		.setCustomId('help-game-loot')
+		.setStyle(ButtonStyle.Primary)
+		.setLabel('Loot');
+		const lootDisplayKeys = new Map([
+			["items", ["drops", "dismantle", "selling", "trading", "rarity"]],
+			["materials", ["drops", "combine", "dismantle", "trading", "rarity"]],
+			["coins", ["gain", "spend", "uses"]],
+			["blueprints", ["drops", "crafting", "potions", "tools"]]
+		]);
+
+		// Combat
+		const gameCombatButt = new ButtonBuilder()
+		.setCustomId('help-game-combat')
+		.setStyle(ButtonStyle.Primary)
+		.setLabel('Combat');
+		const combatDisplayKeys = new Map([
+			["basics", ["strike", "steal", "hide", "block", "potion"]],
+			["enemies", ["levels", "health", "locations", "drops"]],
+			["damage", ["types", "effects"]],
+			["defence", ["types", "effects"]],
+			["dungeons", ["bosses"]]
+		]);
+
+		// Other?
+		const gameOtherButt = new ButtonBuilder()
+		.setCustomId('help-game-other')
+		.setStyle(ButtonStyle.Primary)
+		.setDisabled(true)
+		.setLabel('Other');
+
+		const gameplayKeyStore = new Map([
+			["level", progressDisplayKeys],
+			["mecha", mechanicsDisplayKeys],
+			["loot", lootDisplayKeys],
+			["combat", combatDisplayKeys]
+		]);
+
+		/**
+		    PROGRESSION
+		    ["leveling", ["level_up", "perk_points", "xp_potions", "xp_gain"]],
+			["quests", ["basics", "story", "dungeons"]],
+			["unlocks", ["level_5", "level_10", "level_25", "level_31", "level_100"]]
+
+			LOOT
+			["items", ["drops", "dismantle", "selling", "trading", "rarity"]],
+			["materials", ["drops", "combine", "dismantle", "trading", "rarity"]],
+			["coins", ["gain", "spend", "uses"]],
+			["blueprints", ["drops", "crafting", "potions", "tools"]]
+
+			COMBAT
+			["basics", ["strike", "steal", "hide", "block", "potion"]],
+			["enemies", ["levels", "health", "locations", "drops"]],
+			["damage", ["types", "effects"]],
+			["defence", ["types", "effects"]],
+			["dungeons", ["bosses"]]
+		 */
+		/**@type {Map<string, {[s:string]: {basic: string, advanced: string, refs: string}}>} */
+		const gameplayHelpDescriptionTable = new Map([
+			// PROGRESSION
+			["leveling", {
+				level_up: {
+					basic: "Leveling is one of the core features of Black Blade! Each level requires a certain amount of xp, reaching that amount will cause a **level up**, for each level you will gain a **Perk Point**. As your level increases, more features of Black Blade will become available, see **Level Unlocking**. There are many ways to gain xp, see **XP Gain**.",
+					advanced: "Advanced leveling info here.",
+					refs: "\n\n**== Extra Info ==**\n\n**Perk Point**: see `Perk Points` in the `Leveling` group of the `Progress` help section.\n**Level Unlocking**: see the `Unlocks` group of the `Progress` help section.\n**XP Gain**: see `Xp gain` in the `Leveling` group of the `Progress` help section."
+				},
+				perk_points: {
+					basic: "Everytime you level up you will gain a **Perk Point**. **Perk Points** are used to increase your **Stats** (**Skills**), you can do this by using the command `/addpoint skill:<skill-name-here>`.",
+					advanced: "Advanced perk point info here.",
+					refs: "\n\n**== Extra Info ==**\n\n**Stat** (**Skill**): For more info on what each **Stat** (**Skill**) does, use the command `/stats info stat:<stat-name-here>`."
+				},
+				xp_potions: {
+					basic: "**XP Potions** provide bonus xp! This bonus is applied to any *XP* you gain while an **XP Potion** is active! See *Making Potions*. See *Using Potions*.",
+					advanced: "Advanced xp potion info here.",
+					refs: "\n\n**== Extra Info ==**\n\n*Making Potions*: see `Potions` in the `Blueprints` group of the `Loot` help section.\n*Using Potions*: see `Potion` in the `Basics` group of the `Combat` help section."
+				},
+				xp_gain: {
+					basic: "**XP** can be **Gained** from a variety of different interactions! The primary methods of gaining **XP** are: `Combat` and `Quests`. Other methods of gaining **XP** are: `Pigmy Claims` and `Completed Tasks`.",
+					advanced: "Advanced xp gain info here.",
+					refs: ""
+				}
+			}],
+			["quests", {
+				basics: {
+					basic: "**Quests** are the best way to gain *Coins*, *XP*, and *Items* when you don't have time to play! Also `Pigmy`, `Location`, `Lore`",
+					advanced: "Advanced quests info here.",
+					refs: ""
+				},
+				story: {
+					basic: "Some **Quests** are apart of the main story line, upon completing one of these **Quests** a piece of the **Story** will be displayed. See `/Lore`, `locations`",
+					advanced: "Advanced lore info here.",
+					refs: ""
+				},
+				dungeons: {
+					basic: "**Dungeons** are one of the major features of Black Blade. To gain access you must follow the `story quests` ",
+					advanced: "Advanced dungeons info here.",
+					refs: ""
+				}
+			}],
+			["unlocks", {
+				level_5: {
+					basic: "Reaching **Level 5** unlocks the ability to go on quests, as well as awards you with the `Minor Healing Potion` blueprint!",
+					advanced: "Advanced level_5 info here.",
+					refs: ""
+				},
+				level_10: {
+					basic: "Reaching **Level 10** unlocks the ability to use the `/craft` command!",
+					advanced: "Advanced level_10 info here.",
+					refs: ""
+				},
+				level_25: {
+					basic: "Reaching **Level 25** unlocks the very first `Story` `Quest`!",
+					advanced: "Advanced level_25 info here.",
+					refs: ""
+				},
+				level_31: {
+					basic: "Reaching **Level 31** adds `Forgotten` to the rarity drop pool!",
+					advanced: "Advanced level_31 info here.",
+					refs: ""
+				},
+				level_100: {
+					basic: "Reaching **Level 100** unlocks the final dungeon, this dungeon must be completed in order to level past 100!",
+					advanced: "Advanced level_100 info here.",
+					refs: ""
+				}
+			}],
+			// LOOT
+			["items", {
+				drops: {
+					basic: "**drops**",
+					advanced: "Advanced drops info here.",
+					refs: ""
+				},
+				dismantle: {
+					basic: "**dismantle**",
+					advanced: "Advanced dismantle info here.",
+					refs: ""
+				},
+				selling: {
+					basic: "**selling**",
+					advanced: "Advanced selling info here.",
+					refs: ""
+				},
+				trading: {
+					basic: "**trading**",
+					advanced: "Advanced trading info here.",
+					refs: ""
+				},
+				rarity: {
+					basic: "**rarity**",
+					advanced: "Advanced rarity info here.",
+					refs: ""
+				}
+			}],
+			["materials", {
+				drops: {
+					basic: "**drops**",
+					advanced: "Advanced drops info here.",
+					refs: ""
+				},
+				combine: {
+					basic: "**combine**",
+					advanced: "Advanced combine info here.",
+					refs: ""
+				},
+				dismantle: {
+					basic: "**dismantle**",
+					advanced: "Advanced dismantle info here.",
+					refs: ""
+				},
+				trading: {
+					basic: "**trading**",
+					advanced: "Advanced trading info here.",
+					refs: ""
+				},
+				rarity: {
+					basic: "**rarity**",
+					advanced: "Advanced rarity info here.",
+					refs: ""
+				}
+			}],
+			["coins", {
+				gain: {
+					basic: "**gain**",
+					advanced: "Advanced gain info here.",
+					refs: ""
+				},
+				spend: {
+					basic: "**spend**",
+					advanced: "Advanced spend info here.",
+					refs: ""
+				},
+				uses: {
+					basic: "**uses**",
+					advanced: "Advanced uses info here.",
+					refs: ""
+				}
+			}],
+			["blueprints", {
+				drops: {
+					basic: "**drops**",
+					advanced: "Advanced drops info here.",
+					refs: ""
+				},
+				crafting: {
+					basic: "**crafting**",
+					advanced: "Advanced crafting info here.",
+					refs: ""
+				},
+				potions: {
+					basic: "**potions**",
+					advanced: "Advanced potions info here.",
+					refs: ""
+				},
+				tools: {
+					basic: "**tools**",
+					advanced: "Advanced tools info here.",
+					refs: ""
+				}
+			}],
+			// COMBAT
+			["basics", {
+				strike: {
+					basic: "**strike**",
+					advanced: "Advanced strike info here.",
+					refs: ""
+				},
+				steal: {
+					basic: "**steal**",
+					advanced: "Advanced steal info here.",
+					refs: ""
+				},
+				hide: {
+					basic: "**hide**",
+					advanced: "Advanced hide info here.",
+					refs: ""
+				},
+				block: {
+					basic: "**block**",
+					advanced: "Advanced block info here.",
+					refs: ""
+				},
+				potion: {
+					basic: "**potion**",
+					advanced: "Advanced potion info here.",
+					refs: ""
+				}
+			}],
+			["enemies", {
+				levels: {
+					basic: "**levels**",
+					advanced: "Advanced levels info here.",
+					refs: ""
+				},
+				health: {
+					basic: "**health**",
+					advanced: "Advanced health info here.",
+					refs: ""
+				},
+				locations: {
+					basic: "**locations**",
+					advanced: "Advanced locations info here.",
+					refs: ""
+				},
+				drops: {
+					basic: "**drops**",
+					advanced: "Advanced drops info here.",
+					refs: ""
+				}
+			}],
+			["damage", {
+				types: {
+					basic: "**types**",
+					advanced: "Advanced types info here.",
+					refs: ""
+				},
+				effects: {
+					basic: "**effects**",
+					advanced: "Advanced effects info here.",
+					refs: ""
+				}
+			}],
+			["defence", {
+				types: {
+					basic: "**types**",
+					advanced: "Advanced types info here.",
+					refs: ""
+				},
+				effects: {
+					basic: "**effects**",
+					advanced: "Advanced effects info here.",
+					refs: ""
+				}
+			}],
+			["dungeons", {
+				bosses: {
+					basic: "**bosses**",
+					advanced: "Advanced bosses info here.",
+					refs: ""
+				}
+			}]
+		]);
+
+		const gameplayCatRow = new ActionRowBuilder().addComponents(gameLevelButt, gameMechaButt, gameLootButt, gameCombatButt, gameOtherButt);
+
 		// GAMEPLAY CAT DISPLAY
-		const gameplayCatDisplay = {embeds: [gameplayCatEmbed], components: [backTypeRow]};
+		const gameplayCatDisplay = {embeds: [gameplayCatEmbed], components: [gameplayCatRow, backTypeRow]};
+
+		// helpMenu.specs.helpType = "gameplay"
+		// helpMenu.specs.helpCat = next-selected-button
+		const gameplaySelectDisplayLoader = {
+			displayEmbeds: {
+				gameCat: new EmbedBuilder(),
+				gameSubCat: new EmbedBuilder(),
+				gameWith: new EmbedBuilder()
+			},
+			catKeys: gameplayKeyStore,
+			subCatKeys: new Map(),
+			withKeys: [],
+			/**
+			 * This method constructs an ActionRow for the provided string[] using each string as a `.customId`
+			 * @param {string[]} buttIdList Array of strings to be used as button.customId's
+			 * @param {string} buttKeyPrefix Prefix as to set for each string within `buttIdList`
+			 * @returns {ActionRowBuilder}
+			 */
+			loadButts(buttIdList, buttKeyPrefix){
+				const buttList = [];
+				for (const id of buttIdList){
+					const catchUnderscore = id.split('_').join(" ");
+					const button = new ButtonBuilder()
+					.setCustomId(buttKeyPrefix + id)
+					.setStyle(ButtonStyle.Primary)
+					.setLabel(makeCapital(catchUnderscore));
+					buttList.push(button);
+				}
+
+				return new ActionRowBuilder().addComponents(buttList);
+			},
+			load(menu, helpLayer){
+				switch(helpLayer){
+					case "cat":
+					return this.loadCat(menu);
+					case "subcat":
+					return this.loadSubCat(menu);
+					case "with":
+					return this.loadWith(menu);
+				}
+			},
+			loadCat(menu){
+				const buttonPrefix = 'help-game-' + menu.specs.helpCat + '-';
+				this.subCatKeys = this.catKeys.get(menu.specs.helpCat);
+				const baseButtRow = this.loadButts(this.subCatKeys.keys(), buttonPrefix);
+
+				this.displayEmbeds.gameCat
+				.setTitle(`== ${makeCapital(menu.specs.helpCat)} Categories ==`)
+				.setDescription('Select one of the following categories!');
+
+				return {embeds: [this.displayEmbeds.gameCat], components: [baseButtRow, backCatRow]};
+			},
+			loadSubCat(menu){
+				const buttonPrefix = 'help-game-' + menu.specs.helpCat + '-' + menu.specs.helpSubCat + "-";
+				this.withKeys = this.subCatKeys.get(menu.specs.helpSubCat);
+				const baseButtRow = this.loadButts(this.withKeys, buttonPrefix);
+
+				this.displayEmbeds.gameSubCat
+				.setTitle(`== ${makeCapital(menu.specs.helpSubCat)} Categories ==`)
+				.setDescription('Select one of the following categories!');
+
+				return {embeds: [this.displayEmbeds.gameSubCat], components: [baseButtRow, backSubCatRow]};
+			},
+			loadWith(menu){
+				// gameplayHelpLookup: (Alias) GHLookup
+				/**@type {{helpSCKey: string, helpWKey: string}} */
+				const GHLookup = {
+					helpSCKey: menu.specs.helpSubCat,
+					helpWKey: menu.specs.helpWith
+				};
+
+				const gameplayHelpSelected = gameplayHelpDescriptionTable.get(GHLookup.helpSCKey)[`${GHLookup.helpWKey}`];
+
+				let helpDescDisplay = gameplayHelpSelected.basic;
+				// Add advanced help info
+				helpDescDisplay += gameplayHelpSelected.refs;
+
+				this.displayEmbeds.gameWith
+				.setTitle(`== ${makeCapital(menu.specs.helpWith.split("_").join(" "))} Help ==`)
+				.setDescription(helpDescDisplay);
+
+				return {embeds: [this.displayEmbeds.gameWith], components: [backWithRow]};
+			}
+		};
 
 		// SETUP
 		// =====
@@ -581,6 +992,20 @@ module.exports = {
 								helpMenu.specs.helpCat = idSplits[2];
 								editWith = helpMenu.goingForward(commandSubCatSelectDisplay.load(helpSupportedCommands, helpMenu));
 							break;
+							case "game":
+								let helpGameplayLayer = "";
+								if (helpMenu.specs.helpCat === "") {
+									helpMenu.specs.helpCat = idSplits[2];
+									helpGameplayLayer = "cat";
+								} else if (helpMenu.specs.helpSubCat === ""){
+									helpMenu.specs.helpSubCat = idSplits[3];
+									helpGameplayLayer = "subcat";
+								} else if (helpMenu.specs.helpWith === ""){
+									helpMenu.specs.helpWith = idSplits[4];
+									helpGameplayLayer = "with";
+								}
+								editWith = helpMenu.goingForward(gameplaySelectDisplayLoader.load(helpMenu, helpGameplayLayer));
+							break;
 							default:
 								// Help Type selected
 								helpMenu.specs.helpType = idSplits[1];
@@ -602,6 +1027,7 @@ module.exports = {
 						}
 					break;
 					case "BACK":
+						//helpMenu.debugOutput();
 						switch(c.customId.split('-')[1]){
 							case "type":
 								helpMenu.specs.helpType = "";
@@ -617,6 +1043,7 @@ module.exports = {
 							break;
 						}
 						editWith = helpMenu.goingBackward();
+						//console.log('Going backward to show: ', editWith.embeds[0].data);
 					break;
 					case "CANCEL":
 

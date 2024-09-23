@@ -1,6 +1,10 @@
 const { ActionRowBuilder, EmbedBuilder, AttachmentBuilder } = require("discord.js");
 const { getTypeof } = require("../../../../uniHelperFunctions");
 
+/**@typedef {{components: ActionRowBuilder[], embeds?: EmbedBuilder[], files?: AttachmentBuilder[]}} BaseDisplay */
+/**@typedef {(string[] | never[])[]} IdListener */
+
+
 /**
  * NavMenu is the core display interaction handler, it manages;
  * menu navigation, paging, button/string component id extraction.
@@ -40,7 +44,7 @@ class NavMenu {
      * 
      * @ template T
      * @param {object} user UserData DB Object
-     * @param {{components: ActionRowBuilder[], embeds?: EmbedBuilder[], files?: AttachmentBuilder[]}} displayOne First Display Object
+     * @param {BaseDisplay} displayOne First Display Object
      * @param {string[] | [ActionRowBuilder]} firstRowIDS Array of Component.custom_id strings or ActionRowBuilder
      * @extends {E<T>}
      * @ param {T} extraSpecs Any additional props to store, stored as `.specs`
@@ -51,8 +55,11 @@ class NavMenu {
         this.navDisplayPath = [displayOne];
 
         this.listenForPages = ['back-page', 'next-page'];
+        /**@type {IdListener} */
         this.listenForNext = [];
+        /**@type {IdListener} */
         this.listenForBack = [];
+        /**@type {IdListener} */
         this.listenForCancel = [];
         
         if (getTypeof(firstRowIDS[0]) === 'ActionRowBuilder'){
@@ -114,6 +121,47 @@ class NavMenu {
         } else if (this.cancelWasHeard(id)){
             return 'CANCEL';
         } else return 'UNKNOWN';
+    }
+
+    debugOutput(){
+        const nextHasData = this.listenForNext.length > 0 && this.listenForNext.at(-1).length > 0;
+        const nextStoredData = this.listenForNext.length > 0 && this.listenForNext.findLastIndex(nArr => nArr.length > 0) !== -1;;
+
+        const backHasData = this.listenForBack.length > 0 && this.listenForBack.at(-1).length > 0;
+        const backStoredData = this.listenForBack.length > 0 && this.listenForBack.findLastIndex(bArr => bArr.length > 0) !== -1;;
+
+        const cancelHasData = this.listenForCancel.length > 0 && this.listenForCancel.at(-1).length > 0;
+        const cancelStoredData = this.listenForCancel.length > 0 && this.listenForCancel.findLastIndex(cArr => cArr.length > 0) !== -1;
+
+        const displayPathExists = this.navDisplayPath.length > 0;
+
+        console.log('==== DEBUGGING START ====');
+
+        if (nextStoredData){
+            console.log('NEXT has %d sound groups!', this.listenForNext.length);
+            if (nextHasData) console.log('NEXT sounds like this: ', this.listenForNext.at(-1));
+            else console.log('NEXT last sounded like this: ', this.listenForNext.findLast(nArr => nArr.length > 0));
+        } else console.log('NEXT has no sound!!');
+
+        if (backStoredData){
+            console.log('BACK has %d sound groups!', this.listenForBack.length);
+            if (backHasData) console.log('BACK sounds like this: ', this.listenForBack.at(-1));
+            else console.log('BACK last sounded like this: ', this.listenForBack.findLast(bArr => bArr.length > 0));
+        } else console.log('BACK has no sound!!');
+
+        if (cancelStoredData){
+            console.log('CANCEL has %d sound groups!', this.listenForCancel.length);
+            if (cancelHasData) console.log('CANCEL sounds like this: ', this.listenForCancel.at(-1));
+            else console.log('CANCEL last sounded like this: ', this.listenForCancel.findLast(cArr => cArr.length > 0));
+        } else console.log('CANCEL has no sound!!');
+
+        if (displayPathExists){
+            console.log('Display path is %d levels deep!', this.navDisplayPath.length);
+            console.log('Display path is currently showing: ', this.navDisplayPath.at(-1).embeds[0].data);
+            console.log('Display path was previously showing: ', this.navDisplayPath.at(-2).embeds[0].data);
+        } else console.log('Display path is EMPTY!!');
+
+        console.log('==== DEBUGGING STOP ====');
     }
 
     pageWasHeard(id){
@@ -308,6 +356,7 @@ class NavMenu {
 
         this.navDisplayPath.pop();
         this.listenForBack.pop();
+        this.listenForCancel.pop();
         this.listenForNext.pop();
 
         return this.navDisplayPath.at(-1);
