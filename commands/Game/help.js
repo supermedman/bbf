@@ -30,8 +30,7 @@ module.exports = {
 		const setupHelpButt = new ButtonBuilder()
 		.setCustomId('help-setup')
 		.setStyle(ButtonStyle.Primary)
-		.setLabel('Setup Help')
-		.setDisabled(true);
+		.setLabel('Setup Help');
 		const otherHelpButt = new ButtonBuilder()
 		.setCustomId('help-other')
 		.setStyle(ButtonStyle.Primary)
@@ -793,7 +792,7 @@ module.exports = {
 					refs: ""
 				},
 				drops: {
-					basic: "Each *Enemy* has **drops**, guaranteed **Drops** include `Materials`, `Coins`, and `XP`. *Enemies* can also sometimes **Drop** *Items*. Some *Enemies* also have special **Drops**, such as *Unique Materials* or ~*Unique Items*~. See `item drops`, `material drops`, `rarity`",
+					basic: "Each *Enemy* has **drops**, guaranteed **Drops** include `Materials`, `Coins`, and `XP`. *Enemies* can also sometimes **Drop** *Items*. Some *Enemies* also have special **Drops**, such as *Unique Materials* or ~~*Unique Items*~~. See `item drops`, `material drops`, `rarity`",
 					advanced: "Advanced drops info here.",
 					refs: ""
 				}
