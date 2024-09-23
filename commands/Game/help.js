@@ -657,93 +657,93 @@ module.exports = {
 			// LOOT
 			["items", {
 				drops: {
-					basic: "**drops**",
+					basic: "*Items* are obtained primarily through **drops**! See `enemies`, `shop`, `quest`, `tasks`",
 					advanced: "Advanced drops info here.",
 					refs: ""
 				},
 				dismantle: {
-					basic: "**dismantle**",
+					basic: "Most *Items* can be **dismantled**, this breaks them apart into `materials`.",
 					advanced: "Advanced dismantle info here.",
 					refs: ""
 				},
 				selling: {
-					basic: "**selling**",
+					basic: "Most *Items* can be **sold** directly to Black Blade.",
 					advanced: "Advanced selling info here.",
 					refs: ""
 				},
 				trading: {
-					basic: "**trading**",
+					basic: "Most *Items* can be **traded** on the markets. You can both `buy` and `sell` *Items* this way.",
 					advanced: "Advanced trading info here.",
 					refs: ""
 				},
 				rarity: {
-					basic: "**rarity**",
+					basic: "All *Items* have a **rarity**. This **Rarity** defines the relative strength, value, and drop rate of the item.",
 					advanced: "Advanced rarity info here.",
 					refs: ""
 				}
 			}],
 			["materials", {
 				drops: {
-					basic: "**drops**",
+					basic: "*Materials* are obtained primarily through **drops**! See `enemies: uniquetypes, droptypes`, `tasks`, `pigmies`, `dismantle`",
 					advanced: "Advanced drops info here.",
 					refs: ""
 				},
 				combine: {
-					basic: "**combine**",
+					basic: "Most *Materials* can be **Combined** into higher *rarities*. See `/material`",
 					advanced: "Advanced combine info here.",
 					refs: ""
 				},
 				dismantle: {
-					basic: "**dismantle**",
+					basic: "Most *Materials* can be **Dismantled** into lower *rarities*. See `/material`",
 					advanced: "Advanced dismantle info here.",
 					refs: ""
 				},
 				trading: {
-					basic: "**trading**",
+					basic: "*Materials* can be **traded** on the markets. You can both `buy` and `sell` *materials* this way.",
 					advanced: "Advanced trading info here.",
 					refs: ""
 				},
 				rarity: {
-					basic: "**rarity**",
+					basic: "All *Materials* have a **rarity**. This **Rarity** defines the relative value, and drop rate of the material",
 					advanced: "Advanced rarity info here.",
 					refs: ""
 				}
 			}],
 			["coins", {
 				gain: {
-					basic: "**gain**",
+					basic: "*Coins* can be **gained** through a number of different ways. Mainly: `combat` and `quests`. Also: `pigmy`, `sell`, `tasks`, `trade`",
 					advanced: "Advanced gain info here.",
 					refs: ""
 				},
 				spend: {
-					basic: "**spend**",
+					basic: "*Coins* are **spent** through certain interactions. Mainly: `shop`. Also: `trade`, `town`",
 					advanced: "Advanced spend info here.",
 					refs: ""
 				},
 				uses: {
-					basic: "**uses**",
+					basic: "*Coins* have many **uses**. Mainly: `shop`, `trade`, `town`, `blueprint`",
 					advanced: "Advanced uses info here.",
 					refs: ""
 				}
 			}],
 			["blueprints", {
 				drops: {
-					basic: "**drops**",
+					basic: "Some *Blueprints* are obtained through reaching certain levels, other blueprints can only be aquired, after reaching a certain level, as **drops** with a 0.2% chance upon killing any enemy.",
 					advanced: "Advanced drops info here.",
 					refs: ""
 				},
 				crafting: {
-					basic: "**crafting**",
+					basic: "**Crafting** from *Blueprints* is different from `/craft`. *Blueprints* represent recipes that will always yield the same thing. Some *Blueprints* can be crafted from more than once, while others cannot.",
 					advanced: "Advanced crafting info here.",
 					refs: ""
 				},
 				potions: {
-					basic: "**potions**",
+					basic: "**Potion** *Blueprints* are reusable, and can be crafted in bulk. See `/myloot potions`, `/blueprint view & available`",
 					advanced: "Advanced potions info here.",
 					refs: ""
 				},
 				tools: {
-					basic: "**tools**",
+					basic: "Most **Tool** *Blueprints* can only be crafted once, these items are *Usually* not consumable! See `/myloot tools`, `/blueprint view & available`, `/pigmy give`, `town`, `building`",
 					advanced: "Advanced tools info here.",
 					refs: ""
 				}
@@ -751,80 +751,80 @@ module.exports = {
 			// COMBAT
 			["basics", {
 				strike: {
-					basic: "**strike**",
+					basic: "The **Strike** button attacks the current enemy. See `enemies`, `damage`, `defence`",
 					advanced: "Advanced strike info here.",
 					refs: ""
 				},
 				steal: {
-					basic: "**steal**",
+					basic: "The **Steal** button attempts to pickpocket the current enemy. If no item is found this button is disabled. Also `steal fail`, `taking damage`. See `enemies`, `items`, `stats`",
 					advanced: "Advanced steal info here.",
 					refs: ""
 				},
 				hide: {
-					basic: "**hide**",
+					basic: "The **Hide** button attempts to hide you from the current enemy. Also `hide fail`, `taking damage`. See `enemies`, `stats`",
 					advanced: "Advanced hide info here.",
 					refs: ""
 				},
 				block: {
-					basic: "**block**",
+					basic: "The **Block** button is currently under construction!! It will be used to defend against the current enemy, increasing your defence.",
 					advanced: "Advanced block info here.",
 					refs: ""
 				},
 				potion: {
-					basic: "**potion**",
+					basic: "The **Potion** button, if available, will consume your currently equipped potion. This will put the potion on cooldown, and apply its effects. See `making potions`",
 					advanced: "Advanced potion info here.",
 					refs: ""
 				}
 			}],
 			["enemies", {
 				levels: {
-					basic: "**levels**",
+					basic: "Enemies can spawn at **Levels** less than or equal to your own! Also `leveling`, `steal/hide`, `rarity`, `items/materials`, `coins/xp`",
 					advanced: "Advanced levels info here.",
 					refs: ""
 				},
 				health: {
-					basic: "**health**",
+					basic: "Every *Enemy* has **Health**, this **Health** is split into three groups: **Body ('Flesh')**, **Armor**, and **Shield**. Each of these groups contains different types, one of which will be used. See `types`, `damage`, `defence`, `clergyman`, `advanced combat`",
 					advanced: "Advanced health info here.",
 					refs: ""
 				},
 				locations: {
-					basic: "**locations**",
+					basic: "*Enemies* have favoured **Locations**. These locations can be *traveled* to. See `location quests`, `hunting grounds`, `drop types`",
 					advanced: "Advanced locations info here.",
 					refs: ""
 				},
 				drops: {
-					basic: "**drops**",
+					basic: "Each *Enemy* has **drops**, guaranteed **Drops** include `Materials`, `Coins`, and `XP`. *Enemies* can also sometimes **Drop** *Items*. Some *Enemies* also have special **Drops**, such as *Unique Materials* or ~*Unique Items*~. See `item drops`, `material drops`, `rarity`",
 					advanced: "Advanced drops info here.",
 					refs: ""
 				}
 			}],
 			["damage", {
 				types: {
-					basic: "**types**",
+					basic: "*Damage* is one of many **types**. Each **Type** has specific strengths and weaknesses against `Enemy Health Types`",
 					advanced: "Advanced types info here.",
 					refs: ""
 				},
 				effects: {
-					basic: "**effects**",
+					basic: "*Damage* is capable of applying special *Status* **Effects**. These **Effects** are based on the `Damage Type` against `Enemy Health Type` ",
 					advanced: "Advanced effects info here.",
 					refs: ""
 				}
 			}],
 			["defence", {
 				types: {
-					basic: "**types**",
+					basic: "*Defence* is one of many **types**. These **Types** have no effect yet!!",
 					advanced: "Advanced types info here.",
 					refs: ""
 				},
 				effects: {
-					basic: "**effects**",
+					basic: "*Defence* does not currently have any **effects**!",
 					advanced: "Advanced effects info here.",
 					refs: ""
 				}
 			}],
 			["dungeons", {
 				bosses: {
-					basic: "**bosses**",
+					basic: "Every *Dungeon* has a **Boss** ruling over it. To gain access to a *dungeon* you must complete its `story quests`. To gain access to its `story quests` you must reach the level required. You must defeat a *Dungeon* **Boss** in order to continue with the main storyline.",
 					advanced: "Advanced bosses info here.",
 					refs: ""
 				}

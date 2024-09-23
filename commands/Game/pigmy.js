@@ -1035,7 +1035,7 @@ module.exports = {
 			for (const matTypeList of matCont.constructMatRefList(fullMatRollList)){
 				const matTypeEmbed = new EmbedBuilder()
 				.setTitle(`== ${makeCapital(matTypeList[0].matType)} Materials ==`)
-				.setColor(grabColour((matTypeList.at(-1)).matRef.Rar_id));
+				.setColor(grabColour((matTypeList.at(-1)).matRef?.Rar_id) ?? 0o0);
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){

@@ -5,7 +5,7 @@ const Canvas = require('@napi-rs/canvas');
 const enemyList = require('../../../events/Models/json_prefabs/enemyList.json');
 const bossList = require('../../../events/Models/json_prefabs/bossList.json');
 
-//const newEList = require('../../Development/Export/Json/newEnemyList.json');
+const newEList = require('../../Development/Export/Json/newEnemyList.json');
 const { EnemyFab } = require('../../Development/Export/Classes/EnemyFab');
 const { randArrPos } = require('../../../uniHelperFunctions');
 
@@ -46,7 +46,8 @@ function getRef(enemy) {
 
 function crossRefPngCheck(enemy){
     const filterFor = enemy.imageCheck.checkKey;
-    const fabMatch = enemyList.filter(eFab => eFab.ConstKey === filterFor)[0];
+    let fabMatch = enemyList.find(eFab => eFab.ConstKey === filterFor);
+    if (!fabMatch) fabMatch = newEList.find(eFab => eFab.ConstKey === filterFor);
     if (fabMatch.PngRef){
         enemy.imageCheck.hasPng = true;
         enemy.imageCheck.pngRef = fabMatch.PngRef;
