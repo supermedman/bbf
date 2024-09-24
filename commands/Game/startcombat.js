@@ -500,7 +500,7 @@ module.exports = {
                 .setEmoji('💀')
             );
 
-            const embedTitle = (!newEnemy.has(player.userId)) ? "Enemy Killed! ``/startcombat`` to continue!": "Enemy Killed!";
+            const embedTitle = "Enemy Killed!"; // (!newEnemy.has(player.userId)) ? "Enemy Killed! ``/startcombat`` to continue!":
 
             const killedEmbed = new EmbedBuilder()
             .setTitle(embedTitle)
