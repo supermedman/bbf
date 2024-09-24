@@ -14,9 +14,12 @@ const {
 const { checkHintLootSell, checkHintLootDismantle, checkHintMaterialCombine, checkHintLootEquip, checkHintPotionEquip, checkHintPigmyGive, checkHintUniqueEquip } = require('./exported/handleHints.js');
 
 const { UserData, LootStore, MaterialStore, OwnedPotions, OwnedTools, UniqueCrafted, ItemStrings } = require('../../dbObjects.js');
-const { uni_displayItem } = require('../Development/Export/itemStringCore.js');
+const { uni_displayItem, retrieveRarKeyStorage } = require('../Development/Export/itemStringCore.js');
 const { createInteractiveChannelMessage, sendTimedChannelMessage, makeCapital, handleCatchDelete } = require('../../uniHelperFunctions.js');
 const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
+const { convertOldMatStore } = require('./exported/materialContainer.js');
+const { rarityLimiter } = require('../../uniDisplayFunctions.js');
+const { Op } = require('sequelize');
 
 module.exports = {
     helptypes: ['Material', 'Gear', 'Info', 'Stats', 'Blueprint'],
@@ -46,7 +49,7 @@ module.exports = {
 
     async execute(interaction) {
         
-        const { materialFiles } = interaction.client;
+        const { materialFiles, materials } = interaction.client;
 
         const subCom = interaction.options.getSubcommand();
 
@@ -97,43 +100,58 @@ module.exports = {
                 }
             break;
             case "materials":
-                const fullUserMatList = await MaterialStore.findAll({where: {spec_id: interaction.user.id}});
-                if (fullUserMatList.length === 0) return interaction.followUp("No Materials Found! Defeat an enemy to receive materials!");
-                if (fullUserMatList.length > 10) await checkHintMaterialCombine(user, interaction);
+                const userHasMaterial = await MaterialStore.findOne({where: {spec_id: interaction.user.id}});
+                if (!userHasMaterial) return await interaction.followUp("No Materials Found! Defeat an enemy to receive materials!");
+                const needsMaterialHint = await MaterialStore.findOne({where: {spec_id: interaction.user.id, amount: {[Op.gte]: 10}}});
+                if (needsMaterialHint) await checkHintMaterialCombine(user, interaction);
                 usePagination = true;
-
-                for (const [key, value] of materialFiles){
-                    const matType = key;
-                    const matEmbed = new EmbedBuilder()
-                    .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
-
-                    const matList = require(value);
-                    matList.sort((a,b) => a.Rar_id - b.Rar_id);
-
-                    const refListLength = matList.length;
-                    let missingAll = false;
-
-                    const matchingOwnedMats = (key === "unique") 
-                    ? fullUserMatList.filter(mat => mat.rar_id === 12)
-                    : fullUserMatList.filter(mat => mat.mattype === key);
-                    if (matchingOwnedMats.length === 0) missingAll = true;
-
-                    const orderedUMats = new Array(refListLength);
-                    if (!missingAll){
-                        let counter = 0;
-                        for (const matRef of matList){
-                            orderedUMats[counter] = (key === "unique") 
-                            ? matchingOwnedMats.filter(mat => mat.mattype === matRef.UniqueMatch)[0] ?? matRef.Rar_id
-                            : matchingOwnedMats.filter(mat => mat.rar_id === matRef.Rar_id)[0] ?? matRef.Rar_id;
-                            counter++;
-                        }
-                    }
-
-                    const matFields = await handleMaterialDisplay(orderedUMats, matList, missingAll);
-                    matEmbed.addFields(matFields);
-                    
-                    finalPages.push(matEmbed);
+                // Basic Mat Page = rar 0 => 9
+                // Advanced Mat Page = rar 10 => 20
+                for (const [key] of materialFiles){
+                    const userMatTypeObj = await convertOldMatStore(interaction, key);
+                    const {basic, advanced} = handleConvertedMaterialDisplay(userMatTypeObj, key);
+                    finalPages.push(...basic);
                 }
+
+
+
+                // const fullUserMatList = await MaterialStore.findAll({where: {spec_id: interaction.user.id}});
+                // if (fullUserMatList.length === 0) return interaction.followUp("No Materials Found! Defeat an enemy to receive materials!");
+                // if (fullUserMatList.length > 10) await checkHintMaterialCombine(user, interaction);
+                // usePagination = true;
+
+                // for (const [key, value] of materialFiles){
+                //     const matType = key;
+                //     const matEmbed = new EmbedBuilder()
+                //     .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
+
+                //     const matList = require(value);
+                //     matList.sort((a,b) => a.Rar_id - b.Rar_id);
+
+                //     const refListLength = matList.length;
+                //     let missingAll = false;
+
+                //     const matchingOwnedMats = (key === "unique") 
+                //     ? fullUserMatList.filter(mat => mat.rar_id === 12)
+                //     : fullUserMatList.filter(mat => mat.mattype === key);
+                //     if (matchingOwnedMats.length === 0) missingAll = true;
+
+                //     const orderedUMats = new Array(refListLength);
+                //     if (!missingAll){
+                //         let counter = 0;
+                //         for (const matRef of matList){
+                //             orderedUMats[counter] = (key === "unique") 
+                //             ? matchingOwnedMats.filter(mat => mat.mattype === matRef.UniqueMatch)[0] ?? matRef.Rar_id
+                //             : matchingOwnedMats.filter(mat => mat.rar_id === matRef.Rar_id)[0] ?? matRef.Rar_id;
+                //             counter++;
+                //         }
+                //     }
+
+                //     const matFields = await handleMaterialDisplay(orderedUMats, matList, missingAll);
+                //     matEmbed.addFields(matFields);
+                    
+                //     finalPages.push(matEmbed);
+                // }
             break;
             case "potions":
                 const fullUserPotList = await OwnedPotions.findAll({where: {spec_id: interaction.user.id}});
@@ -185,15 +203,16 @@ module.exports = {
                 }
             break;
             case "unique":
-                if (user.level < 25) return interaction.followUp('You are not yet ready for this!! Come back when you have passed level 25!');
-                if (user.level < 31) return interaction.followUp('You must first complete a dungeon to gain access to these items!');
-                usePagination = false;
-                const uniqueTempEmbed = new EmbedBuilder()
-                .setTitle(`**WIP**`)
-                .setDescription('This section is still under construction, check back later!');
+            //     if (user.level < 25) return interaction.followUp('You are not yet ready for this!! Come back when you have passed level 25!');
+            //     if (user.level < 31) return interaction.followUp('You must first complete a dungeon to gain access to these items!');
+            //     usePagination = false;
+            //     const uniqueTempEmbed = new EmbedBuilder()
+            //     .setTitle(`**WIP**`)
+            //     .setDescription('This section is still under construction, check back later!');
 
-                finalPages.push(uniqueTempEmbed);
-            break;
+            //     finalPages.push(uniqueTempEmbed);
+            // break;
+            return await interaction.followUp({content: 'This feature has been removed!', ephemeral: true});
         }
 
         if (!usePagination){
@@ -289,6 +308,93 @@ module.exports = {
             }
 
             return finalFields;
+        }
+
+        /**
+         * This function loads all materials missing and owned by the user calling. 
+         * 
+         * `basic` contains materials rarity 0-9
+         * `advanced` contains materials rarity 10-20
+         * @param {{[rarID:string]: number}} ownedMatsObj Constructed `UserMaterials` object
+         * @param {string} matType Currently focused material type
+         * @returns {{basic: EmbedBuilder[], advanced: EmbedBuilder[]}}
+         */
+        function handleConvertedMaterialDisplay(ownedMatsObj, matType){
+            const matDisplayObj = {basic: [], advanced: []};
+
+            //console.log('MatType: ', matType);
+            //if (matType === 'unique') console.log('Materials Stored @ matType: ', ownedMatsObj);
+
+            if (matType === 'unique'){
+                const uniDisplayEmbed = new EmbedBuilder()
+                .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
+
+                const uniDisplayFields = Object.entries(ownedMatsObj)
+                .reduce((acc, [k, v]) => {
+                    if (v === 0){
+                        acc.push({ name: 'Unknown material of **Unique** rarity:', value: 'Amount Owned: 0' });
+                    } else {
+                        const matMatch = materials.get(matType).find(m => m.UniqueMatch === k);
+                        acc.push({ name: `~= Unique Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${v}**` });
+                    }
+                    return acc;
+                }, []);
+
+                uniDisplayEmbed.addFields(uniDisplayFields);
+                matDisplayObj.basic.push(uniDisplayEmbed);
+                return matDisplayObj;
+            }
+
+            const basicLimit = new rarityLimiter();
+            basicLimit.loadRarLimit(9, 0);
+            const basicRarNames = basicLimit.loadMatchingRarNames();
+
+            //console.log('BasicLimit RarityLimiter(): ', basicLimit);
+            //console.log('BasicLimitRarNames: ', basicRarNames);
+
+            const basicDisplayEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
+
+            const basicDisplayFields = Object.entries(ownedMatsObj)
+            .filter(([k]) => basicLimit.isWithin(+k))
+            .reduce((acc, [k, v]) => {
+                if (v === 0){
+                    acc.push({ name: `Unknown material of **${basicRarNames[k]}** rarity:`, value: 'Amount Owned: 0' });
+                } else {
+                    const matMatch = materials.get(matType).find(m => m.Rar_id === +k);
+                    acc.push({ name: `~= ${basicRarNames[k]} Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${v}**` })
+                }
+                return acc;
+            }, []);
+
+            basicDisplayEmbed.addFields(basicDisplayFields);
+            matDisplayObj.basic.push(basicDisplayEmbed);
+
+            if (!ownedMatsObj['10']) return matDisplayObj;
+
+            const advancedLimit = new rarityLimiter();
+            advancedLimit.loadRarLimit(20, 10);
+            const advancedRarNames = advancedLimit.loadMatchingRarNames();
+
+            const advancedDisplayEmbed = new EmbedBuilder()
+            .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
+
+            const advancedDisplayFields = Object.entries(ownedMatsObj)
+            .filter(([k]) => advancedLimit.isWithin(+k))
+            .reduce((acc, [k, v]) => {
+                if (v === 0){
+                    acc.push({ name: `Unknown material of **${advancedRarNames[k]}** rarity:`, value: 'Amount Owned: 0' });
+                } else {
+                    const matMatch = materials.get(matType).find(m => m.Rar_id === +k);
+                    acc.push({ name: `~= ${advancedRarNames[k]} Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${v}**` })
+                }
+                return acc;
+            }, []);
+
+            advancedDisplayEmbed.addFields(advancedDisplayFields);
+            matDisplayObj.advanced.push(advancedDisplayEmbed);
+
+            return matDisplayObj;
         }
 	},
 

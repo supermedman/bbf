@@ -1,4 +1,5 @@
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require("discord.js");
+const { convertRarToID, retrieveRarKeyStorage } = require("./commands/Development/Export/itemStringCore");
 
 /**
  * This function loads the standard amount selection button rows.
@@ -92,8 +93,9 @@ function loadDefaultAmountButtonActionRows(showRows=3){
     return finalRows;
 }
 
-
 /**
+ * This Object handles converting `button.data.custom_id` values into mathimatical components
+ * `loadDefaultAmountButtonActionRows()` loads all related buttons to be used with this object.
  * Use case example:
  * 
  * ```js
@@ -168,8 +170,124 @@ const fnSignConverter = {
     }
 };
 
+/**
+ * This function will load the standard Pagination button row, including any additional buttons passed with `additionalActionButtons`
+ * 
+ * Button Display Order:
+ * `BackButt, CancelButt?, ...AdditionalButtons?, NextButt`
+ * @param {boolean} includeCancel If true, includes a cancel button with id `delete-page`
+ * @param {ButtonBuilder[]} additionalActionButtons Array of `ButtonBuilders`, max length 3 
+ * @returns {ActionRowBuilder<ButtonBuilder> | string} Returns `"Paging Row Length Exceeds 5"` on length exception
+ */
+function loadDefaultPagingButtonActionRow(includeCancel=false, additionalActionButtons=[]){
+    const backPageButt = new ButtonBuilder()
+    .setLabel("Backward")
+    .setStyle(ButtonStyle.Primary)
+    .setEmoji('◀️')
+    .setCustomId('back-page');
+    const nextPageButt = new ButtonBuilder()
+    .setLabel("Forward")
+    .setStyle(ButtonStyle.Primary)
+    .setEmoji('▶️')
+    .setCustomId('next-page');
+    const cancelButton = new ButtonBuilder()
+    .setLabel("Cancel")
+    .setStyle(ButtonStyle.Secondary)
+    .setEmoji('*️⃣')
+    .setCustomId('delete-page');
+
+    const pagingButtons = [backPageButt];
+
+    if (includeCancel) pagingButtons.push(cancelButton);
+    if (additionalActionButtons.length > 0) pagingButtons.push(...additionalActionButtons);
+    pagingButtons.push(nextPageButt);
+
+    if (pagingButtons.length < 5){
+        const pagingButtonRow = new ActionRowBuilder().addComponents(pagingButtons);
+        return pagingButtonRow;
+    } else return "Paging Row Length Exceeds 5";   
+}
+
+class rarityLimiter {
+    constructor(){
+        this.max = 1;
+        this.min = 0;
+    }
+    /**
+     * This method sets both the `this.max` and the `this.min` values according to 
+     * `rMax` and `rMin` respectively.
+     * @param {number | string} rMax Maximum Rarity Id Value
+     * @param {number | string} rMin Minimum Rarity Id Value
+     */
+    loadRarLimit(rMax, rMin){
+        this.max = convertRarToID(rMax);
+        this.min = convertRarToID(rMin);
+    }
+    loadMatchingRarNames(){
+        const rarNames = Object.entries(retrieveRarKeyStorage())
+        .filter(([k]) => this.isWithin(+k))
+        .reduce((acc, [k, v]) => {
+            acc[k] = v;
+            return acc;
+        }, {});
+        return rarNames;
+    }
+    /**
+     * This method checks the given `r` against the stored `max` & `min` values
+     * @param {number} r Valid RarID number equivalent
+     * @returns {boolean}
+     */
+    isWithin(r){
+        return r <= this.max && r >= this.min;
+    }
+};
+
+/**
+ * This function loads a string select menu with rarity name options based on the given `max/min` rarities.
+ * 
+ * Example:
+ * ```js
+ *  const matType = "slimy";
+ * 
+ *  const rarNameSelectRow = loadDefaultRarityNameSelectionRow(
+ *      "Mystic", 0, `${matType} material`
+ *  );
+ * ```
+ * @param {number | string} maxRar Maximum rarity to include
+ * @param {number | string} minRar Minimum rarity to include
+ * @param {string} optionDescription Used with `.setDescription(${rarName} ${optionDescription})`
+ * @returns {ActionRowBuilder<StringSelectMenuBuilder>}
+ */
+function loadDefaultRarityNameSelectionRow(maxRar, minRar, optionDescription){
+    const rarity = new rarityLimiter();
+    rarity.loadRarLimit(maxRar, minRar);
+
+    const stringOptionList = Object.entries(retrieveRarKeyStorage())
+    .filter(([k]) => rarity.isWithin(+k))
+    .reduce((acc, [k, v]) => {
+        const option = new StringSelectMenuOptionBuilder()
+        .setValue(v)
+        .setDescription(`${v} ${optionDescription}`)
+        .setLabel(v);
+
+        acc.push(option);
+        return acc;
+    }, []);
+
+    const rarNameSelectMenu = new StringSelectMenuBuilder()
+    .setCustomId(`rar-name`)
+    .setPlaceholder('Select a rarity!')
+    .addOptions(stringOptionList);
+
+    const rarNameRow = new ActionRowBuilder().addComponents(rarNameSelectMenu);
+
+    return rarNameRow;
+}
+
 module.exports = {
     loadDefaultAmountButtonActionRows,
+    loadDefaultPagingButtonActionRow,
+    loadDefaultRarityNameSelectionRow,
+    rarityLimiter,
     fnSignConverter
-    //handleAmountChange: fnSignConverter.grabCalledEq
 };

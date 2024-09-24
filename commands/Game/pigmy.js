@@ -212,8 +212,8 @@ module.exports = {
 				const theTool = await OwnedTools.findOne({where: {spec_id: user.userid, name: toolName, activecategory: 'Pigmy'}});
 				if (!theTool) return await interaction.reply({content: 'Tool selected was either not found, or not a valid pigmy option! Use `/myloot tools` to view tools, use `/blueprint available` to make a tool!', ephemeral: true});
 
-				const isOverwrite = pigmy[toolType] === 'NONE';
-				const isEquipped = isOverwrite && pigmy[toolType] === toolName;
+				const isOverwrite = pigmy[`${toolType}`] !== 'NONE';
+				const isEquipped = isOverwrite && pigmy[`${toolType}`] === toolName;
 				if (isEquipped) return await interaction.reply({content: `Pigmy already has ${toolName} equipped in the ${makeCapital(toolType)} slot!`, ephemeral: true});
 
 				usingButtons = isOverwrite;
@@ -228,7 +228,7 @@ module.exports = {
 
 					displayEmbed
 					.setTitle(`== Equip ${makeCapital(toolType)} ==`)
-					.setDescription(`Replace current ${makeCapital(toolType)} ${pigmy[toolType]} with **${toolName}**?`);
+					.setDescription(`Replace current ${makeCapital(toolType)} ${pigmy[`${toolType}`]} with **${toolName}**?`);
 				}
 			break;
 			case "claim":
@@ -1039,6 +1039,7 @@ module.exports = {
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){
+					if (!matDropObj.matRef.Rarity) console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
 					finalFields.push({
 						name: `~= ${matDropObj.matRef.Rarity} Material =~`,
 						value: `Name: **__${matDropObj.matRef.Name}__**\nAmount Dropped: **${matDropObj.amount}**`
@@ -1167,7 +1168,8 @@ module.exports = {
 		 * @returns {Promise <EmbedBuilder>}
 		 */
 		async function givePigmyTool(pig, details){
-			await pig.update({[details.toolType]: details.toolName}).then(async p => await p.save()).then(async p => {return await p.reload()});
+			const toolUpdateObj = {[details.toolType]: details.toolName};
+			await pig.update(toolUpdateObj).then(async p => await p.save()).then(async p => {return await p.reload()});
 
 			const finalEmbed = new EmbedBuilder()
 			.setTitle(`== ${makeCapital(details.toolType)} Given ==`)

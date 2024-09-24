@@ -317,6 +317,20 @@ function loadFullRarNameList(stopRar=19){
     return rarList;
 }
 
+
+function retrieveRarKeyStorage(){
+    /**@type {{[rarID:string]: string}} */
+    const rarKeyObj = Array.from(rarKeys.entries())
+    .filter(([k]) => k !== 'r11' && k !== 'r12')
+    .reduce((acc, [k, v]) => {
+        const convRar = k.split('r').join("");
+        acc[`${+convRar}`] = v;
+        return acc;
+    }, {});
+
+    return rarKeyObj;
+}
+
 /**
  * 
  * @param {String} TEST_CODE ITEM_CODE used for deconstruction
@@ -1487,6 +1501,7 @@ module.exports = {
     convertRarToID,
     baseCheckRarName,
     loadFullRarNameList,
+    retrieveRarKeyStorage,
 
     checkingSlot,
 
