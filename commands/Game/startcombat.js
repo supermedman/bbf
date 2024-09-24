@@ -511,29 +511,50 @@ module.exports = {
                 {name: "Coins Gained: ", value: `${coinGain}c`, inline: true}
             );
 
-            if (!newEnemy.has(player.userId)){
-                await sendTimedChannelMessage(interaction, 35000, killedEmbed);
-            } else {
-                const combReplyObj = {embeds: [killedEmbed], components: [eRow]};
-                const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj, "FollowUp");
+            // Changing Button Access to the default. Progress can be boosted/restricted through other methods, this change intends to promote base player retention!
+            const combReplyObj = {embeds: [killedEmbed], components: [eRow]};
+            const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj, "FollowUp");
 
-                collector.on('collect', async c => {
-                    await c.deferUpdate().then(async () => {
-                        if (c.customId === 'spawn-new'){
-                            collector.stop();
-                            return combatLooper(player, loadEnemy(player.level, enemiesToPass, false, (await grabUser(player.userId)).current_location));
-                        }
-                    }).catch(e => console.error(e));
-                });
+            collector.on('collect', async c => {
+                await c.deferUpdate().then(async () => {
+                    if (c.customId === 'spawn-new'){
+                        collector.stop();
+                        return combatLooper(player, loadEnemy(player.level, enemiesToPass, false, (await grabUser(player.userId)).current_location));
+                    }
+                }).catch(e => console.error(e));
+            });
 
-                collector.on('end', (c, r) => {
-                    anchorMsg.delete().catch(error => {
-                        if (error.code !== 10008) {
-                            console.error('Failed to delete the message:', error);
-                        }
-                    });
+            collector.on('end', (c, r) => {
+                anchorMsg.delete().catch(error => {
+                    if (error.code !== 10008) {
+                        console.error('Failed to delete the message:', error);
+                    }
                 });
-            }
+            });
+
+            // if (!newEnemy.has(player.userId)){
+            //     await sendTimedChannelMessage(interaction, 35000, killedEmbed);
+            // } else {
+            //     const combReplyObj = {embeds: [killedEmbed], components: [eRow]};
+            //     const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 80000, combReplyObj, "FollowUp");
+
+            //     collector.on('collect', async c => {
+            //         await c.deferUpdate().then(async () => {
+            //             if (c.customId === 'spawn-new'){
+            //                 collector.stop();
+            //                 return combatLooper(player, loadEnemy(player.level, enemiesToPass, false, (await grabUser(player.userId)).current_location));
+            //             }
+            //         }).catch(e => console.error(e));
+            //     });
+
+            //     collector.on('end', (c, r) => {
+            //         anchorMsg.delete().catch(error => {
+            //             if (error.code !== 10008) {
+            //                 console.error('Failed to delete the message:', error);
+            //             }
+            //         });
+            //     });
+            // }
         }
 
         /**
