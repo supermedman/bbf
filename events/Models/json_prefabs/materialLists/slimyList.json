@@ -98,6 +98,68 @@
 
 		"Mat_id": 10,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Sour Slime",
+		"Value": 3000,
+		"Rarity": "Forgotten",
+		"Rar_id": 10,
+		"Mat_id": 11
+	},
+	{
+		"Name": "Soul Slime",
+		"Value": 4000,
+		"Rarity": "Soul Bound",
+		"Rar_id": 13,
+		"Mat_id": 12
+	},
+	{
+		"Name": "Shadow Slime",
+		"Value": 5000,
+		"Rarity": "Shadow Bound",
+		"Rar_id": 14,
+		"Mat_id": 13
+	},
+	{
+		"Name": "Chaos Slime",
+		"Value": 6500,
+		"Rarity": "Chaos Bound",
+		"Rar_id": 15,
+		"Mat_id": 14
+	},
+	{
+		"Name": "Fractal Slime",
+		"Value": 7000,
+		"Rarity": "Law Bound",
+		"Rar_id": 16,
+		"Mat_id": 15
+	},
+	{
+		"Name": "Bloody Slime",
+		"Value": 8000,
+		"Rarity": "Hateful",
+		"Rar_id": 17,
+		"Mat_id": 16
+	},
+	{
+		"Name": "Pearlescent Slime",
+		"Value": 10000,
+		"Rarity": "Shifted",
+		"Rar_id": 18,
+		"Mat_id": 17
+	},
+	{
+		"Name": "Factory Waste",
+		"Value": 12000,
+		"Rarity": "$hrouded",
+		"Rar_id": 19,
+		"Mat_id": 18
+	},
+	{
+		"Name": "sludge",
+		"Value": 25000,
+		"Rarity": "DREAM-WOKEN",
+		"Rar_id": 20,
+		"Mat_id": 19
 	}
-
 ]

@@ -733,13 +733,13 @@ const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1)
 
 const genDMGMap = (item) => {
     let dmgStr = '\nDamage Values:';
-    dmgStr += "\n" + checkingDamage(item.item_code).map(dmgObj => `**${dmgObj.Type}**: **${dmgObj.DMG}** Atk`).join("\n") + "\n";
+    dmgStr += "\n" + checkingDamage(item.item_code).map(dmgObj => `**${dmgObj.Type}**: **${makePrettyNum(dmgObj.DMG)}** Atk`).join("\n") + "\n";
     return dmgStr;
 };
 
 const genDEFMap = (item) => {
     let defStr = '\nDefence Values:';
-    defStr += "\n" + checkingDefence(item.item_code).map(defObj => `**${defObj.Type}**: **${defObj.DEF}** Def`).join("\n") + "\n";
+    defStr += "\n" + checkingDefence(item.item_code).map(defObj => `**${defObj.Type}**: **${makePrettyNum(defObj.DEF)}** Def`).join("\n") + "\n";
     return defStr;
 };
 
@@ -747,7 +747,7 @@ const genDDMap = (item) => {
     let headerStr = '\nDamage/Defence:';
     const dmgPairs = checkingDamage(item.item_code), defPairs = checkingDefence(item.item_code);
     const typePairs = dmgPairs.concat(defPairs);
-    const pairStr = typePairs.map(pairObj => `\n**${pairObj.Type}**: **${pairObj.DMG ?? pairObj.DEF}** ${(pairObj.DMG) ? 'Atk' : 'Def\n'}`).join(" ");
+    const pairStr = typePairs.map(pairObj => `\n**${pairObj.Type}**: **${makePrettyNum(pairObj.DMG ?? pairObj.DEF)}** ${(pairObj.DMG) ? 'Atk' : 'Def\n'}`).join(" ");
     return headerStr + pairStr;
 }
 
@@ -761,7 +761,7 @@ function generateItemEmbedField(item, itemExtra, showAmount, makeInline){
     let fieldName, fieldValue, fieldObj;
     fieldName = `>>__**${item.name}**__<<`;
 
-    fieldValue = `Value: **${item.value}c**\nRarity: **${itemExtra.iRar}**\nHands: **${itemExtra.iCaste.Hands}**\nSlot: **${itemExtra.iSlot}**\n`;
+    fieldValue = `Value: **${makePrettyNum(item.value)}c**\nRarity: **${itemExtra.iRar}**\nHands: **${itemExtra.iCaste.Hands}**\nSlot: **${itemExtra.iSlot}**\n`;
     if (typeof showAmount === 'boolean' && showAmount === true) fieldValue += `Amount: **${item.amount}**\n`;
     else if (typeof showAmount === 'number' && showAmount >= 1) fieldValue += `Amount: **${showAmount}**\n`;
     switch(itemExtra.iSlot){
@@ -851,9 +851,9 @@ function uni_displaySingleMaterial(mat, amount=false){
 
     displayObj.fields.push({
         name: `>>__**${mat.name}**__<<`,
-        value: `Value: **${mat.value}**c\nRarity: **${mat.rarity}**\nType: **${makeCapital(mat.mattype)}**`
+        value: `Value: **${makePrettyNum(mat.value)}**c\nRarity: **${mat.rarity}**\nType: **${makeCapital(mat.mattype)}**`
     });
-    if (amount) displayObj.fields[0].value += `\nAmount: **${amount}**`;
+    if (amount) displayObj.fields[0].value += `\nAmount: **${makePrettyNum(amount)}**`;
 
     return displayObj;
 }
@@ -1244,6 +1244,7 @@ function loadTradeOrderExtraItemDetails(item, itemEXR, otherEXR){
 // }
 
 const itemLootList = require('../../../events/Models/json_prefabs/lootList.json');
+const { makePrettyNum } = require('../../../uniHelperFunctions');
 const { grabColour } = require('../../Game/exported/grabRar');
 
 /**

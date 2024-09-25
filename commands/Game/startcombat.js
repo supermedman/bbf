@@ -173,7 +173,7 @@ const { createNewEnemyImage } = require('./exported/displayEnemy');
 const { attackEnemy, handleActiveStatus, applyActiveStatus } = require('../Development/Export/combatContainer');
 
 const { handleEnemyMat } = require('../Development/Export/materialFactory');
-const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, dropChance} = require('../../uniHelperFunctions');
+const {endTimer, sendTimedChannelMessage, createInteractiveChannelMessage, grabUser, dropChance, makePrettyNum} = require('../../uniHelperFunctions');
 const { handleUserPayout } = require('../Development/Export/uni_userPayouts');
 const { rollRandBlueprint } = require('../Development/Export/blueprintFactory.js');
 
@@ -459,7 +459,7 @@ module.exports = {
 
             await handleUserPayout(xpGain, coinGain, interaction, user);
 
-            if (dropChance(0.98)){
+            if (dropChance(0.92)){
                 await rollRandBlueprint(user, interaction.client.masterBPCrafts, interaction);
             }
 
@@ -507,9 +507,11 @@ module.exports = {
             .setColor(0o0)
             .setDescription("Your rewards: ")
             .addFields(
-                {name: "Xp Gained: ", value: `${xpGain}`, inline: true},
-                {name: "Coins Gained: ", value: `${coinGain}c`, inline: true}
+                {name: "Xp Gained: ", value: `${makePrettyNum(xpGain)}`, inline: true},
+                {name: "Coins Gained: ", value: `${makePrettyNum(coinGain)}c`, inline: true}
             );
+
+            
 
             // Changing Button Access to the default. Progress can be boosted/restricted through other methods, this change intends to promote base player retention!
             const combReplyObj = {embeds: [killedEmbed], components: [eRow]};

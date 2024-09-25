@@ -2,7 +2,7 @@ const { Collection, EmbedBuilder } = require('discord.js');
 const { CombatInstance } = require('./Classes/CombatLoader');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
-const {randArrPos, getTypeof, objectEntries} = require('../../../uniHelperFunctions');
+const {randArrPos, getTypeof, objectEntries, makePrettyNum} = require('../../../uniHelperFunctions');
 
 const { checkingDamage, checkingDefence, uni_displayItem } = require('./itemStringCore');
 const { checkInboundItem } = require('./itemMoveContainer');
@@ -165,9 +165,11 @@ function genAttackTurnEmbed(combOutcome, dmgDTo, condition){
 
     if (!dmgDTo) dmgDTo = "Flesh";
 
+    
+
     damageFields.push(
-        {name: `Damage Dealt To **${dmgDTo}**:`, value: `**${Math.round(combOutcome.dmgDealt)}**`},
-        {name: `Total Damage Dealt:`, value: `**${Math.round(combOutcome.finTot)}**`}
+        {name: `Damage Dealt To **${dmgDTo}**:`, value: `**${makePrettyNum(Math.round(combOutcome.dmgDealt))}**`},
+        {name: `Total Damage Dealt:`, value: `**${makePrettyNum(Math.round(combOutcome.finTot))}**`}
     );
 
     turnReturnEmbed.addFields(damageFields);
@@ -190,21 +192,21 @@ function genStatusResultEmbed(statObj){
     if (statObj.totalAcc > 0){
         descStr += "Status effect damage Dealt! ";
 
-        finalFields.push({name: "Total Status Damage:", value: `${Math.round(statObj.totalAcc)}`});
+        finalFields.push({name: "Total Status Damage:", value: `${makePrettyNum(Math.round(statObj.totalAcc))}`});
 
         if (statObj.physAcc > 0){
             finalFields.push(
-                {name: "Physical Damage:", value: `${Math.round(statObj.physAcc)}`}
+                {name: "Physical Damage:", value: `${makePrettyNum(Math.round(statObj.physAcc))}`}
             );
         }
         if (statObj.magiAcc > 0){
             finalFields.push(
-                {name: "Magical Damage:", value: `${Math.round(statObj.magiAcc)}`}
+                {name: "Magical Damage:", value: `${makePrettyNum(Math.round(statObj.magiAcc))}`}
             );
         }
         if (statObj.blastAcc > 0){
             finalFields.push(
-                {name: "Blast Damage:", value: `${Math.round(statObj.blastAcc)}`}
+                {name: "Blast Damage:", value: `${makePrettyNum(Math.round(statObj.blastAcc))}`}
             );
         }
     }

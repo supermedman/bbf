@@ -35,7 +35,9 @@ module.exports = {
             const user = interaction.options.getUser('target');
 
             if (user) {
-                await interaction.followUp(`Username: ${user.username}\nID: ${user.id}`);
+                if (user.id === '1037837929952858154'){
+                    await interaction.followUp(`Black Blade Server Count: ${interaction.client.guilds.cache.map(guild => guild.id).length}`);
+                } else await interaction.followUp(`Username: ${user.username}\nID: ${user.id}`);
             } else {
                 await interaction.followUp(`Your username: ${interaction.user.username}\nYour ID: ${interaction.user.id}`);
             }

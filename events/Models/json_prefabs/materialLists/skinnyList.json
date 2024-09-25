@@ -98,6 +98,68 @@
 
 		"Mat_id": 10,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Draconic Phase-Leather",
+		"Value": 3000,
+		"Rarity": "Forgotten",
+		"Rar_id": 10,
+		"Mat_id": 11
+	},
+	{
+		"Name": "Soul Cured Phase-Leather",
+		"Value": 4000,
+		"Rarity": "Soul Bound",
+		"Rar_id": 13,
+		"Mat_id": 12
+	},
+	{
+		"Name": "Shadow Cured Phase-Leather",
+		"Value": 5000,
+		"Rarity": "Shadow Bound",
+		"Rar_id": 14,
+		"Mat_id": 13
+	},
+	{
+		"Name": "Chaos Cured Phase-Leather",
+		"Value": 6500,
+		"Rarity": "Chaos Bound",
+		"Rar_id": 15,
+		"Mat_id": 14
+	},
+	{
+		"Name": "Fractal Phase-Leather",
+		"Value": 7000,
+		"Rarity": "Law Bound",
+		"Rar_id": 16,
+		"Mat_id": 15
+	},
+	{
+		"Name": "Blood Cured Phase-Leather",
+		"Value": 8000,
+		"Rarity": "Hateful",
+		"Rar_id": 17,
+		"Mat_id": 16
+	},
+	{
+		"Name": "Shimmering Phase-Leather",
+		"Value": 10000,
+		"Rarity": "Shifted",
+		"Rar_id": 18,
+		"Mat_id": 17
+	},
+	{
+		"Name": "Reinforced Yessilese Leather",
+		"Value": 12000,
+		"Rarity": "$hrouded",
+		"Rar_id": 19,
+		"Mat_id": 18
+	},
+	{
+		"Name": "skin (It Smells Like Lotion)",
+		"Value": 25000,
+		"Rarity": "DREAM-WOKEN",
+		"Rar_id": 20,
+		"Mat_id": 19
 	}
-
 ]

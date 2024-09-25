@@ -78,6 +78,7 @@ module.exports = {
 				switch(idSplits[0]){
 					case "slot":
 						cPicked = makeCapital(idSplits[1]);
+						confirmChoiceEmbed.setTitle(`== YOU PICKED ${cPicked}, ARE YOU SURE ABOUT THAT ==`);
 						editWith = confirmReply;
 					break;
 					case "confirm":

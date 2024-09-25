@@ -98,6 +98,68 @@
 
 		"Mat_id": 10,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Draconic Bone",
+		"Value": 3000,
+		"Rarity": "Forgotten",
+		"Rar_id": 10,
+		"Mat_id": 11
+	},
+	{
+		"Name": "Willo-the-wisp",
+		"Value": 4000,
+		"Rarity": "Soul Bound",
+		"Rar_id": 13,
+		"Mat_id": 12
+	},
+	{
+		"Name": "Corrupted Wisp",
+		"Value": 5000,
+		"Rarity": "Shadow Bound",
+		"Rar_id": 14,
+		"Mat_id": 13
+	},
+	{
+		"Name": "Chaos Wisp",
+		"Value": 6500,
+		"Rarity": "Chaos Bound",
+		"Rar_id": 15,
+		"Mat_id": 14
+	},
+	{
+		"Name": "Focused Wisp",
+		"Value": 7000,
+		"Rarity": "Law Bound",
+		"Rar_id": 16,
+		"Mat_id": 15
+	},
+	{
+		"Name": "Blood Wisp",
+		"Value": 8000,
+		"Rarity": "Hateful",
+		"Rar_id": 17,
+		"Mat_id": 16
+	},
+	{
+		"Name": "Ambiguous Matter",
+		"Value": 10000,
+		"Rarity": "Shifted",
+		"Rar_id": 18,
+		"Mat_id": 17
+	},
+	{
+		"Name": "Factory Core",
+		"Value": 12000,
+		"Rarity": "$hrouded",
+		"Rar_id": 19,
+		"Mat_id": 18
+	},
+	{
+		"Name": "meat",
+		"Value": 25000,
+		"Rarity": "DREAM-WOKEN",
+		"Rar_id": 20,
+		"Mat_id": 19
 	}
-
 ]

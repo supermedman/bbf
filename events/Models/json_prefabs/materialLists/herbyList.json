@@ -98,6 +98,68 @@
 
 		"Mat_id": 10,
 		"Spec_id": 0
+	},
+	{
+		"Name": "Phaseroot Salve",
+		"Value": 3000,
+		"Rarity": "Forgotten",
+		"Rar_id": 10,
+		"Mat_id": 11
+	},
+	{
+		"Name": "Rooted Soul",
+		"Value": 4000,
+		"Rarity": "Soul Bound",
+		"Rar_id": 13,
+		"Mat_id": 12
+	},
+	{
+		"Name": "Rooted Lightsbane",
+		"Value": 5000,
+		"Rarity": "Shadow Bound",
+		"Rar_id": 14,
+		"Mat_id": 13
+	},
+	{
+		"Name": "Rooted Chaosleaf",
+		"Value": 6500,
+		"Rarity": "Chaos Bound",
+		"Rar_id": 15,
+		"Mat_id": 14
+	},
+	{
+		"Name": "Rooted Scaleleaf",
+		"Value": 7000,
+		"Rarity": "Law Bound",
+		"Rar_id": 16,
+		"Mat_id": 15
+	},
+	{
+		"Name": "Rooted Bloodleaf",
+		"Value": 8000,
+		"Rarity": "Hateful",
+		"Rar_id": 17,
+		"Mat_id": 16
+	},
+	{
+		"Name": "Yutlid Blossom",
+		"Value": 10000,
+		"Rarity": "Shifted",
+		"Rar_id": 18,
+		"Mat_id": 17
+	},
+	{
+		"Name": "Phaseslag Blossom",
+		"Value": 12000,
+		"Rarity": "$hrouded",
+		"Rar_id": 19,
+		"Mat_id": 18
+	},
+	{
+		"Name": "leaves",
+		"Value": 25000,
+		"Rarity": "DREAM-WOKEN",
+		"Rar_id": 20,
+		"Mat_id": 19
 	}
-
 ]

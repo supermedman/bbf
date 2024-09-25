@@ -42,6 +42,15 @@ const inclusiveRandNum = (max, min) => {
  */
 const makeCapital = (str) => { return str.charAt(0).toUpperCase() + str.slice(1) };
 
+/**
+ * This function formats the given number as `0,000`
+ * @param {number} n Number to be format
+ * @returns {string} Formated Number as String
+ */
+const makePrettyNum = n => {
+    return new Intl.NumberFormat('en-US').format(n);
+};
+
 const checkLootDrop = (pigmy, user) => {
     let chanceToBeat = 0.850;
     if (user.pClass === 'Thief') chanceToBeat -= 0.10;
@@ -424,7 +433,7 @@ async function createInteractiveChannelMessage(interaction, timeLimit, contents,
             anchorMsg = await interaction.followUp(replyObject);
         break;
         case "Reply":
-            anchorMsg = await interaction.reply(replyObject);
+            anchorMsg = await interaction.reply({ ...replyObject, fetchReply: true }); // Inject { ...replyObject, fetchReply: true } to force type anchorMsg as MessageObject
         break;
         default:
             anchorMsg = await interaction.channel.send(replyObject);
@@ -605,6 +614,7 @@ module.exports = {
     rollChance,
     dropChance,
     makeCapital,
+    makePrettyNum,
     checkLootDrop,
     checkLootUP,
     endTimer,
