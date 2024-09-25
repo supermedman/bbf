@@ -15,10 +15,10 @@ const { checkHintLootSell, checkHintLootDismantle, checkHintMaterialCombine, che
 
 const { UserData, LootStore, MaterialStore, OwnedPotions, OwnedTools, UniqueCrafted, ItemStrings } = require('../../dbObjects.js');
 const { uni_displayItem, retrieveRarKeyStorage } = require('../Development/Export/itemStringCore.js');
-const { createInteractiveChannelMessage, sendTimedChannelMessage, makeCapital, handleCatchDelete } = require('../../uniHelperFunctions.js');
+const { createInteractiveChannelMessage, sendTimedChannelMessage, makeCapital, handleCatchDelete, makePrettyNum } = require('../../uniHelperFunctions.js');
 const { NavMenu } = require('../Development/Export/Classes/NavMenu.js');
 const { convertOldMatStore } = require('./exported/materialContainer.js');
-const { rarityLimiter } = require('../../uniDisplayFunctions.js');
+const { rarityLimiter, loadDefaultPagingButtonActionRow } = require('../../uniDisplayFunctions.js');
 const { Op } = require('sequelize');
 
 module.exports = {
@@ -56,6 +56,60 @@ module.exports = {
         await interaction.deferReply();
 
         const user = await UserData.findOne({where: {userid: interaction.user.id}});
+
+        // Inventory Menu Navigation Layout
+        // ==~~                        ~~==
+
+        // GEAR
+        // ====
+        // Basic Display: All owned gear / 6 per page
+        // Advanced Options: (FILTER, SORT)
+        // ================
+        
+        // FILTER: BY
+        // Basic: (Rar, Slot, Hands)
+        // Advanced: (Range(Value, DMG/DEF), DMG/DEF Type, Dismantle Type(s))
+        // ~~==~~
+
+        // SORT: BY
+        // Basic: (Rar, Slot, Hands, Amount, Value, Name?)
+        // ~==~
+
+        // MATERIALS
+        // =========
+        // Basic Display: Rar 0-9 / 1 Page per type
+        // Advanced Display: Rar 10-20 / 1 page per type (excluding Unique)
+        // Button Toggle to switch between display types?
+
+        // POTIONS
+        // =======
+        // Basic Display: 1 Page per potion
+        // Advanced Options: (FILTER, SORT)
+        // ================
+        
+        // FILTER: BY
+        // Basic: (Rar, Type)
+        // Advanced: (Amount, Value?, CD/Duration?, Active??)
+        // ~~==~~
+
+        // SORT: BY
+        // Basic: (Rar, Type, Amount, Value?, CD/Duration?, Active??)
+        // ~==~
+
+        // TOOLS
+        // =====
+        // Basic Display: 1 page per tool
+        // Advanced Options: (FILTER, SORT)
+        // ================
+
+        // FILTER: BY
+        // Basic: (Rar, Type)
+        // Advanced: (Amount, Value?)
+        // ~~==~~
+
+        // SORT: BY
+        // Basic: (Rar, Type, Amount, Value?)
+        // ~==~
 
         let usePagination = false;
         const finalPages = [];
@@ -112,46 +166,6 @@ module.exports = {
                     const {basic, advanced} = handleConvertedMaterialDisplay(userMatTypeObj, key);
                     finalPages.push(...basic);
                 }
-
-
-
-                // const fullUserMatList = await MaterialStore.findAll({where: {spec_id: interaction.user.id}});
-                // if (fullUserMatList.length === 0) return interaction.followUp("No Materials Found! Defeat an enemy to receive materials!");
-                // if (fullUserMatList.length > 10) await checkHintMaterialCombine(user, interaction);
-                // usePagination = true;
-
-                // for (const [key, value] of materialFiles){
-                //     const matType = key;
-                //     const matEmbed = new EmbedBuilder()
-                //     .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
-
-                //     const matList = require(value);
-                //     matList.sort((a,b) => a.Rar_id - b.Rar_id);
-
-                //     const refListLength = matList.length;
-                //     let missingAll = false;
-
-                //     const matchingOwnedMats = (key === "unique") 
-                //     ? fullUserMatList.filter(mat => mat.rar_id === 12)
-                //     : fullUserMatList.filter(mat => mat.mattype === key);
-                //     if (matchingOwnedMats.length === 0) missingAll = true;
-
-                //     const orderedUMats = new Array(refListLength);
-                //     if (!missingAll){
-                //         let counter = 0;
-                //         for (const matRef of matList){
-                //             orderedUMats[counter] = (key === "unique") 
-                //             ? matchingOwnedMats.filter(mat => mat.mattype === matRef.UniqueMatch)[0] ?? matRef.Rar_id
-                //             : matchingOwnedMats.filter(mat => mat.rar_id === matRef.Rar_id)[0] ?? matRef.Rar_id;
-                //             counter++;
-                //         }
-                //     }
-
-                //     const matFields = await handleMaterialDisplay(orderedUMats, matList, missingAll);
-                //     matEmbed.addFields(matFields);
-                    
-                //     finalPages.push(matEmbed);
-                // }
             break;
             case "potions":
                 const fullUserPotList = await OwnedPotions.findAll({where: {spec_id: interaction.user.id}});
@@ -220,27 +234,10 @@ module.exports = {
             return await sendTimedChannelMessage(interaction, 120000, finalReply, "FollowUp");
         }
 
-        const backPage = new ButtonBuilder()
-        .setLabel("Back")
-        .setStyle(ButtonStyle.Primary)
-        .setEmoji('◀️')
-        .setCustomId('back-page');
+        // Default Button Order: Backwards, Cancel, Forwards
+        const pagingRow = loadDefaultPagingButtonActionRow(true);
 
-        const cancelButton = new ButtonBuilder()
-        .setLabel("Cancel")
-        .setStyle(ButtonStyle.Danger)
-        .setEmoji('*️⃣')
-        .setCustomId('delete-page');
-
-        const nextPage = new ButtonBuilder()
-        .setLabel("Forward")
-        .setStyle(ButtonStyle.Primary)
-        .setEmoji('▶️')
-        .setCustomId('next-page');
-
-        const pageButtonRow = new ActionRowBuilder().addComponents(backPage, cancelButton, nextPage);
-
-        const finalReply = {embeds: [finalPages[0]], components: [pageButtonRow]};
+        const finalReply = {embeds: [finalPages[0]], components: [pagingRow]};
 
         const pageNav = new NavMenu(user, finalReply);
         pageNav.loadPageDisplays({embeds: finalPages});
@@ -324,7 +321,7 @@ module.exports = {
 
             //console.log('MatType: ', matType);
             //if (matType === 'unique') console.log('Materials Stored @ matType: ', ownedMatsObj);
-
+            
             if (matType === 'unique'){
                 const uniDisplayEmbed = new EmbedBuilder()
                 .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
@@ -335,7 +332,7 @@ module.exports = {
                         acc.push({ name: 'Unknown material of **Unique** rarity:', value: 'Amount Owned: 0' });
                     } else {
                         const matMatch = materials.get(matType).find(m => m.UniqueMatch === k);
-                        acc.push({ name: `~= Unique Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${v}**` });
+                        acc.push({ name: `~= Unique Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${makePrettyNum(v)}**` });
                     }
                     return acc;
                 }, []);
@@ -362,7 +359,7 @@ module.exports = {
                     acc.push({ name: `Unknown material of **${basicRarNames[k]}** rarity:`, value: 'Amount Owned: 0' });
                 } else {
                     const matMatch = materials.get(matType).find(m => m.Rar_id === +k);
-                    acc.push({ name: `~= ${basicRarNames[k]} Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${v}**` })
+                    acc.push({ name: `~= ${basicRarNames[k]} Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${makePrettyNum(v)}**` })
                 }
                 return acc;
             }, []);
@@ -386,7 +383,7 @@ module.exports = {
                     acc.push({ name: `Unknown material of **${advancedRarNames[k]}** rarity:`, value: 'Amount Owned: 0' });
                 } else {
                     const matMatch = materials.get(matType).find(m => m.Rar_id === +k);
-                    acc.push({ name: `~= ${advancedRarNames[k]} Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${v}**` })
+                    acc.push({ name: `~= ${advancedRarNames[k]} Material =~`, value: `Name: **__${matMatch.Name}__**\nAmount Owned: **${makePrettyNum(v)}**` })
                 }
                 return acc;
             }, []);

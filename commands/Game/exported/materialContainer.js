@@ -9,7 +9,7 @@ const { convertRarToID } = require("../../Development/Export/itemStringCore");
  * This function compiles any and all existing materials of `matType` owned by the interactions user into a single `key, value` prop object
  * @param {object} interaction Base SlashcommandInteraction
  * @param {string} matType Material Type to use
- * @returns {{[rarID:string]: number}}
+ * @returns {Promise<{[rarID:string]: number}>}
  */
 async function convertOldMatStore(interaction, matType){
     /**@typedef {{Name: string, Value: number, Rarity: string, Rar_id: number, Mat_id: number, UniqueMatch?: string}} MaterialFab*/

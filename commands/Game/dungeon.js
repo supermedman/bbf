@@ -129,7 +129,7 @@ module.exports = {
 			const lineList = ["None", "Souls", "Dark", "Torture", "Chaos", "Law", "Hate", "Myst", "Secret", "Dream"];
 			const nameList = ["None", "wadon", "dyvulla", "ados", "zimmir", "phamnera", "xogdia", "mien", "nizdea", "fayrn"];
 			
-			console.log(theDungeon);
+			console.log('DUNGEON LOADING: ', theDungeon.Name);
 
 			const maxStoryLine = lineList.indexOf(storyData.currentquestline);
 			const activeStory = (nameList.includes(nameGiven)) ? nameList.indexOf(nameGiven) : lineList.indexOf(storyData.currentquestline);

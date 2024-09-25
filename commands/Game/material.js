@@ -223,12 +223,20 @@ module.exports = {
 		function loadMaterialRarStringSelectRow(matMenu){
 			// LOAD FROM RAR LIST
 			const matTypeStaticList = interaction.client.materials.get(matMenu.specs.matType);
-			const highestStaticMatTypeRar = matTypeStaticList.sort((a, b) => b.Rar_id - a.Rar_id)[0].Rar_id; // + (matMenu.specs.actionType === 'combine')
+			let highestStaticMatTypeRar = matTypeStaticList.sort((a, b) => b.Rar_id - a.Rar_id)[0].Rar_id; // + (matMenu.specs.actionType === 'combine')
+			const menuActionType = matMenu.specs.actionType;
+
+			// Cap at rar 10 for now. Will be replaced with Boss progress unlock conditions
+			if (highestStaticMatTypeRar > 10){
+				if (menuActionType === 'combine'){
+					highestStaticMatTypeRar = 10;
+				} else highestStaticMatTypeRar = 9;
+			}
 			// IF COMB
 			// NO COMMON FOR COMB
 			const baseMatRarOptions = [];
 			for (const rn of loadFullRarNameList(highestStaticMatTypeRar)){
-				if (matMenu.specs.actionType === 'combine' && rn === 'Common') continue;
+				if (menuActionType === 'combine' && rn === 'Common') continue;
 				const option = new StringSelectMenuOptionBuilder()
 				.setValue(rn)
 				.setDescription(`${rn} ${makeCapital(matMenu.specs.matType)} material`)

@@ -19,7 +19,7 @@ const { grabRar, grabColour } = require('./exported/grabRar');
 const acToolEffects = require('../../events/Models/json_prefabs/acToolEffects.json');
 const pigmyList = require('../../events/Models/json_prefabs/pigmyList.json');
 const blueprintList = require('../../events/Models/json_prefabs/blueprintList.json');
-const { makeCapital, grabUser, grabActivePigmy, sendTimedChannelMessage, createConfirmCancelButtonRow, createInteractiveChannelMessage, handleCatchDelete, editTimedChannelMessage, randArrPos, inclusiveRandNum, endTimer } = require('../../uniHelperFunctions.js');
+const { makeCapital, grabUser, grabActivePigmy, sendTimedChannelMessage, createConfirmCancelButtonRow, createInteractiveChannelMessage, handleCatchDelete, editTimedChannelMessage, randArrPos, inclusiveRandNum, endTimer, makePrettyNum } = require('../../uniHelperFunctions.js');
 const { loadFullDismantleList, baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 const { checkInboundMat } = require('../Development/Export/itemMoveContainer.js');
 const { handleUserPayout, handlePigmyPayouts, pigLvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
@@ -1039,7 +1039,7 @@ module.exports = {
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){
-					if (!matDropObj.matRef.Rarity) console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
+					if (!matDropObj.matRef?.Rarity) console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
 					finalFields.push({
 						name: `~= ${matDropObj.matRef.Rarity} Material =~`,
 						value: `Name: **__${matDropObj.matRef.Name}__**\nAmount Dropped: **${matDropObj.amount}**`
@@ -1087,7 +1087,7 @@ module.exports = {
 				fields: [
 					{
 						name: "== Pigmy Rewards ==",
-						value: `XP: **${finalPigmyXP}**`
+						value: `XP: **${makePrettyNum(finalPigmyXP)}**`
 					},
 					{
 						name: "== Pigmy Happiness ==",
@@ -1095,7 +1095,7 @@ module.exports = {
 					},
 					{
 						name: "== Your Rewards ==",
-						value: `XP: **${finalPlayerXP}**\nCOIN: **${finalPlayerCoin}**c`
+						value: `XP: **${makePrettyNum(finalPlayerXP)}**\nCOIN: **${makePrettyNum(finalPlayerCoin)}**c`
 					}
 				]
 			};

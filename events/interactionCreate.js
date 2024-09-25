@@ -22,7 +22,7 @@ module.exports = {
 				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
 				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
 				
-				const rollNpc = 0.998, rolled = Math.random();
+				const rollNpc = 0.989, rolled = Math.random();
 				if (rolled >= rollNpc) spawnNpc(userCheck, interaction);
 			}
 

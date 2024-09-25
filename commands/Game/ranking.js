@@ -8,6 +8,7 @@ const {
 	specialInfoForm
 } = require('../../chalkPresets.js');
 const { UserData } = require('../../dbObjects');
+const { makeCapital, makePrettyNum } = require('../../uniHelperFunctions.js');
 
 module.exports = {
 	helptypes: ['Info', 'Stats'],
@@ -42,6 +43,11 @@ module.exports = {
     },
 	async execute(interaction) { 
 		await interaction.deferReply();
+
+		// New Ranking Options
+		// ===================
+		// STATIC_CRAFTS, HOURS_QUESTED, STRONGEST_(WEAPON/OFFHAND/ARMOR)
+
 
 		//if (interaction.user.id !== '501177494137995264') return interaction.followUp('This command is under construction, please check back later!');
 
@@ -130,7 +136,22 @@ module.exports = {
 				console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} ranking user: ${rankedUser.username} value ${rankedUser[`${whereValue}`]}`));
 
 				embedFieldName = `**RANK ${((userPos + 1))}**`;
-				embedFieldValue = `Name: **${rankedUser.username}**\n${whereValue}: **${rankedUser[`${whereValue}`]}**`;
+
+				/**
+				 * This function pretties up large numbers in the format `1,000,000`
+				 * @param {number | string} v The value used to rank the user
+				 * @returns {string}
+				 */
+				const applyPrettyFormat = v => {
+					if (isNaN(v)) return v;
+					const prettyV = makePrettyNum(v);
+					if (whereValue === 'coins') return prettyV + 'c';
+					return prettyV;
+				};
+
+				const rankedByValue = applyPrettyFormat(rankedUser[`${whereValue}`]);
+
+				embedFieldValue = `Name: **${makeCapital(rankedUser.username)}**\n${makeCapital(whereValue)}: **${rankedByValue}**`;
 
 				embedFieldObj = { name: embedFieldName.toString(), value: embedFieldValue.toString(), };
 				finalFields.push(embedFieldObj);
