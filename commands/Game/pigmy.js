@@ -1033,13 +1033,15 @@ module.exports = {
 			const matDisplayPages = [];
 			// Give materials to user, construct displays
 			for (const matTypeList of matCont.constructMatRefList(fullMatRollList)){
+				//console.log(matTypeList);
 				const matTypeEmbed = new EmbedBuilder()
 				.setTitle(`== ${makeCapital(matTypeList[0].matType)} Materials ==`)
 				.setColor(grabColour((matTypeList.at(-1)).matRef?.Rar_id) ?? 0o0);
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){
-					if (!matDropObj.matRef?.Rarity) console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
+					if (!matDropObj.matRef) throw new Error('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
+					//if (!matDropObj.matRef?.Rarity) console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
 					finalFields.push({
 						name: `~= ${matDropObj.matRef.Rarity} Material =~`,
 						value: `Name: **__${matDropObj.matRef.Name}__**\nAmount Dropped: **${matDropObj.amount}**`

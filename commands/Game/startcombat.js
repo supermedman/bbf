@@ -252,6 +252,10 @@ module.exports = {
                 await thePlayer.reloadInternals();
             }
 
+            if (thePlayer.internalEffects.potions.length === 0){
+                await thePlayer.preloadEffects(interaction);
+            }
+
             const user = await grabUser(interaction.user.id);
 
             const huntingCheck = handleHunting(user);
@@ -438,10 +442,11 @@ module.exports = {
             // ==========================
             // SETUP DB UPDATE QUE SYSTEM
             // ==========================
-            // Handle potions used
-            await player.checkPotionUse();
-            // Handle potion durations/cooldowns
-            await player.handlePotionCounters();
+            await player.updatePotionCounters(interaction);
+            // // Handle potions used
+            // await player.checkPotionUse();
+            // // Handle potion durations/cooldowns
+            // await player.handlePotionCounters();
             // Handle health updates
             await player.checkHealth();
             // Handle kill counts/combat tasks
@@ -618,7 +623,7 @@ module.exports = {
          * @param {EnemyFab} enemy EnemyFab Object
          */
         async function handlePotionUsed(player, enemy){
-            const outcome = await player.potionUsed();
+            const outcome = await player.potionUsed(interaction);
             // Handle active potion status entry
             
             const potEmbed = new EmbedBuilder()

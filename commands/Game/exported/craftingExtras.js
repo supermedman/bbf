@@ -26,11 +26,11 @@ async function handleControllerUpdateCheck(controller, user){
     const mileTracker = {
         endTracking: false,
         newID: idTracker,
-        maxRar: 1,
-        dropRar: 10,
-        useTooly: false,
-        maxTooly: 0,
-        rarTooly: 0,
+        maxRar: controller.max_rar,
+        dropRar: controller.drop_rar,
+        useTooly: controller.use_tooly,
+        maxTooly: controller.max_tooly,
+        rarTooly: controller.rar_tooly,
         ib1: false,
         ib2: false,
         casteOptions: "Class Type"
@@ -106,6 +106,10 @@ async function handleControllerUpdateCheck(controller, user){
             break;
             case "9":
                 if (!maxBoss || maxBoss < 6) {mileTracker.endTracking = true; break;}
+                // mileTracker.maxRar = 10;
+                // mileTracker.rarTooly = 10;
+                // mileTracker.maxTooly = 20;
+                // mileTracker.useTooly = true;
                 mileTracker.dropRar = 17;
                 // Check Forge
                 mileTracker.newID = 9;

@@ -6,7 +6,139 @@ const potCatEffects = require('../../../../events/Models/json_prefabs/activeCate
 const bpList = require('../../../../events/Models/json_prefabs/blueprintList.json');
 const { grabRar } = require('../../../Game/exported/grabRar');
 const { checkHintStats } = require('../../../Game/exported/handleHints');
-const {rollChance, dropChance} = require('../../../../uniHelperFunctions');
+const {rollChance, dropChance, makeCapital, sendTimedChannelMessage} = require('../../../../uniHelperFunctions');
+const { EmbedBuilder } = require('discord.js');
+
+/**@typedef {{name: string, d: number, cd: number, e: number, cat: string, expired: boolean}} BasePot */
+/**
+ * @typedef {{potions: BasePot[], upStat: {int: number, dex: number, str: number, spd: number}, upDmg: number, modDmg: number, pigUpMult: number, upDef: number, modDef: number, upExp: number, upCoin: number}} InternalEffects 
+ * */
+ // Loading Effects Object
+ const effectLoader = {
+    statPotType: ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"],
+    physPotType: ["Reinforce", "Attack", "Pigmy"],
+    gainPotType: ["EXP", "COIN"],
+    effectStateType: {
+        /**
+         * This method `Applies` the status effect to the `CombatInstance`
+         * @param {InternalEffects} obj Specific Property contained within `CombatInstance(this).InternalEffects`
+         * @param {number} eff Magnitude of the effect being applied
+         * @returns {number} Updated value
+         */
+        apply: (obj, eff) => obj += eff,
+        /**
+         * This method `Removes` the status effect from the `CombatInstance`
+         * @param {InternalEffects} obj Specific Property contained within `CombatInstance(this).InternalEffects`
+         * @param {number} eff Magnitude of the effect being applied
+         * @returns {number} Updated value
+         */
+        remove: (obj, eff) => obj -= eff
+    },
+    /**
+     * This method applies the given values to the given internalEffects which is by default the higher scoped `this`
+     * @param {string} potType Potion ActiveCategory
+     * @param {string} stateType One of `apply` || `remove`
+     * @param {InternalEffects} internalEffects CombatInstance.internalEffects Data
+     * @param {number} effect Magnitude of the effect to manage
+     * @returns {void}
+     */
+    matchType(potType, stateType, internalEffects, effect){
+        const appliedState = this.effectStateType[`${stateType}`];
+
+        console.log('Contents of appliedState(): ', appliedState);
+
+        if (this.statPotType.includes(potType)){
+            switch(potType){
+                case "Tons":
+                    internalEffects.upStat.str = appliedState(internalEffects.upStat.str, effect);
+                    internalEffects.upStat.spd = appliedState(internalEffects.upStat.spd, effect);
+                    internalEffects.upStat.dex = appliedState(internalEffects.upStat.dex, effect);
+                    internalEffects.upStat.int = appliedState(internalEffects.upStat.int, effect);
+                return;
+                case "Strength":
+                    internalEffects.upStat.str = appliedState(internalEffects.upStat.str, effect);
+                return;
+                case "Speed":
+                    internalEffects.upStat.spd = appliedState(internalEffects.upStat.spd, effect);
+                return;
+                case "Dexterity":
+                    internalEffects.upStat.dex = appliedState(internalEffects.upStat.dex, effect);
+                return;
+                case "Intelligence":
+                    internalEffects.upStat.int = appliedState(internalEffects.upStat.int, effect);
+                return;
+            }
+        }
+
+        if (this.physPotType.includes(potType)){
+            switch(potType){
+                case "Reinforce":
+                    internalEffects.upDef = appliedState(internalEffects.upDef, effect);
+                return;
+                case "Attack":
+                    internalEffects.upDmg = appliedState(internalEffects.upDmg, effect);
+                return;
+                case "Pigmy":
+                    internalEffects.pigUpMult = appliedState(internalEffects.pigUpMult, effect);
+                return;
+            }
+        }   
+
+        if (this.gainPotType.includes(potType)){
+            switch(potType){
+                case "EXP":
+                    internalEffects.upExp = appliedState(internalEffects.upExp, effect);
+                return;
+                case "COIN":
+                    internalEffects.upCoin = appliedState(internalEffects.upCoin, effect);
+                return;
+            }
+        }
+    },
+    handleLoad(activeEffect, player, interaction){
+        // Potion Blueprint effect Collection
+        /**@type {{Name: string, Duration: number, Cooldown: number, Strength: number}} */
+        const effectRef = interaction.client.masterBPEffects.get(activeEffect.name);
+
+        /**@type {BasePot} */
+        const loadedPot = {
+            name: activeEffect.name,
+            d: activeEffect.duration,
+            cd: activeEffect.cooldown,
+            e: effectRef.Strength,
+            cat: activeEffect.activec,
+            expired: activeEffect.duration <= 0
+        };
+
+        if (!loadedPot.expired) {
+            console.log('Loaded Potion Effect: ', loadedPot);
+            player.internalEffects.potions.push(loadedPot);
+            this.matchType(loadedPot.cat, "apply", player.internalEffects, loadedPot.e);
+        }
+    },
+    handleUse(potion, player, interaction, isHealing=false){
+        // Potion Blueprint effect Collection
+        /**@type {{Name: string, Duration: number, Cooldown: number, Strength: number}} */
+        const effectRef = interaction.client.masterBPEffects.get(potion.name);
+
+        /**@type {BasePot} */
+        const loadedPot = {
+            name: potion.name,
+            d: effectRef.Duration,
+            cd: effectRef.Cooldown,
+            e: effectRef.Strength,
+            cat: potion.activeCat,
+            expired: false
+        };
+
+        player.internalEffects.potions.push(loadedPot);
+
+        if (!isHealing) {
+            this.matchType(loadedPot.cat, "apply", player.internalEffects, loadedPot.e);
+            return loadedPot;
+        }
+    }
+};
 
 class CombatInstance {
     constructor(user){
@@ -15,7 +147,10 @@ class CombatInstance {
         this.health = 100;
         this.totalStats;
         this.staticStats;
-        // Modifiers from potions, and any other external influences.
+        /** 
+         * Modifiers from potions, and any other external influences.
+         * @type {InternalEffects} 
+         * */
         this.internalEffects = {
             potions: [], // Currently tracked effects from potions
             upStat: {
@@ -77,113 +212,308 @@ class CombatInstance {
         this.removePending = false;
     }
 
+    
     /**
-     * This method handles the effect of using the currently equipped potion
-     * @returns {Promise <{title: string, desc: string, type: string}>}
+     * This method should only be called upon a CombatInstance being newly created, it should also only be called once!
+     * @param {object} interaction Base Discord Interaction Object
+     * @returns {Promise<void>}
      */
-    async potionUsed(){
-        // Create new potion effect entry internally.
-        if (this.potion.activeCat === "Healing"){
-            if (this.health === this.maxHealth) return {title: "Potion Not Used", desc: "Full Health", type: "Heal"};
-            if ((this.health + this.potion.effectApplied) > this.maxHealth){
-                this.health = this.maxHealth;
-            } else this.health += this.potion.effectApplied;
-            this.potion.amount -= 1;
-            this.drinkPotion();
-            this.onCooldown();
-            return {title: "Potion Used", desc: `Healed for ${this.potion.effectApplied}`, type: "Heal"};
+    async preloadEffects(interaction){
+        const userActiveEffects = await ActiveStatus.findAll({where: {spec_id: this.userId}});
+        if (!userActiveEffects.length) return; // No active effects
+
+        if (this.potion.id !== '0'){
+            const activeEffectNames = userActiveEffects.map(ae => ae.name);
+            if (activeEffectNames.includes(this.potion.name)){
+                this.potion.isCooling = true;
+                this.potion.cCount = (userActiveEffects.find(ae => ae.name === this.potion.name)).cooldown;
+            }
         }
 
-        /**
-         *      == Potion Types ==
-         * 
-         *      - All stat up
-         *      - Single stat up
-         * 
-         *      - Defence up
-         *      - Attack up
-         * 
-         *      - Xp up
-         *      - Coin up
-         * 
-         *      - other??
-         * 
-         * @prop {number} d Potion duration
-         * @prop {number} e Effect Strength
-         * @prop {string} cat Effect category/target for modifying
-         */
-        const potObj = {name: this.potion.name, d: this.potion.duration, e: this.potion.effectApplied, cat: this.potion.activeCat, expired: false};
-        let effectDisplay;
-        // Create type filter
-        const statModList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
-        const physModList = ["Reinforce", "Attack", "Pigmy"];
-        const gainModList = ["EXP", "COIN"];
-        if (statModList.indexOf(potObj.cat) !== -1){
+        console.log('LOADING STATUS EFFECTS!!');
+
+        for (const effect of userActiveEffects){
+            effectLoader.handleLoad(effect, this, interaction);
+        }
+        return;
+    }
+
+    /**
+     * This method is called internally whenever a `ActiveStatus` expires when updating potion counters
+     * @ param {object} interaction Base Discord Interaction Object
+     * @returns {Promise<void>}
+     */
+    async updateEffects(){
+        const expiredPotions = this.internalEffects.potions.filter(p => p.expired);
+        if (expiredPotions.length === 0) return;
+
+        for (const pot of expiredPotions){
+            // const storedEffect = await ActiveStatus.findOne({where: {spec_id: this.userId, name: pot.name}});
+            // if (!storedEffect) continue;
+            // await storedEffect.destroy();
+            effectLoader.matchType(pot.cat, 'remove', this.internalEffects, pot.e);
+        }
+
+        this.internalEffects.potions = this.internalEffects.potions.filter(p => !p.expired);
+    }
+
+    /**
+     * This method should be called anytime potion counters are to be updated, afterwards internal stats should be reloaded
+     * @param {object} interaction Base Discord Interaction Object
+     * @param {string} status To be used with condintional updates?!
+     * @returns {Promise<void>}
+     */
+    async updatePotionCounters(interaction, status){
+        if (status) console.log('Given Status: ', status);
+
+        if (this.potion.isCooling){
+            this.potion.cCount--;
+            if (this.potion.cCount <= 0) this.potion.isCooling = false;
+        }
+
+        const allStoredActiveEffects = await ActiveStatus.findAll({where: {spec_id: this.userId}});
+        const storedEffectsToCount = allStoredActiveEffects.filter(e => !["EXP", "COIN"].includes(e.activec));
+        if (!storedEffectsToCount.length) return;
+
+        const fadedEffectsList = [], cooledEffectsList = [], expiredEffectsList = [];
+        let runUpdateCycle = false;
+        for (const effect of storedEffectsToCount){
+            const entryUpdateObj = {cooldown: effect.cooldown, duration: effect.duration};
+            const matchingInternalPot = this.internalEffects.potions.find(p => p.name === effect.name);
+            if (entryUpdateObj.cooldown > 0) {
+                --entryUpdateObj.cooldown;
+                if (matchingInternalPot) --matchingInternalPot.cd;
+                if (entryUpdateObj.cooldown <= 0) cooledEffectsList.push(effect);
+            }
+            if (entryUpdateObj.duration > 0) {
+                --entryUpdateObj.duration;
+                if (matchingInternalPot) --matchingInternalPot.d;
+                if (entryUpdateObj.duration <= 0) {
+                    fadedEffectsList.push(effect);
+                    if (matchingInternalPot) matchingInternalPot.expired = true;
+                    runUpdateCycle = true;
+                }
+            }
+            if (entryUpdateObj.cooldown <= 0 && entryUpdateObj.duration <= 0){
+                // To be removed
+                expiredEffectsList.push(effect);
+                continue;
+            } else {
+                await effect.update(entryUpdateObj).then(async ae => await ae.save()).then(async ae => {return await ae.reload()});
+            }
+        }
+
+        if (fadedEffectsList.length > 0){
+            const potExpiredEmbed = new EmbedBuilder()
+            .setTitle('Effects wore off..')
+            .setColor('DarkOrange')
+            .setDescription(fadedEffectsList.map(p => `\`${makeCapital(p.name)}\``).join('\n'));
+
+            if (interaction) await sendTimedChannelMessage(interaction, 35000, potExpiredEmbed);
+        } else if (cooledEffectsList.length > 0){
+            const potCooledEmbed = new EmbedBuilder()
+            .setTitle('Potions can be used again!')
+            .setColor('DarkAqua')
+            .setDescription(cooledEffectsList.map(p => `\`${makeCapital(p.name)}\``).join('\n'));
+
+            if (interaction) await sendTimedChannelMessage(interaction, 35000, potCooledEmbed);
+        }
+
+        if (expiredEffectsList.length > 0){
+            for (const expiredEff of expiredEffectsList){
+                await expiredEff.destroy();
+            }
+        } 
+        
+        if (runUpdateCycle) await this.updateEffects();
+    }
+
+    /**
+     * This method handles the effect of using the currently equipped potion
+     * @param {object} interaction Base Discord Slash Command Interaction Object
+     * @returns {Promise <{title: string, desc: string, type: string}>}
+     */
+    async potionUsed(interaction){
+        const potionDisplay = {title: "Potion Not Used", desc: "Full Health", type: "Heal"};
+
+        if (this.potion.activeCat === "Healing"){
+            // Handle slightly differently
+            if (this.health === this.maxHealth) return potionDisplay;
+            if (this.health + this.potion.effectApplied > this.maxHealth){
+                this.health = this.maxHealth;
+            } else this.health += this.potion.effectApplied;
+            potionDisplay.title = "Potion Used";
+            potionDisplay.desc = `Healed for ${this.potion.effectApplied}`;
+            effectLoader.handleUse(this.potion, this, interaction, true);
+            await this.drinkPotion();
+            return potionDisplay;
+        }
+
+        // Load potion equipped as new internal effect entry and retrieve potObj
+        const potObj = effectLoader.handleUse(this.potion, this, interaction);
+        // Set Display to standard values
+        potionDisplay.title = "Potion Used";
+        potionDisplay.type = potObj.cat;
+
+        const statDisplayList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
+        const physDisplayList = ["Reinforce", "Attack", "Pigmy"];
+        const gainDisplayList = ["EXP", "COIN"];
+        if (statDisplayList.indexOf(potObj.cat) !== -1){
             // Effects Stats
             switch(potObj.cat){
                 case "Tons":
-                    this.internalEffects.upStat.str += potObj.e;
-                    this.internalEffects.upStat.spd += potObj.e;
-                    this.internalEffects.upStat.dex += potObj.e;
-                    this.internalEffects.upStat.int += potObj.e;
-                    effectDisplay = `All Stats: +**${potObj.e}**`;
+                    potionDisplay.desc = `All Stats: +**${potObj.e}**`;
                 break;
                 case "Strength":
-                    this.internalEffects.upStat.str += potObj.e;
-                    effectDisplay = `Strength: +**${potObj.e}**`;
+                    potionDisplay.desc = `Strength: +**${potObj.e}**`;
                 break;
                 case "Speed":
-                    this.internalEffects.upStat.spd += potObj.e;
-                    effectDisplay = `Speed: +**${potObj.e}**`;
+                    potionDisplay.desc = `Speed: +**${potObj.e}**`;
                 break;
                 case "Dexterity":
-                    this.internalEffects.upStat.dex += potObj.e;
-                    effectDisplay = `Dexterity: +**${potObj.e}**`;
+                    potionDisplay.desc = `Dexterity: +**${potObj.e}**`;
                 break;
                 case "Intelligence":
-                    this.internalEffects.upStat.int += potObj.e;
-                    effectDisplay = `Intelligence: +**${potObj.e}**`;
+                    potionDisplay.desc = `Intelligence: +**${potObj.e}**`;
                 break;
             }
-        }
-        if (physModList.indexOf(potObj.cat) !== -1){
+        } else if (physDisplayList.indexOf(potObj.cat) !== -1){
             // Effects damage or defence
             switch(potObj.cat){
                 case "Reinforce":
-                    this.internalEffects.upDef += potObj.e;
-                    effectDisplay = `Base Defence: +**${potObj.e}** DEF`;
+                    potionDisplay.desc = `Base Defence: +**${potObj.e}** DEF`;
                 break;
                 case "Attack":
-                    this.internalEffects.upDmg += potObj.e;
-                    effectDisplay = `Base Damage: +**${potObj.e}** DMG`;
+                    potionDisplay.desc = `Base Damage: +**${potObj.e}** DMG`;
                 break;
                 case "Pigmy":
-                    this.internalEffects.pigUpMult += potObj.e;
-                    effectDisplay = `Pigmy Damage Multiplier: x**${potObj.e}**`;
+                    potionDisplay.desc = `Pigmy Damage Multiplier: x**${potObj.e}**`;
                 break;
             }
-        }
-        if (gainModList.indexOf(potObj.cat) !== -1){
+        } else if (gainDisplayList.indexOf(potObj.cat) !== -1){
             // Effects xp or coins
             switch(potObj.cat){
                 case "EXP":
-                    this.internalEffects.upExp += potObj.e;
-                    effectDisplay = `XP Gained: x**${1 + potObj.e}**`;
+                    potionDisplay.desc = `XP Gained: x**${1 + potObj.e}**`;
                 break;
                 case "COIN":
-                    this.internalEffects.upCoin += potObj.e;
-                    effectDisplay = `Coins Gained: x**${1 + potObj.e}**`;
+                    potionDisplay.desc = `Coins Gained: x**${1 + potObj.e}**`;
                 break;
             }
         }
-        this.internalEffects.potions.push(potObj);
+
+        // Add !
+        potionDisplay.desc += '!';
+        
+        // Reload Basic stats accounting for potion used
+        await this.#loadBasicStats();
+        // Consume potion handling cooldown applied, creating status entry, and updating all needed values
+        await this.drinkPotion();
+        // Return display for User Feedback
+        return potionDisplay;
+
+        // Create new potion effect entry internally.
+        // if (this.potion.activeCat === "Healing"){
+        //     if (this.health === this.maxHealth) return {title: "Potion Not Used", desc: "Full Health", type: "Heal"};
+        //     if ((this.health + this.potion.effectApplied) > this.maxHealth){
+        //         this.health = this.maxHealth;
+        //     } else this.health += this.potion.effectApplied;
+        //     this.potion.amount -= 1;
+        //     this.drinkPotion();
+        //     this.onCooldown();
+        //     return {title: "Potion Used", desc: `Healed for ${this.potion.effectApplied}`, type: "Heal"};
+        // }
+
+        // /**
+        //  *      == Potion Types ==
+        //  * 
+        //  *      - All stat up
+        //  *      - Single stat up
+        //  * 
+        //  *      - Defence up
+        //  *      - Attack up
+        //  * 
+        //  *      - Xp up
+        //  *      - Coin up
+        //  * 
+        //  *      - other??
+        //  * 
+        //  * @prop {number} d Potion duration
+        //  * @prop {number} e Effect Strength
+        //  * @prop {string} cat Effect category/target for modifying
+        //  */
+        // // const potObj = {name: this.potion.name, d: this.potion.duration, e: this.potion.effectApplied, cat: this.potion.activeCat, expired: false};
+        // let effectDisplay;
+        // // Create type filter
+        // const statModList = ["Tons", "Strength", "Speed", "Dexterity", "Intelligence"];
+        // const physModList = ["Reinforce", "Attack", "Pigmy"];
+        // const gainModList = ["EXP", "COIN"];
+        // if (statModList.indexOf(potObj.cat) !== -1){
+        //     // Effects Stats
+        //     switch(potObj.cat){
+        //         case "Tons":
+        //             this.internalEffects.upStat.str += potObj.e;
+        //             this.internalEffects.upStat.spd += potObj.e;
+        //             this.internalEffects.upStat.dex += potObj.e;
+        //             this.internalEffects.upStat.int += potObj.e;
+        //             effectDisplay = `All Stats: +**${potObj.e}**`;
+        //         break;
+        //         case "Strength":
+        //             this.internalEffects.upStat.str += potObj.e;
+        //             effectDisplay = `Strength: +**${potObj.e}**`;
+        //         break;
+        //         case "Speed":
+        //             this.internalEffects.upStat.spd += potObj.e;
+        //             effectDisplay = `Speed: +**${potObj.e}**`;
+        //         break;
+        //         case "Dexterity":
+        //             this.internalEffects.upStat.dex += potObj.e;
+        //             effectDisplay = `Dexterity: +**${potObj.e}**`;
+        //         break;
+        //         case "Intelligence":
+        //             this.internalEffects.upStat.int += potObj.e;
+        //             effectDisplay = `Intelligence: +**${potObj.e}**`;
+        //         break;
+        //     }
+        // }
+        // if (physModList.indexOf(potObj.cat) !== -1){
+        //     // Effects damage or defence
+        //     switch(potObj.cat){
+        //         case "Reinforce":
+        //             this.internalEffects.upDef += potObj.e;
+        //             effectDisplay = `Base Defence: +**${potObj.e}** DEF`;
+        //         break;
+        //         case "Attack":
+        //             this.internalEffects.upDmg += potObj.e;
+        //             effectDisplay = `Base Damage: +**${potObj.e}** DMG`;
+        //         break;
+        //         case "Pigmy":
+        //             this.internalEffects.pigUpMult += potObj.e;
+        //             effectDisplay = `Pigmy Damage Multiplier: x**${potObj.e}**`;
+        //         break;
+        //     }
+        // }
+        // if (gainModList.indexOf(potObj.cat) !== -1){
+        //     // Effects xp or coins
+        //     switch(potObj.cat){
+        //         case "EXP":
+        //             this.internalEffects.upExp += potObj.e;
+        //             effectDisplay = `XP Gained: x**${1 + potObj.e}**`;
+        //         break;
+        //         case "COIN":
+        //             this.internalEffects.upCoin += potObj.e;
+        //             effectDisplay = `Coins Gained: x**${1 + potObj.e}**`;
+        //         break;
+        //     }
+        // }
+        // this.internalEffects.potions.push(potObj);
         // Update needed values.
         // Recalculate basic stat outcomes
-        await this.#loadBasicStats();
-        this.potion.amount -= 1;
-        this.drinkPotion();
-        this.onCooldown();
-        return {title: "Potion Used", desc: `${effectDisplay}!`, type: potObj.cat};
+        // await this.#loadBasicStats();
+        // // this.potion.amount -= 1;
+        // this.drinkPotion();
+        // // this.onCooldown();
+        // return {title: "Potion Used", desc: `${effectDisplay}!`, type: potObj.cat};
     }
 
     async potionExpired(){
@@ -255,7 +585,7 @@ class CombatInstance {
     async #clearExpiredPotions(potList){
         for (const pot of potList){
             const potRef = await ActiveStatus.findOne({where: {name: pot.name, spec_id: this.userId}});
-            await potRef.destroy().then(async pr => {return await pr.reload()});
+            await potRef.destroy(); //.then(async pr => {return await pr.reload()});
         }
     }
 
@@ -284,6 +614,9 @@ class CombatInstance {
     }
 
     async drinkPotion(){
+        this.potion.amount -= 1;
+        this.onCooldown();
+
         const p = await OwnedPotions.findOne({
             where: {
                 spec_id: this.userId, 
@@ -292,15 +625,31 @@ class CombatInstance {
         });
 
         // Handle creating status effect.
-        await ActiveStatus.create({
-            name: p.name,
-            curreffect: this.potion.effectApplied,
-            activec: p.activecategory,
-            duration: p.duration,
-            cooldown: p.cooldown,
-            potionid: this.potion.id,
-            spec_id: this.userId
-        }).then(async s => await s.save()).then(async s => {return await s.reload()});
+        let theStatus = await ActiveStatus.findOrCreate({
+            where: {
+                potionid: this.potion.id,
+                spec_id: this.userId
+            },
+            defaults: {
+                name: p.name,
+                curreffect: this.potion.effectApplied,
+                activec: p.activecategory,
+                duration: p.duration,
+                cooldown: p.cooldown,
+            }
+        });
+
+        if (theStatus[1]){
+            theStatus[0].update({
+                name: p.name,
+                curreffect: this.potion.effectApplied,
+                activec: p.activecategory,
+                duration: p.duration,
+                cooldown: p.cooldown,
+            }).then(async s => await s.save()).then(async s => {return await s.reload()});
+        }
+
+        theStatus = theStatus[0];
 
         await p.decrement('amount', {by: 1}).then(async pot => {return await pot.reload();});
         
@@ -585,6 +934,10 @@ class CombatInstance {
         if (this.potion.id !== 0){
             if (this.potion.id === potID){
                 const potCheck = await OwnedPotions.findOne({where: {spec_id: this.userId, potion_id: potID}});
+                if (!potCheck) {
+                    this.potion.amount = 0;
+                    return;
+                }
                 if (this.potion.amount !== potCheck.amount) this.potion.amount = potCheck.amount;
                 return;
             }

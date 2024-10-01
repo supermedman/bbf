@@ -22,7 +22,8 @@ const {
 	handleCatchDelete, 
 	endTimer, 
 	dropChance,
-	inclusiveRandNum
+	inclusiveRandNum,
+	makePrettyNum
 } = require('../../uniHelperFunctions.js');
 const { 
 	loadPlayer, 
@@ -379,6 +380,10 @@ module.exports = {
                 await thePlayer.reloadInternals(true);
             }
 
+			if (thePlayer.internalEffects.potions.length === 0){
+                await thePlayer.preloadEffects(interaction);
+            }
+
 			const loadObj = thePlayer.loadout;
             thePlayer.staticDamage = loadDamageItems(loadObj.mainhand, loadObj.offhand);
             thePlayer.staticDefence = loadDefenceItems(loadObj);
@@ -438,6 +443,9 @@ module.exports = {
 						.setTitle('Enemy Defeated')
 						.setColor('Grey')
 						.setDescription('Next Enemy Spawned Automatically');
+						player.buttonState.hide.txt = "Escape!";
+						player.buttonState.hide.disable = true;
+
 						await sendTimedChannelMessage(interaction, 25000, enemyDefeatedEmbed);
 					}
 					
@@ -506,7 +514,7 @@ module.exports = {
 
 							// If mien choice active, send option button row, timeout on disabled buttons
 							const mienButtRow = loadMienChoice();
-							const mienReply = {embeds: [bossEmbeds[curLine]], components: mienButtRow, files: [thumbFile]};
+							const mienReply = {embeds: [bossEmbeds[curLine]], components: [mienButtRow], files: [thumbFile]};
 							
 							await anchorMsg.edit(mienReply);
 
@@ -635,7 +643,7 @@ module.exports = {
 				};
 
 				const payOutFields = [], unlockFields = [];
-				payOutFields.push({name: 'XP Gained: ', value: `${bossXP}`, inline: true}, {name: 'Coins Gained: ', value: `${bossCoin}c`, inline: true});
+				payOutFields.push({name: 'XP Gained: ', value: `${makePrettyNum(bossXP)}`, inline: true}, {name: 'Coins Gained: ', value: `${makePrettyNum(bossCoin)}c`, inline: true});
 
 				if (!checkPreComplete) {
 					// Plushie Blueprint
@@ -804,7 +812,7 @@ module.exports = {
 						case "RELOAD":
 							if (bossGen){
 								// Boss turns count as cooldown turns
-								await player.handlePotionCounters();
+								await player.updatePotionCounters(interaction, "boss turn");
 							}
 						return combatLooper(enemy, bossGen);
 					}
@@ -883,7 +891,7 @@ module.exports = {
 			 * @param {EnemyFab} enemy EnemyFab Object
 			 */
 			async function handlePotionUsed(player, enemy){
-				const outcome = await player.potionUsed();
+				const outcome = await player.potionUsed(interaction);
 				// Handle active potion status entry
 				
 				const potEmbed = new EmbedBuilder()

@@ -770,8 +770,8 @@
 		"Line_TwoC": "DarkRed",
 
 		"Level": 85,
-		"MinDmg": 500,
-		"MaxDmg": 750,
+		"MinDmg": 475,
+		"MaxDmg": 650,
 
 		"Body": "Boss",
 		"Body_HP": 25000,

@@ -53,7 +53,7 @@ module.exports = {
 
 		if (interaction.options.getSubcommand() === 'topten') {
 			const sortBy = interaction.options.getString('input');
-			console.log(specialInfoForm(`Ranking list requested: ${sortBy}`));
+			//console.log(specialInfoForm(`Ranking list requested: ${sortBy}`));
 
 			let whereValue;
 			let displayWhereValue;
@@ -90,7 +90,7 @@ module.exports = {
 			const topRankingUser = fullUserList.reduce((highest, user) => {
 				return (highest[`${whereValue}`] || 0) > user[`${whereValue}`] ? highest : user;
 			}, {});
-			console.log(successResult(`Highest ${whereValue} ranking user: ${topRankingUser.username}`));
+			//console.log(successResult(`Highest ${whereValue} ranking user: ${topRankingUser.username}`));
 
 			let equalRankingList = fullUserList.filter(user => user[`${whereValue}`] === topRankingUser[`${whereValue}`]);
 			
@@ -115,12 +115,12 @@ module.exports = {
 				return 0;
 			});
 
-			let userPos = 0 + (topTenList.length - 1);
-			for (const unrankedUser of lowerRankingList) {
-				console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} unranked user: ${unrankedUser.username} value ${unrankedUser[`${whereValue}`]}`));
-				userPos++;
-				if (userPos === 9) break;
-			}
+			//let userPos = 0 + (topTenList.length - 1);
+			// for (const unrankedUser of lowerRankingList) {
+			// 	//console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} unranked user: ${unrankedUser.username} value ${unrankedUser[`${whereValue}`]}`));
+			// 	userPos++;
+			// 	if (userPos === 9) break;
+			// }
 
 			const copyPasteArr = lowerRankingList.slice(0, 9);
 
@@ -131,9 +131,9 @@ module.exports = {
 			let embedFieldValue = ``;
 
 			let finalFields = [];
-			userPos = 0;
+			let userPos = 0;
 			for (const rankedUser of topTenList) {
-				console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} ranking user: ${rankedUser.username} value ${rankedUser[`${whereValue}`]}`));
+				//console.log(specialInfoForm(`${(userPos + 1)} place ${whereValue} ranking user: ${rankedUser.username} value ${rankedUser[`${whereValue}`]}`));
 
 				embedFieldName = `**RANK ${((userPos + 1))}**`;
 

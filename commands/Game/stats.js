@@ -5,7 +5,7 @@ const enemyList = require('../../events/Models/json_prefabs/enemyList.json');
 const { errorForm } = require('../../chalkPresets.js');
 
 const { checkHintLootBuy } = require('./exported/handleHints.js');
-const { sendTimedChannelMessage, grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, objectEntries, endTimer } = require('../../uniHelperFunctions.js');
+const { sendTimedChannelMessage, grabUser, makeCapital, createInteractiveChannelMessage, handleCatchDelete, objectEntries, endTimer, makePrettyNum } = require('../../uniHelperFunctions.js');
 const { lvlScaleCheck } = require('../Development/Export/uni_userPayouts.js');
 const { baseCheckRarName } = require('../Development/Export/itemStringCore.js');
 module.exports = {
@@ -697,7 +697,7 @@ module.exports = {
             // Level, Cur-XP/Need-XP, Perk Points, Coins
             const levelField = {
                 name: '== Progress Stats ==',
-                value: `Level: **${user.level}**\nProgress to next level: **${user.xp}**/${lvlScaleCheck(user.level)}\nPerk Points: **${user.points}**\nCoins: **${user.coins}**c`
+                value: `Level: **${user.level}**\nProgress to next level: **${makePrettyNum(user.xp)}**/${makePrettyNum(lvlScaleCheck(user.level))}\nPerk Points: **${user.points}**\nCoins: **${makePrettyNum(user.coins)}**c`
             };
 
             // Quest Stats
@@ -714,7 +714,7 @@ module.exports = {
             // Tot-Kills, One-Life-Max, Last-Death, Kills-Since
             const combatField = {
                 name: '== Combat Stats ==',
-                value: `Total Kills: **${user.totalkills}**\nMost Kills in One Life: **${user.highestkills}**\nLast Defeated by: **${user.lastdeath}**\nKills Since Last Death: **${user.killsthislife}**`
+                value: `Total Kills: **${makePrettyNum(user.totalkills)}**\nMost Kills in One Life: **${makePrettyNum(user.highestkills)}**\nLast Defeated by: **${user.lastdeath}**\nKills Since Last Death: **${makePrettyNum(user.killsthislife)}**`
             };
 
             embed.addFields([basicField, levelField, questField, combatField]);
@@ -874,7 +874,7 @@ module.exports = {
             const locationSwitch = town.local_biome.split("-");
             const basicField = {
                 name: '== Basic Info ==',
-                value: `Town Level: **${town.level}**\nTown Coins: **${town.coins}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population}**\nNPC Population: **${town.npc_population}**`
+                value: `Town Level: **${town.level}**\nTown Coins: **${makePrettyNum(town.coins)}**c\nTown Biome: **${locationSwitch[1]} ${locationSwitch[0]}**\nPlayer Population: **${town.population}**\nNPC Population: **${town.npc_population}**`
             };
 
             // Mayor Info
@@ -959,7 +959,7 @@ module.exports = {
             // tot_crafted, value_crafted, times_imbued, highest_rarity, highest_value, benchmark_crafts
             const basicField = {
                 name: '== Basic Crafting Stats ==',
-                value: `Total Items Crafted: **${controller.tot_crafted}**\nTotal Value Crafted: **${controller.value_crafted}**c\nItems Imbued: **${controller.times_imbued}**\nHighest Rarity Crafted: **${baseCheckRarName(controller.highest_rarity)}**\nHighest Value Craft: **${controller.highest_value}**c\nItems Added to Loot Pool: **${controller.benchmark_crafts}**`
+                value: `Total Items Crafted: **${makePrettyNum(controller.tot_crafted)}**\nTotal Value Crafted: **${makePrettyNum(controller.value_crafted)}**c\nItems Imbued: **${makePrettyNum(controller.times_imbued)}**\nHighest Rarity Crafted: **${baseCheckRarName(controller.highest_rarity)}**\nHighest Value Craft: **${makePrettyNum(controller.highest_value)}**c\nItems Added to Loot Pool: **${makePrettyNum(controller.benchmark_crafts)}**`
             };
             
             // Extra Stats
