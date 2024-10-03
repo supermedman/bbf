@@ -114,6 +114,21 @@ module.exports = {
         let usePagination = false;
         const finalPages = [];
 
+        // Used for material display
+        const pagingMatData = {
+            standard: {
+                embeds: [],
+                //components: []
+            },
+            basicPages: {
+                embeds: []
+            },
+            advancedPages: {
+                embeds: []
+            }
+        };
+        const extraButtons = [];
+
         switch(subCom){
             case "gear":
                 const fullUserItemList = await ItemStrings.findAll({where: {user_id: interaction.user.id}});
@@ -159,11 +174,13 @@ module.exports = {
                 const needsMaterialHint = await MaterialStore.findOne({where: {spec_id: interaction.user.id, amount: {[Op.gte]: 10}}});
                 if (needsMaterialHint) await checkHintMaterialCombine(user, interaction);
                 usePagination = true;
-                // Basic Mat Page = rar 0 => 9
-                // Advanced Mat Page = rar 10 => 20
+                // Basic Mat Page = rar 0 => 10
+                // Advanced Mat Page = rar 13 => 20
                 for (const [key] of materialFiles){
                     const userMatTypeObj = await convertOldMatStore(interaction, key);
                     const {basic, advanced} = handleConvertedMaterialDisplay(userMatTypeObj, key);
+                    pagingMatData.basicPages.embeds.push(...basic);
+                    pagingMatData.advancedPages.embeds.push(...advanced);
                     finalPages.push(...basic);
                 }
             break;
@@ -178,13 +195,20 @@ module.exports = {
 
                 let potCounter = 0;
                 for (const potion of fullUserPotList){
+                    const {masterBPCrafts /**, masterBPEffects*/} = interaction.client;
+
+                    const potCraft = masterBPCrafts.get(potion.name);
+                    // const potEffect = masterBPEffects.get(potion.name);
+
+                    const durationText = (potion.duration === 0) ? 'Duration: **Instant Use**' : `Duration: **${potion.duration}** *(Battles)*`;
+
                     const potEmbed = new EmbedBuilder()
                     .setTitle(`~OWNED POTIONS~`)
                     .setDescription(`Potion ${potCounter + 1}/${fullUserPotList.length}`)
-                    .setColor(0o0)
+                    .setColor(grabColour(potCraft.Rar_id))
                     .addFields({
                         name: `${potion.name}`,
-                        value: `Value: **${potion.value}**c\nDuration: **${potion.duration}** (Battles)\nCooldown: **${potion.cooldown}** (Battles)\nAmount Owned: **${potion.amount}**`
+                        value: `Description: ${potCraft.Description}\nRarity: **${potCraft.Rarity}**\nValue: **${potion.value}**c\n${durationText}\nCooldown: **${potion.cooldown}** *(Battles)*\nAmount Owned: **${potion.amount}**`
                     });
 
                     potCounter++;
@@ -234,13 +258,39 @@ module.exports = {
             return await sendTimedChannelMessage(interaction, 120000, finalReply, "FollowUp");
         }
 
-        // Default Button Order: Backwards, Cancel, Forwards
-        const pagingRow = loadDefaultPagingButtonActionRow(true);
+        if (subCom === 'materials'){
+            // Load extra Buttons
+            const basicButt = new ButtonBuilder()
+            .setCustomId('basic-view')
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(true)
+            .setLabel('Basic Materials');
+
+            /**@param {EmbedBuilder} e */
+            const advancedTypeOwned = e => !e.data.title.includes('NOT OWNED');
+
+            const advancedButt = new ButtonBuilder()
+            .setCustomId('advanced-view')
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(!advancedTypeOwned(pagingMatData.advancedPages.embeds[0]))
+            .setLabel('Advanced Materials');
+
+            extraButtons.push(basicButt, advancedButt);
+
+            // Load internal paging 
+            pagingMatData.standard.embeds = pagingMatData.basicPages.embeds;
+        }
+
+        // Default Button Order: Backwards, Cancel, ...extraButtons, Forwards
+        const pagingRow = loadDefaultPagingButtonActionRow(true, extraButtons);
+
+        if (subCom === 'materials') pagingMatData.standard.components = [pagingRow];
 
         const finalReply = {embeds: [finalPages[0]], components: [pagingRow]};
 
-        const pageNav = new NavMenu(user, finalReply);
-        pageNav.loadPageDisplays({embeds: finalPages});
+        const pageNav = new NavMenu(user, finalReply, finalReply.components, pagingMatData);
+        if (subCom !== 'materials') pageNav.loadPageDisplays({embeds: finalPages});
+        if (subCom === 'materials') pageNav.loadPagingMenu({embeds: pagingMatData.standard.embeds}, pagingMatData);
 
         const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 1200000, finalReply, "FollowUp");
 
@@ -248,21 +298,64 @@ module.exports = {
 
         collector.on('collect', async c => {
             await c.deferUpdate().then(async () => {
-                if (pageNav.pageWasHeard(c.customId)){
-                    pageNav.handlePaging(c.customId);
-                    await anchorMsg.edit(pageNav.loadNextPage());
-                } else if (c.customId === 'delete-page') return collector.stop('Canceled');
-                // switch(c.customId){
-                //     case "next-page":
-                //         curPage = (curPage === finalPages.length - 1) ? 0 : curPage + 1;
-                //     break;
-                //     case "back-page":
-                //         curPage = (curPage === 0) ? finalPages.length - 1 : curPage - 1;
-                //     break;
-                //     case "delete-page":
-                //     return collector.stop('Canceled');
-                // }
-                // await anchorMsg.edit({ components: [pageButtonRow], embeds: [finalPages[curPage]]});
+                // pageNav.debugOutput();
+                let editWith = {};
+
+                switch(pageNav.whatDoYouHear(c.customId)){
+                    case "PAGE":
+                        pageNav.handlePaging(c.customId);
+                        editWith = pageNav.loadNextPage();
+                        if (subCom === 'materials'){    
+                            /**@param {EmbedBuilder} e */
+                            const displayingUniqueTypes = e => e.data.title.includes('HIDE THIS');
+                            /**@param {EmbedBuilder} e */
+                            const advancedTypeOwned = e => !e.data.title.includes('NOT OWNED');
+                            /**@param {EmbedBuilder} e */
+                            const hideAdvancedTypes = e => {
+                                return displayingUniqueTypes(e) || !advancedTypeOwned(e);
+                            }
+
+                            pagingRow.components[2].setDisabled(true);
+                            pagingRow.components[3].setDisabled(hideAdvancedTypes(pageNav.specs.advancedPages.embeds[pageNav.paging.curPage]));
+                            editWith.components = [pagingRow];
+                            //console.log('Next Page Paging Data: ', editWith);
+                        }
+                    break;
+                    case "NEXT":
+                        const cSplits = c.customId.split('-');
+                        if (cSplits[1] === 'view'){
+                            // Switching Material view point
+                            console.log('Material View Switch called!');
+                            switch(cSplits[0]){
+                                case "basic":
+                                    pagingRow.components[2].setDisabled(true);
+                                    pagingRow.components[3].setDisabled(false);
+                                    editWith = pageNav.loadNextPage();
+                                    editWith.components = [pagingRow];
+                                break;
+                                case "advanced":
+                                    pagingRow.components[2].setDisabled(false);
+                                    pagingRow.components[3].setDisabled(true);
+                                    editWith = {embeds: [pageNav.specs.advancedPages.embeds[pageNav.paging.curPage]], components: [pagingRow]};
+                                break;
+                            }
+                        }
+                    break;
+                    case "CANCEL":
+                    return collector.stop('Canceled');
+                    default:
+                        console.log('I HEARD THIS: ', pageNav.whatDoYouHear(c.customId));
+                    break;
+                }
+
+                if (!editWith.embeds) editWith = pageNav.loadCurrentPage();
+
+                // if (pageNav.pageWasHeard(c.customId)){
+                //     pageNav.handlePaging(c.customId);
+                //     await anchorMsg.edit(pageNav.loadNextPage());
+                // } else if (c.customId === 'delete-page') return collector.stop('Canceled');
+
+                if (editWith.embeds) await anchorMsg.edit(editWith);
             }).catch(e => console.error(e));
         });
 
@@ -339,11 +432,12 @@ module.exports = {
 
                 uniDisplayEmbed.addFields(uniDisplayFields);
                 matDisplayObj.basic.push(uniDisplayEmbed);
+                matDisplayObj.advanced.push(new EmbedBuilder().setTitle('HIDE THIS'));
                 return matDisplayObj;
             }
 
             const basicLimit = new rarityLimiter();
-            basicLimit.loadRarLimit(9, 0);
+            basicLimit.loadRarLimit(10, 0);
             const basicRarNames = basicLimit.loadMatchingRarNames();
 
             //console.log('BasicLimit RarityLimiter(): ', basicLimit);
@@ -367,14 +461,28 @@ module.exports = {
             basicDisplayEmbed.addFields(basicDisplayFields);
             matDisplayObj.basic.push(basicDisplayEmbed);
 
-            if (!ownedMatsObj['10']) return matDisplayObj;
+            //if (!ownedMatsObj['10']) return matDisplayObj;
 
             const advancedLimit = new rarityLimiter();
-            advancedLimit.loadRarLimit(20, 10);
+            advancedLimit.loadRarLimit(20, 13);
             const advancedRarNames = advancedLimit.loadMatchingRarNames();
 
             const advancedDisplayEmbed = new EmbedBuilder()
             .setTitle(`== ${makeCapital(matType)} Type Materials ==`);
+
+            // NOT OWNED
+            const typeIsOwned = Object.entries(ownedMatsObj).filter(([k, v]) => advancedLimit.isWithin(+k) && v > 0);
+            //console.log('Type being checked: ', matType);
+            //console.log('OUTCOME OF TYPE OWNED CHECK: ', typeIsOwned);
+
+            if (typeIsOwned.length <= 0){
+                //console.log('TYPE IS NOT OWNED!');
+                advancedDisplayEmbed.setTitle('== NOT OWNED ==');
+                matDisplayObj.advanced.push(advancedDisplayEmbed);
+                return matDisplayObj;
+            }
+
+            //console.log(ownedMatsObj);
 
             const advancedDisplayFields = Object.entries(ownedMatsObj)
             .filter(([k]) => advancedLimit.isWithin(+k))

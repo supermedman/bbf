@@ -375,9 +375,9 @@ module.exports = {
 			const thePlayer = loadPlayer(interaction.user.id, dungeonInstance);
 			if (!thePlayer.staticStats) await thePlayer.retrieveBasicStats(true);
             if (thePlayer.loadout.ids.length === 0) {
-                await thePlayer.retrieveLoadout();
+                await thePlayer.retrieveLoadout(interaction);
             } else {
-                await thePlayer.reloadInternals(true);
+                await thePlayer.reloadInternals(interaction, true);
             }
 
 			if (thePlayer.internalEffects.potions.length === 0){
@@ -516,15 +516,21 @@ module.exports = {
 							const mienButtRow = loadMienChoice();
 							const mienReply = {embeds: [bossEmbeds[curLine]], components: [mienButtRow], files: [thumbFile]};
 							
-							await anchorMsg.edit(mienReply);
-
-							(setTimeout(async () => {
-								for (const b of mienReply.components){
+							await anchorMsg.edit(mienReply).then(async () => setTimeout(async () => {
+								for (const b of mienReply.components[0].components){
 									b.setDisabled(false);
 								}
-		
+
 								await anchorMsg.edit(mienReply);
-							}, 10000))();
+							}, 5000));
+
+							// setTimeout(async () => {
+							// 	for (const b of mienReply.components[0].components){
+							// 		b.setDisabled(false);
+							// 	}
+		
+							// 	await anchorMsg.edit(mienReply);
+							// }, 5000);
 						} else if (c.customId === 'friend'){
 							// Load extra mien dialog, Dungeon is complete!
 							handleBossPayouts(dungeonRef.Boss);
@@ -743,7 +749,7 @@ module.exports = {
 			 */
 			async function combatLooper(enemy, bossGen=false){
 				if (!enemy) return console.log('Caught Boss Dialog Load!');
-				await player.reloadInternals(true);
+				await player.reloadInternals(interaction, true);
 
 				const replyType = {};
 

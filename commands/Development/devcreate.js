@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, ThreadAutoArchiveDuration, ChannelType } = require('discord.js');
 
 const Canvas = require('@napi-rs/canvas');
 
@@ -14,7 +14,7 @@ const lootList = require('../../events/Models/json_prefabs/lootList.json');
 const uniqueLootList = require('../../events/Models/json_prefabs/uniqueLootList.json');
 const { grabColour } = require('../Game/exported/grabRar.js');
 const { pigmyTypeStats } = require('../Game/exported/handlePigmyDamage.js');
-const { handleCatchDelete, createInteractiveChannelMessage, grabUser } = require('../../uniHelperFunctions.js');
+const { handleCatchDelete, createInteractiveChannelMessage, grabUser, makeCapital } = require('../../uniHelperFunctions.js');
 const { NavMenu } = require('./Export/Classes/NavMenu.js');
 
 const UI = [
@@ -433,6 +433,51 @@ module.exports = {
 
 			// return await sendBBINTRODisplay();
 
+			// COMBAT THREAD TESTING
+
+			// Set standard naming
+			const threadName = `${makeCapital(interaction.user.username)}'s Combat`;
+
+			// Locate existing thread
+			const existingThread = interaction.channel.threads.cache.find(t => t.name === threadName);
+
+			const threadObj = {
+				thread: {},
+				replyContent: {
+					content: '',
+					ephemeral: true
+				},
+				async mentionUser(user){
+					await this.thread.send(`<@${user.id}>`);
+				}
+			};
+
+			if (existingThread){
+				// (existingThread) ? existingThread :
+				threadObj.thread = existingThread;
+				threadObj.replyContent.content = `Combat Thread Located! <#${threadObj.thread.id}>`;
+			} else {
+				// Create Thread
+				threadObj.thread = await interaction.channel.threads.create({
+					name: threadName,
+					autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
+					type: ChannelType.PrivateThread,
+					reason: "For testing"
+				});
+
+				await threadObj.thread.members.add(interaction.user.id);
+
+				threadObj.replyContent.content = `Combat Thread Created! <#${threadObj.thread.id}>`;
+			}
+
+			if (threadObj.thread) {
+				await interaction.reply(threadObj.replyContent);
+				await threadObj.mentionUser(interaction.user);
+			}
+
+			console.log(`${threadObj.replyContent.content}: `, threadObj.thread.name);
+
+			return;
 
 			function loadExampleDisplayMenu(){
 				const menuContainer = [];

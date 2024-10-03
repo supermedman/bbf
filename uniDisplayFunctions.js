@@ -175,7 +175,7 @@ const fnSignConverter = {
  * 
  * Button Display Order:
  * `BackButt, CancelButt?, ...AdditionalButtons?, NextButt`
- * @param {boolean} includeCancel If true, includes a cancel button with id `delete-page`
+ * @param {boolean} includeCancel If true, includes a cancel button with id `cancel-page`
  * @param {ButtonBuilder[]} additionalActionButtons Array of `ButtonBuilders`, max length 3 
  * @returns {ActionRowBuilder<ButtonBuilder> | string} Returns `"Paging Row Length Exceeds 5"` on length exception
  */
@@ -194,7 +194,7 @@ function loadDefaultPagingButtonActionRow(includeCancel=false, additionalActionB
     .setLabel("Cancel")
     .setStyle(ButtonStyle.Secondary)
     .setEmoji('*️⃣')
-    .setCustomId('delete-page');
+    .setCustomId('cancel-page');
 
     const pagingButtons = [backPageButt];
 
@@ -202,16 +202,16 @@ function loadDefaultPagingButtonActionRow(includeCancel=false, additionalActionB
     if (additionalActionButtons.length > 0) pagingButtons.push(...additionalActionButtons);
     pagingButtons.push(nextPageButt);
 
-    if (pagingButtons.length < 5){
+    if (pagingButtons.length <= 5){
         const pagingButtonRow = new ActionRowBuilder().addComponents(pagingButtons);
         return pagingButtonRow;
     } else return "Paging Row Length Exceeds 5";   
 }
 
 class rarityLimiter {
-    constructor(){
-        this.max = 1;
-        this.min = 0;
+    constructor(max=1, min=0){
+        this.max = max;
+        this.min = min;
     }
     /**
      * This method sets both the `this.max` and the `this.min` values according to 

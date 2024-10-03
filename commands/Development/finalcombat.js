@@ -332,7 +332,7 @@ module.exports = {
 
             await handleUserPayout(xpGain, coinGain, interaction, await grabUser(player.userId));
 
-            if (dropChance(0.98)){
+            if (dropChance(0.92)){
                 await rollRandBlueprint(await grabUser(player.userId), interaction.client.masterBPCrafts, interaction);
             }
 

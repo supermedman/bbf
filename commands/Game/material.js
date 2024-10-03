@@ -272,7 +272,7 @@ module.exports = {
 		 */
 		function restructUserMatStorage(typedMatStore, targetRID, actionType){
 			const combFilter = k => +k <= targetRID;
-			const disFilter = k => +k >= targetRID;
+			const disFilter = k => +k >= targetRID && +k < 13;
 			const matchesFilter = (actionType === 'combine') 
 			? combFilter 
 			: disFilter;
@@ -398,19 +398,36 @@ module.exports = {
 					fieldValue = `Currently Owned: **${obj.owned}**\nCombining Will Yield: **${combineCap}** / **${targetAmount}**`;
 				} else {
 					fieldName = `== ${baseCheckRarName(CR)} ==`;
-					let lastObj, lastRar;
+
+					let ownedText = `Owned: **${obj.owned}** `;
 					if (CR > 0){
-						const [LR, LOBJ] = arr[idx - 1];
-						lastRar = +LR;
-						lastObj = LOBJ;
+						// P (Previous)
+						const [PR, POBJ] = arr[idx - 1];
+						const prevRar = +PR, prevObj = POBJ;
+
+						if (prevObj.combinedInto > 0){
+							ownedText += `+*${prevObj.combinedInto} from ${baseCheckRarName(prevRar)}*`;
+
+							obj.combinedInto = Math.floor((obj.owned + prevObj.combinedInto) / 5);
+							obj.remain = (obj.remain + prevObj.combinedInto) % 5;
+						}
 					}
-					const ownedTextValue = (CR > 0 && lastObj.combinedInto > 0) 
-					? `Owned: **${obj.owned}**   +*${lastObj.combinedInto} from ${baseCheckRarName(lastRar)}*`
-					: `Owned: **${obj.owned}**`;
-					const remainTextValue = (CR > 0 && lastObj.combinedInto > 0)
-					? `Amount Remaining: **${(obj.remain + lastObj.combinedInto) % 5}**`
-					: `Amount Remaining: **${obj.remain}**`;
-					fieldValue = `${ownedTextValue}\n${remainTextValue}\nAmount Combined: **${obj.combined}**`;
+
+					const remainText = `Amount Remaining: **${obj.remain}**`;
+
+					// let lastObj, lastRar;
+					// if (CR > 0){
+					// 	const [LR, LOBJ] = arr[idx - 1];
+					// 	lastRar = +LR;
+					// 	lastObj = LOBJ;
+					// }
+					// const ownedTextValue = (CR > 0 && lastObj.combinedInto > 0) 
+					// ? `Owned: **${obj.owned}**   +*${lastObj.combinedInto} from ${baseCheckRarName(lastRar)}*`
+					// : `Owned: **${obj.owned}**`;
+					// const remainTextValue = (CR > 0 && lastObj.combinedInto > 0)
+					// ? `Amount Remaining: **${(obj.remain + lastObj.combinedInto) % 5}**`
+					// : `Amount Remaining: **${obj.remain}**`;
+					fieldValue = `${ownedText}\n${remainText}\nAmount Combined: **${obj.combined}**`;
 				}
 
 				acc.push({name: fieldName, value: fieldValue});
@@ -492,7 +509,7 @@ module.exports = {
 							// Updating all previously checked mat entries
 							// Functionally a "cascade" downwards
 							for (const [pk, pv] of Object.entries(splitDiff)){
-								if (+pk - 1 === TR) continue;
+								if (+pk - 1 === TR || !acc[`${+pk - 1}`]) continue;
 								acc[`${+pk - 1}`].remain = (!pv) ? pv : 5 - pv;
 							}
 						}
@@ -644,6 +661,8 @@ module.exports = {
 			// Load embed fields
 			// Filter out mats used where mat.owned === 0 && mat.remain === 0
 			const isEmptyMat = m => m.owned === 0 && m.remain === 0;
+
+			// console.log(outcomeStore.materialStorage);
 
 			const confirmDisplayFields = Object.entries(outcomeStore.materialStorage)
 			.filter(([key, mat]) => !isEmptyMat(mat) && mat.used)

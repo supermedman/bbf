@@ -158,8 +158,17 @@ class NavMenu {
         if (displayPathExists){
             console.log('Display path is %d levels deep!', this.navDisplayPath.length);
             console.log('Display path is currently showing: ', this.navDisplayPath.at(-1).embeds[0].data);
-            console.log('Display path was previously showing: ', this.navDisplayPath.at(-2).embeds[0].data);
+            console.log('Display path was previously showing: ', this.navDisplayPath.at(-2)?.embeds[0]?.data);
         } else console.log('Display path is EMPTY!!');
+
+        const pagingInUse = () => {
+            return this.paging.displayUsing.embeds || this.paging.displayUsing.files || this.paging.displayUsing.components;
+        };
+
+        if (pagingInUse) {
+            console.log('Paging IN USE, Current Storage: ', this.paging.displayStore);
+            console.log('Current Extras Stored: ', this.paging.storedExtras);
+        }
 
         console.log('==== DEBUGGING STOP ====');
     }
@@ -206,7 +215,7 @@ class NavMenu {
             this.paging.displayStore[key] = acc;
             this.paging.lastPage = acc.length - 1;
             return;
-        }, []);        
+        }, []);
     }
 
     loadPageExtras(pageExtras){

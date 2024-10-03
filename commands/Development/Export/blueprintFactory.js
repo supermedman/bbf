@@ -42,11 +42,29 @@ async function checkLevelBlueprint(user, bpList, interaction){
  */
 async function rollRandBlueprint(user, bpList, interaction){
     console.log('ROLLING RAND BLUEY');
+    /**@type {object[]} */
     const userBPS = await OwnedBlueprints.findAll({where: {spec_id: user.userid}});
-    if (userBPS.length === 0) userBPS.push({name: "None"});
+    if (userBPS.length === 0) userBPS.push({name: "None", blueprintid: 0});
 
-    const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.blueprintid !== bp.BlueprintID);
-    const levelReqList = bpList.filter(bp => bp.Level <= user.level && !crossCheckOwned(bp) && bp.Drop && bp.Unlock);
+    // Convert Owned BPs to single entry number array contain all owned blueprintids
+    const ownedBpIDs = userBPS.map(bp => bp.blueprintid);
+
+    /**@typedef {{Name: string, Drop: boolean, Unlock: boolean, BlueprintID: number, Level: number}} BaseBP */
+
+    /**@param {BaseBP} bp */
+    const hasLevelReq = bp => bp.Level <= user.level;
+    /**@param {BaseBP} bp */
+    const bpIsOwned = bp => ownedBpIDs.includes(bp.BlueprintID);
+    /**@param {BaseBP} bp */
+    const isDropable = bp => bp.Drop && bp.Unlock;
+
+    /**@param {BaseBP} bp */
+    const isAvailable = bp => {
+        return hasLevelReq(bp) && !bpIsOwned(bp) && isDropable(bp);
+    };
+
+    // const crossCheckOwned = (bp) => userBPS.some(uBP => uBP.blueprintid !== bp.BlueprintID);
+    const levelReqList = bpList.filter(bp => isAvailable(bp));
     if (levelReqList.size === 0) return "No Match";
 
     const pickFromArray = [];
@@ -58,7 +76,7 @@ async function rollRandBlueprint(user, bpList, interaction){
 
     const theBP = await dropBlueprint(bpPicked, user, interaction);
 
-    const theField = {name: '== Drops ==', value: `Blueprint: ${theBP.name}`};
+    const theField = {name: '== Drops ==', value: `Blueprint Name: ${theBP.name}\nBlueprint Type: ${theBP.passivecategory}\nBlueprint Rarity: ${bpPicked.Rarity}`};
     const bpUnlockEmbed = new EmbedBuilder()
     .setTitle('New Blueprint Dropped')
     .setColor('Blurple')

@@ -13,6 +13,7 @@ const { grabColour } = require('../Game/exported/grabRar.js');
 const { xpPayoutScale } = require('./Export/Classes/EnemyFab.js');
 const { handleUserPayout, updateUserQTS } = require('./Export/uni_userPayouts.js');
 const { spawnNpc } = require('../Game/exported/npcSpawner.js');
+const { rarityLimiter } = require('../../uniDisplayFunctions.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -173,7 +174,9 @@ module.exports = {
             }
 
             if (focusedOption.name === 'rarity'){
-                choices = [...loadFullRarNameList(10), 'Unique'];
+                const rarNameObj = new rarityLimiter(20, 0);
+                const rarNameContainer = rarNameObj.loadMatchingRarNames();
+                choices = [...(Object.values(rarNameContainer).map((k) => `${k}`)), 'Unique'];
             }
 
             if (focusedOption.name === 'mat-name'){
@@ -271,8 +274,8 @@ module.exports = {
                 itemMatch = await ItemLootPool.findOne({where: {name: namePicked}});
             break;
             case "give-mat":
-                const pickedMatList = require(materialFiles.get(pickedMatType));
-                itemMatch = pickedMatList.filter(mat => mat.Name === namePicked)[0];
+                const pickedMatList = interaction.client.materials.get(pickedMatType);
+                itemMatch = pickedMatList.find(mat => mat.Name === namePicked);
             break;
         }
 
@@ -284,7 +287,7 @@ module.exports = {
                 finalItem = await checkInboundItem(theUser.userid, itemMatch.creation_offset_id, giveAmount);
             break;
             case "give-mat":
-                finalItem = await checkInboundMat(theUser.userid, itemMatch, itemMatch.UniqueMatch, giveAmount);
+                finalItem = await checkInboundMat(theUser.userid, itemMatch, (rarPicked === 'Unique') ? itemMatch.UniqueMatch : pickedMatType, giveAmount);
             break;
         }
 
@@ -301,7 +304,7 @@ module.exports = {
             case "give-mat":
                 const eColor = grabColour(checkingRarID(rarPicked));
                 finalDisplayEmbed
-                .setColor(eColor)
+                .setColor(eColor ?? 0o0)
                 .addFields({
                     name: `>>__**${finalItem.name}**__<<`,
                     value: `Value: **${finalItem.value}**c\nRarity: **${finalItem.rarity}**\nType: **${makeCapital(pickedMatType)}**\nAmount: **${giveAmount}**`

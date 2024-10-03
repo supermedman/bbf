@@ -45,7 +45,7 @@ const { EmbedBuilder } = require('discord.js');
     matchType(potType, stateType, internalEffects, effect){
         const appliedState = this.effectStateType[`${stateType}`];
 
-        console.log('Contents of appliedState(): ', appliedState);
+        // console.log('Contents of appliedState(): ', appliedState);
 
         if (this.statPotType.includes(potType)){
             switch(potType){
@@ -111,7 +111,7 @@ const { EmbedBuilder } = require('discord.js');
         };
 
         if (!loadedPot.expired) {
-            console.log('Loaded Potion Effect: ', loadedPot);
+            // console.log('Loaded Potion Effect: ', loadedPot);
             player.internalEffects.potions.push(loadedPot);
             this.matchType(loadedPot.cat, "apply", player.internalEffects, loadedPot.e);
         }
@@ -230,7 +230,7 @@ class CombatInstance {
             }
         }
 
-        console.log('LOADING STATUS EFFECTS!!');
+        // console.log('LOADING STATUS EFFECTS!!');
 
         for (const effect of userActiveEffects){
             effectLoader.handleLoad(effect, this, interaction);
@@ -892,19 +892,19 @@ class CombatInstance {
         return chanceToBeat;
     }
 
-    async reloadInternals(dungeonLoad=false){
+    async reloadInternals(interaction, dungeonLoad=false){
         const leveled = await UserData.findOne({where: {userid: this.userId}});
         if (leveled.level !== this.level) await this.retrieveBasicStats(dungeonLoad);
 
         const needUpdated = await this.#checkLoadoutChanges();
         if (needUpdated !== "No Update"){
             this.#updateLoadoutIds(needUpdated);
-            await this.retrieveLoadout();
+            await this.retrieveLoadout(interaction);
         }
         return;
     }
 
-    async retrieveLoadout(){
+    async retrieveLoadout(interaction){
         let loadoutMatch = await Loadout.findOrCreate({
             where: {
                 spec_id: this.userId
@@ -925,12 +925,12 @@ class CombatInstance {
         }
         await this.#loadItemStrings();
         if (loadoutMatch && loadoutMatch.potionone !== 0){
-            await this.#loadCurrentPotion(loadoutMatch.potionone);
+            await this.#loadCurrentPotion(loadoutMatch.potionone, interaction);
         }
         return;
     }
 
-    async #loadCurrentPotion(potID){
+    async #loadCurrentPotion(potID, interaction){
         if (this.potion.id !== 0){
             if (this.potion.id === potID){
                 const potCheck = await OwnedPotions.findOne({where: {spec_id: this.userId, potion_id: potID}});
@@ -951,23 +951,22 @@ class CombatInstance {
             this.potion.amount = potMatch.amount;
             this.potion.cd = potMatch.cooldown;
             this.potion.duration = potMatch.duration;
-            const potEffect = potCatEffects.filter(effect => effect.Name === potMatch.activecategory)[0][`${potMatch.name}`];
-            this.potion.effectApplied = potEffect;
+            const potEffect = interaction.client.masterBPEffects.get(potMatch.name); // potMatch.name
+            this.potion.effectApplied = potEffect.Strength;
             return;
         }
 
-        const potRef = bpList.filter(bp => bp.PotionID && bp.PotionID === potID)[0];
-        if (potRef){
-            this.potion.name = potRef.Name;
-            this.potion.activeCat = potRef.ActiveCategory;
-            this.potion.amount = 0;
-            this.potion.cd = potRef.CoolDown;
-            this.potion.duration = potRef.Duration;
-            const potEffect = potCatEffects.filter(effect => effect.Name === potRef.ActiveCategory)[0][`${potRef.Name}`];
-            this.potion.effectApplied = potEffect;
-            return;
-        }
-        
+        // const potRef = interaction.client.masterBPCrafts.get().filter(bp => bp.PotionID && bp.PotionID === potID)[0];
+        // if (potRef){
+        //     this.potion.name = potRef.Name;
+        //     this.potion.activeCat = potRef.ActiveCategory;
+        //     this.potion.amount = 0;
+        //     this.potion.cd = potRef.CoolDown;
+        //     this.potion.duration = potRef.Duration;
+        //     const potEffect = potCatEffects.filter(effect => effect.Name === potRef.ActiveCategory)[0][`${potRef.Name}`];
+        //     this.potion.effectApplied = potEffect;
+        //     return;
+        // }
     }
 
     async #loadItemStrings(){
@@ -976,16 +975,16 @@ class CombatInstance {
         for (const id of this.loadout.ids){
             let itemMatch = await ItemStrings.findOne({where: {user_id: this.userId, item_id: id}});
             // let itemMatch = userOwnedItemsObjList.filter(item => item.user_id === this.userId && item.item_id === id)[0]; // TEMPORARY
-            if (id === '0' && !itemMatch) {
+            if (id === 0 && !itemMatch) {
                 console.log(`No ${slotMatch[curSlotIdx]} Equipped!!`); 
                 itemMatch = {item_code: "NONE"};
             }
             if (!itemMatch) {
-                console.log(`${slotMatch[curSlotIdx]} Not Found!!`);
-                console.log('Attempting to load from Static loot pool!!');
+                //console.log(`${slotMatch[curSlotIdx]} Not Found!!`);
+                //console.log('Attempting to load from Static loot pool!!');
                 const backUpMatch = await ItemLootPool.findOne({where: {creation_offset_id: id}});
                 if (backUpMatch) {
-                    console.log('Backup FOUND!');
+                    //console.log('Backup FOUND!');
                     itemMatch = {item_code: backUpMatch.item_code};
                 } else {
                     console.log('Backup NOT FOUND!');
@@ -998,11 +997,11 @@ class CombatInstance {
         return;
     }
 
-    async #checkLoadoutChanges(){
+    async #checkLoadoutChanges(interaction){
         const slotMatch = ["mainhand", "offhand", "headslot", "chestslot", "legslot"];
         let curSlotIdx = 0;
         const loadoutMatch = await Loadout.findOne({where: {spec_id: this.userId}});
-        await this.#loadCurrentPotion(loadoutMatch.potionone);
+        await this.#loadCurrentPotion(loadoutMatch.potionone, interaction);
 
         let updateList = [];
         for (const id of this.loadout.ids){

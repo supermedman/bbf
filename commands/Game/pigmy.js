@@ -216,16 +216,18 @@ module.exports = {
 				const isEquipped = isOverwrite && pigmy[`${toolType}`] === toolName;
 				if (isEquipped) return await interaction.reply({content: `Pigmy already has ${toolName} equipped in the ${makeCapital(toolType)} slot!`, ephemeral: true});
 
+				passingObject.toolType = toolType;
+				passingObject.toolName = toolName;
+				passingObject.tool = theTool;
+
 				usingButtons = isOverwrite;
 				if (!usingButtons){
 					displayEmbed
 					.setTitle(`== ${makeCapital(toolType)} Equipped ==`)
 					.setDescription(`**${toolName}** has been equipped!`);
-				} else {
-					passingObject.toolType = toolType;
-					passingObject.toolName = toolName;
-					passingObject.tool = theTool;
 
+					await givePigmyTool(pigmy, passingObject);
+				} else {
 					displayEmbed
 					.setTitle(`== Equip ${makeCapital(toolType)} ==`)
 					.setDescription(`Replace current ${makeCapital(toolType)} ${pigmy[`${toolType}`]} with **${toolName}**?`);
