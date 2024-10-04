@@ -422,62 +422,110 @@ function grabRar(level) {
 }
 
 //This method takes a given rarid and returns a hex colour code for use with embeds
-function grabColour(rarid, needStr) {
-    let catchStr = false;
-    if (needStr === true) catchStr = true;
-    if (needStr === false) catchStr = false;
-    if (rarid === 0) {
-        if (catchStr === true) return '#dddddd';
-        return 0xdddddd;
+function grabColour(rarid, needStr=false) {
+    // console.log(rarid);
+    //const idSwitch = `${rarid}`;
+    //console.log(idSwitch);
+    switch(rarid){
+        case 0:
+        return (needStr) ? '#dddddd' : 0xdddddd;
+        case 1:
+        return (needStr) ? '#c4c4c4' : 0xc4c4c4;
+        case 2:
+        return (needStr) ? '#ffe8a4' : 0xffe8a4;
+        case 3:
+        return (needStr) ? '#f9cda0' : 0xf9cda0;
+        case 4:
+        return (needStr) ? '#72a3ad' : 0x72a3ad;
+        case 5:
+        return (needStr) ? '#8d7bc3' : 0x8d7bc3;
+        case 6:
+        return (needStr) ? '#a64c78' : 0xa64c78;
+        case 7:
+        return (needStr) ? '#81200d' : 0x81200d;
+        case 8:
+        return (needStr) ? '#e69036' : 0xe69036;
+        case 9:
+        return (needStr) ? '#ff0707' : 0xff0707;
+        case 10:
+        return (needStr) ? '#ff06ff' : 0xff06ff;
+        case 11:
+        return (needStr) ? '#ffffff' : 0xffffff;
+        case 12:
+        return (needStr) ? '#0000ff' : 0x0000ff;
+        case 13:
+        return (needStr) ? '#033A57' : 0x033A57;
+        case 14:
+        return (needStr) ? '#001620' : 0x001620;
+        case 15:
+        return (needStr) ? '#A8CF84' : 0xA8CF84;
+        case 16:
+        return (needStr) ? '#C7A522' : 0xC7A522;
+        case 17:
+        return (needStr) ? '#440203' : 0x440203;
+        case 18:
+        return (needStr) ? '#9C32B8' : 0x9C32B8;
+        case 19:
+        return (needStr) ? '#88EAFE' : 0x88EAFE;
+        case 20:
+        return (needStr) ? '#A02FA0' : 0xA02FA0;
     }
-    if (rarid === 1) {
-        if (catchStr === true) return '#c4c4c4';
-        return 0xc4c4c4;
-    }
-    if (rarid === 2) {
-        if (catchStr === true) return '#ffe8a4';
-        return 0xffe8a4;
-    }
-    if (rarid === 3) {
-        if (catchStr === true) return '#f9cda0';
-        return 0xf9cda0;
-    }
-    if (rarid === 4) {
-        if (catchStr === true) return '#72a3ad';
-        return 0x72a3ad;
-    }
-    if (rarid === 5) {
-        if (catchStr === true) return '#8d7bc3';
-        return 0x8d7bc3;
-    }
-    if (rarid === 6) {
-        if (catchStr === true) return '#a64c78';
-        return 0xa64c78;
-    }
-    if (rarid === 7) {
-        if (catchStr === true) return '#81200d';
-        return 0x81200d;
-    }
-    if (rarid === 8) {
-        if (catchStr === true) return '#e69036';
-        return 0xe69036;
-    }
-    if (rarid === 9) {
-        if (catchStr === true) return '#ff0707';
-        return 0xff0707;
-    }
-    if (rarid === 10) {
-        if (catchStr === true) return '#ff06ff';
-        return 0xff06ff;
-    }
-    if (rarid === 11) {
-        if (catchStr === true) return '#ffffff';
-        return 0xffffff;
-    }
-    if (rarid === 12) {
-        if (catchStr === true) return '#0000ff';
-        return 0x0000ff;
-    }
+
+    // let catchStr = false;
+    // if (needStr === true) catchStr = true;
+    // if (needStr === false) catchStr = false;
+    // if (rarid === 0) {
+    //     if (catchStr === true) return '#dddddd';
+    //     return 0xdddddd;
+    // }
+    // if (rarid === 1) {
+    //     if (catchStr === true) return '#c4c4c4';
+    //     return 0xc4c4c4;
+    // }
+    // if (rarid === 2) {
+    //     if (catchStr === true) return '#ffe8a4';
+    //     return 0xffe8a4;
+    // }
+    // if (rarid === 3) {
+    //     if (catchStr === true) return '#f9cda0';
+    //     return 0xf9cda0;
+    // }
+    // if (rarid === 4) {
+    //     if (catchStr === true) return '#72a3ad';
+    //     return 0x72a3ad;
+    // }
+    // if (rarid === 5) {
+    //     if (catchStr === true) return '#8d7bc3';
+    //     return 0x8d7bc3;
+    // }
+    // if (rarid === 6) {
+    //     if (catchStr === true) return '#a64c78';
+    //     return 0xa64c78;
+    // }
+    // if (rarid === 7) {
+    //     if (catchStr === true) return '#81200d';
+    //     return 0x81200d;
+    // }
+    // if (rarid === 8) {
+    //     if (catchStr === true) return '#e69036';
+    //     return 0xe69036;
+    // }
+    // if (rarid === 9) {
+    //     if (catchStr === true) return '#ff0707';
+    //     return 0xff0707;
+    // }
+    // if (rarid === 10) {
+    //     if (catchStr === true) return '#ff06ff';
+    //     return 0xff06ff;
+    // }
+    // if (rarid === 11) {
+    //     if (catchStr === true) return '#ffffff';
+    //     return 0xffffff;
+    // }
+    // if (rarid === 12) {
+    //     if (catchStr === true) return '#0000ff';
+    //     return 0x0000ff;
+    // }
 }
 
 module.exports = { grabRar, grabColour };

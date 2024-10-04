@@ -2,6 +2,7 @@ const { Collection, EmbedBuilder } = require("discord.js");
 const { OwnedBlueprints } = require("../../../dbObjects");
 const { randArrPos, sendTimedChannelMessage } = require("../../../uniHelperFunctions");
 const { checkHintPotionBluey, checkHintToolBluey, checkHintViewBluey } = require("../../Game/exported/handleHints");
+const { grabRar } = require("../../Game/exported/grabRar");
 
 /**
  * This function handles checking all level unlocked bps not owned by the given user.
@@ -49,7 +50,7 @@ async function rollRandBlueprint(user, bpList, interaction){
     // Convert Owned BPs to single entry number array contain all owned blueprintids
     const ownedBpIDs = userBPS.map(bp => bp.blueprintid);
 
-    /**@typedef {{Name: string, Drop: boolean, Unlock: boolean, BlueprintID: number, Level: number}} BaseBP */
+    /**@typedef {{Name: string, Drop: boolean, Unlock: boolean, BlueprintID: number, Level: number, Rar_id: number}} BaseBP */
 
     /**@param {BaseBP} bp */
     const hasLevelReq = bp => bp.Level <= user.level;
@@ -67,8 +68,20 @@ async function rollRandBlueprint(user, bpList, interaction){
     const levelReqList = bpList.filter(bp => isAvailable(bp));
     if (levelReqList.size === 0) return "No Match";
 
+    const rolledRarity = grabRar(user.level);
+
+    /**
+     * This function filters blueprints surpassing the rolled rarity limit
+     * @param {number} r Rar_id Number value
+     * @param {BaseBP} bp BaseBlueprint
+     * @returns {boolean}
+     */
+    const isUnderRarLimit = (r, bp) => bp.Rar_id <= r;
+    const rarFilteredList = levelReqList.filter(bp => isUnderRarLimit(rolledRarity, bp));
+    if (rarFilteredList.size === 0) return "No Match";
+
     const pickFromArray = [];
-    for (const [key, bp] of levelReqList){
+    for (const [key, bp] of rarFilteredList){
         pickFromArray.push(bp);
     }
 

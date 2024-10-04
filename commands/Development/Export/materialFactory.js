@@ -4,7 +4,7 @@ const {checkInboundMat} = require('./itemMoveContainer');
 const { grabRar, grabColour } = require('../../Game/exported/grabRar');
 const {checkUser, checkHintMaterialView, checkHintMaterialUnique} = require('../../Game/exported/handleHints');
 const newEList = require('./Json/newEnemyList.json');
-const { Town } = require('../../../dbObjects');
+const { Town, CraftControllers } = require('../../../dbObjects');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
 const {randArrPos, grabUser, makePrettyNum} = require('../../../uniHelperFunctions');
@@ -53,8 +53,39 @@ async function handleEnemyMat(enemy, userid, matFiles, interaction){
     }
     
     const pickedMatType = randArrPos(enemyRef.DropTypes);
-    const pickedRarity = grabRar(enemy.level);
-    const pickedMaterial = materials.get(pickedMatType).find(mat => mat.Rar_id === pickedRarity);
+    let pickedRarity = grabRar(enemy.level);
+    
+    // const testingDropRar = interaction.user.id === '501177494137995264';
+    // if (testingDropRar) pickedRarity = 10;
+    if (pickedRarity === 10){
+        // Crafting controller check here
+        const craftController = await CraftControllers.findOne({where: {user_id: interaction.user.id}});
+        if (craftController && craftController.drop_rar > 10){
+            const rolledRarUpgrade = grabRar(enemy.level);
+            pickedRarity += rolledRarUpgrade;
+            // if rar O.O.B: rar v 10
+            // if rar > limit: rar = limit
+            // Maybe allow for 12 to be rolled as a way to get additional PURE materials?!
+            pickedRarity = ([11, 12].includes(pickedRarity)) 
+            ? 10 // Rarity lands OUT OF BOUNDS, round downwards to 10
+            : (pickedRarity > craftController.drop_rar) 
+            ? craftController.drop_rar // Rarity upgrade exceeds limit, set at limit
+            : pickedRarity;
+        }   
+    }
+
+    const rarOutOfBounds = () => {
+        const matTypeMatchList = materials.get(pickedMatType);
+        let matMatch = matTypeMatchList.find(mat => mat.Rar_id === pickedRarity);
+        if (matMatch) return matMatch;
+        do {
+            pickedRarity--;
+            matMatch = matTypeMatchList.find(mat => mat.Rar_id === pickedRarity);
+        } while (!matMatch && pickedRarity > -1);
+
+        return matMatch;
+    }
+    const pickedMaterial = rarOutOfBounds(pickedRarity); // materials.get(pickedMatType).find(mat => mat.Rar_id === pickedRarity)
 
 
 
@@ -97,6 +128,7 @@ async function handleEnemyMat(enemy, userid, matFiles, interaction){
     let matFieldVal = `Value **${makePrettyNum(theMat.value)}c**\nType: **${pickedMatType}**\nRarity: **${theMat.rarity}**\nAmount Dropped: **${droppedMats}**`;
     if (theTown !== 'None' && matBonus > 0) matFieldVal += `\n\nThe Town of **${theTown.name}** gives **+${matBonus}** **${theMat.name}**`;
     const embedColour = grabColour(pickedRarity);
+    // console.log(embedColour);
 
     const matTypeFile = new AttachmentBuilder(`./events/Models/json_prefabs/materialLists/mat-png/${pickedMatType}.png`);
     const matTypePng = `attachment://${pickedMatType}.png`;
