@@ -2,8 +2,8 @@ const { Loadout, ItemStrings, UserData, OwnedPotions, Pigmy, ActiveStatus, UserT
 
 const {PigmyInstance} = require('./PigCaste');
 
-const potCatEffects = require('../../../../events/Models/json_prefabs/activeCategoryEffects.json');
-const bpList = require('../../../../events/Models/json_prefabs/blueprintList.json');
+//const potCatEffects = require('../../../../events/Models/json_prefabs/activeCategoryEffects.json');
+//const bpList = require('../../../../events/Models/json_prefabs/blueprintList.json');
 const { grabRar } = require('../../../Game/exported/grabRar');
 const { checkHintStats } = require('../../../Game/exported/handleHints');
 const {rollChance, dropChance, makeCapital, sendTimedChannelMessage} = require('../../../../uniHelperFunctions');
@@ -338,8 +338,8 @@ class CombatInstance {
 
         if (this.potion.activeCat === "Healing"){
             // Handle slightly differently
-            if (this.health === this.maxHealth) return potionDisplay;
-            if (this.health + this.potion.effectApplied > this.maxHealth){
+            if (this.health >= this.maxHealth) return potionDisplay;
+            if ((this.health + this.potion.effectApplied) > this.maxHealth){
                 this.health = this.maxHealth;
             } else this.health += this.potion.effectApplied;
             potionDisplay.title = "Potion Used";
@@ -896,7 +896,7 @@ class CombatInstance {
         const leveled = await UserData.findOne({where: {userid: this.userId}});
         if (leveled.level !== this.level) await this.retrieveBasicStats(dungeonLoad);
 
-        const needUpdated = await this.#checkLoadoutChanges();
+        const needUpdated = await this.#checkLoadoutChanges(interaction);
         if (needUpdated !== "No Update"){
             this.#updateLoadoutIds(needUpdated);
             await this.retrieveLoadout(interaction);

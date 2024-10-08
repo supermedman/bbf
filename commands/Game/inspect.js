@@ -145,13 +145,17 @@ module.exports = {
                             .addFields(itemDetails.fields);
                         } else stringCodeList.push({item_code: "None"});
                     } else {
+                        const thePotion = interaction.client.masterBPCrafts.find(effect => effect.PotionID === id);
+
                         const potMatch = await OwnedPotions.findOne({where: {spec_id: givenUser.id, potion_id: id}});
-                        const potEffect = potCatEffects.filter(effect => effect.Name === potMatch.activecategory)[0][`${potMatch.name}`];
-                        const list = `Value: ${potMatch.value}\nType: ${potMatch.activecategory}\nDuration: ${potMatch.duration}\nCooldown: ${potMatch.cooldown}\nCurrent Amount: ${potMatch.amount}\nEffect Strength: ${potEffect}`;
+                        const potEffect = interaction.client.masterBPEffects.find(effect => effect.Name === thePotion.Name);
+
+                        const list = `Value: ${thePotion.Cost}c\nType: ${potEffect.Type}\nDuration: ${potEffect.Duration}\nCooldown: ${potEffect.Cooldown}\nCurrent Amount: ${potMatch?.amount ?? 0}\nEffect Strength: ${potEffect.Strength}`;
                         embed
                         .setTitle('Currently Equipped')
+                        .setColor(grabColour(thePotion.Rar_id))
                         .addFields(
-                            {name: `${potMatch.name}`, value: list}
+                            {name: `${thePotion.Name}`, value: list}
                         );
                     }
                 }

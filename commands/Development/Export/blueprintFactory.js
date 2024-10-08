@@ -77,6 +77,7 @@ async function rollRandBlueprint(user, bpList, interaction){
      * @returns {boolean}
      */
     const isUnderRarLimit = (r, bp) => bp.Rar_id <= r;
+    /**@type {Collection<string, BaseBP>} */
     const rarFilteredList = levelReqList.filter(bp => isUnderRarLimit(rolledRarity, bp));
     if (rarFilteredList.size === 0) return "No Match";
 
