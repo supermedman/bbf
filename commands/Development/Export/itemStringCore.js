@@ -125,6 +125,84 @@ const casteKeys = new Map([
     ["24", '{"Caste": "Phased Carapace", "Hands": 1, "Type": "Special"}'],
 ]);
 
+/**
+ * @typedef { { casteType: string, hands: number, combatType: string, staticMats: string[] } } CasteBody
+ * @type {Map<string, CasteBody>}
+ */
+const mappedCasteTypes = new Map([
+    ["1", { casteType: "Wand", hands: 1, combatType: "Magic", staticMats: ["Magical", "Woody", "Gemy"] }],
+    ["2", { casteType: "Tome", hands: 1, combatType: "Magic", staticMats: ["Magical", "Skinny", "Gemy"] }],
+    ["3", { casteType: "Staff", hands: 2, combatType: "Magic", staticMats: ["Magical", "Woody", "Gemy"] }],
+    ["4", { casteType: "Focus", hands: 2, combatType: "Magic", staticMats: ["Magical", "Metalic", "Gemy"] }],
+    ["5", { casteType: "Light Blade", hands: 1, combatType: "Melee", staticMats: ["Metalic", "Skinny", "Woody"] }],
+    ["6", { casteType: "Mace", hands: 1, combatType: "Melee", staticMats: ["Metalic", "Woody", "Skinny"] }],
+    ["7", { casteType: "Polearm", hands: 2, combatType: "Melee", staticMats: ["Woody", "Metalic", "Skinny"] }],
+    ["8", { casteType: "Heavy Blade", hands: 2, combatType: "Melee", staticMats: ["Metalic", "Skinny", "Woody"] }],
+
+    ["9", { casteType: "Light Cap", hands: 0, combatType: "Magic", staticMats: ["Silky", "Gemy", "Magical"] }],
+    ["10", { casteType: "Heavy Helm", hands: 0, combatType: "Melee", staticMats: ["Metalic", "Skinny", "Silky"] }],
+    ["11", { casteType: "Light Robe", hands: 0, combatType: "Magic", staticMats: ["Silky", "Gemy", "Magical"] }],
+    ["12", { casteType: "Heavy Chestplate", hands: 0, combatType: "Melee", staticMats: ["Metalic", "Skinny", "Silky"] }],
+    ["13", { casteType: "Light Leggings", hands: 0, combatType: "Magic", staticMats: ["Silky", "Gemy", "Magical"] }],
+    ["14", { casteType: "Heavy Greaves", hands: 0, combatType: "Melee", staticMats: ["Metalic", "Skinny", "Silky"] }],
+    ["15", { casteType: "Light Buckler", hands: 1, combatType: "Magic", staticMats: ["Magical", "Skinny", "Metalic"] }],
+    ["16", { casteType: "Heavy Shield", hands: 1, combatType: "Melee", staticMats: ["Metalic", "Woody", "Skinny"] }],
+
+    ["17", { casteType: "Eye Stone", hands: 1, combatType: "Special", staticMats: ["Magical", "Rocky", "Metalic"] }],
+    ["18", { casteType: "Mage Blade", hands: 2, combatType: "Special", staticMats: ["Magical", "Gemy", "Skinny"] }],
+    ["19", { casteType: "Claw", hands: 1, combatType: "Special", staticMats: ["Metalic", "Skinny", "Fleshy"] }],
+    ["20", { casteType: "Lance", hands: 2, combatType: "Special", staticMats: ["Metalic", "Woody", "Skinny"] }],
+    ["21", { casteType: "Phased Helm", hands: 0, combatType: "Special", staticMats: ["Metalic", "Skinny", "Magical"] }],
+    ["22", { casteType: "Phased Garments", hands: 0, combatType: "Special", staticMats: ["Metalic", "Skinny", "Magical"] }],
+    ["23", { casteType: "Phased Leggings", hands: 0, combatType: "Special", staticMats: ["Metalic", "Skinny", "Magical"] }],
+    ["24", { casteType: "Phased Carapace", hands: 1, combatType: "Special", staticMats: ["Metalic", "Magical", "Skinny"] }],
+]);
+
+/**
+ * This function extracts the stored data for the given `casteName` looking for a matching
+ * `casteType`.
+ * @param {string} casteName CasteType to be loaded
+ * @returns { { id: string, data: CasteBody } }
+ */
+function loadCasteDetails(casteName){
+    const matchesCasteType = cn => cn === casteName;
+
+    for (const [k, v] of mappedCasteTypes){
+        if (matchesCasteType(v.casteType)){
+            return { id: k, data: v };
+        }
+    }
+}
+
+// const mappedStaticMats = new Map([
+//     ["Wand", { staticMats: ["Magical", "Woody", "Gemy"] }],
+//     ["Tome", { staticMats: ["Magical", "Skinny", "Gemy"] }],
+//     ["Staff", { staticMats: ["Magical", "Woody", "Gemy"] }],
+//     ["Focus", { staticMats: ["Magical", "Metalic", "Gemy"] }],
+//     ["Light Blade", { staticMats: ["Metalic", "Skinny", "Woody"] }],
+//     ["Mace", { staticMats: ["Metalic", "Woody", "Skinny"] }],
+//     ["Polearm", { staticMats: ["Woody", "Metalic", "Skinny"] }],
+//     ["Heavy Blade", { staticMats: ["Metalic", "Skinny", "Woody"] }],
+
+//     ["Light Cap", { staticMats: ["Silky", "Gemy", "Magical"] }],
+//     ["Heavy Helm", { staticMats: ["Metalic", "Skinny", "Silky"] }],
+//     ["Light Robe", { staticMats: ["Silky", "Gemy", "Magical"] }],
+//     ["Heavy Chestplate", { staticMats: ["Metalic", "Skinny", "Silky"] }],
+//     ["Light Leggings", { staticMats: ["Silky", "Gemy", "Magical"] }],
+//     ["Heavy Greaves", { staticMats: ["Metalic", "Skinny", "Silky"] }],
+//     ["Light Buckler", { staticMats: ["Magical", "Skinny", "Metalic"] }],
+//     ["Heavy Shield", { staticMats: ["Metalic", "Woody", "Skinny"] }],
+
+//     ["Eye Stone", { staticMats: ["Magical", "Rocky", "Metalic"] }],
+//     ["Mage Blade", { staticMats: ["Magical", "Gemy", "Skinny"] }],
+//     ["Claw", { staticMats: ["Metalic", "Skinny", "Fleshy"] }],
+//     ["Lance", { staticMats: ["Metalic", "Woody", "Skinny"] }],
+//     ["Phased Helm", { staticMats: ["Metalic", "Skinny", "Magical"] }],
+//     ["Phased Garments", { staticMats: ["Metalic", "Skinny", "Magical"] }],
+//     ["Phased Leggings", { staticMats: ["Metalic", "Skinny", "Magical"] }],
+//     ["Phased Carapace", { staticMats: ["Metalic", "Magical", "Skinny"] }],
+// ])
+
 // ===============================
 //      STRING CODE DESTRUCT
 // ===============================
@@ -1509,6 +1587,7 @@ module.exports = {
     checkingCaste,
     checkingCasteID,
     getFilteredCasteTypes,
+    loadCasteDetails,
 
     convertToUniItem,
 
