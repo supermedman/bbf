@@ -1,6 +1,17 @@
 
 const { makeCapital } = require('../../../../uniHelperFunctions');
+const { rarityGenConstant, itemGenDmgTypes, itemGenPickDmgTypes, itemGenDmgConstant, itemGenDefConstant, loadCombatDmgTypePairs, loadCombatDefTypePairs, generateItemValue } = require('../craftingContainer');
 const { loadCasteDetails } = require('../itemStringCore');
+
+/**
+ * @typedef { { name: string, rarity: number, value: number, amount: number } } BaseMaterial
+ * @typedef { { name: string, value: number, amount: number } } ImbueMaterial
+ * 
+ * @typedef { { using: boolean, used: ImbueMaterial | undefined } } ConditionalImbue
+ * @typedef { { using: boolean, used: BaseMaterial | undefined } } ConditionalMat
+ */
+// @type { { pickedMats: BaseMaterial[], tooly: ConditionalMat, imbue: { one: ConditionalMat, two: ConditionalMat }, addMat(), removeMat(), handleImbued() } }
+
 
 class Craftable {
     constructor(){
@@ -38,12 +49,7 @@ class Craftable {
         // Material Selection
         // ==================
         // pickedMats?, tooly?, imbuing?
-        /**
-         * @typedef { { rarity: number, value: number, amount: number } } BaseMaterial
-         * @typedef { { using: boolean, used: BaseMaterial | undefined } } ConditionalMat
-         */
-        // @type { { pickedMats: BaseMaterial[], tooly: ConditionalMat, imbue: { one: ConditionalMat, two: ConditionalMat }, addMat(), removeMat(), handleImbued() } }
-
+        
         /** Contains "Material Selection" data as selected by the user.
          * Makes use of assignment methods to add/remove internal data upon changes made by the user
          */
@@ -56,12 +62,12 @@ class Craftable {
                 used: {}
             },
             imbue: {
-                /**@type {ConditionalMat} */
+                /**@type {ConditionalImbue} */
                 one: {
                     using: false,
                     used: {}
                 },
-                /**@type {ConditionalMat} */
+                /**@type {ConditionalImbue} */
                 two: {
                     using: false,
                     used: {}
@@ -86,19 +92,64 @@ class Craftable {
             },
             /**
              * This method can add and remove an imbued material given the position.
-             * @param {BaseMaterial} imbued Material used for imbuing
+             * @param {ImbueMaterial} imbued Material used for imbuing
              * @param {string} position Imbue slot being used `"one" | "two"` 
              * @param {string} condition Action to preform on the given imbue position `"Add" | "Remove"`
              */
             handleImbued(imbued, position, condition){
                 // This will need some extra work done later!!
                 if (condition === 'Add') { 
-                    this.imbue[`${position}`] = imbued;
+                    this.imbue[`${position}`].used = imbued;
                     this.imbue[`${position}`].using = true;
                 } else { 
-                    this.imbue[`${position}`] = {};
+                    this.imbue[`${position}`].used = {};
                     this.imbue[`${position}`].using = false;
                 }
+            },
+            /**
+             * This method retrieves the useable combatType key from any imbued materials
+             * 
+             * Returns an empty array if not imbued.
+             * @returns {string[]}
+             */
+            extractImbued(){
+                const imbuedWithList = [];
+                const usingImbued = this.imbue.one.using || this.imbue.two.using;
+                if (!usingImbued) return imbuedWithList;
+                if (this.imbue.one.using){
+                    imbuedWithList.push(this.imbue.one.used.name.split(' ')[1].toLowerCase());
+                }
+                if (this.imbue.two.using){
+                    imbuedWithList.push(this.imbue.two.used.name.split(' ')[1].toLowerCase());
+                }
+                return imbuedWithList;
+            },
+            /**
+             * This method calculates the material amount total used for crafting and returns it.
+             * @returns {number}
+             */
+            materialTotal(){
+                const baseTotal = this.pickedMats.reduce((acc, mat) => acc += mat.amount, 0);
+                const toolyTotal = (this.tooly.using) ? this.tooly.used.amount : 0;
+                return baseTotal + toolyTotal;
+            },
+            /**
+             * This method joins all used materials into a single array and returns it
+             * @returns {BaseMaterial[]}
+             */
+            loadUsedMatsList(){
+                // If not using tooly, pass tooly as an empty `BaseMaterial`
+                const passingTooly = (this.tooly.using) 
+                ? this.tooly.used
+                : { rarity: 0, value: 0, amount: 0 };
+
+                // Fill an array with all four material slots as needed for rarity gen
+                const passingMatList = [...this.pickedMats, passingTooly];
+
+                return passingMatList;
+            },
+            loadRarityValuePairs(){
+                return this.loadUsedMatsList().map(mat => ({ r: mat.rarity, v: mat.value }));
             }
         };
 
@@ -109,29 +160,36 @@ class Craftable {
         /**@type {number} */
         this.rarity;
         /**@type {string[]} */
+        this.combatTypeOptions;
+        /**@type {string[]} */
         this.combatTypes;
         /**@type {number} */
         this.combatTypeTotal;
         /**@type {number} */
         this.combatTypeOverflow;
         /**
-         * @type { { dmg: { using: boolean, pairs: { dmg: number, type: string}[], total: number }, def: { using: boolean, pairs: { def: number, type: string}[], total: number } } }
+         * @type { { dmg: { using: boolean, pairs: { type: string, dmg: number }[], single: number, total: number }, def: { using: boolean, pairs: { type: string, def: number }[], single: number, total: number } } }
          */
         this.combatMagnitude = {
             dmg: {
                 using: false,
                 pairs: [],
+                single: 0,
                 total: 0
             },
             def: {
                 using: false,
                 pairs: [],
+                single: 0,
                 total: 0
             }
         };
         /**@type {number} */
         this.value;
-
+        /**@type {string} */
+        this.name;
+        /**@type {string} */
+        this.itemCode;
 
         /** THE CRAFTING PROCESS
          *  
@@ -182,7 +240,8 @@ class Craftable {
     }
 
     /**
-     * This method loads the basic internals of the crafting object, based on the selected `type`
+     * This method loads the basic internals of the crafting object, based on the selected `type`.
+     * It also sets the `Craftable.combatMagnitude` using types flags according to the `slot` selected.
      * @param {string} type Caste Type Selected During Crafting
      * @param {string} slot Gear Slot Selected During Crafting
      */
@@ -202,21 +261,102 @@ class Craftable {
         this.combatCat = casteData.data.combatType;
         this.hands = casteData.data.hands;
         this.staticMatTypes = casteData.data.staticMats;
+
+        // Activate combat types based on slot, 
+        // Deactivate unused types accounting for user backtracking during crafting.
+        switch(this.slot){
+            case "Mainhand":
+                this.combatMagnitude.dmg.using = true;
+                this.combatMagnitude.def.using = false;
+            break;
+            case "Offhand":
+                this.combatMagnitude.dmg.using = true;
+                this.combatMagnitude.def.using = true;
+            break;
+            default:
+                this.combatMagnitude.dmg.using = false;
+                this.combatMagnitude.def.using = true;
+            break;
+        }
     }
 
-    loadRarityFromMaterials(){
+    /**
+     * This method generates (crafts) an item using all internal values stored.
+     */
+    craftItem(){
+        // First load rarity
+        this.#loadRarityFromMaterials();
+        // Second load combatTypes
+        this.#loadCombatTypes();
+        // Third load combatMagnitudes
+        this.#loadCombatMagnitudes();
+        // Fourth load totalValue
+        this.#loadTotalValue();
+    }
+
+    /**
+     * This method loads the `Craftable.rarity` using the stored data within
+     * `Craftable.materials.pickedMats`
+     */
+    #loadRarityFromMaterials(){
         // Use `this.materials` to calculate
+
+        // Generate rarity using the predefined formula
+        this.rarity = rarityGenConstant(...this.materials.loadUsedMatsList());
     }
 
-    loadCombatTypes(){
+    /**
+     * This method loads the `Craftable.combatTypes`, `Craftable.combatTypeTotal`, and `Craftable.combatTypeOverflow` fields.
+     */
+    #loadCombatTypes(){
         // Using code from `craftingContainer.js`
+
+        // =====================
+        //  HANDLE IMBUING HERE
+        // =====================
+
+        this.combatTypes = this.materials.extractImbued();
+        
+        // Loading `Options` to account for preloaded `Imbue` types ^^
+        this.combatTypeOptions = itemGenDmgTypes(this);
+
+        // concat here is used to avoid overwriting any imbued types, added above.
+        this.combatTypes = this.combatTypes.concat(itemGenPickDmgTypes(this));
+
+        // Total up the total combat types accounting for any overflow.
+        this.combatTypeTotal = this.combatTypes.length + this.combatTypeOverflow;
     }
 
-    loadCombatMagnitudes(){
+    /**
+     * This method loads the `Craftable.combatMagnitude` values where `combatMagnitude[type].using === true`.
+     * 
+     * Loads the corrilated dmg/def fields for `single`, `total`, and `pairs`
+     */
+    #loadCombatMagnitudes(){
         // Using code from `craftingContainer.js`
+
+        // Damage Loading
+        if (this.combatMagnitude.dmg.using){
+            this.combatMagnitude.dmg.single = itemGenDmgConstant(this.rarity, this.combatTypeTotal, this.hands, this.materials.materialTotal());
+            loadCombatDmgTypePairs(this);
+        }
+
+        // Defence Loading
+        if (this.combatMagnitude.def.using){
+            this.combatMagnitude.def.single = itemGenDefConstant(this.rarity, this.combatTypeTotal, this.slot, this.materials.materialTotal());
+            loadCombatDefTypePairs(this);
+        }
     }
 
-    loadTotalValue(){
+    /**
+     * This method loads the `Craftable.value` field using all previously filled values.
+     */
+    #loadTotalValue(){
         // Using code from `craftingContainer.js`
+
+        // Load final total item value
+        this.value = generateItemValue(this);
     }
 }
+
+module.exports = { Craftable };

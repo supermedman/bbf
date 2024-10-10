@@ -587,9 +587,14 @@ function uni_CreateDmgTypeString(item){
     const typePrefix = "TYP_";
     const typeSuffix = "_typ";
 
+    // Handle Craftable Class use
+    const dmgPairs = (item.dmgTypePairs) 
+    ? item.dmgTypePairs
+    : item.combatMagnitude.dmg.pairs;
+
     // DAMAGE TYPE:VALUE PAIRS
     let typePairs = [];
-    for (const pair of item.dmgTypePairs){
+    for (const pair of dmgPairs){
         let keyType = "";
         for (const [key, value] of dmgKeys){
             if (value === pair.type) keyType = key;
@@ -614,9 +619,14 @@ function uni_CreateDefTypeString(item){
     const typePrefix = "TYPD_";
     const typeSuffix = "_typd";
 
-    // DAMAGE TYPE:VALUE PAIRS
+    // Handle Craftable Class use
+    const defPairs = (item.defTypePairs) 
+    ? item.defTypePairs
+    : item.combatMagnitude.def.pairs;
+
+    // DEFENCE TYPE:VALUE PAIRS
     let typePairs = [];
-    for (const pair of item.defTypePairs){
+    for (const pair of defPairs){
         let keyType = "";
         for (const [key, value] of dmgKeys){
             if (value === pair.type) keyType = key;
@@ -645,9 +655,15 @@ function uni_CreateStandardBaseItemCode(item){
     // RARITY
     const finalRarStr = (item.rarity < 10) ? "r0" + item.rarity : "r" + item.rarity;
 
+    // Handle Craftable Class use
+    const itemMatList = (item.mats) 
+    ? item.mats
+    : item.staticMatTypes;
+
+
     // DISMANTLE TYPES
     let disPicked = [];
-    for (const matType of item.mats){
+    for (const matType of itemMatList){
         for (const [key, value] of disKeys){
             if (value === matType) {
                 disPicked.push(key);
