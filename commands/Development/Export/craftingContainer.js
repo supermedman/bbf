@@ -1247,6 +1247,14 @@ function benchmarkQualification(casteObj){
  * @returns {string} Newly generated item name
  */
 function handleNamingNewItem(item, bench){
+    // Check if item can become "Black Blade, render of The Dream".
+    const bbCandidate = c => {
+        return c.rarity === 20 && c.slot === "Mainhand" && c.casteType === "Heavy Blade";
+    };
+    if (bbCandidate(item)){
+        // Handle extra checking stuff here.
+    }
+
     const nameAddition = {
         prefix: randArrPos(loadPrefixOptions(item, bench)),
         suffix: ""
@@ -1276,8 +1284,17 @@ function handleNamingNewItem(item, bench){
         if (rollChance(specialNameChance)) useSpecialNaming = true;
     }
 
+    // WIP NEEDS MORE WORK AND MUCH MORE TIME!!
     if (useSpecialNaming){
+        const specialNameOutcome = loadSpecialName(item, bench);
+        // If unique name:
+        // uName, Imbue1? Imbue2? (of | of the) material/benchmark
 
+        // If not unique name:
+        // rarity? casteTyped? (of | of the) Imbue1? Imbue2? benchmark
+
+        // If no rar and not unique:
+        // material casteTyped (of | of the) benchmark
     }
 
     newNameCollector.push(item.materials.pickedMats[0].name);
@@ -1348,7 +1365,12 @@ function handleNamingNewItem(item, bench){
     return generatedName;
 }
 
-
+/**
+ * This function constructs a somewhat resonable looking name for the english language.
+ * 
+ * Uses conditional logic to formulate a name based on common Linguistic formations
+ * @returns {string}
+ */
 function constructRandomName(){
     const abcd = 'abcdefghijklmnopqrstuvwxyz';
     const vowels = 'aeiou';
@@ -1364,8 +1386,23 @@ function constructRandomName(){
             if (this.letters.at(-1).length > 1) return this.letters.at(-1)[1];
             return this.letters.at(-1);
         },
-        addRandomLetter(){
-            this.letters.push(abcd[inclusiveRandNum(26, 0)]);
+        filterLastLetter(){
+            return abcd.split("").filter(l => l !== this.grabLastLetter()).join("");
+        },
+        grabLastLetterType(){
+            const lastLetter = this.grabLastLetter();
+            if (vowels.includes(lastLetter)) return "Vowel";
+            return "Not Vowel";
+        },
+        addRandomLetter(checkLast=false){
+            if (!checkLast) {
+                this.letters.push(abcd[inclusiveRandNum(26, 0)]);
+            } else {
+                this.letters.push(this.filterLastLetter()[inclusiveRandNum(25, 0)]);
+            }
+        },
+        addRandomNOTVowel(){
+            this.letters.push(withoutVowels[inclusiveRandNum(21, 0)]);
         },
         addRandomVowel(){
             this.letters.push(vowels[inclusiveRandNum(5, 0)]);
@@ -1418,17 +1455,26 @@ function constructRandomName(){
     // Check how many letters can be added
     let lettersRemaining = nameLength - fullNameContainer.grabCurrentLength();
     if (lettersRemaining === 1){
-        fullNameContainer.addRandomLetter();
+        fullNameContainer.addRandomLetter(true);
         return fullNameContainer.finalizeName();
     }
 
     do {
+        // If two letters remain, fill with random ending
         if (lettersRemaining === 2){
             fullNameContainer.addToLetters(randArrPos(endingLetters));
             break;
         }
 
-
+        // If last letter was vowel, pick random letter excluding vowels
+        if (fullNameContainer.grabLastLetterType() === "Vowel"){
+            fullNameContainer.addRandomNOTVowel();
+            lettersRemaining--;
+        } else {
+            // Otherwise pick random letter not matching last letter found
+            fullNameContainer.addRandomLetter(true);
+            lettersRemaining--;
+        }
 
     } while (lettersRemaining > 0);
 
@@ -1444,16 +1490,71 @@ function loadSpecialName(item, bench){
     const nameContainer = {
         caste: "",
         rarity: "",
+        uniqueName: "",
         material: "",
         benchmark: ""
     };
     // Naming for casteType?
 
+    switch(item.slot){
+        case "Mainhand":
+            switch(item.combatCat){
+                case "Magic":
+                    nameContainer.caste = randArrPos(["Malificent", "Vindictive"]);
+                break;
+                case "Melee":
+                    nameContainer.caste = randArrPos(["Great", "War", "Fierce"]);
+                break;
+                case "Special":
+                    nameContainer.caste = randArrPos(["Judgement"]);
+                break;
+            }
+        break;
+        case "Offhand":
+            switch(item.combatCat){
+                case "Magic":
+                    nameContainer.caste = randArrPos(["Peace Maker"]);
+                break;
+                case "Melee":
+                    nameContainer.caste = randArrPos(["Vengeance"]);
+                break;
+                case "Special":
+                    nameContainer.caste = randArrPos(["Cataclysm"]);
+                break;
+            }
+        break;
+        default:
+            // Armor
+            switch(item.combatCat){
+                case "Magic":
+                    nameContainer.caste = randArrPos(["Incarnated"]);
+                break;
+                case "Melee":
+                    nameContainer.caste = randArrPos(["Defender"]);
+                break;
+                case "Special":
+                    nameContainer.caste = randArrPos(["Deflector"]);
+                break;
+            }
+        break;
+    }
+
     // Naming for rarity?
+    // Roll for using unique name
+    const useUniqueName = rollChance((0.02 + (item.rarity * 0.02)));
+    if (useUniqueName){
+        // Using unique name
+        nameContainer.uniqueName = constructRandomName();
+    } else if (!baseCheckRarName(item.rarity).includes("?") && !useUniqueName){
+        // If rarity is not "?" | "??" | "???" | "????"
+        nameContainer.rarity = baseCheckRarName(item.rarity);
+    }
 
     // Naming for materials?
 
     // Naming for benchmark devience?
+
+    return nameContainer;
 }
 
 /**
@@ -2028,5 +2129,6 @@ module.exports = {
     itemValueGenConstant,
     handleNamingNewItem,
     extractName,
-    benchmarkQualification
+    benchmarkQualification,
+    constructRandomName
 };

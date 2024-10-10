@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const { handleLimitOnOptions, endTimer, randArrPos, inclusiveRandNum, makeCapital } = require('../../uniHelperFunctions.js');
 const { checkingRarID, loadFullRarNameList, loadFullDismantleList } = require('./Export/itemStringCore.js');
 const { UserMaterials, MaterialStore } = require('../../dbObjects.js');
+const { constructRandomName } = require('./Export/craftingContainer.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -374,7 +375,7 @@ module.exports = {
         class CombatNPC {
             constructor(){
                 this.level = inclusiveRandNum(200, 1);
-                this.name = loadRandomName(inclusiveRandNum(8, 4));
+                this.name = constructRandomName(); //loadRandomName(inclusiveRandNum(8, 4));
 
                 this.fullCaste = randArrPos(npcOC.creature.species)
 
