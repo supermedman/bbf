@@ -1,7 +1,18 @@
 
 const { makeCapital } = require('../../../../uniHelperFunctions');
-const { rarityGenConstant, itemGenDmgTypes, itemGenPickDmgTypes, itemGenDmgConstant, itemGenDefConstant, loadCombatDmgTypePairs, loadCombatDefTypePairs, generateItemValue } = require('../craftingContainer');
-const { loadCasteDetails } = require('../itemStringCore');
+const { 
+    rarityGenConstant, 
+    itemGenDmgTypes, 
+    itemGenPickDmgTypes, 
+    itemGenDmgConstant, 
+    itemGenDefConstant, 
+    loadCombatDmgTypePairs, 
+    loadCombatDefTypePairs, 
+    generateItemValue, 
+    benchmarkQualification, 
+    handleNamingNewItem 
+} = require('../craftingContainer');
+const { loadCasteDetails, uni_CreateCompleteItemCode, baseCheckRarName } = require('../itemStringCore');
 
 /**
  * @typedef { { name: string, rarity: number, value: number, amount: number } } BaseMaterial
@@ -12,7 +23,22 @@ const { loadCasteDetails } = require('../itemStringCore');
  */
 // @type { { pickedMats: BaseMaterial[], tooly: ConditionalMat, imbue: { one: ConditionalMat, two: ConditionalMat }, addMat(), removeMat(), handleImbued() } }
 
-
+/**
+ * The `Craftable` class is used for item crafting.
+ * 
+ * Upon the user selecting both a slot type and a casteType, call `Craftable.loadFromCasteType(casteType, slot)`
+ * 
+ * During material selection add materials using `Craftable.materials.addMat(BaseMaterial, index)` `index` being "0", "1", "2" for normal materials
+ * "3" for tooly materials
+ * 
+ * Removal is done using `Craftable.materials.removeMat(index)` where `index` is the same
+ * 
+ * Imbuing is done by using `Craftable.materials.handleImbued(ImbueMaterial, position, condition)` `position` being "one" or "two", condition being "Add" or "Remove"
+ * 
+ * Call `Craftable.craftItem()` after the material selection process is complete.
+ * 
+ * Call `Craftable.evaluateItem()` after crafting to load final details: returns boolean from benchmarking
+ */
 class Craftable {
     constructor(){
         // Basic Props
@@ -87,7 +113,7 @@ class Craftable {
              * @param {string} position Index position to be removed `'0' | '1' | '2' | '3'` (Selecting idx 3 results in removing `tooly`)
              */
             removeMat(position){
-                if (['0', '1', '2'].includes(position)) this.pickedMats[position] = undefined;
+                if (['0', '1', '2'].includes(position)) delete this.pickedMats[position];
                 else { this.tooly.using = false; this.tooly.used = {}; }
             },
             /**
@@ -166,7 +192,7 @@ class Craftable {
         /**@type {number} */
         this.combatTypeTotal;
         /**@type {number} */
-        this.combatTypeOverflow;
+        this.combatTypeOverflow = 0;
         /**
          * @type { { dmg: { using: boolean, pairs: { type: string, dmg: number }[], single: number, total: number }, def: { using: boolean, pairs: { type: string, def: number }[], single: number, total: number } } }
          */
@@ -239,6 +265,10 @@ class Craftable {
          */
     }
 
+    debugOutput(){
+        console.log(this);
+    }
+
     /**
      * This method loads the basic internals of the crafting object, based on the selected `type`.
      * It also sets the `Craftable.combatMagnitude` using types flags according to the `slot` selected.
@@ -292,6 +322,93 @@ class Craftable {
         this.#loadCombatMagnitudes();
         // Fourth load totalValue
         this.#loadTotalValue();
+    }
+
+    /**
+     * This method loads the `Craftable` itemCode, as well as running a benchmark check.
+     * 
+     * After, a name is generated given all previous checks and the contents of `this`, finally returning the outcome 
+     * of benchmarking.
+     * @returns {boolean}
+     */
+    evaluateItem(){
+        // Generate ItemCode
+        this.itemCode = uni_CreateCompleteItemCode(this);
+
+        // Benchmarking
+        const benchmarker = benchmarkQualification(this);
+        const passedChecking = benchmarker.passCheck;
+
+        // Naming
+        this.name = handleNamingNewItem(this, benchmarker);
+
+        return passedChecking;
+    }
+
+    /**
+     * This method formats `this` into a valid storage structure for the `ItemStrings` db table
+     * @returns { { name: string, value: number, item_code: string, caste_id: number } }
+     */
+    formatItem(){
+        // Format `Craftable` to store in db
+        const finalItemObject = {
+            name: this.name,
+            value: this.value,
+            item_code: this.itemCode,
+            caste_id: this.casteID
+        };
+
+        return finalItemObject;
+    }
+
+    /**
+     * This method formats `this` into valid `EmbedBuilder` field value objects, containing all relavent display data
+     * @returns { { name: string, value: string }[] }
+     */
+    displayItem(){
+        // Format `Craftable` for user display
+        const finalFields = [];
+
+        // Name
+        finalFields.push( { name: 'Name:', value: `**${this.name}**` } );
+
+        // Slot
+        finalFields.push( { name: 'Slot:', value: `**${this.slot}**` } );
+
+        // Rarity
+        finalFields.push( { name: 'Rarity:', value: `**${baseCheckRarName(this.rarity)}**` } );
+
+        // Hands?
+        if (this.hands > 0){
+            finalFields.push( { name: 'Hands Needed:', value: `**${this.hands}**` } );
+        }
+
+        // TotDamage?
+        if (this.combatMagnitude.dmg.using){
+            finalFields.push( { name: 'Total Item Damage:', value: `**${this.combatMagnitude.dmg.total}**` } );
+        }
+
+        // TotDefence?
+        if (this.combatMagnitude.def.using){
+            finalFields.push( { name: 'Total Item Defence:', value: `**${this.combatMagnitude.def.total}**` } );
+        }
+
+        // TotValue
+        finalFields.push( { name: 'Total Item Value:', value: `**${this.value}**c` } );
+
+        // DamageValues?
+        if (this.combatMagnitude.dmg.using){
+            finalFields.push( { name: '**Damage Types:**', value: ` ` } );
+            finalFields.push( ...this.combatMagnitude.dmg.pairs.map(pair => ({ name: `${pair.type}`, value: `${pair.dmg}` })) );
+        }
+
+        // DefenceValues?
+        if (this.combatMagnitude.def.using){
+            finalFields.push( { name: '**Defence Types:**', value: ` ` } );
+            finalFields.push( ...this.combatMagnitude.def.pairs.map(pair => ({ name: `${pair.type}`, value: `${pair.def}` })) );
+        }
+
+        return finalFields;
     }
 
     /**

@@ -201,76 +201,143 @@ async function handleControllerCrafting(controller, casteObj, finalObj){
     await controller.increment('tot_crafted').then(async c => await c.save()).then(async c => {return await c.reload()});
     
     // Total Value
-    const nTotValue = controller.value_crafted + finalObj.value;
-    await controller.update({value_crafted: nTotValue}).then(async c => await c.save()).then(async c => {return await c.reload()});
+    //const nTotValue = controller.value_crafted + finalObj.value;
+    await controller.increment('value_crafted', { by: finalObj.value }).then(async c => await c.save()).then(async c => {return await c.reload()});
 
     // Check if imbued
     // ===============
 
     // Check if new strongest item
     // ============================
-    let upStrongest, strongType;
+
+    /**
+     * This function totals the damage of the given damage pairs array
+     * @param { { type: string, DMG?: number, dmg?: number }[] } dmgPairs Damage:Type Pair Object Array
+     * @returns {number}
+     */
+    const retrieveDMG = dmgPairs => {
+        return dmgPairs.reduce((acc, pair) => {
+            return (acc > 0) ? acc + (pair.DMG ?? pair.dmg) : (pair.DMG ?? pair.dmg);
+        }, 0);
+    };
+
+    /**
+     * This function totals the defence of the given defence pairs array
+     * @param { { type: string, DEF?: number, def?: number }[] } defPairs Defence:Type Pair Object Array
+     * @returns {number}
+     */
+    const retrieveDEF = defPairs => {
+        return defPairs.reduce((acc, pair) => {
+            return (acc > 0) ? acc + (pair.DEF ?? pair.def) : (pair.DEF ?? pair.def);
+        }, 0);
+    };
+
+    let slotChecked = "";
     switch(casteObj.slot){
         case "Mainhand":
-            strongType = 'strongest_weapon';
-            if (controller.strongest_weapon === "None"){
-                upStrongest = finalObj.item_code;
-                break;
-            } else {
-                const curStrong = checkingDamage(controller.strongest_weapon).reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DMG : obj.DMG;
-                }, 0);
-                const checkStrong = casteObj.dmgTypePairs.reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DMG : obj.DMG;
-                }, 0);
-                if (checkStrong > curStrong) upStrongest = finalObj.item_code;
-            }
+            slotChecked = "strongest_weapon";
         break;
         case "Offhand":
-            strongType = 'strongest_offhand';
-            if (controller.strongest_offhand === "None"){
-                upStrongest = finalObj.item_code;
-                break;
-            } else {
-                const curStrongDMG = checkingDamage(controller.strongest_weapon).reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DMG : obj.DMG;
-                }, 0);
-                const curStrongDEF = checkingDefence(controller.strongest_armor).reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DEF : obj.DEF;
-                }, 0);
-                const curTotStrong = curStrongDMG + curStrongDEF;
-                
-                const checkStrongDMG = casteObj.dmgTypePairs.reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DMG : obj.DMG;
-                }, 0);
-                const checkStrongDEF = casteObj.defTypePairs.reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DEF : obj.DEF;
-                }, 0);
-                const checkTotStrong = checkStrongDMG + checkStrongDEF;
-
-                if (checkTotStrong > curTotStrong) upStrongest = finalObj.item_code;
-            }
+            slotChecked = "strongest_offhand";
         break;
         default:
-            strongType = 'strongest_armor';
-            if (controller.strongest_armor === "None"){
-                upStrongest = finalObj.item_code;
-                break;
-            } else {
-                const curStrong = checkingDefence(controller.strongest_armor).reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DEF : obj.DEF;
-                }, 0);
-                const checkStrong = casteObj.defTypePairs.reduce((acc, obj) => {
-                    return (acc > 0) ? acc + obj.DEF : obj.DEF;
-                }, 0);
-                if (checkStrong > curStrong) upStrongest = finalObj.item_code;
-            }
+            slotChecked = "strongest_armor";
         break;
     }
 
+    let updateSlotWith;
+    if (controller[`${slotChecked}`] !== 'None'){
+        // Compare stored strongest against newly crafted item
+        let curBest = 0, checkingAgainst = 0;
+        switch(casteObj.slot){
+            case "Mainhand":
+                curBest = retrieveDMG(checkingDamage(controller[`${slotChecked}`]));
+                checkingAgainst = retrieveDMG(casteObj.dmgTypePairs ?? casteObj.combatMagnitude.dmg.pairs);
+            break;
+            case "Offhand":
+                curBest = retrieveDMG(checkingDamage(controller[`${slotChecked}`])) + retrieveDEF(checkingDefence(controller[`${slotChecked}`]));
+                checkingAgainst = retrieveDMG(casteObj.dmgTypePairs ?? casteObj.combatMagnitude.dmg.pairs) + retrieveDEF(casteObj.defTypePairs ?? casteObj.combatMagnitude.def.pairs);
+            break;
+            default:
+                curBest = retrieveDEF(checkingDefence(controller[`${slotChecked}`]));
+                checkingAgainst = retrieveDEF(casteObj.defTypePairs ?? casteObj.combatMagnitude.def.pairs);
+            break;
+        }
+
+        // if current best crafted is >= newly crafted item, current strongest remains
+        updateSlotWith = (curBest >= checkingAgainst) 
+        ? controller[`${slotChecked}`] 
+        : finalObj.item_code;
+
+    } else updateSlotWith = finalObj.item_code;
+
+    // Update controller with final strongest item picked
     await controller.update({
-        [`${strongType}`]: upStrongest
+        [`${slotChecked}`]: updateSlotWith
     }).then(async c => await c.save()).then(async c => {return await c.reload()});
+
+    // let upStrongest, strongType;
+    // switch(casteObj.slot){
+    //     case "Mainhand":
+    //         strongType = 'strongest_weapon';
+    //         if (controller.strongest_weapon === "None"){
+    //             upStrongest = finalObj.item_code;
+    //             break;
+    //         } else {
+    //             const curStrong = checkingDamage(controller.strongest_weapon).reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DMG : obj.DMG;
+    //             }, 0);
+    //             const checkStrong = casteObj.dmgTypePairs.reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DMG : obj.DMG;
+    //             }, 0);
+    //             if (checkStrong > curStrong) upStrongest = finalObj.item_code;
+    //         }
+    //     break;
+    //     case "Offhand":
+    //         strongType = 'strongest_offhand';
+    //         if (controller.strongest_offhand === "None"){
+    //             upStrongest = finalObj.item_code;
+    //             break;
+    //         } else {
+    //             const curStrongDMG = checkingDamage(controller.strongest_weapon).reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DMG : obj.DMG;
+    //             }, 0);
+    //             const curStrongDEF = checkingDefence(controller.strongest_armor).reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DEF : obj.DEF;
+    //             }, 0);
+    //             const curTotStrong = curStrongDMG + curStrongDEF;
+                
+    //             const checkStrongDMG = casteObj.dmgTypePairs.reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DMG : obj.DMG;
+    //             }, 0);
+    //             const checkStrongDEF = casteObj.defTypePairs.reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DEF : obj.DEF;
+    //             }, 0);
+    //             const checkTotStrong = checkStrongDMG + checkStrongDEF;
+
+    //             if (checkTotStrong > curTotStrong) upStrongest = finalObj.item_code;
+    //         }
+    //     break;
+    //     default:
+    //         strongType = 'strongest_armor';
+    //         if (controller.strongest_armor === "None"){
+    //             upStrongest = finalObj.item_code;
+    //             break;
+    //         } else {
+    //             const curStrong = checkingDefence(controller.strongest_armor).reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DEF : obj.DEF;
+    //             }, 0);
+    //             const checkStrong = casteObj.defTypePairs.reduce((acc, obj) => {
+    //                 return (acc > 0) ? acc + obj.DEF : obj.DEF;
+    //             }, 0);
+    //             if (checkStrong > curStrong) upStrongest = finalObj.item_code;
+    //         }
+    //     break;
+    // }
+
+    // await controller.update({
+    //     [`${strongType}`]: upStrongest
+    // }).then(async c => await c.save()).then(async c => {return await c.reload()});
 
     // Check if most valueble
     // ============================

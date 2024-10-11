@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require('discord.js');
-const { grabUser, endTimer, createInteractiveChannelMessage, handleCatchDelete, makeCapital, sendTimedChannelMessage, editTimedChannelMessage } = require('../../uniHelperFunctions');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { grabUser, endTimer, createInteractiveChannelMessage, handleCatchDelete, makeCapital, sendTimedChannelMessage, editTimedChannelMessage, createConfirmCancelButtonRow } = require('../../uniHelperFunctions');
 const { CraftControllers, MaterialStore, ItemLootPool } = require('../../dbObjects');
 const { 
     itemCasteFilter, 
@@ -22,9 +22,14 @@ const {
     loadTypeButtons,
     loadCasteTypeFilterObject
 } = require('./exported/craftingExtras');
-const { uni_CreateCompleteItemCode, checkingSlot, checkingRar, checkingCasteID, checkingRarID } = require('../Development/Export/itemStringCore');
+const { uni_CreateCompleteItemCode, checkingSlot, checkingRar, checkingCasteID, checkingRarID, baseCheckRarName } = require('../Development/Export/itemStringCore');
 const { grabColour } = require('./exported/grabRar');
 const { checkInboundItem, handleNewStaticItem, checkOutboundMat } = require('../Development/Export/itemMoveContainer');
+
+const { NavMenu } = require('../Development/Export/Classes/NavMenu');
+const { Craftable } = require('../Development/Export/Classes/CraftingCaste');
+const { convertOldMatStore } = require('./exported/materialContainer');
+const { loadDefaultAmountButtonActionRows, fnSignConverter } = require('../../uniDisplayFunctions');
 
 module.exports = {
     helptypes: ['Gear', 'Craft', 'Story'],
@@ -35,6 +40,8 @@ module.exports = {
         // const allowedUsers = ['501177494137995264', '951980834469060629', '544114963346620417'];
         // if (!allowedUsers.includes(interaction.user.id)) return await interaction.reply('This command is under construction! Check back later!');
         
+        // if (interaction.user.id !== '501177494137995264') return await interaction.reply({ content: 'This command is being tested and is currently unavailable!', ephemeral: true });
+
         const user = await grabUser(interaction.user.id);
         if (user.level < 10) return await interaction.reply('You must be at least level 10 before you can be allowed to use the forge!');
         
@@ -43,6 +50,8 @@ module.exports = {
         .setDescription('Please hold while the forge heats up!');
 
         const loadingMsgAnchor = await interaction.reply({embeds: [loadingReplyEmbed]});
+
+        const { materials } = interaction.client;
 
         /**
          *     === CASTE OPTIONS ===
@@ -255,12 +264,53 @@ module.exports = {
 
         casteEmbedList.push(casteSlotEmbed, itemGroupEmbed, itemTypeEmbed);
 
+        // Material Selection Display
+        const selectMaterialsEmbed = new EmbedBuilder()
+        .setTitle('== Select A Material ==')
+        .setDescription('Select one of the following material options!');
+
+        // Confirm Crafting Display
+        const confirmCraftEmbed = new EmbedBuilder()
+        .setTitle('== Confirm Selection ==')
+        .setDescription('Press confirm to craft using the selected materials!');
+
+        // Use tooly option display
+        const useToolySelectEmbed = new EmbedBuilder()
+        .setTitle('== (OPTIONAL) Select Tooly? ==')
+        .setDescription('This step is optional, you have access to using `tooly` materials when crafting. This will give a boost to base combat stats, value, and potentially rarity! \n\nPress the Skip button to skip this step!');
+
+        const skipToolyButt = new ButtonBuilder()
+        .setCustomId('skip-tooly')
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel('Skip');
+        const backToolyButt = new ButtonBuilder()
+        .setCustomId('back-mat-3')
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel('Back');
+
+        const skipToolyButtonRow = new ActionRowBuilder().addComponents(backToolyButt, skipToolyButt);
+
+        const selectToolyAmountEmbed = new EmbedBuilder()
+        .setTitle('== Select Tooly Amount ==')
+        .setDescription('Select the amount of <tooly-selected> you would like to craft with! You can use up to <max_tooly>, and you have <tooly-selected-amount>');
+
+
+        const batchCraftButt = new ButtonBuilder()
+        .setCustomId('batch-craft')
+        .setStyle(ButtonStyle.Secondary)
+        .setLabel('Batch Craft')
+        .setDisabled(true);
+        const batchCraftRow = new ActionRowBuilder().addComponents(batchCraftButt);
+
+        // Standard confirm crafting row
+        const confirmCraftRow = [createConfirmCancelButtonRow('craft'), batchCraftRow];
+
         const initialReply = {embeds: [casteEmbedList[0]], components: [loadSlotButtons(finalCasteTypes)]};
 
         // Delete loading mesage upon initial menu being loaded.
         await handleCatchDelete(loadingMsgAnchor);
 
-        const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 600000, initialReply, "FollowUp");
+        const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 600000, initialReply, "FollowUp", "Both");
 
         const slotCheckList = ["mainhand", "offhand", "headslot", "chestslot", "legslot"];
         const groupCheckList = ["ma1h-gp", "ma2h-gp", "me1h-gp", "me2h-gp", "mas-gp", "mes-gp", "mah-gp", "meh-gp", "mac-gp", "mec-gp", "mal-gp", "mel-gp"];
@@ -270,61 +320,587 @@ module.exports = {
         const optionTracker = {
             slot: "",
             group: "",
-            type: ""
+            type: "",
+            materialPosition: 0,
+            matDataAtPOS: [],
+            toolyMatData: {},
+            toolyAmount: 0,
+            materialAmounts: [15, 10, 5],
+            batchCraft: 0
         };
 
-        collector.on('collect', async c => {
-            await c.deferUpdate().then(async () =>{
-                //console.log(c);
-                // Handling progressive menu here
-                let editWith, casteFinished = false;
-                switch(c.customId){
-                    case "back-group":
-                        // Show Slot Embed
-                        optionTracker.slot = "";
-                        editWith = {embeds: [casteEmbedList[0]], components: [loadSlotButtons(finalCasteTypes)]};
-                    break;
-                    case "back-type":
-                        // Show Group Embed
-                        optionTracker.group = "";
-                        editWith = {embeds: [casteEmbedList[1]], components: [loadGroupButtons(finalCasteTypes, optionTracker.slot)]};
-                    break;
-                    default:
-                        if (slotCheckList.includes(c.customId)){
-                            // First check: slot picked
-                            optionTracker.slot = c.customId;
-                            editWith = {embeds: [casteEmbedList[1]], components: [loadGroupButtons(finalCasteTypes, optionTracker.slot)]};
-                        } else if (groupCheckList.includes(c.customId)){
-                            // Second check: group picked
-                            optionTracker.group = c.customId;
-                            editWith = {embeds: [casteEmbedList[2]], components: [loadTypeButtons(optionTracker.group)]};
-                        } else if (typeCheckList.includes(c.customId)){
-                            // Third check: type picked
-                            optionTracker.type = c.customId;
-                            //editWith = {embeds: [new EmbedBuilder().setTitle('Place Holder').setDescription(`Final Picked Caste Options:\nSlot: ${makeCapital(optionTracker.slot)}\nGroup: ${optionTracker.group}\nType: ${optionTracker.type}\nType Matched: ${typeMatchList[typeCheckList.indexOf(optionTracker.type)]}`)]};
-                            casteFinished = true;
+        const craftMenu = new NavMenu(user, initialReply, initialReply.components, optionTracker);
+        const craftObj = new Craftable();
+
+        /**@typedef { {  name: string, rarID: number, rarity: string, value: number, amount: number  } } FilteredMaterial */
+
+        /**
+         * This function handles loading a single material type string selection list for all usable materials
+         * @param {NavMenu} menu Navigation Instance
+         * @param {Craftable} craft Craftable Instance
+         * @param {object} controller CraftingController
+         * @returns {Promise<{ components: [ActionRowBuilder<StringSelectMenuBuilder>, ActionRowBuilder<ButtonBuilder>], data: FilteredMaterial[] }> | Promise<string>}
+         */
+        async function loadMaterialOptions(menu, craft, controller){
+            const curMatPosition = menu.specs.materialPosition;
+            const curMatType = craft.staticMatTypes[curMatPosition].toLowerCase();
+            const curMatAmount = menu.specs.materialAmounts[curMatPosition];
+
+            const storedMaterials = await convertOldMatStore(interaction, curMatType);
+
+            const hasEnoughMaterial = v => v >= curMatAmount;
+            const canCraftWith = k => +k <= controller.max_rar;
+
+            const isUsable = (k, v) => {
+                return canCraftWith(k) && hasEnoughMaterial(v);
+            };
+
+            const materialRefList = materials.get(curMatType);
+
+            /**@type { FilteredMaterial[] } */
+            const usableMaterials = Object.entries(storedMaterials)
+            .filter(([k, v]) => isUsable(k, v))
+            .reduce((acc, [k, v]) => {
+                const matMatch = materialRefList.find(mat => mat.Rar_id === +k);
+                acc.push( { name: matMatch.Name, rarID: +k, rarity: baseCheckRarName(k), value: matMatch.Value, amount: v } );
+                return acc;
+            }, []);
+
+            if (!usableMaterials.length) return "No Materials";
+
+            usableMaterials.sort((a,b) => a.rarID - b.rarID);
+
+            const stringSelectOptionList = [];
+            for (const mat of usableMaterials){
+                const option = new StringSelectMenuOptionBuilder()
+                .setLabel(mat.name)
+                .setDescription(`Rarity: ${mat.rarity}, Owned/Need: ${mat.amount}/${curMatAmount}`)
+                .setValue(mat.name);
+                stringSelectOptionList.push(option);
+            }
+
+            const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId(`material-${curMatPosition}`)
+            .setPlaceholder('Select a material!')
+            .addOptions(stringSelectOptionList);
+
+            const selectRow = new ActionRowBuilder().addComponents(selectMenu);
+            const backRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                .setCustomId(`back-mat-${curMatPosition}`)
+                .setLabel('Go Back')
+                .setStyle(ButtonStyle.Secondary)
+            );
+
+            const selectMenuActionRows = [selectRow, backRow];
+
+            const selectionData = {
+                components: selectMenuActionRows,
+                matData: usableMaterials
+            };
+
+            return selectionData;
+        }
+
+        /**
+         * This function handles loading `tooly` materials for any users with access.
+         * @param {object} controller CraftController
+         * @returns {Promise<{ components: ActionRowBuilder<StringSelectMenuBuilder>, data: FilteredMaterial[] }> | Promise<string>}
+         */
+        async function loadToolyMaterialOptions(controller){
+            const storedMaterials = await convertOldMatStore(interaction, 'tooly');
+
+            const hasEnoughMaterial = v => v > 0;
+            const canCraftWith = k => +k <= controller.rar_tooly;
+
+            const isUsable = (k, v) => {
+                return canCraftWith(k) && hasEnoughMaterial(v);
+            };
+
+            const materialRefList = materials.get('tooly');
+
+            /**@type { FilteredMaterial[] } */
+            const usableMaterials = Object.entries(storedMaterials)
+            .filter(([k, v]) => isUsable(k, v))
+            .reduce((acc, [k, v]) => {
+                const matMatch = materialRefList.find(mat => mat.Rar_id === +k);
+                acc.push( { name: matMatch.Name, rarID: +k, rarity: baseCheckRarName(k), value: matMatch.Value, amount: v } );
+                return acc;
+            }, []);
+
+            if (!usableMaterials.length) return "No Materials";
+
+            usableMaterials.sort((a,b) => a.rarID - b.rarID);
+
+            const stringSelectOptionList = [];
+            for (const mat of usableMaterials){
+                const option = new StringSelectMenuOptionBuilder()
+                .setLabel(mat.name)
+                .setDescription(`Rarity: ${mat.rarity}, Owned: ${mat.amount}`)
+                .setValue(mat.name);
+                stringSelectOptionList.push(option);
+            }
+
+            const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId(`material-3`)
+            .setPlaceholder('Select a material!')
+            .addOptions(stringSelectOptionList);
+
+            const selectRow = new ActionRowBuilder().addComponents(selectMenu);
+
+            const selectionData = {
+                components: selectRow,
+                matData: usableMaterials
+            };
+
+            return selectionData;
+        }
+
+        /**
+         * This function updates the display embed containing selected material details, use after adding/removing a material
+         * @param {Craftable} craft Craftable Instance
+         */
+        function updateMaterialSelectDisplay(craft){
+            selectMaterialsEmbed
+            .setFields(
+                craft.materials.pickedMats.filter(mat => mat).map(mat => ({ name: `== ${mat.name} ==`, value: `Rarity: **${baseCheckRarName(mat.rarity)}**\nValue: **${mat.value}**c\nAmount Used: **${mat.amount}**` }))
+            );
+        }
+
+        /**
+         * This function updates the display embed containing selected material details, used for display with confirming item craft
+         * @param {Craftable} craft Craftable Instance
+         */
+        function updateConfirmCraftDisplay(craft){
+            confirmCraftEmbed
+            .setFields(
+                craft.materials.pickedMats.filter(mat => mat).map(mat => ({ name: `== ${mat.name} ==`, value: `Rarity: **${baseCheckRarName(mat.rarity)}**\nValue: **${mat.value}**c\nAmount Used: **${mat.amount}**` }))
+            );
+        }
+
+        // ~~~~~~~~~~~~~~~~~~~~~
+        // STRING COLLECTOR (COLLECT)
+        sCollector.on('collect', async c => {
+            await c.deferUpdate().then(async () => {
+                let editWith = {};
+
+                const idSplits = c.customId.split("-");
+                switch(idSplits[0]){
+                    case "material":
+                        const selectedMatData = craftMenu.specs.matDataAtPOS.find(mat => mat.name === c.values[0]);
+                        
+                        // idSplits[1] === Current material position
+                        if (craftMenu.specs.materialPosition !== 3) craftObj.materials.addMat( { name: selectedMatData.name, rarity: selectedMatData.rarID, value: selectedMatData.value, amount: craftMenu.specs.materialAmounts[idSplits[1]]}, idSplits[1]);
+                        if (craftMenu.specs.materialPosition === 3) craftMenu.specs.toolyMatData = selectedMatData;
+
+                        // Load Display here
+                        updateMaterialSelectDisplay(craftObj);
+
+                        // Increase Position Tracker
+                        craftMenu.specs.materialPosition++;
+
+                        if (!controller.use_tooly && craftMenu.specs.materialPosition === 3){
+                            // Basic Selection complete! Cannot use tooly!
+                            updateConfirmCraftDisplay(craftObj);
+                            editWith = craftMenu.goingForward({ embeds: [confirmCraftEmbed], components: confirmCraftRow });
+
+                        } else if (controller.use_tooly && craftMenu.specs.materialPosition === 3){
+                            // Basic Selection complete! Give option to use tooly!
+
+                            const toolyComponentCheck = await loadToolyMaterialOptions(controller);
+
+                            // Check if user owns at least 1 tooly @ a rarity usable, otherwise display as if tooly is locked
+                            if (toolyComponentCheck === "No Materials"){
+                                // Basic Selection complete! Cannot use tooly!
+                                updateConfirmCraftDisplay(craftObj);
+
+                                editWith = craftMenu.goingForward({ embeds: [confirmCraftEmbed], components: confirmCraftRow });
+                            } else {
+                                craftMenu.specs.matDataAtPOS = toolyComponentCheck.matData;
+
+                                editWith = craftMenu.goingForward({ embeds: [useToolySelectEmbed], components: [toolyComponentCheck.components, skipToolyButtonRow] });
+                            }
+                        } else if (controller.use_tooly && craftMenu.specs.materialPosition === 4){
+                            // Tooly Selection complete! 
+
+                            // Prepare amount selection display
+                            selectToolyAmountEmbed
+                            .setDescription(`Select the amount of ${selectedMatData.name} you would like to craft with, you currently own ${selectedMatData.amount}! The maximum amount of tooly material you can use is ${controller.max_tooly}`);
+
+                            editWith = craftMenu.goingForward({ embeds: [selectToolyAmountEmbed], components: loadDefaultAmountButtonActionRows() });
+
+                        } else {
+                            // Continue Selection!
+                            const componentCheck = await loadMaterialOptions(craftMenu, craftObj, controller);
+
+                            if (componentCheck === "No Materials") {
+                                craftMenu.specs.type = "";
+
+                                await c.followUp({content: "You lack the required materials needed to craft this item type!!", ephemeral: true});
+
+                                // Backtrack nav menu pathing until materialPosition reaches 0
+                                // Upon reaching 0, loop breaks and display path is left at casteType select page + 1
+                                do {
+                                    editWith = craftMenu.goingBackward();
+                                    craftMenu.specs.materialPosition--;
+                                } while (craftMenu.specs.materialPosition !== 0);
+
+                                // Go back one final time to end up on the casteType select page.
+                                editWith = craftMenu.goingBackward();
+                            } else {
+                                craftMenu.specs.matDataAtPOS = componentCheck.matData;
+                                editWith = craftMenu.goingForward({ embeds: [selectMaterialsEmbed], components: componentCheck.components });
+                            }
                         }
                     break;
                 }
-                if (casteFinished) return collector.stop('Caste Picked');
+
                 if (editWith.embeds) await anchorMsg.edit(editWith);
             }).catch(e => console.error(e));
         });
+        // ~~~~~~~~~~~~~~~~~~~~~
 
+        // =====================
+        // BUTTON COLLECTOR (COLLECT)
+        collector.on('collect', async c => {
+            await c.deferUpdate().then(async () => {
+                let editWith = {};
+                
+                switch(craftMenu.whatDoYouHear(c.customId)){
+                    case "NEXT":
+                        const nextSplits = c.customId.split("-");
+                        if (nextSplits[0] === 'confirm'){
+                            switch(nextSplits[1]){
+                                case "craft":
+                                    // Crafting has been initiated, collectors are finished!
+                                return collector.stop('Craft Item');
+                                case "amount":
+                                    // Amount has been confirmed
+
+                                    const toolySelected = craftMenu.specs.toolyMatData;
+                                    // Add tooly selected @ amount selected
+                                    craftObj.materials.addMat( { name: toolySelected.name, rarity: toolySelected.rarID, value: toolySelected.value, amount: craftMenu.specs.toolyAmount }, '3');
+
+                                    // display basic confirm crafting details.
+                                    updateConfirmCraftDisplay(craftObj);
+
+                                    editWith = craftMenu.goingForward({ embeds: [confirmCraftEmbed], components: confirmCraftRow });
+                                break;
+                            }
+                        } else if (nextSplits[0] === 'skip'){
+                            // Tooly has been skipped, display basic confirm crafting details.
+                            updateConfirmCraftDisplay(craftObj);
+
+                            editWith = craftMenu.goingForward({ embeds: [confirmCraftEmbed], components: confirmCraftRow });
+                        } else if (['minus', 'mult', 'plus'].includes(nextSplits[0]) || c.customId === 'reset-amount'){
+
+                            // Handling Amount selection
+							// Number Change Button
+							if (c.customId !== 'reset-amount'){
+								craftMenu.specs.toolyAmount = fnSignConverter.grabCalledEq(c.customId, craftMenu.specs.toolyAmount);
+							} else craftMenu.specs.toolyAmount = 0;
+
+							if (craftMenu.specs.toolyAmount < 0) craftMenu.specs.toolyAmount = 0;
+
+                            // Selected amount would exceed a maximum defined 
+                            if (craftMenu.specs.toolyAmount > controller.max_tooly){
+                                // by craftController
+                                craftMenu.specs.toolyAmount = controller.max_tooly;
+                            } else if (craftMenu.specs.toolyAmount > craftMenu.specs.toolyMatData.amount){
+                                // by the amount of selected material owned
+                                craftMenu.specs.toolyAmount = craftMenu.specs.toolyMatData.amount;
+                            }
+
+							selectToolyAmountEmbed
+                            .setFields( { name: `Amount Currently Selected:`, value: `${craftMenu.specs.toolyAmount}` } );
+
+							editWith = craftMenu.goingNowhere();
+						} else if (slotCheckList.includes(c.customId)){
+                            // First check: slot picked
+                            craftMenu.specs.slot = c.customId;
+                            editWith = craftMenu.goingForward({embeds: [casteEmbedList[1]], components: [loadGroupButtons(finalCasteTypes, craftMenu.specs.slot)]});
+                        } else if (groupCheckList.includes(c.customId)){
+                            // Second check: group picked
+                            craftMenu.specs.group = c.customId;
+                            editWith = craftMenu.goingForward({embeds: [casteEmbedList[2]], components: [loadTypeButtons(craftMenu.specs.group)]});
+                        } else if (typeCheckList.includes(c.customId)){
+                            // Third check: type picked
+                            craftMenu.specs.type = typeMatchList[typeCheckList.indexOf(c.customId)];
+
+                            // Load casteType internals here
+                            craftObj.loadFromCasteType(craftMenu.specs.type, craftMenu.specs.slot);
+
+                            const componentCheck = await loadMaterialOptions(craftMenu, craftObj, controller);
+
+                            if (componentCheck === "No Materials") {
+                                craftMenu.specs.type = "";
+
+                                await c.followUp({content: "You lack the required materials needed to craft this item type!!", ephemeral: true});
+
+                                editWith = craftMenu.goingBackward();
+                            } else {
+                                craftMenu.specs.matDataAtPOS = componentCheck.matData;
+                                editWith = craftMenu.goingForward({ embeds: [selectMaterialsEmbed], components: componentCheck.components });
+                            }
+                        }
+                    break;
+                    case "BACK":
+                        switch(c.customId){
+                            case "back-group":
+                                // Show Slot Embed
+                                craftMenu.specs.slot = "";
+                            break;
+                            case "back-type":
+                                // Show Group Embed
+                                craftMenu.specs.group = "";
+                            break;
+                            case "back-amount":
+                                craftMenu.specs.toolyAmount = 0;
+                                craftMenu.specs.toolyMatData = {};
+
+                                const toolyComponentCheck = await loadToolyMaterialOptions(controller);
+
+                                craftMenu.specs.matDataAtPOS = toolyComponentCheck.matData;
+                            break;
+                            default:
+                                const backSplits = c.customId.split("-");
+                                switch(backSplits[1]){
+                                    case "mat":
+                                        craftObj.materials.removeMat(`${+backSplits[2] - 1}`);
+                                        if (backSplits[2] === '0'){
+                                            // 0: Show Type Embed
+                                            craftMenu.specs.type = "";
+                                        } else {
+                                            // 1: Show Blank Material Embed
+                                            // 2: Show Stage 1 Material Embed
+                                            // 3: Show Stage 2 Material Embed
+                                            craftMenu.specs.materialPosition--;
+
+                                            const componentCheck = await loadMaterialOptions(craftMenu, craftObj, controller);
+    
+                                            craftMenu.specs.matDataAtPOS = componentCheck.matData;
+
+                                            updateMaterialSelectDisplay(craftObj);
+                                        }
+                                    break;
+                                }
+                            break;
+                        }
+                        editWith = craftMenu.goingBackward();
+                    break;
+                    case "CANCEL":
+                        if (craftMenu.specs.materialPosition === 3){
+                            // Last selected material?
+                            if (!controller.use_tooly){
+                                craftObj.materials.removeMat(`2`);
+
+                                craftMenu.specs.materialPosition--;
+
+                                const componentCheck = await loadMaterialOptions(craftMenu, craftObj, controller);
+    
+                                craftMenu.specs.matDataAtPOS = componentCheck.matData;
+
+                                updateMaterialSelectDisplay(craftObj);
+
+                            } else if (controller.use_tooly){
+                                // Tooly was skipped?
+
+                                const toolyComponentCheck = await loadToolyMaterialOptions(controller);
+
+                                craftMenu.specs.matDataAtPOS = toolyComponentCheck.matData;
+                            }
+                        } else if (craftMenu.specs.materialPosition === 4){
+                            // Tooly amount selection, this shouldnt break anything
+                        }
+                        editWith = craftMenu.goingBackward();
+                    break;
+                    default:
+                        console.log('I heard this: ', craftMenu.whatDoYouHear(c.customId));
+                    break;
+                }
+
+                if (editWith.embeds) await anchorMsg.edit(editWith);
+            }).catch(e => console.error(e));
+        });
+        // =====================
+
+        // ~~~~~~~~~~~~~~~~~~~~~
+        // STRING COLLECTOR (END)
+        sCollector.on('end', async (c, r) => {
+            if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
+        });
+        // ~~~~~~~~~~~~~~~~~~~~~
+
+        // =====================
+        // BUTTON COLLECTOR (END)
         collector.on('end', async (c, r) => {
-            if (!r || r !== "Caste Picked"){
-                await handleCatchDelete(anchorMsg);
-            }
+            if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
 
-            if (r === "Caste Picked"){
-                optionTracker.slot = makeCapital(optionTracker.slot);
-                optionTracker.type = typeMatchList[typeCheckList.indexOf(optionTracker.type)];
+            if (r === 'Craft Item'){
+                sCollector.stop('Quiet');
 
                 await handleCatchDelete(anchorMsg);
 
-                handleCraftInterface(optionTracker);
+                await handleCraftAndDisplay();
             }
         });
+        // =====================
+
+        /**
+         * This function handles all internal crafting, benchmarking, and any needed db updates
+         * @returns {Promise<void>}
+         */
+        async function handleCraftAndDisplay(){
+            const waitCraftEmbed = new EmbedBuilder()
+            .setTitle('Crafting IN PROGRESS')
+            .setColor('DarkGreen')
+            .setDescription('Please hold while the item is crafted!!');
+
+            const followUpCrafting = await interaction.followUp({embeds: [waitCraftEmbed]});
+
+            craftObj.craftItem();
+
+            const passesBenchmark = craftObj.evaluateItem();
+
+            const storableItem = craftObj.formatItem();
+
+            const addedStaticItemEmbed = new EmbedBuilder();
+
+            // Check if crafted item passes benchmark check
+            if (passesBenchmark){
+                // Passes benchmarking!!
+
+                // Check name for dupes
+                const dupeNameCheck = await ItemLootPool.findOne({
+                    where: {
+                        name: craftObj.name
+                    }
+                });
+
+                if (!dupeNameCheck){
+                    // Grab full loot pool list
+                    const fullLootList = await ItemLootPool.findAll();
+                    
+                    // Find current highest id
+                    const highestID = fullLootList.sort((a, b) => ~~b.creation_offset_id - ~~a.creation_offset_id);
+                    // console.log(highestID[0].creation_offset_id);
+
+                    // Increase id by 1 and add crafted item with id
+                    const nextID = highestID[0].creation_offset_id + 1;
+
+                    storableItem.item_id = nextID;
+
+                    const addedStaticItem = await handleNewStaticItem(storableItem, user.userid);
+                
+                    if (addedStaticItem){
+                        const { gearDrops } = interaction.client;
+                        // Adding to cached loot pool
+                        if (!gearDrops.get(addedStaticItem.creation_offset_id)) {
+                            const rarSet = checkingRarID(checkingRar(addedStaticItem.item_code));
+                            gearDrops.set(addedStaticItem.creation_offset_id, rarSet);
+                        }
+
+                        storableItem.passedBenching = true;
+
+                        addedStaticItemEmbed
+                        .setTitle('== ITEM ADDED TO DROP POOL ==')
+                        .setColor('Aqua')
+                        .setDescription('Congratulations!! This item has been added into the game as a permanent droppable item!!');
+                    }
+                }
+            }
+
+            // If item passed benchmarking and was added as a permenant drop
+            // Use that reference as the item to be stored, otherwise handle as a normal crafted item
+            if (storableItem.passedBenching){
+                await checkInboundItem(user.userid, storableItem.item_id, 1);
+            } else await checkInboundItem(user.userid, "", 1, storableItem);
+            
+            // Handle material costs
+            let matPos = 0;
+            for (const mat of craftObj.materials.loadUsedMatsList()){
+                // This will pass when tooly has not been used
+                if (mat.amount === 0) { matPos++;  continue; }
+                const matsType = craftObj.staticMatTypes[matPos].toLowerCase();
+                const matMatch = materials.get(matsType).find(matRef => matRef.Rar_id === mat.rarity);
+
+                await checkOutboundMat(user.userid, matMatch, matsType, mat.amount);
+
+                matPos++;
+            }
+
+            //  ============================
+            // HANDLE CONTROLLER UPDATES HERE
+            //  ============================
+            await handleControllerCrafting(controller, craftObj, storableItem);
+
+            const embedColour = grabColour(craftObj.rarity);
+
+            const itemCraftedEmbed = new EmbedBuilder()
+            .setTitle('== **Item Crafted** ==')
+            .setColor(embedColour)
+            .setDescription(`You crafted a **${craftObj.casteType}** successfully!`)
+            .addFields(craftObj.displayItem());
+
+            if (storableItem.passedBenching){
+                await editTimedChannelMessage(followUpCrafting, 120000, itemCraftedEmbed);
+                return await sendTimedChannelMessage(interaction, 120000, addedStaticItemEmbed);
+            } else return await editTimedChannelMessage(followUpCrafting, 120000, itemCraftedEmbed);
+        }
+
+
+        // collector.on('collect', async c => {
+        //     await c.deferUpdate().then(async () =>{
+        //         //console.log(c);
+        //         // Handling progressive menu here
+        //         let editWith, casteFinished = false;
+        //         switch(c.customId){
+        //             case "back-group":
+        //                 // Show Slot Embed
+        //                 optionTracker.slot = "";
+        //                 editWith = {embeds: [casteEmbedList[0]], components: [loadSlotButtons(finalCasteTypes)]};
+        //             break;
+        //             case "back-type":
+        //                 // Show Group Embed
+        //                 optionTracker.group = "";
+        //                 editWith = {embeds: [casteEmbedList[1]], components: [loadGroupButtons(finalCasteTypes, optionTracker.slot)]};
+        //             break;
+        //             default:
+        //                 if (slotCheckList.includes(c.customId)){
+        //                     // First check: slot picked
+        //                     optionTracker.slot = c.customId;
+        //                     editWith = {embeds: [casteEmbedList[1]], components: [loadGroupButtons(finalCasteTypes, optionTracker.slot)]};
+        //                 } else if (groupCheckList.includes(c.customId)){
+        //                     // Second check: group picked
+        //                     optionTracker.group = c.customId;
+        //                     editWith = {embeds: [casteEmbedList[2]], components: [loadTypeButtons(optionTracker.group)]};
+        //                 } else if (typeCheckList.includes(c.customId)){
+        //                     // Third check: type picked
+        //                     optionTracker.type = c.customId;
+        //                     //editWith = {embeds: [new EmbedBuilder().setTitle('Place Holder').setDescription(`Final Picked Caste Options:\nSlot: ${makeCapital(optionTracker.slot)}\nGroup: ${optionTracker.group}\nType: ${optionTracker.type}\nType Matched: ${typeMatchList[typeCheckList.indexOf(optionTracker.type)]}`)]};
+        //                     casteFinished = true;
+        //                 }
+        //             break;
+        //         }
+        //         if (casteFinished) return collector.stop('Caste Picked');
+        //         if (editWith.embeds) await anchorMsg.edit(editWith);
+        //     }).catch(e => console.error(e));
+        // });
+
+        // collector.on('end', async (c, r) => {
+        //     if (!r || r !== "Caste Picked"){
+        //         await handleCatchDelete(anchorMsg);
+        //     }
+
+        //     if (r === "Caste Picked"){
+        //         optionTracker.slot = makeCapital(optionTracker.slot);
+        //         optionTracker.type = typeMatchList[typeCheckList.indexOf(optionTracker.type)];
+
+        //         await handleCatchDelete(anchorMsg);
+
+        //         handleCraftInterface(optionTracker);
+        //     }
+        // });
 
         /**
          * This function handles all specific crafting interface options for the 

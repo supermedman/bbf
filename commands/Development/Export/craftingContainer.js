@@ -119,7 +119,7 @@
  *  Rarity = func()
  */
 const { rollChance, inclusiveRandNum, randArrPos, getTypeof, makeCapital } = require('../../../uniHelperFunctions');
-const { Craftable } = require('./Classes/CraftingCaste');
+//const { Craftable } = require('./Classes/CraftingCaste');
 const { baseCheckRarName } = require('./itemStringCore');
 
 // ===============================
@@ -349,16 +349,17 @@ const itemCasteFilter = (type, slot) => {
 const itemGenDmgTypes = (casteObj) => {
     let dmgTypeChoices = [];
     // Failsafe check for old/new `Craftable` handling
-    const combatTypeVal = (casteObj?.dmgCat) ? casteObj.dmgCat : casteObj.combatCat;
+    const combatTypeVal = casteObj.dmgCat ?? casteObj.combatCat;
+    const casteTypeVal = casteObj.casteType ?? casteObj.name;
     switch(combatTypeVal){
         case "Magic":
             switch(casteObj.slot){
                 case "Mainhand":
                     dmgTypeChoices.push("Magic");
-                    if (["Wand", "Focus", "Staff"].includes(casteObj.name)){
+                    if (["Wand", "Focus", "Staff"].includes(casteTypeVal)){
                         dmgTypeChoices.push("Fire", "Frost");
                     }
-                    if (["Wand", "Tome", "Focus"].includes(casteObj.name)){
+                    if (["Wand", "Tome", "Focus"].includes(casteTypeVal)){
                         dmgTypeChoices.push("Dark", "Light");
                     }
                 break;
@@ -373,11 +374,11 @@ const itemGenDmgTypes = (casteObj) => {
         case "Melee":
             switch(casteObj.slot){
                 case "Mainhand":
-                    if (["Polearm", "Mace"].includes(casteObj.name)){
+                    if (["Polearm", "Mace"].includes(casteTypeVal)){
                         // Can have Blunt damage type
                         dmgTypeChoices.push("Blunt");
                     } 
-                    if (["Polearm", "Heavy Blade", "Light Blade"].includes(casteObj.name)){
+                    if (["Polearm", "Heavy Blade", "Light Blade"].includes(casteTypeVal)){
                         // Can have Slash and Pierce damage types
                         dmgTypeChoices.push("Slash", "Pierce");
                     }
@@ -420,8 +421,10 @@ const itemGenPickDmgTypes = (casteObj) => {
     }
 
     // console.log('Max Set @: %d', maxTNum);
-    const extractTypes = (casteObj?.dmgTypes) ? casteObj.dmgTypes : casteObj.combatTypes;
-    const extractOptions = (casteObj?.dmgOptions) ? casteObj.dmgOptions : casteObj.combatTypeOptions;
+    // Types contained here are set by Imbued types
+    const extractTypes = casteObj.dmgTypes ?? casteObj.combatTypes;
+    // Types contained here are set by itemGenDmgTypes()
+    const extractOptions = casteObj.dmgOptions ?? casteObj.combatTypeOptions;
 
     const maxTypeAmount = inclusiveRandNum(maxTNum - extractTypes.length, 1);
     const dmgTypeOptions = extractOptions;
@@ -783,28 +786,30 @@ const generateItemValue = (casteObj) => {
  * ``True``: Add to database static loot pool
  * 
  * ``False``: Dont do this ^
- * @param {object} casteObj Complete Item Caste Object
+ * @param {object} castedInput Complete Item Caste Object
  * @returns {boolean}
  */
-function benchmarkQualification(casteObj){
-    switch(getTypeof(casteObj)){
+function benchmarkQualification(castedInput){
+    let casteObj = {};
+    switch(getTypeof(castedInput)){
         case "Craftable":
             // Convert Craftable into expected casteObj form
             // Doing this as a placeholder to rewritting this entire function!!! :(
             casteObj = {
-                rarity: casteObj.rarity,
-                value: casteObj.value,
-                slot: casteObj.slot,
-                hands: casteObj.hands,
-                totalTypes: casteObj.combatTypeTotal,
-                totalDamage: casteObj.combatMagnitude.dmg.total,
-                dmgTypePairs: casteObj.combatMagnitude.dmg.pairs,
-                totalDefence: casteObj.combatMagnitude.def.total,
-                defTypePairs: casteObj.combatMagnitude.def.pairs,
-            }
+                rarity: castedInput.rarity,
+                value: castedInput.value,
+                slot: castedInput.slot,
+                hands: castedInput.hands,
+                totalTypes: castedInput.combatTypeTotal,
+                totalDamage: castedInput.combatMagnitude.dmg.total,
+                dmgTypePairs: castedInput.combatMagnitude.dmg.pairs,
+                totalDefence: castedInput.combatMagnitude.def.total,
+                defTypePairs: castedInput.combatMagnitude.def.pairs,
+            };
         break;
         default:
             // Do nothing, default object
+            casteObj = castedInput;
         break;
     }
 
@@ -1261,21 +1266,15 @@ function handleNamingNewItem(item, bench){
     };
     nameAddition.suffix = randArrPos(loadDescOptions(nameAddition.prefix, item, bench));
 
+    const usingImbued = item.materials.extractImbued().length > 0;
+
     // If item was imbued, handle special naming conventions
-    if (item.materials.extractImbued().length > 0){
+    if (usingImbued){
         const imbuedChanges = loadImbuedAddition(item);
         // Overwrite standard naming
         nameAddition.prefix = imbuedChanges.prefix;
         nameAddition.suffix = imbuedChanges.suffix;
     }
-
-    const pickedPrefix = nameAddition.prefix;
-    const pickedDescription = nameAddition.suffix;
-
-    const newNameCollector = [];
-    
-    if (pickedPrefix !== 'None') newNameCollector.push(pickedPrefix);
-    if (pickedDescription !== 'None') newNameCollector.push(pickedDescription);
 
     let useSpecialNaming = false;
     if (item.rarity > 5){
@@ -1289,13 +1288,31 @@ function handleNamingNewItem(item, bench){
         const specialNameOutcome = loadSpecialName(item, bench);
         // If unique name:
         // uName, Imbue1? Imbue2? (of | of the) material/benchmark
+        if (specialNameOutcome.uniqueName !== ""){
+            nameAddition.suffix = `${nameAddition.prefix} ${nameAddition.suffix}`;
+            nameAddition.prefix = `${specialNameOutcome.uniqueName}, ${specialNameOutcome.caste}`;
+        }
 
         // If not unique name:
         // rarity? casteTyped? (of | of the) Imbue1? Imbue2? benchmark
+        if (specialNameOutcome.rarity !== ""){
+            nameAddition.prefix = `${specialNameOutcome.rarity} ${nameAddition.prefix}`;
+        }
 
         // If no rar and not unique:
         // material casteTyped (of | of the) benchmark
+        if (specialNameOutcome.rarity === "" && specialNameOutcome.uniqueName === ""){
+            nameAddition.prefix = `${specialNameOutcome.caste} ${nameAddition.prefix}`;
+        }
     }
+
+    const pickedPrefix = nameAddition.prefix;
+    const pickedDescription = nameAddition.suffix;
+
+    const newNameCollector = [];
+    
+    if (pickedPrefix !== 'None') newNameCollector.push(pickedPrefix);
+    if (pickedDescription !== 'None') newNameCollector.push(pickedDescription);
 
     newNameCollector.push(item.materials.pickedMats[0].name);
 
@@ -1374,7 +1391,6 @@ function handleNamingNewItem(item, bench){
 function constructRandomName(){
     const abcd = 'abcdefghijklmnopqrstuvwxyz';
     const vowels = 'aeiou';
-
     const withoutVowels = abcd.split("").filter(l => !vowels.includes(l)).join("");
 
     const fullNameContainer = {
@@ -1383,7 +1399,7 @@ function constructRandomName(){
             return this.letters.join("").length;
         },
         grabLastLetter(){
-            if (this.letters.at(-1).length > 1) return this.letters.at(-1)[1];
+            if (this.letters.at(-1)?.length > 1) return this.letters.at(-1)[1];
             return this.letters.at(-1);
         },
         filterLastLetter(){
@@ -1731,7 +1747,7 @@ function loadPrefixOptions(item, benchObj){
         changeMag
     };
 
-    const domMatType = item.mats[0] ?? item.staticMatTypes[0];
+    const domMatType = (item.mats ?? item.staticMatTypes)[0];
 
     switch(changeRar){
         case "UP":
@@ -1801,7 +1817,7 @@ function loadDescOptions(prefix, item, benchObj){
     //const preDNMatchList = ["Poorly", "Badly", "Horribly", "Awfully"];
     const preFullMatchList = ["Well", "Finely", "Exquisitely", "Perfectly", "Poorly", "Badly", "Horribly", "Awfully"];
 
-    const switchWith = item.mats[0] ?? item.staticMatTypes[0];
+    const switchWith = (item.mats ?? item.staticMatTypes)[0];
 
     if (preFullMatchList.includes(prefix)){
         descChoices.push("Crafted", "Designed", "Put-Together");
