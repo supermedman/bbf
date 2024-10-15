@@ -821,7 +821,7 @@ module.exports = {
             for (const mat of craftObj.materials.loadUsedMatsList()){
                 // This will pass when tooly has not been used
                 if (mat.amount === 0) { matPos++;  continue; }
-                const matsType = craftObj.staticMatTypes[matPos].toLowerCase();
+                const matsType = craftObj.staticMatTypes[matPos]?.toLowerCase() ?? 'tooly';
                 const matMatch = materials.get(matsType).find(matRef => matRef.Rar_id === mat.rarity);
 
                 await checkOutboundMat(user.userid, matMatch, matsType, mat.amount);

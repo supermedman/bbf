@@ -1253,29 +1253,58 @@ function benchmarkQualification(castedInput){
  */
 function handleNamingNewItem(item, bench){
     // Check if item can become "Black Blade, render of The Dream".
-    const bbCandidate = c => {
-        return c.rarity === 20 && c.slot === "Mainhand" && c.casteType === "Heavy Blade";
-    };
-    if (bbCandidate(item)){
-        // Handle extra checking stuff here.
-    }
+    // const bbCandidate = c => {
+    //     return c.rarity === 20 && c.slot === "Mainhand" && c.casteType === "Heavy Blade";
+    // };
+    // if (bbCandidate(item)){
+    //     // Handle extra checking stuff here.
+    // }
 
-    const nameAddition = {
-        prefix: randArrPos(loadPrefixOptions(item, bench)),
-        suffix: ""
-    };
-    nameAddition.suffix = randArrPos(loadDescOptions(nameAddition.prefix, item, bench));
+    // Handle CasteType reconstruction first, allowing ease of use when/where needed
+    const restructNeeded = ["Light Blade", "Heavy Blade", "Light Cap", "Heavy Helm", "Light Robe", "Heavy Chestplate", "Light Leggings", "Heavy Greaves", "Light Buckler", "Heavy Shield"];
 
+    /**
+     * heavyCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Chestplate"],
+        lightCheck = ["Light Leggings", "Light Robe", "Light Cap"],
+     */
+    // These types have `mod` removed entirely!
+
+    // Used for restructing of matching types, otherwise base casteType is used for `type`
+    const casteStructure = {
+        mod: "",
+        type: ""
+    };
+
+    if (restructNeeded.includes(item.casteType)){
+        // Items casteType needs restruct
+        const dropModCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Chestplate", "Light Leggings", "Light Robe", "Light Cap"];
+        
+        // Grabbing moddifier value, "Heavy" | "Light"
+        casteStructure.mod = item.casteType.slice(0, 5);
+
+        // If dropModCheck passes, remove stored value. This is done to increase clearity and readablitly with specific casteType names
+        if (dropModCheck.includes(item.casteType)) casteStructure.mod = "";
+
+        // Grabbing casteType value
+        casteStructure.type = item.casteType.slice(6,);
+
+    } else casteStructure.type = item.casteType;
+
+    // LOGGING
+    console.log('Contents of casteStructure: ', casteStructure);
+
+    // Extract and check if item was imbued
     const usingImbued = item.materials.extractImbued().length > 0;
 
     // If item was imbued, handle special naming conventions
-    if (usingImbued){
-        const imbuedChanges = loadImbuedAddition(item);
-        // Overwrite standard naming
-        nameAddition.prefix = imbuedChanges.prefix;
-        nameAddition.suffix = imbuedChanges.suffix;
-    }
+    const imbuedDesc = (usingImbued) 
+    ? loadImbuedAddition(item)
+    : { prefix: "", suffix: "" };
 
+    const usingImbuePrefix = imbuedDesc.prefix !== "";
+    const usingImbueSuffix = imbuedDesc.suffix !== "";
+    
+    // Roll for using special name if applicable
     let useSpecialNaming = false;
     if (item.rarity > 5){
         // Handle special name gen
@@ -1283,103 +1312,300 @@ function handleNamingNewItem(item, bench){
         if (rollChance(specialNameChance)) useSpecialNaming = true;
     }
 
-    // WIP NEEDS MORE WORK AND MUCH MORE TIME!!
+    // LOGGING
+    console.log('Contents of imbuedDesc: ', imbuedDesc);
+    console.log('Using Special Name?: ', useSpecialNaming);
+
+
+    // ===========================
+    // Using Special Naming System
+    // ===========================
     if (useSpecialNaming){
-        const specialNameOutcome = loadSpecialName(item, bench);
-        // If unique name:
-        // uName, Imbue1? Imbue2? (of | of the) material/benchmark
-        if (specialNameOutcome.uniqueName !== ""){
-            nameAddition.suffix = `${nameAddition.prefix} ${nameAddition.suffix}`;
-            nameAddition.prefix = `${specialNameOutcome.uniqueName}, ${specialNameOutcome.caste}`;
+        const specialNameCollector = [];
+        
+        const specNameObj = loadSpecialName(item);
+
+        const usingUnique = specNameObj.uniqueName !== "";
+        const usingRarity = specNameObj.rarity !== "";
+
+        // If unique name has been selected
+        if (usingUnique) specialNameCollector.push(`${specNameObj.uniqueName},`);
+
+        // If imbued prefix exists use as descriptor to next check
+        if (usingImbuePrefix) {
+            specialNameCollector.push(imbuedDesc.prefix);
+        } else if (usingRarity){
+            specialNameCollector.push(specNameObj.rarity);
         }
 
-        // If not unique name:
-        // rarity? casteTyped? (of | of the) Imbue1? Imbue2? benchmark
-        if (specialNameOutcome.rarity !== ""){
-            nameAddition.prefix = `${specialNameOutcome.rarity} ${nameAddition.prefix}`;
+        // If imbue suffix exists, use it. Else use caste name picked
+        specialNameCollector.push(
+            (usingImbueSuffix)
+            ? imbuedDesc.suffix
+            : specNameObj.caste
+        );
+
+        // 50% chance to also include base casteType name in final name
+        if (rollChance(0.50)) specialNameCollector.push(casteStructure.type);
+
+        // of | of the
+        // Roll chance to use this, roll chance for which to use
+        if (rollChance(0.50)){
+            const extraText = (rollChance(0.50)) ? "of" : "of the";
+
+            specialNameCollector.push(extraText);
+
+            const otOptions = ['Assassin', 'Archer', 'Archbishop', 'Abyss', 'Altar', 'Artificer', 'Alchemist', 'Ancestral', 'Archmage', 'Acolyte', 'Bloodmage', 'Battlemage', 'Bloodmoon', 'Blackmage', 'Bishop', 'Barbarian', 'Blacksmith', 'Brewmaster', 'Bifrost', 'Belltower', 'Bazaar', 'Bladesmith', 'Berserker', 'Chronomancer', 'Chronosmith', 'Corrupt', 'Chieftan', 'Chief', 'Champion', 'Crown', 'Captain', 'Cryomancer', 'Courier', 'Coven', 'Cinderborn', 'Charmcaster', 'Crimsonmage', 'Crownsguard', 'Druid', 'Deacon', 'Darkling', 'Duke', 'Demonslayer', 'Divine', 'Dreadnought', 'Dragonheart', 'Eldritch', 'Emperor', 'Empire', 'Earthmage', 'Elder', 'Enclave', 'Empyrean', 'Equinox', 'Embersmith', 'Forest', 'Fateweaver', 'Firemage', 'Firemancer', 'Frostcaller', 'Forsaken', 'Forsworn', 'Gravewalker', 'Glyphsmith', 'Gatekeeper', 'Geomancer', 'Honorguard', 'Hunter', 'Hydromancer', 'Hydralith', 'Huntress', 'Icemage', 'Inquisitor', 'Invoker', 'Journeyman', 'Jester', 'Joker', 'Kingdom', 'King', 'Knight', 'Knightess', 'Keybearer', 'Lancer', 'Lord', 'Labryinth', 'Mage', 'Magician', 'Monarch', 'Marauder', 'Monolith', 'Moonshadow', 'Necrosmith', 'Necromancer', 'Noble', 'Netherworld', 'Nightmage', 'Nightwalker', 'Oracle', 'Occult', 'Overlord', 'Oasis', 'Pantheon', 'Paladin', 'Prism', 'Queen', 'Quagmire', 'Quill', 'Realm', 'Rogue', 'Runesmith', 'Revenant', 'Rift', 'Riftwalker', 'Runebearer', 'Ranger', 'Rapture', 'Realmwalker', 'Raindancer', 'Saint', 'Scout', 'Seer', 'Shadowsmith', 'Scribe', 'Sorceress', 'Squire', 'Skirmisher', 'Swordmaiden', 'Swordsman', 'Throne', 'Tyrant', 'Talon', 'Undying', 'Unyielding', 'Unruly', 'Unorthodox', 'Valorguard', 'Valley', 'Vanguard', 'Vortex', 'Veil', 'Veilwalker', 'Valiant', 'Visonary', 'Wicked', 'Wizard', 'Warden', 'Wanderer', 'Wayfarer', 'Warmage', 'Warbeast', 'Zealot', 'Zodiac'];
+            const oOptions = ['Assassins', 'Archers', 'Arrows', 'Aeons', 'Acolytes', 'Bogs', 'Bands', 'Books', 'Balefire', 'Blight', 'Brimstone', 'Blessing', 'Conduit', 'Conjuration', 'Charm', 'Cyromancy', 'Chaos', 'Crimson', 'Divinity', 'Euphoria', 'Folklore', 'Fable', 'Farsight', 'Floralis', 'Glyphs', 'Gemstones', 'Ghostfire', 'Geomancy', 'Hexology', 'Honor', 'Harmony', 'Hallow', 'Hemlock', 'Ivory', 'Illusion', 'Invocation', 'Ichor', 'Ivy', 'Jewels', 'Knighthood', 'Legend', 'Lyre', 'Moonrise', 'Mirage', 'Mysticism', 'Mythos', 'Necromancy', 'Nightshade', 'Omen', 'Oath', 'Onyx', 'Prophecy', 'Provence', 'Quicksilver', 'Quicksand', 'Runes', 'Ritual', 'Ruin', 'Rapture', 'Sin', 'Twilight', 'Uprising', 'Undying', 'Utterance', 'Valor', 'Vitality', 'Vanquish', 'Vision', 'Wisdom', 'Wizardry', 'Witchery', 'Wanderlust', 'Weight', 'Zenith', 'Zeal'];
+            
+            if (extraText === 'of'){
+                specialNameCollector.push(randArrPos(oOptions));
+            } else {
+                specialNameCollector.push(randArrPos(otOptions));
+            }
         }
 
-        // If no rar and not unique:
-        // material casteTyped (of | of the) benchmark
-        if (specialNameOutcome.rarity === "" && specialNameOutcome.uniqueName === ""){
-            nameAddition.prefix = `${specialNameOutcome.caste} ${nameAddition.prefix}`;
-        }
+        // LOGGING
+        console.log('Final contents of specialNameCollector: ', specialNameCollector);
+
+        const finalName = specialNameCollector.join(" ");
+
+        // LOGGING
+        console.log('Finalized special name: ', finalName);
+
+        return finalName;
     }
 
-    const pickedPrefix = nameAddition.prefix;
-    const pickedDescription = nameAddition.suffix;
+    // ======================
+    // Standard naming system
+    // ======================
 
-    const newNameCollector = [];
+    // If item was imbued use those text sections
+    const nameDesc = (usingImbued)
+    ? imbuedDesc
+    : { prefix: randArrPos(loadPrefixOptions(item, bench)), suffix: "" };
+
+    // Item has not been imbued, generate suffix from loaded prefix
+    if (!usingImbued) nameDesc.suffix = randArrPos(loadDescOptions(nameDesc.prefix, item, bench));
+
+    // Create bool checks for both prefix and suffix, used with conditionally adding contents to final name collector
+    const usingPrefix = nameDesc.prefix !== "" && nameDesc.prefix !== 'None';
+    const usingSuffix = nameDesc.suffix !== "" && nameDesc.suffix !== 'None';
+
+    // LOGGING
+    console.log('Contents of nameDesc: ', nameDesc);
+
+    const basicNameCollector = [];
+
+    // Conditional name additions
+    if (usingPrefix) basicNameCollector.push(nameDesc.prefix);
+    if (usingSuffix) basicNameCollector.push(nameDesc.suffix);
+
+    // Add `casteType` mod if it exists
+    if (casteStructure.mod !== "") basicNameCollector.push(casteStructure.mod);
+
+    // Add dom item material
+    basicNameCollector.push(item.materials.pickedMats[0].name);
+
+    // Add `casteType` type
+    basicNameCollector.push(casteStructure.type);
+
+    // LOGGING
+    console.log('Final contents of basicNameCollector: ', basicNameCollector);
+
+    // Name is complete!! Join contents of collector to form final name
+    const finalName = basicNameCollector.join(" ");
+
+    // Double space removal testing!!
+    // const finalName = finalName.replace("  ", " ");
+
+    // LOGGING
+    console.log('Finalized basic name: ', finalName);
+
+    return finalName;
+
+    // const nameAddition = {
+    //     prefix: randArrPos(loadPrefixOptions(item, bench)),
+    //     suffix: ""
+    // };
+    // nameAddition.suffix = randArrPos(loadDescOptions(nameAddition.prefix, item, bench));
+
+    // // const usingImbued = item.materials.extractImbued().length > 0;
+
+    // // If item was imbued, handle special naming conventions
+    // if (usingImbued){
+    //     const imbuedChanges = loadImbuedAddition(item);
+    //     // Overwrite standard naming
+    //     nameAddition.prefix = imbuedChanges.prefix;
+    //     nameAddition.suffix = imbuedChanges.suffix;
+    // }
+
+    // if (nameAddition.prefix === "None") nameAddition.prefix = "";
+    // if (nameAddition.suffix === "None") nameAddition.suffix = "";
+
+    // // WIP NEEDS MORE WORK AND MUCH MORE TIME!!
+    // if (useSpecialNaming){
+    //     const specialNameOutcome = loadSpecialName(item, bench);
+    //     // If unique name:
+    //     // uName, Imbue1? Imbue2? (of | of the) material/benchmark
+    //     if (specialNameOutcome.uniqueName !== ""){
+    //         nameAddition.suffix = `${nameAddition.prefix} ${nameAddition.suffix}`;
+    //         nameAddition.prefix = `${specialNameOutcome.uniqueName}, ${specialNameOutcome.caste}`;
+    //     }
+
+    //     // If not unique name:
+    //     // rarity? casteTyped? (of | of the) Imbue1? Imbue2? benchmark
+    //     if (specialNameOutcome.rarity !== ""){
+    //         nameAddition.prefix = `${specialNameOutcome.rarity} ${nameAddition.prefix}`;
+    //     }
+
+    //     // If no rar and not unique:
+    //     // material casteTyped (of | of the) benchmark
+    //     if (specialNameOutcome.rarity === "" && specialNameOutcome.uniqueName === ""){
+    //         nameAddition.prefix = `${specialNameOutcome.caste} ${nameAddition.prefix}`;
+    //     }
+    // }
+
+    // const pickedPrefix = nameAddition.prefix;
+    // const pickedDescription = nameAddition.suffix;
+
+    // const newNameCollector = [];
     
-    if (pickedPrefix !== 'None') newNameCollector.push(pickedPrefix);
-    if (pickedDescription !== 'None') newNameCollector.push(pickedDescription);
+    // if (pickedPrefix !== 'None') newNameCollector.push(pickedPrefix);
+    // if (pickedDescription !== 'None') newNameCollector.push(pickedDescription);
 
-    newNameCollector.push(item.materials.pickedMats[0].name);
+    // newNameCollector.push(item.materials.pickedMats[0].name);
 
-    // restructedCasteType: reCT (Alias)
-    let reCT = item.casteType;
+    // // restructedCasteType: reCT (Alias)
+    // let reCT = item.casteType;
 
-    const heavyCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Chestplate"],
-    lightCheck = ["Light Leggings", "Light Robe", "Light Cap"],
-    reorderCheck = ["Light Blade", "Heavy Blade", "Light Buckler", "Heavy Shield"];
+    // const heavyCheck = ["Heavy Greaves", "Heavy Helm", "Heavy Chestplate"],
+    // lightCheck = ["Light Leggings", "Light Robe", "Light Cap"],
+    // reorderCheck = ["Light Blade", "Heavy Blade", "Light Buckler", "Heavy Shield"];
 
-    // If casteType is included in check, remove "prefix" of "Heavy"
-    if (heavyCheck.indexOf(item.casteType)){
-        const heavyRegEx = /Heavy /; 
-        const heavyPOS = item.casteType.search(heavyRegEx);
+    // // If casteType is included in check, remove "prefix" of "Heavy"
+    // if (heavyCheck.indexOf(item.casteType)){
+    //     const heavyRegEx = /Heavy /; 
+    //     const heavyPOS = item.casteType.search(heavyRegEx);
 
-        reCT = item.casteType.slice(heavyPOS + 6,);
-    }
+    //     reCT = item.casteType.slice(heavyPOS + 6,);
+    // }
 
-    // If casteType is included in check, remove "prefix" of "Light"
-    if (lightCheck.indexOf(item.casteType)){
-        const lightRegEx = /Light /; 
-        const lightPOS = item.casteType.search(lightRegEx);
+    // // If casteType is included in check, remove "prefix" of "Light"
+    // if (lightCheck.indexOf(item.casteType)){
+    //     const lightRegEx = /Light /; 
+    //     const lightPOS = item.casteType.search(lightRegEx);
 
-        reCT = item.casteType.slice(lightPOS + 6,);
-    }
+    //     reCT = item.casteType.slice(lightPOS + 6,);
+    // }
     
-    // If casteType is included in check, apply conditional reordering.
-    if (reorderCheck.includes(item.casteType)){
-        // This value directly relates to any applied prefix/description
-        const orderPos = newNameCollector.length;
+    // // If casteType is included in check, apply conditional reordering.
+    // if (reorderCheck.includes(item.casteType)){
+    //     // This value directly relates to any applied prefix/description
+    //     const orderPos = newNameCollector.length;
 
-        // Ex: "Heavy"
-        const firstSec = item.casteType.slice(0, 5);
-        // Ex: "Blade"
-        const secondSec = item.casteType.slice(6,);
-        if (orderPos === 1){
-            // No prefix or desc
+    //     // Ex: "Heavy"
+    //     const firstSec = item.casteType.slice(0, 5);
+    //     // Ex: "Blade"
+    //     const secondSec = item.casteType.slice(6,);
+    //     if (orderPos === 1){
+    //         // No prefix or desc
 
-            // Shift casteType "prefix" to the start of the collector
-            newNameCollector.unshift(firstSec);
-        } else if (orderPos === 2){
-            // Prefix or desc
+    //         // Shift casteType "prefix" to the start of the collector
+    //         newNameCollector.unshift(firstSec);
+    //     } else if (orderPos === 2){
+    //         // Prefix or desc
 
-            // Splice casteType "prefix" after item prefix/description
-            const removedSec = newNameCollector.splice(1, 1, firstSec);
-            // Push casteType's type into the collector
-            newNameCollector.push(removedSec);
-        } else if (orderPos === 3){
-            // Prefix and desc
+    //         // Splice casteType "prefix" after item prefix/description
+    //         const removedSec = newNameCollector.splice(1, 1, firstSec);
+    //         // Push casteType's type into the collector
+    //         newNameCollector.push(removedSec);
+    //     } else if (orderPos === 3){
+    //         // Prefix and desc
 
-            // Splice casteType "prefix" after item prefix & description
-            const removedSec = newNameCollector.splice(2, 1, firstSec);
-            // Push casteType's type into the collector
-            newNameCollector.push(removedSec);
-        }
+    //         // Splice casteType "prefix" after item prefix & description
+    //         const removedSec = newNameCollector.splice(2, 1, firstSec);
+    //         // Push casteType's type into the collector
+    //         newNameCollector.push(removedSec);
+    //     }
 
-        // Store second section to be appended to the end of the collector
-        reCT = secondSec;
+    //     // Store second section to be appended to the end of the collector
+    //     reCT = secondSec;
+    // }
+
+    // // Append restructed casteType as is stored in `reCT`
+    // newNameCollector.push(reCT);
+
+    // // Join all collected name strings, results in final name.
+    // const generatedName = newNameCollector.join(" ");
+
+    
+
+    // return generatedName;
+}
+
+/**
+ * This function mutates the given benchmarker object, adding the object prop: `prefix` containing `prefix.changeRar` & `prefix.changeMag`
+ * @param {Benchmarker} benchObj Benchmarker Object
+ */
+function loadBenchmarkerPrefixData(benchObj){
+    let baseDiffChance = 0, changeRar = "", changeMag = "";
+
+    if (Math.abs(benchObj.totalDiff) < 250) benchObj.standard = "Standard";
+
+    switch(benchObj.standard){
+        case "Above":
+            // -value
+            changeRar = "UP";
+            changeMag = "None";
+            if (benchObj.totalDiff < -5000){
+                // Highly above
+                changeMag = "Large";
+                baseDiffChance = 1;
+            } else if (benchObj.totalDiff < -2500){
+                // Above
+                changeMag = "Normal";
+                baseDiffChance = 0.5;
+            } else if (benchObj.totalDiff < -1000){
+                // Slightly Above
+                changeMag = "Small";
+                baseDiffChance = 0.25;
+            } else baseDiffChance = 0.15;
+        break;
+        case "Below":
+            // +value
+            changeRar = "DOWN";
+            changeMag = "None";
+            if (benchObj.totalDiff > 5000){
+                // Very Below
+                changeMag = "Large";
+                baseDiffChance = 1;
+            } else if (benchObj.totalDiff > 2500){
+                // Below
+                changeMag = "Normal";
+                baseDiffChance = 0.5;
+            } else if (benchObj.totalDiff > 1000){
+                // Slightly Below
+                changeMag = "Small";
+                baseDiffChance = 0.25;
+            } else baseDiffChance = 0.15;
+        break;
+        case "Standard":
+            // 0 Change
+            changeRar = (rollChance(0.5)) ? "UP": "DOWN";
+            changeMag = "None";
+            baseDiffChance = 0.01;
+        break;
     }
 
-    // Append restructed casteType as is stored in `reCT`
-    newNameCollector.push(reCT);
+    const changeRarCheck = rollChance(baseDiffChance);
 
-    // Join all collected name strings, results in final name.
-    const generatedName = newNameCollector.join(" ");
+    if (!changeRarCheck) changeRar = "NONE";
 
-    return generatedName;
+    benchObj.prefix = {
+        changeRar,
+        changeMag
+    };
 }
 
 /**
@@ -1500,42 +1726,44 @@ function constructRandomName(){
 /**
  * This function handles generating a specialized name for the given `item`.
  * @param {Craftable} item Craftable Instance
- * @param {Benchmarker} bench Benchmark Object
  */
-function loadSpecialName(item, bench){
+function loadSpecialName(item){
     const nameContainer = {
         caste: "",
         rarity: "",
-        uniqueName: "",
+        uniqueName: ""
+    };
+    /**
+     * ,
         material: "",
         benchmark: ""
-    };
+     */
     // Naming for casteType?
 
     switch(item.slot){
         case "Mainhand":
             switch(item.combatCat){
                 case "Magic":
-                    nameContainer.caste = randArrPos(["Malificent", "Vindictive"]);
+                    nameContainer.caste = randArrPos(["Malificent", "Vindictive", "Fierce", "Judgement"]);
                 break;
                 case "Melee":
-                    nameContainer.caste = randArrPos(["Great", "War", "Fierce"]);
+                    nameContainer.caste = randArrPos(["Malificent", "Vindictive", "Fierce", "Judgement"]); // "Great", "War",
                 break;
                 case "Special":
-                    nameContainer.caste = randArrPos(["Judgement"]);
+                    nameContainer.caste = randArrPos(["Malificent", "Vindictive", "Fierce", "Judgement"]);
                 break;
             }
         break;
         case "Offhand":
             switch(item.combatCat){
                 case "Magic":
-                    nameContainer.caste = randArrPos(["Peace Maker"]);
+                    nameContainer.caste = randArrPos(["Peace Maker", "Vengeance", "Cataclysm"]);
                 break;
                 case "Melee":
-                    nameContainer.caste = randArrPos(["Vengeance"]);
+                    nameContainer.caste = randArrPos(["Peace Maker", "Vengeance", "Cataclysm"]);
                 break;
                 case "Special":
-                    nameContainer.caste = randArrPos(["Cataclysm"]);
+                    nameContainer.caste = randArrPos(["Peace Maker", "Vengeance", "Cataclysm"]);
                 break;
             }
         break;
@@ -1543,13 +1771,13 @@ function loadSpecialName(item, bench){
             // Armor
             switch(item.combatCat){
                 case "Magic":
-                    nameContainer.caste = randArrPos(["Incarnated"]);
+                    nameContainer.caste = randArrPos(["Incarnate", "Defender", "Deflector"]);
                 break;
                 case "Melee":
-                    nameContainer.caste = randArrPos(["Defender"]);
+                    nameContainer.caste = randArrPos(["Incarnate", "Defender", "Deflector"]);
                 break;
                 case "Special":
-                    nameContainer.caste = randArrPos(["Deflector"]);
+                    nameContainer.caste = randArrPos(["Incarnate", "Defender", "Deflector"]);
                 break;
             }
         break;
@@ -1649,103 +1877,108 @@ function loadImbuedAddition(item){
  * @returns {string[]}
  */
 function loadPrefixOptions(item, benchObj){
-    let baseDiffChance = 0, changeRar = "", changeMag = "";
+    let changeRar = "", changeMag = ""; // baseDiffChance = 0,
 
-    if (Math.abs(benchObj.totalDiff) < 250) benchObj.standard = "Standard";
-
-    switch(benchObj.standard){
-        case "Above":
-            // -value
-            changeRar = "UP";
-            changeMag = "None";
-            if (benchObj.totalDiff < -5000){
-                // Highly above
-                changeMag = "Large";
-                baseDiffChance = 1;
-            } else if (benchObj.totalDiff < -2500){
-                // Above
-                changeMag = "Normal";
-                baseDiffChance = 0.5;
-            } else if (benchObj.totalDiff < -1000){
-                // Slightly Above
-                changeMag = "Small";
-                baseDiffChance = 0.25;
-            } else baseDiffChance = 0.15;
-        break;
-        case "Below":
-            // +value
-            changeRar = "DOWN";
-            changeMag = "None";
-            if (benchObj.totalDiff > 5000){
-                // Very Below
-                changeMag = "Large";
-                baseDiffChance = 1;
-            } else if (benchObj.totalDiff > 2500){
-                // Below
-                changeMag = "Normal";
-                baseDiffChance = 0.5;
-            } else if (benchObj.totalDiff > 1000){
-                // Slightly Below
-                changeMag = "Small";
-                baseDiffChance = 0.25;
-            } else baseDiffChance = 0.15;
-        break;
-        case "Standard":
-            // 0 Change
-            changeRar = (rollChance(0.5)) ? "UP": "DOWN";
-            changeMag = "None";
-            baseDiffChance = 0.01;
-        break;
+    if (!benchObj.prefix) {
+        loadBenchmarkerPrefixData(benchObj);
     }
+
+    changeMag = benchObj.prefix.changeMag;
+    changeRar = benchObj.prefix.changeRar;
+
+    // if (Math.abs(benchObj.totalDiff) < 250) benchObj.standard = "Standard";
+
+    // switch(benchObj.standard){
+    //     case "Above":
+    //         // -value
+    //         changeRar = "UP";
+    //         changeMag = "None";
+    //         if (benchObj.totalDiff < -5000){
+    //             // Highly above
+    //             changeMag = "Large";
+    //             baseDiffChance = 1;
+    //         } else if (benchObj.totalDiff < -2500){
+    //             // Above
+    //             changeMag = "Normal";
+    //             baseDiffChance = 0.5;
+    //         } else if (benchObj.totalDiff < -1000){
+    //             // Slightly Above
+    //             changeMag = "Small";
+    //             baseDiffChance = 0.25;
+    //         } else baseDiffChance = 0.15;
+    //     break;
+    //     case "Below":
+    //         // +value
+    //         changeRar = "DOWN";
+    //         changeMag = "None";
+    //         if (benchObj.totalDiff > 5000){
+    //             // Very Below
+    //             changeMag = "Large";
+    //             baseDiffChance = 1;
+    //         } else if (benchObj.totalDiff > 2500){
+    //             // Below
+    //             changeMag = "Normal";
+    //             baseDiffChance = 0.5;
+    //         } else if (benchObj.totalDiff > 1000){
+    //             // Slightly Below
+    //             changeMag = "Small";
+    //             baseDiffChance = 0.25;
+    //         } else baseDiffChance = 0.15;
+    //     break;
+    //     case "Standard":
+    //         // 0 Change
+    //         changeRar = (rollChance(0.5)) ? "UP": "DOWN";
+    //         changeMag = "None";
+    //         baseDiffChance = 0.01;
+    //     break;
+    // }
 
     //console.log('Base chance to mod rar: %d', baseDiffChance);
     //console.log('Direction of Rarity change: ', changeRar);
     //console.log('Magnitude of change: ', changeMag);
 
-    const changeRarCheck = rollChance(baseDiffChance);
+    // const changeRarCheck = rollChance(baseDiffChance);
 
     let normChoices = [];
-    if (changeRarCheck) {
-        switch(changeRar){
-            case "UP":
-                switch(changeMag){
-                    case "None":
-                        normChoices.push("Well");
-                    break;
-                    case "Small":
-                        normChoices.push("Finely");
-                    break;
-                    case "Normal":
-                        normChoices.push("Exquisitely");
-                    break;
-                    case "Large":
-                        normChoices.push("Perfectly");
-                    break;
-                }
-            break;
-            case "DOWN":
-                switch(changeMag){
-                    case "None":
-                        normChoices.push("Poorly");
-                    break;
-                    case "Small":
-                        normChoices.push("Badly");
-                    break;
-                    case "Normal":
-                        normChoices.push("Horribly");
-                    break;
-                    case "Large":
-                        normChoices.push("Awfully");
-                    break;
-                }
-            break;
-        }
-    } else changeRar = "NONE";
+    switch(changeRar){
+        case "UP":
+            switch(changeMag){
+                case "None":
+                    normChoices.push("Well");
+                break;
+                case "Small":
+                    normChoices.push("Finely");
+                break;
+                case "Normal":
+                    normChoices.push("Exquisitely");
+                break;
+                case "Large":
+                    normChoices.push("Perfectly");
+                break;
+            }
+        break;
+        case "DOWN":
+            switch(changeMag){
+                case "None":
+                    normChoices.push("Poorly");
+                break;
+                case "Small":
+                    normChoices.push("Badly");
+                break;
+                case "Normal":
+                    normChoices.push("Horribly");
+                break;
+                case "Large":
+                    normChoices.push("Awfully");
+                break;
+            }
+        break;
+    }
 
-    benchObj.prefix = {
-        changeRar,
-        changeMag
-    };
+    // benchObj.prefix = {
+    //     changeRar,
+    //     changeMag
+    // };
 
     const domMatType = (item.mats ?? item.staticMatTypes)[0];
 

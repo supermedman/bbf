@@ -111,6 +111,7 @@ async function rollRandBlueprint(user, bpList, interaction){
  * @returns {Promise <object | string>}
  */
 async function dropBlueprint(bpRef, user, interaction){
+    if (!bpRef) return;
     await checkHintViewBluey(user, interaction);
     const passiveCheck = (bpRef.PotionID) ? "Potion" : "Tool";
     switch(passiveCheck){

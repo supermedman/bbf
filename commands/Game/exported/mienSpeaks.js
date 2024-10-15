@@ -21,7 +21,7 @@ async function mienSpeaks(interaction, user, mienThumbnail){
     // ['Butt-Label', 'Mien Dialog'],
 
     const hasForge = async (user) => {
-        const isCrafted = await OwnedTools.findOne({where: {specs_id: user.userid, name: 'Machine Schematics'}});
+        const isCrafted = await OwnedTools.findOne({where: {spec_id: user.userid, name: 'Machine Schematics'}});
         return !!isCrafted;
     };
     const builtForge = async (user) => {

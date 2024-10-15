@@ -1042,8 +1042,12 @@ module.exports = {
 
 				const finalFields = [];
 				for (const matDropObj of matTypeList){
-					if (!matDropObj.matRef) throw new Error('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
-					//if (!matDropObj.matRef?.Rarity) console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
+					// if (!matDropObj.matRef) throw new Error('MISSING MATERIAL INFO, LOGGING MAT LIST: ', ...matTypeList);
+					if (!matDropObj.matRef) {
+						console.log('MISSING MATERIAL INFO, LOGGING MAT LIST: ', JSON.stringify(matTypeList));
+						continue;
+					}
+
 					finalFields.push({
 						name: `~= ${matDropObj.matRef.Rarity} Material =~`,
 						value: `Name: **__${matDropObj.matRef.Name}__**\nAmount Dropped: **${matDropObj.amount}**`
