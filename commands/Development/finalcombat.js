@@ -2,6 +2,10 @@ const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonBuilder, Butt
 
 const {chlkPreset, chalk} = require('../../chalkPresets');
 
+const {
+    handleCombatThreadingTest
+} = require('./Export/ThreadManagerTest');
+
 const { CombatInstance } = require('./Export/Classes/CombatLoader');
 const { EnemyFab } = require('./Export/Classes/EnemyFab');
 
@@ -651,6 +655,9 @@ module.exports = {
             return hpFields;
         }
 
-        preloadCombat();
+        await handleCombatThreadingTest(interaction).then(async threadOutcome => {
+            if (threadOutcome === 'Start Combat') preloadCombat();
+            else return;
+        });
 	},
 };

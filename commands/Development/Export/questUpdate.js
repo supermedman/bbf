@@ -294,35 +294,39 @@ async function handleClaimMilestone(user, interaction, userMilestone){
                 buttRow: loreButtRow
             };
 
-            const disTracker = ((butts) => {
-                // const pageNumStrSwitch = new Map([
-                //     [1, "one"],
-                //     [2, "two"],
-                //     [3, "three"],
-                //     [4, "four"],
-                //     [5, "five"]
-                // ]);
-                // const idExtract = (strMatch) => {
-                //     for (const [key, value] of pageNumStrSwitch){
-                //         if (strMatch === value) break;
-                //     }
-                // }
-                console.log(butts.map(butt => ({[`${butt.data.custom_id}`]: ~~butt.custom_id.split("-")[1]})));
-                
-                // [`${butts[0].data.custom_id}`]: {
-                //     shown: true
-                // },
-                const finalObj = {};
-                let buttCount = 1;
-                for (const button of butts){
-                    finalObj[`${button.data.custom_id}`] = {};
-                    finalObj[`${button.data.custom_id}`].shown = (buttCount === 1) ? true : false;
-                    buttCount++;
-                }
-                return finalObj;
-            })(loreMenu.buttList);
-
-            console.log(disTracker);
+            try {
+                const disTracker = ((butts) => {
+                    // const pageNumStrSwitch = new Map([
+                    //     [1, "one"],
+                    //     [2, "two"],
+                    //     [3, "three"],
+                    //     [4, "four"],
+                    //     [5, "five"]
+                    // ]);
+                    // const idExtract = (strMatch) => {
+                    //     for (const [key, value] of pageNumStrSwitch){
+                    //         if (strMatch === value) break;
+                    //     }
+                    // }
+                    console.log(butts.map(butt => ({[`${butt.data.custom_id}`]: +butt.data.custom_id.split("-")[1]})));
+                    
+                    // [`${butts[0].data.custom_id}`]: {
+                    //     shown: true
+                    // },
+                    const finalObj = {};
+                    let buttCount = 1;
+                    for (const button of butts){
+                        finalObj[`${button.data.custom_id}`] = {};
+                        finalObj[`${button.data.custom_id}`].shown = (buttCount === 1) ? true : false;
+                        buttCount++;
+                    }
+                    return finalObj;
+                })(loreMenu.buttList);
+    
+                console.log(disTracker);
+            } catch (e){
+                console.error(e);
+            }
 
             const replyObj = {embeds: [loreMenu.pageList[0]], components: [loreMenu.buttRow]};
 

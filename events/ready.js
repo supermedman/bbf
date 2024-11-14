@@ -42,7 +42,8 @@ const {
     GuildEvents,
     CraftControllers,
     LocalMarkets,
-    UserMaterials
+    UserMaterials,
+    CombatThreads
 } = require('../dbObjects.js');
 
 async function loadEarlyAccess(client){
@@ -157,6 +158,8 @@ module.exports = {
 
         LocalMarkets.sync();
         UserMaterials.sync();
+
+        CombatThreads.sync();
 
         try {
             loadEarlyAccess(client);

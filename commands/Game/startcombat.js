@@ -5,6 +5,10 @@ const { CombatInstance } = require('../Development/Export/Classes/CombatLoader')
 const { EnemyFab } = require('../Development/Export/Classes/EnemyFab');
 
 const {
+    handleCombatThreading
+} = require('./exported/combatThreadManager');
+
+const {
     loadPlayer,
     loadEnemy,
     loadDamageItems,
@@ -559,6 +563,9 @@ module.exports = {
             return (fail) ? await handleEnemyAttack(player, enemy) : "RELOAD";
         }
 
-        preloadCombat();
+        await handleCombatThreading(interaction).then(async threadOutcome => {
+            if (threadOutcome === 'Start Combat') preloadCombat();
+            else return;
+        });
     }
 };

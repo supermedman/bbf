@@ -78,7 +78,13 @@ async function enemyGrabbed(interaction, user) {
 
 
 async function handleXPSpawn(message, spawnChannelID){
-	const spawnLocation = (spawnChannelID === '0') ? message.channel : await message.guild.channels.fetch(spawnChannelID);
+	let spawnLocation;
+	try {
+		spawnLocation = (spawnChannelID === '0') ? message.channel : await message.guild.channels.fetch(spawnChannelID);
+	} catch(e) {
+		if (e.code !== 10003) console.error('Channel Not found!', e);
+		return;
+	}
 
 	const fightButton = new ButtonBuilder()
 	.setLabel("Fight!")
