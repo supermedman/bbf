@@ -951,8 +951,12 @@ class CombatInstance {
             this.potion.amount = potMatch.amount;
             this.potion.cd = potMatch.cooldown;
             this.potion.duration = potMatch.duration;
-            const potEffect = interaction.client.masterBPEffects.get(potMatch.name); // potMatch.name
-            this.potion.effectApplied = potEffect.Strength;
+            try {
+                const potEffect = interaction.client.masterBPEffects.get(potMatch.name); // potMatch.name
+                this.potion.effectApplied = potEffect.Strength;
+            } catch (e){
+                console.error('Something went wrong while loading potions: ', e);
+            }
             return;
         }
 

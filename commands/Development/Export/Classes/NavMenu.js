@@ -278,6 +278,10 @@ class NavMenu {
         return this.currentPagingPage;
     }
 
+    curPageIdx() {
+        return this.paging.curPage;
+    }
+
     /**
      * This function extracts the ``custom_id``'s from all ``ButtonBuilder`` & ``StringSelectMenuBuilder`` 
      * components within the given ``rows``. 

@@ -855,7 +855,10 @@ function generateItemEmbedField(item, itemExtra, showAmount, makeInline){
     let fieldName, fieldValue, fieldObj;
     fieldName = `>>__**${item.name}**__<<`;
 
+    //if (item.favorite) fieldName += ' ❤ **FAV**';
+
     fieldValue = `Value: **${makePrettyNum(item.value)}c**\nRarity: **${itemExtra.iRar}**\nHands: **${itemExtra.iCaste.Hands}**\nSlot: **${itemExtra.iSlot}**\n`;
+    if (item.favorite) fieldValue = '**❤ Favorited Item ❤**\n' + fieldValue;
     if (typeof showAmount === 'boolean' && showAmount === true) fieldValue += `Amount: **${item.amount}**\n`;
     else if (typeof showAmount === 'number' && showAmount >= 1) fieldValue += `Amount: **${showAmount}**\n`;
     switch(itemExtra.iSlot){

@@ -1,4 +1,4 @@
-const { ActionRowBuilder, EmbedBuilder, AttachmentBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { ActionRowBuilder, EmbedBuilder, AttachmentBuilder, SlashCommandBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require('discord.js');
 //const wait = require('node:timers/promises').setTimeout;
 const { grabColour } = require('./exported/grabRar.js');
 
@@ -113,6 +113,7 @@ module.exports = {
 
         let usePagination = false;
         const finalPages = [];
+        const pageDisplayData = [];
 
         // Used for material display
         const pagingMatData = {
@@ -153,6 +154,8 @@ module.exports = {
                 for (let i = 0; i < pageRun; i++){
                     const finalFields = [];
                     const curItemSection = fullUserItemList.slice(curRun, (i + 1 === pageRun) ? curRun + lastMaxRun : curRun + maxRun);
+
+                    pageDisplayData.push(curItemSection);
 
                     for (const dbItem of curItemSection){
                         finalFields.push(uni_displayItem(dbItem, "List"));
@@ -288,13 +291,40 @@ module.exports = {
 
         const finalReply = {embeds: [finalPages[0]], components: [pagingRow]};
 
+        if (subCom === 'gear'){
+            // Adding item name string select menu to `/myloot gear`
+            finalReply.components.push(loadDisplayedGearStringSelect(pageDisplayData[0]));
+        }
+
         const pageNav = new NavMenu(user, finalReply, finalReply.components, pagingMatData);
         if (subCom !== 'materials') pageNav.loadPageDisplays({embeds: finalPages});
         if (subCom === 'materials') pageNav.loadPagingMenu({embeds: pagingMatData.standard.embeds}, pagingMatData);
 
-        const {anchorMsg, collector} = await createInteractiveChannelMessage(interaction, 1200000, finalReply, "FollowUp");
+        const {anchorMsg, collector, sCollector} = await createInteractiveChannelMessage(interaction, 1200000, finalReply, "FollowUp", "Both");
 
         //let curPage = 0;
+
+        // ~~~~~~~~~~~~~~~~~~~~~
+        // STRING COLLECTOR (COLLECT)
+        sCollector.on('collect', async c => {
+            await c.deferUpdate().then(async () => {
+                if (c.customId === 'gear-mark-favorite'){
+                    // Marking gear as a favorite
+                    const itemNamePicked = c.values[0];
+                    const itemMatchRef = pageDisplayData[pageNav.curPageIdx()].find(i => i.name === itemNamePicked);
+
+                    if (itemMatchRef){
+                        const updateFavStateWith = itemMatchRef.favorite !== true;
+                        await itemMatchRef.update({ favorite: updateFavStateWith }).then(async i => await i.save()).then(async i => { return await i.reload(); });
+                    
+                        if (itemMatchRef.favorite === updateFavStateWith){
+                            await c.followUp({ content: `${itemMatchRef.name} has been marked and updated! To see these changes you will need to reload this menu.`, ephemeral: true });
+                        }
+                    }
+                }
+            }).catch(e => console.error(e));
+        });
+        // ~~~~~~~~~~~~~~~~~~~~~
 
         collector.on('collect', async c => {
             await c.deferUpdate().then(async () => {
@@ -305,6 +335,15 @@ module.exports = {
                     case "PAGE":
                         pageNav.handlePaging(c.customId);
                         editWith = pageNav.loadNextPage();
+                        if (subCom === 'gear') {
+                            //console.log('Contents stored for gear page: ', ...pageDisplayData[pageNav.curPageIdx()]);
+                        
+                            const nextGearDataPool = pageDisplayData[pageNav.curPageIdx()];
+                            const updatedGearStringSelect = loadDisplayedGearStringSelect(nextGearDataPool);
+
+                            editWith.components = [pagingRow, updatedGearStringSelect];
+                        }
+
                         if (subCom === 'materials'){    
                             /**@param {EmbedBuilder} e */
                             const displayingUniqueTypes = e => e.data.title.includes('HIDE THIS');
@@ -345,6 +384,7 @@ module.exports = {
                     return collector.stop('Canceled');
                     default:
                         console.log('I HEARD THIS: ', pageNav.whatDoYouHear(c.customId));
+                        pageNav.debugOutput();
                     break;
                 }
 
@@ -359,16 +399,18 @@ module.exports = {
             }).catch(e => console.error(e));
         });
 
+        // ~~~~~~~~~~~~~~~~~~~~~
+        // STRING COLLECTOR (END)
+        sCollector.on('end', async (c, r) => {
+            if (!r || r === 'time') return await handleCatchDelete(anchorMsg);
+        });
+        // ~~~~~~~~~~~~~~~~~~~~~
+
         collector.on('end', async (c, r) => {
             if (!r || r === 'time' || r === 'Canceled') {
                 await handleCatchDelete(anchorMsg);
                 pageNav.destroy();
             }
-            // anchorMsg.delete().catch(e => {
-            //     if (e.code !== 10008) {
-            //         console.error('Failed to delete the message:', e);
-            //     }
-            // });
         });
 
         /**
@@ -398,6 +440,34 @@ module.exports = {
             }
 
             return finalFields;
+        }
+
+        /**
+         * This function loads the displayed gear pages item data into a string select menu, allowing the user
+         * to select from and then mark a given item as a favorite. This works for marking and unmarking favorites
+         * @param {object[]} pageData Object Array containing upto 6 DB ItemString entries
+         * @returns {ActionRowBuilder<StringSelectMenuBuilder>}
+         */
+        function loadDisplayedGearStringSelect(pageData){
+            
+            const stringOptionList = [];
+            for (const displayedItem of pageData){
+                const option = new StringSelectMenuOptionBuilder()
+                .setValue(displayedItem.name)
+                .setDescription(`Mark ${displayedItem.name} as a favorite?`)
+                .setLabel(displayedItem.name);
+
+                stringOptionList.push(option);
+            }
+
+            const gearSelectMenu = new StringSelectMenuBuilder()
+            .setCustomId('gear-mark-favorite')
+            .setPlaceholder('Select an item to favorite it!')
+            .addOptions(stringOptionList);
+
+            const gearSelectRow = new ActionRowBuilder().addComponents(gearSelectMenu);
+
+            return gearSelectRow;
         }
 
         /**

@@ -42,6 +42,7 @@ const {
     GuildEvents,
     CraftControllers,
     LocalMarkets,
+    GlobalMarkets,
     UserMaterials,
     CombatThreads
 } = require('../dbObjects.js');
@@ -157,6 +158,7 @@ module.exports = {
         CraftControllers.sync();
 
         LocalMarkets.sync();
+        GlobalMarkets.sync();
         UserMaterials.sync();
 
         CombatThreads.sync();

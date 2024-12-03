@@ -112,6 +112,9 @@ module.exports = {
                     if (theItem.amount === 1) sellOne = true;
                 }
 
+                if (theItem.favorite) sellAll = true;
+                if (theItem.favorite && theItem.amount === 1) sellOne = true;
+
                 const sellOneButt = new ButtonBuilder()
                 .setLabel("Sell ONE")
                 .setStyle(ButtonStyle.Success)
@@ -150,9 +153,12 @@ module.exports = {
 
                 const pickedRarID = rarList.indexOf(rarPicked);
 
-                const fullItemList = await ItemStrings.findAll({
+                let fullItemList = await ItemStrings.findAll({
                     where: {user_id: interaction.user.id}
                 });
+
+                fullItemList = fullItemList.filter(i => !i.favorite);
+
                 loadCheck = await Loadout.findOne({
                     where: {
                         spec_id: interaction.user.id

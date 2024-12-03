@@ -1,7 +1,7 @@
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require("discord.js");
 const { spendUserCoins, updateUserCoins } = require("../../Development/Export/uni_userPayouts");
 const { checkOutboundItem, checkOutboundTownMat, checkOutboundMat, checkInboundTownMat, moveMaterial, checkInboundMat, moveItem, checkInboundItem } = require("../../Development/Export/itemMoveContainer");
-const { LocalMarkets, Town, ItemLootPool } = require("../../../dbObjects");
+const { LocalMarkets, Town, ItemLootPool, GlobalMarkets } = require("../../../dbObjects");
 const { Op } = require('sequelize');
 const { loadFullRarNameList, checkingRar, checkingSlot, uni_displayItem } = require("../../Development/Export/itemStringCore");
 const { makeCapital, grabUser, grabTown, sendTimedChannelMessage } = require("../../../uniHelperFunctions");
@@ -18,9 +18,18 @@ const { makeCapital, grabUser, grabTown, sendTimedChannelMessage } = require("..
  */
 async function handleBuyOrderSetup(buyOrderObject){
     buyOrderObject.isCrafted = false;
-    const finalOrder = await generateNewOrder(buyOrderObject);
 
-    const autoOutcome = await autofillOrderController(finalOrder, buyOrderObject);
+    const isGlobalOrder = buyOrderObject.orderType === 'Buy-Global';
+
+    const generateUsing = (isGlobalOrder) ? generateNewGlobalOrder : generateNewOrder;
+
+    // Auto format back to default sell value to allow continued usage of existing code
+    // * Cause lazy
+    buyOrderObject.orderType = 'Buy';
+
+    const finalOrder = await generateUsing(buyOrderObject);
+
+    const autoOutcome = await autofillOrderController(finalOrder, buyOrderObject, isGlobalOrder);
     console.log(autoOutcome);
 
     await spendUserCoins(buyOrderObject.perUnitPrice * buyOrderObject.amount, buyOrderObject.target);
@@ -56,10 +65,19 @@ async function handleBuyOrderSetup(buyOrderObject){
  */
 async function handleSellOrderSetup(sellOrderObject){
     // const orderObj = await generateNewOrder(sellOrderObject);
-    const finalOrder = await generateNewOrder(sellOrderObject);
+
+    const isGlobalOrder = sellOrderObject.orderType === 'Sell-Global';
+
+    const generateUsing = (isGlobalOrder) ? generateNewGlobalOrder : generateNewOrder;
+
+    // Auto format back to default sell value to allow continued usage of existing code
+    // * Cause lazy
+    sellOrderObject.orderType = 'Sell';
+
+    const finalOrder = await generateUsing(sellOrderObject);
     console.log('Final Sell Order Value Per Unit: %d', finalOrder.dataValues.listed_value);
 
-    const autoOutcome = await autofillOrderController(finalOrder, sellOrderObject);
+    const autoOutcome = await autofillOrderController(finalOrder, sellOrderObject, isGlobalOrder);
     console.log(autoOutcome);
 
     // Handle item transfers
@@ -110,6 +128,28 @@ async function handleSellOrderSetup(sellOrderObject){
 async function generateNewOrder(tradeObj){
     //console.log(`Outcomes from selling order: \n\nCrafted Object?: ${tradeObj.isCrafted}\nItem_Code: ${tradeObj.item.item_code}\n\n`);
     const newOrder = await LocalMarkets.create({
+        guildid: tradeObj.interRef.guild.id,
+        target_type: tradeObj.targetType,
+        target_id: tradeObj.targetID,
+        sale_type: tradeObj.orderType,
+        item_type: tradeObj.itemType,
+        item_id: tradeObj.itemID,
+        item_name: tradeObj.item.name ?? tradeObj.item.Name,
+        item_rar: tradeObj.rarity,
+        item_caste: tradeObj.item.caste_id ?? 0,
+        item_code: (tradeObj.itemType === 'Gear') ? tradeObj.item.item_code : 'None',
+        listed_value: tradeObj.perUnitPrice,
+        amount_left: tradeObj.amount
+    }).then(async o => await o.save()).then(async o => {return await o.reload()});
+
+    await updateOrderExpireTime(newOrder);
+
+    return newOrder;
+}
+
+
+async function generateNewGlobalOrder(tradeObj){
+    const newOrder = await GlobalMarkets.create({
         guildid: tradeObj.interRef.guild.id,
         target_type: tradeObj.targetType,
         target_id: tradeObj.targetID,
@@ -251,7 +291,7 @@ async function handleOrderTransfer(order, target, amount){
  * @param {object} infoObj Buy/Sell Order Object used for order creation and handles
  * @returns {Promise <void>}
  */
-async function autofillOrderController(order, infoObj){
+async function autofillOrderController(order, infoObj, isGlobal=false){
     // IF NEW ORDER IS BUY ORDER
     // Sell order Vals to check 
     // ~===~              ~===~
@@ -318,6 +358,9 @@ async function autofillOrderController(order, infoObj){
     const inverseSaleType = (infoObj.orderType === 'Buy') ? "Sell" : "Buy"; 
     // Could also use ``{guildid: infoObj.interRef.guild.id}`` here.
     let localOrderFilterList = await LocalMarkets.findAll({where: {guildid: order.guildid, sale_type: inverseSaleType}});
+    if (isGlobal){
+        localOrderFilterList = await GlobalMarkets.findAll({ where: { sale_type: inverseSaleType } });
+    }
     if (localOrderFilterList.length === 0) return `No Local ${inverseSaleType} Orders`;
 
     const sellPriceFilter = (checkVal) => checkVal >= order.listed_value;

@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         }, // Item String Code
+        favorite: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: 0,
+        },
         caste_id: {
             type: DataTypes.INTEGER,
             allowNull: false

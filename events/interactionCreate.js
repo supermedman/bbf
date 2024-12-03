@@ -75,11 +75,11 @@ module.exports = {
 						return await g.channels.fetch("1282130653608935476");
 					}).catch(e => console.error('Failed to retrieve logging channel: ', e));
 
-					const subComGroupUsed = (interaction.options.__group) 
+					const subComGroupUsed = (interaction.options.getSubcommandGroup()) 
 					? interaction.options.getSubcommandGroup()
 					: "None";
 
-					const subComUsed = (interaction.options.__subcommand) 
+					const subComUsed = (interaction.options.getSubcommand()) 
 					? interaction.options.getSubcommand()
 					: "None";
 

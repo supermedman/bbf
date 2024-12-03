@@ -111,6 +111,9 @@ module.exports = {
                     if (theItem.amount === 1) disOne = true;
                 }
 
+                if (theItem.favorite) disAll = true;
+                if (theItem.favorite && theItem.amount === 1) disOne = true;
+
                 const disOneButt = new ButtonBuilder()
                 .setLabel("Dismantle ONE")
                 .setStyle(ButtonStyle.Success)
@@ -149,9 +152,12 @@ module.exports = {
 
                 const pickedRarID = rarList.indexOf(rarPicked);
 
-                const fullItemList = await ItemStrings.findAll({
+                let fullItemList = await ItemStrings.findAll({
                     where: {user_id: interaction.user.id}
                 });
+
+                fullItemList = fullItemList.filter(i => !i.favorite);
+
                 loadCheck = await Loadout.findOne({
                     where: {
                         spec_id: interaction.user.id

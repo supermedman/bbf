@@ -60,7 +60,7 @@ const GuildEvents = require('./events/Models/GuildEvents')(sequelize, Sequelize.
 const CraftControllers = require('./events/Models/CraftControllers')(sequelize, Sequelize.DataTypes);
 
 const LocalMarkets = require('./events/Models/LocalMarkets')(sequelize, Sequelize.DataTypes);
-//const GlobalMarkets = require('./events/Models/GlobalMarkets')(sequelize, Sequelize.DataTypes);
+const GlobalMarkets = require('./events/Models/GlobalMarkets')(sequelize, Sequelize.DataTypes);
 
 const UserMaterials = require('./events/Models/UserMaterials')(sequelize, Sequelize.DataTypes);
 
@@ -134,6 +134,7 @@ module.exports = {
 	GuildEvents,
 	CraftControllers,
 	LocalMarkets,
+	GlobalMarkets,
 	UserMaterials,
 	CombatThreads
 };
