@@ -127,11 +127,11 @@ async function handleEnemyMat(enemy, userid, matFiles, interaction){
 
     const matEventActive = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "MAT");
 
-    console.log('Materials Dropped before event: %d', droppedMats);
+    //console.log('Materials Dropped before event: %d', droppedMats);
 
     if (matEventActive && matEventActive > 0) droppedMats += Math.round(droppedMats * matEventActive);
 
-    console.log('Materials Dropped after event: %d', droppedMats);
+    //console.log('Materials Dropped after event: %d', droppedMats);
 
     // Deposit material here
     const theMat = await checkInboundMat(userid, pickedMaterial, pickedMatType, droppedMats);

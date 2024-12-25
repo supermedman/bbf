@@ -81,13 +81,13 @@ async function handleUserPayout(xp, coin, interaction, user){
     const xpActiveEvent = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "EXP"), 
     coinActiveEvent = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "COIN");
 
-    console.log('Active events, EXP: %d, COIN: %d', xpActiveEvent, coinActiveEvent);
-    console.log('XP & COIN before events, XP: %d, COIN: %d', xp, coin);
+    //console.log('Active events, EXP: %d, COIN: %d', xpActiveEvent, coinActiveEvent);
+    //console.log('XP & COIN before events, XP: %d, COIN: %d', xp, coin);
 
     if (xpActiveEvent && xpActiveEvent > 0) xp += xp * xpActiveEvent;
     if (coinActiveEvent && coinActiveEvent > 0) coin += coin * coinActiveEvent;
 
-    console.log('XP & COIN after events, XP: %d, COIN: %d', xp, coin);
+    //console.log('XP & COIN after events, XP: %d, COIN: %d', xp, coin);
 
     let totalXP = Math.round(user.xp + xp);
     let newLevel = user.level;
