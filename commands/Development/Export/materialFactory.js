@@ -4,10 +4,10 @@ const {checkInboundMat} = require('./itemMoveContainer');
 const { grabRar, grabColour } = require('../../Game/exported/grabRar');
 const {checkUser, checkHintMaterialView, checkHintMaterialUnique} = require('../../Game/exported/handleHints');
 const newEList = require('./Json/newEnemyList.json');
-const { Town, CraftControllers } = require('../../../dbObjects');
+const { Town, CraftControllers, GameEvents } = require('../../../dbObjects');
 const { EnemyFab } = require('./Classes/EnemyFab');
 
-const {randArrPos, grabUser, makePrettyNum} = require('../../../uniHelperFunctions');
+const {randArrPos, grabUser, makePrettyNum, findAndApplyActiveEvents } = require('../../../uniHelperFunctions');
  
 // Materials from enemy kills
 /**
@@ -37,8 +37,13 @@ async function handleEnemyMat(enemy, userid, matFiles, interaction){
         const uniqueMaterialMatch = materials.get('unique').find(mat => mat.UniqueMatch === enemyRef.UniqueType);
         await checkHintMaterialUnique(user, interaction);
 
-        const usersUniqueMat = await checkInboundMat(userid, uniqueMaterialMatch, enemyRef.UniqueType, 1);
-        const uniFieldValue = `Value **${makePrettyNum(usersUniqueMat.value)}c**\nType: **${enemyRef.UniqueType}**\nRarity: **${usersUniqueMat.rarity}**\nAmount Dropped: **1**`;
+        const uniMatEventActive = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "MAT_UNIQUE");
+
+        let baseUniMats = 1;
+        if (uniMatEventActive && uniMatEventActive > 0) baseUniMats += baseUniMats * uniMatEventActive;
+
+        const usersUniqueMat = await checkInboundMat(userid, uniqueMaterialMatch, enemyRef.UniqueType, baseUniMats);
+        const uniFieldValue = `Value **${makePrettyNum(usersUniqueMat.value)}c**\nType: **${enemyRef.UniqueType}**\nRarity: **${usersUniqueMat.rarity}**\nAmount Dropped: **${baseUniMats}**`;
         const uniDisplayColour = grabColour(12);
         
         const uniqueMatEmbed = new EmbedBuilder()
@@ -120,6 +125,14 @@ async function handleEnemyMat(enemy, userid, matFiles, interaction){
     // Check for material hint
     await checkHintMaterialView(user, interaction);
 
+    const matEventActive = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "MAT");
+
+    console.log('Materials Dropped before event: %d', droppedMats);
+
+    if (matEventActive && matEventActive > 0) droppedMats += Math.round(droppedMats * matEventActive);
+
+    console.log('Materials Dropped after event: %d', droppedMats);
+
     // Deposit material here
     const theMat = await checkInboundMat(userid, pickedMaterial, pickedMatType, droppedMats);
 
@@ -127,6 +140,7 @@ async function handleEnemyMat(enemy, userid, matFiles, interaction){
 
     let matFieldVal = `Value **${makePrettyNum(theMat.value)}c**\nType: **${pickedMatType}**\nRarity: **${theMat.rarity}**\nAmount Dropped: **${droppedMats}**`;
     if (theTown !== 'None' && matBonus > 0) matFieldVal += `\n\nThe Town of **${theTown.name}** gives **+${matBonus}** **${theMat.name}**`;
+    if (matEventActive && matEventActive > 0) matFieldVal += `\nActive Game Events provide an additional **${Math.round(droppedMats * matEventActive)}** materials!!`;
     const embedColour = grabColour(pickedRarity);
     // console.log(embedColour);
 

@@ -3,7 +3,7 @@
         "StoryLine": 1,
         "StoryPart": 1,
 
-        "Lore": "While clearing out the cultists you manage to extort information, finding references to an unknown location.\nDepicted throughout their lair are muirals and alters giving thanks and ritual to their god.\nYour dilligent searching comes with reward providing you a map marked with a location!",
+        "Lore": "While clearing out the cultists you manage to extort information, finding references to an unknown location.\nDepicted throughout their lair are murals and alters giving thanks and ritual to their god.\nYour dilligent searching comes with reward providing you a map marked with a location!",
 
         "QuestID": 5
 
@@ -21,7 +21,7 @@
         "StoryLine": 1,
         "StoryPart": 3,
 
-        "Lore": "After hours of gruling battles and slaying you secure the surroundings.\nYou are now ready to enter the dungeon of souls, ruled by ``Wadon``!",
+        "Lore": "After hours of grueling battles and slaying you secure the surroundings.\nYou are now ready to enter the dungeon of souls, ruled by ``Wadon``!",
 
         "QuestID": 10
 
@@ -39,7 +39,7 @@
         "StoryLine": 2,
         "StoryPart": 2,
 
-        "Lore": "During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.\nDeciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!\nYou follow them for what feels days through forested trails, the warmth of the morning sun slowly growing a distant memory... \nThere is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.\nYou grow tired of waiting, your weapon grows weary from lack of bloodshed...",
+        "Lore": "During your investigation of this lightless town you come across a roaming band of cultists, they all wear the same unfamiliar mark upon their robes.\nDeciding not to engage them in combat but instead following along behind hoping to uncover their intentions and maybe even learn of what happened to the town!\nYou follow them for what feels like days through forested trails, the warmth of the morning sun slowly growing a distant memory... \nThere is a strange magic in the air around these cultists, and thankfully that uneasy feeling dissipates once you reach their camp.\nYou grow tired of waiting, your weapon grows weary from lack of bloodshed...",
 
         "QuestID": 13
 

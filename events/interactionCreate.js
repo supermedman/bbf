@@ -18,7 +18,7 @@ module.exports = {
 				return;
 			}
 
-			if (!['start', 'setup', 'invite', 'channel'].includes(command.data.name)){
+			if (!['start', 'setup', 'invite', 'channel', 'help'].includes(command.data.name)){
 				const userCheck = await UserData.findOne({where: {userid: interaction.user.id}});
 				if (!userCheck) return await interaction.reply("Please use the command ``/start`` to create a user profile!");
 				

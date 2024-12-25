@@ -90,7 +90,7 @@ const loadCombButts = (player) => {
 };
 
 module.exports = {
-	cooldown: 60,
+	cooldown: 15,
 	helptypes: ['Combat', 'Story', 'Quest', 'Level', 'Blueprint', 'Payout'],
 	data: new SlashCommandBuilder()
 	.setName('dungeon')

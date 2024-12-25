@@ -314,7 +314,7 @@ module.exports = {
 
             const user = await grabUser(player.userId);
 
-            await handleUserPayout(xpGain, coinGain, interaction, user);
+            const moddedUserPayouts = await handleUserPayout(xpGain, coinGain, interaction, user);
 
             if (dropChance(0.94)){
                 await rollRandBlueprint(user, interaction.client.masterBPCrafts, interaction);
@@ -364,8 +364,8 @@ module.exports = {
             .setColor(0o0)
             .setDescription("Your rewards: ")
             .addFields(
-                {name: "Xp Gained: ", value: `${makePrettyNum(xpGain)}`, inline: true},
-                {name: "Coins Gained: ", value: `${makePrettyNum(coinGain)}c`, inline: true}
+                {name: "Xp Gained: ", value: `${makePrettyNum(moddedUserPayouts.x)}`, inline: true},
+                {name: "Coins Gained: ", value: `${makePrettyNum(moddedUserPayouts.c)}c`, inline: true}
             );
 
             

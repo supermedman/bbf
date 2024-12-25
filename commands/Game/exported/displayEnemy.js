@@ -891,7 +891,7 @@ async function displayBossPic(enemy) {
     const canvas = Canvas.createCanvas(700, 300);
     const ctx = canvas.getContext('2d');
 
-    const background = await Canvas.loadImage('./events/Models/json_prefabs/weapon_png/Dungeon-background.jpg');
+    const background = await Canvas.loadImage('./events/Models/json_prefabs/Building-Textures/Dungeon-Backgrounds/Dungeon_of_Souls.png');
 
     // This uses the canvas dimensions to stretch the image onto the entire canvas
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);

@@ -51,6 +51,27 @@ const makePrettyNum = n => {
     return new Intl.NumberFormat('en-US').format(n);
 };
 
+
+const findAndApplyActiveEvents = (activeEventList, matchType) => {
+    const validEventMatches = ["EXP", "COIN", "MAT", "MAT_UNIQUE", "ITEM", "LUCK"];
+    if (!activeEventList.length || !validEventMatches.includes(matchType)) return false;
+
+    let eventModifierCollector = 0;
+    for (const event of activeEventList){
+        if (!'event_details' in event) continue;
+
+        const eventDetails = JSON.parse(event.event_details);
+        // console.log(eventDetails);
+        const eventModifierIndex = eventDetails.Effect.findIndex(ele => ele === matchType);
+        if (eventModifierIndex === -1) continue;
+    
+        eventModifierCollector += eventDetails.Value[eventModifierIndex];
+    }
+
+    return eventModifierCollector;
+}
+
+
 const checkLootDrop = (pigmy, user) => {
     let chanceToBeat = 0.850;
     if (user.pClass === 'Thief') chanceToBeat -= 0.10;
@@ -615,6 +636,7 @@ module.exports = {
     dropChance,
     makeCapital,
     makePrettyNum,
+    findAndApplyActiveEvents,
     checkLootDrop,
     checkLootUP,
     endTimer,

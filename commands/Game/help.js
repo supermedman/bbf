@@ -11,7 +11,7 @@ module.exports = {
     .setDescription('Basic tips, tricks, and assistance!'),
 	async execute(interaction) {
 		// if (interaction.user.id !== '501177494137995264') return await interaction.reply({content: 'This command is under construction! Please check back later!'});
-		const user = await grabUser(interaction.user.id);
+		const user = { userid: interaction.user.id };
 
 		// Help categories
 		// ===============

@@ -40,9 +40,9 @@ module.exports = {
 
 	},
 	async execute(interaction) { 
-        const {betaTester} = interaction.client;
+        // const {betaTester} = interaction.client;
 
-		if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
+		// if (!betaTester.has(interaction.user.id)) return await interaction.reply('This command is under construction!! It is currently only available to early access testers!');
 
 		const user = await UserData.findOne({where: {userid: interaction.user.id}});
 		if (!user) return await interaction.reply("No user data found, please create a profile using ``/start``!");

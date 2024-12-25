@@ -1,8 +1,8 @@
 const { EmbedBuilder } = require("discord.js");
-const { sendTimedChannelMessage } = require("../../../uniHelperFunctions");
+const { sendTimedChannelMessage, findAndApplyActiveEvents } = require("../../../uniHelperFunctions");
 const { checkHintLevelOneHundred, checkHintLevelThirty, checkHintLevelFive } = require("../../Game/exported/handleHints");
 const { checkUnlockedBluey } = require("../../Game/exported/createBlueprint");
-const { Pighouse, Milestones, ActiveDungeon, ActiveStatus } = require("../../../dbObjects");
+const { Pighouse, Milestones, ActiveDungeon, ActiveStatus, GameEvents } = require("../../../dbObjects");
 const {chlkPreset} = require('../../../chalkPresets');
 const { checkLevelBlueprint } = require("./blueprintFactory");
 
@@ -44,7 +44,7 @@ const pigLvlScaleCheck = (level) => {
  * @param {number} coin New coins to be added
  * @param {object} interaction Discord Interaction Object
  * @param {object} user UserData DB Instance Entry Object
- * @returns {promise <void>}
+ * @returns {promise <{ x: number, c: number }>}
  */
 async function handleUserPayout(xp, coin, interaction, user){
     // MOVE TO FUNCTION ================
@@ -75,6 +75,19 @@ async function handleUserPayout(xp, coin, interaction, user){
         xp *= boostCollecter.exp;
     }
     // MOVE TO FUNCTION ================
+
+    // Applying Active Game Events
+
+    const xpActiveEvent = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "EXP"), 
+    coinActiveEvent = findAndApplyActiveEvents((await GameEvents.findAll()).filter(event => event.active), "COIN");
+
+    console.log('Active events, EXP: %d, COIN: %d', xpActiveEvent, coinActiveEvent);
+    console.log('XP & COIN before events, XP: %d, COIN: %d', xp, coin);
+
+    if (xpActiveEvent && xpActiveEvent > 0) xp += xp * xpActiveEvent;
+    if (coinActiveEvent && coinActiveEvent > 0) coin += coin * coinActiveEvent;
+
+    console.log('XP & COIN after events, XP: %d, COIN: %d', xp, coin);
 
     let totalXP = Math.round(user.xp + xp);
     let newLevel = user.level;
@@ -126,7 +139,7 @@ async function handleUserPayout(xp, coin, interaction, user){
 
     await updateUserBasics(totalXP, totalCoin, newLevel, user);
 
-    return;
+    return { x: Math.round(xp), c: Math.round(coin) };
 }
 
 /**

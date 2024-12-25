@@ -34,7 +34,7 @@ async function handleCombatThreading(interaction){
             ephemeral: true
         },
         async mentionUser(user){
-            await this.thread.send(`<@${user.id}>`);
+            await this.thread.send(`<@${user.id}> Use the command \`/startcombat\` to start combat!`);
         }
     };
 
