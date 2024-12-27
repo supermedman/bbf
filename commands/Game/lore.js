@@ -134,9 +134,7 @@ module.exports = {
 							value: storyObj.Lore 
 						}
 					);
-
-					embed.
-
+					
 					embedPages.push(embed);
 				}
 			}
